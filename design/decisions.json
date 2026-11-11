@@ -1,0 +1,101 @@
+{
+  "version": 1,
+  "inputs": {
+    "sourceColor": "#0246ff",
+    "conformanceLevel": "AA"
+  },
+  "decisions": [
+    {
+      "id": "context.product-type",
+      "layer": "context",
+      "kind": "judgment",
+      "value": "application",
+      "source": "repo"
+    },
+    {
+      "id": "accessibility.conformance-level",
+      "layer": "accessibility",
+      "kind": "standard",
+      "value": "AA",
+      "source": "proposed"
+    },
+    {
+      "id": "foundations.source-color",
+      "layer": "foundations",
+      "kind": "judgment",
+      "value": "#0246ff",
+      "source": "proposed"
+    },
+    {
+      "id": "foundations.tonal-palette",
+      "layer": "foundations",
+      "kind": "formula",
+      "value": "14 tones",
+      "check": {
+        "kind": "generated"
+      }
+    },
+    {
+      "id": "foundations.color-role.primary.light",
+      "layer": "foundations",
+      "kind": "formula",
+      "value": "oklch(0.51 0.274 263.68)",
+      "check": {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--primary",
+        "background": "--background",
+        "min": 4.5
+      }
+    },
+    {
+      "id": "foundations.color-role.on-primary.light",
+      "layer": "foundations",
+      "kind": "formula",
+      "value": "oklch(0.985 0 0)",
+      "check": {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--primary-foreground",
+        "background": "--primary",
+        "min": 4.5
+      }
+    },
+    {
+      "id": "foundations.color-role.primary.dark",
+      "layer": "foundations",
+      "kind": "formula",
+      "value": "oklch(0.608 0.211 263.68)",
+      "check": {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--primary",
+        "background": "--background",
+        "min": 4.5
+      }
+    },
+    {
+      "id": "foundations.color-role.on-primary.dark",
+      "layer": "foundations",
+      "kind": "formula",
+      "value": "oklch(0.205 0 0)",
+      "check": {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--primary-foreground",
+        "background": "--primary",
+        "min": 4.5
+      }
+    },
+    {
+      "id": "conformance.gate",
+      "layer": "conformance",
+      "kind": "standard",
+      "value": "make-check",
+      "source": "proposed",
+      "check": {
+        "kind": "gate"
+      }
+    }
+  ]
+}

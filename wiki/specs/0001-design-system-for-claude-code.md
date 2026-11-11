@@ -1,7 +1,7 @@
 ---
 type: spec
 title: Plugin dẫn người dùng dựng design system cho Claude Code
-status: needs-approval
+status: approved
 tier: 1
 links:
   - wiki/decisions/0003-plugin-inside-the-repo.md
@@ -17,9 +17,9 @@ sources:
 
 # 0001 Plugin dẫn người dùng dựng design system cho Claude Code
 
-Bản nháp thứ ba, 2026-11-11. Chủ kho đã thống nhất hai điều (quyết định 0004): output là một plugin
-dẫn dắt, và từ vựng lấy trọn từ chuẩn của ngành. Phần tiêu chí và kế hoạch dưới đây chờ chủ kho
-duyệt. Hai bản nháp trước nằm trong lịch sử git của tệp này.
+Bản thứ ba, chủ kho duyệt ngày 2026-11-11. Hai điều đã thống nhất trước đó nằm ở quyết định 0004:
+output là một plugin dẫn dắt, và từ vựng lấy trọn từ chuẩn của ngành. Hai bản nháp trước nằm trong
+lịch sử git của tệp này. Lát đầu đã dựng; kết quả theo từng tiêu chí ở mục «Kết quả lát đầu».
 
 ## Intent
 
@@ -43,18 +43,18 @@ năng. Plugin này đi từ sàn lên một design system.
 Người quyết từ trên xuống, máy dựng từ dưới lên. Tầng chỉ có một đáp án hợp lý thì máy tự đi và báo
 một dòng.
 
-| Tầng                 | Quyết định gì                                                        | Ai trả lời                                   | Máy giữ bằng                                     |
-| -------------------- | -------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------ |
-| Context              | Sản phẩm là công cụ làm việc hay trang đọc; nền kỹ thuật             | Người                                        | Decision record                                  |
-| Foundations          | Theme: seed color, type scale, spacing scale, shape, density, motion | Người chọn theme; máy tính các design tokens | Hàm thuần; contrast ratio và target size tự kiểm |
-| Components           | Bộ core components; variant và state của từng cái                    | Máy đề xuất, người có quyền bác              | Kiểu đóng: sai thì không biên dịch               |
-| Interaction patterns | Empty, loading, error state; lưu; destructive action                 | Máy, theo chuẩn có sẵn                       | State bắt buộc trong kiểu                        |
-| Content guidelines   | Voice and tone, từ vựng nghiệp vụ, localization                      | Người                                        | Một nguồn nhãn, một hàm định dạng, design lint   |
-| Templates            | Những template nào sản phẩm cần                                      | Người chọn trong danh sách đóng              | Một reference implementation cho mỗi template    |
-| Accessibility        | Conformance level                                                    | Máy: AA, người có quyền bác                  | Kiểm trên màn đang chạy                          |
-| Conformance          | Design lint, visual regression                                       | Máy                                          | Mỗi luật có ca đỏ và ca xanh                     |
-| Distribution         | Registry và component manifest                                       | Máy                                          | Manifest sinh từ mã, có bước so                  |
-| Governance           | Recipes, snowflakes, graduation, optical adjustment                  | Máy đặt sổ; người ghi lý do khi dùng         | Ngoại lệ không lý do thì bị chặn                 |
+| Tầng                 | Quyết định gì                                                          | Ai trả lời                                   | Máy giữ bằng                                     |
+| -------------------- | ---------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------ |
+| Context              | Sản phẩm là công cụ làm việc hay trang đọc; nền kỹ thuật               | Người                                        | Decision record                                  |
+| Foundations          | Theme: source color, type scale, spacing scale, shape, density, motion | Người chọn theme; máy tính các design tokens | Hàm thuần; contrast ratio và target size tự kiểm |
+| Components           | Bộ core components; variant và state của từng cái                      | Máy đề xuất, người có quyền bác              | Kiểu đóng: sai thì không biên dịch               |
+| Interaction patterns | Empty, loading, error state; lưu; destructive action                   | Máy, theo chuẩn có sẵn                       | State bắt buộc trong kiểu                        |
+| Content guidelines   | Voice and tone, từ vựng nghiệp vụ, localization                        | Người                                        | Một nguồn nhãn, một hàm định dạng, design lint   |
+| Templates            | Những template nào sản phẩm cần                                        | Người chọn trong danh sách đóng              | Một reference implementation cho mỗi template    |
+| Accessibility        | Conformance level                                                      | Máy: AA, người có quyền bác                  | Kiểm trên màn đang chạy                          |
+| Conformance          | Design lint, visual regression                                         | Máy                                          | Mỗi luật có ca đỏ và ca xanh                     |
+| Distribution         | Registry và component manifest                                         | Máy                                          | Manifest sinh từ mã, có bước so                  |
+| Governance           | Recipes, snowflakes, graduation, optical adjustment                    | Máy đặt sổ; người ghi lý do khi dùng         | Ngoại lệ không lý do thì bị chặn                 |
 
 Người trả lời bốn loại câu hỏi: Context, theme, Content guidelines, Templates.
 
@@ -90,7 +90,7 @@ minh một linh kiện.
    Context, Foundations (chỉ phần màu của theme), Conformance.
 2. Có hai độ sâu như lệnh dựng kho của Repo Standards: giao hết cho Claude, hoặc dừng ở từng tầng.
 3. Mỗi tầng ghi một decision record vào kho người dùng: chọn gì, vì sao, đã loại gì.
-4. Từ seed color, máy tính tonal palette và các color role bằng hàm thuần: cùng đầu vào thì ra
+4. Từ source color, máy tính tonal palette và các color role bằng hàm thuần: cùng đầu vào thì ra
    cùng kết quả từng byte. Mỗi cặp chữ và nền có bài kiểm contrast ratio từng đỏ.
 5. Mọi tên tầng, tên lựa chọn và câu hỏi mà lệnh đưa ra đều có trong bảng từ vựng. Bảng từ vựng
    không còn dòng nào ở mức `unchecked`.
@@ -101,6 +101,29 @@ minh một linh kiện.
 
 Đo token theo giao thức của Repo Standards để dành cho lát sau, khi cuộc dẫn dắt đã tới Templates.
 
+## Kết quả lát đầu
+
+Dựng ngày 2026-11-11. Lát đầu đi bốn tầng thay vì ba: thêm Accessibility, vì ngưỡng contrast ratio
+của Foundations lấy từ conformance level.
+
+| Tiêu chí                       | Kết quả      | Căn cứ                                                                                                                                       |
+| ------------------------------ | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1. Một lệnh đi hết các tầng    | Một phần     | Lệnh dẫn dắt đã viết (`skills/new`). Phần máy chạy được. Chưa cài plugin vào một phiên Claude Code mới để chạy thử cả cuộc dẫn dắt           |
+| 2. Hai độ sâu                  | Chưa kiểm    | Có trong lệnh dẫn dắt, chưa chạy thử                                                                                                         |
+| 3. Decision record từng tầng   | Đạt          | `design/decisions/*.md`, sinh từ blueprint                                                                                                   |
+| 4. Hàm thuần, contrast từng đỏ | Đạt          | Chạy hai lần ra cùng văn bản; 7 source color × 2 conformance level đều đạt ngưỡng khi đọc lại từ stylesheet                                  |
+| 5. Từ vựng                     | Đạt một phần | Tên tầng và tên lựa chọn có bài kiểm; không còn dòng `unchecked`. Câu hỏi trong lệnh dẫn dắt chỉ được chặn bằng danh sách từ cần tránh       |
+| 6. Lệnh chấm                   | Đạt          | `make design-rate`: 6/9 ở kho này. Lệnh kiểm không thể đỏ thì bị báo, không được tính                                                        |
+| 7. Chạy lại không đổi gì       | Đạt          | Bài kiểm chạy hai lần; ở kho này chạy thêm sau `make format` vẫn không đổi                                                                   |
+| 8. Bài kiểm dựng kho trống     | Một phần     | Kho tạm dùng stylesheet và Makefile thật của kho này, chạy trọn apply và các lệnh kiểm. Cổng kiểm đầy đủ chỉ chạy ở reference implementation |
+
+Ba điều tìm ra khi dựng:
+
+- Màu sau khi làm tròn có thể vượt khỏi dải màn hình hiển thị được. Giá trị ghi ra nay được cắt sau
+  khi làm tròn, để trình duyệt vẽ đúng giá trị mà lệnh kiểm đã tính.
+- Lệnh kiểm chạy qua một đường dẫn liên kết thì thoát êm mà không kiểm gì. Đã sửa và có bài kiểm.
+- Material Design 3 gọi là source color; «seed» là từ của Flutter. Đã đổi theo Material.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.
@@ -109,7 +132,7 @@ Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối 
 
 1. Tra lại nguồn cho các dòng `unchecked` trong bảng từ vựng.
 2. Viết trang hướng dẫn cho ba tầng của lát đầu, theo khuôn trang tầng của Repo Standards.
-3. Hàm tính màu từ seed color, kèm bài kiểm tất định và bài kiểm contrast ratio.
+3. Hàm tính màu từ source color, kèm bài kiểm tất định và bài kiểm contrast ratio.
 4. Lệnh dẫn dắt: đọc tầng, hỏi, ghi decision record, gọi hàm tính, ghi tệp.
 5. Lệnh chấm determinism rate.
 6. Bài kiểm dựng kho trống và chạy trọn đường.
@@ -130,8 +153,12 @@ nghiệm thu nằm ngoài kho này. Phép đo tốn tiền API cần chủ kho c
 
 - Lớp hình của components: giữ bộ linh kiện đang có ở sàn, hay vẽ lại trên headless components?
   Lát đầu chưa chạm tới.
-- Cách dữ liệu quyết định hiển thị (kiểu cột tiền, ngày, người) chưa có tên chuẩn của ngành trong
-  bảng từ vựng. Cần tìm tên trước khi thành một tầng.
+- Cách dữ liệu quyết định hiển thị (kiểu cột tiền, ngày, người): đã tra, ngành không có một tên
+  chung. Polaris gọi «column content types», MUI gọi «column types», AG Grid gọi «cell data types».
+  Bảng từ vựng tạm dùng «column type». Chủ kho chọn tên khi việc này thành một tầng.
+- Mức AAA dùng ngưỡng 7:1 cho chữ. Con số này máy nhớ từ WCAG 1.4.6, chưa đọc lại nguồn.
+- Màu chính giữ nguyên source color khi đạt ngưỡng. Material Design thì lấy một tone cố định của
+  palette. Hai cách cho hai màu nút khác nhau; hiện theo cách của sàn Repo Standards.
 - Iconography, biểu đồ và luật motion chưa nằm trong lát nào.
 - Kho chưa có sàn của Repo Standards thì cuộc dẫn dắt làm gì: từ chối, hay đặt sàn trước?
 - Plugin này không chạm phần làm lại do bài kiểm và hạ tầng, và không trả lời được trải nghiệm có

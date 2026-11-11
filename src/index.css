@@ -129,3 +129,31 @@
     @apply font-sans;
   }
 }
+
+/* design-assembly:tokens:start - generated from design/blueprint.json. Do not edit: run the guide again. */
+:root {
+  --palette-primary-0: oklch(0 0.088 263.68);
+  --palette-primary-10: oklch(0.241 0.17 263.68);
+  --palette-primary-20: oklch(0.327 0.189 263.68);
+  --palette-primary-30: oklch(0.416 0.233 263.68);
+  --palette-primary-40: oklch(0.505 0.274 263.68);
+  --palette-primary-50: oklch(0.581 0.228 263.68);
+  --palette-primary-60: oklch(0.661 0.179 263.68);
+  --palette-primary-70: oklch(0.744 0.131 263.68);
+  --palette-primary-80: oklch(0.829 0.084 263.68);
+  --palette-primary-90: oklch(0.914 0.041 263.68);
+  --palette-primary-95: oklch(0.957 0.02 263.68);
+  --palette-primary-98: oklch(0.983 0.008 263.68);
+  --palette-primary-99: oklch(0.991 0.004 263.68);
+  --palette-primary-100: oklch(1 0 263.68);
+  --primary: oklch(0.51 0.274 263.68);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.51 0.274 263.68);
+}
+
+.dark {
+  --primary: oklch(0.608 0.211 263.68);
+  --primary-foreground: oklch(0.205 0 0);
+  --ring: oklch(0.608 0.211 263.68);
+}
+/* design-assembly:tokens:end */

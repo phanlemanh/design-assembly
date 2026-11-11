@@ -41,3 +41,6 @@ phải học lại từ, và tên tự đặt không tra được ở đâu.
 - Các từ máy đã dùng trong lúc trao đổi (hạt giống, khuôn màn, bãi thử, trang danh mục) không được
   xuất hiện trong plugin. Trong wiki tiếng Việt, từ nay dùng thuật ngữ chuẩn.
 - Chưa có tên chuẩn cho việc dữ liệu quyết định cách hiển thị. Đề bài ghi là câu hỏi mở.
+- Cập nhật cùng ngày, sau khi tra nguồn: 8 từ `unchecked` đều có ở nguồn và đã chuyển sang mức
+  `source`. «Seed color» đổi thành «source color», vì Material Design 3 chỉ dùng từ đó; «seed» là
+  từ của Flutter. Bảng nay có 64 từ: 22 đọc tại nguồn, 3 chỉ đọc tóm tắt, 36 thông lệ, 3 tự đặt.

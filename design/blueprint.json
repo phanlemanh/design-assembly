@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "status": "approved",
+  "approval_note": "Máy đi trước: các giá trị đề xuất được áp vào reference implementation ngày 2026-11-11, trước khi chủ kho xem. Chủ kho chưa duyệt màu gốc.",
+  "depth": "hand",
+  "conversation_language": "vi",
+  "layers": {
+    "context": {
+      "status": "decided",
+      "source": "repo",
+      "choice": {
+        "product_type": "application"
+      },
+      "why": "Kho được dựng với design_surface là tool: màn mẫu là một danh sách làm việc có lọc, thêm và xoá.",
+      "rejected": [
+        {
+          "option": "content-site",
+          "why": "Không có trang nào chủ yếu để đọc."
+        }
+      ]
+    },
+    "accessibility": {
+      "status": "decided",
+      "source": "proposed",
+      "choice": {
+        "conformance_level": "AA"
+      },
+      "why": "Không có yêu cầu pháp lý hay hợp đồng nào đòi cao hơn. AA là mức phần lớn sản phẩm cam kết.",
+      "rejected": [
+        {
+          "option": "AAA",
+          "why": "Không ai yêu cầu, và màu chính sẽ phải lùi xa màu gốc hơn."
+        }
+      ]
+    },
+    "foundations": {
+      "status": "decided",
+      "source": "proposed",
+      "choice": {
+        "source_color": "#0246ff"
+      },
+      "why": "Kho này chưa có nhận diện. Máy đề xuất một màu lam để reference implementation có thứ cho người xem phản ứng; chủ kho thay được bất cứ lúc nào.",
+      "rejected": [
+        {
+          "option": "Giữ theme trung tính của sàn",
+          "why": "Khi đó cuộc dẫn dắt không sinh design token màu nào, và không có gì để chứng minh."
+        }
+      ]
+    },
+    "components": {
+      "status": "planned"
+    },
+    "interaction-patterns": {
+      "status": "planned"
+    },
+    "content": {
+      "status": "planned"
+    },
+    "templates": {
+      "status": "planned"
+    },
+    "conformance": {
+      "status": "decided",
+      "source": "proposed",
+      "choice": {
+        "gate": "make-check"
+      },
+      "why": "Lệnh kiểm chạy trong make check thì CI và mọi tác tử đều chạy nó."
+    },
+    "distribution": {
+      "status": "planned"
+    },
+    "governance": {
+      "status": "planned"
+    }
+  }
+}

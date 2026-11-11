@@ -9,9 +9,16 @@ shown there and graded by `make check`.
 
 ## What is here today
 
-The manifest and the vocabulary. There are no skills, hooks, commands or scripts yet, so installing
-the plugin changes nothing. The first slice is described in
-`wiki/specs/0001-design-system-for-claude-code.md`.
+The first slice: four of the ten decision layers (product context, accessibility, foundations for
+colour only, conformance).
+
+- `/design-assembly:new` guides a person through those layers and records each decision.
+- `scripts/apply.mjs` derives a tonal palette and the primary color roles from one source color,
+  writes them into the repository's stylesheet, and installs the checks that hold them.
+- `/design-assembly:audit` reports the determinism rate.
+
+The other six layers are listed in `references/layers.json` as not built. The guide has not yet been
+run from an installed plugin in a fresh session; the machine parts are covered by `tests/`.
 
 ## Vocabulary
 

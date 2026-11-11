@@ -18,19 +18,21 @@ Việc của kho này nằm ở [đề bài lát mỏng](../wiki/specs/0001-desi
 
 ## Trong kho có gì
 
-| Đường dẫn                                | Là gì                                                                 | Cần làm gì                     |
-| ---------------------------------------- | --------------------------------------------------------------------- | ------------------------------ |
-| `src/example/`                           | Màn mẫu. AI sẽ chép nó khi dựng màn mới, nên lỗi ở đây lan ra mọi màn | Giữ sạch                       |
-| `src/screens.ts`                         | Danh sách màn và cách tới từng trạng thái                             | Thêm một mục cho mỗi màn mới   |
-| `src/components/ui/`                     | Linh kiện của shadcn                                                  | Không sửa tay                  |
-| `src/lib/labels.ts`, `src/lib/format.ts` | Mọi chữ trên màn, và cách viết số, tiền, ngày                         | Sửa chữ ở đây                  |
-| `design/behaviors.md`                    | Mỗi trạng thái hiện gì                                                | Đọc trước khi dựng màn         |
-| `design/terms.json`                      | Từ không được dùng thay nhau. Đang trống                              | Điền khi có từ vựng nghiệp vụ  |
-| `tools/design_guards.mjs`, `tests/e2e/`  | Bộ rào và bài kiểm trên trình duyệt                                   | Không sửa ở đây                |
-| `ontology/`                              | Khái niệm nghiệp vụ. Đang trống                                       | Thêm bằng `/ontology-add`      |
-| `wiki/`                                  | Lý do của các quyết định                                              | Ghi khi quyết điều gì đáng nhớ |
-| `setup-blueprint.yaml`                   | Các lựa chọn lúc dựng kho                                             | Chỉ để đọc                     |
-| `plugins/design-assembly/`               | Động cơ của hệ design, đóng gói thành plugin. Mới có tệp khai báo     | Chỉ viết tiếng Anh ở đây       |
+| Đường dẫn                                         | Là gì                                                                 | Cần làm gì                                            |
+| ------------------------------------------------- | --------------------------------------------------------------------- | ----------------------------------------------------- |
+| `src/example/`                                    | Màn mẫu. AI sẽ chép nó khi dựng màn mới, nên lỗi ở đây lan ra mọi màn | Giữ sạch                                              |
+| `src/screens.ts`                                  | Danh sách màn và cách tới từng trạng thái                             | Thêm một mục cho mỗi màn mới                          |
+| `src/components/ui/`                              | Linh kiện của shadcn                                                  | Không sửa tay                                         |
+| `src/lib/labels.ts`, `src/lib/format.ts`          | Mọi chữ trên màn, và cách viết số, tiền, ngày                         | Sửa chữ ở đây                                         |
+| `design/behaviors.md`                             | Mỗi trạng thái hiện gì                                                | Đọc trước khi dựng màn                                |
+| `design/terms.json`                               | Từ không được dùng thay nhau. Đang trống                              | Điền khi có từ vựng nghiệp vụ                         |
+| `tools/design_guards.mjs`, `tests/e2e/`           | Bộ rào và bài kiểm trên trình duyệt                                   | Không sửa ở đây                                       |
+| `ontology/`                                       | Khái niệm nghiệp vụ. Đang trống                                       | Thêm bằng `/ontology-add`                             |
+| `wiki/`                                           | Lý do của các quyết định                                              | Ghi khi quyết điều gì đáng nhớ                        |
+| `setup-blueprint.yaml`                            | Các lựa chọn lúc dựng kho                                             | Chỉ để đọc                                            |
+| `plugins/design-assembly/`                        | Plugin dẫn dắt: bốn tầng đầu, hàm tính màu, lệnh kiểm, bảng từ vựng   | Chỉ viết tiếng Anh ở đây                              |
+| `design/blueprint.json`, `design/decisions/`      | Các lựa chọn của cuộc dẫn dắt ở kho này, và decision record từng tầng | Đổi lựa chọn ở blueprint rồi chạy `make design-apply` |
+| `tools/design-assembly/`, `mk/design-assembly.mk` | Lệnh kiểm do plugin cài vào                                           | Không sửa ở đây                                       |
 
 ## Điều gì tự chạy
 
@@ -48,7 +50,10 @@ có gì tự chạy: muốn kiểm thì gõ `make check`.
 
 - Tính năng nào ngoài màn mẫu.
 - Kho trên GitHub và triển khai: mọi commit mới chỉ nằm trên máy này.
-- Bộ sinh, khối danh sách, sổ đăng ký và trang danh mục trong đề bài. Đề bài chưa được duyệt.
+- Sáu tầng còn lại của cuộc dẫn dắt: components, interaction patterns, content guidelines,
+  templates, distribution, governance.
+- Chạy thử lệnh dẫn dắt từ một plugin đã cài, trong một phiên Claude Code mới.
+- Source color `#0246ff` là máy đề xuất. Chủ kho chưa chọn màu.
 
 ## Bước kế
 

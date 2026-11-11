@@ -38,42 +38,61 @@
       "avoid": ["seeds", "skin"]
     },
     {
-      "term": "seed color",
-      "meaning": "The single colour a whole palette is derived from. Also called source color.",
-      "source": "Material Design 3, dynamic color",
-      "trust": "unchecked"
+      "term": "source color",
+      "meaning": "The single colour a whole palette is derived from. Material Design 3 says source color; Flutter's API calls the same thing a seed colour.",
+      "source": "Material Design 3, How the system works (read 2026-11-11); Flutter, ColorScheme.fromSeed",
+      "trust": "source",
+      "avoid": ["seed color", "seed colour"]
     },
     {
       "term": "tonal palette",
-      "meaning": "The steps of one hue from light to dark that roles pick from.",
-      "source": "Material Design 3, color system",
-      "trust": "unchecked",
+      "meaning": "The tones of one key colour from black to white that color roles pick from. Tones run from 0 to 100.",
+      "source": "Material Design 3, How the system works (read 2026-11-11)",
+      "trust": "source",
       "avoid": ["colour ramp", "color ramp"]
     },
     {
       "term": "color role",
       "meaning": "What a colour is for (primary, on-primary, surface, outline), as opposed to which colour it is.",
-      "source": "Material Design 3, color roles",
-      "trust": "unchecked"
+      "source": "Material Design 3, Color roles (read 2026-11-11)",
+      "trust": "source"
     },
     {
       "term": "contrast ratio",
-      "meaning": "The luminance ratio between text or a control and what is behind it. The threshold depends on the conformance level.",
-      "source": "WCAG 2.2, success criteria 1.4.3 and 1.4.11",
-      "trust": "unchecked"
+      "meaning": "The luminance ratio between text or a control and what is behind it. At level AA: at least 4.5:1 for text, 3:1 for large text, and 3:1 for interface components and graphical objects.",
+      "source": "WCAG 2.2, Understanding 1.4.3 Contrast (Minimum) and 1.4.11 Non-text Contrast (read 2026-11-11)",
+      "trust": "source"
     },
     {
       "term": "target size",
-      "meaning": "The smallest area a pointer control may offer.",
-      "source": "WCAG 2.2, success criterion 2.5.8",
-      "trust": "unchecked",
+      "meaning": "The smallest area a pointer control may offer: at least 24 by 24 CSS pixels at level AA, with exceptions.",
+      "source": "WCAG 2.2, Understanding 2.5.8 Target Size (Minimum) (read 2026-11-11)",
+      "trust": "source",
       "avoid": ["hit area", "tap zone"]
     },
     {
       "term": "conformance level",
-      "meaning": "The accessibility level a product commits to: A, AA or AAA.",
-      "source": "WCAG 2.2",
-      "trust": "unchecked"
+      "meaning": "The accessibility level a product commits to: A, AA or AAA. Levels add up: AA includes everything in A.",
+      "source": "WCAG 2.2, Understanding Conformance (read 2026-11-11)",
+      "trust": "source"
+    },
+    {
+      "term": "accessibility",
+      "meaning": "Whether people with disabilities can perceive and operate the product. Measured against a conformance level.",
+      "source": "Common practice (WCAG is the reference)",
+      "trust": "practice"
+    },
+    {
+      "term": "product context",
+      "meaning": "What the product is and who uses it, as far as it changes design decisions.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "product type",
+      "meaning": "Whether people work in the screens (an application) or mostly read them (a content site).",
+      "source": "Common practice",
+      "trust": "practice"
     },
     {
       "term": "type scale",
@@ -179,6 +198,12 @@
       "inherited": true
     },
     {
+      "term": "core components",
+      "meaning": "The components of the core design system: the shared, closed set every product builds from.",
+      "source": "The owner's architecture note of 2026-11-09, after Brad Frost's core design system",
+      "trust": "practice"
+    },
+    {
       "term": "recipes",
       "meaning": "Compositions specific to one product. Outside the core, still built on its tokens.",
       "source": "Brad Frost, The art of design system recipes",
@@ -232,9 +257,9 @@
     },
     {
       "term": "ARIA patterns",
-      "meaning": "The expected keyboard and screen-reader behaviour of a widget such as a dialog, a combobox or tabs.",
-      "source": "W3C WAI-ARIA Authoring Practices Guide",
-      "trust": "unchecked"
+      "meaning": "How to build accessibility semantics into a widget such as a dialog, a combobox or tabs. The guide calls them patterns.",
+      "source": "W3C, ARIA Authoring Practices Guide (APG), Patterns (read 2026-11-11)",
+      "trust": "source"
     },
     {
       "term": "interaction patterns",
@@ -283,9 +308,15 @@
     },
     {
       "term": "localization",
-      "meaning": "Language, and the formats of numbers, dates and currency for a locale.",
-      "source": "Common practice (Unicode CLDR, ECMAScript Intl)",
-      "trust": "unchecked"
+      "meaning": "Adapting a product to the language, cultural and other requirements of a target market (a locale). It covers numeric, date and time formats and the use of currency, among other things.",
+      "source": "W3C Internationalization, Localization vs. Internationalization (read 2026-11-11)",
+      "trust": "source"
+    },
+    {
+      "term": "column type",
+      "meaning": "The kind of data a table column holds, which decides its alignment and formatting: numbers right-aligned, text left-aligned. No single industry name exists; Polaris says column content types, MUI column types, AG Grid cell data types.",
+      "source": "Shopify Polaris, Data table; MUI X Data Grid, Column definition; AG Grid, Cell data types (read 2026-11-11)",
+      "trust": "source"
     },
     {
       "term": "registry",
@@ -331,6 +362,24 @@
       "trust": "practice",
       "inherited": true,
       "avoid": ["fences"]
+    },
+    {
+      "term": "conformance",
+      "meaning": "Whether what was built matches what the system decided, and the checks that show it.",
+      "source": "Common practice (the owner's architecture note of 2026-11-09 uses it as a cross-cutting layer)",
+      "trust": "practice"
+    },
+    {
+      "term": "distribution",
+      "meaning": "How the system reaches the repositories that use it: a registry for code, a plugin for checks and procedures.",
+      "source": "Common practice (the owner's architecture note of 2026-11-09 uses it as a cross-cutting layer)",
+      "trust": "practice"
+    },
+    {
+      "term": "audit",
+      "meaning": "A review of what exists against what the system says, ending in a list of gaps.",
+      "source": "Common practice",
+      "trust": "practice"
     },
     {
       "term": "visual regression",
