@@ -1,0 +1,83 @@
+version: 1
+status: applied
+depth: hand
+conversation_language: vi
+docs_language: vi
+layers:
+  context:
+    status: decided
+    source: proposed
+    automation: automated
+    choice:
+      project_name: design-assembly
+      description: "A lab that assembles a design system with Claude Code on real screens: people decide top-down, the machine builds and checks bottom-up."
+      owner: phanlemanh
+    why: "The owner asked for a separate repository so the experiment does not touch acceptance-gate-kit. Local only: no GitHub repository yet, so CI is dormant and checks run with make check. No deadline or regulated data. Owner taken from the owner's other repositories, since this one has no remote."
+  repo:
+    status: decided
+    source: proposed
+    automation: automated
+    choice: { license: Proprietary }
+    why: "One experiment, one person, one app. Private work, so not MIT."
+    rejected:
+      - { option: monorepo, why: "Only one package" }
+      - { option: several repos, why: "Nothing ships independently" }
+  architecture:
+    status: not_applicable
+  ai:
+    status: not_applicable
+  stack:
+    status: decided
+    source: proposed
+    automation: automated
+    choice: { preset: react-vite }
+    why: "The experiment is about screens, and the design capability only fits this preset."
+    rejected:
+      - { option: python, why: "No screen, so nothing to assemble" }
+      - { option: ts-api, why: "No API is needed" }
+  domain:
+    status: decided
+    source: proposed
+    automation: automated
+    choice: { seed: [] }
+    why: "Start empty. Field meaning is added when the first slice needs typed columns."
+    rejected:
+      - { option: seed concepts now, why: "The slice has not picked its data yet" }
+  design:
+    status: decided
+    source: proposed
+    automation: automated
+    choice:
+      base: shadcn
+      surface: tool
+      locale: vi-VN
+      currency: VND
+    why: "The first slice is a filtered list, a working-tool screen. Default identity until the owner names a brand colour. shadcn is the accessible floor; what the lab tests is how decisions and assembly work on top of it. Locale and currency were inferred from the conversation language and wait for the owner's veto."
+    rejected:
+      - { option: company, why: "No shared company system is wired for this lab" }
+      - { option: other, why: "shadcn does the job and its floor is checked" }
+  quality:
+    status: decided
+    source: proposed
+    automation: automated
+    choice: { level: starter }
+    why: "One person, an experiment. Can be raised to team later without starting again."
+    rejected:
+      - { option: team, why: "Solo experiment" }
+  delivery:
+    status: decided
+    source: proposed
+    automation: automated
+    choice: {}
+    why: "Nothing yet. It runs on the local dev server."
+    rejected:
+      - { option: container, why: "Nothing runs on a server" }
+  governance:
+    status: decided
+    source: proposed
+    automation: automated
+    choice: { capabilities: [] }
+    why: "Local Claude Code only, with the sample policy. No agents on GitHub."
+    rejected:
+      - { option: github-agents, why: "Not asked for, and there is no GitHub repository" }
+      - { option: mcp, why: "Nothing outside needs the actions" }
