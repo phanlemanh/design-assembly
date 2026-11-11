@@ -22,17 +22,49 @@ for something the list already names, and do not use a word its `avoid` lists.
 The guide builds on a design floor; it does not lay one. Run
 `node ${CLAUDE_PLUGIN_ROOT}/scripts/apply.mjs --target <repo> --dry-run`.
 
+The floor is checked first, then the blueprint.
+
 - It refuses because the floor is missing: say what is missing in plain words and stop. A repository
   set up with `repo-setup` and its design layer has the floor.
-- It refuses because `design/blueprint.json` is missing: that is the normal start. Go on.
-- `design/blueprint.json` exists: resume from the first layer that is `pending`.
+- It refuses because `design/blueprint.json` is missing: that is the normal start. Create it with
+  the shape below, then go on.
+- `design/blueprint.json` exists: resume from the first built layer that is `pending`.
+
+The blueprint is the only file you write by hand. Its shape:
+
+```json
+{
+  "version": 1,
+  "status": "designing",
+  "depth": "hand | review",
+  "layers": {
+    "<layer id>": {
+      "status": "pending | decided | planned",
+      "source": "user | proposed | repo",
+      "choice": { "<choice key>": "<value>" },
+      "why": "one or two sentences",
+      "rejected": [{ "option": "<value or name>", "why": "one sentence" }]
+    }
+  }
+}
+```
+
+Every layer of `references/layers.json` has an entry. A built layer starts as `pending`; a layer
+with `built: false` is `{"status": "planned"}`. `source`, `choice`, `why` and `rejected` are written
+when the layer is decided. Choice keys are listed at the end of each layer page.
+
+`rejected` lists only the options that were actually offered and turned down. It is `[]` when the
+person gave the value without being offered alternatives, and for a layer with a single option.
+
+`source` says who the answer came from: `user` when the person gave it, `repo` when it was read from
+the repository, `proposed` for everything else, including a layer with a single option.
 
 ## 2. Show the whole picture
 
 List the layers from `references/layers.json` in order, each with its state: already known, to
 decide, or not built yet. Say in one line that the layers marked not built are announced and
 skipped in this version. Invite the person to paste anything they have already decided, in any
-form, and mark what they give as `source: user`.
+form, and mark what they give as `source: user`. This is not a stop: go on in the same message.
 
 ## 3. Choose the depth
 
@@ -54,22 +86,31 @@ For each layer with `built: true`, read `references/layers/<id>.md` and run this
 A layer with only one sensible answer gets one line, no question. A layer with `built: false` is
 recorded as `{"status": "planned"}`.
 
-Only two answers come from the person and nobody else: the product type, when the repository does
-not already record it, and the source color. Do not ask about anything a layer page says the
-machine derives.
+Two answers belong to the person: the product type, when the repository does not already record
+it, and the source color. In **review each layer**, ask for both. In **hand it to Claude**, propose
+them, record `source: proposed`, and put them first in the final review so the person can replace
+them. Never ask about anything a layer page says the machine derives.
+
+As soon as accessibility and foundations are decided, run the preview,
+`apply.mjs --target <repo> --dry-run`. It works before approval and prints, for light and dark, the
+primary and the contrast ratio it reaches, and whether the source color had to move. In **review
+each layer**, show those lines in the foundations stop. Quote the numbers it prints; never estimate
+a contrast ratio yourself.
 
 Keep the blueprint `status` at `designing` until the final review.
 
 ## 5. Final review
 
-Run `apply.mjs --target <repo> --dry-run` and show:
+Run the preview again, `apply.mjs --target <repo> --dry-run`, and show:
 
 - one line per layer: what was chosen and where it came from (`user`, `proposed`, `repo`);
 - the primary for light and dark and the contrast ratio each reaches, and any note that the source
   color had to move;
 - the files that would be created or updated.
 
-On approval, set `status: approved`. The approval is the person's: never set it for them.
+On approval, set `status: approved`. The approval is the person's: never set it for them. If the
+person wants another colour or level instead, change that layer, keep `status: designing`, and show
+the preview again.
 
 ## 6. Build without stopping
 
@@ -78,7 +119,9 @@ On approval, set `status: approved`. The approval is the person's: never set it 
 3. A failure of `make design-assembly` means a decision is no longer held. Read the message: it
    names the decision and what is wrong. Fix the cause, never the check.
 4. `make design-rate`, and explain the number: the determinism rate is the share of decisions held
-   by a check that was seen failing. Decisions of kind judgment have no check by design.
+   by a check that was seen failing. Decisions of kind judgment have no check by design: the
+   product type, the conformance level and the source color are a person's calls. What follows
+   from them, such as every contrast ratio, is checked.
 
 ## 7. Finish
 

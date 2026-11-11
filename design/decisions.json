@@ -15,7 +15,7 @@
     {
       "id": "accessibility.conformance-level",
       "layer": "accessibility",
-      "kind": "standard",
+      "kind": "judgment",
       "value": "AA",
       "source": "proposed"
     },

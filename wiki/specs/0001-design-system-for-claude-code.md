@@ -108,14 +108,43 @@ của Foundations lấy từ conformance level.
 
 | Tiêu chí                       | Kết quả      | Căn cứ                                                                                                                                       |
 | ------------------------------ | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1. Một lệnh đi hết các tầng    | Một phần     | Lệnh dẫn dắt đã viết (`skills/new`). Phần máy chạy được. Chưa cài plugin vào một phiên Claude Code mới để chạy thử cả cuộc dẫn dắt           |
-| 2. Hai độ sâu                  | Chưa kiểm    | Có trong lệnh dẫn dắt, chưa chạy thử                                                                                                         |
+| 1. Một lệnh đi hết các tầng    | Đạt          | Hai tác tử mới, mỗi tác tử một kho tạm, đi trọn từ lệnh dẫn dắt tới `make check` xanh. Xem «Chạy thử» bên dưới                               |
+| 2. Hai độ sâu                  | Đạt          | Một lượt giao hết (máy đề xuất màu), một lượt duyệt từng tầng (designer đưa `#ffba00`, dừng ba lần)                                          |
 | 3. Decision record từng tầng   | Đạt          | `design/decisions/*.md`, sinh từ blueprint                                                                                                   |
 | 4. Hàm thuần, contrast từng đỏ | Đạt          | Chạy hai lần ra cùng văn bản; 7 source color × 2 conformance level đều đạt ngưỡng khi đọc lại từ stylesheet                                  |
 | 5. Từ vựng                     | Đạt một phần | Tên tầng và tên lựa chọn có bài kiểm; không còn dòng `unchecked`. Câu hỏi trong lệnh dẫn dắt chỉ được chặn bằng danh sách từ cần tránh       |
 | 6. Lệnh chấm                   | Đạt          | `make design-rate`: 6/9 ở kho này. Lệnh kiểm không thể đỏ thì bị báo, không được tính                                                        |
 | 7. Chạy lại không đổi gì       | Đạt          | Bài kiểm chạy hai lần; ở kho này chạy thêm sau `make format` vẫn không đổi                                                                   |
 | 8. Bài kiểm dựng kho trống     | Một phần     | Kho tạm dùng stylesheet và Makefile thật của kho này, chạy trọn apply và các lệnh kiểm. Cổng kiểm đầy đủ chỉ chạy ở reference implementation |
+
+### Chạy thử (2026-11-11)
+
+Hai tác tử chưa từng thấy cuộc trao đổi này, mỗi tác tử nhận một bản sao sạch của kho ở commit gốc,
+chỉ được trỏ tới tệp hướng dẫn của plugin. Máy chính đóng vai người dùng ở các điểm dừng và chấm
+kết quả từ tệp trong kho tạm, không từ lời tác tử tự báo.
+
+| Lượt      | Người dùng                                     | Kết quả                                                                                                                          |
+| --------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Giao hết  | «Tôi không rành thiết kế, cứ theo khuyến nghị» | Máy đề xuất `#0e7490`. Nền sáng giữ nguyên (5,35:1), nền tối dời màu (4,99:1). Rate 6/9, `make check` xanh                       |
+| Từng tầng | Designer, màu thương hiệu `#ffba00`            | Dừng ở accessibility, foundations, duyệt cuối. Nền sáng dời sang vàng đậm (4,74:1), nền tối giữ màu (11,58:1). `make check` xanh |
+
+Áp lại hai kho bằng bản plugin đã sửa: không tệp nào đổi, trừ hai tệp ghi lại loại của quyết định
+conformance level.
+
+**Chỗ vấp và cách đã sửa**
+
+| Chỗ vấp                                                                          | Ai gặp    | Đã sửa                                                                                                   |
+| -------------------------------------------------------------------------------- | --------- | -------------------------------------------------------------------------------------------------------- |
+| Bản xem trước đòi duyệt rồi mới chạy, nên người dùng phải duyệt mà không thấy số | Cả hai    | Bản xem trước chạy trước khi duyệt, ngay khi accessibility và foundations đã quyết, và in contrast ratio |
+| Thiếu số, một tác tử tự ước tính tương phản (sai: 1,7:1 và ngưỡng 3:1)           | Từng tầng | Hướng dẫn cấm ước tính, bắt trích số của bản xem trước. Tác tử tự đính chính trước người dùng            |
+| Không có hình dạng của tệp blueprint                                             | Cả hai    | Hướng dẫn có mẫu, kèm nghĩa của `source` và `rejected`                                                   |
+| Không rõ bước «mời dán quyết định có sẵn» có phải điểm dừng                      | Cả hai    | Ghi rõ không phải                                                                                        |
+| «Hai câu trả lời chỉ người có» mâu thuẫn với chế độ giao hết                     | Giao hết  | Giao hết thì đề xuất và ghi `proposed`; duyệt từng tầng thì hỏi                                          |
+| Conformance level hiện «không có lệnh kiểm» mà không phải loại phán đoán         | Từng tầng | Đổi sang loại phán đoán; bài kiểm nay đòi mọi quyết định không có lệnh kiểm phải là phán đoán            |
+| `--help` thoát lỗi, chỉ in một dòng                                              | Cả hai    | In đủ hai chế độ, thoát 0                                                                                |
+
+Hai tác tử cùng thử dựng một bản sao «đã duyệt» bên ngoài kho để lách chỗ vấp đầu; quyền của phiên
+chặn cả hai lần. Không tác tử nào sửa plugin hay commit.
 
 Ba điều tìm ra khi dựng:
 

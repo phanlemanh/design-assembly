@@ -16,4 +16,4 @@ Không có yêu cầu pháp lý hay hợp đồng nào đòi cao hơn. AA là m�
 
 ## What is held
 
-- `accessibility.conformance-level`: standard, no check
+- `accessibility.conformance-level`: judgment, no check

@@ -12,14 +12,18 @@ knows it. If they have none yet, propose one and say it is a proposal.
 
 ## The one question
 
-Ask for the source color as `#rrggbb`. Then run `apply.mjs --dry-run` and show, before anything is
-written:
+Ask for the source color as `#rrggbb`. Record the layer as `decided`, keep the blueprint
+`designing`, and run `apply.mjs --target <repo> --dry-run`.
+The preview needs no approval. Show, quoting its lines:
 
 - the primary for light and for dark, and the contrast ratio each reaches;
 - whether the source color itself could be kept. When it does not reach the threshold on the
-  background, the machine keeps its hue and moves its lightness to the nearest value that does, and
-  prints a note. Tell the person in those words: the brand colour is still the source, the button
-  colour is a step away from it.
+  background, the machine keeps its hue and moves its lightness to the nearest value that does.
+  Tell the person in those words: the brand colour is still the source, the button colour is a
+  step away from it.
+
+If the person wants another colour, change `source_color` and preview again. Never estimate a
+contrast ratio yourself: the preview computes it from the repository's real background.
 
 ## What the machine derives
 

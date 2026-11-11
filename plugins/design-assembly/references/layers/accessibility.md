@@ -5,8 +5,10 @@ solves and checks comes from this one answer.
 
 **Depends on:** product context.
 
-**Only one sensible answer when:** the person has no legal or contractual requirement beyond the
-usual. Then take AA in one line and move on.
+**Only one sensible answer when:** the person handed the guide to Claude and named no legal or
+contractual requirement. Then take AA in one line, record `source: proposed`, and move on. In
+review each layer, ask one question with AA recommended: only the person knows whether a contract
+or a regulator asks for more.
 
 ## Options
 

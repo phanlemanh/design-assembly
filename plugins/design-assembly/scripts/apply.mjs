@@ -13,7 +13,7 @@ import path from "node:path";
 import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
-import { formatOklch } from "../templates/tools/design-assembly/color.mjs";
+import { contrast, formatOklch } from "../templates/tools/design-assembly/color.mjs";
 import {
   applyBlock,
   buildTheme,
@@ -30,10 +30,20 @@ const SOURCES = ["user", "proposed", "repo"];
 const readJson = (file) => JSON.parse(readFileSync(file, "utf8"));
 export const LAYERS = readJson(path.join(PLUGIN, "references/layers.json")).layers;
 
-// One line per problem in the blueprint. Empty means it can be applied.
-export function blueprintProblems(blueprint) {
+// The layers the theme is computed from. A preview needs only these.
+const THEME_LAYERS = ["accessibility", "foundations"];
+
+// One line per problem in the blueprint. Empty means it can be applied, or, with `preview`, that a
+// preview can be shown: a preview is what the person looks at BEFORE approving, so it accepts a
+// blueprint that is still being designed, and built layers that are still pending, as long as the
+// layers the theme comes from are decided.
+export function blueprintProblems(blueprint, { preview = false } = {}) {
   const found = [];
-  if (blueprint.status !== "approved") found.push('status must be "approved" before applying');
+  if (!preview && blueprint.status !== "approved") {
+    found.push(
+      'status must be "approved" before applying (a preview with --dry-run does not need it)',
+    );
+  }
   for (const layer of LAYERS) {
     const entry = blueprint.layers?.[layer.id];
     if (!entry) {
@@ -49,7 +59,8 @@ export function blueprintProblems(blueprint) {
       continue;
     }
     if (entry.status !== "decided") {
-      found.push(`${layer.id}: must be decided`);
+      const enoughForPreview = preview && !THEME_LAYERS.includes(layer.id);
+      if (!enoughForPreview) found.push(`${layer.id}: must be decided`);
       continue;
     }
     if (!SOURCES.includes(entry.source)) {
@@ -100,7 +111,9 @@ function decisions(blueprint, theme) {
     {
       id: "accessibility.conformance-level",
       layer: "accessibility",
-      kind: "standard",
+      // Which level to commit to is a person's call on risk; what the level requires is checked in
+      // every contrast decision below.
+      kind: "judgment",
       value: level,
       source: source("accessibility"),
     },
@@ -176,7 +189,11 @@ function record(layer, entry, rows) {
   lines.push("", "## Why", "", entry.why.trim(), "", "## Rejected", "");
   const rejected = entry.rejected ?? [];
   if (rejected.length === 0) lines.push("Nothing was turned down.");
-  for (const item of rejected) lines.push(`- ${item.option}: ${item.why}`);
+  // A plain string is an option rejected without a reason; written that way, not as "undefined".
+  for (const item of rejected) {
+    if (typeof item === "string") lines.push(`- ${item}: no reason recorded`);
+    else lines.push(`- ${item.option}: ${item.why ?? "no reason recorded"}`);
+  }
   lines.push("", "## What is held", "");
   for (const row of rows.filter((r) => r.layer === layer.id)) {
     const how = row.check ? `checked (${row.check.kind})` : "no check";
@@ -213,11 +230,41 @@ export function plan(target, blueprint) {
   return { files, theme };
 }
 
+const USAGE = `usage: node apply.mjs --target DIR [--dry-run]
+
+  --dry-run  Preview without writing: the primary color role for light and dark, the contrast
+             ratio each reaches, and the files that would change. Works before approval, as soon
+             as accessibility and foundations are decided.
+  (none)     Write. Needs design/blueprint.json with status "approved" and every built layer
+             decided.
+`;
+
+// What the person needs to see to approve the foundations: one line per mode, with the numbers.
+export function themeSummary(theme) {
+  const ratio = (value) => `${value.toFixed(2)}:1`;
+  const lines = [`contrast threshold for text: ${theme.thresholds.text}:1`];
+  for (const mode of theme.modes) {
+    const name = mode.selector === ":root" ? "light" : "dark";
+    const kept = mode.adjusted
+      ? "the source color does not reach the threshold here, so the primary keeps its hue and moves its lightness"
+      : "the primary is the source color itself";
+    lines.push(
+      `${name}: primary ${formatOklch(mode.primary)}, ${ratio(contrast(mode.primary, mode.background))} on the background; ` +
+        `on-primary ${formatOklch(mode.onPrimary)}, ${ratio(contrast(mode.onPrimary, mode.primary))} on the primary. ${kept}.`,
+    );
+  }
+  return lines;
+}
+
 function main() {
   const args = argv.slice(2);
+  if (args.includes("--help") || args.includes("-h")) {
+    stdout.write(USAGE);
+    exit(0);
+  }
   const at = args.indexOf("--target");
   if (at === -1 || !args[at + 1]) {
-    stderr.write("usage: node apply.mjs --target DIR [--dry-run]\n");
+    stderr.write(USAGE);
     exit(2);
   }
   const target = path.resolve(args[at + 1]);
@@ -231,10 +278,30 @@ function main() {
   const blueprintPath = path.join(target, BLUEPRINT);
   if (!existsSync(blueprintPath)) stop(`${BLUEPRINT} is missing. Run the guide first.`);
   const blueprint = readJson(blueprintPath);
-  const problems = blueprintProblems(blueprint);
-  if (problems.length > 0) stop(`${BLUEPRINT} cannot be applied:\n  ${problems.join("\n  ")}`);
+  const problems = blueprintProblems(blueprint, { preview: dryRun });
+  if (problems.length > 0) {
+    const what = dryRun ? "previewed" : "applied";
+    stop(`${BLUEPRINT} cannot be ${what}:\n  ${problems.join("\n  ")}`);
+  }
 
-  const { files, theme } = plan(target, blueprint);
+  const css = readFileSync(path.join(target, "src/index.css"), "utf8");
+  const theme = buildTheme(
+    {
+      sourceColor: blueprint.layers.foundations.choice.source_color,
+      conformanceLevel: blueprint.layers.accessibility.choice.conformance_level,
+    },
+    css,
+  );
+  for (const line of themeSummary(theme)) stdout.write(`${line}\n`);
+
+  const pending = LAYERS.filter((l) => l.built && blueprint.layers[l.id].status !== "decided");
+  if (pending.length > 0) {
+    stdout.write(
+      `files: shown once these layers are decided: ${pending.map((l) => l.title).join(", ")}\n`,
+    );
+    return;
+  }
+  const { files } = plan(target, blueprint);
   for (const [file, content] of Object.entries(files)) {
     const full = path.join(target, file);
     const before = existsSync(full) ? readFileSync(full, "utf8") : null;
@@ -245,12 +312,7 @@ function main() {
     }
     stdout.write(`${state.padEnd(9)} ${file}\n`);
   }
-  for (const mode of theme.modes.filter((m) => m.adjusted)) {
-    stdout.write(
-      `note: in ${mode.selector} the source color does not meet the contrast threshold; ` +
-        `primary was moved to ${formatOklch(mode.primary)}\n`,
-    );
-  }
+  if (dryRun) stdout.write("preview only: nothing was written\n");
 }
 
 if (argv[1] && realpathSync(argv[1]) === realpathSync(fileURLToPath(import.meta.url))) main();

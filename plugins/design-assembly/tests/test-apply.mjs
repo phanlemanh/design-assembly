@@ -95,6 +95,52 @@ test("a dry run reports what it would do and writes nothing", () => {
   assert.doesNotMatch(readFileSync(path.join(dir, "src/index.css"), "utf8"), /design-assembly/);
 });
 
+test("a preview works before approval and shows the contrast ratios the person approves on", () => {
+  const dir = repository({ ...blueprint(), status: "designing" });
+  const result = apply(dir, "--dry-run");
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /^light: primary oklch\([^)]+\), (\d+\.\d\d):1 on the background/m);
+  assert.match(result.stdout, /^dark: primary oklch\([^)]+\), (\d+\.\d\d):1 on the background/m);
+  for (const [, ratio] of result.stdout.matchAll(/(\d+\.\d\d):1 on the/g)) {
+    assert.ok(Number(ratio) >= 4.5, `a previewed ratio of ${ratio}:1 is below the threshold`);
+  }
+  assert.match(result.stdout, /create\s+design\/decisions\.json/);
+  assert.match(result.stdout, /preview only: nothing was written/);
+  assert.doesNotMatch(readFileSync(path.join(dir, "src/index.css"), "utf8"), /design-assembly/);
+
+  const write = apply(dir);
+  assert.equal(write.status, 2);
+  assert.match(write.stderr, /status must be "approved" before applying/);
+});
+
+test("a preview needs only the layers the theme comes from, and says which layers hold back the file list", () => {
+  const dir = repository({
+    ...blueprint({ conformance: { status: "pending" }, context: { status: "pending" } }),
+    status: "designing",
+  });
+  const result = apply(dir, "--dry-run");
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /^light: primary /m);
+  assert.match(
+    result.stdout,
+    /files: shown once these layers are decided: product context, conformance/,
+  );
+  assert.doesNotMatch(result.stdout, /^create /m);
+
+  const early = apply(
+    repository({ ...blueprint({ foundations: { status: "pending" } }), status: "designing" }),
+    "--dry-run",
+  );
+  assert.equal(early.status, 2);
+  assert.match(early.stderr, /cannot be previewed:\n {2}foundations: must be decided/);
+});
+
+test("--help prints the options and exits cleanly", () => {
+  const result = run(APPLY, "--help");
+  assert.equal(result.status, 0);
+  assert.match(result.stdout, /--dry-run {2}Preview without writing/);
+});
+
 test("the determinism rate counts only decisions held by a check", () => {
   const dir = repository();
   assert.equal(apply(dir).status, 0);
@@ -105,6 +151,10 @@ test("the determinism rate counts only decisions held by a check", () => {
   assert.ok(held > 0 && held < ledger.decisions.length);
   assert.match(result.stdout, new RegExp(`determinism rate: ${held}/${ledger.decisions.length} `));
   assert.match(result.stdout, /no check\s+judgment\s+foundations\.source-color/);
+  // Only a person's call may go without a check; anything else unchecked is a gap.
+  const unchecked = result.stdout.split("\n").filter((line) => /^\s+no check /.test(line));
+  assert.equal(unchecked.length, ledger.decisions.length - held);
+  for (const line of unchecked) assert.match(line, /no check\s+judgment\s/);
 });
 
 test("editing the generated block by hand makes the check fail", () => {
