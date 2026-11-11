@@ -42,6 +42,45 @@
         {
           "key": "source_color",
           "name": "source color"
+        },
+        {
+          "key": "type_scale",
+          "name": "type scale",
+          "options": {
+            "standard": "Keep the floor's type scale: the sizes every Tailwind user already knows.",
+            "modular": "Derive every size from text-base and one ratio, so the steps are related."
+          }
+        },
+        {
+          "key": "type_ratio",
+          "name": "modular scale",
+          "when": { "type_scale": "modular" },
+          "options": {
+            "minor-second": "1.067: steps barely differ. Dense screens with little hierarchy.",
+            "major-second": "1.125: gentle steps. Applications with many levels of heading.",
+            "minor-third": "1.2: clear steps that still fit a working screen.",
+            "major-third": "1.25: strong steps. Content sites with few heading levels.",
+            "perfect-fourth": "1.333: dramatic steps. Editorial pages."
+          }
+        },
+        {
+          "key": "spacing_unit",
+          "name": "spacing scale",
+          "options": {
+            "4px": "The floor's unit. In this floor the same unit also sizes controls, so changing it would resize every component: that is density, not spacing."
+          }
+        },
+        {
+          "key": "corner_radius",
+          "name": "corner radius",
+          "options": {
+            "floor": "10px, the floor's default.",
+            "none": "0: square corners.",
+            "extra-small": "4px.",
+            "small": "8px.",
+            "medium": "12px.",
+            "large": "16px."
+          }
         }
       ]
     },

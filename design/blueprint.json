@@ -37,13 +37,20 @@
       "status": "decided",
       "source": "proposed",
       "choice": {
-        "source_color": "#0246ff"
+        "source_color": "#0246ff",
+        "type_scale": "standard",
+        "spacing_unit": "4px",
+        "corner_radius": "floor"
       },
-      "why": "Kho này chưa có nhận diện. Máy đề xuất một màu lam để reference implementation có thứ cho người xem phản ứng; chủ kho thay được bất cứ lúc nào.",
+      "why": "Kho này chưa có nhận diện. Máy đề xuất một màu lam để reference implementation có thứ cho người xem phản ứng; chủ kho thay được bất cứ lúc nào. Type scale và corner radius giữ của sàn theo khuyến nghị cho một application: các cỡ quen thuộc với mọi người dùng Tailwind, và bộ linh kiện sàn vốn được vẽ cho chúng.",
       "rejected": [
         {
           "option": "Giữ theme trung tính của sàn",
           "why": "Khi đó cuộc dẫn dắt không sinh design token màu nào, và không có gì để chứng minh."
+        },
+        {
+          "option": "modular, major-third",
+          "why": "Đã thử trên trình duyệt ngày 2026-11-11: text-xs xuống 10px, và nút của bộ linh kiện sàn vẫn giữ cỡ chữ riêng nên thang không đồng nhất."
         }
       ]
     },

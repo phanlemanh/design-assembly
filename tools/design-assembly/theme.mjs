@@ -8,6 +8,7 @@ import {
   luminance,
   parseColor,
 } from "./color.mjs";
+import { CORNER_RADII, modularScale, typeDeclarations } from "./scale.mjs";
 
 export const START = "/* design-assembly:tokens:start";
 export const END = "/* design-assembly:tokens:end */";
@@ -93,8 +94,11 @@ export function readBlock(css) {
   return from === -1 || to === -1 ? null : css.slice(from, to + END.length);
 }
 
-// Builds the theme from the source color and the backgrounds the repository's own CSS declares.
-export function buildTheme({ sourceColor, conformanceLevel }, css) {
+// Builds the theme from the decided inputs and the backgrounds the repository's own CSS declares.
+// `typeScale` and `cornerRadius` are optional: a ledger written before they existed renders as it
+// did then, so its generated check still holds.
+export function buildTheme(inputs, css) {
+  const { sourceColor, conformanceLevel, typeScale, typeRatio, cornerRadius } = inputs;
   const thresholds = THRESHOLDS[conformanceLevel];
   if (!thresholds) throw new Error(`conformance level must be one of ${Object.keys(THRESHOLDS)}`);
   const source = hexToOklch(sourceColor);
@@ -104,7 +108,19 @@ export function buildTheme({ sourceColor, conformanceLevel }, css) {
     const background = (declared && parseColor(declared)) || FALLBACK_BACKGROUND[selector];
     return { selector, background, ...solvePrimary(source, background, thresholds.text) };
   });
-  return { palette: tonalPalette(source), modes, thresholds };
+  if (cornerRadius !== undefined && !(cornerRadius in CORNER_RADII)) {
+    throw new Error(`corner radius must be one of ${Object.keys(CORNER_RADII)}`);
+  }
+  if (typeScale !== undefined && !["standard", "modular"].includes(typeScale)) {
+    throw new Error("type scale must be standard or modular");
+  }
+  return {
+    palette: tonalPalette(source),
+    modes,
+    thresholds,
+    radius: cornerRadius === undefined ? null : CORNER_RADII[cornerRadius],
+    type: typeScale === "modular" ? modularScale(typeRatio) : null,
+  };
 }
 
 // The block as it sits at the end of the stylesheet. Written the way Prettier leaves CSS.
@@ -115,6 +131,12 @@ export function renderBlock(theme) {
     if (index === 0) {
       for (const entry of theme.palette) {
         lines.push(`  --palette-primary-${entry.tone}: ${formatOklch(entry.color)};`);
+      }
+      if (theme.radius !== null && theme.radius !== undefined) {
+        lines.push(`  --radius: ${theme.radius};`);
+      }
+      for (const declaration of theme.type ? typeDeclarations(theme.type) : []) {
+        lines.push(`  ${declaration}`);
       }
     }
     lines.push(`  --primary: ${formatOklch(mode.primary)};`);

@@ -1,6 +1,6 @@
 ---
 name: new
-description: Guide a person through the decision layers of a design system for their repository — product context, accessibility, foundations, conformance — with a recommendation at each layer, then generate the design tokens and the checks that hold them, so Claude Code can build screens without guessing. Use when the user wants to create, set up or start a design system, choose a brand colour or theme for a repository, or make a repository's design decisions checkable.
+description: Guide a person through the decision layers of a design system for their repository — product context, accessibility, foundations, conformance — with a recommendation at each layer, then generate the design tokens and the checks that hold them, so Claude Code can build screens without guessing. Use when the user wants to create, set up or start a design system, choose a brand colour, type scale or corner radius for a repository, or make a repository's design decisions checkable.
 ---
 
 # Guide a person to a design system Claude Code can build from
@@ -86,16 +86,18 @@ For each layer with `built: true`, read `references/layers/<id>.md` and run this
 A layer with only one sensible answer gets one line, no question. A layer with `built: false` is
 recorded as `{"status": "planned"}`.
 
-Two answers belong to the person: the product type, when the repository does not already record
-it, and the source color. In **review each layer**, ask for both. In **hand it to Claude**, propose
-them, record `source: proposed`, and put them first in the final review so the person can replace
-them. Never ask about anything a layer page says the machine derives.
+Four answers belong to the person, because they are taste or brand: the product type, when the
+repository does not already record it; the source color; the type scale; and the corner radius. In
+**review each layer**, ask for them. In **hand it to Claude**, propose them, record
+`source: proposed`, and put them first in the final review so the person can replace them. Never
+ask about anything a layer page says the machine derives.
 
 As soon as accessibility and foundations are decided, run the preview,
 `apply.mjs --target <repo> --dry-run`. It works before approval and prints, for light and dark, the
-primary and the contrast ratio it reaches, and whether the source color had to move. In **review
-each layer**, show those lines in the foundations stop. Quote the numbers it prints; never estimate
-a contrast ratio yourself.
+primary and the contrast ratio it reaches, and whether the source color had to move; then the type
+scale, the spacing scale and the corner radius, and any note. In **review each layer**, show those
+lines in the foundations stop. Quote the numbers it prints; never estimate a contrast ratio or a
+size yourself.
 
 Keep the blueprint `status` at `designing` until the final review.
 
@@ -106,6 +108,7 @@ Run the preview again, `apply.mjs --target <repo> --dry-run`, and show:
 - one line per layer: what was chosen and where it came from (`user`, `proposed`, `repo`);
 - the primary for light and dark and the contrast ratio each reaches, and any note that the source
   color had to move;
+- the type scale and the corner radius, and any note about small type sizes;
 - the files that would be created or updated.
 
 On approval, set `status: approved`. The approval is the person's: never set it for them. If the

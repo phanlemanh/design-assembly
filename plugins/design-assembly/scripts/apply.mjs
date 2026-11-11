@@ -14,6 +14,7 @@ import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { contrast, formatOklch } from "../templates/tools/design-assembly/color.mjs";
+import { SPACING_UNIT_PX, TYPE_STEPS } from "../templates/tools/design-assembly/scale.mjs";
 import {
   applyBlock,
   buildTheme,
@@ -67,8 +68,10 @@ export function blueprintProblems(blueprint, { preview = false } = {}) {
       found.push(`${layer.id}: source must be one of ${SOURCES.join(", ")}`);
     }
     if (typeof entry.why !== "string" || entry.why.trim() === "") found.push(`${layer.id}: no why`);
-    for (const choice of layer.choices) {
-      const value = entry.choice?.[choice.key];
+    const values =
+      layer.id === "foundations" ? themeInputs(blueprint).choice : (entry.choice ?? {});
+    for (const choice of layer.choices.filter((c) => applies(c, values))) {
+      const value = values[choice.key];
       if (value === undefined) found.push(`${layer.id}: no ${choice.name}`);
       else if (choice.options && !(value in choice.options)) {
         found.push(
@@ -96,10 +99,92 @@ export function floorProblem(target) {
   return null;
 }
 
+// Foundations choices added after the first version. A blueprint decided before they existed keeps
+// the floor's values, and the guide says so instead of refusing it.
+const FOUNDATIONS_DEFAULTS = {
+  type_scale: "standard",
+  spacing_unit: "4px",
+  corner_radius: "floor",
+};
+
+export function themeInputs(blueprint) {
+  const decided = blueprint.layers?.foundations?.choice ?? {};
+  const choice = { ...FOUNDATIONS_DEFAULTS, ...decided };
+  const defaulted = Object.keys(FOUNDATIONS_DEFAULTS).filter((key) => !(key in decided));
+  return {
+    inputs: {
+      sourceColor: choice.source_color,
+      conformanceLevel: blueprint.layers?.accessibility?.choice?.conformance_level,
+      typeScale: choice.type_scale,
+      ...(choice.type_scale === "modular" ? { typeRatio: choice.type_ratio } : {}),
+      cornerRadius: choice.corner_radius,
+    },
+    choice,
+    defaulted,
+  };
+}
+
+// The floor's text-xs. A modular step below it is shown as a note, not refused: no standard sets a
+// minimum text size.
+const FLOOR_SMALLEST_PX = 12;
+
+// The variables the floor's type and spacing standards own.
+const TYPE_VARIABLES = TYPE_STEPS.flatMap(([step]) => [
+  `--text-${step}`,
+  `--text-${step}--line-height`,
+]);
+
+function foundationRows(choice, theme) {
+  const rows = [];
+  if (choice.type_scale === "modular") {
+    rows.push(
+      {
+        id: "foundations.modular-scale",
+        layer: "foundations",
+        kind: "judgment",
+        value: choice.type_ratio,
+      },
+      {
+        id: "foundations.type-scale",
+        layer: "foundations",
+        kind: "formula",
+        value: theme.type.map((s) => `${s.size}/${s.lineHeight}`).join(" "),
+        check: { kind: "scale" },
+      },
+    );
+  } else {
+    rows.push({
+      id: "foundations.type-scale",
+      layer: "foundations",
+      kind: "standard",
+      value: "the floor's type scale",
+      check: { kind: "absent", variables: TYPE_VARIABLES },
+    });
+  }
+  rows.push(
+    {
+      id: "foundations.spacing-scale",
+      layer: "foundations",
+      kind: "standard",
+      value: `${SPACING_UNIT_PX}px unit, the floor's spacing scale`,
+      check: { kind: "absent", variables: ["--spacing"] },
+    },
+    {
+      id: "foundations.shape",
+      layer: "foundations",
+      kind: "closed-list",
+      value: choice.corner_radius,
+      check: { kind: "value", scope: ":root", variable: "--radius", expected: theme.radius },
+    },
+  );
+  return rows;
+}
+
 function decisions(blueprint, theme) {
   const choice = (layer) => blueprint.layers[layer].choice;
   const source = (layer) => blueprint.layers[layer].source;
   const level = choice("accessibility").conformance_level;
+  const foundations = themeInputs(blueprint);
   const rows = [
     {
       id: "context.product-type",
@@ -131,6 +216,7 @@ function decisions(blueprint, theme) {
       value: `${theme.palette.length} tones`,
       check: { kind: "generated" },
     },
+    ...foundationRows(foundations.choice, theme),
   ];
   for (const mode of theme.modes) {
     const scope = mode.selector;
@@ -172,19 +258,21 @@ function decisions(blueprint, theme) {
     source: source("conformance"),
     check: { kind: "gate" },
   });
-  return {
-    version: 1,
-    inputs: { sourceColor: choice("foundations").source_color, conformanceLevel: level },
-    decisions: rows,
-  };
+  return { version: 1, inputs: foundations.inputs, decisions: rows };
 }
 
+// Whether a choice applies, given the other choices of its layer.
+const applies = (choice, values) =>
+  Object.entries(choice.when ?? {}).every(([key, value]) => values[key] === value);
+
 // One page per decided layer: what was chosen, why, what was turned down, what the machine holds.
-function record(layer, entry, rows) {
+function record(layer, entry, rows, values) {
   const lines = [`# ${layer.title[0].toUpperCase()}${layer.title.slice(1)}`, ""];
   lines.push(`Status: decided (${entry.source}).`, "", "## Choice", "");
-  for (const choice of layer.choices) {
-    lines.push(`- ${choice.name}: \`${entry.choice[choice.key]}\``);
+  for (const choice of layer.choices.filter((c) => applies(c, values))) {
+    const chosen = choice.key in (entry.choice ?? {});
+    const note = chosen ? "" : " (not asked: the floor's value)";
+    lines.push(`- ${choice.name}: \`${values[choice.key]}\`${note}`);
   }
   lines.push("", "## Why", "", entry.why.trim(), "", "## Rejected", "");
   const rejected = entry.rejected ?? [];
@@ -206,20 +294,15 @@ function record(layer, entry, rows) {
 export function plan(target, blueprint) {
   const cssPath = path.join(target, "src/index.css");
   const css = readFileSync(cssPath, "utf8");
-  const inputs = {
-    sourceColor: blueprint.layers.foundations.choice.source_color,
-    conformanceLevel: blueprint.layers.accessibility.choice.conformance_level,
-  };
-  const theme = buildTheme(inputs, css);
+  const foundations = themeInputs(blueprint);
+  const theme = buildTheme(foundations.inputs, css);
   const ledger = decisions(blueprint, theme);
   const files = { "src/index.css": applyBlock(css, renderBlock(theme)) };
   files["design/decisions.json"] = `${JSON.stringify(ledger, null, 2)}\n`;
   for (const layer of LAYERS.filter((l) => l.built)) {
-    files[`design/decisions/${layer.id}.md`] = record(
-      layer,
-      blueprint.layers[layer.id],
-      ledger.decisions,
-    );
+    const entry = blueprint.layers[layer.id];
+    const values = layer.id === "foundations" ? foundations.choice : entry.choice;
+    files[`design/decisions/${layer.id}.md`] = record(layer, entry, ledger.decisions, values);
   }
   const templates = path.join(PLUGIN, "templates");
   for (const folder of ["tools/design-assembly", "mk"]) {
@@ -228,6 +311,18 @@ export function plan(target, blueprint) {
     }
   }
   return { files, theme };
+}
+
+// A JSON file is the same when it holds the same data: the repository's formatter may lay it out
+// differently, and rewriting it after every format would make the guide fight the formatter.
+export function sameContent(file, before, after) {
+  if (before === after) return true;
+  if (!file.endsWith(".json")) return false;
+  try {
+    return JSON.stringify(JSON.parse(before)) === JSON.stringify(JSON.parse(after));
+  } catch {
+    return false;
+  }
 }
 
 const USAGE = `usage: node apply.mjs --target DIR [--dry-run]
@@ -251,6 +346,25 @@ export function themeSummary(theme) {
     lines.push(
       `${name}: primary ${formatOklch(mode.primary)}, ${ratio(contrast(mode.primary, mode.background))} on the background; ` +
         `on-primary ${formatOklch(mode.onPrimary)}, ${ratio(contrast(mode.onPrimary, mode.primary))} on the primary. ${kept}.`,
+    );
+  }
+  if (theme.type) {
+    const steps = theme.type.map((s) => `${s.step} ${s.size}/${s.lineHeight}`).join(", ");
+    lines.push(`type scale: modular, size/line height in px: ${steps}`);
+    const small = theme.type.filter((s) => s.size < FLOOR_SMALLEST_PX);
+    if (small.length > 0) {
+      lines.push(
+        `note: ${small.map((s) => `text-${s.step} is ${s.size}px`).join(", ")}, smaller than the ` +
+          `floor's smallest size (${FLOOR_SMALLEST_PX}px). Use those steps sparingly, or pick a smaller ratio.`,
+      );
+    }
+  } else if (theme.radius !== null) {
+    lines.push("type scale: the floor's standard sizes, unchanged");
+  }
+  if (theme.radius !== null) {
+    lines.push(`spacing scale: the floor's ${SPACING_UNIT_PX}px unit, unchanged`);
+    lines.push(
+      `corner radius: ${theme.radius}; the floor derives its smaller and larger radii from it`,
     );
   }
   return lines;
@@ -285,14 +399,15 @@ function main() {
   }
 
   const css = readFileSync(path.join(target, "src/index.css"), "utf8");
-  const theme = buildTheme(
-    {
-      sourceColor: blueprint.layers.foundations.choice.source_color,
-      conformanceLevel: blueprint.layers.accessibility.choice.conformance_level,
-    },
-    css,
-  );
+  const foundations = themeInputs(blueprint);
+  const theme = buildTheme(foundations.inputs, css);
   for (const line of themeSummary(theme)) stdout.write(`${line}\n`);
+  if (foundations.defaulted.length > 0) {
+    stdout.write(
+      `note: foundations was decided before ${foundations.defaulted.join(", ")} could be chosen; ` +
+        "the floor's values are kept. Run the guide again to choose them.\n",
+    );
+  }
 
   const pending = LAYERS.filter((l) => l.built && blueprint.layers[l.id].status !== "decided");
   if (pending.length > 0) {
@@ -305,7 +420,8 @@ function main() {
   for (const [file, content] of Object.entries(files)) {
     const full = path.join(target, file);
     const before = existsSync(full) ? readFileSync(full, "utf8") : null;
-    const state = before === null ? "create" : before === content ? "unchanged" : "update";
+    const state =
+      before === null ? "create" : sameContent(file, before, content) ? "unchanged" : "update";
     if (state !== "unchanged" && !dryRun) {
       mkdirSync(path.dirname(full), { recursive: true });
       writeFileSync(full, content);

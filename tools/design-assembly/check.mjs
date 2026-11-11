@@ -6,7 +6,8 @@ import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { contrast, parseColor } from "./color.mjs";
-import { buildTheme, readBlock, readVariable, renderBlock } from "./theme.mjs";
+import { toPx, toRatio, TYPE_STEPS } from "./scale.mjs";
+import { buildTheme, readBlock, readVariable, renderBlock, withoutBlock } from "./theme.mjs";
 
 export const FILES = {
   decisions: "design/decisions.json",
@@ -54,6 +55,60 @@ const KINDS = {
       const background = resolve(state.css, check.scope, check.background);
       const same = `${check.scope} {\n  ${check.foreground}: ${background?.value ?? "oklch(1 0 0)"};\n}\n`;
       return { ...state, css: `${state.css}\n${same}` };
+    },
+  },
+  // The variable resolves to the decided value: nothing later in the stylesheet overrides it.
+  value: {
+    run(state, check) {
+      const found = resolve(state.css, check.scope, check.variable);
+      if (found === null) return `${check.variable} is not declared in ${check.scope}`;
+      if (found.value.replace(/\s+/g, " ") === check.expected) return null;
+      return `${check.variable} in ${check.scope} is ${found.value}, not the decided ${check.expected}`;
+    },
+    change(state, check) {
+      const other = check.expected === "1px" ? "2px" : "1px";
+      return {
+        ...state,
+        css: `${state.css}\n${check.scope} {\n  ${check.variable}: ${other};\n}\n`,
+      };
+    },
+  },
+  // The floor's standard is kept: the stylesheet declares none of these variables itself.
+  absent: {
+    run(state, check) {
+      const own = withoutBlock(state.css);
+      const found = check.variables.filter((name) =>
+        new RegExp(`(^|[\\s;{])${name.replace(/[-]/g, "\\-")}\\s*:`, "m").test(own),
+      );
+      if (found.length === 0) return null;
+      return `${found.join(", ")} declared in src/index.css: the decision keeps the floor's standard, so change the decision instead`;
+    },
+    change(state, check) {
+      return { ...state, css: `${state.css}\n:root {\n  ${check.variables[0]}: 1px;\n}\n` };
+    },
+  },
+  // Every step of the type scale is larger than the one before, and its lines do not overlap.
+  scale: {
+    run(state) {
+      const steps = TYPE_STEPS.map(([step]) => ({
+        step,
+        size: toPx(resolve(state.css, ":root", `--text-${step}`)?.value),
+        leading: toRatio(resolve(state.css, ":root", `--text-${step}--line-height`)?.value),
+      }));
+      const unreadable = steps.find((s) => s.size === null || s.leading === null);
+      if (unreadable) return `cannot read --text-${unreadable.step} and its line height`;
+      for (let i = 1; i < steps.length; i += 1) {
+        if (steps[i].size <= steps[i - 1].size) {
+          return `text-${steps[i].step} (${steps[i].size}px) is not larger than text-${steps[i - 1].step} (${steps[i - 1].size}px)`;
+        }
+      }
+      const tight = steps.find((s) => s.leading < 1);
+      if (tight) return `text-${tight.step} has a line height below its size, so its lines overlap`;
+      return null;
+    },
+    change(state) {
+      const base = resolve(state.css, ":root", "--text-base")?.value ?? "1rem";
+      return { ...state, css: `${state.css}\n:root {\n  --text-lg: ${base};\n}\n` };
     },
   },
   gate: {

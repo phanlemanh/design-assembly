@@ -77,13 +77,33 @@ test("apply writes its files, the checks pass, and a second run changes nothing"
   }
   const checked = check(dir);
   assert.equal(checked.status, 0, checked.stderr);
-  assert.match(checked.stdout, /6 checks ok, each seen failing on a changed copy/);
+  const ledger = JSON.parse(readFileSync(path.join(dir, "design/decisions.json"), "utf8"));
+  const checks = ledger.decisions.filter((decision) => decision.check).length;
+  assert.ok(checks >= 9, `only ${checks} checks`);
+  assert.match(
+    checked.stdout,
+    new RegExp(`${checks} checks ok, each seen failing on a changed copy`),
+  );
 
   const second = apply(dir);
   assert.equal(second.status, 0, second.stderr);
   const states = second.stdout.split("\n").filter((line) => /^\w+\s+\S+\.\w+$/.test(line));
   assert.ok(states.length >= 5);
   for (const line of states) assert.match(line, /^unchanged /);
+});
+
+test("a ledger laid out differently by a formatter is left alone; a changed one is rewritten", () => {
+  const dir = repository();
+  assert.equal(apply(dir).status, 0);
+  const file = path.join(dir, "design/decisions.json");
+  const compact = `${JSON.stringify(JSON.parse(readFileSync(file, "utf8")))}\n`;
+  writeFileSync(file, compact);
+  const again = apply(dir);
+  assert.match(again.stdout, /^unchanged design\/decisions\.json$/m);
+  assert.equal(readFileSync(file, "utf8"), compact);
+
+  writeFileSync(file, compact.replace('"version":1', '"version":0'));
+  assert.match(apply(dir).stdout, /^update\s+design\/decisions\.json$/m);
 });
 
 test("a dry run reports what it would do and writes nothing", () => {
@@ -177,6 +197,84 @@ test("a later rule that lowers the contrast makes the check fail, and the rate d
   assert.match(result.stderr, /color-role\.primary\.light: --primary on --background in :root/);
   assert.match(result.stderr, /below 4\.5:1/);
   assert.match(result.stdout, /FAILING\s+formula\s+foundations\.color-role\.primary\.light/);
+});
+
+test("type scale, spacing and shape: each decision fails when the stylesheet stops holding it", () => {
+  const modular = {
+    status: "decided",
+    source: "user",
+    why: "For the test.",
+    choice: {
+      ...CHOICES.foundations,
+      type_scale: "modular",
+      type_ratio: "major-third",
+      spacing_unit: "4px",
+      corner_radius: "small",
+    },
+  };
+  const dir = repository(blueprint({ foundations: modular }));
+  const applied = apply(dir);
+  assert.equal(applied.status, 0, applied.stderr);
+  assert.doesNotMatch(applied.stdout, /decided before/);
+  assert.match(
+    applied.stdout,
+    /type scale: modular, size\/line height in px: xs 10\/16, sm 13\/20, base 16\/24/,
+  );
+  assert.match(
+    applied.stdout,
+    /note: text-xs is 10px, smaller than the floor's smallest size \(12px\)/,
+  );
+  assert.match(applied.stdout, /corner radius: 0\.5rem/);
+  assert.equal(check(dir).status, 0);
+  const css = readFileSync(path.join(dir, "src/index.css"), "utf8");
+  assert.match(css, /--radius: 0\.5rem;/);
+  assert.match(css, /--text-base: 1rem;/);
+
+  const cases = [
+    [
+      ":root {\n  --text-lg: 1rem;\n}\n",
+      /foundations\.type-scale: text-lg \(16px\) is not larger than text-base/,
+    ],
+    [
+      ":root {\n  --spacing: 0.5rem;\n}\n",
+      /foundations\.spacing-scale: --spacing declared in src\/index\.css/,
+    ],
+    [
+      ":root {\n  --radius: 2rem;\n}\n",
+      /foundations\.shape: --radius in :root is 2rem, not the decided 0\.5rem/,
+    ],
+  ];
+  for (const [rule, message] of cases) {
+    const broken = repository(blueprint({ foundations: modular }));
+    assert.equal(apply(broken).status, 0);
+    edit(broken, "src/index.css", (text) => `${text}\n${rule}`);
+    const result = check(broken);
+    assert.equal(result.status, 1, `${rule} was not caught`);
+    assert.match(result.stderr, message);
+  }
+});
+
+test("the standard type scale is held by keeping the floor's variables out of the stylesheet", () => {
+  const dir = repository();
+  assert.equal(apply(dir).status, 0);
+  edit(dir, "src/index.css", (text) => `${text}\n:root {\n  --text-sm: 0.8rem;\n}\n`);
+  const result = check(dir);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /foundations\.type-scale: --text-sm declared in src\/index\.css/);
+});
+
+test("a blueprint decided before type scale and shape existed keeps the floor's values, and says so", () => {
+  const dir = repository();
+  const result = apply(dir);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(
+    result.stdout,
+    /note: foundations was decided before type_scale, spacing_unit, corner_radius could be chosen/,
+  );
+  assert.match(readFileSync(path.join(dir, "src/index.css"), "utf8"), /--radius: 0\.625rem;/);
+  const record = readFileSync(path.join(dir, "design/decisions/foundations.md"), "utf8");
+  assert.match(record, /- corner radius: `floor` \(not asked: the floor's value\)/);
+  assert.doesNotMatch(record, /modular scale/);
 });
 
 test("a gate that cannot fail is reported", () => {

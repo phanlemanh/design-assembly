@@ -9,8 +9,8 @@ shown there and graded by `make check`.
 
 ## What is here today
 
-The first slice: four of the ten decision layers (product context, accessibility, foundations for
-colour only, conformance).
+Four of the ten decision layers: product context, accessibility, foundations (color, type scale,
+spacing scale, shape) and conformance. Density, elevation, motion and iconography are not built.
 
 - `/design-assembly:new` guides a person through those layers and records each decision.
 - `scripts/apply.mjs` derives a tonal palette and the primary color roles from one source color,

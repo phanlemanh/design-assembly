@@ -102,6 +102,12 @@
       "avoid": ["font ladder"]
     },
     {
+      "term": "modular scale",
+      "meaning": "A sequence of sizes related by one ratio, such as 1.25. The ratios are named after musical intervals: minor second, major second, minor third, major third, perfect fourth.",
+      "source": "Tim Brown, More Meaningful Typography, A List Apart, 2011; modularscale.com (read 2026-11-11)",
+      "trust": "source"
+    },
+    {
       "term": "line height",
       "meaning": "The distance between baselines of consecutive lines. Typographers call it leading.",
       "source": "Common practice",
@@ -130,6 +136,18 @@
       "meaning": "The corner treatment of surfaces and controls, set as a corner radius scale.",
       "source": "Common practice (Material Design names the section Shape)",
       "trust": "practice"
+    },
+    {
+      "term": "corner radius",
+      "meaning": "How round a corner is. Material Design 3 names a scale of them: none 0, extra small 4, small 8, medium 12, large 16, and larger steps up to full.",
+      "source": "Material Design 3, Corner radius scale (read 2026-11-11)",
+      "trust": "source"
+    },
+    {
+      "term": "baseline grid",
+      "meaning": "A fixed vertical step that line heights and spacing snap to, so text on different parts of a page lines up. Material Design 1 uses 4dp for type and 8dp for components.",
+      "source": "Material Design 1, Metrics and keylines (read 2026-11-11)",
+      "trust": "source"
     },
     {
       "term": "elevation",

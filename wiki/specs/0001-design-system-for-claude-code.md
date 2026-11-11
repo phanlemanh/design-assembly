@@ -146,6 +146,40 @@ conformance level.
 Hai tác tử cùng thử dựng một bản sao «đã duyệt» bên ngoài kho để lách chỗ vấp đầu; quyền của phiên
 chặn cả hai lần. Không tác tử nào sửa plugin hay commit.
 
+### Foundations đủ bốn phần (2026-11-11)
+
+Foundations nay quyết thêm type scale, spacing scale và shape, ngoài màu.
+
+| Phần          | Người chọn                                           | Máy giữ bằng                                                                                             |
+| ------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Type scale    | Giữ thang của sàn, hoặc modular scale với một tỉ lệ  | Giữ thang sàn: stylesheet không tự khai biến cỡ chữ. Modular: mỗi bậc lớn hơn bậc dưới, dòng không chồng |
+| Spacing scale | Không hỏi: chỉ có đơn vị 4px của sàn                 | Stylesheet không tự khai `--spacing`                                                                     |
+| Shape         | Một bậc corner radius theo tên của Material Design 3 | `--radius` phải ra đúng giá trị đã chọn, kể cả khi có luật viết sau                                      |
+
+Nguồn đã đọc lại: modular scale (Tim Brown, A List Apart 2011; modularscale.com), thang corner
+radius của Material Design 3, biến `--spacing` và thang cỡ chữ mặc định của Tailwind 4, lưới 4dp và
+8dp của Material Design 1.
+
+Ở ứng dụng gốc, máy giữ khuyến nghị cho một application: thang chữ và bo góc của sàn. Determinism
+rate lên 9/12.
+
+**Hai giới hạn tìm ra trên trình duyệt.** Áp thử modular scale (major third) và bo góc large lên ứng
+dụng gốc rồi đo bằng trình duyệt:
+
+- Các cỡ chữ và bo góc mới được dùng thật: tiêu đề 20/28px, nhãn tình trạng 10px, ô nhập bo 16px.
+- Nút của bộ linh kiện sàn ghi cứng cỡ chữ `0.8rem` và chặn bo góc ở 10–12px, nên không theo hai
+  quyết định này. Không sửa linh kiện của nhà cung cấp; ghi vào trang tầng foundations và để tầng
+  core components đóng.
+- Từ minor third trở lên, text-xs nhỏ hơn 12px, cỡ nhỏ nhất của sàn. Không chuẩn nào đặt cỡ chữ tối
+  thiểu, nên bản xem trước chỉ cảnh báo, không chặn.
+
+Một quyết định foundations ghi trước khi có ba phần mới vẫn áp được: máy giữ giá trị của sàn và in
+một dòng báo, không bắt chọn lại.
+
+Cổng kiểm của ứng dụng gốc bắt thêm một lỗi: sau `make format`, chạy lại cuộc dẫn dắt ghi đè tệp
+quyết định theo cách trình bày cũ, nên lint đỏ. Lần áp lại nay so tệp JSON theo nội dung, có bài
+kiểm cho cả hai chiều (trình bày khác thì để yên, nội dung khác thì ghi lại).
+
 Ba điều tìm ra khi dựng:
 
 - Màu sau khi làm tròn có thể vượt khỏi dải màn hình hiển thị được. Giá trị ghi ra nay được cắt sau
@@ -188,7 +222,8 @@ nghiệm thu nằm ngoài kho này. Phép đo tốn tiền API cần chủ kho c
 - Mức AAA dùng ngưỡng 7:1 cho chữ. Con số này máy nhớ từ WCAG 1.4.6, chưa đọc lại nguồn.
 - Màu chính giữ nguyên source color khi đạt ngưỡng. Material Design thì lấy một tone cố định của
   palette. Hai cách cho hai màu nút khác nhau; hiện theo cách của sàn Repo Standards.
-- Iconography, biểu đồ và luật motion chưa nằm trong lát nào.
+- Density, elevation, motion và iconography chưa nằm trong lát nào. Density phải đi cùng spacing:
+  ở sàn này một đơn vị vừa là khoảng cách vừa là kích thước của control.
 - Kho chưa có sàn của Repo Standards thì cuộc dẫn dắt làm gì: từ chối, hay đặt sàn trước?
 - Plugin này không chạm phần làm lại do bài kiểm và hạ tầng, và không trả lời được trải nghiệm có
   tốt không.

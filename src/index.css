@@ -146,6 +146,7 @@
   --palette-primary-98: oklch(0.983 0.008 263.68);
   --palette-primary-99: oklch(0.991 0.004 263.68);
   --palette-primary-100: oklch(1 0 263.68);
+  --radius: 0.625rem;
   --primary: oklch(0.51 0.274 263.68);
   --primary-foreground: oklch(0.985 0 0);
   --ring: oklch(0.51 0.274 263.68);
