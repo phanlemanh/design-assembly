@@ -1,12 +1,13 @@
 ---
 type: spec
-title: Hệ design bằng Claude Code và dành cho Claude Code
-status: draft
+title: Plugin dẫn người dùng dựng design system cho Claude Code
+status: needs-approval
 tier: 1
 links:
-  - wiki/decisions/0002-setup-choices.md
   - wiki/decisions/0003-plugin-inside-the-repo.md
+  - wiki/decisions/0004-output-and-vocabulary.md
 sources:
+  - plugins/design-assembly/references/vocabulary.json
   - repo-standards/docs/superpowers/specs/2026-11-09-design-layer-design.md
   - repo-standards/tests/scenarios/design-bank.md
   - onehub-quy-hang/docs/plan/kien-truc-he-design-da-repo.md
@@ -14,111 +15,126 @@ sources:
   - onehub-inventory/docs/design-standard-proposal.md
 ---
 
-# 0001 Hệ design bằng Claude Code và dành cho Claude Code
+# 0001 Plugin dẫn người dùng dựng design system cho Claude Code
 
-Bản nháp thứ hai, máy soạn ngày 2026-11-11 theo ý tưởng chủ kho nêu cùng ngày. Chủ kho mới duyệt
-một điều: dựng khung plugin bên trong kho (quyết định 0003). Phần còn lại của trang này chưa được
-duyệt. Bản nháp thứ nhất («quyết từ trên xuống, dựng từ dưới lên») nằm trong lịch sử git của tệp
-này; nó được giữ lại ở đây như cách làm, không còn là đề bài.
+Bản nháp thứ ba, 2026-11-11. Chủ kho đã thống nhất hai điều (quyết định 0004): output là một plugin
+dẫn dắt, và từ vựng lấy trọn từ chuẩn của ngành. Phần tiêu chí và kế hoạch dưới đây chờ chủ kho
+duyệt. Hai bản nháp trước nằm trong lịch sử git của tệp này.
 
 ## Intent
 
-Ý tưởng của chủ kho: thiết kế một hệ design bằng Claude Code và dành cho Claude Code. Kết quả nhìn
-thấy được là một hệ design cùng các linh kiện. Mọi thứ dựa vào công thức và lắp ráp trên nền toán
-học, hình học, và được đưa về tất định để Claude Code tự hành.
+**Output, một câu.** Người dùng gõ một lệnh trong kho của họ; plugin dẫn họ qua các tầng quyết
+định; khi xong, kho đó có một design system mà Claude Code dựng màn được mà không phải đoán, kèm
+một điểm đo.
 
-**«Dành cho Claude Code» nghĩa là gì.** Hệ design cho người tối ưu cho việc học và tra tài liệu. Hệ
-cho máy tối ưu cho bốn thứ: bề mặt nhỏ và đóng, không viết sai được, lỗi tự nói cách sửa, tra cứu
-thay cho đọc mã. Đo bằng thước đã có ở Repo Standards: token mỗi màn, số trạng thái thiếu, lỗi rào
-còn lại.
+**Sản phẩm là cuộc dẫn dắt.** Design system là thứ người dùng có được ở kho của họ. Ứng dụng ở gốc
+kho này là reference implementation: nơi chứng minh cuộc dẫn dắt chạy được.
 
-**«Toán» gồm sáu loại**, mỗi loại giữ một phần của hệ:
+**Từ vựng.** Mọi tên mà cuộc dẫn dắt đưa ra cho người dùng lấy từ
+`plugins/design-assembly/references/vocabulary.json`, để một designer chuyên nghiệp không gặp từ
+lạ. Thuật ngữ giữ nguyên tiếng Anh trong mọi ngôn ngữ trò chuyện và được giải thích ở lần đầu xuất
+hiện. Từ nào do dự án tự đặt thì ghi rõ là tự đặt.
 
-| Phần của hệ                    | Loại toán              | Máy giữ bằng                                   |
-| ------------------------------ | ---------------------- | ---------------------------------------------- |
-| Giá trị: màu, chữ, khoảng cách | Số học, không gian màu | Bộ sinh từ hạt giống, giải tương phản          |
-| Hình: bo góc, biểu tượng, bóng | Hình học               | Lưới chuẩn, phép dựng                          |
-| Biến thể linh kiện             | Đại số kiểu            | Sai thì không biên dịch                        |
-| Hành vi: tải, trống, lỗi, lưu  | Máy trạng thái hữu hạn | Thiếu trạng thái thì không biên dịch           |
-| Nghĩa dữ liệu sang hiển thị    | Hàm ánh xạ             | Kiểu cột quyết định canh và định dạng          |
-| Bố cục và độ phủ của bài kiểm  | Ràng buộc, tổ hợp      | Ma trận biến thể × trạng thái tự sinh bài kiểm |
+**Ranh giới với hai thứ đã có.** Repo Standards dừng ở việc đặt sàn. Kit nghiệm thu chấm từng tính
+năng. Plugin này đi từ sàn lên một design system.
 
-**Ba thứ không tất định hoá được**, và hệ nói thẳng như vậy: hạt giống (tính cách thương hiệu), ý
-định của từng màn (việc chính là gì), và lời.
+### Các tầng của cuộc dẫn dắt
 
-**Hai ranh giới.**
+Người quyết từ trên xuống, máy dựng từ dưới lên. Tầng chỉ có một đáp án hợp lý thì máy tự đi và báo
+một dòng.
 
-- Hành vi bàn phím và trợ năng không suy từ công thức. Chúng lấy từ thư viện hành vi không kiểu
-  dáng mà kho đã có. Hệ này sinh phần hình và phần giao diện lập trình ở trên.
-- Chỗ nào mắt thấy sai dù số đúng thì sửa tay và ghi vào sổ ngoại lệ thị giác, kèm lý do.
+| Tầng                 | Quyết định gì                                                        | Ai trả lời                                   | Máy giữ bằng                                     |
+| -------------------- | -------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------ |
+| Context              | Sản phẩm là công cụ làm việc hay trang đọc; nền kỹ thuật             | Người                                        | Decision record                                  |
+| Foundations          | Theme: seed color, type scale, spacing scale, shape, density, motion | Người chọn theme; máy tính các design tokens | Hàm thuần; contrast ratio và target size tự kiểm |
+| Components           | Bộ core components; variant và state của từng cái                    | Máy đề xuất, người có quyền bác              | Kiểu đóng: sai thì không biên dịch               |
+| Interaction patterns | Empty, loading, error state; lưu; destructive action                 | Máy, theo chuẩn có sẵn                       | State bắt buộc trong kiểu                        |
+| Content guidelines   | Voice and tone, từ vựng nghiệp vụ, localization                      | Người                                        | Một nguồn nhãn, một hàm định dạng, design lint   |
+| Templates            | Những template nào sản phẩm cần                                      | Người chọn trong danh sách đóng              | Một reference implementation cho mỗi template    |
+| Accessibility        | Conformance level                                                    | Máy: AA, người có quyền bác                  | Kiểm trên màn đang chạy                          |
+| Conformance          | Design lint, visual regression                                       | Máy                                          | Mỗi luật có ca đỏ và ca xanh                     |
+| Distribution         | Registry và component manifest                                       | Máy                                          | Manifest sinh từ mã, có bước so                  |
+| Governance           | Recipes, snowflakes, graduation, optical adjustment                  | Máy đặt sổ; người ghi lý do khi dùng         | Ngoại lệ không lý do thì bị chặn                 |
 
-**Cách làm** giữ từ bản nháp thứ nhất: người quyết từ trên xuống trong một lần ngồi (ý định sản
-phẩm, kiểu màn, nhận diện, từ vựng); máy dựng từ dưới lên, mỗi tầng phải từng đỏ khi phá thử rồi
-mới làm nền cho tầng trên.
+Người trả lời bốn loại câu hỏi: Context, theme, Content guidelines, Templates.
+
+### Kho của người dùng nhận được gì
+
+- Decision record cho từng tầng.
+- Design tokens tính từ theme.
+- Core components có giao diện lập trình đóng.
+- Bảng interaction patterns theo state.
+- Component manifest, và một trang vẽ ra từ manifest.
+- Design lint và bài kiểm trên màn chạy, mỗi cái đã từng đỏ.
+- Trang luật và móc cho Claude Code.
+- Điểm đo: determinism rate, tức số quyết định có lệnh kiểm tự động chia cho tổng số quyết định.
+  Tên này do chủ kho đặt, không phải từ của ngành.
+
+### Điều không tất định hoá được
+
+Theme (tính cách thương hiệu), ý định của từng page, và lời. Cuộc dẫn dắt nói thẳng như vậy và
+không chấm ba thứ đó.
 
 ### Giả thuyết đo được
 
-Lần đo ba của tầng design ở Repo Standards (2026-11-11) đạt chất lượng (0 trạng thái thiếu so với
-18, 0 lỗi rào so với 76) nhưng trượt ngưỡng token: gấp 1,43 lần, cần không quá 1,30. Token thêm đến
-từ việc tác tử đọc và chép màn mẫu, bài kiểm ứng dụng và trang luật.
-
-Giả thuyết: **màn lắp từ khai báo trên khối đóng thì tác tử đọc ít và viết ít hơn, nên token về
-dưới 1,30 lần mà vẫn giữ 0 trạng thái thiếu.**
+Lần đo ba của tầng design ở Repo Standards (2026-11-11) đạt chất lượng nhưng trượt ngưỡng token:
+gấp 1,43 lần, cần không quá 1,30. Giả thuyết: kho đã đi qua cuộc dẫn dắt này thì tác tử dựng màn
+đọc ít và viết ít hơn, nên token về dưới 1,30 lần mà vẫn giữ 0 state thiếu.
 
 ## Acceptance criteria
 
-Lát mỏng đầu tiên đi trọn một đường dọc, hẹp: từ hạt giống tới một màn danh sách có lọc.
+Lát đầu tiên là một đường dẫn dắt trọn vẹn nhưng hẹp, để chứng minh cuộc dẫn dắt trước khi chứng
+minh một linh kiện.
 
-1. Một tệp hạt giống do người điền. Bộ sinh là hàm thuần: cùng hạt giống thì ra cùng kết quả từng
-   byte.
-2. Bộ sinh ghi ra giá trị màu của kho, và mỗi giá trị có bài kiểm tương phản từng đỏ.
-3. Một khối danh sách đóng: cột khai theo kiểu, năng lực bật theo tên, trạng thái là bắt buộc.
-   Thiếu trạng thái hoặc đặt kiểu dáng tự do thì không biên dịch.
-4. Một sổ đăng ký máy đọc được: linh kiện, biến thể, trạng thái. Trang danh mục vẽ ra từ sổ đó,
-   không ai viết tay.
-5. Màn mẫu được dựng lại bằng khối ở tiêu chí 3; mọi bài kiểm trạng thái hiện có vẫn xanh.
-6. Bộ sinh, khuôn và quy trình nằm trong plugin; ứng dụng ở gốc kho chỉ nhận kết quả.
-7. Đo màn 1 theo giao thức đã khoá ở Repo Standards: trạng thái thiếu bằng 0, lỗi rào còn lại
-   bằng 0, token không quá 1,30 lần nền đối chứng.
+1. Một lệnh của plugin chạy trong một kho trống có sàn của Repo Standards và đi hết ba tầng:
+   Context, Foundations (chỉ phần màu của theme), Conformance.
+2. Có hai độ sâu như lệnh dựng kho của Repo Standards: giao hết cho Claude, hoặc dừng ở từng tầng.
+3. Mỗi tầng ghi một decision record vào kho người dùng: chọn gì, vì sao, đã loại gì.
+4. Từ seed color, máy tính tonal palette và các color role bằng hàm thuần: cùng đầu vào thì ra
+   cùng kết quả từng byte. Mỗi cặp chữ và nền có bài kiểm contrast ratio từng đỏ.
+5. Mọi tên tầng, tên lựa chọn và câu hỏi mà lệnh đưa ra đều có trong bảng từ vựng. Bảng từ vựng
+   không còn dòng nào ở mức `unchecked`.
+6. Một lệnh chấm in determinism rate của kho, và chỉ đếm lệnh kiểm nào đã từng đỏ.
+7. Chạy lại lệnh trên kho đã đi qua thì không đổi gì.
+8. Bài kiểm của plugin tự dựng một kho trống, chạy trọn đường dẫn dắt, rồi chạy cổng kiểm của kho
+   đó.
 
-Tiêu chí 7 tốn tiền API. Chỉ chạy khi chủ kho đồng ý.
+Đo token theo giao thức của Repo Standards để dành cho lát sau, khi cuộc dẫn dắt đã tới Templates.
 
 ## Domain impact
 
-Chưa có khái niệm nghiệp vụ nào, và plugin không được chứa khái niệm nào. Tiêu chí 3 cần một danh
-sách đóng các kiểu hiển thị (tiền, ngày, người, tình trạng, số đếm, chữ). Danh sách này thuộc về
-hệ design, không thuộc về một sản phẩm.
+Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.
 
 ## Plan
 
-1. Chốt tệp hạt giống và bốn câu hỏi của lượt xuống; ghi câu trả lời vào sổ quyết định.
-2. Bộ sinh màu trong plugin, kèm bài kiểm tất định và bài kiểm tương phản.
-3. Khối danh sách đóng và danh sách kiểu hiển thị.
-4. Sổ đăng ký và trang danh mục tự sinh.
-5. Dựng lại màn mẫu bằng khối mới.
-6. Đo màn 1, nếu chủ kho cho chạy.
+1. Tra lại nguồn cho các dòng `unchecked` trong bảng từ vựng.
+2. Viết trang hướng dẫn cho ba tầng của lát đầu, theo khuôn trang tầng của Repo Standards.
+3. Hàm tính màu từ seed color, kèm bài kiểm tất định và bài kiểm contrast ratio.
+4. Lệnh dẫn dắt: đọc tầng, hỏi, ghi decision record, gọi hàm tính, ghi tệp.
+5. Lệnh chấm determinism rate.
+6. Bài kiểm dựng kho trống và chạy trọn đường.
 
 ## Test plan
 
-- Bài kiểm đơn vị và bài trình duyệt hiện có giữ xanh qua từng bước.
-- Mỗi luật mới có ca đưa lỗi vào và ca hợp lệ, sinh bằng mã trong chính lần chạy.
-- Bộ sinh có bài kiểm chạy hai lần và so kết quả.
-- Bài đo ở tiêu chí 7 dùng nền đối chứng và cách chấm của Repo Standards, không tự đặt thước.
+- Bảng từ vựng và hai tệp khai báo của plugin đã có bài kiểm, kèm ca đỏ sinh bằng mã.
+- Hàm tính màu: chạy hai lần so kết quả; phá một giá trị thì bài kiểm contrast ratio phải đỏ.
+- Lệnh dẫn dắt: chạy trên kho trống trong thư mục tạm; chạy lần hai phải không đổi gì.
+- Lệnh chấm: một kho có lệnh kiểm không thể đỏ thì điểm không được tăng.
 
 ## Autonomy tier
 
-Máy tự làm bước 1 đến 5 trong kho này sau khi chủ kho duyệt đề bài. Bước 6 cần chủ kho cho phép
-riêng vì tốn tiền. Thay đổi ở Repo Standards hay kit nghiệm thu nằm ngoài kho này.
+Máy tự làm bước 1 đến 6 trong kho này sau khi chủ kho duyệt. Thay đổi ở Repo Standards hay kit
+nghiệm thu nằm ngoài kho này. Phép đo tốn tiền API cần chủ kho cho phép riêng.
 
 ## Open questions
 
-- Hạt giống gồm những gì? Đề xuất của máy: màu gốc, độ rực, mật độ, bo góc, phông. Thang chữ và
-  thang khoảng cách dùng chuẩn có sẵn, vì số đo ghi nhận 0 lần làm lại do chúng. Chủ kho muốn sinh
-  cả hai thang đó bằng công thức thì nói rõ, đề bài sẽ rộng ra.
-- Giữ bộ linh kiện đang có làm lớp hình, hay sinh lại lớp hình từ công thức trên thư viện hành vi?
-  Cách sau đúng với ý tưởng hơn nhưng mất bộ rào đi kèm bộ linh kiện hiện tại.
-- Biểu tượng, biểu đồ và luật chuyển động chưa nằm trong lát nào.
-- Hệ này không chạm phần làm lại do bài kiểm và hạ tầng, và không trả lời được trải nghiệm có tốt
-  không.
-- Một phiên khác đang đo và sửa tầng design ở Repo Standards. Kết quả ở đó có thể đổi nền của kho
-  này; chưa có cách đồng bộ.
+- Lớp hình của components: giữ bộ linh kiện đang có ở sàn, hay vẽ lại trên headless components?
+  Lát đầu chưa chạm tới.
+- Cách dữ liệu quyết định hiển thị (kiểu cột tiền, ngày, người) chưa có tên chuẩn của ngành trong
+  bảng từ vựng. Cần tìm tên trước khi thành một tầng.
+- Iconography, biểu đồ và luật motion chưa nằm trong lát nào.
+- Kho chưa có sàn của Repo Standards thì cuộc dẫn dắt làm gì: từ chối, hay đặt sàn trước?
+- Plugin này không chạm phần làm lại do bài kiểm và hạ tầng, và không trả lời được trải nghiệm có
+  tốt không.
+- Một phiên khác đang đo và sửa tầng design ở Repo Standards. Kết quả ở đó có thể đổi sàn mà cuộc
+  dẫn dắt đứng lên.

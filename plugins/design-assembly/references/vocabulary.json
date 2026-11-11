@@ -1,0 +1,384 @@
+{
+  "about": "Every name the guide shows to a person comes from this list. Keep the term in English in every conversation language and explain it the first time it appears. `avoid` lists words that must not replace the term in plugin text.",
+  "trust": {
+    "source": "Read at the named source.",
+    "summary": "Only a search summary of the source was read.",
+    "practice": "Widely used in the trade; no single source traced.",
+    "unchecked": "A named standard recalled from memory; not yet re-read for this list.",
+    "coined": "Named in this project or by its owner. Not an industry term."
+  },
+  "inherited_from": "Rows marked inherited carry the trust level recorded in the owner's architecture note of 2026-11-09; they were not re-read for this list.",
+  "terms": [
+    {
+      "term": "design tokens",
+      "meaning": "The smallest named design decisions: a colour, a spacing step, a type size.",
+      "source": "W3C Design Tokens Community Group, Technical Reports 2025.10",
+      "trust": "source",
+      "inherited": true,
+      "avoid": ["design variables"]
+    },
+    {
+      "term": "token tiers",
+      "meaning": "Three layers of tokens: primitive (raw values), semantic (roles), component (bound to one component). The token format does not define them; teams choose.",
+      "source": "Common practice",
+      "trust": "practice",
+      "inherited": true
+    },
+    {
+      "term": "foundations",
+      "meaning": "The tier that holds design tokens and the rules for colour, typography, spacing, shape, elevation, motion, iconography and layout.",
+      "source": "Common practice (Material Design, Atlassian, Primer use it as a top-level section)",
+      "trust": "practice"
+    },
+    {
+      "term": "theme",
+      "meaning": "One set of token values for one identity or mode. The structure of the tokens stays the same across themes.",
+      "source": "Common practice",
+      "trust": "practice",
+      "avoid": ["seeds", "skin"]
+    },
+    {
+      "term": "seed color",
+      "meaning": "The single colour a whole palette is derived from. Also called source color.",
+      "source": "Material Design 3, dynamic color",
+      "trust": "unchecked"
+    },
+    {
+      "term": "tonal palette",
+      "meaning": "The steps of one hue from light to dark that roles pick from.",
+      "source": "Material Design 3, color system",
+      "trust": "unchecked",
+      "avoid": ["colour ramp", "color ramp"]
+    },
+    {
+      "term": "color role",
+      "meaning": "What a colour is for (primary, on-primary, surface, outline), as opposed to which colour it is.",
+      "source": "Material Design 3, color roles",
+      "trust": "unchecked"
+    },
+    {
+      "term": "contrast ratio",
+      "meaning": "The luminance ratio between text or a control and what is behind it. The threshold depends on the conformance level.",
+      "source": "WCAG 2.2, success criteria 1.4.3 and 1.4.11",
+      "trust": "unchecked"
+    },
+    {
+      "term": "target size",
+      "meaning": "The smallest area a pointer control may offer.",
+      "source": "WCAG 2.2, success criterion 2.5.8",
+      "trust": "unchecked",
+      "avoid": ["hit area", "tap zone"]
+    },
+    {
+      "term": "conformance level",
+      "meaning": "The accessibility level a product commits to: A, AA or AAA.",
+      "source": "WCAG 2.2",
+      "trust": "unchecked"
+    },
+    {
+      "term": "type scale",
+      "meaning": "The fixed set of type sizes, each a step from the one before.",
+      "source": "Common practice",
+      "trust": "practice",
+      "avoid": ["font ladder"]
+    },
+    {
+      "term": "line height",
+      "meaning": "The distance between baselines of consecutive lines. Typographers call it leading.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "letter spacing",
+      "meaning": "The uniform space added between characters. Typographers call it tracking.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "measure",
+      "meaning": "The length of a line of running text, counted in characters.",
+      "source": "Common practice in typography",
+      "trust": "practice"
+    },
+    {
+      "term": "spacing scale",
+      "meaning": "The fixed set of distances, usually multiples of one base unit.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "shape",
+      "meaning": "The corner treatment of surfaces and controls, set as a corner radius scale.",
+      "source": "Common practice (Material Design names the section Shape)",
+      "trust": "practice"
+    },
+    {
+      "term": "elevation",
+      "meaning": "How far a surface sits above another, shown by shadow or tone.",
+      "source": "Common practice (Material Design)",
+      "trust": "practice"
+    },
+    {
+      "term": "motion",
+      "meaning": "The durations and easing curves of transitions, and when a transition is allowed.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "density",
+      "meaning": "How tightly controls and rows are packed, as a named setting rather than per-component sizes.",
+      "source": "Common practice (Material Design)",
+      "trust": "practice"
+    },
+    {
+      "term": "layout grid",
+      "meaning": "Columns, gutters and margins that place content, with breakpoints where the arrangement changes.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "iconography",
+      "meaning": "The icon set and its drawing rules: grid, keylines, stroke weight.",
+      "source": "Common practice (Material Design)",
+      "trust": "practice"
+    },
+    {
+      "term": "optical adjustment",
+      "meaning": "A deliberate departure from the computed value because the eye reads the computed one as wrong. Recorded with its reason.",
+      "source": "Common practice in type and icon design",
+      "trust": "practice",
+      "avoid": ["visual hack", "fudge"]
+    },
+    {
+      "term": "atoms, molecules, organisms",
+      "meaning": "Components from the smallest to larger groups. A description of size, not a folder layout.",
+      "source": "Brad Frost, Atomic Design, chapter 2",
+      "trust": "source",
+      "inherited": true
+    },
+    {
+      "term": "templates",
+      "meaning": "Page-level objects that place components in a layout and state the structure of the content.",
+      "source": "Brad Frost, Atomic Design, chapter 2",
+      "trust": "source",
+      "inherited": true,
+      "avoid": ["screen moulds"]
+    },
+    {
+      "term": "pages",
+      "meaning": "Templates filled with real content.",
+      "source": "Brad Frost, Atomic Design, chapter 2",
+      "trust": "source",
+      "inherited": true
+    },
+    {
+      "term": "core design system",
+      "meaning": "The components and conventions shared by the whole organisation.",
+      "source": "Brad Frost, The art of design system recipes",
+      "trust": "source",
+      "inherited": true
+    },
+    {
+      "term": "recipes",
+      "meaning": "Compositions specific to one product. Outside the core, still built on its tokens.",
+      "source": "Brad Frost, The art of design system recipes",
+      "trust": "source",
+      "inherited": true
+    },
+    {
+      "term": "snowflakes",
+      "meaning": "One-off pieces used in a single place. They need a reason and an expiry.",
+      "source": "Brad Frost, The art of design system recipes",
+      "trust": "source",
+      "inherited": true
+    },
+    {
+      "term": "graduation",
+      "meaning": "A recipe that has proved its worth moves into the core.",
+      "source": "Brad Frost, The art of design system recipes",
+      "trust": "source",
+      "inherited": true
+    },
+    {
+      "term": "anatomy",
+      "meaning": "The named parts of a component.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "variant",
+      "meaning": "One of a closed set of looks or purposes a component offers.",
+      "source": "Common practice",
+      "trust": "practice",
+      "avoid": ["flavour", "flavor"]
+    },
+    {
+      "term": "state",
+      "meaning": "What a component or a view shows because of a condition: hover, focus, pressed, disabled, selected for a control; loading, empty, error for a view.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "slot",
+      "meaning": "A named place in a component that takes content.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "headless components",
+      "meaning": "Components that supply behaviour and accessibility with no styling.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "ARIA patterns",
+      "meaning": "The expected keyboard and screen-reader behaviour of a widget such as a dialog, a combobox or tabs.",
+      "source": "W3C WAI-ARIA Authoring Practices Guide",
+      "trust": "unchecked"
+    },
+    {
+      "term": "interaction patterns",
+      "meaning": "Repeatable answers to a recurring task: saving, notifying, waiting, failing, being empty, searching, filtering.",
+      "source": "Primer, UI patterns",
+      "trust": "source",
+      "inherited": true,
+      "avoid": ["behaviour recipes"]
+    },
+    {
+      "term": "empty state",
+      "meaning": "What a view shows when there is nothing yet, with the first action to take.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "loading state",
+      "meaning": "What a view shows while content is on its way, usually a skeleton of the coming content.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "error state",
+      "meaning": "What a view shows when a request failed, with what failed and how to retry.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "destructive action",
+      "meaning": "An action that removes something and cannot be undone. It asks for confirmation and names the thing.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "content guidelines",
+      "meaning": "The rules for words: voice and tone, button labels, error sentences, formats.",
+      "source": "Atlassian Design System (category level)",
+      "trust": "source",
+      "inherited": true
+    },
+    {
+      "term": "voice and tone",
+      "meaning": "Voice is the constant character of the writing; tone is how it shifts with the situation.",
+      "source": "Common practice in content design",
+      "trust": "practice"
+    },
+    {
+      "term": "localization",
+      "meaning": "Language, and the formats of numbers, dates and currency for a locale.",
+      "source": "Common practice (Unicode CLDR, ECMAScript Intl)",
+      "trust": "unchecked"
+    },
+    {
+      "term": "registry",
+      "meaning": "The channel that delivers component code: a JSON index where each item lists its files and dependencies, installed into the project by a command.",
+      "source": "shadcn, Registry",
+      "trust": "source",
+      "inherited": true
+    },
+    {
+      "term": "component manifest",
+      "meaning": "The machine-readable index of components: options, variants, defaults.",
+      "source": "Search summaries only",
+      "trust": "summary",
+      "inherited": true,
+      "avoid": ["catalogue", "catalog"]
+    },
+    {
+      "term": "reference implementation",
+      "meaning": "A real build chosen as the model to copy.",
+      "source": "Common practice",
+      "trust": "practice",
+      "inherited": true,
+      "avoid": ["proving ground", "sample screen"]
+    },
+    {
+      "term": "golden path",
+      "meaning": "The opinionated, supported way. Leaving it is allowed and unsupported.",
+      "source": "Spotify Engineering, How we use Golden Paths",
+      "trust": "source",
+      "inherited": true
+    },
+    {
+      "term": "make illegal states unrepresentable",
+      "meaning": "Shape the types so that a wrong state cannot be written.",
+      "source": "Yaron Minsky, Effective ML Revisited",
+      "trust": "source",
+      "inherited": true
+    },
+    {
+      "term": "design lint",
+      "meaning": "Static checks that reject values and structures outside the system.",
+      "source": "Common practice",
+      "trust": "practice",
+      "inherited": true,
+      "avoid": ["fences"]
+    },
+    {
+      "term": "visual regression",
+      "meaning": "Comparing rendered screens against approved images.",
+      "source": "Common practice",
+      "trust": "practice",
+      "inherited": true
+    },
+    {
+      "term": "governance",
+      "meaning": "Who may change the system, how changes are reviewed, and how adoption is tracked. Includes the contribution model.",
+      "source": "Search summaries only",
+      "trust": "summary",
+      "inherited": true
+    },
+    {
+      "term": "adoption metric",
+      "meaning": "The share of the product built from the system's components, and the count of detached variants.",
+      "source": "Search summaries only",
+      "trust": "summary",
+      "inherited": true
+    },
+    {
+      "term": "decision record",
+      "meaning": "A short page that states one decision, its context and its consequences.",
+      "source": "Common practice (architecture decision records)",
+      "trust": "practice"
+    },
+    {
+      "term": "verification kit",
+      "meaning": "Shared test tools: test templates, readiness waits, break-it checks.",
+      "source": "The owner's architecture note of 2026-11-09",
+      "trust": "coined",
+      "inherited": true
+    },
+    {
+      "term": "certainty ladder",
+      "meaning": "Five rungs for how firmly a decision is held, from cannot-be-written-wrong down to written guidance, plus design judgment.",
+      "source": "The owner's architecture note of 2026-11-09",
+      "trust": "coined",
+      "inherited": true
+    },
+    {
+      "term": "determinism rate",
+      "meaning": "Decisions with an automated check that can fail, divided by all decisions.",
+      "source": "The owner's standardisation proposal of 2026-11-10",
+      "trust": "coined",
+      "inherited": true
+    }
+  ]
+}

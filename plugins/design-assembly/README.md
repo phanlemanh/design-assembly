@@ -1,26 +1,38 @@
 # design-assembly (plugin)
 
-The engine of this repository: what a consuming repository installs so that Claude Code can build
-screens from a design system without guessing. The app at the repository root is the proving
-ground: whatever this plugin generates is shown there and graded by `make check`.
+A guide. A person runs one command in their repository; the plugin leads them through decision
+layers and leaves that repository with a design system Claude Code can build from without guessing,
+plus a score.
+
+The app at the repository root is the reference implementation: whatever this plugin generates is
+shown there and graded by `make check`.
 
 ## What is here today
 
-Only the manifest. There are no skills, hooks, commands or scripts yet, so installing the plugin
-changes nothing. The first slice is described in
+The manifest and the vocabulary. There are no skills, hooks, commands or scripts yet, so installing
+the plugin changes nothing. The first slice is described in
 `wiki/specs/0001-design-system-for-claude-code.md`.
+
+## Vocabulary
+
+Every name the guide shows to a person comes from `references/vocabulary.json`: industry terms, each
+with its source and how far that source was checked. A professional designer should meet no new
+word. Keep the term in English in every conversation language and explain it on first use.
+`tests/plugin-vocabulary.test.ts` rejects a term without a source, and plugin text that uses a word
+the list says to avoid.
 
 ## What goes where
 
 Add a folder only when its first real file exists.
 
-| Path         | Holds                                                                 | Reaches the consuming repository as               |
-| ------------ | --------------------------------------------------------------------- | ------------------------------------------------- |
-| `scripts/`   | The generator: pure functions from seeds to values, shapes and checks | Files it writes, each with a check that can fail  |
-| `templates/` | Component and screen sources the generator fills in                   | Code the repository then owns                     |
-| `skills/`    | Procedures: how to assemble a screen, how to add a component          | Instructions loaded on demand                     |
-| `hooks/`     | Checks that run after each edit                                       | Immediate feedback to the agent                   |
-| `registry/`  | Machine-readable catalogue: component, variants, states               | What the agent looks up instead of reading source |
+| Path          | Holds                                                         | Reaches the consuming repository as              |
+| ------------- | ------------------------------------------------------------- | ------------------------------------------------ |
+| `references/` | The vocabulary, and one page per decision layer               | What the guide says at each step                 |
+| `skills/`     | The guide itself, and the score                               | Commands a person runs                           |
+| `scripts/`    | Pure functions from a theme to design tokens and their checks | Files it writes, each with a check that can fail |
+| `templates/`  | Component and template sources                                | Code the repository then owns                    |
+| `hooks/`      | Design lint that runs after each edit                         | Immediate feedback to the agent                  |
+| `registry/`   | The component manifest: components, variants, states          | What the agent looks up instead of reading code  |
 
 ## Rules for this folder
 
