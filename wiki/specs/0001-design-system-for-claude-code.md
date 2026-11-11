@@ -1,9 +1,11 @@
 ---
 type: spec
-title: Quyết từ trên xuống, dựng từ dưới lên
+title: Hệ design bằng Claude Code và dành cho Claude Code
 status: draft
 tier: 1
-links: [wiki/decisions/0002-setup-choices.md]
+links:
+  - wiki/decisions/0002-setup-choices.md
+  - wiki/decisions/0003-plugin-inside-the-repo.md
 sources:
   - repo-standards/docs/superpowers/specs/2026-11-09-design-layer-design.md
   - repo-standards/tests/scenarios/design-bank.md
@@ -12,86 +14,111 @@ sources:
   - onehub-inventory/docs/design-standard-proposal.md
 ---
 
-# 0001 Quyết từ trên xuống, dựng từ dưới lên
+# 0001 Hệ design bằng Claude Code và dành cho Claude Code
 
-Bản nháp do máy soạn ngày 2026-11-11 từ một phiên trao đổi với chủ kho. Chủ kho chưa duyệt.
+Bản nháp thứ hai, máy soạn ngày 2026-11-11 theo ý tưởng chủ kho nêu cùng ngày. Chủ kho mới duyệt
+một điều: dựng khung plugin bên trong kho (quyết định 0003). Phần còn lại của trang này chưa được
+duyệt. Bản nháp thứ nhất («quyết từ trên xuống, dựng từ dưới lên») nằm trong lịch sử git của tệp
+này; nó được giữ lại ở đây như cách làm, không còn là đề bài.
 
 ## Intent
 
-Ý tưởng gốc của chủ kho: mô phỏng bằng công thức và lắp ghép, đi từ nhỏ đến lớn, qua các thành phần
-kết hợp với lựa chọn, để cùng Claude Code thiết kế lại hệ design.
+Ý tưởng của chủ kho: thiết kế một hệ design bằng Claude Code và dành cho Claude Code. Kết quả nhìn
+thấy được là một hệ design cùng các linh kiện. Mọi thứ dựa vào công thức và lắp ráp trên nền toán
+học, hình học, và được đưa về tất định để Claude Code tự hành.
 
-Sau khi đối chiếu với số đo đã có, ý tưởng được chỉnh một điều: **quyết từ trên xuống, dựng từ dưới
-lên**.
+**«Dành cho Claude Code» nghĩa là gì.** Hệ design cho người tối ưu cho việc học và tra tài liệu. Hệ
+cho máy tối ưu cho bốn thứ: bề mặt nhỏ và đóng, không viết sai được, lỗi tự nói cách sửa, tra cứu
+thay cho đọc mã. Đo bằng thước đã có ở Repo Standards: token mỗi màn, số trạng thái thiếu, lỗi rào
+còn lại.
 
-- **Lượt xuống, người quyết, một lần ngồi.** Bốn loại câu hỏi chỉ người trả lời được: ý định sản
-  phẩm (công cụ hay trang đọc), kiểu màn cần có (chọn trong danh sách đóng), nhận diện (màu, phông,
-  giọng), từ vựng nghiệp vụ. Mỗi câu có khuyến nghị và thấy hệ quả ngay trên màn đang chạy.
-- **Lượt lên, máy dựng và tự kiểm.** Giá trị nền (chuẩn có sẵn trước, công thức sau), linh kiện
-  (biến thể đóng), hành vi và lời và định dạng (ma trận trạng thái), rồi màn mẫu cho từng kiểu màn.
-  Mỗi tầng phải từng đỏ khi phá thử rồi mới được làm nền cho tầng trên.
-- **Bộ mô phỏng là khung nhìn vào kho thật**, không phải một trang đứng riêng: màn mẫu đang chạy
-  cộng đèn báo lấy từ chính bộ rào của kho.
+**«Toán» gồm sáu loại**, mỗi loại giữ một phần của hệ:
 
-Vì sao đổi hướng quyết: tầng giá trị nền là nơi đau ít nhất (0 lần làm lại vì token, 207 token chỉ
-cần giữ 7 biến thương hiệu), còn phần thiếu dồn ở hành vi, lời và nghĩa dữ liệu (13 trong 19 thành
-phần thiếu của ma trận kiểm kê 49 dòng).
+| Phần của hệ                    | Loại toán              | Máy giữ bằng                                   |
+| ------------------------------ | ---------------------- | ---------------------------------------------- |
+| Giá trị: màu, chữ, khoảng cách | Số học, không gian màu | Bộ sinh từ hạt giống, giải tương phản          |
+| Hình: bo góc, biểu tượng, bóng | Hình học               | Lưới chuẩn, phép dựng                          |
+| Biến thể linh kiện             | Đại số kiểu            | Sai thì không biên dịch                        |
+| Hành vi: tải, trống, lỗi, lưu  | Máy trạng thái hữu hạn | Thiếu trạng thái thì không biên dịch           |
+| Nghĩa dữ liệu sang hiển thị    | Hàm ánh xạ             | Kiểu cột quyết định canh và định dạng          |
+| Bố cục và độ phủ của bài kiểm  | Ràng buộc, tổ hợp      | Ma trận biến thể × trạng thái tự sinh bài kiểm |
+
+**Ba thứ không tất định hoá được**, và hệ nói thẳng như vậy: hạt giống (tính cách thương hiệu), ý
+định của từng màn (việc chính là gì), và lời.
+
+**Hai ranh giới.**
+
+- Hành vi bàn phím và trợ năng không suy từ công thức. Chúng lấy từ thư viện hành vi không kiểu
+  dáng mà kho đã có. Hệ này sinh phần hình và phần giao diện lập trình ở trên.
+- Chỗ nào mắt thấy sai dù số đúng thì sửa tay và ghi vào sổ ngoại lệ thị giác, kèm lý do.
+
+**Cách làm** giữ từ bản nháp thứ nhất: người quyết từ trên xuống trong một lần ngồi (ý định sản
+phẩm, kiểu màn, nhận diện, từ vựng); máy dựng từ dưới lên, mỗi tầng phải từng đỏ khi phá thử rồi
+mới làm nền cho tầng trên.
 
 ### Giả thuyết đo được
 
 Lần đo ba của tầng design ở Repo Standards (2026-11-11) đạt chất lượng (0 trạng thái thiếu so với
-18, 0 lỗi rào so với 76) nhưng trượt ngưỡng token: x1,43, cần không quá x1,30. Phần token thêm đến
-từ việc tác tử đọc và chép cả màn mẫu, bài kiểm ứng dụng và trang luật.
+18, 0 lỗi rào so với 76) nhưng trượt ngưỡng token: gấp 1,43 lần, cần không quá 1,30. Token thêm đến
+từ việc tác tử đọc và chép màn mẫu, bài kiểm ứng dụng và trang luật.
 
-Giả thuyết của kho này: **nếu màn được lắp từ khối đóng thay vì chép màn mẫu, tác tử đọc ít hơn và
-viết ít hơn, nên token về dưới x1,30 mà vẫn giữ 0 trạng thái thiếu.**
+Giả thuyết: **màn lắp từ khai báo trên khối đóng thì tác tử đọc ít và viết ít hơn, nên token về
+dưới 1,30 lần mà vẫn giữ 0 trạng thái thiếu.**
 
 ## Acceptance criteria
 
-Lát mỏng đầu tiên chỉ làm một kiểu màn: danh sách có lọc (màn 1 của phép đo).
+Lát mỏng đầu tiên đi trọn một đường dọc, hẹp: từ hạt giống tới một màn danh sách có lọc.
 
-1. Màn danh sách có lọc được dựng bằng cách khai báo: cột theo kiểu, năng lực theo tên, trạng thái
-   bắt buộc. Thiếu trạng thái thì không biên dịch được.
-2. Người đi lượt xuống trong một lần ngồi, tối đa bốn câu hỏi, mỗi câu có khuyến nghị.
-3. Mỗi lựa chọn thành một dòng trong sổ quyết định, có lệnh kiểm; lệnh kiểm phải từng đỏ.
-4. `make check` qua, và bộ rào vẫn đỏ khi đưa lỗi mẫu vào.
-5. Đo bằng đúng giao thức đã khoá ở `repo-standards/tests/scenarios/design-bank.md`, riêng màn 1:
-   trạng thái thiếu bằng 0, lỗi rào còn lại bằng 0, token không quá x1,30 so với nền đối chứng.
+1. Một tệp hạt giống do người điền. Bộ sinh là hàm thuần: cùng hạt giống thì ra cùng kết quả từng
+   byte.
+2. Bộ sinh ghi ra giá trị màu của kho, và mỗi giá trị có bài kiểm tương phản từng đỏ.
+3. Một khối danh sách đóng: cột khai theo kiểu, năng lực bật theo tên, trạng thái là bắt buộc.
+   Thiếu trạng thái hoặc đặt kiểu dáng tự do thì không biên dịch.
+4. Một sổ đăng ký máy đọc được: linh kiện, biến thể, trạng thái. Trang danh mục vẽ ra từ sổ đó,
+   không ai viết tay.
+5. Màn mẫu được dựng lại bằng khối ở tiêu chí 3; mọi bài kiểm trạng thái hiện có vẫn xanh.
+6. Bộ sinh, khuôn và quy trình nằm trong plugin; ứng dụng ở gốc kho chỉ nhận kết quả.
+7. Đo màn 1 theo giao thức đã khoá ở Repo Standards: trạng thái thiếu bằng 0, lỗi rào còn lại
+   bằng 0, token không quá 1,30 lần nền đối chứng.
 
-Tiêu chí 5 tốn tiền API. Chỉ chạy khi chủ kho đồng ý.
+Tiêu chí 7 tốn tiền API. Chỉ chạy khi chủ kho đồng ý.
 
 ## Domain impact
 
-Chưa có khái niệm nghiệp vụ nào. Khi cần cột theo kiểu (tiền, ngày, người, tình trạng) thì thêm
-khoá hiển thị vào ontology, theo hướng `display` của đề xuất chuẩn hoá ở onehub-inventory.
+Chưa có khái niệm nghiệp vụ nào, và plugin không được chứa khái niệm nào. Tiêu chí 3 cần một danh
+sách đóng các kiểu hiển thị (tiền, ngày, người, tình trạng, số đếm, chữ). Danh sách này thuộc về
+hệ design, không thuộc về một sản phẩm.
 
 ## Plan
 
-1. Chốt bốn câu hỏi lượt xuống cho lát này và ghi câu trả lời vào sổ quyết định.
-2. Dựng khối danh sách đóng trên linh kiện sẵn có: kiểu cột quyết định canh và định dạng, không mở
-   tuỳ chọn kiểu dáng.
-3. Dựng lại màn mẫu bằng khối đó; giữ nguyên bài kiểm trạng thái hiện có.
-4. Thêm khung nhìn «đèn báo» đọc kết quả từ bộ rào của kho.
-5. Đo màn 1 theo giao thức đã khoá, nếu chủ kho cho chạy.
+1. Chốt tệp hạt giống và bốn câu hỏi của lượt xuống; ghi câu trả lời vào sổ quyết định.
+2. Bộ sinh màu trong plugin, kèm bài kiểm tất định và bài kiểm tương phản.
+3. Khối danh sách đóng và danh sách kiểu hiển thị.
+4. Sổ đăng ký và trang danh mục tự sinh.
+5. Dựng lại màn mẫu bằng khối mới.
+6. Đo màn 1, nếu chủ kho cho chạy.
 
 ## Test plan
 
-- Bài kiểm đơn vị và bài trình duyệt hiện có phải giữ xanh qua từng bước.
-- Mỗi luật mới có một ca đưa lỗi vào và một ca hợp lệ, cùng chỗ với `tools/design_guards.mjs`.
-- Phép đo ở tiêu chí 5 dùng nền đối chứng và cách chấm của Repo Standards, không tự đặt thước.
+- Bài kiểm đơn vị và bài trình duyệt hiện có giữ xanh qua từng bước.
+- Mỗi luật mới có ca đưa lỗi vào và ca hợp lệ, sinh bằng mã trong chính lần chạy.
+- Bộ sinh có bài kiểm chạy hai lần và so kết quả.
+- Bài đo ở tiêu chí 7 dùng nền đối chứng và cách chấm của Repo Standards, không tự đặt thước.
 
 ## Autonomy tier
 
-Máy tự làm bước 1 đến 4 trong kho này. Bước 5 cần chủ kho cho phép vì tốn tiền. Mọi thay đổi ở
-Repo Standards hay kit nghiệm thu nằm ngoài kho này và cần chủ kho quyết riêng.
+Máy tự làm bước 1 đến 5 trong kho này sau khi chủ kho duyệt đề bài. Bước 6 cần chủ kho cho phép
+riêng vì tốn tiền. Thay đổi ở Repo Standards hay kit nghiệm thu nằm ngoài kho này.
 
 ## Open questions
 
-- Nền shadcn đặt sẵn giá trị nền và linh kiện, nên phần «công thức» chỉ còn ở vài chỗ: sắc nhạt của
-  màu thương hiệu, màu chữ trên nền, mật độ, bề rộng cột. Chủ kho có muốn kho này tự sinh cả thang
-  chữ và khoảng cách bằng công thức không? Số đo hiện có nói là không đáng.
-- Ngôn ngữ và tiền tệ (`vi-VN`, VND) do máy suy từ ngôn ngữ hội thoại. Chủ kho có thể bác.
-- Ý tưởng này không chạm 55 % số lần làm lại do bài kiểm và hạ tầng, và không trả lời được trải
-  nghiệm có tốt không.
+- Hạt giống gồm những gì? Đề xuất của máy: màu gốc, độ rực, mật độ, bo góc, phông. Thang chữ và
+  thang khoảng cách dùng chuẩn có sẵn, vì số đo ghi nhận 0 lần làm lại do chúng. Chủ kho muốn sinh
+  cả hai thang đó bằng công thức thì nói rõ, đề bài sẽ rộng ra.
+- Giữ bộ linh kiện đang có làm lớp hình, hay sinh lại lớp hình từ công thức trên thư viện hành vi?
+  Cách sau đúng với ý tưởng hơn nhưng mất bộ rào đi kèm bộ linh kiện hiện tại.
+- Biểu tượng, biểu đồ và luật chuyển động chưa nằm trong lát nào.
+- Hệ này không chạm phần làm lại do bài kiểm và hạ tầng, và không trả lời được trải nghiệm có tốt
+  không.
 - Một phiên khác đang đo và sửa tầng design ở Repo Standards. Kết quả ở đó có thể đổi nền của kho
   này; chưa có cách đồng bộ.

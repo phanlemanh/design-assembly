@@ -1,0 +1,10 @@
+{
+  "name": "design-assembly",
+  "version": "0.0.1",
+  "description": "Skeleton only: no skills, hooks or generators yet. Will carry the generator, the guards and the procedures that let Claude Code assemble screens without guessing.",
+  "author": {
+    "name": "phanlemanh"
+  },
+  "license": "UNLICENSED",
+  "keywords": ["design-system", "determinism", "tokens", "components", "claude-code"]
+}

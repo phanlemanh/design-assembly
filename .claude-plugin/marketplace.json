@@ -1,0 +1,19 @@
+{
+  "name": "design-assembly",
+  "owner": {
+    "name": "phanlemanh"
+  },
+  "metadata": {
+    "description": "A design system built by Claude Code, for Claude Code: values, shapes, variants, behaviours and checks derived by rule from a few seeds."
+  },
+  "plugins": [
+    {
+      "name": "design-assembly",
+      "source": "./plugins/design-assembly",
+      "description": "Skeleton only: no skills, hooks or generators yet. Will carry the generator, the guards and the procedures that let Claude Code assemble screens without guessing.",
+      "version": "0.0.1",
+      "category": "development",
+      "keywords": ["design-system", "determinism", "tokens", "components", "claude-code"]
+    }
+  ]
+}

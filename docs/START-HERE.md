@@ -30,6 +30,7 @@ Việc của kho này nằm ở [đề bài lát mỏng](../wiki/specs/0001-desi
 | `ontology/`                              | Khái niệm nghiệp vụ. Đang trống                                       | Thêm bằng `/ontology-add`      |
 | `wiki/`                                  | Lý do của các quyết định                                              | Ghi khi quyết điều gì đáng nhớ |
 | `setup-blueprint.yaml`                   | Các lựa chọn lúc dựng kho                                             | Chỉ để đọc                     |
+| `plugins/design-assembly/`               | Động cơ của hệ design, đóng gói thành plugin. Mới có tệp khai báo     | Chỉ viết tiếng Anh ở đây       |
 
 ## Điều gì tự chạy
 
@@ -46,9 +47,8 @@ có gì tự chạy: muốn kiểm thì gõ `make check`.
 ## Chưa làm
 
 - Tính năng nào ngoài màn mẫu.
-- Kho trên GitHub, triển khai.
-- Kho trên GitHub: mọi commit mới chỉ nằm trên máy này.
-- Bốn bước dựng và bước đo trong đề bài lát mỏng.
+- Kho trên GitHub và triển khai: mọi commit mới chỉ nằm trên máy này.
+- Bộ sinh, khối danh sách, sổ đăng ký và trang danh mục trong đề bài. Đề bài chưa được duyệt.
 
 ## Bước kế
 
