@@ -1,0 +1,70 @@
+{
+  "about": "The deliverable tiers of a standardised design system, lowest first. A tier is reached when its artifacts are in the repository, its checks run in the repository's gate, and each check has been seen failing. Tiers have names, not numbers of their own: `maps_to` gives the level in the owner's architecture note (L1 to L5), where conformance (L4) is the exit condition of every tier rather than a tier. `terms` are vocabulary terms. `verified: false` means this version can only see whether the artifacts exist.",
+  "tiers": [
+    {
+      "id": "audit",
+      "terms": ["audit"],
+      "maps_to": null,
+      "verified": true,
+      "gives": "Know what is decided, what is held, and what is bypassed, before changing anything.",
+      "needs": [{ "kind": "readable" }]
+    },
+    {
+      "id": "foundations",
+      "terms": ["foundations"],
+      "maps_to": "L1",
+      "verified": true,
+      "gives": "Never choose a raw colour, size, distance or radius.",
+      "needs": [
+        { "kind": "decisions", "layer": "foundations" },
+        { "kind": "file", "socket": "design_floor.tokens", "path": "design/tokens.json" }
+      ]
+    },
+    {
+      "id": "core-components",
+      "terms": ["core components"],
+      "maps_to": "L2",
+      "verified": false,
+      "gives": "Pick a component by looking it up, and be unable to write a wrong variant.",
+      "needs": [
+        {
+          "kind": "file",
+          "socket": "design_floor.registry",
+          "path": "design/component-registry.json"
+        }
+      ]
+    },
+    {
+      "id": "patterns-and-content",
+      "terms": ["interaction patterns", "content guidelines"],
+      "maps_to": "L3",
+      "verified": false,
+      "gives": "Answer what a view shows when loading, empty or failing, and how it says it.",
+      "needs": [
+        { "kind": "any-file", "paths": ["design/behaviors.md", "design/states.md"] },
+        {
+          "kind": "any-file",
+          "paths": ["design/terms.json", "design/language.md", "design/content.md"]
+        }
+      ]
+    },
+    {
+      "id": "templates",
+      "terms": ["templates"],
+      "maps_to": "L3",
+      "verified": false,
+      "gives": "Build a new screen of a known kind.",
+      "needs": [{ "kind": "folder", "path": "design/patterns", "extension": ".md" }]
+    },
+    {
+      "id": "governance",
+      "terms": ["governance"],
+      "maps_to": "L5",
+      "verified": false,
+      "gives": "Handle a departure from the system without eroding it.",
+      "needs": [
+        { "kind": "any-file", "paths": ["design/escapes.md", "design/patterns/lech-lot.md"] }
+      ]
+    }
+  ]
+}

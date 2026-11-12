@@ -75,11 +75,21 @@ Người trả lời bốn loại câu hỏi: Context, theme, Content guidelines
 Theme (tính cách thương hiệu), ý định của từng page, và lời. Cuộc dẫn dắt nói thẳng như vậy và
 không chấm ba thứ đó.
 
-### Giả thuyết đo được
+### Đầu ra và các bậc (quyết định 0005, 2026-11-12)
 
-Lần đo ba của tầng design ở Repo Standards (2026-11-11) đạt chất lượng nhưng trượt ngưỡng token:
-gấp 1,43 lần, cần không quá 1,30. Giả thuyết: kho đã đi qua cuộc dẫn dắt này thì tác tử dựng màn
-đọc ít và viết ít hơn, nên token về dưới 1,30 lần mà vẫn giữ 0 state thiếu.
+Đầu ra là một design system chuẩn hoá nằm dưới `design/` của repo, đạt theo bậc: audit,
+foundations, core components, patterns và content, templates, governance. Mỗi bậc cần vật trong
+repo, lệnh kiểm từng đỏ, và một việc Claude Code tự làm được. Bảng bậc, ranh giới với Repo
+Standards và kit nghiệm thu, và năm điều chỉnh nằm ở quyết định 0005.
+
+Mười tầng của cuộc dẫn dắt là các bước người dùng đi qua; bậc là thứ họ nhận được.
+
+### Vì sao cần plugin này
+
+Bản trước ghi giả thuyết «giảm token», neo vào lần đo ba của Repo Standards (token gấp 1,43 lần).
+Lần đo bốn của họ đã đạt cả ba ngưỡng, nên giả thuyết đó hết căn cứ. Lý do còn đứng: Repo Standards
+không áp tầng design vào kho đã có, kit chỉ chấm từng tính năng, nên không ai chuẩn hoá design
+system của một kho đã có, và không ai đi quá màn mẫu đầu tiên.
 
 ## Acceptance criteria
 

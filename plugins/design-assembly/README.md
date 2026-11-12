@@ -15,7 +15,11 @@ spacing scale, shape) and conformance. Density, elevation, motion and iconograph
 - `/design-assembly:new` guides a person through those layers and records each decision.
 - `scripts/apply.mjs` derives a tonal palette and the primary color roles from one source color,
   writes them into the repository's stylesheet, and installs the checks that hold them.
-- `/design-assembly:audit` reports the determinism rate.
+- `/design-assembly:audit` reads any repository without changing it: the state of each foundations
+  decision, the deliverable tier reached (`references/tiers.json`), and what the next tier misses.
+
+What a repository ends up with is a standardised design system under its own `design/` folder,
+reached tier by tier. The artifacts use the paths and formats the acceptance kit already reads.
 
 The other six layers are listed in `references/layers.json` as not built. The guide has not yet been
 run from an installed plugin in a fresh session; the machine parts are covered by `tests/`.
