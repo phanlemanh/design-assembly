@@ -14,7 +14,7 @@ sửa trang này hoặc xoá nó.
 2. `AGENTS.md` và `CLAUDE.md` ở gốc kho: lệnh, luật, ngôn ngữ.
 3. `wiki/index.md`, rồi `wiki/specs/0001-design-system-for-claude-code.md` (đề bài và kết quả từng
    lát, ba lần chạy thử).
-4. Bản ghi quyết định `wiki/decisions/0005` đến `0017`: mỗi phần đã dựng có một bản, kèm giới hạn.
+4. Bản ghi quyết định `wiki/decisions/0005` đến `0018`: mỗi phần đã dựng có một bản, kèm giới hạn.
 5. `plugins/design-assembly/references/checks.md`: mọi tệp plugin để lại ở một kho, và mỗi loại
    lệnh kiểm.
 
@@ -42,10 +42,10 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 ## Trạng thái lúc bàn giao
 
 - Nhánh `main`, cây làm việc sạch. **Chưa có remote, chưa đẩy đi đâu**: kho chỉ nằm trên máy
-  này. Mọi thứ đều đã commit. Cập nhật lần cuối 2026-11-12, sau quyết định 0017.
+  này. Mọi thứ đều đã commit. Cập nhật lần cuối 2026-11-12, sau quyết định 0018.
 - `make check` xanh: lint, typecheck, 68 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (20 quyết định, 25 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 150 bài kiểm của plugin.
-- Kho này đáp **36/38 quyết định lõi**: 13 máy giữ, 17 tự khai, 6 đã ghi. Sổ có 45 dòng. Cả sáu
+  (22 quyết định, 27 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 163 bài kiểm của plugin.
+- Kho này đáp **37/38 quyết định lõi**: 14 máy giữ, 17 tự khai, 6 đã ghi. Sổ có 47 dòng. Cả sáu
   câu «đã ghi» đều là máy đề xuất, chưa ai xác nhận; audit nêu tên chúng.
 
 | Bậc                           | Trạng thái       | Còn thiếu                                                  |
@@ -55,7 +55,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 | core components               | 10/10, «tự khai» | như trên                                                   |
 | trạng thái của màn và lời văn | 7/8              | mở hồ sơ cạnh danh sách: chưa có màn nào cần               |
 | templates                     | 8/8              | ba câu «đã ghi» chờ chủ kho xác nhận; ba câu mới «tự khai» |
-| governance                    | 2/3              | hướng nhập giữa các phần; tệp ghi các lần lệch chuẩn       |
+| governance                    | 3/3              | sổ lỗi lọt không ai buộc được người ghi; xem 0018          |
 
 ## Đã dựng gì, theo thứ tự
 
@@ -72,6 +72,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 | Trạng thái, chữ, câu báo lỗi                               | 0013    | `templates/tools/design-assembly/patterns.mjs`                                                     |
 | Kênh thông báo, hoàn tác, bài kiểm gắn thẻ làm bằng chứng  | 0014    | `src/lib/notify.ts`, `scripts/proofs.mjs`                                                          |
 | Trang luật cho tác tử; dòng sổ chưa có lệnh kiểm           | 0015    | `.claude/rules/design-assembly.md`, cờ `--hold` của adopt                                          |
+| Hướng nhập giữa các phần, sổ lỗi lọt                       | 0018    | `templates/tools/design-assembly/governance.mjs`, `design/parts.json`, `design/escapes.md`         |
 | Sau một thao tác: tiêu điểm, đổi tại chỗ, trống, đi lại    | 0017    | `src/example/ReferenceScreen.tsx`, `src/lib/slow.ts`, `templates/owned/templates.spec.ts.template` |
 | Kiểu màn, cỡ màn được kiểm, thao tác thất bại              | 0016    | `templates/tools/design-assembly/screens.mjs`, `design/patterns/`, `src/lib/notify.ts`             |
 
@@ -90,7 +91,10 @@ việc nào được duyệt:
 - **Lần chạy thử bốn đã xong** (2026-11-12, kết quả ở cuối spec 0001). Điều sai rõ đã sửa, và
   bốn chỗ nó để ngỏ đã thành luật (quyết định 0017). Cả hai đợt sửa chưa được thử lại.
 - **Khung điều hướng** chưa dựng: luật có rồi, chờ màn thứ hai.
-- **Bậc governance** (2/3): hướng nhập giữa các phần, và tệp ghi các lần lệch chuẩn.
+- **Đo token** theo giao thức của Repo Standards: đề bài hẹn làm khi cuộc dẫn dắt tới bậc
+  templates. Tốn tiền API, cần chủ kho cho phép riêng.
+- **Gặp lỗi lọt thì ghi `design/escapes.md` trước khi sửa.** Phiên nào cũng phải làm; không máy
+  nào nhắc.
 - **Lệnh kiểm tương phản cho nút khi rê chuột**: lần này bài kiểm trình duyệt tình cờ bắt được
   (xem 0016, giới hạn).
 - **Adopt nhận trang kiểu màn** ở kho đã có.

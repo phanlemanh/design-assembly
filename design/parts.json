@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "parts": [
+    {
+      "name": "app",
+      "files": ["src/*.ts", "src/*.tsx"]
+    },
+    {
+      "name": "screens",
+      "kinds": "design/patterns"
+    },
+    {
+      "name": "components",
+      "files": ["src/components/ui/**"]
+    },
+    {
+      "name": "base",
+      "files": ["src/**"]
+    }
+  ]
+}

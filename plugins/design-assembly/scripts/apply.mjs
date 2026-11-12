@@ -34,6 +34,15 @@ import {
   REGISTRY,
   targetSizes,
 } from "../templates/tools/design-assembly/components.mjs";
+import {
+  importsProblem,
+  PARTS_FILE,
+  readSources,
+  SLIPS_FILE,
+  slipsProblem,
+  SOURCE_FOLDER,
+  starterParts,
+} from "../templates/tools/design-assembly/governance.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import {
   channelsProblem,
@@ -667,6 +676,82 @@ export function templatesPlan(target, { starter, code = false, pending = {} }) {
   return { files, held, rows, known, failing, notes };
 }
 
+// The record a repository starts with: a table and no line. A line is added when a fault is found
+// that every check let through.
+const STARTER_SLIPS = [
+  "# What slipped past the checks",
+  "",
+  "One line per fault that every check let through and a person or a later check then found. Say",
+  "which layer should have caught it (context, foundations, components, patterns, content,",
+  "templates or governance) and what was done: a new check, a new rule, or a reason to leave it.",
+  "",
+  "| Date | What slipped | Layer that should have caught it | What was done |",
+  "| ---- | ------------ | -------------------------------- | ------------- |",
+  "",
+].join("\n");
+
+// The governance layer, as far as a tool can read it from source: that no part of the code
+// imports a part above it, and that the record of what slipped past the checks can be acted on.
+// `starter` writes the list of parts, once the kinds of screen are described, and the empty
+// record. Both files are a person's from then on.
+export function governancePlan(target, { starter, pending = {} }) {
+  const read = (file) =>
+    file in pending
+      ? pending[file]
+      : existsSync(path.join(target, file))
+        ? readFileSync(path.join(target, file), "utf8")
+        : null;
+  const files = {};
+  const held = {};
+  const failing = [];
+  const propose = (id, problem, item) => {
+    if (problem) failing.push({ id, why: problem });
+    else held[id] = item;
+  };
+  const pages = readPages(target);
+  const sources = readSources(target);
+  let parts = read(PARTS_FILE);
+  // The screens are the files the pages of kinds name: without a page there is no top to measure.
+  if (parts === null && starter && Object.keys(pages).length > 0) {
+    parts = renderJson(starterParts(componentsFolder(target)), lineWidth(target));
+    files[PARTS_FILE] = parts;
+  }
+  if (parts !== null) {
+    propose("tier-direction", importsProblem(parts, sources, pages), {
+      what: `no part of ${SOURCE_FOLDER} imports a part listed above it in ${PARTS_FILE}`,
+      row: {
+        layer: "governance",
+        kind: "closed",
+        source: `${PARTS_FILE}, the parts of the code from the top down`,
+        check: TOOL,
+        note: "imports written in source between files of the repository, static and dynamic; what a file reaches through a package is not read",
+      },
+      checks: [
+        { kind: "import-direction", file: PARTS_FILE, sources: SOURCE_FOLDER, pages: KINDS_FOLDER },
+      ],
+    });
+  }
+  let slips = read(SLIPS_FILE);
+  if (slips === null && starter) {
+    slips = STARTER_SLIPS;
+    files[SLIPS_FILE] = slips;
+  }
+  if (slips !== null) {
+    propose("escapes", slipsProblem(slips), {
+      what: `every line of ${SLIPS_FILE} names a date, a layer and what was done`,
+      row: {
+        layer: "governance",
+        kind: "closed",
+        source: `${SLIPS_FILE}, one line per fault that every check let through`,
+        check: TOOL,
+        note: "that every line can be acted on; that a fault gets a line at all is a person's habit, and an empty record passes",
+      },
+      checks: [{ kind: "slips", file: SLIPS_FILE }],
+    });
+  }
+  return { files, held, failing };
+}
+
 // The page an agent reads before it touches a screen: the rules this tool holds in this
 // repository, and the command to run after each kind of change. Written from what is installed, so
 // it never names a rule that is not held or a file that is not there.
@@ -751,6 +836,14 @@ export function rulesPage(checks, has) {
       "A new screen is listed in `src/screens.ts`, and its file is one the page of its kind names. A screen of a new kind needs its page first: that is a person's decision.",
     held("test-screen-sizes") &&
       "Every state of every screen is checked in a browser at the widths of `design/screen-sizes.json`: one main region, one top heading, no sideways scroll, the accessibility checks. A screen with an action done at once lists a state for that action failing.",
+  ]);
+  section("The system itself", [
+    held("tier-direction") &&
+      "The code has parts, listed from the top down in `design/parts.json`. A file imports only its own part and the parts listed after it: a component never imports a screen. What two screens share moves down a part.",
+    held("escapes") &&
+      "When you find a fault that every check let through, add a line to `design/escapes.md` before you fix it: the date, what slipped, the layer that should have caught it, and what was done.",
+    (held("tier-direction") || held("escapes")) &&
+      "A departure on purpose stays beside the rule it bends, with its reason: a lint exception, a screen excused from the states, a file left out of its kind.",
   ]);
   section("No check holds these: a person reviews them", [
     held("page-layouts") &&
@@ -930,6 +1023,7 @@ export function plan(target, blueprint) {
   const columns = columnsPlan(target, { starter: true, code: true });
   const patterns = patternsPlan(target, { starter: true, code: true });
   const templates = templatesPlan(target, { starter: true, code: true, pending: patterns.files });
+  const governance = governancePlan(target, { starter: true });
   const components = componentsPlan(target, Boolean(prior[COMPONENTS_DECISION]), {
     ...columns.files,
     ...patterns.files,
@@ -959,6 +1053,11 @@ export function plan(target, blueprint) {
     checks[id] = item.checks;
   }
   rows.push(...templates.rows);
+  Object.assign(files, governance.files);
+  for (const [id, item] of Object.entries(governance.held)) {
+    rows.push({ id, ...item.row });
+    checks[id] = item.checks;
+  }
   const targets = targetPlan(target, inputs.conformanceLevel);
   if (targets.row) {
     rows.push(targets.row);
@@ -999,6 +1098,7 @@ export function plan(target, blueprint) {
     columns,
     patterns,
     templates,
+    governance,
     kept,
   };
 }
@@ -1144,10 +1244,8 @@ function main() {
     );
     return;
   }
-  const { files, tokens, components, targets, columns, patterns, templates, kept } = plan(
-    target,
-    blueprint,
-  );
+  const { files, tokens, components, targets, columns, patterns, templates, governance, kept } =
+    plan(target, blueprint);
   const unmet = (id) =>
     kept.includes(id)
       ? "Its check stays, and the gate fails until that changes"
@@ -1166,6 +1264,10 @@ function main() {
     stdout.write(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.\n`);
   }
   for (const note of templates.notes) stdout.write(`hint: ${note}.\n`);
+  for (const [id, item] of Object.entries(governance.held)) stdout.write(`${id}: ${item.what}\n`);
+  for (const item of governance.failing) {
+    stdout.write(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.\n`);
+  }
   if (columns.problem) {
     stdout.write(
       `note: column types: ${columns.problem}. No check is added until the table is right.\n`,

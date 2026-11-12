@@ -231,7 +231,15 @@ the preview again.
     Say what a failed action does (`references/checks.md`, "A failed action"), and that a screen
     with an action done at once lists a state for that action failing. Where no toast is
     installed, say that the rule stands and the module that tells a failure is not there yet.
-12. Repeat the `target size:` line the script printed: the smallest control and the controls it
+12. The system itself. Repeat the lines for `tier-direction` and `escapes`. The guide wrote
+    `design/parts.json`, the parts of the code from the top down, once a kind of screen was
+    described; read the parts out and ask whether the order is right, because the list is the
+    person's from now on. A `note:` for `tier-direction` names an import that goes against the
+    order today: no check was added, and moving the shared code is the repository's work.
+    The guide also wrote `design/escapes.md` with no line. Say what it is for: when anyone finds
+    a fault that every check let through, a line goes in before the fix. Say plainly that no tool
+    can tell a fault was left out, and that the audit calls an empty record what it is.
+13. Repeat the `target size:` line the script printed: the smallest control and the controls it
     could not measure. If it printed a note instead, some controls are below what the conformance
     level asks and no check was added: name them, and say that the components change first or the
     level does. That choice is the person's.

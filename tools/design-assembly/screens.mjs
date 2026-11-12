@@ -17,6 +17,7 @@ const KEY = {
   file: "tep",
   exceptions: "ngoai_le", // [{ tep, khoi?, ly_do }]: without `khoi`, the file leaves the kind
   part: "khoi",
+  why: "ly_do",
 };
 // Files in the folder that are not a kind of screen.
 const NOT_A_KIND = ["README.md", "lech-lot.md"];
@@ -143,9 +144,16 @@ export function readKinds(pages) {
     const globs = list(Array.isArray(named) ? named : named?.[KEY.file]).filter(
       (glob) => typeof glob === "string",
     );
-    const left = list(data[KEY.exceptions])
-      .filter((item) => item && typeof item === "object" && !list(item[KEY.part]).length)
+    const exceptions = list(data[KEY.exceptions]).filter(
+      (item) => item && typeof item === "object",
+    );
+    const left = exceptions
+      .filter((item) => !list(item[KEY.part]).length)
       .map((item) => item[KEY.file]);
+    // An exception is a departure on purpose: it says why.
+    const unexplained = exceptions
+      .filter((item) => typeof item[KEY.why] !== "string" || item[KEY.why].trim() === "")
+      .map((item) => String(item[KEY.file] ?? "an unnamed file"));
     return {
       file,
       name: path.posix.basename(file, ".md"),
@@ -153,6 +161,8 @@ export function readKinds(pages) {
       task: typeof data[KEY.task] === "string" ? data[KEY.task].trim() : "",
       globs,
       left,
+      exceptions: exceptions.length,
+      unexplained,
       reference:
         typeof data[KEY.reference] === "object" ? (data[KEY.reference][KEY.file] ?? "") : "",
     };
@@ -177,6 +187,12 @@ export function globPattern(glob) {
 
 const belongs = (kind, file) =>
   !kind.left.includes(file) && kind.globs.some((glob) => globPattern(glob).test(file));
+
+// Whether a source file draws a screen of one of the kinds the pages describe.
+export function ofAKind(pages) {
+  const kinds = readKinds(pages ?? {});
+  return (file) => kinds.some((kind) => belongs(kind, file));
+}
 
 // Each screen of the registry with the source file that draws it: the module its `load` imports.
 // `sources` are the source files there are, by path; the file is null when none can be told.
@@ -206,6 +222,11 @@ export function kindsProblem(pages, registryText, sources, folder = KINDS_FOLDER
       ...(kind.task ? [] : [`${KEY.task}: the main task`]),
       ...(kind.globs.length > 0 ? [] : [`${KEY.files}: the files of its screens`]),
     ];
+    if (kind.unexplained.length > 0) {
+      found.push(
+        `${kind.file} leaves out ${kind.unexplained.join(", ")} without a reason (${KEY.why})`,
+      );
+    }
     if (missing.length > 0) found.push(`${kind.file} has no ${missing.join(", no ")}`);
     else if (kind.kind !== kind.name) {
       found.push(`${kind.file} names the kind ${kind.kind}, not ${kind.name} as its file does`);

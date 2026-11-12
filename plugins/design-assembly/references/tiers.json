@@ -96,7 +96,7 @@
         {
           "kind": "any-file",
           "paths": ["design/escapes.md", "design/patterns/lech-lot.md"],
-          "about": "the record of accepted departures from the system"
+          "about": "the record of what slipped past the checks, and which layer should have caught it"
         }
       ]
     }

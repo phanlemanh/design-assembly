@@ -18,7 +18,12 @@ import {
 } from "../templates/tools/design-assembly/ledger.mjs";
 
 import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
-import { readPages } from "../templates/tools/design-assembly/screens.mjs";
+import {
+  readSlips,
+  readSources,
+  SLIPS_FILE,
+} from "../templates/tools/design-assembly/governance.mjs";
+import { readKinds, readPages } from "../templates/tools/design-assembly/screens.mjs";
 import { readBlock } from "../templates/tools/design-assembly/theme.mjs";
 import { findProofs } from "./proofs.mjs";
 
@@ -264,6 +269,33 @@ function need(root, item, facts, tier) {
   throw new Error(`unknown need ${item.kind}`);
 }
 
+// Departures on purpose, counted where each one lives: beside the rule it bends.
+function departures(root) {
+  const lint = Object.values(readSources(root)).reduce(
+    (sum, text) => sum + (text.match(/eslint-disable/g) ?? []).length,
+    0,
+  );
+  let excused;
+  try {
+    excused = Object.keys(JSON.parse(read(root, "design/states.json") ?? "{}").exempt ?? {}).length;
+  } catch {
+    excused = 0;
+  }
+  const left = readKinds(readPages(root)).reduce((sum, kind) => sum + kind.exceptions, 0);
+  return { lint, excused, left };
+}
+
+// The record of what slipped past the checks: how many lines, and the date of the latest.
+function slips(root) {
+  const text = read(root, SLIPS_FILE);
+  if (text === null) return null;
+  const dates = readSlips(text)
+    .map((cells) => cells[0] ?? "")
+    .filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date))
+    .sort();
+  return { count: readSlips(text).length, latest: dates.at(-1) ?? null };
+}
+
 export function inventory(root) {
   const sheets = walk(root, "src", (file) => file.endsWith(".css"));
   const sources = walk(root, "src", (file) => /\.[jt]sx$/.test(file) && !VENDOR.test(file));
@@ -369,6 +401,8 @@ export function inventory(root) {
           },
     sockets: facts.sockets,
     tiers,
+    departures: departures(root),
+    slips: slips(root),
   };
 }
 
@@ -445,6 +479,19 @@ export function report(result, { all = false } = {}) {
     if (l.old_layer_names.length > 0)
       lines.push(`  ${l.old_layer_names.length} row(s) use an older layer name`);
   } else lines.push("ledger design/decisions.yaml: none");
+  const d = result.departures;
+  if (d.lint + d.excused + d.left > 0) {
+    lines.push(
+      `departures on purpose: ${d.lint} lint exception(s), ${d.excused} screen(s) excused from the states, ${d.left} file(s) left out of a kind of screen`,
+    );
+  }
+  if (result.slips) {
+    lines.push(
+      result.slips.count === 0
+        ? `${SLIPS_FILE}: no line yet. An empty record is not proof that nothing slipped`
+        : `${SLIPS_FILE}: ${result.slips.count} line(s)${result.slips.latest ? `, the latest on ${result.slips.latest}` : ""}`,
+    );
+  }
   lines.push("", "tiers:");
   for (const tier of result.tiers) {
     lines.push(`  ${tier.id}: ${NOTE[tier.state]}`);

@@ -92,8 +92,8 @@ adopting wrote the component manifest, a change to a component by `make design-c
 gate fails until the file is written again, and the message names what differs. Where the
 repository keeps a manifest of its own, this tool holds nothing about components: say so.
 
-Adopting does not take in the pages a repository keeps for its kinds of screen, nor its screen
-sizes: it only claims a browser test that names `decision:<id>`. When the audit lists
+Adopting does not take in the pages a repository keeps for its kinds of screen, its screen
+sizes, the order of its parts or its record of what slipped past the checks: it only claims a browser test that names `decision:<id>`. When the audit lists
 `test-screen-sizes` or `reference-implementation` as open, say that this version closes them
 only through the guide.
 

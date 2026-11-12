@@ -85,6 +85,16 @@ Mọi trạng thái của mọi màn được kiểm trên trình duyệt ở c�
 `design/screen-sizes.json`: một vùng chính, một tiêu đề cấp một, không cuộn ngang, và kiểm
 accessibility tự động. Bề rộng hẹp nhất là 320.
 
+## Luật về chính hệ này
+
+- **Hướng nhập.** Mã chia thành các phần, liệt kê từ trên xuống trong `design/parts.json`: khung
+  ứng dụng, các màn, linh kiện, phần nền. Một tệp chỉ nhập phần của mình và các phần nằm dưới:
+  linh kiện không bao giờ nhập một màn. Thứ hai màn dùng chung thì chuyển xuống một phần.
+- **Lỗi lọt.** Gặp một lỗi mà mọi lệnh kiểm đều cho qua thì ghi một dòng vào `design/escapes.md`
+  trước khi sửa: ngày, lỗi gì, tầng nào đáng ra phải chặn, đã làm gì.
+- **Ngoại lệ có chủ ý** ở lại cạnh luật mà nó bẻ, kèm lý do: ngoại lệ lint, màn được miễn trạng
+  thái, tệp rời khỏi kiểu màn. Không có sổ ngoại lệ viết tay; audit đếm cả ba.
+
 ## Mật độ
 
 Sản phẩm này là công cụ làm việc. Chữ dùng `text-sm`.

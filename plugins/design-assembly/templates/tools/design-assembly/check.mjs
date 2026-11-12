@@ -21,6 +21,7 @@ import {
 } from "./ledger.mjs";
 import { toPx, toRatio, TYPE_STEPS } from "./scale.mjs";
 import { channelsProblem, errorCopyProblem, statesProblem, wordsProblem } from "./patterns.mjs";
+import { againstDirection, importsProblem, readSources, slipsProblem } from "./governance.mjs";
 import { kindsProblem, readPages, referenceProblem, sizesProblem } from "./screens.mjs";
 import { DEFAULT_STYLESHEET, findStylesheet, loadStyles, resolve } from "./styles.mjs";
 import { buildTheme, readBlock, renderBlock, withoutBlock } from "./theme.mjs";
@@ -298,6 +299,39 @@ const KINDS = {
       return { ...state, files: { ...state.files, [check.file]: text } };
     },
   },
+  // No part of the code imports a part listed above it.
+  "import-direction": {
+    run(state, check) {
+      const sources = state.sources?.[check.sources] ?? {};
+      return importsProblem(
+        state.files?.[check.file],
+        sources,
+        state.pages?.[check.pages],
+        check.file,
+      );
+    },
+    // The lowest part imports a file of the highest.
+    change(state, check) {
+      const sources = state.sources?.[check.sources] ?? {};
+      const changed = againstDirection(
+        state.files?.[check.file],
+        sources,
+        state.pages?.[check.pages],
+      );
+      return { ...state, sources: { ...state.sources, [check.sources]: changed } };
+    },
+  },
+  // Every line of the record of what slipped past the checks can be acted on.
+  slips: {
+    run(state, check) {
+      return slipsProblem(state.files?.[check.file], check.file);
+    },
+    // One more line, which names no layer.
+    change(state, check) {
+      const text = `${state.files?.[check.file] ?? "| a | b | c | d |\n| - | - | - | - |"}\n| 2000-01-01 | a changed copy | nowhere | nothing |\n`;
+      return { ...state, files: { ...state.files, [check.file]: text } };
+    },
+  },
   gate: {
     run(state) {
       if (state.gate === null) return `${FILES.gate} is missing, so make check does not run this`;
@@ -338,6 +372,10 @@ export function readState(root) {
   const folders = checks
     .filter((check) => check.folder)
     .map((check) => [check.folder, readFolder(root, check.folder)]);
+  // Folders whose every source file a check reads, plain modules included.
+  const sources = checks
+    .filter((check) => check.sources)
+    .map((check) => [check.sources, readSources(root, check.sources)]);
   // Folders of pages a check names, page by page.
   const pages = checks
     .filter((check) => check.pages)
@@ -353,6 +391,7 @@ export function readState(root) {
     files: Object.fromEntries(named),
     folders: Object.fromEntries(folders),
     pages: Object.fromEntries(pages),
+    sources: Object.fromEntries(sources),
     // The column type each field of the data model names.
     displays: readDisplays(root),
     gate: read(FILES.gate),

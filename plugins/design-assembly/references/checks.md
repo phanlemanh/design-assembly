@@ -4,25 +4,27 @@ Read this when you build (step 6 of the guide) or explain a failing check.
 
 ## The files
 
-| File                                 | What it is                                                                                                  | Who edits it                         |
-| ------------------------------------ | ----------------------------------------------------------------------------------------------------------- | ------------------------------------ |
-| `design/blueprint.json`              | What the person chose, layer by layer, with why and what was turned down                                    | You, during the guide                |
-| `design/decisions.yaml`              | The ledger: one row per design decision, pointing at the proof that holds it                                | People, and the scripts for new rows |
-| `design/theme.json`                  | What this plugin's tool needs to check its decisions: the inputs and the checks per decision                | `apply.mjs` and `adopt.mjs` only     |
-| `design/decisions/<layer>.md`        | A decision record per decided layer                                                                         | `apply.mjs` only                     |
-| The marked block in `src/index.css`  | The design tokens                                                                                           | `apply.mjs` only                     |
-| `design/tokens.json`                 | The design tokens, for tools that do not read CSS. Written from the stylesheet                              | `make design-tokens` only            |
-| `design/component-registry.json`     | The component manifest: every exported component with its variants. Written from the source                 | `make design-components` only        |
-| `design/column-types.json`           | The column types of the repository: each with its base type and sample length                               | A person                             |
-| `design/columns.json`                | What code reads: each column type with its alignment, each field with its type                              | `make design-columns` only           |
-| `design/states.json`                 | The states every screen must declare, and the screens excused from them                                     | A person                             |
-| `design/patterns/<kind>.md`          | One page per kind of screen: its main task, the files of its screens, its reference screen                  | A person. The scripts write none     |
-| `design/screen-sizes.json`           | The widths every page is checked at                                                                         | A person                             |
-| `tests/e2e/templates.spec.ts`        | The browser test of every page at those widths. Installed once, then the repository's own                   | The repository                       |
-| The typed table parts and their test | Table parts that apply the column type. Installed once, then the repository's own                           | The repository                       |
-| `tools/design-assembly/`             | The checks. They belong to the plugin: change them in the plugin and run the guide again                    | Nobody, in the repository            |
-| `mk/design-assembly.mk`              | Adds `design-assembly` to `make check`, and `make design-rate`                                              | Nobody, in the repository            |
-| `.claude/rules/design-assembly.md`   | The rules the tool holds in this repository, for the agent that builds next. Written from what is installed | The scripts only                     |
+| File                                 | What it is                                                                                                  | Who edits it                           |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `design/blueprint.json`              | What the person chose, layer by layer, with why and what was turned down                                    | You, during the guide                  |
+| `design/decisions.yaml`              | The ledger: one row per design decision, pointing at the proof that holds it                                | People, and the scripts for new rows   |
+| `design/theme.json`                  | What this plugin's tool needs to check its decisions: the inputs and the checks per decision                | `apply.mjs` and `adopt.mjs` only       |
+| `design/decisions/<layer>.md`        | A decision record per decided layer                                                                         | `apply.mjs` only                       |
+| The marked block in `src/index.css`  | The design tokens                                                                                           | `apply.mjs` only                       |
+| `design/tokens.json`                 | The design tokens, for tools that do not read CSS. Written from the stylesheet                              | `make design-tokens` only              |
+| `design/component-registry.json`     | The component manifest: every exported component with its variants. Written from the source                 | `make design-components` only          |
+| `design/column-types.json`           | The column types of the repository: each with its base type and sample length                               | A person                               |
+| `design/columns.json`                | What code reads: each column type with its alignment, each field with its type                              | `make design-columns` only             |
+| `design/states.json`                 | The states every screen must declare, and the screens excused from them                                     | A person                               |
+| `design/patterns/<kind>.md`          | One page per kind of screen: its main task, the files of its screens, its reference screen                  | A person. The scripts write none       |
+| `design/screen-sizes.json`           | The widths every page is checked at                                                                         | A person                               |
+| `design/parts.json`                  | The parts of the code, from the top down: which may import which                                            | A person                               |
+| `design/escapes.md`                  | One line per fault that every check let through, and the layer that should have caught it                   | A person, and the agent that finds one |
+| `tests/e2e/templates.spec.ts`        | The browser test of every page at those widths. Installed once, then the repository's own                   | The repository                         |
+| The typed table parts and their test | Table parts that apply the column type. Installed once, then the repository's own                           | The repository                         |
+| `tools/design-assembly/`             | The checks. They belong to the plugin: change them in the plugin and run the guide again                    | Nobody, in the repository              |
+| `mk/design-assembly.mk`              | Adds `design-assembly` to `make check`, and `make design-rate`                                              | Nobody, in the repository              |
+| `.claude/rules/design-assembly.md`   | The rules the tool holds in this repository, for the agent that builds next. Written from what is installed | The scripts only                       |
 
 ## The ledger
 
@@ -284,6 +286,31 @@ by the tool: the widths reach down to 320, and the test opens the file and names
 tool reads the test's code, not its comments; it does not run the test, so a test that skips a
 width is not caught. A failure of the browser test names the decision it belongs to.
 
+## The system itself
+
+Two rules about the system, and one about how it is bent on purpose.
+
+- **`tier-direction`: which part may import which.** `design/parts.json` lists the parts of the
+  code from the top down. A part names its files with globs, or says `"kinds": "design/patterns"`
+  for the screens the pages of kinds name. A file is of the first part that names it, and every
+  source file is of a part. A file imports only its own part and the parts listed after it. The
+  guide writes the list once the kinds of screen are described: the files that start the
+  application, the screens, the components, and everything else. The tool reads imports as they
+  are written in source, static and dynamic; a lint rule on imports reads only the static ones.
+  It does not follow an import into a package.
+- **`escapes`: the record of what slipped past the checks.** `design/escapes.md` holds a table,
+  one line per fault that every check let through and that a person or a later check then found:
+  the date, what slipped, the layer that should have caught it, what was done. The tool checks
+  that every line has all four and names a real layer. It cannot know that a fault was left out:
+  an empty record passes, and the audit says that an empty record is not proof.
+- **A departure on purpose stays beside the rule it bends, with its reason.** A lint exception
+  says why after `--`. A screen excused from the states says why in `design/states.json`. A file
+  left out of its kind says why on the kind's page (`ly_do`), which `page-layouts` now checks.
+  There is no register to keep by hand: the audit counts all three in one line.
+
+The file `design/patterns/lech-lot.md` is the acceptance kit's own record of screens that left
+their frame. The audit accepts it for the tier; this tool does not write to it.
+
 ## A row that has no check
 
 A repository may already have a row for a decision, with no check. The scripts never rewrite a
@@ -332,6 +359,8 @@ passes: a check that cannot fail proves nothing.
 | `screen-kinds`      | Every screen is of exactly one kind, and each kind's page names its task and its files |
 | `reference-screens` | Each kind's reference is a listed screen of that kind with every required state        |
 | `screen-sizes`      | The widths reach down to 320 CSS pixels, and the browser test reads them               |
+| `import-direction`  | No source file imports a file of a part listed above its own                           |
+| `slips`             | Every line of the record names a date, what slipped, a layer and what was done         |
 | `gate`              | `make check` runs the tool in a way that can fail                                      |
 
 The tool also checks that it and the ledger agree in both directions: every row that points at it

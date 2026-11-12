@@ -191,6 +191,20 @@
         "test": "tests/e2e/templates.spec.ts"
       }
     ],
+    "tier-direction": [
+      {
+        "kind": "import-direction",
+        "file": "design/parts.json",
+        "sources": "src",
+        "pages": "design/patterns"
+      }
+    ],
+    "escapes": [
+      {
+        "kind": "slips",
+        "file": "design/escapes.md"
+      }
+    ],
     "target-size": [
       {
         "kind": "target-size",

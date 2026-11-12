@@ -157,6 +157,12 @@ giao diện; bài kiểm trình duyệt của plugin giữ điều này. Một m
 chỗ. Hoàn tác đưa về chỗ cũ. Trạng thái trống chỉ có nút khi lấp đầy được ngay tại màn. Đi lại
 giữa các màn là việc của khung ứng dụng.
 
+### Hướng nhập và sổ lỗi lọt (quyết định 0018, 2026-11-12)
+
+Mã chia thành các phần liệt kê từ trên xuống; một tệp chỉ nhập phần của mình và các phần nằm
+dưới, và công cụ đọc mã để giữ điều đó. Lỗi nào lọt qua mọi lệnh kiểm thì ghi một dòng vào sổ lỗi
+lọt, kèm tầng đáng ra phải chặn và việc đã làm. Ngoại lệ có chủ ý ở lại cạnh luật mà nó bẻ.
+
 ### Vì sao cần plugin này
 
 Bản trước ghi giả thuyết «giảm token», neo vào lần đo ba của Repo Standards (token gấp 1,43 lần).
