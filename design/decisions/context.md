@@ -20,3 +20,4 @@ Kho được dựng với design_surface là tool: màn mẫu là một danh sá
 
 - `product-type`: judgment, a person's call, no check
 - `conformance-level`: judgment, a person's call, no check
+- `primary-task`: judgment, a person's call, no check

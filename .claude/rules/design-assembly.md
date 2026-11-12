@@ -28,7 +28,16 @@ repository and what holds it. This page is written by the design-assembly guide:
 ## Telling a person
 
 - The result of an action is told through `notifyDone` in `src/lib/notify.ts`; pass it the undo when the action can be taken back.
+- An action done at once that fails is told through `notifyFailed` in the same module: what was not done, what to do next, and a button that tries again. Never drop a failure, and never tell a failed undo as done.
+- A failure where the dialog or form is still open is shown in it, not in a toast. What the person typed is kept.
+- Anything a toast's button does can also be done from the screen itself: the toast is never the only way.
 - Never call a toast library from a screen, and never `alert`, `confirm` or `prompt`.
+
+## A screen
+
+- Every screen is of one kind. A kind has a page under `design/patterns`: read it before building a screen of that kind, and build it like the reference screen the page names.
+- A new screen is listed in `src/screens.ts`, and its file is one the page of its kind names. A screen of a new kind needs its page first: that is a person's decision.
+- Every state of every screen is checked in a browser at the widths of `design/screen-sizes.json`: one main region, one top heading, no sideways scroll, the accessibility checks. A screen with an action done at once lists a state for that action failing.
 
 ## Controls
 

@@ -33,7 +33,7 @@ import {
 import { createItem, deleteItem, listItems, type Item, type Status } from "@/example/data";
 import { formatDate, formatMoney } from "@/lib/format";
 import { LABELS } from "@/lib/labels";
-import { notifyDone } from "@/lib/notify";
+import { notifyDone, notifyFailed } from "@/lib/notify";
 
 type Variant = ComponentProps<typeof Badge>["variant"];
 // Each status keeps its own look. Never give two statuses the same variant to pass a check.
@@ -149,13 +149,36 @@ export function ReferenceScreen() {
   function addFirst() {
     setItems(null);
     // List again either way: the list shows what the server has.
-    void createItem().then((item) => {
-      notifyDone(LABELS.added(item.name), {
-        label: LABELS.undo,
-        run: () => void deleteItem(item.id).then(reload, reload),
-      });
-      reload();
-    }, reload);
+    void createItem().then(
+      (item) => {
+        notifyDone(LABELS.added(item.name), {
+          label: LABELS.undo,
+          run: () => undoAdd(item),
+          close: LABELS.close,
+        });
+        reload();
+      },
+      () => {
+        // Nothing was added: say so, and offer to try again (design/behaviors.md, a failed action).
+        notifyFailed(LABELS.addFailed, LABELS.errorDetail, {
+          label: LABELS.retry,
+          run: addFirst,
+          close: LABELS.close,
+        });
+        reload();
+      },
+    );
+  }
+
+  // A failed undo never reads as done: the item is still there, and the toast says so.
+  function undoAdd(item: Item) {
+    void deleteItem(item.id).then(reload, () =>
+      notifyFailed(LABELS.undoFailed(item.name), LABELS.errorDetail, {
+        label: LABELS.retry,
+        run: () => undoAdd(item),
+        close: LABELS.close,
+      }),
+    );
   }
 
   function askDelete(item: Item) {

@@ -16,6 +16,9 @@ Read this when you build (step 6 of the guide) or explain a failing check.
 | `design/column-types.json`           | The column types of the repository: each with its base type and sample length                               | A person                             |
 | `design/columns.json`                | What code reads: each column type with its alignment, each field with its type                              | `make design-columns` only           |
 | `design/states.json`                 | The states every screen must declare, and the screens excused from them                                     | A person                             |
+| `design/patterns/<kind>.md`          | One page per kind of screen: its main task, the files of its screens, its reference screen                  | A person. The scripts write none     |
+| `design/screen-sizes.json`           | The widths every page is checked at                                                                         | A person                             |
+| `tests/e2e/templates.spec.ts`        | The browser test of every page at those widths. Installed once, then the repository's own                   | The repository                       |
 | The typed table parts and their test | Table parts that apply the column type. Installed once, then the repository's own                           | The repository                       |
 | `tools/design-assembly/`             | The checks. They belong to the plugin: change them in the plugin and run the guide again                    | Nobody, in the repository            |
 | `mk/design-assembly.mk`              | Adds `design-assembly` to `make check`, and `make design-rate`                                              | Nobody, in the repository            |
@@ -157,6 +160,67 @@ which part.
 A rule the repository does not meet today gets no row: the scripts say where it is broken. Once a
 row is there, its check is never removed for being broken: the gate fails and names the place.
 
+## A failed action
+
+An action done at once can fail, and so can its undo. The decision `failed-action` says what a
+person sees then:
+
+- The failure is told where the person acted. A dialog or form that is still open shows it. An
+  action done at once tells it in a toast, through `notifyFailed` of the notification module.
+- That toast stays until the person answers it. It says what was not done, then what to do next,
+  it carries a button that tries again, and it is announced as an alert.
+- A failed undo is never told as done: the thing is still there, and the toast says so.
+- A toast with a button stays until the button or its close button is pressed, so a result that
+  offers an undo stays too. One toast shows at a time; a new one takes the place of the old.
+- A toast is never the only way: what its button does can also be done from the screen. A toast
+  with no button goes away by itself only because the screen already shows the result.
+
+No tool reads this from source. It is held by the repository's own test that names
+`decision:failed-action`, as `claimed`. A screen with an action done at once lists a state for
+that action failing in the screen registry, so the browser tests look at the toast as well.
+
+## Kinds of screen
+
+A screen is of one kind: a list, a record, a form. A kind has one page under `design/patterns`,
+in the format the acceptance kit reads, so one page serves both tools. The front matter keys are
+the kit's own. This tool reads five of them:
+
+| Key                 | What it says                                                    |
+| ------------------- | --------------------------------------------------------------- |
+| `nhom`              | The kind's name, equal to the file name                         |
+| `nhan_viec`         | The main task of a person on a screen of this kind              |
+| `nhan_dien`         | Globs of the source files that draw a screen of this kind       |
+| `mau_dang_chay.tep` | The source file of the kind's reference screen                  |
+| `ngoai_le`          | Files left out; one with no `khoi` key is no longer of the kind |
+
+The body is for people and for the agent that builds the next screen: the main task, the order of
+the parts, how the words are written, when to use the kind and when not.
+
+- **`page-layouts`.** Every screen of the registry is of exactly one kind: the file its `load`
+  imports matches the globs of one page. Each page names the kind as its file does, a main task
+  and its files.
+- **`reference-implementation`.** The file each page names is the file of a listed screen, of
+  that kind, and that screen declares every required state. A sample that is not a screen of the
+  product cannot be the reference.
+- **`primary-task`.** Recorded once the pages name it, as a person's call that nobody has
+  confirmed. The order of the parts and what the words say are a person's rows to add.
+
+The scripts never write a page: what a kind is for is decided with the person.
+
+## Screen sizes and the page checks
+
+`design/screen-sizes.json` lists the widths, in CSS pixels, that every page is checked at. The
+narrowest is 320 or less: WCAG 2.2 asks that a page works at 320 without scrolling in two
+directions. A part that needs two dimensions, such as a table of data, scrolls inside itself. A
+repository adds the widths its own layouts change at.
+
+Where the floor's browser checks are installed, the guide writes the file with 320 and 1440, and
+installs a browser test that reads it. For every state of every screen, at every width, that test
+checks one main region and one top heading, no sideways scroll, and the automated accessibility
+checks. It names `decision:one-main-one-h1`, `decision:no-sideways-scroll` and
+`decision:wcag-aa`, so three rows point at it as `claimed`. The row `test-screen-sizes` is held
+by the tool: the widths reach down to 320 and the test reads them.
+
 ## A row that has no check
 
 A repository may already have a row for a decision, with no check. The scripts never rewrite a
@@ -185,24 +249,27 @@ Its tool reads the real files (the stylesheet, the gate), not a copy of what was
 run also changes a copy of those files so that the check must fail, and reports a check that still
 passes: a check that cannot fail proves nothing.
 
-| Kind           | Passes when                                                                            |
-| -------------- | -------------------------------------------------------------------------------------- |
-| `generated`    | The block in the stylesheet is exactly what the source color gives                     |
-| `contrast`     | Two color roles reach the contrast ratio of the conformance level                      |
-| `value`        | A variable resolves to the decided value, whatever is written after it                 |
-| `absent`       | The stylesheet does not redeclare variables that the floor's scale owns                |
-| `scale`        | Every step of the type scale is larger than the one before                             |
-| `tokens`       | The design tokens file is exactly what the stylesheet gives                            |
-| `components`   | The component manifest is exactly what the component source gives                      |
-| `target-size`  | Every control declares a height that reaches the target size of the conformance level  |
-| `column-types` | The table of column types is well formed, and every field names one of its types       |
-| `columns`      | The file code reads is exactly what the table and the data model give                  |
-| `cells`        | No screen sets on a table what the column type decides                                 |
-| `states`       | Every screen of the registry declares the required states, or is excused with a reason |
-| `words`        | No screen writes its own words                                                         |
-| `error-copy`   | Every error message a screen shows has a title and a description                       |
-| `channels`     | No screen opens a browser dialog or calls a toast library itself                       |
-| `gate`         | `make check` runs the tool in a way that can fail                                      |
+| Kind                | Passes when                                                                            |
+| ------------------- | -------------------------------------------------------------------------------------- |
+| `generated`         | The block in the stylesheet is exactly what the source color gives                     |
+| `contrast`          | Two color roles reach the contrast ratio of the conformance level                      |
+| `value`             | A variable resolves to the decided value, whatever is written after it                 |
+| `absent`            | The stylesheet does not redeclare variables that the floor's scale owns                |
+| `scale`             | Every step of the type scale is larger than the one before                             |
+| `tokens`            | The design tokens file is exactly what the stylesheet gives                            |
+| `components`        | The component manifest is exactly what the component source gives                      |
+| `target-size`       | Every control declares a height that reaches the target size of the conformance level  |
+| `column-types`      | The table of column types is well formed, and every field names one of its types       |
+| `columns`           | The file code reads is exactly what the table and the data model give                  |
+| `cells`             | No screen sets on a table what the column type decides                                 |
+| `states`            | Every screen of the registry declares the required states, or is excused with a reason |
+| `words`             | No screen writes its own words                                                         |
+| `error-copy`        | Every error message a screen shows has a title and a description                       |
+| `channels`          | No screen opens a browser dialog or calls a toast library itself                       |
+| `screen-kinds`      | Every screen is of exactly one kind, and each kind's page names its task and its files |
+| `reference-screens` | Each kind's reference is a listed screen of that kind with every required state        |
+| `screen-sizes`      | The widths reach down to 320 CSS pixels, and the browser test reads them               |
+| `gate`              | `make check` runs the tool in a way that can fail                                      |
 
 The tool also checks that it and the ledger agree in both directions: every row that points at it
 has checks behind it, and every decision it holds is a row.

@@ -142,6 +142,14 @@ Kết quả một thao tác được báo bằng toast, qua một mô-đun của
 không đảo được thì hỏi trước. Máy giữ việc màn không đi vòng qua kênh; hành vi do bài kiểm của kho
 giữ, và adopt ghi dòng sổ trỏ tới bài kiểm có gắn thẻ tên quyết định.
 
+### Kiểu màn và thao tác thất bại (quyết định 0016, 2026-11-12)
+
+Mỗi màn thuộc đúng một kiểu màn; mỗi kiểu có một trang nêu việc chính, các tệp của nó và một màn
+thật làm mẫu. Mọi trạng thái của mọi màn được kiểm trên trình duyệt ở các bề rộng kho đã khai,
+hẹp nhất là 320. Một thao tác làm ngay mà thất bại thì báo bằng toast không tự tắt, có nút thử
+lại; hoàn tác thất bại không bao giờ báo như đã hoàn tác. Trang kiểu màn do người quyết: kịch bản
+không viết nó.
+
 ### Vì sao cần plugin này
 
 Bản trước ghi giả thuyết «giảm token», neo vào lần đo ba của Repo Standards (token gấp 1,43 lần).
@@ -307,6 +315,9 @@ chứng; adopt im lặng trước dòng sổ chưa có lệnh kiểm; năm chỗ
 **Điều còn nguyên**, là việc của chủ kho hoặc Repo Standards: thao tác làm ngay mà thất bại thì báo
 thế nào; toast không được bài kiểm trình duyệt đi qua; số hiện ra không qua bộ định dạng thì không
 ai bắt; một hành vi mới vào mô hình dữ liệu ra sao.
+
+Hai điều đầu đã đóng ngày 2026-11-12 bằng quyết định 0016: luật thao tác thất bại, và hai trạng
+thái thất bại đưa toast vào tầm bài kiểm trình duyệt.
 
 ## Domain impact
 

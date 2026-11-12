@@ -45,6 +45,17 @@ import {
   wordsProblem,
 } from "../templates/tools/design-assembly/patterns.mjs";
 import { mergeLedger, parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
+import {
+  KINDS_FOLDER,
+  kindsProblem,
+  PAGES_TEST,
+  readKinds,
+  readPages,
+  referenceProblem,
+  SIZES_FILE,
+  sizesProblem,
+  STARTER_WIDTHS,
+} from "../templates/tools/design-assembly/screens.mjs";
 import { SPACING_UNIT_PX, TYPE_VARIABLES } from "../templates/tools/design-assembly/scale.mjs";
 import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
 import {
@@ -521,6 +532,140 @@ export function patternsPlan(target, { starter, code = false }) {
   return { files, held, failing, notes };
 }
 
+// What the page-level browser test proves, by the decision each tag in it names.
+const PAGE_PROOFS = {
+  "one-main-one-h1": { kind: "standard", what: "one main region and one top heading" },
+  "no-sideways-scroll": { kind: "formula", what: "no sideways scroll" },
+  "wcag-aa": { kind: "standard", what: "the automated accessibility checks" },
+};
+// Where the floor lists every state of every screen for its browser checks.
+const ROUTES = "tests/e2e/routes.ts";
+
+// The templates layer, as far as a tool can read it from source: that every screen is of a kind
+// with a page of its own, that each kind names a real screen as its reference, and that pages are
+// checked at the widths a person listed. `starter` writes the list of widths when the repository
+// has none; `code` installs the browser test that reads it. What a kind's page says is a person's:
+// no page is ever written here.
+export function templatesPlan(target, { starter, code = false, pending = {} }) {
+  const read = (file) =>
+    file in pending
+      ? pending[file]
+      : existsSync(path.join(target, file))
+        ? readFileSync(path.join(target, file), "utf8")
+        : null;
+  const files = {};
+  const held = {};
+  const rows = [];
+  const failing = [];
+  const notes = [];
+  const propose = (id, problem, item) => {
+    if (problem) failing.push({ id, why: problem });
+    else held[id] = item;
+  };
+  // A row a person may have written or confirmed is theirs: it is never written again.
+  const ledger = parseLedger(read(FILES.ledger) ?? "");
+  const known = [];
+  const record = (row) => {
+    const theirs = ledger.find((item) => item.id === row.id);
+    if (theirs) known.push(theirs);
+    else rows.push(row);
+  };
+
+  const registry = read(SCREENS);
+  const pages = readPages(target);
+  const sources = readFolder(target, "src");
+  if (registry !== null && Object.keys(pages).length > 0) {
+    propose("page-layouts", kindsProblem(pages, registry, sources), {
+      what: `every screen of ${SCREENS} is of one kind, and each kind has its page under ${KINDS_FOLDER}`,
+      row: {
+        layer: "templates",
+        kind: "closed",
+        source: `${KINDS_FOLDER}, one page per kind of screen`,
+        check: TOOL,
+        note: "that every screen is of exactly one kind, and that the kind's page names its main task; what the page says is a person's review",
+      },
+      checks: [{ kind: "screen-kinds", pages: KINDS_FOLDER, registry: SCREENS, folder: "src" }],
+    });
+    if ("page-layouts" in held) {
+      propose(
+        "reference-implementation",
+        referenceProblem(pages, registry, read(STATES_FILE), sources),
+        {
+          what: "each kind of screen names a real screen as its reference, with every required state",
+          row: {
+            layer: "templates",
+            kind: "closed",
+            source: "the screen each kind's page names as its reference",
+            check: TOOL,
+            note: "that the screen is listed, is of that kind and declares every required state; whether it is a good example is a person's review",
+          },
+          checks: [
+            {
+              kind: "reference-screens",
+              pages: KINDS_FOLDER,
+              registry: SCREENS,
+              file: STATES_FILE,
+              folder: "src",
+            },
+          ],
+        },
+      );
+      // The main task is written on each page; that it is the right one is a person's call.
+      record({
+        id: "primary-task",
+        layer: "context",
+        kind: "judgment",
+        source: `${KINDS_FOLDER}, the main task each page names`,
+        note: `written for ${readKinds(pages).length} kind(s) of screen; a person has not confirmed it`,
+      });
+    }
+  } else if (registry !== null && starter) {
+    notes.push(
+      `no page describes a kind of screen yet. Write one page per kind under ${KINDS_FOLDER} with the person, then run the guide again: it then holds that every screen is of a kind, and that each kind has a reference screen`,
+    );
+  }
+
+  // The widths and the browser test: where the floor's browser checks already run.
+  const uses = JSON.parse(read("package.json") ?? "{}");
+  const installed = { ...uses.dependencies, ...uses.devDependencies };
+  if (read(ROUTES) !== null && "@axe-core/playwright" in installed) {
+    let sizes = read(SIZES_FILE);
+    if (sizes === null && starter) {
+      sizes = renderJson({ version: 1, widths: STARTER_WIDTHS }, lineWidth(target));
+      files[SIZES_FILE] = sizes;
+    }
+    let test = read(PAGES_TEST);
+    if (test === null && code) {
+      test = readFileSync(path.join(PLUGIN, "templates/owned/templates.spec.ts.template"), "utf8");
+      files[PAGES_TEST] = test;
+    }
+    if (sizes !== null && test !== null) {
+      propose("test-screen-sizes", sizesProblem(sizes, test), {
+        what: `pages are checked at the widths of ${SIZES_FILE}`,
+        row: {
+          layer: "templates",
+          kind: "formula",
+          source: `${SIZES_FILE}: the reflow width of WCAG 2.2, and the widths a person adds`,
+          check: TOOL,
+          note: "that the widths reach down to the reflow width and that the browser test reads them; the browser test itself is not run again here",
+        },
+        checks: [{ kind: "screen-sizes", file: SIZES_FILE, test: PAGES_TEST }],
+      });
+      for (const [id, proof] of Object.entries(PAGE_PROOFS)) {
+        if (!new RegExp(`decision:${id}(?![\\w-])`).test(test)) continue;
+        record({
+          id,
+          layer: "templates",
+          kind: proof.kind,
+          source: "the repository's own browser test of it",
+          check: `e2e:${PAGES_TEST}`,
+        });
+      }
+    }
+  }
+  return { files, held, rows, known, failing, notes };
+}
+
 // The page an agent reads before it touches a screen: the rules this tool holds in this
 // repository, and the command to run after each kind of change. Written from what is installed, so
 // it never names a rule that is not held or a file that is not there.
@@ -567,13 +712,31 @@ export function rulesPage(checks, has) {
     held("state-matrix") &&
       "Every screen in `src/screens.ts` declares the states listed in `design/states.json`. A screen that loads no data is excused in that file, with a reason: that is a person's decision.",
   ]);
+  const notify = has("src/lib/notify.ts");
   section("Telling a person", [
     held("notification-channel") &&
-      (has("src/lib/notify.ts")
+      (notify
         ? "The result of an action is told through `notifyDone` in `src/lib/notify.ts`; pass it the undo when the action can be taken back."
         : "The result of an action is told through the repository's one module for it."),
     held("notification-channel") &&
+      notify &&
+      "An action done at once that fails is told through `notifyFailed` in the same module: what was not done, what to do next, and a button that tries again. Never drop a failure, and never tell a failed undo as done.",
+    held("notification-channel") &&
+      notify &&
+      "A failure where the dialog or form is still open is shown in it, not in a toast. What the person typed is kept.",
+    held("notification-channel") &&
+      notify &&
+      "Anything a toast's button does can also be done from the screen itself: the toast is never the only way.",
+    held("notification-channel") &&
       "Never call a toast library from a screen, and never `alert`, `confirm` or `prompt`.",
+  ]);
+  section("A screen", [
+    held("page-layouts") &&
+      "Every screen is of one kind. A kind has a page under `design/patterns`: read it before building a screen of that kind, and build it like the reference screen the page names.",
+    held("page-layouts") &&
+      "A new screen is listed in `src/screens.ts`, and its file is one the page of its kind names. A screen of a new kind needs its page first: that is a person's decision.",
+    held("test-screen-sizes") &&
+      "Every state of every screen is checked in a browser at the widths of `design/screen-sizes.json`: one main region, one top heading, no sideways scroll, the accessibility checks. A screen with an action done at once lists a state for that action failing.",
   ]);
   const target = checks["target-size"]?.[0]?.min;
   section("Controls", [
@@ -742,6 +905,7 @@ export function plan(target, blueprint) {
   const prior = JSON.parse(read(FILES.theme) ?? "{}").checks ?? {};
   const columns = columnsPlan(target, { starter: true, code: true });
   const patterns = patternsPlan(target, { starter: true, code: true });
+  const templates = templatesPlan(target, { starter: true, code: true, pending: patterns.files });
   const components = componentsPlan(target, Boolean(prior[COMPONENTS_DECISION]), {
     ...columns.files,
     ...patterns.files,
@@ -765,6 +929,12 @@ export function plan(target, blueprint) {
     rows.push({ id, ...item.row });
     checks[id] = item.checks;
   }
+  Object.assign(files, templates.files);
+  for (const [id, item] of Object.entries(templates.held)) {
+    rows.push({ id, ...item.row });
+    checks[id] = item.checks;
+  }
+  rows.push(...templates.rows);
   const targets = targetPlan(target, inputs.conformanceLevel);
   if (targets.row) {
     rows.push(targets.row);
@@ -793,7 +963,8 @@ export function plan(target, blueprint) {
   for (const layer of LAYERS.filter((l) => l.built)) {
     const entry = blueprint.layers[layer.id];
     const values = layer.id === "foundations" ? foundations.choice : entry.choice;
-    files[`design/decisions/${layer.id}.md`] = record(layer, entry, rows, values);
+    const listed = [...rows, ...templates.known];
+    files[`design/decisions/${layer.id}.md`] = record(layer, entry, listed, values);
   }
   return {
     files: { ...files, ...vendored() },
@@ -803,6 +974,7 @@ export function plan(target, blueprint) {
     targets,
     columns,
     patterns,
+    templates,
     kept,
   };
 }
@@ -948,7 +1120,10 @@ function main() {
     );
     return;
   }
-  const { files, tokens, components, targets, columns, patterns, kept } = plan(target, blueprint);
+  const { files, tokens, components, targets, columns, patterns, templates, kept } = plan(
+    target,
+    blueprint,
+  );
   const unmet = (id) =>
     kept.includes(id)
       ? "Its check stays, and the gate fails until that changes"
@@ -958,6 +1133,15 @@ function main() {
     stdout.write(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.\n`);
   }
   for (const note of patterns.notes) stdout.write(`hint: ${note}.\n`);
+  for (const [id, item] of Object.entries(templates.held)) stdout.write(`${id}: ${item.what}\n`);
+  for (const row of templates.rows) {
+    const how = row.check ? `proved by ${row.check}` : "recorded, for a person to confirm";
+    stdout.write(`${row.id}: ${how}\n`);
+  }
+  for (const item of templates.failing) {
+    stdout.write(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.\n`);
+  }
+  for (const note of templates.notes) stdout.write(`hint: ${note}.\n`);
   if (columns.problem) {
     stdout.write(
       `note: column types: ${columns.problem}. No check is added until the table is right.\n`,

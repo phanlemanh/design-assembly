@@ -203,7 +203,22 @@ the preview again.
     today; read out the place it names.
     every screen must declare is the person's from now on, and excusing a screen there needs a
     reason. Each of the three rows holds only what can be read from source; its note says what.
-11. Repeat the `target size:` line the script printed: the smallest control and the controls it
+11. Kinds of screen. Repeat the lines for `test-screen-sizes`, `one-main-one-h1`,
+    `no-sideways-scroll` and `wcag-aa`: where the floor's browser checks are installed, the guide
+    wrote `design/screen-sizes.json` with 320 and 1440 and installed a browser test that checks
+    every state of every screen at those widths. The widths are the person's from now on; the
+    narrowest stays at 320 or less.
+    A `hint:` that no page describes a kind of screen means the kinds are not held yet. The guide
+    never writes such a page. Offer to write one with the person, per kind of screen the
+    repository has, in the format `references/checks.md` gives under "Kinds of screen". Ask what
+    a person comes to that kind of screen to do: that sentence is the main task. Propose the order
+    of the parts from the screens that exist, and name one real screen as the reference. Then run
+    the script again: it holds `page-layouts` and `reference-implementation`, and records
+    `primary-task` as not confirmed. After the person has read the page, add the rows
+    `information-order` and `copy-content` to the ledger as their calls, with no check.
+    Say what a failed action does (`references/checks.md`, "A failed action"), and that a screen
+    with an action done at once lists a state for that action failing.
+12. Repeat the `target size:` line the script printed: the smallest control and the controls it
     could not measure. If it printed a note instead, some controls are below what the conformance
     level asks and no check was added: name them, and say that the components change first or the
     level does. That choice is the person's.

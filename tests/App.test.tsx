@@ -1,6 +1,7 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 
+import { Toaster } from "../src/components/ui/sonner.tsx";
 import { formatDate, formatMoney } from "../src/lib/format.ts";
 import { LABELS } from "../src/lib/labels.ts";
 import { pick, SCREENS, type Step } from "../src/screens.ts";
@@ -22,9 +23,10 @@ async function show(scenario?: string) {
   return view;
 }
 
+// Waits for the control, as the browser checks do: a toast's button appears a moment after the answer.
 async function take(step: Step) {
-  if ("press" in step) fireEvent.click(screen.getByRole("button", { name: step.press }));
-  else fireEvent.change(screen.getByLabelText(step.fill), { target: { value: step.text } });
+  if ("press" in step) fireEvent.click(await screen.findByRole("button", { name: step.press }));
+  else fireEvent.change(await screen.findByLabelText(step.fill), { target: { value: step.text } });
   await answer();
 }
 
@@ -52,11 +54,17 @@ it.each(SCREENS.flatMap((s) => s.states.map((state) => [s.path, state.name, s, s
   async (_path, _name, entry, state) => {
     setScenario(state.scenario);
     const Screen = await entry.load();
-    render(<Screen />);
+    // The toaster is mounted beside every screen, as the app does: some states show in a toast.
+    render(
+      <>
+        <Screen />
+        <Toaster />
+      </>,
+    );
     await answer();
     for (const step of state.steps ?? []) await take(step);
     // A dialog renders outside the screen's own element, so look at the whole page.
-    expect(screen.getAllByText(state.shows)).not.toHaveLength(0);
+    expect(await screen.findAllByText(state.shows)).not.toHaveLength(0);
     // A dialog hides the page behind it from assistive tech; the structure must still be there.
     expect(screen.getAllByRole("main", { hidden: true })).toHaveLength(1);
     expect(screen.getAllByRole("heading", { level: 1, hidden: true })).toHaveLength(1);

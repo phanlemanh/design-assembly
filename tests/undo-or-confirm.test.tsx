@@ -24,7 +24,10 @@ async function show(scenario?: string) {
 
 beforeEach(() => {
   vi.resetModules();
-  vi.useFakeTimers();
+  // The toast library takes a toast away on the next frame, so frames are faked too.
+  vi.useFakeTimers({
+    toFake: ["setTimeout", "clearTimeout", "Date", "requestAnimationFrame", "cancelAnimationFrame"],
+  });
 });
 afterEach(async () => {
   // Toasts outlive the screen that raised them: clear them, so one test does not see another's.
@@ -45,6 +48,32 @@ it("adding happens at once, and the toast that says so offers the undo", async (
   expect(screen.getByRole("button", { name: LABELS.undo })).toBeInTheDocument();
 });
 
+it("a toast that carries the undo stays until it is pressed or closed", async () => {
+  await show("empty");
+  fireEvent.click(screen.getByRole("button", { name: LABELS.emptyAction }));
+  await answer();
+  // Far longer than a toast with no button lasts.
+  await act(() => vi.advanceTimersByTimeAsync(60_000));
+  expect(screen.getByRole("button", { name: LABELS.undo })).toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: LABELS.close }));
+  await act(() => vi.advanceTimersByTimeAsync(1000));
+  expect(screen.queryByRole("button", { name: LABELS.undo })).not.toBeInTheDocument();
+});
+
+it("a toast with no button goes away by itself, and a new toast takes the place of the old", async () => {
+  await show();
+  const { notifyDone } = await import("../src/lib/notify.ts");
+  act(() => notifyDone("first", { label: LABELS.undo, run: () => undefined, close: LABELS.close }));
+  await answer();
+  act(() => notifyDone("second"));
+  await answer(); // the old toast is marked as leaving on the next frame
+  await answer(); // and is gone once it has left
+  expect(screen.queryByText("first")).not.toBeInTheDocument();
+  expect(screen.getByText("second")).toBeInTheDocument();
+  await act(() => vi.advanceTimersByTimeAsync(10_000));
+  expect(screen.queryByText("second")).not.toBeInTheDocument();
+});
+
 it("the undo takes the added item back", async () => {
   await show();
   const before = screen.getAllByRole("row").length;
@@ -60,6 +89,7 @@ it("the undo takes the added item back", async () => {
     notifyDone(LABELS.added(item.name), {
       label: LABELS.undo,
       run: () => void deleteItem(item.id),
+      close: LABELS.close,
     });
   });
   await answer();

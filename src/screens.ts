@@ -20,6 +20,9 @@ export type Screen = {
 // What a user does to delete the first item: ask, then confirm.
 const askDelete: Step[] = [{ press: LABELS.deleteItem(LABELS.sampleFirstName) }];
 const confirmDelete: Step[] = [...askDelete, { press: LABELS.deleteAction }];
+// What a user does to add the first item, then to take it back.
+const addFirst: Step[] = [{ press: LABELS.emptyAction }];
+const undoAdd: Step[] = [...addFirst, { press: LABELS.undo }];
 
 export const SCREENS: Screen[] = [
   {
@@ -42,6 +45,14 @@ export const SCREENS: Screen[] = [
         scenario: "fail-delete",
         steps: confirmDelete,
         shows: LABELS.deleteFailed(LABELS.sampleFirstName),
+      },
+      // An action done at once that fails, and an undo that fails: each says so in a toast.
+      { name: "add-failed", scenario: "fail-create", steps: addFirst, shows: LABELS.addFailed },
+      {
+        name: "undo-failed",
+        scenario: "fail-undo",
+        steps: undoAdd,
+        shows: LABELS.undoFailed(LABELS.sampleNewName),
       },
     ],
   },

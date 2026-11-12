@@ -167,6 +167,30 @@
         "skip": ["src/components/ui/", "src/generated/"]
       }
     ],
+    "page-layouts": [
+      {
+        "kind": "screen-kinds",
+        "pages": "design/patterns",
+        "registry": "src/screens.ts",
+        "folder": "src"
+      }
+    ],
+    "reference-implementation": [
+      {
+        "kind": "reference-screens",
+        "pages": "design/patterns",
+        "registry": "src/screens.ts",
+        "file": "design/states.json",
+        "folder": "src"
+      }
+    ],
+    "test-screen-sizes": [
+      {
+        "kind": "screen-sizes",
+        "file": "design/screen-sizes.json",
+        "test": "tests/e2e/templates.spec.ts"
+      }
+    ],
     "target-size": [
       {
         "kind": "target-size",

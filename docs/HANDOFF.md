@@ -6,7 +6,7 @@ sửa trang này hoặc xoá nó.
 
 ## Câu để dán vào phiên mới
 
-> Đọc `docs/HANDOFF.md` rồi tiếp tục từ mục «Việc đang chờ anh trả lời». Trả lời bằng tiếng Việt.
+> Đọc `docs/HANDOFF.md` rồi tiếp tục từ mục «Việc kế». Trả lời bằng tiếng Việt.
 
 ## Đọc theo thứ tự này
 
@@ -14,7 +14,7 @@ sửa trang này hoặc xoá nó.
 2. `AGENTS.md` và `CLAUDE.md` ở gốc kho: lệnh, luật, ngôn ngữ.
 3. `wiki/index.md`, rồi `wiki/specs/0001-design-system-for-claude-code.md` (đề bài và kết quả từng
    lát, ba lần chạy thử).
-4. Bản ghi quyết định `wiki/decisions/0005` đến `0015`: mỗi phần đã dựng có một bản, kèm giới hạn.
+4. Bản ghi quyết định `wiki/decisions/0005` đến `0016`: mỗi phần đã dựng có một bản, kèm giới hạn.
 5. `plugins/design-assembly/references/checks.md`: mọi tệp plugin để lại ở một kho, và mỗi loại
    lệnh kiểm.
 
@@ -41,66 +41,56 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 
 ## Trạng thái lúc bàn giao
 
-- Nhánh `main`, cây làm việc sạch, commit cuối trước trang này là
-  `b09e30b`. **Chưa có remote, chưa đẩy đi đâu**: kho
-  chỉ nằm trên máy này. Mọi thứ đều đã commit.
-- `make check` xanh: lint, typecheck, 50 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (17 quyết định, 22 lệnh kiểm), bộ rào của sàn, 16 bài kiểm trình duyệt, 132 bài kiểm của plugin.
-- Kho này đáp **28/38 quyết định lõi**: 11 máy giữ, 14 tự khai, 3 đã ghi. Sổ có 34 dòng.
+- Nhánh `main`, cây làm việc sạch. **Chưa có remote, chưa đẩy đi đâu**: kho chỉ nằm trên máy
+  này. Mọi thứ đều đã commit. Cập nhật lần cuối 2026-11-12, sau khi dựng bậc templates.
+- `make check` xanh: lint, typecheck, 58 bài kiểm của kho, ontology, lệnh kiểm design-assembly
+  (20 quyết định, 25 lệnh kiểm), bộ rào của sàn, 40 lượt kiểm trình duyệt, 148 bài kiểm của plugin.
+- Kho này đáp **36/38 quyết định lõi**: 13 máy giữ, 17 tự khai, 6 đã ghi. Sổ có 44 dòng.
 
-| Bậc                           | Trạng thái       | Còn thiếu                                            |
-| ----------------------------- | ---------------- | ---------------------------------------------------- |
-| audit                         | đạt              |                                                      |
-| foundations                   | 9/9, «tự khai»   | lên «đạt» khi các luật lint của sàn được chạy lại    |
-| core components               | 10/10, «tự khai» | như trên                                             |
-| trạng thái của màn và lời văn | 7/8              | mở hồ sơ cạnh danh sách: chưa có màn nào cần         |
-| templates                     | 0/8              | chưa dựng, là việc kế                                |
-| governance                    | 2/3              | hướng nhập giữa các phần; tệp ghi các lần lệch chuẩn |
+| Bậc                           | Trạng thái       | Còn thiếu                                                  |
+| ----------------------------- | ---------------- | ---------------------------------------------------------- |
+| audit                         | đạt              |                                                            |
+| foundations                   | 9/9, «tự khai»   | lên «đạt» khi các luật lint của sàn được chạy lại          |
+| core components               | 10/10, «tự khai» | như trên                                                   |
+| trạng thái của màn và lời văn | 7/8              | mở hồ sơ cạnh danh sách: chưa có màn nào cần               |
+| templates                     | 8/8              | ba câu «đã ghi» chờ chủ kho xác nhận; ba câu mới «tự khai» |
+| governance                    | 2/3              | hướng nhập giữa các phần; tệp ghi các lần lệch chuẩn       |
 
 ## Đã dựng gì, theo thứ tự
 
-| Phần                                                       | Bản ghi | Tệp chính                                                                          |
-| ---------------------------------------------------------- | ------- | ---------------------------------------------------------------------------------- |
-| Bậc deliverable, ranh giới với hai kho bên cạnh, audit     | 0005    | `references/tiers.json`, `scripts/inventory.mjs`                                   |
-| Sổ chuẩn, bảy tầng, danh mục 66 quyết định (38 lõi)        | 0006    | `templates/tools/design-assembly/ledger.mjs`, `references/standard-decisions.json` |
-| Adopt: nhận giá trị kho đã có                              | 0007    | `scripts/adopt.mjs`, `references/known-proofs.json`                                |
-| Tệp design tokens sinh từ stylesheet                       | 0008    | `templates/tools/design-assembly/tokens.mjs`                                       |
-| Sổ linh kiện sinh từ mã nguồn                              | 0009    | `templates/tools/design-assembly/components.mjs`                                   |
-| Chỉ dòng sổ mới là lời đáp; audit in bước kế               | 0010    | `scripts/inventory.mjs`, `scripts/proofs.mjs`                                      |
-| Cỡ vùng bấm đo từ mã nguồn                                 | 0011    | `components.mjs`                                                                   |
-| Bảng dữ liệu: kiểu cột quyết định canh lề, bề rộng, mật độ | 0012    | `templates/tools/design-assembly/columns.mjs`, `src/components/ui/typed-table.tsx` |
-| Trạng thái, chữ, câu báo lỗi                               | 0013    | `templates/tools/design-assembly/patterns.mjs`                                     |
-| Kênh thông báo, hoàn tác, bài kiểm gắn thẻ làm bằng chứng  | 0014    | `src/lib/notify.ts`, `scripts/proofs.mjs`                                          |
-| Trang luật cho tác tử; dòng sổ chưa có lệnh kiểm           | 0015    | `.claude/rules/design-assembly.md`, cờ `--hold` của adopt                          |
+| Phần                                                       | Bản ghi | Tệp chính                                                                              |
+| ---------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------- |
+| Bậc deliverable, ranh giới với hai kho bên cạnh, audit     | 0005    | `references/tiers.json`, `scripts/inventory.mjs`                                       |
+| Sổ chuẩn, bảy tầng, danh mục 66 quyết định (38 lõi)        | 0006    | `templates/tools/design-assembly/ledger.mjs`, `references/standard-decisions.json`     |
+| Adopt: nhận giá trị kho đã có                              | 0007    | `scripts/adopt.mjs`, `references/known-proofs.json`                                    |
+| Tệp design tokens sinh từ stylesheet                       | 0008    | `templates/tools/design-assembly/tokens.mjs`                                           |
+| Sổ linh kiện sinh từ mã nguồn                              | 0009    | `templates/tools/design-assembly/components.mjs`                                       |
+| Chỉ dòng sổ mới là lời đáp; audit in bước kế               | 0010    | `scripts/inventory.mjs`, `scripts/proofs.mjs`                                          |
+| Cỡ vùng bấm đo từ mã nguồn                                 | 0011    | `components.mjs`                                                                       |
+| Bảng dữ liệu: kiểu cột quyết định canh lề, bề rộng, mật độ | 0012    | `templates/tools/design-assembly/columns.mjs`, `src/components/ui/typed-table.tsx`     |
+| Trạng thái, chữ, câu báo lỗi                               | 0013    | `templates/tools/design-assembly/patterns.mjs`                                         |
+| Kênh thông báo, hoàn tác, bài kiểm gắn thẻ làm bằng chứng  | 0014    | `src/lib/notify.ts`, `scripts/proofs.mjs`                                              |
+| Trang luật cho tác tử; dòng sổ chưa có lệnh kiểm           | 0015    | `.claude/rules/design-assembly.md`, cờ `--hold` của adopt                              |
+| Kiểu màn, cỡ màn được kiểm, thao tác thất bại              | 0016    | `templates/tools/design-assembly/screens.mjs`, `design/patterns/`, `src/lib/notify.ts` |
 
 Lệnh hay dùng ở kho này: `make design-audit`, `make design-plan`, `make design-apply`,
 `make design-adopt`, `make design-adopt-reference` (xem trước trên kho đối chứng, không bao giờ
 ghi), `make design-tokens`, `make design-components`, `make design-columns`, `make plugin-test`.
 
-## Việc đang chờ anh trả lời
+## Việc kế
 
-Câu hỏi cuối của phiên cũ, **chưa được trả lời**:
+Câu hỏi về bậc templates và luật thao tác thất bại đã được chủ kho duyệt và dựng xong ngày
+2026-11-12 (quyết định 0016). Không còn câu hỏi nào đang treo. Những việc có thể làm tiếp, chưa
+việc nào được duyệt:
 
-> Chuẩn bị phương án cho bậc templates, kèm luật cho thao tác thất bại?
-
-Nếu anh đồng ý, lượt đó **chỉ phân tích và đề xuất, chưa dựng gì**, làm đúng như hai lần trước:
-
-1. Đọc luật chủ kho đã viết ở kho đối chứng (`~/dev/onehub-inventory`: `design/patterns/`,
-   `design/screens.yaml`, `design/behaviors.md`, `design/states.md`). **Đọc lại từ đầu**: kho đó
-   đang được phát triển song song và đã đổi luật hai lần trong ngày 12/11.
-2. Đọc cái sàn đã có ở kho này (`src/screens.ts`, `tests/e2e/floor.spec.ts`, `design/behaviors.md`).
-3. Tra chuẩn ngành tại nguồn, không theo trí nhớ. Trang nào không đọc được thì nói là không đọc
-   được.
-4. Trình một bộ khuyến nghị, mỗi câu có khuyến nghị trước rồi phương án khác một dòng, và hỏi
-   đúng một câu duyệt.
-
-Tám câu của bậc templates: việc chính của mỗi màn; thứ tự thông tin; lời văn của màn; mỗi trang có
-đúng một vùng chính và một tiêu đề; trang không cuộn ngang; trang qua kiểm accessibility tự động;
-các cỡ màn được kiểm; màn mẫu của từng kiểu màn. Ba câu giữa đã có bài kiểm trình duyệt của sàn
-nhưng chưa vào sổ được (xem «Điều còn mở»).
-
-Luật cần gộp vào bộ khuyến nghị đó, vì tác tử dựng màn đã phải đoán: **một thao tác làm ngay mà
-thất bại thì báo thế nào, và hoàn tác thất bại thì sao**.
+- **Chủ kho đọc trang kiểu màn** `design/patterns/danh-sach.md` rồi xác nhận hoặc sửa. Ba dòng sổ
+  (việc chính, thứ tự thông tin, lời văn) đang ghi «chưa ai xác nhận».
+- **Chạy thử lần bốn bằng tác tử độc lập**: các sửa đổi từ sau lần ba, cùng toàn bộ phần mới,
+  chưa được thử. Tốn token, hỏi trước.
+- **Bậc governance** (2/3): hướng nhập giữa các phần, và tệp ghi các lần lệch chuẩn.
+- **Lệnh kiểm tương phản cho nút khi rê chuột**: lần này bài kiểm trình duyệt tình cờ bắt được
+  (xem 0016, giới hạn).
+- **Adopt nhận trang kiểu màn** ở kho đã có.
 
 ## Cách chủ kho muốn làm việc
 
@@ -140,7 +130,9 @@ thất bại thì báo thế nào, và hoàn tác thất bại thì sao**.
 
 Cần chủ kho quyết:
 
-- Thao tác làm ngay mà thất bại thì báo thế nào (xem «Việc đang chờ»).
+- Trang kiểu màn «danh sách» do máy đề xuất: xác nhận hay sửa.
+- Màn mẫu của một kiểu là màn thật trong sổ màn (cách plugin hiểu) hay trang mẫu của khuôn (cách
+  kho đối chứng đang ghi ở cùng khoá).
 - Có ghim màu thương hiệu của kho được nhận hay không. Hiện đổi sang màu khác vẫn đạt tương phản
   thì chỉ cần ghi lại tệp token là qua.
 - Hai hình dạng sổ linh kiện đang cùng tồn tại: của plugin (mỗi linh kiện một mục, có biến thể) và
@@ -152,16 +144,19 @@ Cần chủ kho quyết:
 Cần Repo Standards:
 
 - Ba bài kiểm trình duyệt của sàn (một vùng chính, không cuộn ngang, accessibility) không mang thẻ
-  `decision:<id>`, nên sổ chưa trỏ tới được.
+  `decision:<id>`. Sổ giờ trỏ tới bài kiểm của plugin thay cho chúng, nên ở kho này accessibility
+  được kiểm hai lần. Khi sàn gắn thẻ thì bỏ được một bên.
 - Trang luật giao diện của sàn ghi «đừng ép bề rộng cột», trái với luật bề rộng tối thiểu đã duyệt.
 - Một hành vi mới vào mô hình dữ liệu ra sao; kiểu dữ liệu của màn có phải lấy từ mã sinh ra không.
 
 Giới hạn đã biết của plugin (chi tiết ở từng bản ghi):
 
-- Các sửa đổi sau lần chạy thử thứ ba **chưa được tác tử độc lập thử lại**.
+- Các sửa đổi sau lần chạy thử thứ ba, và toàn bộ bậc templates, **chưa được tác tử độc lập thử**.
 - Nhiều dòng «máy giữ» chỉ giữ phần đọc được từ mã nguồn; dòng sổ có ghi chú nói phần nào.
 - Tương phản mới kiểm hai cặp của màu chính. Màu viết dạng pha trộn không đọc được.
-- Toast nằm ngoài tầm kiểm trình duyệt của sàn. Số hiện ra không qua bộ định dạng thì không ai bắt.
+- Luật thao tác thất bại không đọc được từ mã nguồn: giữ bằng bài kiểm của kho, mức «tự khai».
+- Tương phản của nút khi rê chuột không được lệnh kiểm đo. Số hiện ra không qua bộ định dạng thì
+  không ai bắt.
 - Chưa có token cho phông chữ, khoảng cách, đổ bóng, chuyển động. Chưa có băng báo sự cố.
 - Kho này chưa khai gì với kit nghiệm thu, nên bậc M của kit chưa đổi.
 
@@ -197,3 +192,9 @@ kho trước.
 - Tệp JSON do lệnh ghi phải đúng kiểu bộ định dạng của kho để lại; dùng `renderJson` trong
   `templates/tools/design-assembly/json.mjs`, đừng dùng `JSON.stringify` thẳng cho tệp có mảng.
 - Kho đối chứng đổi trong lúc mình làm. Đừng dựa vào con số đã đọc từ nó ở lượt trước.
+- Thư viện toast gỡ một toast ở khung hình kế tiếp. Bài kiểm dùng đồng hồ giả phải giả cả khung
+  hình, và phải tua hai nhịp: một nhịp để toast được đánh dấu rời đi, một nhịp để nó biến mất.
+- Một khối rỗng không có chiều cao thì không làm trang cuộn ngang. Muốn thử cho bài kiểm cuộn
+  ngang đỏ thì khối phải có chiều cao.
+- Bộ đọc trang tài liệu không đọc được trang dựng bằng script (Material Design). Mở bằng trình
+  duyệt trong ứng dụng thì đọc được.

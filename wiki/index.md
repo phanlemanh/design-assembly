@@ -29,6 +29,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 - [0003 Plugin nằm trong kho, ứng dụng làm bãi thử](decisions/0003-plugin-inside-the-repo.md) — động cơ ở `plugins/design-assembly/`
 - [0004 Output là plugin dẫn dắt, từ vựng lấy từ chuẩn của ngành](decisions/0004-output-and-vocabulary.md) — bảng từ vựng ở `plugins/design-assembly/references/vocabulary.json`
 - [0005 Đầu ra chuẩn hoá theo bậc; ranh giới với hai kho bên cạnh](decisions/0005-output-tiers-and-boundaries.md) — bảng bậc ở `plugins/design-assembly/references/tiers.json`
+- [0016 Kiểu màn, cỡ màn được kiểm, và thao tác thất bại](decisions/0016-screen-kinds-and-failed-actions.md) — bộ đọc trang kiểu màn ở `plugins/design-assembly/templates/tools/design-assembly/screens.mjs`; luật thất bại ở `src/lib/notify.ts`
 - [0015 Trang luật cho tác tử dựng màn, và dòng sổ có sẵn mà chưa có lệnh kiểm](decisions/0015-rules-page-and-rows-without-a-check.md) — rút từ lần chạy thử ba; trang luật ở `.claude/rules/design-assembly.md`
 - [0014 Kênh thông báo, hỏi trước hay hoàn tác, và bài kiểm của kho làm bằng chứng](decisions/0014-channels-and-undo.md) — mô-đun báo kết quả ở `src/lib/notify.ts`, bộ dò bằng chứng ở `plugins/design-assembly/scripts/proofs.mjs`
 - [0013 Trạng thái của màn, chữ trên màn và câu báo lỗi, phần máy đọc được từ mã nguồn](decisions/0013-states-words-error-messages.md) — ba lệnh kiểm ở `plugins/design-assembly/templates/tools/design-assembly/patterns.mjs`; mức dày của bảng sửa về 32 px

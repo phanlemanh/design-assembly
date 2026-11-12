@@ -28,14 +28,25 @@ let items: Item[] = [
 ];
 
 export function listItems(): Promise<Item[]> {
-  const test = testAnswer<Item[]>({ slow: "never", fail: "fail", empty: [] });
+  const test = testAnswer<Item[]>({
+    slow: "never",
+    fail: "fail",
+    empty: [],
+    // An empty list is where adding starts: these two make the adding, or its undo, fail.
+    "fail-create": [],
+    "fail-undo": [],
+  });
   if (test) return test;
 
   return respond(() => [...items]);
 }
 
 export function deleteItem(id: number): Promise<void> {
-  const test = testAnswer<void>({ "slow-delete": "never", "fail-delete": "fail" });
+  const test = testAnswer<void>({
+    "slow-delete": "never",
+    "fail-delete": "fail",
+    "fail-undo": "fail",
+  });
   if (test) return test;
 
   return respond(() => {
@@ -44,6 +55,9 @@ export function deleteItem(id: number): Promise<void> {
 }
 
 export function createItem(): Promise<Item> {
+  const test = testAnswer<Item>({ "fail-create": "fail" });
+  if (test) return test;
+
   return respond(() => {
     const item: Item = {
       id: Math.max(0, ...items.map((i) => i.id)) + 1,

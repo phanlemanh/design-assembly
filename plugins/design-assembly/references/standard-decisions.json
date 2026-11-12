@@ -342,6 +342,13 @@
       "sources": ["reference-ledger", "repo-standards-floor", "component-audit"]
     },
     {
+      "id": "failed-action",
+      "layer": "patterns",
+      "kind": "closed",
+      "question": "What does a person see when an action done at once fails, or when its undo fails?",
+      "sources": ["design-assembly"]
+    },
+    {
       "id": "feedback-by-delay",
       "layer": "patterns",
       "kind": "standard",

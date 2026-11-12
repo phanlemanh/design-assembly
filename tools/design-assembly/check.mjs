@@ -21,6 +21,7 @@ import {
 } from "./ledger.mjs";
 import { toPx, toRatio, TYPE_STEPS } from "./scale.mjs";
 import { channelsProblem, errorCopyProblem, statesProblem, wordsProblem } from "./patterns.mjs";
+import { kindsProblem, readPages, referenceProblem, sizesProblem } from "./screens.mjs";
 import { DEFAULT_STYLESHEET, findStylesheet, loadStyles, resolve } from "./styles.mjs";
 import { buildTheme, readBlock, renderBlock, withoutBlock } from "./theme.mjs";
 import { tokensProblem } from "./tokens.mjs";
@@ -253,6 +254,50 @@ const KINDS = {
       return { ...state, folders: { ...state.folders, [check.folder]: files } };
     },
   },
+  // Every screen is of one kind, and every kind has a page that names its main task.
+  "screen-kinds": {
+    run(state, check) {
+      const pages = state.pages?.[check.pages] ?? {};
+      const sources = state.folders?.[check.folder] ?? {};
+      return kindsProblem(pages, state.files?.[check.registry], sources, check.pages);
+    },
+    // No page at all: every screen is left without a kind.
+    change(state, check) {
+      return { ...state, pages: { ...state.pages, [check.pages]: {} } };
+    },
+  },
+  // The reference screen of each kind is a real screen of that kind with every required state.
+  "reference-screens": {
+    run(state, check) {
+      const pages = state.pages?.[check.pages] ?? {};
+      const sources = state.folders?.[check.folder] ?? {};
+      const registry = state.files?.[check.registry];
+      return referenceProblem(pages, registry, state.files?.[check.file], sources);
+    },
+    // One more required state, which no screen declares.
+    change(state, check) {
+      const table = JSON.parse(state.files?.[check.file] ?? "{}");
+      const required = [...(table.required ?? []), "changed-copy"];
+      const text = JSON.stringify({ ...table, required });
+      return { ...state, files: { ...state.files, [check.file]: text } };
+    },
+  },
+  // Pages are checked at the widths a person listed, the reflow width among them.
+  "screen-sizes": {
+    run(state, check) {
+      return sizesProblem(
+        state.files?.[check.file],
+        state.files?.[check.test],
+        check.file,
+        check.test,
+      );
+    },
+    // Only a wide screen is left.
+    change(state, check) {
+      const text = JSON.stringify({ version: 1, widths: [1440] });
+      return { ...state, files: { ...state.files, [check.file]: text } };
+    },
+  },
   gate: {
     run(state) {
       if (state.gate === null) return `${FILES.gate} is missing, so make check does not run this`;
@@ -286,13 +331,17 @@ export function readState(root) {
   // Other files a check names, as they are on disk.
   const checks = Object.values(data?.checks ?? {}).flat();
   const named = checks
-    .flatMap((check) => [check.file, check.types, check.registry])
+    .flatMap((check) => [check.file, check.types, check.registry, check.test])
     .filter(Boolean)
     .map((file) => [file, read(file)]);
   // Source folders a check names, file by file.
   const folders = checks
     .filter((check) => check.folder)
     .map((check) => [check.folder, readFolder(root, check.folder)]);
+  // Folders of pages a check names, page by page.
+  const pages = checks
+    .filter((check) => check.pages)
+    .map((check) => [check.pages, readPages(root, check.pages)]);
   return {
     root,
     theme: data,
@@ -303,6 +352,7 @@ export function readState(root) {
     ...loadStyles(root, stylesheet),
     files: Object.fromEntries(named),
     folders: Object.fromEntries(folders),
+    pages: Object.fromEntries(pages),
     // The column type each field of the data model names.
     displays: readDisplays(root),
     gate: read(FILES.gate),
