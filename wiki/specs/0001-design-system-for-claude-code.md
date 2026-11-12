@@ -136,6 +136,12 @@ không viết chữ trực tiếp. Câu báo lỗi có hai phần: chuyện gì 
 được từ mã nguồn của cả ba; phần hành vi lúc chạy do bài kiểm của kho giữ. Ba câu còn lại của bậc
 này (kênh thông báo, hỏi trước hay hoàn tác, mở hồ sơ cạnh danh sách) chưa dựng.
 
+### Kênh thông báo và hoàn tác (quyết định 0014, 2026-11-12)
+
+Kết quả một thao tác được báo bằng toast, qua một mô-đun của kho; đảo được thì toast kèm hoàn tác,
+không đảo được thì hỏi trước. Máy giữ việc màn không đi vòng qua kênh; hành vi do bài kiểm của kho
+giữ, và adopt ghi dòng sổ trỏ tới bài kiểm có gắn thẻ tên quyết định.
+
 ### Vì sao cần plugin này
 
 Bản trước ghi giả thuyết «giảm token», neo vào lần đo ba của Repo Standards (token gấp 1,43 lần).

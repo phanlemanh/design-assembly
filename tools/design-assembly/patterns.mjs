@@ -65,8 +65,8 @@ export function statesProblem(statesText, registryText, file = STATES_FILE) {
 const TEXT_ATTRIBUTES =
   /\b(aria-label|aria-description|placeholder|title|alt)=(?:\{\s*)?(["'])([^"']*)\2/g;
 const HAS_WORD = /\p{L}{2,}/u;
-// Marks of code, not of text between two tags.
-const LOOKS_LIKE_CODE = /[;=()[\]"'`|&]/;
+// Marks of code, not of text between two tags. A closing brace cannot stand in such text at all.
+const LOOKS_LIKE_CODE = /[;=()[\]}"'`|&]/;
 
 // Places where a screen writes words itself instead of taking them from the repository's one
 // place for words: text between tags, and text in an attribute a person reads or hears.
@@ -119,4 +119,27 @@ export function errorCopyProblem(files, skip = []) {
   }
   if (measured === 0) return "no screen shows an error message with Alert, so nothing is measured";
   return found.length > 0 ? found.slice(0, 5).join("; ") : null;
+}
+
+// Libraries that show a toast. A screen does not call one itself: it goes through the
+// repository's one module for telling a person what an action did.
+export const TOAST_MODULES = ["sonner", "react-hot-toast", "react-toastify"];
+
+// Places where a screen tells a person something outside the repository's channels: a dialog of
+// the browser itself, or a toast library called directly.
+export function channelsProblem(files, skip = []) {
+  const found = [];
+  const modules = TOAST_MODULES.map((name) => name.replace(/[-/]/g, "\\$&")).join("|");
+  const direct = new RegExp(`from\\s+["'](${modules})["']`, "g");
+  for (const [file, text] of Object.entries(files)) {
+    if (skip.some((prefix) => file.startsWith(prefix))) continue;
+    for (const call of text.matchAll(/(?<![\w.])(?:window\.)?(alert|confirm|prompt)\s*\(/g)) {
+      found.push(`${file}: opens the browser's own ${call[1]} dialog`);
+    }
+    for (const use of text.matchAll(direct)) {
+      found.push(`${file}: calls the toast library ${use[1]} itself`);
+    }
+  }
+  if (found.length === 0) return null;
+  return `${found.slice(0, 5).join("; ")}: a screen tells a person through the repository's channels`;
 }

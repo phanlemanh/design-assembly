@@ -28,8 +28,10 @@ scale, shape). Density, elevation, motion and iconography are not.
 - The guide installs the data table layer: a table of column types, the file code reads from it,
   table parts that take alignment, width and row height from a field's column type, and checks
   that no screen sets them itself.
-- Three rules about screens are read from source and held: every screen declares the states
-  every view of data has, no screen writes its own words, and an error message has both parts.
+- Four rules about screens are read from source and held: every screen declares the states
+  every view of data has, no screen writes its own words, an error message has both parts, and
+  no screen opens a browser dialog or calls a toast library itself.
+- A repository's own test that names a decision with `decision:<id>` is taken as a proof of it.
 - Both paths leave `design/component-registry.json`: the component manifest, written from the
   component source, with every variant an agent may use, and held to the source by a check.
 

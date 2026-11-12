@@ -38,7 +38,10 @@ Column types are held only where the repository keeps a table of them
 (`design/column-types.json`). Adopting writes no such table and installs no code: when the data
 model names column types and there is no table, it says so under `needs a person`.
 
-Words and error messages are held as found, when the screens meet the rule today. The states
+A test of the repository's own that names a decision with `decision:<id>` is listed under
+`claimed`, pointing at that test. Say that the tool did not run it.
+
+Words, error messages and the channel rule are held as found, when the screens meet the rule today. The states
 every screen must declare are held only where the repository keeps the list
 (`design/states.json`); adopting writes none.
 

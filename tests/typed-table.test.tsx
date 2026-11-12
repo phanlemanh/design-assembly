@@ -18,7 +18,7 @@ import {
 } from "../src/components/ui/typed-table.tsx";
 
 const FIELDS = Object.keys(columns.fields) as ColumnField[];
-const TYPES: Record<string, { align: string; sample: number }> = columns.types;
+const TYPES: Record<string, { base: string; align: string; sample: number }> = columns.types;
 const typeOf = (field: ColumnField) =>
   TYPES[(columns.fields as Record<string, string>)[field] ?? ""];
 
@@ -76,6 +76,32 @@ it("a column is at least as wide as the longer of its header and a typical value
   show([{ field, header: "Header" }]);
   const expected = `${columnWidthCh({ field, header: "Header" })}ch`;
   expect(screen.getByRole("columnheader").style.minWidth).toBe(expected);
+});
+
+it("a text column is fitted to the longest value it shows, up to the typical length of its type", () => {
+  const text = FIELDS.filter((field) => typeOf(field)?.base === "text");
+  const other = FIELDS.filter((field) => typeOf(field)?.base !== "text");
+  for (const field of text) {
+    const sample = typeOf(field)?.sample ?? 0;
+    const pad = columns.padding_ch;
+    // Short values: the column shrinks to them, with one character to spare.
+    expect(columnWidthCh({ field, header: "", values: ["ab", "abcd", "", null] })).toBe(
+      4 + pad + 1,
+    );
+    // Long values: never wider than the typical length of the type.
+    const long = "x".repeat(sample + 9);
+    expect(columnWidthCh({ field, header: "", values: [long] })).toBe(sample + pad + 1);
+    // The header still sets a floor, and a column with no value keeps the typical length.
+    expect(columnWidthCh({ field, header: "Header", values: ["ab"] })).toBe(6 + pad + 1);
+    expect(columnWidthCh({ field, header: "", values: [] })).toBe(sample + pad);
+  }
+  // Other types keep the typical length of the type, whatever they show.
+  for (const field of other) {
+    expect(columnWidthCh({ field, header: "", values: ["1"] })).toBe(
+      (typeOf(field)?.sample ?? 0) + columns.padding_ch,
+    );
+  }
+  expect(text.length + other.length).toBe(FIELDS.length);
 });
 
 it("a table is dense only when its columns cannot all be shown at their least width", () => {

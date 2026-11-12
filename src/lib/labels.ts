@@ -8,6 +8,8 @@ export const LABELS = {
   emptyTitle: "Chưa có gì ở đây",
   emptyDetail: "Thêm mục đầu tiên để bắt đầu.",
   emptyAction: "Thêm mục",
+  added: (name: string) => `Đã thêm ${name}`,
+  undo: "Hoàn tác",
   noResultsTitle: "Không tìm thấy",
   noResultsDetail: "Thử từ khác hoặc xoá bộ lọc.",
   noResultsAction: "Xoá bộ lọc",

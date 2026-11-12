@@ -176,7 +176,11 @@ the preview again.
    guide installed once and the repository now owns. A `note:` under it means a rule is not held
    yet: read it out. Adding a `display` key changes the data model: follow the repository's own
    rule for such a change.
-9. Repeat the lines for `state-matrix`, `labels` and `error-copy`. A `note:` for one of them
+9. Repeat the lines for `state-matrix`, `labels`, `error-copy` and `notification-channel`. Where
+   the repository already depends on the toast library, the guide installs the toast and the one
+   module screens tell results through; otherwise it prints how to get them. Never install a
+   package yourself: say what is missing and let the person decide.
+   Then, for all four: a `note:` for one of them
    means the repository does not meet that rule today, and no check was added: read out the
    place it names. The guide wrote `design/states.json` if there was none: the list of states
    every screen must declare is the person's from now on, and excusing a screen there needs a

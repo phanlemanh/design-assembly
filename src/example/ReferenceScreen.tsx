@@ -33,6 +33,7 @@ import {
 import { createItem, deleteItem, listItems, type Item, type Status } from "@/example/data";
 import { formatDate, formatMoney } from "@/lib/format";
 import { LABELS } from "@/lib/labels";
+import { notifyDone } from "@/lib/notify";
 
 type Variant = ComponentProps<typeof Badge>["variant"];
 // Each status keeps its own look. Never give two statuses the same variant to pass a check.
@@ -44,7 +45,7 @@ const STATUS: Record<Status, { label: string; variant: Variant }> = {
 
 // The data columns: a field of the data model and its header. The column type of the field decides
 // alignment and width, so a screen writes neither. The last column holds actions, not data.
-const COLUMNS: TypedColumn[] = [
+const COLUMNS: readonly TypedColumn[] = [
   { field: "Item.name", header: LABELS.columnName },
   { field: "Item.status", header: LABELS.columnStatus },
   { field: "Item.date", header: LABELS.columnDate },
@@ -143,10 +144,18 @@ export function ReferenceScreen() {
     setAttempt((n) => n + 1);
   }
 
+  // Adding can be taken back, so it happens at once and the toast offers the undo. Deleting
+  // cannot, so it asks first (design/behaviors.md, changing data).
   function addFirst() {
     setItems(null);
     // List again either way: the list shows what the server has.
-    void createItem().then(reload, reload);
+    void createItem().then((item) => {
+      notifyDone(LABELS.added(item.name), {
+        label: LABELS.undo,
+        run: () => void deleteItem(item.id).then(reload, reload),
+      });
+      reload();
+    }, reload);
   }
 
   function askDelete(item: Item) {
@@ -175,6 +184,11 @@ export function ReferenceScreen() {
 
   const shown = (items ?? []).filter((item) =>
     item.name.toLowerCase().includes(query.toLowerCase()),
+  );
+
+  // The name column is text: it is fitted to the names being shown.
+  const columns = COLUMNS.map((column) =>
+    column.field === "Item.name" ? { ...column, values: shown.map((item) => item.name) } : column,
   );
 
   let body: ReactNode;
@@ -218,10 +232,10 @@ export function ReferenceScreen() {
     );
   } else {
     body = (
-      <TypedTable aria-label={LABELS.tableName} columns={COLUMNS}>
+      <TypedTable aria-label={LABELS.tableName} columns={columns}>
         <TableHeader>
           <TypedRow>
-            {COLUMNS.map((column) => (
+            {columns.map((column) => (
               <TypedHead key={column.field} {...column} />
             ))}
             <TableHead>{LABELS.columnActions}</TableHead>

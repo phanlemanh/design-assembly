@@ -20,7 +20,7 @@ import {
   TOOL,
 } from "./ledger.mjs";
 import { toPx, toRatio, TYPE_STEPS } from "./scale.mjs";
-import { errorCopyProblem, statesProblem, wordsProblem } from "./patterns.mjs";
+import { channelsProblem, errorCopyProblem, statesProblem, wordsProblem } from "./patterns.mjs";
 import { DEFAULT_STYLESHEET, findStylesheet, loadStyles, resolve } from "./styles.mjs";
 import { buildTheme, readBlock, renderBlock, withoutBlock } from "./theme.mjs";
 import { tokensProblem } from "./tokens.mjs";
@@ -222,6 +222,19 @@ const KINDS = {
     change(state, check) {
       const added = `${check.folder}/changed-copy.tsx`;
       const source = 'export const ChangedCopy = () => <p title="Changed copy">Changed copy</p>;\n';
+      const files = { ...state.folders?.[check.folder], [added]: source };
+      return { ...state, folders: { ...state.folders, [check.folder]: files } };
+    },
+  },
+  // No screen opens a browser dialog or calls a toast library itself.
+  channels: {
+    run(state, check) {
+      return channelsProblem(state.folders?.[check.folder] ?? {}, check.skip);
+    },
+    change(state, check) {
+      const added = `${check.folder}/changed-copy.tsx`;
+      const source =
+        "export const ChangedCopy = () => <button onClick={() => window.alert(text)} />;\n";
       const files = { ...state.folders?.[check.folder], [added]: source };
       return { ...state, folders: { ...state.folders, [check.folder]: files } };
     },

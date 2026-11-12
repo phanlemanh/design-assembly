@@ -18,29 +18,30 @@ Việc của kho này nằm ở [đề bài lát mỏng](../wiki/specs/0001-desi
 
 ## Trong kho có gì
 
-| Đường dẫn                                         | Là gì                                                                 | Cần làm gì                                                |
-| ------------------------------------------------- | --------------------------------------------------------------------- | --------------------------------------------------------- |
-| `src/example/`                                    | Màn mẫu. AI sẽ chép nó khi dựng màn mới, nên lỗi ở đây lan ra mọi màn | Giữ sạch                                                  |
-| `src/screens.ts`                                  | Danh sách màn và cách tới từng trạng thái                             | Thêm một mục cho mỗi màn mới                              |
-| `src/components/ui/`                              | Linh kiện của shadcn                                                  | Không sửa tay                                             |
-| `src/lib/labels.ts`, `src/lib/format.ts`          | Mọi chữ trên màn, và cách viết số, tiền, ngày                         | Sửa chữ ở đây                                             |
-| `design/behaviors.md`                             | Mỗi trạng thái hiện gì                                                | Đọc trước khi dựng màn                                    |
-| `design/terms.json`                               | Từ không được dùng thay nhau. Đang trống                              | Điền khi có từ vựng nghiệp vụ                             |
-| `tools/design_guards.mjs`, `tests/e2e/`           | Bộ rào và bài kiểm trên trình duyệt                                   | Không sửa ở đây                                           |
-| `ontology/`                                       | Khái niệm nghiệp vụ. Đang trống                                       | Thêm bằng `/ontology-add`                                 |
-| `wiki/`                                           | Lý do của các quyết định                                              | Ghi khi quyết điều gì đáng nhớ                            |
-| `setup-blueprint.yaml`                            | Các lựa chọn lúc dựng kho                                             | Chỉ để đọc                                                |
-| `plugins/design-assembly/`                        | Plugin: audit, adopt, cuộc dẫn dắt hai tầng đầu, sổ chuẩn, từ vựng    | Chỉ viết tiếng Anh ở đây                                  |
-| `design/blueprint.json`, `design/decisions/`      | Các lựa chọn của cuộc dẫn dắt ở kho này, và decision record từng tầng | Đổi lựa chọn ở blueprint rồi chạy `make design-apply`     |
-| `design/decisions.yaml`                           | Sổ quyết định chuẩn: mỗi dòng trỏ tới nơi chứng minh                  | Người thêm dòng được; dòng của plugin thì không sửa       |
-| `design/theme.json`                               | Dữ liệu cho lệnh kiểm của plugin                                      | Không sửa ở đây                                           |
-| `design/tokens.json`                              | Design tokens cho công cụ không đọc CSS, sinh từ stylesheet           | Không sửa tay; đổi stylesheet rồi `make design-tokens`    |
-| `design/component-registry.json`                  | Sổ linh kiện: tên, tệp, biến thể; sinh từ mã nguồn linh kiện          | Không sửa tay; đổi linh kiện rồi `make design-components` |
-| `design/column-types.json`                        | Bảng kiểu cột của kho: kiểu nền và độ dài mẫu của từng kiểu           | Sửa ở đây khi thêm kiểu, rồi `make design-columns`        |
-| `design/columns.json`                             | Kiểu cột của từng trường, sinh từ bảng trên và mô hình dữ liệu        | Không sửa tay                                             |
-| `design/states.json`                              | Các trạng thái mọi màn phải khai, và màn nào được miễn kèm lý do      | Sửa ở đây khi thêm trạng thái hay miễn một màn            |
-| `src/components/ui/typed-table.tsx`               | Các phần bảng lấy canh lề, bề rộng, chiều cao hàng từ kiểu cột        | Của kho; plugin không ghi đè                              |
-| `tools/design-assembly/`, `mk/design-assembly.mk` | Lệnh kiểm do plugin cài vào                                           | Không sửa ở đây                                           |
+| Đường dẫn                                           | Là gì                                                                        | Cần làm gì                                                |
+| --------------------------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------- |
+| `src/example/`                                      | Màn mẫu. AI sẽ chép nó khi dựng màn mới, nên lỗi ở đây lan ra mọi màn        | Giữ sạch                                                  |
+| `src/screens.ts`                                    | Danh sách màn và cách tới từng trạng thái                                    | Thêm một mục cho mỗi màn mới                              |
+| `src/components/ui/`                                | Linh kiện của shadcn                                                         | Không sửa tay                                             |
+| `src/lib/labels.ts`, `src/lib/format.ts`            | Mọi chữ trên màn, và cách viết số, tiền, ngày                                | Sửa chữ ở đây                                             |
+| `design/behaviors.md`                               | Mỗi trạng thái hiện gì                                                       | Đọc trước khi dựng màn                                    |
+| `design/terms.json`                                 | Từ không được dùng thay nhau. Đang trống                                     | Điền khi có từ vựng nghiệp vụ                             |
+| `tools/design_guards.mjs`, `tests/e2e/`             | Bộ rào và bài kiểm trên trình duyệt                                          | Không sửa ở đây                                           |
+| `ontology/`                                         | Khái niệm nghiệp vụ. Đang trống                                              | Thêm bằng `/ontology-add`                                 |
+| `wiki/`                                             | Lý do của các quyết định                                                     | Ghi khi quyết điều gì đáng nhớ                            |
+| `setup-blueprint.yaml`                              | Các lựa chọn lúc dựng kho                                                    | Chỉ để đọc                                                |
+| `plugins/design-assembly/`                          | Plugin: audit, adopt, cuộc dẫn dắt hai tầng đầu, sổ chuẩn, từ vựng           | Chỉ viết tiếng Anh ở đây                                  |
+| `design/blueprint.json`, `design/decisions/`        | Các lựa chọn của cuộc dẫn dắt ở kho này, và decision record từng tầng        | Đổi lựa chọn ở blueprint rồi chạy `make design-apply`     |
+| `design/decisions.yaml`                             | Sổ quyết định chuẩn: mỗi dòng trỏ tới nơi chứng minh                         | Người thêm dòng được; dòng của plugin thì không sửa       |
+| `design/theme.json`                                 | Dữ liệu cho lệnh kiểm của plugin                                             | Không sửa ở đây                                           |
+| `design/tokens.json`                                | Design tokens cho công cụ không đọc CSS, sinh từ stylesheet                  | Không sửa tay; đổi stylesheet rồi `make design-tokens`    |
+| `design/component-registry.json`                    | Sổ linh kiện: tên, tệp, biến thể; sinh từ mã nguồn linh kiện                 | Không sửa tay; đổi linh kiện rồi `make design-components` |
+| `design/column-types.json`                          | Bảng kiểu cột của kho: kiểu nền và độ dài mẫu của từng kiểu                  | Sửa ở đây khi thêm kiểu, rồi `make design-columns`        |
+| `design/columns.json`                               | Kiểu cột của từng trường, sinh từ bảng trên và mô hình dữ liệu               | Không sửa tay                                             |
+| `design/states.json`                                | Các trạng thái mọi màn phải khai, và màn nào được miễn kèm lý do             | Sửa ở đây khi thêm trạng thái hay miễn một màn            |
+| `src/lib/notify.ts`, `src/components/ui/sonner.tsx` | Nơi duy nhất màn báo kết quả một thao tác (toast, kèm hoàn tác khi đảo được) | Của kho; màn không gọi thẳng thư viện toast               |
+| `src/components/ui/typed-table.tsx`                 | Các phần bảng lấy canh lề, bề rộng, chiều cao hàng từ kiểu cột               | Của kho; plugin không ghi đè                              |
+| `tools/design-assembly/`, `mk/design-assembly.mk`   | Lệnh kiểm do plugin cài vào                                                  | Không sửa ở đây                                           |
 
 ## Điều gì tự chạy
 

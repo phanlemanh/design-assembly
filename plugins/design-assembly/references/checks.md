@@ -116,7 +116,9 @@ to and how wide the column is at least.
   this file; the guide writes a starting table once and never again.
 - A field names its column type once, in the data model: a `display` key on the property. A
   screen names the field and the header, nothing else.
-- A column is at least as wide as the longer of its header and its sample, plus `padding_ch`.
+- A column is at least as wide as the longer of its header and its sample, plus `padding_ch`. A
+  column of base type `text` is fitted to the longest value it shows, up to its sample, plus one
+  character.
 - A table is dense (32px rows, no padding above and below a cell) when its columns cannot all be shown at that width, and normal
   (48px rows) otherwise.
 - `design/columns.json` is derived. Change the table or a field's type, then run
@@ -146,7 +148,19 @@ which part.
   every `Alert` of the destructive kind in a screen: it needs an `AlertTitle` and an
   `AlertDescription`. Whether the words are right is a person's review.
 
-A rule the repository does not meet today gets no row: the scripts say where it is broken.
+- **Channels.** A screen tells a person the result of an action through the repository's one
+  module for it, never by calling a toast library or a dialog of the browser itself. Which channel
+  a message takes (at the field, in a toast, in place of the content) is for the repository's
+  tests and a person's review.
+
+A rule the repository does not meet today gets no row: the scripts say where it is broken. Once a
+row is there, its check is never removed for being broken: the gate fails and names the place.
+
+## A repository's own test as a proof
+
+A test under `tests/` that names a standard decision with `decision:<id>` is a proof of it.
+Adopting adds a row that points at the test, as `claimed`: the tool does not run it. This is how
+a decision about behaviour, such as asking first or offering an undo, enters the ledger.
 
 ## How a value is read
 
@@ -178,6 +192,7 @@ passes: a check that cannot fail proves nothing.
 | `states`       | Every screen of the registry declares the required states, or is excused with a reason |
 | `words`        | No screen writes its own words                                                         |
 | `error-copy`   | Every error message a screen shows has a title and a description                       |
+| `channels`     | No screen opens a browser dialog or calls a toast library itself                       |
 | `gate`         | `make check` runs the tool in a way that can fail                                      |
 
 The tool also checks that it and the ledger agree in both directions: every row that points at it

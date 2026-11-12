@@ -19,11 +19,24 @@ dẫn chỉ có mặt để chọn trạng thái. Bài kiểm chọn điều ki�
 - **Xác nhận xoá (confirm delete):** gọi tên thứ sắp xoá và hỏi trước khi làm, bằng `Dialog`.
 - **Xoá thất bại (delete failed):** giữ hộp thoại và mục đó, nói rằng chưa xoá được, bằng `Alert`.
 
+## Báo cho người dùng
+
+- **Lỗi của một ô hay một trường:** báo ngay tại ô đó.
+- **Kết quả của một thao tác:** báo bằng toast, qua `notifyDone` trong `src/lib/notify.ts`. Màn
+  không gọi thẳng thư viện toast, và không mở hộp thoại của trình duyệt.
+- **Sự cố của cả màn:** hiện ở chỗ của nội dung, như trạng thái lỗi ở trên.
+
+## Đổi dữ liệu
+
+Việc đảo được thì làm ngay, và toast báo kết quả kèm nút hoàn tác: thêm một mục. Việc không đảo
+được thì hỏi trước, câu hỏi gọi tên thứ sẽ mất: xoá một mục.
+
 ## Mật độ
 
 Sản phẩm này là công cụ làm việc. Chữ dùng `text-sm`.
 
 Dòng của bảng lấy chiều cao từ mật độ của bảng, màn không tự đặt: bảng ở mức thường (48 px) khi
 mọi cột hiện đủ bề rộng tối thiểu, và ở mức dày (32 px) khi không đủ chỗ. Canh lề và bề rộng tối
-thiểu của một cột lấy từ kiểu cột của trường (`design/column-types.json`). Dùng `TypedTable`,
+thiểu của một cột lấy từ kiểu cột của trường; cột chữ co theo nội dung đang hiện, không quá độ dài
+mẫu của kiểu (`design/column-types.json`). Dùng `TypedTable`,
 `TypedRow`, `TypedHead`, `TypedCell` cho cột dữ liệu.

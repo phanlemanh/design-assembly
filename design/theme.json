@@ -160,6 +160,13 @@
         "skip": ["src/components/ui/", "src/generated/"]
       }
     ],
+    "notification-channel": [
+      {
+        "kind": "channels",
+        "folder": "src",
+        "skip": ["src/components/ui/", "src/generated/"]
+      }
+    ],
     "target-size": [
       {
         "kind": "target-size",

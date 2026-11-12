@@ -36,6 +36,7 @@ import {
 } from "../templates/tools/design-assembly/components.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import {
+  channelsProblem,
   CORE_STATES,
   errorCopyProblem,
   REGISTRY as SCREENS,
@@ -43,7 +44,7 @@ import {
   statesProblem,
   wordsProblem,
 } from "../templates/tools/design-assembly/patterns.mjs";
-import { mergeLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
+import { mergeLedger, parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import { SPACING_UNIT_PX, TYPE_VARIABLES } from "../templates/tools/design-assembly/scale.mjs";
 import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
 import {
@@ -421,7 +422,7 @@ export function columnsPlan(target, { starter, code }) {
 // screen declares, that no screen writes its own words, and that an error message has both of its
 // parts. A rule the repository does not meet today gets no row: it is listed under `failing`.
 // `starter` writes the list of required states when the repository has none.
-export function patternsPlan(target, { starter }) {
+export function patternsPlan(target, { starter, code = false }) {
   const read = (file) =>
     existsSync(path.join(target, file)) ? readFileSync(path.join(target, file), "utf8") : null;
   const folder = componentsFolder(target);
@@ -481,7 +482,41 @@ export function patternsPlan(target, { starter }) {
       });
     }
   }
-  return { files, held, failing };
+  if (Object.keys(sources).some((file) => !skip.some((prefix) => file.startsWith(prefix)))) {
+    propose("notification-channel", channelsProblem(sources, skip), {
+      what: "no screen opens a browser dialog or calls a toast library itself",
+      row: {
+        layer: "patterns",
+        kind: "closed",
+        source: "one channel for each kind of message",
+        check: TOOL,
+        note: "that no screen opens a browser dialog or calls a toast library itself; which channel a message takes is for the repository's own tests and a person's review",
+      },
+      checks: [{ kind: "channels", folder: "src", skip }],
+    });
+  }
+  // The toast and the one module screens tell results through: installed where the toast library
+  // is already a dependency and the floor's components are, and never written over.
+  const notes = [];
+  if (code && folder === COMPONENTS_FOLDER) {
+    const uses = JSON.parse(read("package.json") ?? "{}").dependencies ?? {};
+    if ("sonner" in uses) {
+      const owned = {
+        "sonner.tsx.template": `${folder}/sonner.tsx`,
+        "notify.ts.template": "src/lib/notify.ts",
+      };
+      for (const [name, file] of Object.entries(owned)) {
+        if (read(file) === null) {
+          files[file] = readFileSync(path.join(PLUGIN, "templates/owned", name), "utf8");
+        }
+      }
+    } else {
+      notes.push(
+        "no toast is installed: add the sonner package and run the guide again to get the toast and the module screens tell results through",
+      );
+    }
+  }
+  return { files, held, failing, notes };
 }
 
 // The tool and its gate step, as they are copied into a repository.
@@ -622,7 +657,11 @@ export function plan(target, blueprint) {
   const tokens = tokensPlan(target, loadStyles(target, FILES.css, files), FILES.css, Boolean(held));
   const prior = JSON.parse(read(FILES.theme) ?? "{}").checks ?? {};
   const columns = columnsPlan(target, { starter: true, code: true });
-  const components = componentsPlan(target, Boolean(prior[COMPONENTS_DECISION]), columns.files);
+  const patterns = patternsPlan(target, { starter: true, code: true });
+  const components = componentsPlan(target, Boolean(prior[COMPONENTS_DECISION]), {
+    ...columns.files,
+    ...patterns.files,
+  });
   const derived = [
     [TOKENS_DECISION, tokens],
     [COMPONENTS_DECISION, components],
@@ -637,7 +676,6 @@ export function plan(target, blueprint) {
     rows.push({ id, ...item.row });
     checks[id] = item.checks;
   }
-  const patterns = patternsPlan(target, { starter: true });
   Object.assign(files, patterns.files);
   for (const [id, item] of Object.entries(patterns.held)) {
     rows.push({ id, ...item.row });
@@ -648,6 +686,13 @@ export function plan(target, blueprint) {
     rows.push(targets.row);
     checks["target-size"] = targets.checks;
   }
+  // A check this tool already holds is never dropped because its rule is broken today: the row
+  // stays, so the check stays, and the gate fails with the real reason.
+  const pointed = parseLedger(read(FILES.ledger) ?? "")
+    .filter((row) => row.check === TOOL)
+    .map((row) => row.id);
+  const kept = Object.keys(prior).filter((id) => !(id in checks) && pointed.includes(id));
+  for (const id of kept) checks[id] = prior[id];
   // Everything generated here replaces what was adopted for the same decision; the stylesheet the
   // tool data names is kept.
   const before = JSON.parse(read(FILES.theme) ?? "{}");
@@ -673,6 +718,7 @@ export function plan(target, blueprint) {
     targets,
     columns,
     patterns,
+    kept,
   };
 }
 
@@ -811,11 +857,16 @@ function main() {
     );
     return;
   }
-  const { files, tokens, components, targets, columns, patterns } = plan(target, blueprint);
+  const { files, tokens, components, targets, columns, patterns, kept } = plan(target, blueprint);
+  const unmet = (id) =>
+    kept.includes(id)
+      ? "Its check stays, and the gate fails until that changes"
+      : "No check is added until that changes";
   for (const [id, item] of Object.entries(patterns.held)) stdout.write(`${id}: ${item.what}\n`);
   for (const item of patterns.failing) {
-    stdout.write(`note: ${item.id}: ${item.why}. No check is added until that changes.\n`);
+    stdout.write(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.\n`);
   }
+  for (const note of patterns.notes) stdout.write(`note: ${note}.\n`);
   if (columns.problem) {
     stdout.write(
       `note: column types: ${columns.problem}. No check is added until the table is right.\n`,
@@ -830,7 +881,7 @@ function main() {
       );
     }
     for (const item of columns.failing) {
-      stdout.write(`note: ${item.id}: ${item.why}. No check is added until those places change.\n`);
+      stdout.write(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.\n`);
     }
   }
   if (targets.what) stdout.write(`target size: ${targets.what}\n`);

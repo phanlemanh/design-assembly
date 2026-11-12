@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-12 — Thêm kênh thông báo (toast qua một mô-đun, cài gói `sonner`) và luật hỏi trước hay hoàn tác; adopt nhận bài kiểm gắn thẻ của kho làm bằng chứng; cột chữ co theo nội dung; kho này lên 28/38 quyết định lõi — [0014](decisions/0014-channels-and-undo.md).
 - 2026-11-12 — Thêm ba lệnh kiểm cho bậc trạng thái và lời văn (màn khai đủ trạng thái, màn không viết chữ trực tiếp, câu báo lỗi đủ hai phần); sửa mức dày của bảng về 32 px theo luật hiện tại của chủ kho; kho này lên 26/38 quyết định lõi — [0013](decisions/0013-states-words-error-messages.md).
 - 2026-11-12 — Chủ kho xem lại thay đổi mô hình dữ liệu của tầng bảng dữ liệu và giữ thực thể mẫu `Item` cùng khoá `display` — [Item](entities/item.md).
 - 2026-11-12 — Thêm tầng bảng dữ liệu: kiểu cột quyết định canh lề, bề rộng, mật độ; thêm thực thể mẫu `Item` và khoá `display` vào mô hình dữ liệu (cần người xem lại); màn mẫu dùng các phần bảng mới; kho này lên 23/38 quyết định lõi — [0012](decisions/0012-column-types.md), [Item](entities/item.md).

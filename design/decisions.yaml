@@ -169,3 +169,14 @@ decisions:
     source: "an error message says what happened, then what to do next"
     check: "tool:tools/design-assembly/check.mjs"
     note: "that every error message has both parts; whether the words are right is a person's review"
+  - id: notification-channel
+    layer: patterns
+    kind: closed
+    source: "one channel for each kind of message"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "that no screen opens a browser dialog or calls a toast library itself; which channel a message takes is for the repository's own tests and a person's review"
+  - id: undo-or-confirm
+    layer: patterns
+    kind: formula
+    source: "the repository's own test of it"
+    check: "test:tests/undo-or-confirm.test.tsx"

@@ -12,6 +12,7 @@ import { fileURLToPath } from "node:url";
 
 import { parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import {
+  channelsProblem,
   CORE_STATES,
   errorCopyProblem,
   readScreens,
@@ -235,4 +236,110 @@ test("adopting holds words and error messages as found, and writes no list of st
   assert.equal(rows["state-matrix"], undefined);
   assert.ok(!existsSync(path.join(dir, STATES)));
   assert.equal(check(dir).status, 0, check(dir).stderr);
+});
+
+test("a screen that opens a browser dialog or calls a toast library itself is found", () => {
+  const skip = ["src/components/ui/"];
+  const files = {
+    "src/a.tsx": "export const A = () => <button onClick={() => window.confirm(text)} />;\n",
+    "src/b.tsx":
+      'import { toast } from "sonner";\nexport const B = () => <i onClick={() => toast(text)} />;\n',
+    "src/c.tsx": "export const C = () => <button onClick={() => alert(text)} />;\n",
+    // A function of the screen's own that asks, and the toast component itself, are fine.
+    "src/d.tsx": "export const D = () => <button onClick={() => confirmDelete(item)} />;\n",
+    "src/components/ui/sonner.tsx":
+      'import { Toaster } from "sonner";\nexport const T = () => <Toaster />;\n',
+  };
+  const found = channelsProblem(files, skip);
+  assert.match(found, /src\/a\.tsx: opens the browser's own confirm dialog/);
+  assert.match(found, /src\/b\.tsx: calls the toast library sonner itself/);
+  assert.match(found, /src\/c\.tsx: opens the browser's own alert dialog/);
+  assert.doesNotMatch(found, /src\/d\.tsx|components\/ui/);
+  assert.equal(channelsProblem({ "src/pages/List.tsx": SCREEN }, skip), null);
+});
+
+test("the channel rule is held, and the toast is installed only where its library already is", () => {
+  const bare = floor();
+  const first = run(APPLY, "--target", bare);
+  assert.equal(first.status, 0, first.stderr);
+  assert.match(first.stdout, /note: no toast is installed: add the sonner package/);
+  assert.ok(!existsSync(path.join(bare, "src/lib/notify.ts")));
+  assert.equal(rowsOf(bare)["notification-channel"].check, TOOL);
+  assert.equal(check(bare).status, 0, check(bare).stderr);
+  edit(bare, "src/pages/List.tsx", (s) =>
+    s.replace("<h1>", "<h1 onClick={() => window.alert(LABELS.title)}>"),
+  );
+  const broken = check(bare);
+  assert.equal(broken.status, 1);
+  assert.match(
+    broken.stderr,
+    /notification-channel: src\/pages\/List\.tsx: opens the browser's own alert dialog/,
+  );
+
+  const withToast = floor({
+    "package.json": JSON.stringify({ dependencies: { sonner: "^2.0.0" } }),
+  });
+  const second = run(APPLY, "--target", withToast);
+  assert.equal(second.status, 0, second.stderr);
+  assert.doesNotMatch(second.stdout, /no toast is installed/);
+  assert.match(text(withToast, "src/lib/notify.ts"), /export function notifyDone/);
+  assert.match(text(withToast, "src/components/ui/sonner.tsx"), /export \{ Toaster \}/);
+  // The toast component is listed in the manifest written by the same run.
+  assert.match(text(withToast, "design/component-registry.json"), /"name": "Toaster"/);
+  assert.equal(check(withToast).status, 0, check(withToast).stderr);
+  // Once there, the module is the repository's own.
+  edit(withToast, "src/lib/notify.ts", (s) => `// ours now\n${s}`);
+  assert.equal(run(APPLY, "--target", withToast).status, 0);
+  assert.match(text(withToast, "src/lib/notify.ts"), /^\/\/ ours now/);
+});
+
+test("a repository's own test that names a decision lets adopting claim it", () => {
+  const dir = floor({
+    "tests/change.test.tsx": "// decision:undo-or-confirm\nit('asks first', () => {});\n",
+    "tests/e2e/flow.spec.ts":
+      "// decision:record-panel decision:made-up-one\ntest('opens', () => {});\n",
+  });
+  const adopted = run(ADOPT, "--target", dir);
+  assert.equal(adopted.status, 0, adopted.stderr);
+  const rows = rowsOf(dir);
+  assert.equal(rows["undo-or-confirm"].check, "test:tests/change.test.tsx");
+  assert.equal(rows["record-panel"].check, "e2e:tests/e2e/flow.spec.ts");
+  // A tag that names no standard decision claims nothing.
+  assert.equal(rows["made-up-one"], undefined);
+  assert.match(
+    adopted.stdout,
+    /claimed\s+named and wired in, not run here\n(.*\n)*\s+undo-or-confirm {2}\(test:tests\/change\.test\.tsx\)/,
+  );
+});
+
+test("the toast and the notification module the guide installs are the reference implementation's", () => {
+  for (const [template, file] of [
+    ["sonner.tsx.template", "src/components/ui/sonner.tsx"],
+    ["notify.ts.template", "src/lib/notify.ts"],
+  ]) {
+    assert.equal(text(PLUGIN, `templates/owned/${template}`), own(file), file);
+  }
+});
+
+test("a rule that is already held keeps its check when it is broken, so the gate says why", () => {
+  const dir = floor();
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  edit(dir, "src/pages/List.tsx", (s) => s.replace("{LABELS.many}", "Nhiều mục"));
+  // Running the guide again must not turn a broken rule into a missing check.
+  const again = run(APPLY, "--target", dir);
+  assert.equal(again.status, 0, again.stderr);
+  assert.match(
+    again.stdout,
+    /note: labels: .*Its check stays, and the gate fails until that changes/,
+  );
+  const broken = check(dir);
+  assert.equal(broken.status, 1);
+  assert.match(broken.stderr, /labels: src\/pages\/List\.tsx: <p> holds the text "Nhiều mục"/);
+  assert.doesNotMatch(broken.stderr, /holds no check for it/);
+});
+
+test("an expression between two tags is not text", () => {
+  const app =
+    "export const App = () => (\n  <>\n    {Screen ? <Screen /> : null}\n    <Toaster />\n  </>\n);\n";
+  assert.equal(wordsProblem({ "src/App.tsx": app }), null);
 });

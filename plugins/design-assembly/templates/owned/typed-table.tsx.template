@@ -11,7 +11,8 @@ import columns from "../../../design/columns.json";
 import { Table, TableCell, TableHead, TableRow } from "@/components/ui/table";
 
 export type ColumnField = keyof typeof columns.fields;
-export type TypedColumn = { field: ColumnField; header: string };
+// `values` are what the column shows now. A text column uses them to be no wider than it needs.
+export type TypedColumn = { field: ColumnField; header: string; values?: readonly unknown[] };
 export type Density = "normal" | "dense";
 
 type ColumnType = { base: string; align: string; sample: number };
@@ -36,9 +37,25 @@ function alignOf(field: ColumnField): keyof typeof ALIGN_CLASS {
   return columnType(field).align === "right" ? "right" : "left";
 }
 
-/** The least width of a column, in characters: the longer of its header and of a typical value, plus padding. */
-function columnWidthCh({ field, header }: TypedColumn): number {
-  return Math.max(header.length, columnType(field).sample) + columns.padding_ch;
+// One more character on a column fitted to its values: letters are not all as wide as a digit,
+// so an exact fit would cut the longest value.
+const FIT_SLACK_CH = 1;
+
+/**
+ * The least width of a column, in characters: the longer of its header and of a typical value,
+ * plus padding. A text column is fitted to the longest value it shows, up to the typical length of
+ * its type, so a column of short codes does not take the room of a column of names.
+ */
+function columnWidthCh({ field, header, values }: TypedColumn): number {
+  const type = columnType(field);
+  const lengths = (values ?? [])
+    .filter((value) => value !== null && value !== undefined && value !== "")
+    .map((value) => String(value).length);
+  if (type.base !== "text" || lengths.length === 0) {
+    return Math.max(header.length, type.sample) + columns.padding_ch;
+  }
+  const fitted = Math.min(type.sample, Math.max(...lengths));
+  return Math.max(header.length, fitted) + columns.padding_ch + FIT_SLACK_CH;
 }
 
 /** Dense only when the columns cannot all be shown at their least width. */
@@ -87,6 +104,7 @@ function TypedRow({ className, ...props }: React.ComponentProps<typeof TableRow>
 function TypedHead({
   field,
   header,
+  values,
   className,
   style,
   ...props
@@ -94,7 +112,10 @@ function TypedHead({
   return (
     <TableHead
       className={cn(ALIGN_CLASS[alignOf(field)], className)}
-      style={{ minWidth: `${columnWidthCh({ field, header })}ch`, ...style }}
+      style={{
+        minWidth: `${columnWidthCh(values ? { field, header, values } : { field, header })}ch`,
+        ...style,
+      }}
       {...props}
     >
       {header}
