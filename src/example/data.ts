@@ -35,6 +35,7 @@ export function listItems(): Promise<Item[]> {
     // An empty list is where adding starts: these two make the adding, or its undo, fail.
     "fail-create": [],
     "fail-undo": [],
+    "slow-create": [],
   });
   if (test) return test;
 
@@ -55,7 +56,7 @@ export function deleteItem(id: number): Promise<void> {
 }
 
 export function createItem(): Promise<Item> {
-  const test = testAnswer<Item>({ "fail-create": "fail" });
+  const test = testAnswer<Item>({ "fail-create": "fail", "slow-create": "never" });
   if (test) return test;
 
   return respond(() => {

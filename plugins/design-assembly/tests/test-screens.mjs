@@ -328,6 +328,9 @@ test("the guide writes the widths and the browser test once, and points three ro
     assert.equal(rows[id].check, `e2e:${PAGES_TEST}`, id);
     assert.equal(rows[id].layer, "templates", id);
   }
+  // The same test also proves where focus is after an action, a decision about behaviour.
+  assert.equal(rows["focus-after-action"].check, `e2e:${PAGES_TEST}`);
+  assert.equal(rows["focus-after-action"].layer, "patterns");
   // Both files are the repository's from then on: a person's widths and edits are kept.
   edit(dir, SIZES_FILE, (s) => s.replace("1440", "1024"));
   edit(dir, PAGES_TEST, (s) => `${s}// kept\n`);
@@ -414,7 +417,7 @@ test("adopting claims the page checks from a browser test that names them, and w
   const adopted = run(ADOPT, "--target", dir);
   assert.equal(adopted.status, 0, adopted.stderr);
   const rows = rowsOf(dir);
-  for (const id of ["one-main-one-h1", "no-sideways-scroll", "wcag-aa"]) {
+  for (const id of ["one-main-one-h1", "no-sideways-scroll", "wcag-aa", "focus-after-action"]) {
     assert.equal(rows[id].check, `e2e:${PAGES_TEST}`, id);
   }
   assert.doesNotMatch(adopted.stdout, /screen-sizes\.json/);
@@ -450,6 +453,9 @@ test("the rules page says who wrote it and names the screen rules only where the
   assert.match(page, /written by the design-assembly scripts/);
   assert.match(page, /## A screen\n\n- Every screen is of one kind/);
   assert.match(page, /design\/screen-sizes\.json/);
+  assert.match(page, /## After an action\n\n- Focus never falls on nothing/);
+  // Rules nobody checks are listed apart, under a heading that says so.
+  assert.match(page, /## No check holds these: a person reviews them\n\n- One item changing/);
   const bare = floor();
   rmSync(path.join(bare, "design/patterns"), { recursive: true });
   assert.equal(run(APPLY, "--target", bare).status, 0);

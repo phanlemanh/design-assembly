@@ -349,6 +349,13 @@
       "sources": ["design-assembly"]
     },
     {
+      "id": "focus-after-action",
+      "layer": "patterns",
+      "kind": "standard",
+      "question": "Where does focus go when the control a person just used leaves the page?",
+      "sources": ["design-assembly"]
+    },
+    {
       "id": "feedback-by-delay",
       "layer": "patterns",
       "kind": "standard",

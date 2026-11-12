@@ -8,6 +8,7 @@ export const LABELS = {
   emptyTitle: "Chưa có gì ở đây",
   emptyDetail: "Thêm mục đầu tiên để bắt đầu.",
   emptyAction: "Thêm mục",
+  adding: "Đang thêm",
   added: (name: string) => `Đã thêm ${name}`,
   addFailed: "Chưa thêm được mục",
   undo: "Hoàn tác",

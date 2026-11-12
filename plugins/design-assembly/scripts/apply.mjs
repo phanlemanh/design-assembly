@@ -534,9 +534,10 @@ export function patternsPlan(target, { starter, code = false }) {
 
 // What the page-level browser test proves, by the decision each tag in it names.
 const PAGE_PROOFS = {
-  "one-main-one-h1": { kind: "standard", what: "one main region and one top heading" },
-  "no-sideways-scroll": { kind: "formula", what: "no sideways scroll" },
-  "wcag-aa": { kind: "standard", what: "the automated accessibility checks" },
+  "one-main-one-h1": { layer: "templates", kind: "standard" },
+  "no-sideways-scroll": { layer: "templates", kind: "formula" },
+  "wcag-aa": { layer: "templates", kind: "standard" },
+  "focus-after-action": { layer: "patterns", kind: "standard" },
 };
 // Where the floor lists every state of every screen for its browser checks.
 const ROUTES = "tests/e2e/routes.ts";
@@ -655,7 +656,7 @@ export function templatesPlan(target, { starter, code = false, pending = {} }) {
         if (!new RegExp(`decision:${id}(?![\\w-])`).test(test)) continue;
         record({
           id,
-          layer: "templates",
+          layer: proof.layer,
           kind: proof.kind,
           source: "the repository's own browser test of it",
           check: `e2e:${PAGES_TEST}`,
@@ -731,6 +732,18 @@ export function rulesPage(checks, has) {
     held("notification-channel") &&
       "Never call a toast library from a screen, and never `alert`, `confirm` or `prompt`.",
   ]);
+  const pages = has("tests/e2e/templates.spec.ts");
+  section("After an action", [
+    pages &&
+      "Focus never falls on nothing: the browser test of every page fails when, after the last action of a state, nothing has focus.",
+    pages &&
+      "While an action done at once waits for its answer, the control that started it is held and keeps focus. A control that is removed, or disabled in a way that drops it from the keyboard, loses focus. From one second on, the control says it is working.",
+    pages &&
+      "When a control leaves the page (its row is removed, its dialog closes on a deleted item, its state is replaced), move focus: to the same action on the row after it, else on the row before, else to the button of the state shown in place of the table, else to the screen's top heading.",
+    pages &&
+      notify &&
+      "A button of a toast gives focus back to where the person was before the toast: the notification module does this.",
+  ]);
   section("A screen", [
     held("page-layouts") &&
       "Every screen is of one kind. A kind has a page under `design/patterns`: read it before building a screen of that kind, and build it like the reference screen the page names.",
@@ -738,6 +751,16 @@ export function rulesPage(checks, has) {
       "A new screen is listed in `src/screens.ts`, and its file is one the page of its kind names. A screen of a new kind needs its page first: that is a person's decision.",
     held("test-screen-sizes") &&
       "Every state of every screen is checked in a browser at the widths of `design/screen-sizes.json`: one main region, one top heading, no sideways scroll, the accessibility checks. A screen with an action done at once lists a state for that action failing.",
+  ]);
+  section("No check holds these: a person reviews them", [
+    held("page-layouts") &&
+      "One item changing never sends the whole list back to its loading state: the row stays until the answer, then the list changes in place.",
+    held("page-layouts") &&
+      "An undo puts the thing back where it was and shows no second toast: the screen shows the result. A failed undo says where the thing is now.",
+    held("page-layouts") &&
+      "An empty state says why it is empty and how items get there. It has a button only when the person can fill it from this screen; otherwise at most one link inside its text. Never a link dressed as a primary button, and never a copy of the navigation.",
+    held("page-layouts") &&
+      "A screen does not link to other screens from beside its heading: moving between screens belongs to the application's frame, in the same place and order on every screen. The place beside the heading is for the screen's main action.",
   ]);
   const target = checks["target-size"]?.[0]?.min;
   section("Controls", [

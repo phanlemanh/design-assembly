@@ -46,6 +46,8 @@ export const SCREENS: Screen[] = [
         steps: confirmDelete,
         shows: LABELS.deleteFailed(LABELS.sampleFirstName),
       },
+      // An action done at once that takes long says so on its own button.
+      { name: "adding", scenario: "slow-create", steps: addFirst, shows: LABELS.adding },
       // An action done at once that fails, and an undo that fails: each says so in a toast.
       { name: "add-failed", scenario: "fail-create", steps: addFirst, shows: LABELS.addFailed },
       {

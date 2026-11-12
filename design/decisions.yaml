@@ -236,3 +236,8 @@ decisions:
     kind: judgment
     source: "src/lib/labels.ts, the one place for every word a screen shows"
     note: "the words are in one place, and each kind's page says how they are written; a person has not reviewed what they say"
+  - id: focus-after-action
+    layer: patterns
+    kind: standard
+    source: "the repository's own browser test of it"
+    check: "e2e:tests/e2e/templates.spec.ts"

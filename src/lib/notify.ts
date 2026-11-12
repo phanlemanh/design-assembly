@@ -11,10 +11,30 @@ import { toast } from "sonner";
 // The button a toast carries, and the word on the button that closes the toast.
 export type Choice = { label: string; run: () => void; close: string };
 
+// Where the person was before they reached for a toast. A toast goes away once its button is
+// pressed, and would take focus with it: focus goes back there first, and the action may then move
+// it on.
+let before: HTMLElement | null = null;
+if (typeof document !== "undefined") {
+  document.addEventListener("focusin", (event) => {
+    const target = event.target;
+    if (target instanceof HTMLElement && !target.closest("[data-sonner-toaster]")) before = target;
+  });
+}
+const goBack = () => {
+  if (before?.isConnected) before.focus();
+};
+
 const stays = (choice: Choice) => ({
   duration: Infinity,
-  action: { label: choice.label, onClick: choice.run },
-  cancel: { label: choice.close, onClick: () => undefined },
+  action: {
+    label: choice.label,
+    onClick: () => {
+      goBack();
+      choice.run();
+    },
+  },
+  cancel: { label: choice.close, onClick: goBack },
 });
 
 // The action worked. Pass the undo when the action can be taken back.

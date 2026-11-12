@@ -1,4 +1,4 @@
-// decision:one-main-one-h1 decision:no-sideways-scroll decision:wcag-aa
+// decision:one-main-one-h1 decision:no-sideways-scroll decision:wcag-aa decision:focus-after-action
 // Every state of every screen, at every width of design/screen-sizes.json: one main region and one
 // top heading, no sideways scroll, and the automated accessibility checks. The widths are a
 // person's list; the narrowest is the reflow width of WCAG 2.2.
@@ -56,6 +56,16 @@ for (const route of ROUTES) {
         ),
         "wcag-aa: the automated accessibility checks found these",
       ).toEqual([]);
+      // Looked at last, once the page has settled: a control that left must not take focus with it.
+      if (route.steps.some((step) => "press" in step)) {
+        const lost = await page.evaluate(
+          () => document.activeElement === null || document.activeElement === document.body,
+        );
+        expect(
+          lost,
+          "focus-after-action: after the last action nothing has focus. Move it to what follows the control that left, or back to where the person was",
+        ).toBe(false);
+      }
     });
   }
 }

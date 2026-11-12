@@ -129,9 +129,10 @@ it("reaches the empty state by deleting every item, and Add item brings one back
   expect(screen.getByText(LABELS.emptyTitle)).toBeInTheDocument();
   expect(screen.queryByLabelText(LABELS.filter)).not.toBeInTheDocument();
   fireEvent.click(screen.getByRole("button", { name: LABELS.emptyAction }));
-  expect(screen.getByRole("status")).toHaveTextContent(LABELS.loading);
-  await answer(); // the item is created
-  await answer(); // the list is read again
+  // One item changing does not send the list back to loading: the empty state waits in place.
+  expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  expect(screen.getByText(LABELS.emptyTitle)).toBeInTheDocument();
+  await answer(); // the item is created, and joins the list where it is
   expect(screen.getByText(LABELS.sampleNewName)).toBeInTheDocument();
 });
 
@@ -158,8 +159,15 @@ it("shows saving while the delete request runs, then removes the item", async ()
   await show();
   fireEvent.click(screen.getByRole("button", { name: LABELS.deleteItem(LABELS.sampleFirstName) }));
   fireEvent.click(screen.getByRole("button", { name: LABELS.deleteAction }));
-  expect(screen.getByRole("button", { name: LABELS.saving })).toBeDisabled();
-  expect(screen.getByRole("button", { name: LABELS.cancel })).toBeDisabled();
+  // Held, not removed from the keyboard's reach: a disabled button would drop focus.
+  expect(screen.getByRole("button", { name: LABELS.saving })).toHaveAttribute(
+    "aria-disabled",
+    "true",
+  );
+  expect(screen.getByRole("button", { name: LABELS.cancel })).toHaveAttribute(
+    "aria-disabled",
+    "true",
+  );
   await answer();
   await waitFor(() => expect(screen.queryByText(LABELS.sampleFirstName)).not.toBeInTheDocument());
 });

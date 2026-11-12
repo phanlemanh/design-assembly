@@ -179,6 +179,32 @@ No tool reads this from source. It is held by the repository's own test that nam
 `decision:failed-action`, as `claimed`. A screen with an action done at once lists a state for
 that action failing in the screen registry, so the browser tests look at the toast as well.
 
+## After an action
+
+What happens on the screen once a person has acted. The first rule is held by the browser test of
+every page; the others are a person's review, and the rules page says so.
+
+- **Focus never falls on nothing** (`focus-after-action`). A control that leaves the page takes
+  focus with it, and the browser hands focus to the document: a person at the keyboard is then
+  nowhere. Focus moves to the same action on the row after the one that left, else on the row
+  before, else to the button of the state shown in place of the table, else to the screen's top
+  heading. A control that waits for an answer is held in a way that keeps focus. A button of a
+  toast gives focus back to where the person was. The browser test checks, for every state that
+  follows an action, that something has focus once the page has settled. It does not check that
+  it is the right thing.
+- **One item changing changes the list in place.** The row stays, with its controls held, until
+  the answer; then it leaves, or stays and the failure is told. The loading state is for the
+  first load and for trying again. Under a second nothing is shown; from a second on the control
+  says it is working.
+- **An undo puts the thing back where it was** and shows no second toast. The toast stays on the
+  screen where the action was done; from another screen, the way back is that screen's own
+  action. A failed undo says where the thing is now.
+- **An empty state** says why it is empty and how items get there. It has a button only when the
+  person can fill it from this screen.
+- **Moving between screens** belongs to the application's frame: one place, the same order on
+  every screen, the current screen marked. A screen does not link to other screens from beside
+  its heading.
+
 ## Kinds of screen
 
 A screen is of one kind: a list, a record, a form. A kind has one page under `design/patterns`,
@@ -251,8 +277,9 @@ repository adds the widths its own layouts change at.
 Where the floor's browser checks are installed, the guide writes the file with 320 and 1440, and
 installs a browser test that reads it. For every state of every screen, at every width, that test
 checks one main region and one top heading, no sideways scroll, and the automated accessibility
-checks. It names `decision:one-main-one-h1`, `decision:no-sideways-scroll` and
-`decision:wcag-aa`, so three rows point at it as `claimed`. The row `test-screen-sizes` is held
+checks, and that focus is not lost after an action. It names `decision:one-main-one-h1`,
+`decision:no-sideways-scroll`, `decision:wcag-aa` and `decision:focus-after-action`, so four
+rows point at it as `claimed`. The row `test-screen-sizes` is held
 by the tool: the widths reach down to 320, and the test opens the file and names its widths. The
 tool reads the test's code, not its comments; it does not run the test, so a test that skips a
 width is not caught. A failure of the browser test names the decision it belongs to.

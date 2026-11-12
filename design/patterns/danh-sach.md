@@ -34,6 +34,21 @@ Từ trên xuống, và cũng là thứ tự bàn phím đi qua:
 4. Trong bảng: cột nhận ra mục đứng đầu (tên), rồi các cột dữ liệu, cột thao tác đứng cuối.
 5. Hộp thoại xác nhận và toast nằm ngoài dòng chảy của trang: chúng không đẩy nội dung.
 
+Cạnh tiêu đề là chỗ của việc chính của màn, khi màn có. Liên kết sang màn khác không đặt ở đó:
+đi lại giữa các màn là việc của khung ứng dụng (`design/behaviors.md`, «Đi lại giữa các màn»).
+
+## Thao tác trên một dòng
+
+Một dòng thay đổi thì danh sách đổi tại chỗ, không tải lại cả danh sách. Dòng ở yên với nút bị
+khoá tới khi có trả lời; thành công thì dòng rời đi và tiêu điểm sang cùng nút ở dòng kế; thất
+bại thì dòng còn nguyên và toast báo. Dòng cuối cùng rời đi thì tiêu điểm vào nút của trạng thái
+trống. Chi tiết ở `design/behaviors.md`, «Sau một thao tác».
+
+## Trạng thái trống
+
+Nói vì sao trống và mục tới đây bằng cách nào. Màn thêm được mục thì có nút thêm mục đầu tiên.
+Màn không thêm được gì (chỉ nhận mục từ nơi khác) thì không có nút.
+
 ## Lời văn
 
 Mọi chữ lấy từ một chỗ (`src/lib/labels.ts`). Tiêu đề là danh từ gọi tên danh sách. Nút mang động

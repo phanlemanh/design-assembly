@@ -60,12 +60,21 @@ it("the failure stays until the person answers it, and its button tries again", 
   await press(LABELS.emptyAction);
   await act(() => vi.advanceTimersByTimeAsync(60_000));
   expect(screen.getByRole("alert")).toHaveTextContent(LABELS.addFailed);
-  // Trying again asks the server again: the list goes back to waiting, then the failure is told anew.
+  // Trying again asks the server again. The screen stays as it is, its button held meanwhile,
+  // and the failure is told anew.
   fireEvent.click(screen.getByRole("button", { name: LABELS.retry }));
-  expect(screen.getByRole("status")).toHaveTextContent(LABELS.loading);
+  expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: LABELS.emptyAction })).toHaveAttribute(
+    "aria-disabled",
+    "true",
+  );
   await answer();
   await answer();
   expect(screen.getByRole("alert")).toHaveTextContent(LABELS.addFailed);
+  expect(screen.getByRole("button", { name: LABELS.emptyAction })).not.toHaveAttribute(
+    "aria-disabled",
+    "true",
+  );
 });
 
 it("the failure can be closed", async () => {

@@ -34,11 +34,25 @@ it.
 - Anything a toast's button does can also be done from the screen itself: the toast is never the only way.
 - Never call a toast library from a screen, and never `alert`, `confirm` or `prompt`.
 
+## After an action
+
+- Focus never falls on nothing: the browser test of every page fails when, after the last action of a state, nothing has focus.
+- While an action done at once waits for its answer, the control that started it is held and keeps focus. A control that is removed, or disabled in a way that drops it from the keyboard, loses focus. From one second on, the control says it is working.
+- When a control leaves the page (its row is removed, its dialog closes on a deleted item, its state is replaced), move focus: to the same action on the row after it, else on the row before, else to the button of the state shown in place of the table, else to the screen's top heading.
+- A button of a toast gives focus back to where the person was before the toast: the notification module does this.
+
 ## A screen
 
 - Every screen is of one kind. A kind has a page under `design/patterns`: read it before building a screen of that kind, and build it like the reference screen the page names.
 - A new screen is listed in `src/screens.ts`, and its file is one the page of its kind names. A screen of a new kind needs its page first: that is a person's decision.
 - Every state of every screen is checked in a browser at the widths of `design/screen-sizes.json`: one main region, one top heading, no sideways scroll, the accessibility checks. A screen with an action done at once lists a state for that action failing.
+
+## No check holds these: a person reviews them
+
+- One item changing never sends the whole list back to its loading state: the row stays until the answer, then the list changes in place.
+- An undo puts the thing back where it was and shows no second toast: the screen shows the result. A failed undo says where the thing is now.
+- An empty state says why it is empty and how items get there. It has a button only when the person can fill it from this screen; otherwise at most one link inside its text. Never a link dressed as a primary button, and never a copy of the navigation.
+- A screen does not link to other screens from beside its heading: moving between screens belongs to the application's frame, in the same place and order on every screen. The place beside the heading is for the screen's main action.
 
 ## Controls
 

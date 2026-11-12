@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ComponentProps, type ReactNode, type Ref } from "react";
 
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -34,6 +34,7 @@ import { createItem, deleteItem, listItems, type Item, type Status } from "@/exa
 import { formatDate, formatMoney } from "@/lib/format";
 import { LABELS } from "@/lib/labels";
 import { notifyDone, notifyFailed } from "@/lib/notify";
+import { useSlow } from "@/lib/slow";
 
 type Variant = ComponentProps<typeof Badge>["variant"];
 // Each status keeps its own look. Never give two statuses the same variant to pass a check.
@@ -52,15 +53,33 @@ const COLUMNS: readonly TypedColumn[] = [
   { field: "Item.total", header: LABELS.columnTotal },
 ];
 
-function Notice(props: { title: string; detail: string; action: string; onAction: () => void }) {
+// One state in place of the table. `pending` holds the button while its action waits for an
+// answer: it keeps focus, so a person at the keyboard is still somewhere when the answer comes.
+function Notice({
+  title,
+  detail,
+  action,
+  onAction,
+  actionRef,
+  pending = false,
+}: {
+  title: string;
+  detail: string;
+  action: string;
+  onAction: () => void;
+  actionRef: Ref<HTMLButtonElement>;
+  pending?: boolean;
+}) {
   return (
     <Empty>
       <EmptyHeader>
-        <EmptyTitle>{props.title}</EmptyTitle>
-        <EmptyDescription>{props.detail}</EmptyDescription>
+        <EmptyTitle>{title}</EmptyTitle>
+        <EmptyDescription>{detail}</EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button onClick={props.onAction}>{props.action}</Button>
+        <Button ref={actionRef} disabled={pending} focusableWhenDisabled onClick={onAction}>
+          {action}
+        </Button>
       </EmptyContent>
     </Empty>
   );
@@ -73,6 +92,8 @@ function ConfirmDelete(props: {
   failed: boolean;
   onConfirm: () => void;
   onCancel: () => void;
+  // Where focus goes when the dialog closes, when its trigger has gone with the deleted item.
+  finalFocus: () => HTMLElement | boolean;
 }) {
   return (
     <Dialog
@@ -81,7 +102,7 @@ function ConfirmDelete(props: {
         if (!open && !props.saving) props.onCancel();
       }}
     >
-      <DialogContent showCloseButton={false}>
+      <DialogContent showCloseButton={false} finalFocus={props.finalFocus}>
         <DialogHeader>
           <DialogTitle>{props.item ? LABELS.deleteItem(props.item.name) : ""}</DialogTitle>
           <DialogDescription>{LABELS.deleteDetail}</DialogDescription>
@@ -93,10 +114,17 @@ function ConfirmDelete(props: {
           </Alert>
         )}
         <DialogFooter>
-          <DialogClose render={<Button variant="outline" disabled={props.saving} />}>
+          <DialogClose
+            render={<Button variant="outline" disabled={props.saving} focusableWhenDisabled />}
+          >
             {LABELS.cancel}
           </DialogClose>
-          <Button variant="destructive" disabled={props.saving} onClick={props.onConfirm}>
+          <Button
+            variant="destructive"
+            disabled={props.saving}
+            focusableWhenDisabled
+            onClick={props.onConfirm}
+          >
             {props.saving ? LABELS.saving : LABELS.deleteAction}
           </Button>
         </DialogFooter>
@@ -118,6 +146,36 @@ export function ReferenceScreen() {
   const [target, setTarget] = useState<Item | null>(null);
   const [saving, setSaving] = useState(false);
   const [deleteFailed, setDeleteFailed] = useState(false);
+  // Adding the first item: the empty state stays, with its button held, until the answer.
+  const [adding, setAdding] = useState(false);
+  const addingSlowly = useSlow(adding);
+  // Focus never falls on nothing (design/behaviors.md, focus). When a control leaves, `focusNext`
+  // names the row whose action takes focus; with no such row, the button of the state shown in
+  // place of the table; with none, the heading.
+  const rowActions = useRef(new Map<number, HTMLButtonElement>());
+  const noticeAction = useRef<HTMLButtonElement>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
+  const focusNext = useRef<{ row?: number } | null>(null);
+  function focusTarget(): HTMLElement | null {
+    const want = focusNext.current;
+    if (!want) return null;
+    const row = want.row === undefined ? undefined : rowActions.current.get(want.row);
+    return row ?? noticeAction.current ?? heading.current;
+  }
+  // After every render: move focus where it was asked to go, once that place is on the page.
+  useEffect(() => {
+    if (asking) return; // the dialog hands focus on when it has closed
+    const target = focusTarget();
+    if (!target) return;
+    focusNext.current = null;
+    target.focus();
+  });
+  // The row after the one that leaves, else the one before it, else none.
+  function neighbour(id: number): { row?: number } {
+    const at = shown.findIndex((item) => item.id === id);
+    const next = shown[at + 1] ?? shown[at - 1];
+    return next ? { row: next.id } : {};
+  }
   // Whether the screen is still there when an answer arrives.
   const mounted = useRef(true);
   useEffect(() => {
@@ -145,39 +203,51 @@ export function ReferenceScreen() {
   }
 
   // Adding can be taken back, so it happens at once and the toast offers the undo. Deleting
-  // cannot, so it asks first (design/behaviors.md, changing data).
+  // cannot, so it asks first (design/behaviors.md, changing data). One item changing never sends
+  // the whole list back to loading: the list changes in place.
   function addFirst() {
-    setItems(null);
-    // List again either way: the list shows what the server has.
+    setAdding(true);
     void createItem().then(
       (item) => {
+        if (!mounted.current) return;
+        setAdding(false);
+        setItems((current) => [...(current ?? []), item]);
+        // The button that was pressed leaves with the empty state: focus goes to the new item.
+        focusNext.current = { row: item.id };
         notifyDone(LABELS.added(item.name), {
           label: LABELS.undo,
           run: () => undoAdd(item),
           close: LABELS.close,
         });
-        reload();
       },
       () => {
+        if (!mounted.current) return;
+        setAdding(false);
         // Nothing was added: say so, and offer to try again (design/behaviors.md, a failed action).
         notifyFailed(LABELS.addFailed, LABELS.errorDetail, {
           label: LABELS.retry,
           run: addFirst,
           close: LABELS.close,
         });
-        reload();
       },
     );
   }
 
-  // A failed undo never reads as done: the item is still there, and the toast says so.
+  // The undo puts things back where they were, and says nothing more: the screen shows it. A
+  // failed undo never reads as done: the item is still there, and the toast says so.
   function undoAdd(item: Item) {
-    void deleteItem(item.id).then(reload, () =>
-      notifyFailed(LABELS.undoFailed(item.name), LABELS.errorDetail, {
-        label: LABELS.retry,
-        run: () => undoAdd(item),
-        close: LABELS.close,
-      }),
+    void deleteItem(item.id).then(
+      () => {
+        if (!mounted.current) return;
+        focusNext.current = neighbour(item.id);
+        setItems((current) => current?.filter((other) => other.id !== item.id) ?? null);
+      },
+      () =>
+        notifyFailed(LABELS.undoFailed(item.name), LABELS.errorDetail, {
+          label: LABELS.retry,
+          run: () => undoAdd(item),
+          close: LABELS.close,
+        }),
     );
   }
 
@@ -198,6 +268,8 @@ export function ReferenceScreen() {
     if (!mounted.current) return; // ignore an answer that arrives after the screen has gone
     setSaving(false);
     if (deleted) {
+      // The button that opened the dialog leaves with its row.
+      focusNext.current = neighbour(target.id);
       setItems((current) => current?.filter((item) => item.id !== target.id) ?? null);
       setAsking(false);
     } else {
@@ -240,8 +312,10 @@ export function ReferenceScreen() {
       <Notice
         title={LABELS.emptyTitle}
         detail={LABELS.emptyDetail}
-        action={LABELS.emptyAction}
+        action={addingSlowly ? LABELS.adding : LABELS.emptyAction}
         onAction={addFirst}
+        actionRef={noticeAction}
+        pending={adding}
       />
     );
   } else if (shown.length === 0) {
@@ -251,6 +325,7 @@ export function ReferenceScreen() {
         detail={LABELS.noResultsDetail}
         action={LABELS.noResultsAction}
         onAction={() => setQuery("")}
+        actionRef={noticeAction}
       />
     );
   } else {
@@ -275,6 +350,10 @@ export function ReferenceScreen() {
               <TypedCell field="Item.total">{formatMoney(item.total)}</TypedCell>
               <TableCell>
                 <Button
+                  ref={(button) => {
+                    if (button) rowActions.current.set(item.id, button);
+                    else rowActions.current.delete(item.id);
+                  }}
                   variant="outline"
                   size="sm"
                   aria-label={LABELS.deleteItem(item.name)}
@@ -292,7 +371,9 @@ export function ReferenceScreen() {
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-4 p-6 text-sm">
-      <h1 className="text-lg font-semibold">{LABELS.screenTitle}</h1>
+      <h1 ref={heading} tabIndex={-1} className="text-lg font-semibold">
+        {LABELS.screenTitle}
+      </h1>
       {items && items.length > 0 && (
         <div className="flex flex-col gap-2">
           <Label htmlFor="filter">{LABELS.filter}</Label>
@@ -312,6 +393,11 @@ export function ReferenceScreen() {
         failed={deleteFailed}
         onConfirm={confirmDelete}
         onCancel={() => setAsking(false)}
+        finalFocus={() => {
+          const target = focusTarget();
+          focusNext.current = null;
+          return target ?? true;
+        }}
       />
     </main>
   );

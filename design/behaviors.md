@@ -12,7 +12,10 @@ không khớp, thao tác của người dùng. Không bao giờ vì một công 
 dẫn chỉ có mặt để chọn trạng thái. Bài kiểm chọn điều kiện qua nguồn dữ liệu.
 
 - **Đang tải (loading):** cho thấy hình dạng của nội dung sắp tới, không dùng vòng quay, bằng `Skeleton`.
-- **Trống (empty):** nói rằng chưa có gì và mời làm việc đầu tiên, bằng `Empty` và một `Button`.
+- **Trống (empty):** nói vì sao trống và mục tới đây bằng cách nào, bằng `Empty`. Có `Button` chỉ
+  khi ngay tại màn này làm được việc lấp đầy nó, như thêm mục đầu tiên. Không làm được gì tại chỗ
+  thì không có nút; nhiều nhất là một liên kết trong câu chữ, trỏ tới nơi việc đó xảy ra. Không
+  lặp lại điều hướng thành một nút, không khoác áo nút chính cho một liên kết.
 - **Lỗi (error):** nói điều gì hỏng và mời thử lại, bằng `Alert` với `variant="destructive"`.
 - **Không tìm thấy (no results):** nói rằng tìm không ra và mời xoá bộ lọc, bằng `Empty` và một `Button`.
 - **Đang lưu (saving):** giữ biểu mẫu trên màn và khoá nút gửi, bằng `Button` với `disabled`.
@@ -44,10 +47,33 @@ Thất bại thì báo ở nơi người dùng vừa làm, và không bao giờ 
 - **Thao tác làm ngay:** báo bằng toast qua `notifyFailed` trong `src/lib/notify.ts`. Toast nói
   việc gì chưa xong rồi nói làm gì tiếp, có nút «Thử lại», không tự tắt và được đọc lên như một
   cảnh báo: thêm một mục thất bại.
-- **Hoàn tác thất bại:** không bao giờ báo như đã hoàn tác. Thứ đó vẫn còn trên màn, toast nói
-  vậy và mời thử lại.
+- **Hoàn tác thất bại:** không bao giờ báo như đã hoàn tác. Toast nói thứ đó hiện đang ở đâu và
+  mời thử lại.
 - **Màn có thao tác làm ngay** khai thêm một trạng thái cho thao tác ấy thất bại trong
   `src/screens.ts`, để bài kiểm trình duyệt nhìn thấy cả toast.
+
+## Sau một thao tác
+
+- **Tiêu điểm không bao giờ rơi vào khoảng không.** Phần tử vừa dùng mà rời khỏi trang thì tiêu
+  điểm chuyển đi: sang cùng nút ở dòng kế, hết dòng kế thì dòng trước; danh sách không còn dòng
+  nào thì vào nút của trạng thái đang hiện thay bảng; không có nút thì vào tiêu đề màn. Bài kiểm
+  trình duyệt đỏ khi sau một thao tác không còn gì giữ tiêu điểm.
+- **Đang chờ trả lời:** nút vừa bấm bị khoá nhưng vẫn giữ tiêu điểm (`disabled` kèm
+  `focusableWhenDisabled`), dòng hay trạng thái chứa nó ở yên. Dưới một giây không báo gì; từ một
+  giây nút nói nó đang làm, qua `useSlow` trong `src/lib/slow.ts`.
+- **Một mục thay đổi thì danh sách đổi tại chỗ.** Không đưa cả danh sách về trạng thái đang tải
+  vì một dòng thêm, bớt hay được hoàn tác. Đang tải chỉ dành cho lần tải đầu và lần thử lại.
+- **Hoàn tác đưa mọi thứ về chỗ cũ** và không hiện thêm toast: kết quả đã thấy trên màn. Toast
+  hoàn tác ở lại màn nơi thao tác được làm; từ màn khác, lối đảo lại là thao tác thường của màn
+  đó.
+- **Nút trên toast trả tiêu điểm** về nơi người dùng đang đứng trước khi với tới toast; mô-đun
+  thông báo làm việc này.
+
+## Đi lại giữa các màn
+
+Điều hướng thuộc về khung ứng dụng: một vùng, cùng chỗ và cùng thứ tự ở mọi màn, có đánh dấu màn
+đang mở. Màn không tự đặt liên kết sang màn khác cạnh tiêu đề; chỗ đó dành cho việc chính của
+màn. Kho này mới có một màn nên chưa có khung điều hướng; dựng nó cùng lúc với màn thứ hai.
 
 ## Kiểu màn
 

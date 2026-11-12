@@ -150,6 +150,13 @@ hẹp nhất là 320. Một thao tác làm ngay mà thất bại thì báo bằn
 lại; hoàn tác thất bại không bao giờ báo như đã hoàn tác. Trang kiểu màn do người quyết: kịch bản
 không viết nó.
 
+### Sau một thao tác (quyết định 0017, 2026-11-12)
+
+Phần tử vừa dùng mà rời trang thì tiêu điểm chuyển sang chỗ kế tiếp hợp lý, không rơi ra ngoài
+giao diện; bài kiểm trình duyệt của plugin giữ điều này. Một mục thay đổi thì danh sách đổi tại
+chỗ. Hoàn tác đưa về chỗ cũ. Trạng thái trống chỉ có nút khi lấp đầy được ngay tại màn. Đi lại
+giữa các màn là việc của khung ứng dụng.
+
 ### Vì sao cần plugin này
 
 Bản trước ghi giả thuyết «giảm token», neo vào lần đo ba của Repo Standards (token gấp 1,43 lần).
@@ -344,9 +351,9 @@ người xác nhận. Trang luật để lại sau adopt tự nhận do cuộc d
 
 **Điều còn nguyên**, chờ chủ kho hoặc Repo Standards:
 
-- Trang kiểu màn chưa nói: đi lại giữa các màn, thao tác làm ngay trên một dòng (dòng rời đi thế
-  nào, tiêu điểm về đâu), hoàn tác mà kết quả nằm ở màn khác, trạng thái trống ở màn không tạo
-  được gì. Tác tử dựng màn phải đoán cả bốn.
+- (Đã đóng cùng ngày bằng quyết định 0017.) Trang kiểu màn chưa nói: đi lại giữa các màn, thao
+  tác làm ngay trên một dòng (dòng rời đi thế nào, tiêu điểm về đâu), hoàn tác mà kết quả nằm ở
+  màn khác, trạng thái trống ở màn không tạo được gì. Tác tử dựng màn phải đoán cả bốn.
 - Công thức «liên kết trông như nút» trong trang luật giao diện của sàn vẽ ra nút không viền.
   Trang đó còn ghi kiểm ở 1440 và 390, trong khi kho giờ kiểm cả 320.
 - Sau khi adopt xong, dòng «bước kế» của audit vẫn chỉ sang adopt dù chạy lại không thêm được gì.
