@@ -14,9 +14,15 @@ import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { contrast, parseColor } from "../templates/tools/design-assembly/color.mjs";
-import { readScreens, REGISTRY } from "../templates/tools/design-assembly/patterns.mjs";
+import { readSources } from "../templates/tools/design-assembly/governance.mjs";
+import { REGISTRY } from "../templates/tools/design-assembly/patterns.mjs";
 import { toPx, toRatio } from "../templates/tools/design-assembly/scale.mjs";
-import { readKinds, readPages, SIZES_FILE } from "../templates/tools/design-assembly/screens.mjs";
+import {
+  readKinds,
+  readPages,
+  screenFiles,
+  SIZES_FILE,
+} from "../templates/tools/design-assembly/screens.mjs";
 import {
   DEFAULT_STYLESHEET,
   findStylesheet,
@@ -60,6 +66,8 @@ export const WORDS = {
   },
   stillOpen: "Still open",
   nothingOpen: "No core decision is open.",
+  // A core decision's question, by its id, in the repository's own language.
+  questions: {},
   colorTitle: "Colour",
   colorQuestion: "Which colours there are, and what may sit on what",
   colorLede:
@@ -88,6 +96,20 @@ export const WORDS = {
   spacing: "Spacing scale",
   unit: "unit",
   target: "Smallest control",
+  kindsTitle: "Kinds of screen",
+  kindsQuestion: "What each kind of screen is for, and what it is built like",
+  kindsLede:
+    "A new screen is one of these kinds. It is built like the kind's reference screen, shown here beside what the repository says about the kind.",
+  referenceScreen: "reference screen",
+  noKinds: "No kind of screen is described yet.",
+  pathsTitle: "Paths",
+  pathsQuestion: "How a person gets from one state to the next",
+  pathsLede:
+    "Every state of a screen, joined by the action that leads to it. Read from the repository's own list of states, and drawn from its own screens.",
+  whenData: "when the data answers",
+  afterAction: "After an action",
+  noPaths:
+    "The paths are drawn from the screens themselves: without a browser there is nothing to draw.",
   statesTitle: "States",
   statesQuestion: "What every screen shows, in every state",
   statesLede:
@@ -103,7 +125,7 @@ export const WORDS = {
   closeLede: "A book that claims more than it shows is worse than none.",
   notShown: [
     "Components one by one, with their variants: a later sheet.",
-    "What happens over time, such as an undo or a failure, as a flow: a later sheet.",
+    "What a state looks like while it changes: the pictures are of states at rest.",
     "Whether the result looks right. No check measures that: a person looks.",
   ],
   staysTrue: "How it stays true",
@@ -209,10 +231,15 @@ export function collectFacts(target) {
 
   const audit = inventory(target);
   const core = audit.decisions.filter((decision) => decision.core);
-  const kinds = readKinds(readPages(target)).map((kind) => ({
+  const pages = readPages(target);
+  // What the page of a kind says after its front matter: its words, kept as written.
+  const bodyOf = (file) =>
+    (pages[file] ?? "").replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n?/, "").trim();
+  const kinds = readKinds(pages).map((kind) => ({
     name: kind.name,
     task: kind.task,
     reference: kind.reference,
+    body: bodyOf(kind.file),
   }));
   const revision = spawnSync("git", ["-C", target, "rev-parse", "--short", "HEAD"], {
     encoding: "utf8",
@@ -248,7 +275,11 @@ export function collectFacts(target) {
       .map((d) => ({ id: d.id, question: d.question })),
     slips: audit.slips,
     kinds,
-    screens: readScreens(read(REGISTRY) ?? ""),
+    screens: screenFiles(read(REGISTRY) ?? "", readSources(target)).map((screen) => ({
+      path: screen.path,
+      file: screen.file,
+      states: screen.states,
+    })),
     widths: json(SIZES_FILE)?.widths ?? [],
   };
 }
@@ -302,7 +333,7 @@ function cover(facts, w) {
     .join("");
   const open =
     facts.open.length > 0
-      ? `<ul class="plain">${facts.open.map((item) => `<li>${escape(item.question)}</li>`).join("")}</ul>`
+      ? `<ul class="plain">${facts.open.map((item) => `<li>${escape(w.questions?.[item.id] ?? item.question)}</li>`).join("")}</ul>`
       : `<p>${escape(w.nothingOpen)}</p>`;
   return `
 <section class="sheet cover">
@@ -467,6 +498,182 @@ function typeSheet(facts, w, audience) {
   );
 }
 
+// A page's own words as markup: headings, paragraphs, lists, code. Nothing else is understood,
+// and everything is written as text.
+export function renderWords(markdown, { code = true } = {}) {
+  const inline = (text) =>
+    escape(text)
+      .replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>");
+  const out = [];
+  const lines = markdown.split(/\r?\n/);
+  let paragraph = [];
+  let list = null;
+  const flush = () => {
+    if (paragraph.length > 0) out.push(`<p>${inline(paragraph.join(" "))}</p>`);
+    paragraph = [];
+    if (list) {
+      out.push(
+        `<${list.tag}>${list.items.map((item) => `<li>${inline(item)}</li>`).join("")}</${list.tag}>`,
+      );
+    }
+    list = null;
+  };
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
+    if (/^```/.test(line)) {
+      flush();
+      const block = [];
+      for (i += 1; i < lines.length && !/^```/.test(lines[i]); i += 1) block.push(lines[i]);
+      if (code) out.push(`<pre>${escape(block.join("\n"))}</pre>`);
+      continue;
+    }
+    const heading = /^#{1,6}\s+(.*)$/.exec(line);
+    const item = /^\s*(?:(\d+)\.|[-*])\s+(.*)$/.exec(line);
+    if (heading) {
+      flush();
+      out.push(`<h4>${inline(heading[1])}</h4>`);
+    } else if (item) {
+      const tag = item[1] ? "ol" : "ul";
+      if (paragraph.length > 0 || (list && list.tag !== tag)) flush();
+      list ??= { tag, items: [] };
+      list.items.push(item[2]);
+    } else if (line.trim() === "") flush();
+    else if (list && /^\s+\S/.test(line)) list.items[list.items.length - 1] += ` ${line.trim()}`;
+    else {
+      if (list) flush();
+      paragraph.push(line.trim());
+    }
+  }
+  flush();
+  return out.join("\n");
+}
+
+// A section that holds code is for the person who builds: left out for a client.
+function forClient(markdown) {
+  return markdown
+    .split(/\n(?=#{1,6}\s)/)
+    .filter((section) => !/^```/m.test(section))
+    .join("\n");
+}
+
+function kindsSheet(facts, w, audience, drawn) {
+  const wide = facts.widths.length > 0 ? Math.max(...facts.widths) : 1440;
+  const kinds = facts.kinds
+    .map((kind) => {
+      const screen = facts.screens.find((item) => item.file === kind.reference);
+      const state = screen?.states[0];
+      const image = screen ? drawn?.images?.[`${screen.path}|${state}|${wide}`] : null;
+      const where = `${escape(w.referenceScreen)}${screen ? ` · <code>${escape(screen.path)}</code>` : ""}${audience === "builder" ? ` · <code>${escape(kind.reference)}</code>` : ""}`;
+      const picture = image
+        ? `<figure><img src="${image}" alt="${escape(`${kind.name}, ${w.referenceScreen}`)}" /><figcaption>${where}</figcaption></figure>`
+        : `<p class="muted">${where}</p>`;
+      const body = audience === "builder" ? kind.body : forClient(kind.body);
+      return `<article class="kind-sheet">
+        <div>
+          <p class="eyebrow">${escape(w.kind)}</p>
+          <h3 class="kind-name">${escape(kind.name)}</h3>
+          <p class="task"><span>${escape(w.task)}</span>${escape(kind.task)}</p>
+          ${picture}
+        </div>
+        <div class="words">${renderWords(body, { code: audience === "builder" })}</div>
+      </article>`;
+    })
+    .join("");
+  return sheet(
+    3,
+    w.kindsTitle,
+    w.kindsQuestion,
+    w.kindsLede,
+    kinds || `<p class="note">${escape(w.noKinds)}</p>`,
+  );
+}
+
+// The states of a screen as a tree: a state hangs under the state its own steps pass through.
+// A state reached without any step is where the data alone leads.
+export function pathsOf(screen, how) {
+  const states = screen.states.map((name) => ({
+    name,
+    scenario: how?.[`${screen.path}|${name}`]?.scenario ?? null,
+    steps: how?.[`${screen.path}|${name}`]?.steps ?? [],
+  }));
+  const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+  const nodes = new Map();
+  const roots = [];
+  for (const state of [...states].sort((a, b) => a.steps.length - b.steps.length)) {
+    let parent = null;
+    for (let cut = state.steps.length - 1; cut >= 1 && !parent; cut -= 1) {
+      const prefix = state.steps.slice(0, cut);
+      parent =
+        states.find((other) => other.scenario === state.scenario && same(other.steps, prefix)) ??
+        states.find((other) => other.scenario === null && same(other.steps, prefix)) ??
+        null;
+    }
+    const node = {
+      name: state.name,
+      scenario: state.scenario,
+      edge: state.steps.slice(parent ? parent.steps.length : 0),
+      children: [],
+    };
+    nodes.set(state.name, node);
+    if (parent) nodes.get(parent.name).children.push(node);
+    else roots.push(node);
+  }
+  // Keep the order the repository lists its states in.
+  const order = (list) => {
+    list.sort((a, b) => screen.states.indexOf(a.name) - screen.states.indexOf(b.name));
+    list.forEach((node) => order(node.children));
+    return list;
+  };
+  return order(roots);
+}
+
+function pathsSheet(facts, w, audience, drawn) {
+  if (!drawn?.how) {
+    return sheet(
+      4,
+      w.pathsTitle,
+      w.pathsQuestion,
+      w.pathsLede,
+      `<p class="note">${escape(w.noPaths)}</p>`,
+    );
+  }
+  const narrow = facts.widths.length > 0 ? Math.min(...facts.widths) : 1440;
+  const label = (node) => {
+    const steps = node.edge.map((step) =>
+      "press" in step
+        ? `${escape(w.press)} «${escape(step.press)}»`
+        : `${escape(w.fill)} «${escape(step.fill)}»`,
+    );
+    return steps.join("<br />");
+  };
+  const node = (screen, item) => {
+    const image = drawn.images?.[`${screen.path}|${item.name}|${narrow}`];
+    return `<div class="node">${image ? `<img src="${image}" alt="${escape(item.name)}" />` : ""}<b>${escape(item.name)}</b>${item.scenario && audience === "builder" ? `<code>${escape(item.scenario)}</code>` : ""}</div>`;
+  };
+  const branch = (screen, item) => {
+    const kids = item.children.map((child) => branch(screen, child)).join("");
+    return `<div class="kid"><span class="edge">${label(item)}</span><div class="branch">
+      ${node(screen, item)}
+      ${kids ? `<div class="kids">${kids}</div>` : ""}
+    </div></div>`;
+  };
+  const maps = facts.screens
+    .map((screen) => {
+      const roots = pathsOf(screen, drawn.how);
+      // Where the data alone leads, side by side; then one row per action, read left to right.
+      const alone = roots.filter((item) => item.edge.length === 0);
+      const acted = roots.filter((item) => item.edge.length > 0);
+      return `<div class="map">
+        <h3>${escape(w.opens)} <code>${escape(screen.path)}</code> · ${escape(w.whenData)}</h3>
+        <div class="strip">${alone.map((item) => node(screen, item)).join("")}</div>
+        ${acted.length > 0 ? `<h3>${escape(w.afterAction)}</h3><div class="rows">${acted.map((item) => branch(screen, item)).join("")}</div>` : ""}
+      </div>`;
+    })
+    .join("");
+  return sheet(4, w.pathsTitle, w.pathsQuestion, w.pathsLede, maps);
+}
+
 function statesSheet(facts, w, audience, drawn) {
   const widths = facts.widths.length > 0 ? facts.widths : [1440];
   const narrow = Math.min(...widths);
@@ -507,19 +714,13 @@ function statesSheet(facts, w, audience, drawn) {
       return `<div class="screen"><h3><code>${escape(screen.path)}</code></h3>${states}</div>`;
     })
     .join("");
-  const kinds = facts.kinds
-    .map(
-      (kind) =>
-        `<p class="kind"><span>${escape(w.kind)}</span> <b>${escape(kind.name)}</b> · <span>${escape(w.task)}</span> ${escape(kind.task)}</p>`,
-    )
-    .join("");
   const none = drawn?.images ? "" : `<p class="note">${escape(w.noPictures)}</p>`;
   return sheet(
-    3,
+    5,
     w.statesTitle,
     w.statesQuestion,
     `${w.statesLede} ${widths.map((width) => `${width} px`).join(", ")}.`,
-    `${kinds}${none}${screens}`,
+    `${none}${screens}`,
   );
 }
 
@@ -529,7 +730,7 @@ function closing(w, audience) {
       ? `<h3>${escape(w.commands)}</h3><ul class="plain mono"><li>make check</li><li>make design-assembly</li><li>make design-audit</li></ul>`
       : "";
   return sheet(
-    4,
+    6,
     w.closeTitle,
     w.closeTitle,
     w.closeLede,
@@ -540,7 +741,12 @@ function closing(w, audience) {
 
 // The book as one page that needs nothing else: its pictures are inside it.
 export function renderBook(facts, { audience = "client", words = {}, drawn = null } = {}) {
-  const w = { ...WORDS, ...words, tierStates: { ...WORDS.tierStates, ...words.tierStates } };
+  const w = {
+    ...WORDS,
+    ...words,
+    tierStates: { ...WORDS.tierStates, ...words.tierStates },
+    questions: { ...WORDS.questions, ...words.questions },
+  };
   const color = (name, mode = "light") =>
     facts.colors.find((item) => item.name === name)?.[mode] ?? null;
   const radius = facts.radius.find((step) => step.step === "lg")?.size ?? "0.5rem";
@@ -638,8 +844,31 @@ export function renderBook(facts, { audience = "client", words = {}, drawn = nul
   .spacing i { display: block; height: 28px; background: var(--accent); border-radius: 2px; }
   .target { display: flex; align-items: center; gap: 12px; }
   .target i { display: block; border: 1.5px solid var(--fg); border-radius: 4px; }
-  .kind { margin: 32px 0 0; font-size: var(--base); max-width: 70ch; }
-  .kind span { font-size: var(--xs); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .kind-sheet { display: grid; grid-template-columns: 1.25fr 1fr; gap: 64px; margin-top: 48px; }
+  .kind-name { margin: 0; font-size: var(--h2); font-weight: 620; line-height: 1.1; letter-spacing: -0.01em; text-transform: none; color: var(--fg); }
+  .task { margin: 16px 0 28px; font-size: var(--lg); line-height: 1.45; max-width: 44ch; }
+  .task span { display: block; margin-bottom: 4px; font-size: var(--xs); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .words { max-width: 60ch; }
+  .words h4 { margin: 28px 0 8px; color: var(--muted); }
+  .words h4:first-child { margin-top: 0; }
+  .words p { margin: 0 0 10px; }
+  .words ol, .words ul { margin: 0 0 10px; padding-left: 20px; }
+  .words li { margin: 4px 0; }
+  .words pre { margin: 0 0 10px; padding: 12px 14px; overflow-x: auto; background: var(--surface); border-radius: var(--radius); font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .map { margin-top: 24px; }
+  .strip { display: flex; flex-wrap: wrap; gap: 24px; }
+  .rows { display: grid; grid-template-columns: 1fr 1fr; gap: 32px 24px; align-items: center; overflow-x: auto; padding-bottom: 8px; }
+  .rows > .kid:has(.kids) { grid-column: 1 / -1; }
+  .branch { display: flex; align-items: center; }
+  .kids { display: flex; flex-direction: column; gap: 20px; }
+  .kid { display: flex; align-items: center; }
+  .edge { position: relative; flex: none; width: 190px; padding: 0 44px 0 0; text-align: right; font-size: var(--xs); line-height: 1.35; color: var(--muted); }
+  .rows > .kid > .edge { width: 170px; text-align: left; padding-right: 44px; color: var(--fg); }
+  .edge::after { content: "→"; position: absolute; right: 14px; top: 50%; transform: translateY(-50%); color: var(--accent); font-size: var(--base); }
+  .node { flex: none; width: 132px; text-align: center; }
+  .node img { display: block; width: 100%; border: 1px solid var(--line); border-radius: calc(var(--radius) * 0.7); }
+  .node b { display: block; margin-top: 6px; font: 600 var(--xs) ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .node code { display: block; font-size: 10px; color: var(--muted); }
   .screen > h3 { margin-top: 48px; }
   .state { display: grid; grid-template-columns: 248px 1fr; gap: 32px; padding: 28px 0; border-top: 1px solid var(--line); break-inside: avoid; }
   .state h4 { margin: 0; font: 600 var(--base) ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0; text-transform: none; }
@@ -655,6 +884,8 @@ export function renderBook(facts, { audience = "client", words = {}, drawn = nul
 ${cover(facts, w)}
 ${colorSheet(facts, w, audience)}
 ${typeSheet(facts, w, audience)}
+${kindsSheet(facts, w, audience, drawn)}
+${pathsSheet(facts, w, audience, drawn)}
 ${statesSheet(facts, w, audience, drawn)}
 ${closing(w, audience)}
 </main>

@@ -62,14 +62,27 @@ Carbon; hướng dẫn bàn giao của Figma. Bài «Documenting components» c�
 - Bài kiểm của plugin 176 lên 188, trong đó một bài soát rằng mọi màu trên trang đều là màu kho
   có.
 
+Lát hai, cùng ngày, sau khi chủ kho xem lát đầu và nói «Đạt, làm lát kế»:
+
+- **Tờ kiểu màn:** tên kiểu, việc chính và ảnh màn mẫu, đặt cạnh nguyên lời trang kiểu màn của
+  kho. Cuốn sổ không viết lại trang ấy; khách thì không thấy các mục có mã.
+- **Tờ đường đi:** các trạng thái tới được chỉ nhờ dữ liệu đứng cạnh nhau; mọi trạng thái khác
+  theo sau một thao tác, đọc từ trái sang phải. Dựng từ chính các bước trong sổ màn, nên nó cho
+  thấy cái được khai, không phải mọi cái có thể xảy ra.
+- Câu hỏi còn mở trên bìa hiện bằng ngôn ngữ của kho khi tệp lời có bản dịch theo mã quyết định.
+- Trang kiểu màn giờ nằm trong bản kê: sửa trang thì cuốn sổ cũ bị báo là lệch.
+- Bài kiểm của plugin 188 lên 192.
+
 Giới hạn:
 
 - **Phần «đẹp» chỉ người nhìn mới chấm được.** Máy đã tự soi năm tờ và chỉnh một lượt; chủ kho
   chưa xem.
 - Tệp phông không nằm trong cuốn sổ: máy không có phông của sản phẩm sẽ hiện phông kế tiếp.
 - Ảnh không nằm trong bản kê, nên phép đối chiếu không biết ảnh đã cũ.
-- Chưa có: tờ linh kiện (cần chỗ dựng từng linh kiện riêng lẻ), tờ hành vi và kiểu màn, xuất
-  slide theo khổ.
+- Chưa có: tờ linh kiện (cần chỗ dựng từng linh kiện riêng lẻ) và xuất slide theo khổ.
+- Tờ đường đi cần trình duyệt; không có thì nó nói rõ và không vẽ gì. Người đọc là khách không
+  được cho biết vì sao cùng một thao tác dẫn tới hai trạng thái khác nhau (do dữ liệu trả lời
+  khác): chỉ người dựng thấy điều đó.
 - Chỉ vẽ được ảnh ở kho dựng bằng Vite có trình duyệt kiểm thử; kho khác vẫn có cuốn sổ, không
   có ảnh, và cuốn sổ nói rõ vì sao.
 - Chưa được tác tử độc lập thử.

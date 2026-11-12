@@ -13,7 +13,9 @@ import {
   belowThreshold,
   collectFacts,
   factsOf,
+  pathsOf,
   renderBook,
+  renderWords,
   staleParts,
   WORDS,
 } from "../scripts/book.mjs";
@@ -81,6 +83,7 @@ test("the facts are read from the repository, and are the same on every reading"
     facts.screens.map((screen) => [screen.path, screen.states]),
     [["/", ["ready", "loading"]]],
   );
+  assert.deepEqual(facts.kinds, []);
   const tokens = JSON.parse(readFileSync(path.join(dir, "design/tokens.json"), "utf8"));
   assert.equal(facts.colors.length, Object.keys(tokens.color).length);
   assert.equal(facts.palette.length, 14);
@@ -245,8 +248,114 @@ test("on a repository with a browser every state is drawn at the narrowest and t
   const page = readFileSync(path.join(ROOT, out, "book.html"), "utf8");
   const facts = factsOf(page);
   const states = facts.screens.reduce((sum, screen) => sum + screen.states.length, 0);
-  assert.equal(page.match(/<img src="data:image\/png;base64,/g).length, states * 2);
+  // One picture per state and width; the paths and the kinds show some of them again.
+  const pictures = new Set(page.match(/<img src="data:image\/png;base64,[^"]{0,400}/g));
+  assert.ok(pictures.size >= states && pictures.size <= states * 2, String(pictures.size));
+  assert.equal(page.match(/<figure class="(narrow|wide)">/g).length, states * 2);
   // How a state is reached is told in the repository's own words for its buttons.
   assert.match(page, /bấm «Thêm mục»/);
+  // The paths: the states reached by data alone sit side by side, the rest follow an action.
+  assert.match(page, /<div class="strip"><div class="node"><img /);
+  assert.match(page, /<div class="rows"><div class="kid"><span class="edge">/);
   assert.deepEqual(staleParts(page, collectFacts(ROOT)), []);
+});
+
+test("a page's own words become markup, and nothing in them is taken as markup", () => {
+  const words = renderWords(
+    [
+      "Intro line one",
+      "and line two with `code` and **weight**.",
+      "",
+      "## Order of the parts",
+      "",
+      "1. The title: one <h1>.",
+      "2. The filter,",
+      "   only when there are items.",
+      "",
+      "- a point",
+      "",
+      "```tsx",
+      "<Table />",
+      "```",
+    ].join("\n"),
+  );
+  assert.match(
+    words,
+    /<p>Intro line one and line two with <code>code<\/code> and <b>weight<\/b>\.<\/p>/,
+  );
+  assert.match(words, /<h4>Order of the parts<\/h4>/);
+  assert.match(
+    words,
+    /<ol><li>The title: one &lt;h1&gt;\.<\/li><li>The filter, only when there are items\.<\/li><\/ol>/,
+  );
+  assert.match(words, /<ul><li>a point<\/li><\/ul>/);
+  assert.match(words, /<pre>&lt;Table \/&gt;<\/pre>/);
+  assert.doesNotMatch(renderWords("```\ncode\n```", { code: false }), /<pre>/);
+});
+
+test("the states of a screen hang under the state their own steps pass through", () => {
+  const screen = {
+    path: "/",
+    states: ["ready", "empty", "ask", "saving", "failed", "added", "undone"],
+  };
+  const ask = { press: "Delete A" };
+  const yes = { press: "Delete" };
+  const add = { press: "Add" };
+  const how = {
+    "/|ready": { scenario: null, steps: [] },
+    "/|empty": { scenario: "empty", steps: [] },
+    "/|ask": { scenario: null, steps: [ask] },
+    "/|saving": { scenario: "slow", steps: [ask, yes] },
+    "/|failed": { scenario: "fail", steps: [ask, yes] },
+    "/|added": { scenario: "empty", steps: [add] },
+    "/|undone": { scenario: "empty", steps: [add, { press: "Undo" }] },
+  };
+  const roots = pathsOf(screen, how);
+  const shape = (nodes) => nodes.map((node) => [node.name, node.edge.length, shape(node.children)]);
+  assert.deepEqual(shape(roots), [
+    ["ready", 0, []],
+    ["empty", 0, []],
+    // Two states one more press away hang under the state that press starts from.
+    [
+      "ask",
+      1,
+      [
+        ["saving", 1, []],
+        ["failed", 1, []],
+      ],
+    ],
+    ["added", 1, [["undone", 1, []]]],
+  ]);
+  // A state whose earlier step no listed state stops at keeps all its steps on its own edge.
+  const lone = pathsOf(
+    { path: "/", states: ["deep"] },
+    { "/|deep": { scenario: "x", steps: [ask, yes] } },
+  );
+  assert.equal(lone[0].edge.length, 2);
+});
+
+test("a kind of screen is shown with its own words, and a client is spared the code", () => {
+  const facts = collectFacts(ROOT);
+  assert.equal(facts.kinds.length, 1);
+  assert.match(facts.kinds[0].body, /## /);
+  assert.equal(facts.screens[0].file, facts.kinds[0].reference);
+  const client = renderBook(facts, { audience: "client" });
+  const builder = renderBook(facts, { audience: "builder" });
+  assert.ok(client.includes(`<h3 class="kind-name">${facts.kinds[0].name}</h3>`));
+  assert.doesNotMatch(client, /<pre>/);
+  assert.match(builder, /<pre>/);
+  // The page of the kind is part of what the book says: change it and the book is stale.
+  const changed = { ...facts, kinds: [{ ...facts.kinds[0], body: "Something else." }] };
+  assert.deepEqual(staleParts(renderBook(facts), changed), ["kinds"]);
+});
+
+test("an open question is asked in the repository's own language when it gives one", () => {
+  const facts = { ...collectFacts(guided()) };
+  facts.open = [{ id: "record-panel", question: "How does a record open beside a list?" }];
+  assert.ok(renderBook(facts).includes("How does a record open beside a list?"));
+  const own = renderBook(facts, { words: { questions: { "record-panel": "Hồ sơ mở thế nào?" } } });
+  // What a person reads, without the list of facts the book carries at its end.
+  const read = own.slice(0, own.indexOf('<script type="application/json"'));
+  assert.ok(read.includes("Hồ sơ mở thế nào?"));
+  assert.ok(!read.includes("How does a record open beside a list?"));
 });

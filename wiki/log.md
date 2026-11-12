@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-12 — Cuốn sổ bàn giao thêm tờ kiểu màn và tờ đường đi; câu hỏi còn mở hiện bằng ngôn ngữ của kho — [0020](decisions/0020-handoff-book.md), `plugins/design-assembly/scripts/book.mjs`.
 - 2026-11-12 — Skill bàn giao và cuốn sổ design system: bìa, màu theo vai kèm tương phản, chữ và hình khối, mọi trạng thái của màn thật; cuốn sổ làm lộ cặp chữ phụ trên nền phụ dưới ngưỡng — [0020](decisions/0020-handoff-book.md), `plugins/design-assembly/scripts/book.mjs`, `plugins/design-assembly/skills/handoff/`.
 - 2026-11-12 — Bảng mẫu cho tầng foundations: màu gốc, thang chữ, bo góc được vẽ trên màn thật của kho, người chọn bằng chữ cái; hướng dẫn đổi sang «vẽ rồi mới hỏi» — [0019](decisions/0019-show-then-ask.md), `plugins/design-assembly/scripts/specimen.mjs`.
 - 2026-11-12 — Bậc governance: hướng nhập giữa các phần của mã (máy giữ) và sổ lỗi lọt có lệnh kiểm dạng, bắt đầu với sáu dòng thật; audit đếm ngoại lệ có chủ ý — [0018](decisions/0018-import-direction-and-slips.md), `design/parts.json`, `design/escapes.md`.

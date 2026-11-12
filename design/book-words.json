@@ -57,11 +57,26 @@
   "closeLede": "Một cuốn sổ nói nhiều hơn những gì nó cho thấy thì tệ hơn không có.",
   "notShown": [
     "Từng linh kiện với các biến thể của nó: một tờ sẽ làm sau.",
-    "Điều xảy ra theo thời gian, như hoàn tác hay thất bại, dưới dạng sơ đồ luồng: một tờ sẽ làm sau.",
+    "Một trạng thái trông thế nào trong lúc đang chuyển: ảnh chụp là của trạng thái khi đã yên.",
     "Kết quả có đẹp hay không. Không lệnh kiểm nào đo điều đó: phải có người nhìn."
   ],
   "staysTrue": "Vì sao nó không nói sai",
   "staysTrueText": "Cuốn sổ được vẽ lại từ kho mỗi lần. Nó giữ một bản kê mọi giá trị nó hiện; khi kho thay đổi, đem cuốn sổ đối chiếu với kho là biết ngay.",
   "commands": "Dành cho người dựng",
-  "noPictures": "Không vẽ được hình ở đây: kho không có trình duyệt để vẽ."
+  "noPictures": "Không vẽ được hình ở đây: kho không có trình duyệt để vẽ.",
+  "questions": {
+    "record-panel": "Một hồ sơ mở ra cạnh danh sách như thế nào?",
+    "tier-direction": "Phần nào của hệ được nhập phần nào?"
+  },
+  "kindsTitle": "Kiểu màn",
+  "kindsQuestion": "Mỗi kiểu màn để làm gì, và được dựng ra sao",
+  "kindsLede": "Màn mới nào cũng thuộc một trong các kiểu này, và được dựng giống màn mẫu của kiểu. Màn mẫu đặt cạnh những gì kho viết về kiểu đó.",
+  "referenceScreen": "màn mẫu",
+  "noKinds": "Chưa kiểu màn nào được mô tả.",
+  "pathsTitle": "Đường đi",
+  "pathsQuestion": "Người dùng đi từ trạng thái này sang trạng thái kia thế nào",
+  "pathsLede": "Mọi trạng thái của một màn, nối với nhau bằng thao tác dẫn tới nó. Đọc từ chính danh sách trạng thái của kho, vẽ từ chính màn của kho.",
+  "whenData": "khi dữ liệu trả lời",
+  "noPaths": "Đường đi được vẽ từ chính các màn: không có trình duyệt thì không có gì để vẽ.",
+  "afterAction": "Sau một thao tác"
 }
