@@ -169,6 +169,12 @@ Các lựa chọn của tầng foundations được cho xem chứ không mô t�
 lần cho mỗi phương án, sáng và tối, trên một bảng mẫu, và người trả lời bằng một chữ cái. Phương
 án lấy từ danh sách đóng và từ chính các hàm sẽ ghi giá trị, nên thứ được nhìn là thứ cổng sẽ giữ.
 
+### Cuốn sổ bàn giao (quyết định 0020, 2026-11-12)
+
+Sau khi quyết, design system được cho xem trong một cuốn sổ vẽ từ chính kho: số quyết định đã
+đáp và còn mở, màu theo vai kèm tỉ số tương phản, thang chữ và hình khối, mọi trạng thái của màn
+thật. Mọi giá trị đọc từ kho; cuốn sổ mang bản kê những gì nó hiện để đối chiếu lại với kho.
+
 ### Vì sao cần plugin này
 
 Bản trước ghi giả thuyết «giảm token», neo vào lần đo ba của Repo Standards (token gấp 1,43 lần).

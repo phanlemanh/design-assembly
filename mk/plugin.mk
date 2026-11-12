@@ -8,7 +8,7 @@ REFERENCE_LEDGER ?= ../onehub-inventory
 # plugin writes is given to the kit's own reader; when it is not, that test is skipped too.
 ACCEPTANCE_KIT ?= ../delivery-loop
 
-.PHONY: plugin-test design-specimen design-apply design-plan design-audit design-adopt design-adopt-plan design-adopt-reference
+.PHONY: plugin-test design-specimen design-book design-apply design-plan design-audit design-adopt design-adopt-plan design-adopt-reference
 
 design-audit: ## Audit this repository: each standard decision's state, and the tier it has reached
 	@node plugins/design-assembly/scripts/inventory.mjs --target .
@@ -23,6 +23,12 @@ SPECIMEN_ARGS ?=
 
 design-specimen: ## Draw the choices of foundations on this repository's own screen, to pick by eye
 	@node plugins/design-assembly/scripts/specimen.mjs --target . $(SPECIMEN_ARGS)
+
+# Extra flags for the book, such as BOOK_ARGS="--audience builder --format pdf".
+BOOK_ARGS ?=
+
+design-book: ## Draw this repository's design system as a book to hand to a person
+	@node plugins/design-assembly/scripts/book.mjs --target . $(BOOK_ARGS)
 
 design-plan: ## Show what the guide would write into this repository, the reference implementation
 	@node plugins/design-assembly/scripts/apply.mjs --target . --dry-run

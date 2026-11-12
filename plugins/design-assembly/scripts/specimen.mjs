@@ -7,12 +7,12 @@
 // Usage: node specimen.mjs --target DIR [--section color|around|type|radius|review|all]
 //          [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
-import { createRequire } from "node:module";
 import path from "node:path";
 import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { FILES } from "../templates/tools/design-assembly/check.mjs";
+import { openStage } from "./stage.mjs";
 import {
   asWritten,
   clipChroma,
@@ -407,43 +407,20 @@ ${body}
 `;
 }
 
-// Draws the plan: starts the repository's own development server, opens its first screen in a
-// browser, puts each option's values on the page and takes a picture. Returns why it could not.
+// Draws the plan: opens the repository's first screen in a browser, puts each option's values on
+// the page and takes a picture. Returns why it could not.
 async function draw(target, plan, out) {
-  const require = createRequire(path.join(target, "package.json"));
-  let chromium;
-  let createServer;
-  try {
-    ({ chromium } = require("@playwright/test"));
-    const vite = path.dirname(require.resolve("vite/package.json"));
-    const entry = JSON.parse(readFileSync(path.join(vite, "package.json"), "utf8")).exports?.["."];
-    const file =
-      typeof entry === "string"
-        ? entry
-        : (entry?.import?.default ?? entry?.import ?? entry?.default);
-    ({ createServer } = await import(pathToFileURL(path.join(vite, file)).href));
-  } catch (error) {
-    return {
-      problem: `the repository has no browser to draw with (${error.message.split("\n")[0]})`,
-    };
-  }
+  const stage = await openStage(target);
+  if (stage.problem) return { problem: stage.problem };
   const reach = shotsOf(
     existsSync(path.join(target, REGISTRY))
       ? readFileSync(path.join(target, REGISTRY), "utf8")
       : "",
   );
   mkdirSync(path.join(target, out), { recursive: true });
-  const server = await createServer({
-    root: target,
-    logLevel: "silent",
-    server: { host: "127.0.0.1", port: 5290, strictPort: false },
-  });
-  let browser;
   const images = {};
   try {
-    await server.listen();
-    const origin = server.resolvedUrls.local[0].replace(/\/$/, "");
-    browser = await chromium.launch();
+    const { origin, browser } = stage;
     // A narrow window, drawn at twice the size: the screen's content fills the picture and stays
     // sharp when the sheet shows it small.
     const context = await browser.newContext({
@@ -489,8 +466,7 @@ async function draw(target, plan, out) {
   } catch (error) {
     return { problem: `drawing stopped: ${error.message.split("\n")[0]}` };
   } finally {
-    await browser?.close();
-    await server.close();
+    await stage.close();
   }
   return { images };
 }

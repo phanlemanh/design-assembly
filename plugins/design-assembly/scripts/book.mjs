@@ -1,0 +1,839 @@
+// The design system of a repository as a book a person can be handed: what the screens are built
+// from, shown; what holds each decision, counted; what is still open, said.
+//
+// Every value on a page is read from the repository, never typed: the design tokens file, the
+// stylesheet, the ledger, the screen registry. The pictures are the repository's own screens. The
+// book is drawn in the system it describes: its colours, its type sizes, its corner radius.
+// Usage: node book.mjs --target DIR [--audience client|builder] [--format html|pdf|png]
+//          [--words FILE] [--out DIR] [--facts]
+//        node book.mjs --target DIR --check BOOK.html
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { argv, exit, stderr, stdout } from "node:process";
+import { fileURLToPath, pathToFileURL } from "node:url";
+
+import { contrast, parseColor } from "../templates/tools/design-assembly/color.mjs";
+import { readScreens, REGISTRY } from "../templates/tools/design-assembly/patterns.mjs";
+import { toPx, toRatio } from "../templates/tools/design-assembly/scale.mjs";
+import { readKinds, readPages, SIZES_FILE } from "../templates/tools/design-assembly/screens.mjs";
+import {
+  DEFAULT_STYLESHEET,
+  findStylesheet,
+  loadStyles,
+  resolve,
+} from "../templates/tools/design-assembly/styles.mjs";
+import { buildTheme, THRESHOLDS } from "../templates/tools/design-assembly/theme.mjs";
+import { TOKENS } from "../templates/tools/design-assembly/tokens.mjs";
+import { inventory } from "./inventory.mjs";
+import { openStage } from "./stage.mjs";
+
+export const OUT = "coverage/design-book";
+// A repository's own words for the book, in the language its documents are written in.
+export const WORDS_FILE = "design/book-words.json";
+const FACTS_ID = "design-book-facts";
+const TONES = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 98, 99, 100];
+// The roles a person meets on a screen, in the order they are shown. The rest are listed small.
+const SURFACES = ["background", "card", "popover", "muted", "secondary", "accent", "primary"];
+const LINES = ["border", "input", "ring"];
+const SPACING_STEPS = [1, 2, 3, 4, 6, 8, 12];
+
+// Every label the book prints. A repository replaces any of them in its own words file.
+export const WORDS = {
+  title: "Design system",
+  lede: "What this product's screens are built from, what holds each decision in place, and what is still open.",
+  revision: "state of the repository",
+  contents: "In this book",
+  decisions: "Decisions",
+  decisionsLede: "of the decisions every design system has to answer are answered here.",
+  held: "held by a check that runs",
+  claimed: "named by a check that was not run again",
+  recorded: "a person's call, written down",
+  unconfirmed: "of those are a proposal nobody has confirmed yet",
+  open: "open",
+  tiers: "How far it reaches",
+  tierStates: {
+    reached: "reached",
+    claimed: "complete, resting on checks not run again",
+    missing: "not reached",
+    blocked: "complete, but an earlier one is not",
+  },
+  stillOpen: "Still open",
+  nothingOpen: "No core decision is open.",
+  colorTitle: "Colour",
+  colorQuestion: "Which colours there are, and what may sit on what",
+  colorLede:
+    "A colour is used by its role, never by its value. Each role is shown on the ground it sits on, in light and in dark, with the contrast ratio its text reaches.",
+  source: "source color",
+  sourceKept: "the primary is the source color itself",
+  sourceMoved: "the primary moved from the source to reach the contrast ratio",
+  light: "light",
+  dark: "dark",
+  textOnGround: "Text on its ground",
+  lines: "Lines",
+  palette: "Tonal palette of the primary",
+  otherRoles: "Other roles the stylesheet declares",
+  needs: "needs",
+  heldTag: "held",
+  notRead: "not measured",
+  typeTitle: "Type and shape",
+  typeQuestion: "Which sizes, which corners, which distances",
+  typeLede: "Every size, corner and distance on a screen is one of these steps.",
+  typeScale: "Type scale",
+  sample: "The quick brown fox 0123456789",
+  fontStack: "font",
+  fontNote:
+    "The font file is not inside this book: a device without it shows the next one in the list.",
+  radius: "Corner radius",
+  spacing: "Spacing scale",
+  unit: "unit",
+  target: "Smallest control",
+  statesTitle: "States",
+  statesQuestion: "What every screen shows, in every state",
+  statesLede:
+    "The repository's own screens, drawn as a person meets them. Each state is checked in a browser at these widths.",
+  kind: "kind of screen",
+  task: "main task",
+  reached: "reached by",
+  opens: "opening the screen",
+  scenario: "the data answers",
+  press: "press",
+  fill: "type into",
+  closeTitle: "What this book does not show",
+  closeLede: "A book that claims more than it shows is worse than none.",
+  notShown: [
+    "Components one by one, with their variants: a later sheet.",
+    "What happens over time, such as an undo or a failure, as a flow: a later sheet.",
+    "Whether the result looks right. No check measures that: a person looks.",
+  ],
+  staysTrue: "How it stays true",
+  staysTrueText:
+    "This book is drawn from the repository each time. It keeps a list of every value it shows; when the repository changes, checking the book against it says so.",
+  commands: "For the person who builds",
+  noPictures: "No picture could be drawn here: the repository has no browser to draw with.",
+};
+
+const escape = (text) =>
+  String(text).replace(
+    /[&<>"]/g,
+    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+  );
+
+function ratio(text, ground) {
+  const a = parseColor(String(text ?? ""));
+  const b = parseColor(String(ground ?? ""));
+  // A colour with transparency sits on whatever is under it: no single ratio can be given.
+  if (!a || !b || /\//.test(String(text)) || /\//.test(String(ground))) return null;
+  return Number(contrast(a, b).toFixed(2));
+}
+
+// Everything the book says, as data. Read from the repository and from nothing else, so the same
+// state of the repository gives the same facts.
+export function collectFacts(target) {
+  const read = (file) =>
+    existsSync(path.join(target, file)) ? readFileSync(path.join(target, file), "utf8") : null;
+  const json = (file) => {
+    try {
+      return JSON.parse(read(file) ?? "null");
+    } catch {
+      return null;
+    }
+  };
+  const theme = json("design/theme.json") ?? {};
+  const stylesheet = theme.stylesheet ?? findStylesheet(target) ?? DEFAULT_STYLESHEET;
+  const styles = loadStyles(target, stylesheet);
+  const tokens = json(TOKENS) ?? {};
+  const level = theme.inputs?.conformanceLevel ?? null;
+  const min = THRESHOLDS[level]?.text ?? null;
+  const value = (name) => resolve(styles, ":root", name)?.value ?? null;
+
+  const colors = Object.entries(tokens.color ?? {}).map(([name, token]) => ({
+    name,
+    light: token.$value,
+    dark: token.$extensions?.["design-assembly"]?.dark ?? token.$value,
+  }));
+  const color = (name) => colors.find((item) => item.name === name);
+  // The pairs the gate itself checks, so the book can say which ratios are held and which are
+  // only measured here.
+  const heldPairs = (theme.checks?.["color-contrast"] ?? []).map(
+    (check) => `${check.foreground.replace(/^--/, "")} on ${check.background.replace(/^--/, "")}`,
+  );
+  const pair = (text, ground) => {
+    const a = color(text);
+    const b = color(ground);
+    if (!a || !b) return null;
+    return {
+      text,
+      ground,
+      light: ratio(a.light, b.light),
+      dark: ratio(a.dark, b.dark),
+      held: heldPairs.includes(`${text} on ${ground}`),
+    };
+  };
+  const pairs = [
+    pair("foreground", "background"),
+    ...colors
+      .filter((item) => color(`${item.name}-foreground`))
+      .map((item) => pair(`${item.name}-foreground`, item.name)),
+    pair("muted-foreground", "background"),
+    pair("primary", "background"),
+    pair("destructive", "background"),
+  ].filter(Boolean);
+
+  let source = null;
+  if (theme.inputs?.sourceColor && level) {
+    try {
+      const built = buildTheme(theme.inputs, styles.css);
+      source = {
+        color: theme.inputs.sourceColor,
+        moved: Object.fromEntries(
+          built.modes.map((mode) => [mode.selector === ":root" ? "light" : "dark", mode.adjusted]),
+        ),
+      };
+    } catch {
+      source = { color: theme.inputs.sourceColor, moved: null };
+    }
+  }
+
+  const type = Object.entries(tokens.text ?? {}).map(([step, token]) => {
+    const size = toPx(token.$value);
+    const leading = toRatio(value(`--text-${step}--line-height`));
+    return {
+      step,
+      size: token.$value,
+      px: size,
+      line: size && leading ? Math.round(size * leading) : null,
+    };
+  });
+  const unit = toPx(value("--spacing"));
+
+  const audit = inventory(target);
+  const core = audit.decisions.filter((decision) => decision.core);
+  const kinds = readKinds(readPages(target)).map((kind) => ({
+    name: kind.name,
+    task: kind.task,
+    reference: kind.reference,
+  }));
+  const revision = spawnSync("git", ["-C", target, "rev-parse", "--short", "HEAD"], {
+    encoding: "utf8",
+  });
+  return {
+    name: json("package.json")?.name ?? path.basename(target),
+    revision: revision.status === 0 ? revision.stdout.trim() : null,
+    level,
+    threshold: min,
+    stylesheet,
+    colors,
+    pairs,
+    palette: TONES.map((tone) => ({ tone, color: value(`--palette-primary-${tone}`) })).filter(
+      (entry) => entry.color,
+    ),
+    source,
+    font: value("--font-sans"),
+    type,
+    radius: Object.entries(tokens.radius ?? {}).map(([step, token]) => ({
+      step,
+      size: token.$value,
+      px: toPx(token.$value),
+    })),
+    spacing: unit,
+    target: theme.checks?.["target-size"]?.[0]?.min ?? null,
+    coverage: audit.coverage,
+    unconfirmed: core
+      .filter((d) => d.state === "recorded" && /has not (confirmed|reviewed)/.test(d.note ?? ""))
+      .map((d) => d.id),
+    tiers: audit.tiers.map((tier) => ({ id: tier.id, state: tier.state })),
+    open: core
+      .filter((d) => !["held", "claimed", "recorded"].includes(d.state))
+      .map((d) => ({ id: d.id, question: d.question })),
+    slips: audit.slips,
+    kinds,
+    screens: readScreens(read(REGISTRY) ?? ""),
+    widths: json(SIZES_FILE)?.widths ?? [],
+  };
+}
+
+// Pairs of text and ground that do not reach the contrast ratio of the conformance level. The
+// book shows them as they are; a person decides what to do about each.
+export function belowThreshold(facts) {
+  if (facts.threshold === null) return [];
+  return facts.pairs.flatMap((pair) =>
+    ["light", "dark"]
+      .filter((mode) => pair[mode] !== null && pair[mode] < facts.threshold)
+      .map(
+        (mode) =>
+          `${pair.text} on ${pair.ground} reaches ${pair[mode].toFixed(2)}:1 in ${mode}, below the ${facts.threshold}:1 the conformance level asks${pair.held ? "" : ". No check holds this pair"}`,
+      ),
+  );
+}
+
+// ---- pages -------------------------------------------------------------------------------------
+
+const sheet = (number, eyebrow, question, lede, body) => `
+<section class="sheet">
+  <header class="sheet-head">
+    <p class="eyebrow"><span>${String(number).padStart(2, "0")}</span>${escape(eyebrow)}</p>
+    <h2>${escape(question)}</h2>
+    <p class="lede">${escape(lede)}</p>
+  </header>
+  ${body}
+</section>`;
+
+function cover(facts, w) {
+  const c = facts.coverage;
+  const confirmed = c.recorded - facts.unconfirmed.length;
+  const parts = [
+    ["held", c.held],
+    ["claimed", c.claimed],
+    ["recorded", confirmed],
+    ["unconfirmed", facts.unconfirmed.length],
+    ["open", c.core - c.answered],
+  ].filter(([, count]) => count > 0);
+  const bar = parts
+    .map(([name, count]) => `<i class="seg ${name}" style="flex:${count}" title="${count}"></i>`)
+    .join("");
+  const stat = (count, label, name) =>
+    `<div class="stat"><b>${count}</b><span><i class="key ${name}"></i>${escape(label)}</span></div>`;
+  const tiers = facts.tiers
+    .map(
+      (tier) =>
+        `<li class="${tier.state}"><span>${escape(tier.id.replaceAll("-", " "))}</span><em>${escape(w.tierStates[tier.state] ?? tier.state)}</em></li>`,
+    )
+    .join("");
+  const open =
+    facts.open.length > 0
+      ? `<ul class="plain">${facts.open.map((item) => `<li>${escape(item.question)}</li>`).join("")}</ul>`
+      : `<p>${escape(w.nothingOpen)}</p>`;
+  return `
+<section class="sheet cover">
+  <p class="eyebrow">${escape(w.title)}${facts.revision ? ` · ${escape(w.revision)} ${escape(facts.revision)}` : ""}</p>
+  <h1>${escape(facts.name)}</h1>
+  <p class="lede">${escape(w.lede)}</p>
+  <div class="cover-grid">
+    <div>
+      <h3>${escape(w.decisions)}</h3>
+      <p class="big"><b>${c.answered}</b><span>/ ${c.core}</span></p>
+      <p class="muted">${escape(w.decisionsLede)}</p>
+      <div class="bar">${bar}</div>
+      <div class="stats">
+        ${stat(c.held, w.held, "held")}
+        ${stat(c.claimed, w.claimed, "claimed")}
+        ${stat(c.recorded, w.recorded, "recorded")}
+      </div>
+      ${facts.unconfirmed.length > 0 ? `<p class="note"><i class="key unconfirmed"></i><b>${facts.unconfirmed.length}</b> ${escape(w.unconfirmed)}</p>` : ""}
+    </div>
+    <div>
+      <h3>${escape(w.tiers)}</h3>
+      <ol class="tiers">${tiers}</ol>
+      <h3>${escape(w.stillOpen)}</h3>
+      ${open}
+    </div>
+  </div>
+</section>`;
+}
+
+function colorSheet(facts, w, audience) {
+  const color = (name) => facts.colors.find((item) => item.name === name);
+  const pairOf = (text, ground) =>
+    facts.pairs.find((item) => item.text === text && item.ground === ground);
+  const badge = (value, held) => {
+    if (value === null) return `<span class="ratio">${escape(w.notRead)}</span>`;
+    const below = facts.threshold !== null && value < facts.threshold;
+    return `<span class="ratio${below ? " below" : ""}">${value.toFixed(2)}:1${below ? ` · ${escape(w.needs)} ${facts.threshold}:1` : ""}${held && audience === "builder" ? ` · ${escape(w.heldTag)}` : ""}</span>`;
+  };
+  const ground = (mode) => {
+    const of = (name) => color(name)?.[mode];
+    const tiles = SURFACES.filter((name) => color(name))
+      .map((name) => {
+        const text = name === "background" ? "foreground" : `${name}-foreground`;
+        const found = pairOf(text, name);
+        return `<div class="tile" style="background:${escape(of(name))};color:${escape(of(text) ?? of("foreground"))};border-color:${escape(of("border"))}">
+          <b>Aa</b><span>${escape(name)}</span>${found ? badge(found[mode], found.held) : ""}
+          ${audience === "builder" ? `<code>${escape(of(name))}</code>` : ""}
+        </div>`;
+      })
+      .join("");
+    const texts = [
+      ["muted-foreground", "background"],
+      ["primary", "background"],
+      ["destructive", "background"],
+    ]
+      .map(([text, base]) => [text, pairOf(text, base)])
+      .filter(([, found]) => found)
+      .map(
+        ([text, found]) =>
+          `<li><b style="color:${escape(of(text))}">Aa ${escape(text)}</b>${badge(found[mode], found.held)}</li>`,
+      )
+      .join("");
+    const lines = LINES.filter((name) => color(name))
+      .map(
+        (name) =>
+          `<span class="line" style="border-color:${escape(of(name))}">${escape(name)}</span>`,
+      )
+      .join("");
+    return `<div class="ground" style="background:${escape(of("background"))};color:${escape(of("foreground"))};border-color:${escape(of("border"))}">
+      <p class="eyebrow" style="color:${escape(of("muted-foreground"))}">${escape(w[mode])}</p>
+      <div class="tiles">${tiles}</div>
+      <h4 style="color:${escape(of("muted-foreground"))}">${escape(w.textOnGround)}</h4>
+      <ul class="texts">${texts}</ul>
+      <h4 style="color:${escape(of("muted-foreground"))}">${escape(w.lines)}</h4>
+      <div class="lines">${lines}</div>
+    </div>`;
+  };
+  const source = facts.source
+    ? `<div class="source">
+        <span class="chip" style="background:${escape(facts.source.color)}"></span>
+        <div><b>${escape(w.source)}</b> <code>${escape(facts.source.color)}</code>
+        ${(facts.source.moved ? ["light", "dark"] : [])
+          .map(
+            (mode) =>
+              `<p><span class="chip small" style="background:${escape(color("primary")?.[mode])}"></span>${escape(w[mode])}: ${escape(facts.source.moved[mode] ? w.sourceMoved : w.sourceKept)}</p>`,
+          )
+          .join("")}</div>
+      </div>`
+    : "";
+  const palette =
+    facts.palette.length > 0
+      ? `<h3>${escape(w.palette)}</h3><div class="palette">${facts.palette
+          .map(
+            (entry) =>
+              `<span style="background:${escape(entry.color)}"><em>${entry.tone}</em></span>`,
+          )
+          .join("")}</div>`
+      : "";
+  const featured = new Set([...SURFACES, ...LINES, "foreground", "destructive"]);
+  const rest = facts.colors.filter(
+    (item) => !featured.has(item.name) && !featured.has(item.name.replace(/-foreground$/, "")),
+  );
+  const others =
+    audience === "builder" && rest.length > 0
+      ? `<h3>${escape(w.otherRoles)}</h3><div class="others">${rest
+          .map(
+            (item) =>
+              `<span><i style="background:${escape(item.light)}"></i><i style="background:${escape(item.dark)}"></i>${escape(item.name)}</span>`,
+          )
+          .join("")}</div>`
+      : "";
+  return sheet(
+    1,
+    w.colorTitle,
+    w.colorQuestion,
+    w.colorLede,
+    `${source}<div class="grounds">${ground("light")}${ground("dark")}</div>${palette}${others}`,
+  );
+}
+
+function typeSheet(facts, w, audience) {
+  const steps = [...facts.type]
+    .reverse()
+    .map(
+      (step) =>
+        `<li><span class="meta">text-${escape(step.step)}<em>${step.px ?? "?"} / ${step.line ?? "?"} px</em></span><span class="specimen" style="font-size:${escape(step.size)};line-height:${step.line && step.px ? (step.line / step.px).toFixed(3) : 1.3}">${escape(w.sample)}</span></li>`,
+    )
+    .join("");
+  const radius = facts.radius
+    .map(
+      (step) =>
+        `<div><i style="border-radius:${escape(step.size)}"></i><b>${escape(step.step)}</b><em>${step.px ?? "?"} px</em></div>`,
+    )
+    .join("");
+  const spacing = facts.spacing
+    ? `<h3>${escape(w.spacing)}</h3><div class="spacing">${SPACING_STEPS.map(
+        (step) =>
+          `<div><i style="width:${step * facts.spacing}px"></i><b>${step}</b><em>${step * facts.spacing} px</em></div>`,
+      ).join("")}</div><p class="muted">1 ${escape(w.unit)} = ${facts.spacing} px</p>`
+    : "";
+  const target = facts.target
+    ? `<h3>${escape(w.target)}</h3><div class="target"><i style="width:${facts.target}px;height:${facts.target}px"></i><em>${facts.target} px</em></div>`
+    : "";
+  return sheet(
+    2,
+    w.typeTitle,
+    w.typeQuestion,
+    w.typeLede,
+    `<div class="two">
+      <div>
+        <h3>${escape(w.typeScale)}</h3>
+        <ol class="type">${steps}</ol>
+        ${facts.font ? `<p class="muted">${escape(w.fontStack)}: <code>${escape(facts.font)}</code>${audience === "builder" ? ` · ${escape(w.fontNote)}` : ""}</p>` : ""}
+      </div>
+      <div>
+        <h3>${escape(w.radius)}</h3>
+        <div class="radii">${radius}</div>
+        ${spacing}
+        ${target}
+      </div>
+    </div>`,
+  );
+}
+
+function statesSheet(facts, w, audience, drawn) {
+  const widths = facts.widths.length > 0 ? facts.widths : [1440];
+  const narrow = Math.min(...widths);
+  const wide = Math.max(...widths);
+  const screens = facts.screens
+    .map((screen) => {
+      const states = screen.states
+        .map((name) => {
+          const how = drawn?.how?.[`${screen.path}|${name}`];
+          const steps = how
+            ? [
+                ...(how.scenario && audience === "builder"
+                  ? [`${w.scenario} <code>${escape(how.scenario)}</code>`]
+                  : []),
+                ...how.steps.map((step) =>
+                  "press" in step
+                    ? `${escape(w.press)} «${escape(step.press)}»`
+                    : `${escape(w.fill)} «${escape(step.fill)}»`,
+                ),
+              ]
+            : [];
+          const picture = (width, cls) => {
+            const image = drawn?.images?.[`${screen.path}|${name}|${width}`];
+            return image
+              ? `<figure class="${cls}"><img src="${image}" alt="${escape(`${screen.path} ${name}, ${width}px`)}" /><figcaption>${width} px</figcaption></figure>`
+              : "";
+          };
+          return `<article class="state">
+            <div class="state-head">
+              <h4>${escape(name)}</h4>
+              <p class="muted">${escape(w.reached)}: ${steps.length > 0 ? steps.join(" → ") : escape(w.opens)}</p>
+              ${narrow !== wide ? picture(narrow, "narrow") : ""}
+            </div>
+            ${picture(wide, "wide")}
+          </article>`;
+        })
+        .join("");
+      return `<div class="screen"><h3><code>${escape(screen.path)}</code></h3>${states}</div>`;
+    })
+    .join("");
+  const kinds = facts.kinds
+    .map(
+      (kind) =>
+        `<p class="kind"><span>${escape(w.kind)}</span> <b>${escape(kind.name)}</b> · <span>${escape(w.task)}</span> ${escape(kind.task)}</p>`,
+    )
+    .join("");
+  const none = drawn?.images ? "" : `<p class="note">${escape(w.noPictures)}</p>`;
+  return sheet(
+    3,
+    w.statesTitle,
+    w.statesQuestion,
+    `${w.statesLede} ${widths.map((width) => `${width} px`).join(", ")}.`,
+    `${kinds}${none}${screens}`,
+  );
+}
+
+function closing(w, audience) {
+  const commands =
+    audience === "builder"
+      ? `<h3>${escape(w.commands)}</h3><ul class="plain mono"><li>make check</li><li>make design-assembly</li><li>make design-audit</li></ul>`
+      : "";
+  return sheet(
+    4,
+    w.closeTitle,
+    w.closeTitle,
+    w.closeLede,
+    `<div class="two"><div><ul class="plain">${w.notShown.map((line) => `<li>${escape(line)}</li>`).join("")}</ul></div>
+     <div><h3>${escape(w.staysTrue)}</h3><p>${escape(w.staysTrueText)}</p>${commands}</div></div>`,
+  );
+}
+
+// The book as one page that needs nothing else: its pictures are inside it.
+export function renderBook(facts, { audience = "client", words = {}, drawn = null } = {}) {
+  const w = { ...WORDS, ...words, tierStates: { ...WORDS.tierStates, ...words.tierStates } };
+  const color = (name, mode = "light") =>
+    facts.colors.find((item) => item.name === name)?.[mode] ?? null;
+  const radius = facts.radius.find((step) => step.step === "lg")?.size ?? "0.5rem";
+  const size = (step, fallback) => facts.type.find((item) => item.step === step)?.size ?? fallback;
+  // The facts never hold a picture: they are what a later check compares against the repository.
+  const manifest = JSON.stringify(facts).replaceAll("<", "\\u003c");
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>${escape(w.title)} · ${escape(facts.name)}</title>
+<style>
+  :root {
+    --bg: ${color("background") ?? "#fff"}; --fg: ${color("foreground") ?? "#111"};
+    --muted: ${color("muted-foreground") ?? "#666"}; --surface: ${color("muted") ?? "#f4f4f5"};
+    --line: ${color("border") ?? "#e4e4e7"}; --accent: ${color("primary") ?? "#111"};
+    --on-accent: ${color("primary-foreground") ?? "#fff"}; --radius: ${radius};
+    --xs: ${size("xs", "0.75rem")}; --sm: ${size("sm", "0.875rem")}; --base: ${size("base", "1rem")};
+    --lg: ${size("lg", "1.125rem")}; --xl: ${size("xl", "1.25rem")}; --h2: ${size("3xl", "1.875rem")};
+    --h1: ${size("5xl", "3rem")};
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: var(--sm)/1.55 ${facts.font ?? "system-ui, sans-serif"}; -webkit-font-smoothing: antialiased; }
+  .book { max-width: 1240px; margin: 0 auto; padding: 0 56px 96px; }
+  .sheet { padding: 72px 0 56px; border-top: 1px solid var(--line); break-inside: avoid-page; }
+  .sheet.cover { border-top: 0; padding-top: 96px; }
+  .eyebrow { margin: 0 0 12px; font-size: var(--xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+  .eyebrow span { color: var(--accent); margin-right: 12px; font-variant-numeric: tabular-nums; }
+  h1 { margin: 0; font-size: var(--h1); line-height: 1.05; letter-spacing: -0.02em; font-weight: 650; }
+  h2 { margin: 0; font-size: var(--h2); line-height: 1.15; letter-spacing: -0.01em; font-weight: 620; max-width: 24ch; }
+  h3 { margin: 40px 0 12px; font-size: var(--xs); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  h4 { margin: 20px 0 8px; font-size: var(--xs); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
+  .lede { margin: 16px 0 0; max-width: 62ch; font-size: var(--lg); line-height: 1.5; color: var(--muted); }
+  .muted { color: var(--muted); margin: 8px 0 0; }
+  code, .mono { font: 0.92em ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .plain { margin: 0; padding: 0; list-style: none; }
+  .plain li { padding: 10px 0; border-top: 1px solid var(--line); max-width: 62ch; }
+  .two, .cover-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 72px; }
+  .cover-grid { margin-top: 56px; }
+  .two { margin-top: 48px; }
+  .cover-grid h3:first-child, .two h3:first-child { margin-top: 0; }
+  .big { margin: 0; display: flex; align-items: baseline; gap: 12px; line-height: 1; }
+  .big b { font-size: 112px; font-weight: 650; letter-spacing: -0.04em; }
+  .big span { font-size: var(--h2); color: var(--muted); }
+  .bar { display: flex; gap: 3px; height: 14px; margin: 28px 0 20px; }
+  .seg, .key { background: var(--accent); border-radius: 2px; }
+  .seg.claimed, .key.claimed { background: color-mix(in oklab, var(--accent) 45%, var(--bg)); }
+  .seg.recorded, .key.recorded { background: var(--fg); }
+  .seg.unconfirmed, .key.unconfirmed { background: repeating-linear-gradient(135deg, var(--fg) 0 2px, transparent 2px 5px); outline: 1px solid var(--fg); outline-offset: -1px; }
+  .seg.open { background: transparent; outline: 1px dashed var(--muted); outline-offset: -1px; }
+  .key { display: inline-block; width: 10px; height: 10px; margin-right: 8px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .stat b { display: block; font-size: var(--h2); font-weight: 620; line-height: 1.1; }
+  .stat span { color: var(--muted); font-size: var(--xs); }
+  .note { margin: 20px 0 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); }
+  .tiers { margin: 0; padding: 0; list-style: none; counter-reset: tier; }
+  .tiers li { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); counter-increment: tier; }
+  .tiers li span::before { content: counter(tier); display: inline-block; width: 24px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .tiers em { font-style: normal; color: var(--muted); text-align: right; }
+  .tiers li.reached em { color: var(--accent); font-weight: 600; }
+  .source { display: flex; gap: 16px; align-items: flex-start; margin-top: 40px; }
+  .source p { margin: 6px 0 0; color: var(--muted); }
+  .chip { display: inline-block; width: 56px; height: 56px; border-radius: var(--radius); flex: none; }
+  .chip.small { width: 12px; height: 12px; border-radius: 3px; margin-right: 8px; vertical-align: -1px; }
+  .grounds { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 32px; }
+  .ground { padding: 24px; border: 1px solid; border-radius: calc(var(--radius) * 1.4); }
+  .tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .tile { display: flex; flex-direction: column; gap: 2px; min-height: 112px; padding: 12px; border: 1px solid; border-radius: var(--radius); }
+  .tile b { font-size: var(--xl); font-weight: 600; margin-bottom: auto; }
+  .tile span, .tile code { font-size: var(--xs); }
+  .tile code { opacity: 0.75; }
+  .ratio { font-variant-numeric: tabular-nums; opacity: 0.85; }
+  .ratio.below { opacity: 1; font-weight: 700; text-decoration: underline wavy; }
+  .texts { margin: 0; padding: 0; list-style: none; }
+  .texts li { display: flex; justify-content: space-between; gap: 16px; padding: 6px 0; font-size: var(--xs); }
+  .texts b { font-size: var(--sm); }
+  .lines { display: flex; gap: 10px; flex-wrap: wrap; }
+  .line { padding: 8px 14px; border: 2px solid; border-radius: var(--radius); font-size: var(--xs); }
+  .palette { display: flex; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); }
+  .palette span { flex: 1; height: 64px; position: relative; }
+  .palette em { position: absolute; left: 6px; bottom: 4px; font: 10px ui-monospace, monospace; font-style: normal; color: #fff; mix-blend-mode: difference; }
+  .others { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: var(--xs); color: var(--muted); }
+  .others i { display: inline-block; width: 12px; height: 12px; border: 1px solid var(--line); margin-right: 3px; vertical-align: -2px; }
+  .type { margin: 0; padding: 0; list-style: none; }
+  .type li { display: grid; grid-template-columns: 120px 1fr; gap: 16px; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--line); }
+  .type .meta { font-size: var(--xs); color: var(--muted); }
+  .type .meta em { display: block; font-style: normal; font-variant-numeric: tabular-nums; }
+  .type .specimen { white-space: nowrap; overflow: hidden; text-overflow: clip; font-weight: 500; }
+  .radii { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .radii i { display: block; height: 72px; border: 1.5px solid var(--fg); border-right-color: transparent; border-bottom-color: transparent; background: var(--surface); }
+  .radii b, .spacing b { display: block; margin-top: 8px; font-size: var(--xs); }
+  .radii em, .spacing em, .target em { font-style: normal; font-size: var(--xs); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .spacing { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
+  .spacing i { display: block; height: 28px; background: var(--accent); border-radius: 2px; }
+  .target { display: flex; align-items: center; gap: 12px; }
+  .target i { display: block; border: 1.5px solid var(--fg); border-radius: 4px; }
+  .kind { margin: 32px 0 0; font-size: var(--base); max-width: 70ch; }
+  .kind span { font-size: var(--xs); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .screen > h3 { margin-top: 48px; }
+  .state { display: grid; grid-template-columns: 248px 1fr; gap: 32px; padding: 28px 0; border-top: 1px solid var(--line); break-inside: avoid; }
+  .state h4 { margin: 0; font: 600 var(--base) ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: 0; text-transform: none; }
+  figure { margin: 0; }
+  figure img { display: block; width: 100%; border: 1px solid var(--line); border-radius: var(--radius); }
+  figure.narrow { margin-top: 16px; width: 200px; }
+  figcaption { margin-top: 6px; font-size: var(--xs); color: var(--muted); font-variant-numeric: tabular-nums; }
+  @media print { .book { padding: 0 24px; } .sheet { padding: 40px 0; } }
+</style>
+</head>
+<body>
+<main class="book">
+${cover(facts, w)}
+${colorSheet(facts, w, audience)}
+${typeSheet(facts, w, audience)}
+${statesSheet(facts, w, audience, drawn)}
+${closing(w, audience)}
+</main>
+<script type="application/json" id="${FACTS_ID}">${manifest}</script>
+</body>
+</html>
+`;
+}
+
+// The facts a book was drawn from, read back out of it.
+export function factsOf(html) {
+  const found = new RegExp(
+    `<script type="application/json" id="${FACTS_ID}">([\\s\\S]*?)</script>`,
+  ).exec(html ?? "");
+  if (!found) return null;
+  try {
+    return JSON.parse(found[1]);
+  } catch {
+    return null;
+  }
+}
+
+// What a book says that the repository no longer does, by the part of the facts that differs.
+export function staleParts(html, facts) {
+  const then = factsOf(html);
+  if (then === null) return ["the book holds no list of what it shows"];
+  return [...new Set([...Object.keys(then), ...Object.keys(facts)])]
+    .filter((key) => JSON.stringify(then[key]) !== JSON.stringify(facts[key]))
+    .sort();
+}
+
+// Draws every state of every screen at the narrowest and the widest of the widths, the way a
+// person reaches it. Returns the pictures as data, and how each state was reached.
+async function drawStates(target, facts) {
+  const stage = await openStage(target);
+  if (stage.problem) return { problem: stage.problem };
+  const images = {};
+  const how = {};
+  try {
+    const { SCREENS } = await stage.load(`/${REGISTRY}`);
+    const widths = facts.widths.length > 0 ? facts.widths : [1440];
+    const shown = [...new Set([Math.min(...widths), Math.max(...widths)])];
+    for (const width of shown) {
+      const context = await stage.browser.newContext({
+        // Short windows: a state is told by what is at the top of the screen, and a tall picture
+        // of empty space pushes the next state off the page.
+        viewport: { width, height: width < 600 ? 560 : 540 },
+        deviceScaleFactor: width < 600 ? 2 : 1.5,
+        reducedMotion: "reduce",
+      });
+      for (const screen of SCREENS ?? []) {
+        for (const state of screen.states) {
+          const page = await context.newPage();
+          const steps = state.steps ?? [];
+          how[`${screen.path}|${state.name}`] = { scenario: state.scenario ?? null, steps };
+          const url = state.scenario ? `${screen.path}?scenario=${state.scenario}` : screen.path;
+          await page.goto(`${stage.origin}${url}`, { waitUntil: "networkidle" });
+          for (const step of steps) {
+            if ("press" in step) {
+              await page.getByRole("button", { name: step.press, exact: true }).click();
+            } else await page.getByLabel(step.fill, { exact: true }).fill(step.text);
+          }
+          // The state is on the page once its own text is.
+          await page.getByText(state.shows, { exact: false }).first().waitFor({ timeout: 8000 });
+          await page.waitForTimeout(350);
+          const picture = await page.screenshot();
+          images[`${screen.path}|${state.name}|${width}`] =
+            `data:image/png;base64,${picture.toString("base64")}`;
+          await page.close();
+        }
+      }
+      await context.close();
+    }
+  } catch (error) {
+    return { problem: `drawing stopped: ${error.message.split("\n")[0]}` };
+  } finally {
+    await stage.close();
+  }
+  return { images, how };
+}
+
+// The same book as a file to print, or as one picture per sheet for slides.
+async function exportBook(target, file, format, out) {
+  const stage = await openStage(target);
+  if (stage.problem) return stage.problem;
+  try {
+    const context = await stage.browser.newContext({
+      viewport: { width: 1440, height: 900 },
+      deviceScaleFactor: 2,
+    });
+    const page = await context.newPage();
+    await page.goto(pathToFileURL(file).href);
+    if (format === "pdf") {
+      await page.pdf({
+        path: path.join(target, out, "book.pdf"),
+        printBackground: true,
+        width: "1440px",
+        height: "1018px",
+      });
+    } else {
+      const sheets = page.locator(".sheet");
+      for (let i = 0; i < (await sheets.count()); i += 1) {
+        await sheets
+          .nth(i)
+          .screenshot({ path: path.join(target, out, `sheet-${String(i).padStart(2, "0")}.png`) });
+      }
+    }
+  } catch (error) {
+    return `the ${format} could not be written: ${error.message.split("\n")[0]}`;
+  } finally {
+    await stage.close();
+  }
+  return null;
+}
+
+async function main() {
+  const args = argv.slice(2);
+  const value = (flag) => (args.includes(flag) ? args[args.indexOf(flag) + 1] : undefined);
+  if (!value("--target")) {
+    stderr.write(
+      "usage: node book.mjs --target DIR [--audience client|builder] [--format html|pdf|png] [--words FILE] [--out DIR] [--facts] [--words-template]\n       node book.mjs --target DIR --check BOOK.html\n",
+    );
+    exit(2);
+  }
+  const target = path.resolve(value("--target"));
+  const facts = collectFacts(target);
+  if (args.includes("--facts")) {
+    stdout.write(`${JSON.stringify(facts, null, 2)}\n`);
+    return;
+  }
+  if (args.includes("--words-template")) {
+    stdout.write(`${JSON.stringify(WORDS, null, 2)}\n`);
+    return;
+  }
+  const checked = value("--check");
+  if (checked) {
+    const file = path.resolve(checked);
+    if (!existsSync(file)) {
+      stderr.write(`design-assembly: ${checked} is not there\n`);
+      exit(2);
+    }
+    const stale = staleParts(readFileSync(file, "utf8"), facts);
+    if (stale.length === 0) {
+      stdout.write("the book says what the repository says\n");
+      return;
+    }
+    stderr.write(
+      `design-assembly: the book no longer says what the repository says (${stale.join(", ")}): draw it again\n`,
+    );
+    exit(1);
+  }
+  const audience = value("--audience") ?? "client";
+  const format = value("--format") ?? "html";
+  if (!["client", "builder"].includes(audience) || !["html", "pdf", "png"].includes(format)) {
+    stderr.write(
+      "design-assembly: --audience is client or builder; --format is html, pdf or png\n",
+    );
+    exit(2);
+  }
+  const wordsFile = value("--words") ?? path.join(target, WORDS_FILE);
+  const words = existsSync(wordsFile) ? JSON.parse(readFileSync(wordsFile, "utf8")) : {};
+  const drawn = await drawStates(target, facts);
+  if (drawn.problem)
+    stdout.write(`note: the states are listed without pictures: ${drawn.problem}\n`);
+  const out = value("--out") ?? OUT;
+  mkdirSync(path.join(target, out), { recursive: true });
+  const file = path.join(target, out, "book.html");
+  writeFileSync(file, renderBook(facts, { audience, words, drawn: drawn.problem ? null : drawn }));
+  stdout.write(`book: ${file}\n`);
+  stdout.write(
+    `for: ${audience}. ${facts.coverage.answered} of ${facts.coverage.core} core decisions answered; ${facts.unconfirmed.length} recorded and not confirmed; ${facts.open.length} open\n`,
+  );
+  for (const line of belowThreshold(facts)) stdout.write(`note: ${line}\n`);
+  if (format !== "html") {
+    const problem = await exportBook(target, file, format, out);
+    stdout.write(
+      problem ? `note: ${problem}\n` : `also written as ${format} in ${path.join(target, out)}\n`,
+    );
+  }
+}
+
+if (argv[1] && realpathSync(argv[1]) === realpathSync(fileURLToPath(import.meta.url))) await main();
