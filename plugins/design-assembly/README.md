@@ -23,6 +23,8 @@ scale, shape). Density, elevation, motion and iconography are not.
 - `scripts/apply.mjs` derives a tonal palette and the primary color roles from one source color,
   writes them into the repository's stylesheet, adds its rows to the ledger
   `design/decisions.yaml`, and installs the checks that hold them.
+- Both paths leave `design/tokens.json`: the design tokens, written from the stylesheet in the
+  format the acceptance kit reads, and held to the stylesheet by a check.
 
 What a repository ends up with is a standardised design system under its own `design/` folder,
 reached tier by tier. The ledger is a format already in use in one of the owner's product

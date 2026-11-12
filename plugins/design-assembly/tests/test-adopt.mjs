@@ -171,7 +171,7 @@ test("on the floor: rows for the proofs it has, checks around its values, nothin
   ]);
   const checked = check(dir);
   assert.equal(checked.status, 0, checked.stderr);
-  assert.match(checked.stdout, /5 decisions held by \d+ checks, each seen failing/);
+  assert.match(checked.stdout, /6 decisions held by \d+ checks, each seen failing/);
 
   const again = adopt(dir, "--conformance-level", "AA");
   assert.equal(again.status, 0, again.stderr);

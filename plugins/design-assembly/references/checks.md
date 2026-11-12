@@ -11,6 +11,7 @@ Read this when you build (step 6 of the guide) or explain a failing check.
 | `design/theme.json`                 | What this plugin's tool needs to check its decisions: the inputs and the checks per decision | `apply.mjs` and `adopt.mjs` only     |
 | `design/decisions/<layer>.md`       | A decision record per decided layer                                                          | `apply.mjs` only                     |
 | The marked block in `src/index.css` | The design tokens                                                                            | `apply.mjs` only                     |
+| `design/tokens.json`                | The design tokens, for tools that do not read CSS. Written from the stylesheet               | `make design-tokens` only            |
 | `tools/design-assembly/`            | The checks. They belong to the plugin: change them in the plugin and run the guide again     | Nobody, in the repository            |
 | `mk/design-assembly.mk`             | Adds `design-assembly` to `make check`, and `make design-rate`                               | Nobody, in the repository            |
 
@@ -48,6 +49,23 @@ A value reaches the ledger in one of two ways, and never both:
 The guide refuses to generate over an adopted value, or over a primary color role that has a hue
 of its own, unless it is run with `--replace`.
 
+## The design tokens file
+
+`design/tokens.json` (or the path the acceptance kit is told to read) holds the foundations values
+in the Design Tokens Community Group format: two levels, `group.name`, each token with a `$type`
+and a `$value`.
+
+- A token is a theme variable of the stylesheet: `color.primary` is `--color-primary`. A reader
+  that turns a token path into a variable name finds a variable that exists.
+- `$value` is the CSS text after every `var()` is followed. A value that differs in dark mode is
+  kept beside it, under `$extensions`.
+- Groups today: `color`, `radius`, `text`. Typefaces, the spacing unit, elevation and motion have
+  no token yet.
+- The file is derived. Change the stylesheet, then run `make design-tokens`. The `tokens` check
+  fails when the two disagree, whichever side moved.
+- A tokens file a person already keeps, and that says something else, is never written over: the
+  scripts say so and write none.
+
 ## How a value is read
 
 The tool reads the stylesheet the repository names (`design/theme.json`, else `components.json`,
@@ -69,6 +87,7 @@ passes: a check that cannot fail proves nothing.
 | `value`     | A variable resolves to the decided value, whatever is written after it  |
 | `absent`    | The stylesheet does not redeclare variables that the floor's scale owns |
 | `scale`     | Every step of the type scale is larger than the one before              |
+| `tokens`    | The design tokens file is exactly what the stylesheet gives             |
 | `gate`      | `make check` runs the tool in a way that can fail                       |
 
 The tool also checks that it and the ledger agree in both directions: every row that points at it

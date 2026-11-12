@@ -115,6 +115,13 @@
       "sources": ["design-assembly"]
     },
     {
+      "id": "design-tokens",
+      "layer": "foundations",
+      "kind": "formula",
+      "question": "Does the design tokens file say exactly what the stylesheet says?",
+      "sources": ["design-assembly"]
+    },
+    {
       "id": "type-scale",
       "layer": "foundations",
       "kind": "standard",

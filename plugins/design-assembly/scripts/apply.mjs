@@ -20,6 +20,13 @@ import { mergeLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs
 import { SPACING_UNIT_PX, TYPE_VARIABLES } from "../templates/tools/design-assembly/scale.mjs";
 import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
 import {
+  readTokens,
+  renderTokens,
+  TOKENS,
+  TOKENS_DECISION,
+  tokensProblem,
+} from "../templates/tools/design-assembly/tokens.mjs";
+import {
   applyBlock,
   buildTheme,
   readBlock,
@@ -167,6 +174,41 @@ export function ownValuesProblem(target) {
   return null;
 }
 
+// Where the design tokens file goes: the path the acceptance kit is told to read, else the default.
+export function tokensFile(target) {
+  const config = path.join(target, "_acceptance/config.yaml");
+  const text = existsSync(config) ? readFileSync(config, "utf8") : "";
+  return /^\s+tokens:\s*["']?([^"'#\n]+)/m.exec(text)?.[1].trim() ?? TOKENS;
+}
+
+// The design tokens file for a stylesheet, with its ledger row and its check; or why it is left
+// alone. A file this plugin did not write, and that says something else than the stylesheet, is a
+// person's file: it is never written over.
+export function tokensPlan(target, styles, stylesheet, alreadyHeld) {
+  const file = tokensFile(target);
+  const full = path.join(target, file);
+  const before = existsSync(full) ? readFileSync(full, "utf8") : null;
+  if (before !== null && !alreadyHeld && tokensProblem(before, styles, file, stylesheet)) {
+    return {
+      skipped: `${file} is already there and is not what ${stylesheet} gives. It is kept, and no design tokens file is written`,
+    };
+  }
+  const { tokens, unresolved } = readTokens(styles);
+  return {
+    file,
+    content: renderTokens(tokens),
+    unresolved,
+    row: {
+      id: TOKENS_DECISION,
+      layer: "foundations",
+      kind: "formula",
+      source: `${stylesheet}, written out by make design-tokens`,
+      check: TOOL,
+    },
+    checks: [{ kind: "tokens", file }],
+  };
+}
+
 // The tool and its gate step, as they are copied into a repository.
 export function vendored() {
   const files = {};
@@ -299,6 +341,14 @@ export function plan(target, blueprint) {
   const theme = buildTheme(foundations.inputs, css);
   const { rows, inputs, checks } = decisions(blueprint, theme, foundations);
   const files = { [FILES.css]: applyBlock(css, renderBlock(theme)) };
+  // The design tokens file is read from the stylesheet as it is about to be written.
+  const held = JSON.parse(read(FILES.theme) ?? "{}").checks?.[TOKENS_DECISION];
+  const tokens = tokensPlan(target, loadStyles(target, FILES.css, files), FILES.css, Boolean(held));
+  if (!tokens.skipped) {
+    rows.push(tokens.row);
+    checks[TOKENS_DECISION] = tokens.checks;
+    files[tokens.file] = tokens.content;
+  }
   // Everything generated here replaces what was adopted for the same decision; the stylesheet the
   // tool data names is kept.
   const before = JSON.parse(read(FILES.theme) ?? "{}");
@@ -316,7 +366,7 @@ export function plan(target, blueprint) {
     const values = layer.id === "foundations" ? foundations.choice : entry.choice;
     files[`design/decisions/${layer.id}.md`] = record(layer, entry, rows, values);
   }
-  return { files: { ...files, ...vendored() }, theme };
+  return { files: { ...files, ...vendored() }, theme, tokens };
 }
 
 // Writes the files that differ, or only says what it would do. One line per file.
@@ -450,7 +500,11 @@ function main() {
     );
     return;
   }
-  const { files } = plan(target, blueprint);
+  const { files, tokens } = plan(target, blueprint);
+  if (tokens.skipped) stdout.write(`note: ${tokens.skipped}.\n`);
+  for (const variable of tokens.unresolved ?? []) {
+    stdout.write(`note: ${variable} points nowhere, so it is not in the design tokens file.\n`);
+  }
   for (const line of writeFiles(target, files, dryRun)) stdout.write(`${line}\n`);
   if (dryRun) stdout.write("preview only: nothing was written\n");
 }

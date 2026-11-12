@@ -85,6 +85,12 @@
       {
         "kind": "gate"
       }
+    ],
+    "design-tokens": [
+      {
+        "kind": "tokens",
+        "file": "design/tokens.json"
+      }
     ]
   }
 }

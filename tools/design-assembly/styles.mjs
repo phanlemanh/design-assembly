@@ -21,11 +21,12 @@ export function findStylesheet(root) {
 }
 
 // `css` is the repository's own text in cascade order; `base` is the framework's theme, read only
-// when a value points into it. `files` lists what was read.
-export function loadStyles(root, entry) {
+// when a value points into it. `files` lists what was read. `instead` gives the text of files as
+// they are about to be written, for a caller that has not written them yet.
+export function loadStyles(root, entry, instead = {}) {
   const files = [];
   const inline = (file) => {
-    const text = read(root, file);
+    const text = instead[file] ?? read(root, file);
     if (text === null || files.includes(file)) return "";
     files.push(file);
     return text.replace(/^@import\s+["'](\.{1,2}\/[^"']+)["'];?[ \t]*$/gm, (_, relative) =>
@@ -37,17 +38,50 @@ export function loadStyles(root, entry) {
 
 // The selectors a repository may write its dark mode under, most common first.
 export const DARK_SCOPES = [".dark", ":root.dark", "html.dark"];
+const MODE_MARKERS = ["--background", "--foreground", "--primary", "--primary-foreground"];
 
 // A variable the repository's own text declares for a selector, or null: no fallback to the root.
 export function ownValue(styles, scope, name) {
   return readVariable(styles.css, scope, name);
 }
 
+// The selector the repository writes its dark mode under, or null when it has none.
+export function darkScope(styles) {
+  return (
+    DARK_SCOPES.find((scope) => MODE_MARKERS.some((name) => ownValue(styles, scope, name))) ?? null
+  );
+}
+
+// Every declaration inside the repository's own @theme blocks, in the order written.
+export function themeDeclarations(styles) {
+  const found = [];
+  for (const block of styles.css.matchAll(/(?:^|\n)@theme[^{]*\{([^}]*)\}/g)) {
+    for (const line of block[1].matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) {
+      found.push({ name: line[1], value: line[2].trim() });
+    }
+  }
+  return found;
+}
+
+// What a variable is declared as for a selector: its own block, the root, the repository's theme,
+// then the framework's.
 function declared(styles, scope, name) {
   const own = readVariable(styles.css, scope, name) ?? readVariable(styles.css, ":root", name);
   if (own !== null) return own;
+  const themed = themeDeclarations(styles).findLast((item) => item.name === name);
+  if (themed) return themed.value;
   const pattern = new RegExp(`(?:^|[\\s;{])${name}\\s*:\\s*([^;]+);`, "g");
   return [...(styles.base ?? "").matchAll(pattern)].pop()?.[1].trim() ?? null;
+}
+
+// A value with every var() replaced by what it points at, for a selector. A pointer that leads
+// nowhere is left as written, so the caller can see that the value is not fully known.
+export function expand(styles, scope, text, depth = 0) {
+  if (depth > 8) return text;
+  return text.replace(/var\(\s*(--[\w-]+)\s*\)/g, (whole, name) => {
+    const value = declared(styles, scope, name);
+    return value === null ? whole : expand(styles, scope, value, depth + 1);
+  });
 }
 
 // A variable as the cascade resolves it for a selector. `value` is what is written; `color` is
@@ -55,12 +89,5 @@ function declared(styles, scope, name) {
 export function resolve(styles, scope, name) {
   const value = declared(styles, scope, name);
   if (value === null) return null;
-  let current = value;
-  for (let depth = 0; depth < 8; depth += 1) {
-    const pointer = /^var\(\s*(--[\w-]+)\s*\)$/.exec(current);
-    if (!pointer) break;
-    current = declared(styles, scope, pointer[1]);
-    if (current === null) return { value, color: null };
-  }
-  return { value, color: parseColor(current) };
+  return { value, color: parseColor(expand(styles, scope, value)) };
 }

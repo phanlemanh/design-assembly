@@ -102,6 +102,13 @@ Kho đã có thì lệnh adopt để nguyên giá trị, thêm dòng sổ cho b�
 kiểm quanh giá trị đang có, chỉ khi lệnh kiểm đó đang xanh và đỏ được. Cuộc dẫn dắt từ chối ghi đè
 giá trị riêng của kho trừ khi người bảo thay. Sau khi adopt, kho này đáp 17/38 quyết định lõi.
 
+### Tệp design tokens (quyết định 0008, 2026-11-12)
+
+Vật của bậc foundations là `design/tokens.json`, sinh từ stylesheet theo định dạng kit nghiệm thu
+đọc. Stylesheet là nơi đổi giá trị; tệp được ghi lại bằng `make design-tokens`, và một lệnh kiểm
+làm cổng đỏ khi hai bên lệch nhau. Kho này có 47 token và đáp 18/38 quyết định lõi; bậc foundations
+ở mức «tự khai».
+
 ### Vì sao cần plugin này
 
 Bản trước ghi giả thuyết «giảm token», neo vào lần đo ba của Repo Standards (token gấp 1,43 lần).

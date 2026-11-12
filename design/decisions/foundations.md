@@ -26,3 +26,4 @@ Kho này chưa có nhận diện. Máy đề xuất một màu lam để referen
 - `type-scale-values`: standard, checked by this plugin's tool
 - `spacing-values`: standard, checked by this plugin's tool
 - `radius-value`: closed, checked by this plugin's tool
+- `design-tokens`: formula, checked by this plugin's tool

@@ -10,6 +10,13 @@
       "needs": ["shadcn/no-raw-colors"]
     },
     {
+      "id": "color-palette",
+      "kind": "standard",
+      "source": "no palette colour in source: neutral and status colours are color roles of the stylesheet",
+      "check": "eslint:shadcn/no-raw-colors",
+      "needs": ["shadcn/no-raw-colors"]
+    },
+    {
       "id": "type-scale",
       "kind": "standard",
       "source": "the framework's type scale",

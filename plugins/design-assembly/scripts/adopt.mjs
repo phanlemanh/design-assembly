@@ -26,7 +26,8 @@ import {
   resolve,
 } from "../templates/tools/design-assembly/styles.mjs";
 import { THRESHOLDS, withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
-import { gateProblem, vendored, writeFiles } from "./apply.mjs";
+import { TOKENS_DECISION } from "../templates/tools/design-assembly/tokens.mjs";
+import { gateProblem, tokensPlan, vendored, writeFiles } from "./apply.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const reference = (name) =>
@@ -241,6 +242,21 @@ export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
     const { candidates, failing, unreadable } = valueCandidates(styles, level, open);
     result.failing.push(...failing);
     result.unreadable.push(...unreadable);
+    // The design tokens file is new to the repository, so writing it changes nothing it has. One
+    // that is already there and says something else is a person's file, and is kept.
+    const tokens = open(TOKENS_DECISION)
+      ? tokensPlan(root, styles, result.stylesheet, false)
+      : { skipped: null };
+    if (tokens.skipped) result.unclaimed.push({ id: TOKENS_DECISION, why: tokens.skipped });
+    else if (tokens.file) {
+      candidates[TOKENS_DECISION] = {
+        row: { kind: tokens.row.kind, source: tokens.row.source },
+        checks: tokens.checks,
+      };
+      for (const variable of tokens.unresolved) {
+        result.unreadable.push({ id: TOKENS_DECISION, why: `${variable} points nowhere` });
+      }
+    }
     const gate = gateProblem(root);
     const ids = Object.keys(candidates);
     if (gate && ids.length > 0) {
@@ -262,6 +278,7 @@ export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
         stylesheet: result.stylesheet,
         ...styles,
         gate: vendored()[FILES.gate],
+        files: tokens.file ? { [tokens.file]: tokens.content } : {},
         theme: {
           checks: Object.fromEntries(
             Object.entries(candidates).map(([id, candidate]) => [id, candidate.checks]),
@@ -272,6 +289,7 @@ export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
         if (outcome.held) {
           checks[outcome.id] = candidates[outcome.id].checks;
           add(outcome.id, { ...candidates[outcome.id].row, check: TOOL }, "held");
+          if (outcome.id === TOKENS_DECISION) result.files[tokens.file] = tokens.content;
         } else {
           result.unreadable.push({
             id: outcome.id,

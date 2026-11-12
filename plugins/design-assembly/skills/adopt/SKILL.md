@@ -47,8 +47,12 @@ reason to lower the level: report it.
 ## 4. Write
 
 Run the same command without `--dry-run`, with the flags the person gave. It adds rows to
-`design/decisions.yaml`, and, when it holds any value, `design/theme.json`,
-`tools/design-assembly/` and `mk/design-assembly.mk`. Then run the repository's gate.
+`design/decisions.yaml`, and, when it holds any value, `design/theme.json`, the design tokens file
+(`design/tokens.json`, written from the stylesheet), `tools/design-assembly/` and
+`mk/design-assembly.mk`. Then run the repository's gate.
+
+From then on a change to a value in the stylesheet is followed by `make design-tokens`; the gate
+fails until the file is written again.
 
 Running it again adds only what is new. A row already in the ledger is never rewritten.
 

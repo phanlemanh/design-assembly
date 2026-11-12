@@ -20,6 +20,7 @@ import {
 import { toPx, toRatio, TYPE_STEPS } from "./scale.mjs";
 import { DEFAULT_STYLESHEET, findStylesheet, loadStyles, resolve } from "./styles.mjs";
 import { buildTheme, readBlock, renderBlock, withoutBlock } from "./theme.mjs";
+import { tokensProblem } from "./tokens.mjs";
 
 export const FILES = {
   // What this tool needs to check its decisions: the stylesheet it reads, the inputs the decisions
@@ -123,6 +124,16 @@ const KINDS = {
       return { ...state, css: `${state.css}\n:root {\n  --text-lg: ${base};\n}\n` };
     },
   },
+  // The design tokens file says what the stylesheet says: it was written from it, not by hand.
+  tokens: {
+    run(state, check) {
+      return tokensProblem(state.files?.[check.file], state, check.file, state.stylesheet);
+    },
+    // A new theme variable is a new token: the file on disk no longer matches.
+    change(state) {
+      return { ...state, css: `${state.css}\n@theme inline {\n  --color-changed-copy: #000;\n}\n` };
+    },
+  },
   gate: {
     run(state) {
       if (state.gate === null) return `${FILES.gate} is missing, so make check does not run this`;
@@ -149,6 +160,11 @@ export function readState(root) {
   const ledger = read(FILES.ledger);
   const data = theme === null ? null : JSON.parse(theme);
   const stylesheet = data?.stylesheet ?? findStylesheet(root) ?? DEFAULT_STYLESHEET;
+  // Other files a check names, as they are on disk.
+  const named = Object.values(data?.checks ?? {})
+    .flat()
+    .filter((check) => check.file)
+    .map((check) => [check.file, read(check.file)]);
   return {
     root,
     theme: data,
@@ -157,6 +173,7 @@ export function readState(root) {
     // `css` is the repository's own text with its relative imports put in place; `base` is the
     // framework's theme, read only when a value points into it.
     ...loadStyles(root, stylesheet),
+    files: Object.fromEntries(named),
     gate: read(FILES.gate),
   };
 }

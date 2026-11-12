@@ -107,3 +107,13 @@ decisions:
     kind: closed
     source: "design/terms.json"
     check: "tool:tools/design_guards.mjs"
+  - id: design-tokens
+    layer: foundations
+    kind: formula
+    source: "src/index.css, written out by make design-tokens"
+    check: "tool:tools/design-assembly/check.mjs"
+  - id: color-palette
+    layer: foundations
+    kind: standard
+    source: "no palette colour in source: neutral and status colours are color roles of the stylesheet"
+    check: "eslint:shadcn/no-raw-colors"

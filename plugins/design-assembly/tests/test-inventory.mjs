@@ -211,9 +211,21 @@ test("a tier is reached only with every core decision answered and its artifact 
       `  - id: ${id}\n    layer: foundations\n    kind: standard\n    source: "team"\n    check: "eslint:x/${"abcde"[index]}"\n`,
   );
   put(dir, "design/decisions.yaml", `${text(dir, "design/decisions.yaml")}${rows.join("")}`);
+  // The guide wrote the design tokens file, so nothing is missing. Five decisions rest on lint
+  // rules the audit did not run: claimed, not reached.
   const answered = tier(inventory(dir), "foundations");
   assert.deepEqual(
-    answered.needs.filter((need) => !need.ok).map((need) => need.what),
+    answered.needs.filter((need) => !need.ok),
+    [],
+  );
+  assert.equal(answered.state, "claimed");
+
+  // The artifact is part of the tier: without the file the tier is not reached.
+  rmSync(path.join(dir, "design/tokens.json"));
+  assert.deepEqual(
+    tier(inventory(dir), "foundations")
+      .needs.filter((need) => !need.ok)
+      .map((need) => need.what),
     ["design/tokens.json"],
   );
 
@@ -225,7 +237,6 @@ test("a tier is reached only with every core decision answered and its artifact 
     ["design/brand.tokens.json"],
   );
   put(dir, "design/brand.tokens.json", "{}\n");
-  // Complete, but five decisions rest on lint rules the audit did not run: claimed, not reached.
   assert.equal(tier(inventory(dir), "foundations").state, "claimed");
   assert.equal(tier(inventory(dir), "core-components").state, "missing");
 });
