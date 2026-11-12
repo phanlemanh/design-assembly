@@ -46,17 +46,16 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 - `make check` xanh: lint, typecheck, 68 bài kiểm của kho, ontology, lệnh kiểm design-assembly
   (22 quyết định, 27 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 195 bài kiểm của plugin.
 - Kho này đáp **37/38 quyết định lõi**: 14 máy giữ, 17 tự khai, 6 đã ghi. Sổ có 47 dòng. Ngày 2026-11-12 chủ kho
-  xác nhận loại sản phẩm, mức accessibility và màu gốc; ba câu «đã ghi» của kiểu màn danh sách
-  vẫn là máy đề xuất, audit nêu tên chúng.
+  xác nhận cả sáu câu «đã ghi»; riêng lời văn thì chủ kho xác nhận cách viết, chưa đọc từng chữ.
 
-| Bậc                           | Trạng thái       | Còn thiếu                                                  |
-| ----------------------------- | ---------------- | ---------------------------------------------------------- |
-| audit                         | đạt              |                                                            |
-| foundations                   | 9/9, «tự khai»   | lên «đạt» khi các luật lint của sàn được chạy lại          |
-| core components               | 10/10, «tự khai» | như trên                                                   |
-| trạng thái của màn và lời văn | 7/8              | mở hồ sơ cạnh danh sách: chưa có màn nào cần               |
-| templates                     | 8/8              | ba câu «đã ghi» chờ chủ kho xác nhận; ba câu mới «tự khai» |
-| governance                    | 3/3              | sổ lỗi lọt không ai buộc được người ghi; xem 0018          |
+| Bậc                           | Trạng thái       | Còn thiếu                                                 |
+| ----------------------------- | ---------------- | --------------------------------------------------------- |
+| audit                         | đạt              |                                                           |
+| foundations                   | 9/9, «tự khai»   | lên «đạt» khi các luật lint của sàn được chạy lại         |
+| core components               | 10/10, «tự khai» | như trên                                                  |
+| trạng thái của màn và lời văn | 7/8              | mở hồ sơ cạnh danh sách: chưa có màn nào cần              |
+| templates                     | 8/8              | ba câu «đã ghi» chủ kho đã xác nhận; ba câu mới «tự khai» |
+| governance                    | 3/3              | sổ lỗi lọt không ai buộc được người ghi; xem 0018         |
 
 ## Đã dựng gì, theo thứ tự
 
@@ -109,8 +108,6 @@ việc nào được duyệt:
   `coverage/design-book/book.html`): lát 0020 chỉ nghiệm thu được bằng lượt đó.
 - **Chủ kho đã đi hết bảng mẫu của foundations** ngày 2026-11-12 và giữ cả ba giá trị đang dùng
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
-- **Chủ kho đọc trang kiểu màn** `design/patterns/danh-sach.md` rồi xác nhận hoặc sửa. Ba dòng sổ
-  (việc chính, thứ tự thông tin, lời văn) đang ghi «chưa ai xác nhận».
 - **Lần chạy thử bốn đã xong** (2026-11-12, kết quả ở cuối spec 0001). Điều sai rõ đã sửa, và
   bốn chỗ nó để ngỏ đã thành luật (quyết định 0017). Cả hai đợt sửa chưa được thử lại.
 - **Khung điều hướng** chưa dựng: luật có rồi, chờ màn thứ hai.

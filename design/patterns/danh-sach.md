@@ -16,7 +16,7 @@ nhan_viec: Tìm một mục trong danh sách, rồi thêm mục mới hoặc xo�
 
 Kiểu màn danh sách. Phần đầu trang do bộ đọc của kit nghiệm thu và lệnh kiểm của kho cùng đọc
 (`make design-assembly`); phần dưới là lời cho người và tác tử dựng màn. Nội dung trang này do máy
-đề xuất ngày 2026-11-12, chủ kho chưa xác nhận.
+đề xuất và chủ kho xác nhận ngày 2026-11-12.
 
 ## Việc chính
 

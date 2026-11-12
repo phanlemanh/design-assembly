@@ -202,7 +202,6 @@ decisions:
     layer: context
     kind: judgment
     source: "design/patterns, the main task each page names"
-    note: "written for 1 kind(s) of screen; a person has not confirmed it"
   - id: one-main-one-h1
     layer: templates
     kind: standard
@@ -227,12 +226,11 @@ decisions:
     layer: context
     kind: judgment
     source: "design/patterns, the order each page gives its parts in"
-    note: "written for 1 kind(s) of screen; a person has not confirmed it"
   - id: copy-content
     layer: context
     kind: judgment
     source: "src/lib/labels.ts, the one place for every word a screen shows"
-    note: "the words are in one place, and each kind's page says how they are written; a person has not reviewed what they say"
+    note: "the owner confirmed on 2026-11-12 how the words are written, as the page of the kind says; the words themselves were not read one by one"
   - id: focus-after-action
     layer: patterns
     kind: standard
