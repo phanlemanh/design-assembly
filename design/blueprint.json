@@ -1,7 +1,7 @@
 {
   "version": 1,
   "status": "approved",
-  "approval_note": "Máy đi trước: các giá trị đề xuất được áp vào reference implementation ngày 2026-11-11, trước khi chủ kho xem. Ngày 2026-11-12 chủ kho xác nhận màu gốc #0246ff sau khi xem bảng mẫu; thang chữ, bo góc, loại sản phẩm và mức accessibility vẫn là máy đề xuất.",
+  "approval_note": "Máy đi trước: các giá trị đề xuất được áp vào reference implementation ngày 2026-11-11, trước khi chủ kho xem. Ngày 2026-11-12 chủ kho xem bảng mẫu và xác nhận màu gốc #0246ff và thang chữ chuẩn; bo góc, loại sản phẩm và mức accessibility vẫn là máy đề xuất.",
   "depth": "hand",
   "conversation_language": "vi",
   "layers": {
@@ -44,7 +44,7 @@
           "why": "Đã thử trên trình duyệt ngày 2026-11-11: text-xs xuống 10px, và nút của bộ linh kiện sàn vẫn giữ cỡ chữ riêng nên thang không đồng nhất."
         }
       ],
-      "confirmed": ["source_color"]
+      "confirmed": ["source_color", "type_scale"]
     },
     "components": {
       "status": "planned"
