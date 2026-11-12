@@ -46,15 +46,15 @@ một dòng.
 Từ quyết định 0006 (2026-11-12) chỉ còn một danh sách tầng, dùng chung cho cuộc dẫn dắt, sổ quyết
 định và bản audit. Một quyết định thuộc tầng của vật mà nó ràng buộc.
 
-| Tầng        | Vật nó ràng buộc                                        | Ai trả lời                                   | Đã dựng |
-| ----------- | ------------------------------------------------------- | -------------------------------------------- | ------- |
-| Context     | Không vật nào: phán đoán về sản phẩm và từng màn        | Người                                        | Có      |
-| Foundations | Giá trị trong stylesheet: màu, chữ, khoảng cách, bo góc | Người chọn theme; máy tính các design tokens | Có      |
-| Components  | Một linh kiện                                           | Máy đề xuất, người có quyền bác              | Chưa    |
-| Patterns    | Hành vi theo thời gian: state, lưu, xoá, báo            | Máy, theo chuẩn có sẵn                       | Chưa    |
-| Content     | Lời và định dạng                                        | Người                                        | Chưa    |
-| Templates   | Cấu trúc của một trang                                  | Người chọn trong danh sách đóng              | Chưa    |
-| Governance  | Luật về chính hệ: ngoại lệ, chiều phụ thuộc, cổng kiểm  | Máy đặt sổ; người ghi lý do khi dùng         | Chưa    |
+| Tầng        | Vật nó ràng buộc                                        | Ai trả lời                                   | Đã dựng                           |
+| ----------- | ------------------------------------------------------- | -------------------------------------------- | --------------------------------- |
+| Context     | Không vật nào: phán đoán về sản phẩm và từng màn        | Người                                        | Có                                |
+| Foundations | Giá trị trong stylesheet: màu, chữ, khoảng cách, bo góc | Người chọn theme; máy tính các design tokens | Có                                |
+| Components  | Một linh kiện                                           | Máy đề xuất, người có quyền bác              | Có (0009, 0011, 0012)             |
+| Patterns    | Hành vi theo thời gian: state, lưu, xoá, báo            | Máy, theo chuẩn có sẵn                       | Có (0013, 0014, 0016, 0017, 0021) |
+| Content     | Lời và định dạng                                        | Người                                        | Có (0013)                         |
+| Templates   | Cấu trúc của một trang                                  | Người chọn trong danh sách đóng              | Có (0016)                         |
+| Governance  | Luật về chính hệ: ngoại lệ, chiều phụ thuộc, cổng kiểm  | Máy đặt sổ; người ghi lý do khi dùng         | Có (0018)                         |
 
 Accessibility, conformance và distribution không phải tầng. Mỗi yêu cầu accessibility rơi về vật nó
 ràng buộc, tên chuẩn ghi ở trường nguồn. Conformance là cột lệnh kiểm của mọi dòng. Distribution là
