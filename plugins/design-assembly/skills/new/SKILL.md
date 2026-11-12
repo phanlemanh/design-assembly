@@ -169,6 +169,10 @@ the preview again.
    are a person's calls.
 7. Say how far the contrast check reaches: the primary on the background and the text on the
    primary, in light and dark. The other color roles are not checked in this version.
+8. Repeat the `target size:` line the script printed: the smallest control and the controls it
+   could not measure. If it printed a note instead, some controls are below what the conformance
+   level asks and no check was added: name them, and say that the components change first or the
+   level does. That choice is the person's.
 
 ## 7. Finish
 

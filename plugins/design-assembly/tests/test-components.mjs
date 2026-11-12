@@ -10,7 +10,12 @@ import { env, execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { readComponents, readFolder } from "../templates/tools/design-assembly/components.mjs";
+import {
+  readComponents,
+  readFolder,
+  targetProblem,
+  targetSizes,
+} from "../templates/tools/design-assembly/components.mjs";
 import { renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
@@ -136,6 +141,9 @@ test("components and variants are read from source: variant sets, typed props, s
         name: "ToggleGroupItem",
         category: "component",
         file: "ui/toggle-group.tsx",
+        // It renders a button: a control. Its smallest height is the smallest of the set it calls.
+        control: true,
+        min_height: "24px",
         variants: all,
         defaults: { variant: "default", size: "default" },
       },
@@ -144,6 +152,8 @@ test("components and variants are read from source: variant sets, typed props, s
         name: "Toggle",
         category: "component",
         file: "ui/toggle.tsx",
+        control: true,
+        min_height: "24px",
         variants: all,
         defaults: { variant: "default", size: "default" },
       },
@@ -282,6 +292,94 @@ test("adopting writes the manifest and changes no source; no components means no
   assert.ok(!existsSync(path.join(bare, REGISTRY)));
   const ids = parseLedger(text(bare, "design/decisions.yaml")).map((row) => row.id);
   assert.ok(!ids.includes("component-manifest"));
+});
+
+const control = (name, element, classes) =>
+  `export function ${name}(props) {\n  return <${element} className="${classes}" {...props} />;\n}\n`;
+
+test("a control's height is read from its own classes, and only from them", () => {
+  const files = {
+    // A child's size, a pseudo-element's size and a non-control's size are not the control's.
+    "ui/a.tsx": control("Search", "input", "h-8 file:h-6 [&_svg]:size-4 *:size-3"),
+    // A height under a condition is still a height the control can have.
+    "ui/b.tsx": control("Pick", "SelectPrimitive.Trigger", "data-[size=sm]:h-7 md:h-9"),
+    "ui/c.tsx": control("Tiny", "button", "min-h-[20px]"),
+    "ui/d.tsx": control("Chip", "span", "h-5"),
+    // A control with no height of its own is listed, and not measured.
+    "ui/e.tsx": control("Row", "MenuPrimitive.Item", "py-1 text-sm"),
+  };
+  const sizes = targetSizes(files, 24);
+  assert.deepEqual(sizes.measured, ["Search", "Pick", "Tiny"]);
+  assert.deepEqual(sizes.unmeasured, ["Row"]);
+  assert.deepEqual(sizes.below, ["Tiny (its own classes: min-h-[20px], 20px)"]);
+  const byName = Object.fromEntries(readComponents(files).components.map((c) => [c.name, c]));
+  assert.equal(byName.Search.min_height, "32px");
+  assert.equal(byName.Pick.min_height, "28px");
+  assert.equal(byName.Chip.control, undefined);
+  assert.deepEqual([byName.Row.control, byName.Row.min_height], [true, undefined]);
+
+  assert.match(targetProblem(files, 24, "ui"), /^Tiny \(.*20px\): below the 24px target size$/);
+  delete files["ui/c.tsx"];
+  assert.equal(targetProblem(files, 24, "ui"), null);
+  // Measuring nothing is not passing.
+  assert.match(
+    targetProblem({ "ui/e.tsx": files["ui/e.tsx"] }, 24, "ui"),
+    /no control in ui declares a height this tool can read/,
+  );
+});
+
+test("the target size of the conformance level is held: a smaller control turns the gate red", () => {
+  const dir = floor();
+  const applied = run(APPLY, "--target", dir);
+  assert.equal(applied.status, 0, applied.stderr);
+  assert.match(
+    applied.stdout,
+    /target size: every control that declares a height is at least 24px high \(smallest: Button \(size=xs: h-6, 24px\)\)/,
+  );
+  const row = parseLedger(text(dir, "design/decisions.yaml")).find((r) => r.id === "target-size");
+  assert.equal(row.check, TOOL);
+  assert.match(
+    row.note,
+    /its width, and controls that take their size from elsewhere, are not measured/,
+  );
+  assert.equal(JSON.parse(text(dir, REGISTRY)).components[0].min_height, "24px");
+  assert.equal(check(dir).status, 0, check(dir).stderr);
+
+  edit(dir, "src/components/ui/button.tsx", (source) => source.replace('xs: "h-6 ', 'xs: "h-5 '));
+  const small = check(dir);
+  assert.equal(small.status, 1);
+  assert.match(
+    small.stderr,
+    /target-size: Button \(size=xs: h-5, 20px\): below the 24px target size/,
+  );
+});
+
+test("controls below the level's target size get no check, and the person is told which", () => {
+  const strict = JSON.parse(blueprint());
+  strict.layers.context.choice.conformance_level = "AAA";
+  const dir = floor({ "design/blueprint.json": JSON.stringify(strict) });
+  const applied = run(APPLY, "--target", dir);
+  assert.equal(applied.status, 0, applied.stderr);
+  assert.match(
+    applied.stdout,
+    /note: target size: Button \(size=xs: h-6, 24px\) are below the 44px/,
+  );
+  const ids = parseLedger(text(dir, "design/decisions.yaml")).map((r) => r.id);
+  assert.ok(!ids.includes("target-size"));
+  assert.equal(check(dir).status, 0, check(dir).stderr);
+
+  // Adopting: nothing without a stated level, a held row at AA, a plain refusal at AAA.
+  const bare = floor();
+  assert.equal(run(ADOPT, "--target", bare).status, 0);
+  assert.ok(!parseLedger(text(bare, "design/decisions.yaml")).some((r) => r.id === "target-size"));
+  const level = run(ADOPT, "--target", bare, "--conformance-level", "AA");
+  assert.match(level.stdout, /target-size: every control that declares a height is at least 24px/);
+  assert.equal(check(bare).status, 0, check(bare).stderr);
+  const high = run(ADOPT, "--target", floor(), "--conformance-level", "AAA");
+  assert.match(
+    high.stdout,
+    /would fail today, so nothing was added:\n(.*\n)*\s+target-size: Button .*below the 44px target size/,
+  );
 });
 
 // The acceptance kit's own plan check, when the kit is on this machine: a plan may only name

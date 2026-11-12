@@ -98,6 +98,13 @@
         "file": "design/component-registry.json",
         "folder": "src/components/ui"
       }
+    ],
+    "target-size": [
+      {
+        "kind": "target-size",
+        "folder": "src/components/ui",
+        "min": 24
+      }
     ]
   }
 }

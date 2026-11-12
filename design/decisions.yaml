@@ -123,3 +123,9 @@ decisions:
     kind: formula
     source: "src/components/ui, written out by make design-components"
     check: "tool:tools/design-assembly/check.mjs"
+  - id: target-size
+    layer: components
+    kind: standard
+    source: "WCAG 2.2 level AA, target size"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "the height each control declares in its own classes; its width, and controls that take their size from elsewhere, are not measured"

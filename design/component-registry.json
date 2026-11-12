@@ -45,6 +45,8 @@
       "name": "Button",
       "category": "component",
       "file": "src/components/ui/button.tsx",
+      "control": true,
+      "min_height": "24px",
       "variants": [
         "variant=default",
         "variant=outline",
@@ -113,7 +115,8 @@
     {
       "name": "DialogClose",
       "category": "component",
-      "file": "src/components/ui/dialog.tsx"
+      "file": "src/components/ui/dialog.tsx",
+      "control": true
     },
     {
       "name": "DialogContent",
@@ -153,7 +156,8 @@
     {
       "name": "DialogTrigger",
       "category": "component",
-      "file": "src/components/ui/dialog.tsx"
+      "file": "src/components/ui/dialog.tsx",
+      "control": true
     },
     {
       "name": "Empty",
@@ -192,7 +196,9 @@
     {
       "name": "Input",
       "category": "component",
-      "file": "src/components/ui/input.tsx"
+      "file": "src/components/ui/input.tsx",
+      "control": true,
+      "min_height": "32px"
     },
     {
       "name": "Label",
@@ -217,7 +223,8 @@
     {
       "name": "SelectItem",
       "category": "component",
-      "file": "src/components/ui/select.tsx"
+      "file": "src/components/ui/select.tsx",
+      "control": true
     },
     {
       "name": "SelectLabel",
@@ -243,6 +250,8 @@
       "name": "SelectTrigger",
       "category": "component",
       "file": "src/components/ui/select.tsx",
+      "control": true,
+      "min_height": "28px",
       "variants": ["size=sm", "size=default"],
       "defaults": {
         "size": "default"

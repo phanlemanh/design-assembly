@@ -14,8 +14,13 @@ export const START = "/* design-assembly:tokens:start";
 export const END = "/* design-assembly:tokens:end */";
 const HEADER = `${START} - generated from design/blueprint.json. Do not edit: run the guide again. */`;
 
-// Contrast thresholds per conformance level: text, then non-text parts such as a focus ring.
-export const THRESHOLDS = { AA: { text: 4.5, nonText: 3 }, AAA: { text: 7, nonText: 3 } };
+// What each conformance level asks, from WCAG 2.2: the contrast ratio of text (1.4.3, 1.4.6) and
+// of non-text parts such as a focus ring (1.4.11), and the target size of a control in CSS pixels
+// (2.5.8, 2.5.5).
+export const THRESHOLDS = {
+  AA: { text: 4.5, nonText: 3, target: 24 },
+  AAA: { text: 7, nonText: 3, target: 44 },
+};
 
 // Tones as Material Design lists them: 0 to 100 in tens, plus 95, 98 and 99.
 const TONES = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 95, 98, 99, 100];

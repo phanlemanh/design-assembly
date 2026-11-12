@@ -91,6 +91,84 @@ function entries(text, at) {
   return found;
 }
 
+// The text of every string literal in a piece of source, joined: the class names it carries.
+function literals(text) {
+  const found = [];
+  for (let i = 0; i < text.length; i += 1) {
+    if (text[i] === '"' || text[i] === "'" || text[i] === "`") {
+      const end = skipString(text, i);
+      found.push(text.slice(i + 1, end - 1));
+      i = end - 1;
+    }
+  }
+  return found.join(" ");
+}
+
+// Elements a person points at and activates: the native ones, and the parts of a primitives
+// library that render one.
+const CONTROLS = new Set(
+  "button input select textarea a summary Button Input Textarea Trigger Item Close Checkbox Radio Switch Tab Toggle Thumb Link Option CheckboxItem RadioItem Increment Decrement".split(
+    " ",
+  ),
+);
+// Prefixes that size something else than the element itself: a descendant, or a pseudo-element.
+const NOT_ITSELF = /^(\[&|\*+$|(file|placeholder|before|after|marker|selection|backdrop)$)/;
+const SPACING_UNIT_PX = 4;
+
+// A class name split at its colons, leaving the colons inside brackets alone.
+function parts(token) {
+  const found = [];
+  let depth = 0;
+  let from = 0;
+  for (let i = 0; i < token.length; i += 1) {
+    if ("[(".includes(token[i])) depth += 1;
+    else if ("])".includes(token[i])) depth -= 1;
+    else if (token[i] === ":" && depth === 0) {
+      found.push(token.slice(from, i));
+      from = i + 1;
+    }
+  }
+  return [...found, token.slice(from)];
+}
+
+// The heights a list of class names gives the element itself, in CSS pixels.
+function heights(classes) {
+  const found = [];
+  for (const token of classes.split(/\s+/).filter(Boolean)) {
+    const pieces = parts(token);
+    const utility = pieces.at(-1).replace(/^!|!$/g, "");
+    if (pieces.slice(0, -1).some((prefix) => NOT_ITSELF.test(prefix))) continue;
+    const step = /^(?:h|size|min-h)-(\d+(?:\.\d+)?)$/.exec(utility);
+    const exact = /^(?:h|size|min-h)-\[(\d+(?:\.\d+)?)(px|rem)\]$/.exec(utility);
+    if (step) found.push({ token, px: Number(step[1]) * SPACING_UNIT_PX });
+    else if (exact) found.push({ token, px: Number(exact[1]) * (exact[2] === "rem" ? 16 : 1) });
+  }
+  return found;
+}
+
+// The element a component renders, by the name its library gives it, and the class names written
+// on that element.
+function rendered(source, text) {
+  const root = /return\s*\(?\s*<([A-Za-z][\w.]*)/.exec(source);
+  if (!root) return null;
+  const from = root.index + root[0].length;
+  let depth = 0;
+  let end = from;
+  for (; end < source.length; end += 1) {
+    const char = source[end];
+    if (char === '"' || char === "'" || char === "`") end = skipString(source, end) - 1;
+    else if (char === "{") depth += 1;
+    else if (char === "}") depth -= 1;
+    else if (char === ">" && depth === 0) break;
+  }
+  const [head, ...members] = root[1].split(".");
+  const alias = new RegExp(`\\b(\\w+)\\s+as\\s+${head}\\b`).exec(text);
+  return {
+    element: members.at(-1) ?? alias?.[1] ?? head,
+    tag: source.slice(from, end),
+  };
+}
+
 // Variant axes declared with the class-variance helper: `const name = cva(base, { variants })`.
 function declaredSets(text) {
   const sets = {};
@@ -105,15 +183,19 @@ function declaredSets(text) {
     if (at >= call.length) continue;
     const options = Object.fromEntries(entries(call, at).map((item) => [item.key, item.value]));
     const axes = {};
+    // The classes of the set, by where they apply: its base, then each `axis=value`.
+    const classes = { "its own classes": literals(call.slice(0, at)) };
     for (const axis of options.variants ? entries(options.variants, 0) : []) {
-      axes[axis.key] = entries(axis.value, 0).map((item) => item.key);
+      const values = entries(axis.value, 0);
+      axes[axis.key] = values.map((item) => item.key);
+      for (const item of values) classes[`${axis.key}=${item.key}`] = literals(item.value);
     }
     const defaults = {};
     for (const item of options.defaultVariants ? entries(options.defaultVariants, 0) : []) {
       const value = /^["']([^"']+)["']$/.exec(item.value);
       if (value) defaults[item.key] = value[1];
     }
-    sets[match[1]] = { axes, defaults };
+    sets[match[1]] = { axes, defaults, classes };
   }
   return sets;
 }
@@ -148,13 +230,13 @@ function declaration(text, name) {
   return start[0] + (next ? rest.slice(0, next.index) : rest);
 }
 
-// The manifest for a set of source files: one entry per exported component. A component's
-// variants are the axes of the variant sets it calls, and the props it types as a closed list of
-// words. Each is written `axis=value`, the form a plan names a variant in.
-export function readComponents(files) {
+// Reads every source file once: the manifest, and the heights the controls declare.
+function survey(files) {
   const sets = {};
   for (const text of Object.values(files)) Object.assign(sets, declaredSets(text));
   const components = [];
+  // For each control with a declared height: the smallest one, and where it is declared.
+  const sizes = new Map();
   for (const [file, text] of Object.entries(files).sort(([a], [b]) => (a < b ? -1 : 1))) {
     for (const name of exported(text)) {
       const source = declaration(text, name);
@@ -178,16 +260,75 @@ export function readComponents(files) {
       const variants = Object.entries(axes).flatMap(([axis, values]) =>
         values.map((value) => `${axis}=${value}`),
       );
+      // A control's height, where its own classes declare one: on the element it renders, or in
+      // a variant set that element calls.
+      const root = rendered(source, text);
+      const control = root !== null && CONTROLS.has(root.element);
+      const measured = [];
+      if (control) {
+        for (const item of heights(literals(root.tag))) {
+          measured.push({ ...item, where: "its own classes" });
+        }
+        for (const [setName, set] of Object.entries(sets)) {
+          if (!new RegExp(`\\b${setName}\\b`).test(root.tag)) continue;
+          for (const [where, classes] of Object.entries(set.classes)) {
+            for (const item of heights(classes)) measured.push({ ...item, where });
+          }
+        }
+      }
+      const smallest = measured.sort((a, b) => a.px - b.px)[0];
+      if (smallest) sizes.set(name, smallest);
       components.push({
         name,
         category: "component",
         file,
+        ...(control ? { control: true } : {}),
+        ...(smallest ? { min_height: `${smallest.px}px` } : {}),
         ...(variants.length > 0 ? { variants } : {}),
         ...(Object.keys(defaults).length > 0 ? { defaults } : {}),
       });
     }
   }
-  return { version: VERSION, components };
+  return { manifest: { version: VERSION, components }, sizes };
+}
+
+// The manifest for a set of source files: one entry per exported component. A component's
+// variants are the axes of the variant sets it calls, and the props it types as a closed list of
+// words. Each is written `axis=value`, the form a plan names a variant in. A control is marked,
+// with the smallest height its own classes declare.
+export function readComponents(files) {
+  return survey(files).manifest;
+}
+
+// How the controls measure against a target size in CSS pixels: the ones below it, the ones
+// measured, and the ones whose height is not in their own classes.
+export function targetSizes(files, min) {
+  const { manifest, sizes } = survey(files);
+  const controls = manifest.components.filter((item) => item.control);
+  const label = (name) => {
+    const size = sizes.get(name);
+    return `${name} (${size.where}: ${size.token}, ${size.px}px)`;
+  };
+  const measured = controls.filter((item) => sizes.has(item.name)).map((item) => item.name);
+  return {
+    below: measured.filter((name) => sizes.get(name).px < min).map(label),
+    measured,
+    smallest: measured.length
+      ? label([...measured].sort((a, b) => sizes.get(a).px - sizes.get(b).px)[0])
+      : null,
+    unmeasured: controls.filter((item) => !sizes.has(item.name)).map((item) => item.name),
+  };
+}
+
+// Why the controls do not reach a target size, or null. Nothing measured is a problem too: a
+// check that measures nothing proves nothing.
+export function targetProblem(files, min, folder) {
+  const result = targetSizes(files, min);
+  if (result.measured.length === 0) {
+    return `no control in ${folder} declares a height this tool can read, so no target size is measured`;
+  }
+  if (result.below.length === 0) return null;
+  return `${result.below.join("; ")}: below the ${min}px target size`;
 }
 
 // Why the file is not what the source gives, or null. Compared as data. The reason names the

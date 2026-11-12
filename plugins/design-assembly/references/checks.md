@@ -78,11 +78,27 @@ default of each axis. Look a component up here before reading its source.
   helper, and props typed as a closed list of words. A true/false prop is not a variant.
 - The file is derived. Change the component, then run `make design-components`. The `components`
   check fails when the two disagree, whichever side moved.
+- A control (a component that renders something a person activates: a button, an input, a
+  trigger, an item) is marked `control: true`, with `min_height`: the smallest height its own
+  classes declare, over all its variants. A control without `min_height` takes its height from
+  elsewhere, and is not measured.
 - A component with no `variants` has none the reader could see. It is listed, and its variants are
   not checked.
 - States, the list of props, the parts of a component and components outside that folder are not
   in the manifest yet.
 - A registry a person already keeps, and that says something else, is never written over.
+
+## Target size
+
+The `target-size` check holds the decision that every control reaches the target size of the
+conformance level: 24 CSS pixels at AA (WCAG 2.2, 2.5.8), 44 at AAA (2.5.5).
+
+- It reads heights from component source, not from a rendered screen: `h-`, `size-` and `min-h-`
+  classes on the element the control renders and in the variant sets it calls. A size given to a
+  child or a pseudo-element is not the control's.
+- It measures height only. The width of a text control depends on its content.
+- When any control is below the level's target size, no check is added: the scripts name each one.
+- The message of a failing check names the control, the variant and the class.
 
 ## How a value is read
 
@@ -98,16 +114,17 @@ Its tool reads the real files (the stylesheet, the gate), not a copy of what was
 run also changes a copy of those files so that the check must fail, and reports a check that still
 passes: a check that cannot fail proves nothing.
 
-| Kind         | Passes when                                                             |
-| ------------ | ----------------------------------------------------------------------- |
-| `generated`  | The block in the stylesheet is exactly what the source color gives      |
-| `contrast`   | Two color roles reach the contrast ratio of the conformance level       |
-| `value`      | A variable resolves to the decided value, whatever is written after it  |
-| `absent`     | The stylesheet does not redeclare variables that the floor's scale owns |
-| `scale`      | Every step of the type scale is larger than the one before              |
-| `tokens`     | The design tokens file is exactly what the stylesheet gives             |
-| `components` | The component manifest is exactly what the component source gives       |
-| `gate`       | `make check` runs the tool in a way that can fail                       |
+| Kind          | Passes when                                                                           |
+| ------------- | ------------------------------------------------------------------------------------- |
+| `generated`   | The block in the stylesheet is exactly what the source color gives                    |
+| `contrast`    | Two color roles reach the contrast ratio of the conformance level                     |
+| `value`       | A variable resolves to the decided value, whatever is written after it                |
+| `absent`      | The stylesheet does not redeclare variables that the floor's scale owns               |
+| `scale`       | Every step of the type scale is larger than the one before                            |
+| `tokens`      | The design tokens file is exactly what the stylesheet gives                           |
+| `components`  | The component manifest is exactly what the component source gives                     |
+| `target-size` | Every control declares a height that reaches the target size of the conformance level |
+| `gate`        | `make check` runs the tool in a way that can fail                                     |
 
 The tool also checks that it and the ledger agree in both directions: every row that points at it
 has checks behind it, and every decision it holds is a row.

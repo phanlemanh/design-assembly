@@ -116,6 +116,12 @@ linh kiện được xuất ra có tên, tệp và các biến thể dạng `tr�
 `make design-components`, và một lệnh kiểm làm cổng đỏ khi sổ lệch mã nguồn. Bậc này vẫn chưa đạt:
 năm quyết định lõi về bảng dữ liệu và cỡ vùng bấm chưa có lời đáp.
 
+### Cỡ vùng bấm (quyết định 0011, 2026-11-12)
+
+Mọi control phải khai chiều cao đạt cỡ vùng bấm của mức conformance: 24 px ở AA, 44 px ở AAA.
+Chiều cao đọc từ lớp CSS trong mã nguồn linh kiện, không từ màn đã vẽ, và chỉ đo chiều cao. Kho này
+có ba control đo được, nhỏ nhất đúng 24 px.
+
 ### Vì sao cần plugin này
 
 Bản trước ghi giả thuyết «giảm token», neo vào lần đo ba của Repo Standards (token gấp 1,43 lần).
@@ -294,7 +300,8 @@ nghiệm thu nằm ngoài kho này. Phép đo tốn tiền API cần chủ kho c
 - Cách dữ liệu quyết định hiển thị (kiểu cột tiền, ngày, người): đã tra, ngành không có một tên
   chung. Polaris gọi «column content types», MUI gọi «column types», AG Grid gọi «cell data types».
   Bảng từ vựng tạm dùng «column type». Chủ kho chọn tên khi việc này thành một tầng.
-- Mức AAA dùng ngưỡng 7:1 cho chữ. Con số này máy nhớ từ WCAG 1.4.6, chưa đọc lại nguồn.
+- (Đã đóng 2026-11-12) Mức AAA dùng ngưỡng 7:1 cho chữ: đã đối chiếu tại nguồn, WCAG 2.2 tiêu chí
+  1.4.6.
 - Màu chính giữ nguyên source color khi đạt ngưỡng. Material Design thì lấy một tone cố định của
   palette. Hai cách cho hai màu nút khác nhau; hiện theo cách của sàn Repo Standards.
 - Density, elevation, motion và iconography chưa nằm trong lát nào. Density phải đi cùng spacing:

@@ -23,6 +23,7 @@ import {
   readComponents,
   readFolder,
   REGISTRY,
+  targetSizes,
 } from "../templates/tools/design-assembly/components.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { mergeLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
@@ -263,6 +264,34 @@ export function tokensPlan(target, styles, stylesheet, alreadyHeld) {
   };
 }
 
+// The check that every control reaches the target size of a conformance level, with its ledger
+// row; or what stands in its way. `nothing`: no control declares a height that can be read.
+// `below`: controls that are too small today, so no check is added.
+export function targetPlan(target, level) {
+  const folder = componentsFolder(target);
+  const min = THRESHOLDS[level]?.target;
+  if (!min) return { nothing: true };
+  const sizes = targetSizes(readFolder(target, folder), min);
+  if (sizes.measured.length === 0) return { nothing: true, ...sizes };
+  if (sizes.below.length > 0) return { ...sizes, min };
+  const rest = sizes.unmeasured.length > 0 ? `; not measured: ${sizes.unmeasured.join(", ")}` : "";
+  return {
+    ...sizes,
+    min,
+    below: [],
+    what: `every control that declares a height is at least ${min}px high (smallest: ${sizes.smallest}${rest})`,
+    row: {
+      id: "target-size",
+      layer: "components",
+      kind: "standard",
+      source: `WCAG 2.2 level ${level}, target size`,
+      check: TOOL,
+      note: "the height each control declares in its own classes; its width, and controls that take their size from elsewhere, are not measured",
+    },
+    checks: [{ kind: "target-size", folder, min }],
+  };
+}
+
 // The tool and its gate step, as they are copied into a repository.
 export function vendored() {
   const files = {};
@@ -410,6 +439,11 @@ export function plan(target, blueprint) {
     checks[id] = artifact.checks;
     files[artifact.file] = artifact.content;
   }
+  const targets = targetPlan(target, inputs.conformanceLevel);
+  if (targets.row) {
+    rows.push(targets.row);
+    checks["target-size"] = targets.checks;
+  }
   // Everything generated here replaces what was adopted for the same decision; the stylesheet the
   // tool data names is kept.
   const before = JSON.parse(read(FILES.theme) ?? "{}");
@@ -427,7 +461,7 @@ export function plan(target, blueprint) {
     const values = layer.id === "foundations" ? foundations.choice : entry.choice;
     files[`design/decisions/${layer.id}.md`] = record(layer, entry, rows, values);
   }
-  return { files: { ...files, ...vendored() }, theme, tokens, components };
+  return { files: { ...files, ...vendored() }, theme, tokens, components, targets };
 }
 
 // Writes the files that differ, or only says what it would do. One line per file.
@@ -565,7 +599,13 @@ function main() {
     );
     return;
   }
-  const { files, tokens, components } = plan(target, blueprint);
+  const { files, tokens, components, targets } = plan(target, blueprint);
+  if (targets.what) stdout.write(`target size: ${targets.what}\n`);
+  else if (targets.below?.length > 0) {
+    stdout.write(
+      `note: target size: ${targets.below.join("; ")} are below the ${targets.min}px the conformance level asks. No check is added: the components change first, or the level does.\n`,
+    );
+  }
   for (const artifact of [tokens, components]) {
     if (artifact.skipped) stdout.write(`note: ${artifact.skipped}.\n`);
   }

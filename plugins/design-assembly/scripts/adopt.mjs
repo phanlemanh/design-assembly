@@ -29,7 +29,14 @@ import {
 import { THRESHOLDS, withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
 import { COMPONENTS_DECISION, readFolder } from "../templates/tools/design-assembly/components.mjs";
 import { TOKENS_DECISION } from "../templates/tools/design-assembly/tokens.mjs";
-import { componentsPlan, gateProblem, tokensPlan, vendored, writeFiles } from "./apply.mjs";
+import {
+  componentsPlan,
+  gateProblem,
+  targetPlan,
+  tokensPlan,
+  vendored,
+  writeFiles,
+} from "./apply.mjs";
 import { findProofs } from "./proofs.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -289,6 +296,21 @@ export function adoption(root, { conformanceLevel = null, productType = null, re
         checks: components.checks,
       };
     }
+    // Target size needs the conformance level, like contrast: without it nothing is measured
+    // against anything.
+    const targets = open("target-size") && level ? targetPlan(root, level) : {};
+    if (targets.row) {
+      candidates["target-size"] = {
+        what: targets.what,
+        row: { kind: targets.row.kind, source: targets.row.source, note: targets.row.note },
+        checks: targets.checks,
+      };
+    } else if (targets.below?.length > 0) {
+      result.failing.push({
+        id: "target-size",
+        why: `${targets.below.join("; ")}: below the ${targets.min}px target size`,
+      });
+    }
     const artifacts = { [TOKENS_DECISION]: tokens, [COMPONENTS_DECISION]: components };
     const gate = gateProblem(root);
     const ids = Object.keys(candidates);
@@ -317,9 +339,12 @@ export function adoption(root, { conformanceLevel = null, productType = null, re
             .filter((artifact) => artifact.file)
             .map((artifact) => [artifact.file, artifact.content]),
         ),
-        folders: components.file
-          ? { [components.checks[0].folder]: readFolder(root, components.checks[0].folder) }
-          : {},
+        folders: Object.fromEntries(
+          Object.values(candidates)
+            .flatMap((candidate) => candidate.checks)
+            .filter((item) => item.folder)
+            .map((item) => [item.folder, readFolder(root, item.folder)]),
+        ),
         theme: {
           checks: Object.fromEntries(
             Object.entries(candidates).map(([id, candidate]) => [id, candidate.checks]),

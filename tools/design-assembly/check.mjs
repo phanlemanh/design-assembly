@@ -7,7 +7,7 @@ import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { contrast } from "./color.mjs";
-import { componentsProblem, readFolder } from "./components.mjs";
+import { componentsProblem, readFolder, targetProblem } from "./components.mjs";
 import {
   LAYER_ALIASES,
   LAYERS,
@@ -148,6 +148,19 @@ const KINDS = {
         ...state.folders?.[check.folder],
         [added]: "export function ChangedCopy() {}\n",
       };
+      return { ...state, folders: { ...state.folders, [check.folder]: files } };
+    },
+  },
+  // Every control declares a height that reaches the target size of the conformance level.
+  "target-size": {
+    run(state, check) {
+      return targetProblem(state.folders?.[check.folder] ?? {}, check.min, check.folder);
+    },
+    // A control far below any target size: the check must name it.
+    change(state, check) {
+      const added = `${check.folder}/changed-copy.tsx`;
+      const source = 'export function ChangedCopy() {\n  return <button className="h-1" />;\n}\n';
+      const files = { ...state.folders?.[check.folder], [added]: source };
       return { ...state, folders: { ...state.folders, [check.folder]: files } };
     },
   },
