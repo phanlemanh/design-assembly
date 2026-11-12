@@ -25,14 +25,13 @@ import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TableBody, TableHeader } from "@/components/ui/table";
 import {
-  TypedActions,
-  TypedActionsHead,
   TypedCell,
   TypedHead,
   TypedRow,
   TypedTable,
   type TypedColumn,
 } from "@/components/ui/typed-table";
+import { TableActions, TableActionsHead } from "@/components/ui/table-actions";
 import { createItem, deleteItem, listItems, type Item, type Status } from "@/example/data";
 import { formatDate, formatMoney } from "@/lib/format";
 import { LABELS } from "@/lib/labels";
@@ -341,7 +340,7 @@ export function ReferenceScreen() {
             {columns.map((column) => (
               <TypedHead key={column.field} {...column} />
             ))}
-            <TypedActionsHead>{LABELS.columnActions}</TypedActionsHead>
+            <TableActionsHead>{LABELS.columnActions}</TableActionsHead>
           </TypedRow>
         </TableHeader>
         <TableBody>
@@ -353,7 +352,7 @@ export function ReferenceScreen() {
               </TypedCell>
               <TypedCell field="Item.date">{formatDate(item.date)}</TypedCell>
               <TypedCell field="Item.total">{formatMoney(item.total)}</TypedCell>
-              <TypedActions>
+              <TableActions>
                 <Button
                   ref={(button) => {
                     if (button) rowActions.current.set(item.id, button);
@@ -366,7 +365,7 @@ export function ReferenceScreen() {
                 >
                   {LABELS.deleteAction}
                 </Button>
-              </TypedActions>
+              </TableActions>
             </TypedRow>
           ))}
         </TableBody>

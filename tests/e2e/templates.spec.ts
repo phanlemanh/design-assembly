@@ -91,7 +91,7 @@ for (const route of ROUTES) {
           });
         expect(
           cramped,
-          `row-actions-in-view: at ${width}px the pinned columns leave ${cramped}px too little to read the widest column that scrolls between them. Pin fewer columns on a narrow screen`,
+          `row-actions-in-view: at ${width}px the pinned columns leave ${cramped}px too little to read the widest column that scrolls between them. Make the pinned columns narrower, or pin fewer, on a narrow screen`,
         ).toBeLessThanOrEqual(0);
       }
       // Looked at last, once the page has settled: a control that left must not take focus with it.

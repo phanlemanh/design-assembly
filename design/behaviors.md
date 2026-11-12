@@ -77,11 +77,13 @@ Thất bại thì báo ở nơi người dùng vừa làm, và không bao giờ 
 
 ## Thao tác trên dòng
 
-- **Tối đa hai nút trên một dòng.** Từ ba thao tác trở lên thì gom vào một trình đơn của dòng.
-  Thao tác đảo được đứng trước, xoá đứng cuối.
+- **Tối đa hai nút trên một dòng.** Từ ba thao tác trở lên thì gom sau một nút của dòng; bấm nút
+  đó thì mở ra danh sách các thao tác, mỗi thao tác vẫn là một nút (kiểu «mở rộng», không dùng vai
+  trò trình đơn của ARIA), nên bài kiểm trình duyệt bấm tới được và khai được mọi trạng thái phía
+  sau. Thao tác đảo được đứng trước, xoá đứng cuối.
 - **Mỗi dòng chờ phần của nó.** Một dòng đang chờ trả lời thì các dòng khác vẫn dùng được.
 - **Bảng rộng hơn chỗ: cột thao tác luôn đứng yên.** Bảng cuộn ngang bên trong nó; cột thao tác
-  (`TypedActionsHead`, `TypedActions`) ở yên nên nút của một dòng luôn trong khung nhìn. Cột tên
+  (`TableActionsHead`, `TableActions` trong `src/components/ui/table-actions.tsx`) ở yên nên nút của một dòng luôn trong khung nhìn. Cột tên
   cũng đứng yên từ bề rộng 640 trở lên; trên điện thoại nó cuộn cùng dữ liệu, vì ghim cả hai cột
   thì không còn chỗ đọc các cột giữa. Bài kiểm trình duyệt đỏ khi một nút của dòng đầu nằm ngoài
   khung, hoặc khi các cột đứng yên chừa không đủ chỗ cho cột rộng nhất cuộn qua.

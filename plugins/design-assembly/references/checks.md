@@ -105,7 +105,10 @@ conformance level: 24 CSS pixels at AA (WCAG 2.2, 2.5.8), 44 at AAA (2.5.5).
 
 - It reads heights from component source, not from a rendered screen: `h-`, `size-` and `min-h-`
   classes on the element the control renders and in the variant sets it calls. A size given to a
-  child or a pseudo-element is not the control's.
+  child or a pseudo-element is not the control's. A pseudo-element placed around the control with
+  a negative inset (`after:absolute after:-inset-y-2`) takes the pointer for it, so its inset is
+  added to the height. A library part named `Root` is the control its library names
+  (`CheckboxPrimitive.Root` is a checkbox).
 - It measures height only. The width of a text control depends on its content.
 - When any control is below the level's target size, no check is added: the scripts name each one.
 - The message of a failing check names the control, the variant and the class.
@@ -197,17 +200,20 @@ every page; the others are a person's review, and the rules page says so.
   the same visible ring as a control.
 - **A row's actions are in view** (`row-actions-in-view`). On a narrow screen a table scrolls
   sideways inside itself, and the column of actions, last in the row, ends up off the screen: a
-  person sees a name and cannot act on it. The column of actions stays in place (`TypedActionsHead`
-  and `TypedActions` of the typed table parts); the first column stays too from 640px up. Pinning
+  person sees a name and cannot act on it. The column of actions stays in place (`TableActionsHead`
+  and `TableActions`, `table-actions.tsx` beside the floor's table; the guide installs them with
+  the browser test, before any field is typed); the first column of a typed table stays too
+  from 640px up. Pinning
   both on a phone leaves no room to read the columns between them, so there the name scrolls with
   the data. The browser test checks, at every width, that every control of the first row is
   inside the window, and that the pinned columns leave the scrolling band at least as wide as the
   widest column that scrolls. It reads the first row and the first table only, and a table built
   with other parts is held the same way.
-- **The actions of a row.** At most two show as buttons; three or more go into one menu on the
-  row, the ones that can be taken back first and a delete last. Each row waits on its own. A
+- **The actions of a row.** At most two show as buttons; three or more go behind one button on the
+  row that opens them as a list of buttons (a disclosure, not an ARIA menu: the browser tests,
+  the floor's and this plugin's, reach a state by pressing a button), the ones that can be taken back first and a delete last. Each row waits on its own. A
   button that says it is working keeps its width: the guide installs `HeldLabel` beside the
-  component library with the table parts, and the rules page names it. No check reads these: a
+  component library with the browser test, and the rules page names it. No check reads these: a
   person reviews them.
 - **One item changing changes the list in place.** The row stays, with its controls held, until
   the answer; then it leaves, or stays and the failure is told. The loading state is for the

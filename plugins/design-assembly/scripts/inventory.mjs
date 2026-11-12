@@ -272,9 +272,13 @@ function need(root, item, facts, tier) {
 // Departures on purpose, counted where each one lives: beside the rule it bends.
 function departures(root) {
   // In the repository's own source: a component library it took in is not its departure.
-  const lint = Object.entries(readSources(root))
+  // An exception says why after `--`; one that does not is counted apart: it is not shown to be on
+  // purpose.
+  const exceptions = Object.entries(readSources(root))
     .filter(([file]) => !VENDOR.test(file))
-    .reduce((sum, [, text]) => sum + (text.match(/eslint-disable/g) ?? []).length, 0);
+    .flatMap(([, text]) => text.match(/eslint-disable[^\n]*/g) ?? []);
+  const lint = exceptions.length;
+  const unexplained = exceptions.filter((line) => !/\s--\s*\S/.test(line)).length;
   let excused;
   try {
     excused = Object.keys(JSON.parse(read(root, "design/states.json") ?? "{}").exempt ?? {}).length;
@@ -282,7 +286,7 @@ function departures(root) {
     excused = 0;
   }
   const left = readKinds(readPages(root)).reduce((sum, kind) => sum + kind.exceptions, 0);
-  return { lint, excused, left };
+  return { lint, unexplained, excused, left };
 }
 
 // The record of what slipped past the checks: how many lines, and the date of the latest.
@@ -458,6 +462,11 @@ export function report(result, { all = false } = {}) {
       `  beyond the core, the ledger also answers: ${b.held} held, ${b.claimed} claimed, ${b.recorded} recorded (${b.ids.join(", ")})`,
     );
   }
+  // A decision beyond the core that its check now fails is as broken as a core one: named first.
+  const brokenBeyond = result.decisions.filter(
+    (d) => !d.core && d.in_ledger && (d.state === "failing" || d.state === "bypassed"),
+  );
+  for (const decision of brokenBeyond) lines.push(...line(decision));
   // A person's call that nobody has confirmed is not an answer yet: named in every report.
   const open = result.decisions.filter(
     (d) => d.state === "recorded" && /has not (confirmed|reviewed)/.test(d.note ?? ""),
@@ -482,7 +491,7 @@ export function report(result, { all = false } = {}) {
   const d = result.departures;
   if (d.lint + d.excused + d.left > 0) {
     lines.push(
-      `departures on purpose: ${d.lint} lint exception(s) in its own source, ${d.excused} screen(s) excused from the states, ${d.left} file(s) left out of a kind of screen`,
+      `departures on purpose: ${d.lint} lint exception(s) in its own source${d.unexplained > 0 ? ` (${d.unexplained} with no reason after --, so not shown to be on purpose)` : ""}, ${d.excused} screen(s) excused from the states, ${d.left} file(s) left out of a kind of screen`,
     );
   }
   if (result.slips) {

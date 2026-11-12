@@ -132,7 +132,7 @@ Write to `layers.foundations` in `design/blueprint.json`: `status`, `source`, `c
 
 Choice keys:
 
-- `source_color`: a `#rrggbb` colour.
+- `source_color`: a `#rrggbb` colour or an `oklch(L C H)` value, written exactly as the person chose it or as `choices.json` gives it.
 - `type_scale`: `standard` or `modular`.
 - `type_ratio`: only when `type_scale` is `modular`: `minor-second`, `major-second`, `minor-third`,
   `major-third` or `perfect-fourth`.

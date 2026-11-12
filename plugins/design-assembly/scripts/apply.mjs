@@ -358,7 +358,13 @@ const STARTER_TYPES = {
 const OWNED = {
   "typed-table.tsx.template": (folder) => `${folder}/typed-table.tsx`,
   "typed-table.test.tsx.template": () => "tests/typed-table.test.tsx",
-  // A button's label that keeps its width while the action waits: the column of actions needs it.
+};
+// Code the browser test of every page asks for, installed with it where the floor's table is: the
+// column of a row's actions that stays in view, and a button's label that keeps its width while
+// its action waits. Neither needs a typed field, so a repository has them before its first one.
+const ROW_PARTS = {
+  "table-actions.tsx.template": (folder) => `${folder}/table-actions.tsx`,
+  "table-actions.test.tsx.template": () => "tests/table-actions.test.tsx",
   "held-label.tsx.template": (folder) => `${path.posix.dirname(folder)}/held-label.tsx`,
   "held-label.test.tsx.template": () => "tests/held-label.test.tsx",
 };
@@ -664,6 +670,20 @@ export function templatesPlan(target, { starter, code = false, pending = {} }) {
       test = readFileSync(path.join(PLUGIN, "templates/owned/templates.spec.ts.template"), "utf8");
       files[PAGES_TEST] = test;
     }
+    const folder = componentsFolder(target);
+    if (
+      code &&
+      test !== null &&
+      folder === COMPONENTS_FOLDER &&
+      read(`${folder}/table.tsx`) !== null
+    ) {
+      for (const [name, place] of Object.entries(ROW_PARTS)) {
+        const file = place(folder);
+        if (read(file) === null) {
+          files[file] = readFileSync(path.join(PLUGIN, "templates/owned", name), "utf8");
+        }
+      }
+    }
     if (sizes !== null && test !== null) {
       propose("test-screen-sizes", sizesProblem(sizes, test), {
         what: `pages are checked at the widths of ${SIZES_FILE}`,
@@ -802,18 +822,24 @@ export function rulesPage(checks, has) {
         : "Alignment and width come from the column type of the field."),
     held("column-align") &&
       "Never put a text-alignment or width class on a table cell, or a height or text-size class on a table row, typed or plain.",
-    held("column-align") &&
-      (typed
-        ? "A column that holds actions and no data uses `TypedActionsHead` and `TypedActions` from the same file. When the table is wider than its place it scrolls sideways inside itself: the column of actions always stays in place, and the first column stays too from 640px up. On a phone the name scrolls with the data, so every column can still be read."
-        : "A column that holds actions and no data uses the plain table cell. When the table scrolls sideways, the column of actions stays in place; the first column stays too only where that leaves room to read the columns between them."),
   ]);
+  const pages = has("tests/e2e/templates.spec.ts");
+  const rows = held("column-align") || pages;
   const heldLabel = has("src/components/held-label.tsx");
   section("Actions on a row", [
-    held("column-align") &&
-      "A row shows at most two actions as buttons. Three or more go into one menu on the row. The actions that can be taken back come first, a delete comes last.",
-    held("column-align") &&
+    rows &&
+      (has("src/components/ui/table-actions.tsx")
+        ? "A column that holds a row's actions and no data uses `TableActionsHead` and `TableActions` (`src/components/ui/table-actions.tsx`). When the table is wider than its place it scrolls sideways inside itself, and that column stays in place."
+        : "When a table is wider than its place it scrolls sideways inside itself, and the column of a row's actions stays in place."),
+    rows &&
+      (typed
+        ? "The first column of a typed table stays in place too from 640px up. On a phone it scrolls with the data, so every column can still be read."
+        : "The first column stays in place too only where that leaves room to read the columns between."),
+    rows &&
+      "A row shows at most two actions as buttons. Three or more go behind one button on the row that opens them as a list of buttons: a disclosure, not an ARIA menu, so every action stays a button the browser test can press and every state behind it can be listed. The actions that can be taken back come first, a delete comes last.",
+    rows &&
       "Each row waits on its own: while one row's action waits, the other rows can still be used.",
-    held("column-align") &&
+    rows &&
       (heldLabel
         ? "A button that says it is working keeps its width: write its label with `HeldLabel` (`src/components/held-label.tsx`), giving both the label and the label while it waits."
         : "A button that says it is working keeps its width: the label while it waits takes no more room than the label before."),
@@ -849,7 +875,6 @@ export function rulesPage(checks, has) {
     held("notification-channel") &&
       "Never call a toast library from a screen, and never `alert`, `confirm` or `prompt`. One module calls the toast library; a second one, whatever its name, fails the gate.",
   ]);
-  const pages = has("tests/e2e/templates.spec.ts");
   section("After an action", [
     pages &&
       "Focus never falls on nothing: the browser test of every page fails when, after the last action of a state, nothing has focus.",
@@ -878,13 +903,13 @@ export function rulesPage(checks, has) {
       "The code has parts, listed from the top down in `design/parts.json`. A file imports only its own part and the parts listed after it: a component never imports a screen. What two screens share: logic and data move down a part; a piece of drawing they share becomes a component of the repository's own, in the part between the screens and the component library (named `shared` where the guide wrote the list). One screen's own drawing stays in that screen.",
     held("escapes") &&
       "When you find a fault that every check let through, add a line to `design/escapes.md` before you fix it: the date, what slipped, the layer that should have caught it, and what was done.",
-    has("ontology/glossary.md") &&
-      "A screen that needs a concept or an action the data model does not name adds it to `ontology/` first, in the same change. An agent that may not change the data model stops and asks: it never names the concept in a screen alone.",
-    "A row of `design/decisions.yaml` is for a rule a second screen must follow. A choice that only one screen makes stays in that screen.",
     (held("tier-direction") || held("escapes")) &&
       "A departure on purpose stays beside the rule it bends, with its reason: a lint exception, a screen excused from the states, a file left out of its kind.",
   ]);
   section("No check holds these: a person reviews them", [
+    has("ontology/glossary.md") &&
+      "A screen that needs a concept or an action the data model does not name adds it to `ontology/` first, in the same change. An agent that may not change the data model stops and asks: it never names the concept in a screen alone.",
+    "A row of `design/decisions.yaml` is for a rule a second screen must follow. A choice that only one screen makes stays in that screen.",
     held("page-layouts") &&
       "One item changing never sends the whole list back to its loading state: the row stays until the answer, then the list changes in place.",
     held("page-layouts") &&

@@ -43,8 +43,12 @@ everything in A.
 ## Recording
 
 Write to `layers.context` in `design/blueprint.json`: `status`, `source`, `choice`, `why`,
-`rejected`. `source` is `repo` only when both answers were read from the repository; `user` when the
-person gave either; otherwise `proposed`.
+`rejected`. `source` is `user` only when the person gave both answers. When one was read from the
+repository and the person gave the other, `source` is `repo` and the person's choice key is listed
+under `confirmed`, such as `"confirmed": ["conformance_level"]`; when the person gave one and you
+proposed the other, `source` is `proposed` with the same list. Only the listed rows then say a
+person decided; the row of the other answer says it was read or proposed, until a person confirms
+it. When both were read from the repository, `source` is `repo` and nothing is listed.
 
 Choice keys:
 

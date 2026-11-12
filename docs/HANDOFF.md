@@ -43,8 +43,8 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 
 - Nhánh `main`, cây làm việc sạch. **Chưa có remote, chưa đẩy đi đâu**: kho chỉ nằm trên máy
   này. Mọi thứ đều đã commit. Cập nhật lần cuối 2026-11-12, sau quyết định 0021.
-- `make check` xanh: lint, typecheck, 70 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (22 quyết định, 28 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 202 bài kiểm của plugin.
+- `make check` xanh: lint, typecheck, 71 bài kiểm của kho, ontology, lệnh kiểm design-assembly
+  (22 quyết định, 28 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 204 bài kiểm của plugin.
 - Kho này đáp **37/38 quyết định lõi**: 14 máy giữ, 17 tự khai, 6 đã ghi. Sổ có 48 dòng. Ngày 2026-11-12 chủ kho
   xác nhận cả sáu câu «đã ghi»; riêng lời văn thì chủ kho xác nhận cách viết, chưa đọc từng chữ.
 
@@ -109,8 +109,8 @@ việc nào được duyệt:
   `coverage/design-book/book.html`): lát 0020 chỉ nghiệm thu được bằng lượt đó.
 - **Chủ kho đã đi hết bảng mẫu của foundations** ngày 2026-11-12 và giữ cả ba giá trị đang dùng
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
-- **Lần chạy thử năm đã xong** (2026-11-12, kết quả ở cuối spec 0001). Điều sai rõ đã sửa; các
-  sửa đổi đó chưa được thử lại. Điều nó để ngỏ nằm ở mục «Điều còn nguyên» của lần thử năm.
+- **Lần chạy thử sáu đã xong** (2026-11-12, kết quả ở cuối spec 0001). Điều sai rõ đã sửa; các
+  sửa đổi đó chưa được thử lại. Điều nó để ngỏ nằm ở mục «Điều còn nguyên» của lần thử sáu.
 - **Khung điều hướng** chưa dựng: luật có rồi, chờ màn thứ hai.
 - **Đo token** theo giao thức của Repo Standards: đề bài hẹn làm khi cuộc dẫn dắt tới bậc
   templates. Tốn tiền API, cần chủ kho cho phép riêng.

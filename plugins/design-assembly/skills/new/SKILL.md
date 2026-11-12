@@ -271,7 +271,11 @@ the preview again.
     `design/escapes.md` (the fault, the layer `patterns`, what will be done); read out the states
     it names; then fix the screen, which is the repository's own code: a control that waits is
     held in a way that keeps focus, and a control that leaves hands focus on
-    (`references/checks.md`, "After an action"). The fix changes how a control behaves, so say it
+    (`references/checks.md`, "After an action"). A row whose actions leave the window on a narrow
+    screen (`row-actions-in-view`) takes its column of actions from `TableActionsHead` and
+    `TableActions`, which the guide installs with the browser test where the floor's table is; a
+    waiting button's label is written with `HeldLabel`. Never pin a column with classes in the
+    screen: the floor's lint rejects them, and the floor's components are not edited. The fix changes how a control behaves, so say it
     in the summary as your change, not as part of what the guide generated. A test of the
     repository that asserted the old behaviour changes with it.
     Say what a failed action does (`references/checks.md`, "A failed action"), and that a screen

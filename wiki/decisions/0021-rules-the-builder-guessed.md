@@ -46,10 +46,11 @@ sổ quyết định.
 2. **Phần vẽ hai màn dùng chung thành linh kiện của kho**, ở phần `shared` nằm giữa các màn và thư
    viện linh kiện. Danh sách phần cho phép một phần loại trừ tệp bằng `except`; hướng dẫn tự viết
    phần này khi thư viện linh kiện nằm trong một thư mục con.
-3. **Thao tác trên dòng:** tối đa hai nút; từ ba thì gom vào trình đơn, thao tác đảo được trước,
-   xoá cuối. Mỗi dòng chờ phần của nó. Nút đang chờ giữ nguyên bề rộng nhờ `HeldLabel`, một linh
+3. **Thao tác trên dòng:** tối đa hai nút; từ ba thì gom sau một nút của dòng, mở ra danh sách các
+   nút (không dùng vai trò trình đơn của ARIA: lần thử sáu cho thấy bài kiểm trình duyệt, cả của
+   sàn, chỉ bấm được nút), thao tác đảo được trước, xoá cuối. Mỗi dòng chờ phần của nó. Nút đang chờ giữ nguyên bề rộng nhờ `HeldLabel`, một linh
    kiện của kho mà hướng dẫn cài cùng các phần của bảng.
-4. **Bảng rộng hơn chỗ: cột thao tác luôn đứng yên** (`TypedActionsHead`, `TypedActions`); cột
+4. **Bảng rộng hơn chỗ: cột thao tác luôn đứng yên** (`TableActionsHead`, `TableActions`; lúc dựng lần đầu tên là `TypedActions`, đã tách ra tệp riêng sau lần thử sáu); cột
    tên đứng yên từ bề rộng 640. Đề xuất ban đầu ghim cả hai ở mọi bề rộng; đo trên màn mẫu ở 320
    thì hai cột ghim chiếm 251 trên 272px, ba cột giữa không còn đọc được, nên trên điện thoại cột
    tên cuộn cùng dữ liệu. Phép kiểm `row-actions-in-view` của bài kiểm trình duyệt đỏ khi một nút
@@ -63,7 +64,7 @@ sổ quyết định.
 ## Consequences
 
 - Trang luật cho tác tử, trang hành vi và trang kiểu màn danh sách nói cả sáu luật; trang luật chỉ
-  nhắc `TypedActions` và `HeldLabel` ở kho có cài chúng.
+  nhắc `TableActions` và `HeldLabel` ở kho có cài chúng.
 - Sổ có thêm dòng `row-actions-in-view` (máy viết, bậc patterns); danh mục chuẩn có 67 quyết định.
 - Giới hạn: phép kiểm cột thao tác chỉ xem dòng đầu và bảng đầu; luật nhiều thao tác, mỗi dòng chờ riêng và
   sổ chỉ cho luật dùng chung không có lệnh kiểm, người xem lại. Phép kiểm viền tiêu điểm cũng chưa

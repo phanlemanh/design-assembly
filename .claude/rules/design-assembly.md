@@ -15,11 +15,12 @@ it.
 - To add a column: give the property its `display` key, run `make gen` and `make design-columns`, add the header to the repository's words, then use the field in the screen.
 - Build the table from `TypedTable`, `TypedRow`, `TypedHead` and `TypedCell` (`src/components/ui/typed-table.tsx`). They take alignment, width and row height from the column type.
 - Never put a text-alignment or width class on a table cell, or a height or text-size class on a table row, typed or plain.
-- A column that holds actions and no data uses `TypedActionsHead` and `TypedActions` from the same file. When the table is wider than its place it scrolls sideways inside itself: the column of actions always stays in place, and the first column stays too from 640px up. On a phone the name scrolls with the data, so every column can still be read.
 
 ## Actions on a row
 
-- A row shows at most two actions as buttons. Three or more go into one menu on the row. The actions that can be taken back come first, a delete comes last.
+- A column that holds a row's actions and no data uses `TableActionsHead` and `TableActions` (`src/components/ui/table-actions.tsx`). When the table is wider than its place it scrolls sideways inside itself, and that column stays in place.
+- The first column of a typed table stays in place too from 640px up. On a phone it scrolls with the data, so every column can still be read.
+- A row shows at most two actions as buttons. Three or more go behind one button on the row that opens them as a list of buttons: a disclosure, not an ARIA menu, so every action stays a button the browser test can press and every state behind it can be listed. The actions that can be taken back come first, a delete comes last.
 - Each row waits on its own: while one row's action waits, the other rows can still be used.
 - A button that says it is working keeps its width: write its label with `HeldLabel` (`src/components/held-label.tsx`), giving both the label and the label while it waits.
 
@@ -60,12 +61,12 @@ it.
 
 - The code has parts, listed from the top down in `design/parts.json`. A file imports only its own part and the parts listed after it: a component never imports a screen. What two screens share: logic and data move down a part; a piece of drawing they share becomes a component of the repository's own, in the part between the screens and the component library (named `shared` where the guide wrote the list). One screen's own drawing stays in that screen.
 - When you find a fault that every check let through, add a line to `design/escapes.md` before you fix it: the date, what slipped, the layer that should have caught it, and what was done.
-- A screen that needs a concept or an action the data model does not name adds it to `ontology/` first, in the same change. An agent that may not change the data model stops and asks: it never names the concept in a screen alone.
-- A row of `design/decisions.yaml` is for a rule a second screen must follow. A choice that only one screen makes stays in that screen.
 - A departure on purpose stays beside the rule it bends, with its reason: a lint exception, a screen excused from the states, a file left out of its kind.
 
 ## No check holds these: a person reviews them
 
+- A screen that needs a concept or an action the data model does not name adds it to `ontology/` first, in the same change. An agent that may not change the data model stops and asks: it never names the concept in a screen alone.
+- A row of `design/decisions.yaml` is for a rule a second screen must follow. A choice that only one screen makes stays in that screen.
 - One item changing never sends the whole list back to its loading state: the row stays until the answer, then the list changes in place.
 - An undo puts the thing back where it was and shows no second toast: the screen shows the result. A failed undo says where the thing is now.
 - An empty state says why it is empty and how items get there. It has a button only when the person can fill it from this screen; otherwise at most one link inside its text. Never a link dressed as a primary button, and never a copy of the navigation.

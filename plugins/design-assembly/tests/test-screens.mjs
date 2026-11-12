@@ -3,7 +3,7 @@
 // widths a person listed. Each rule is shown going red on a real change.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { execPath } from "node:process";
@@ -321,6 +321,33 @@ test("the guide installs the layer, and each rule goes red when it is broken", (
   }
 });
 
+test("with the browser test come the parts it asks for, before the data model types a field", () => {
+  // No field of the data model names a column type, so the typed table is not installed.
+  const parts = [
+    "src/components/ui/table-actions.tsx",
+    "tests/table-actions.test.tsx",
+    "src/components/held-label.tsx",
+    "tests/held-label.test.tsx",
+  ];
+  const bare = floor();
+  assert.equal(run(APPLY, "--target", bare).status, 0);
+  for (const file of parts) assert.ok(!existsSync(path.join(bare, file)), file);
+
+  const dir = floor({ "src/components/ui/table.tsx": own("src/components/ui/table.tsx") });
+  const applied = run(APPLY, "--target", dir);
+  assert.equal(applied.status, 0, applied.stderr);
+  assert.ok(!existsSync(path.join(dir, "src/components/ui/typed-table.tsx")));
+  for (const file of parts) assert.ok(existsSync(path.join(dir, file)), file);
+  // The rules page names them, so an agent that meets the red test knows what to reach for.
+  const rules = text(dir, ".claude/rules/design-assembly.md");
+  assert.match(rules, /`TableActionsHead` and `TableActions`/);
+  assert.match(rules, /`HeldLabel`/);
+  // They are the repository's from then on: an edit is kept.
+  edit(dir, parts[0], (s) => `${s}// kept\n`);
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  assert.match(text(dir, parts[0]), /\/\/ kept\n$/);
+});
+
 test("the guide writes the widths and the browser test once, and points three rows at the test", () => {
   const dir = floor();
   const applied = run(APPLY, "--target", dir);
@@ -468,7 +495,10 @@ test("the rules page says who wrote it and names the screen rules only where the
   assert.match(page, /design\/screen-sizes\.json/);
   assert.match(page, /## After an action\n\n- Focus never falls on nothing/);
   // Rules nobody checks are listed apart, under a heading that says so.
-  assert.match(page, /## No check holds these: a person reviews them\n\n- One item changing/);
+  assert.match(
+    page,
+    /## No check holds these: a person reviews them\n\n(?:- .*\n)*- One item changing/,
+  );
   const bare = floor();
   rmSync(path.join(bare, "design/patterns"), { recursive: true });
   assert.equal(run(APPLY, "--target", bare).status, 0);

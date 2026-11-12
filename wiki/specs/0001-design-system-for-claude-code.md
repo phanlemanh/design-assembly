@@ -429,6 +429,51 @@ niệm mới qua mô hình dữ liệu, tác tử không được sửa thì h�
 dùng chung; tối đa hai nút trên dòng, mỗi dòng chờ riêng, nút đang chờ giữ bề rộng; cột thao tác đứng yên khi bảng cuộn ngang và cột tên từ bề rộng 640, có phép kiểm trình duyệt; tiêu điểm thấy được; sổ chỉ cho luật dùng
 chung. Còn mở: trạng thái chỉ tới được từ màn khác, và các mục adopt, cuốn sổ, trang của sàn ở trên.
 
+### Chạy thử lần sáu (2026-11-12)
+
+Ba tác tử độc lập, như lần năm, để thử hai đợt sửa chưa ai thử (sửa sau lần năm và quyết định
+0021). Tác tử dẫn dắt đi từ kho trống, người dùng giả trả lời bằng lời thường («to nhỏ khác nhau
+rõ hơn một chút», «bo mềm hơn mặc định»); tác tử thứ hai nhận bản sao của kho đối chứng rồi bàn
+giao; tác tử dựng màn nhận đề bài mới nhắm vào sáu luật: mỗi dòng ba thao tác, một màn thứ hai có
+bảng giống hệt, hai hành động mà mô hình dữ liệu chưa có tên, và phải đạt ở màn điện thoại.
+
+**Điều đứng vững.** Cuộc dẫn dắt đi trọn tới 35/38 với màu hổ phách; lời thường được đổi thành
+đúng một lựa chọn trên bảng mẫu. Bước nhận vẫn không đổi gì của kho (soát từng byte). Mười ba lần
+phá ở kho dẫn dắt và tám lần ở kho nhận đều đỏ đúng chỗ, trừ những chỗ đã biết là giới hạn. Tác tử
+dựng màn đi đúng sáu luật mới: dừng lại hỏi trước khi thêm hành động vào mô hình dữ liệu rồi làm
+theo quy trình của kho, đặt bảng dùng chung ở phần «linh kiện của kho», giữ mỗi dòng chờ riêng,
+ghim cột thao tác, tiêu điểm thấy được, và ghi sổ lỗi lọt khi gặp lỗi không lệnh kiểm nào bắt.
+
+**Điều sai, đã sửa.** Phép kiểm cột thao tác được cài ở kho mới, nhưng phần để sửa nó chỉ có khi
+mô hình dữ liệu đã có trường khai kiểu cột: giờ cột thao tác (`TableActions`) và nhãn giữ bề rộng
+(`HeldLabel`) nằm ở tệp riêng, cài cùng phép kiểm, và hướng dẫn nói cách sửa. Luật «từ ba thao tác
+thì vào trình đơn» đụng bài kiểm trình duyệt, cả của sàn, vốn chỉ bấm được nút: giờ là một nút mở
+ra danh sách các nút. Trang luật cho tác tử đặt hai luật không có lệnh kiểm dưới tiêu đề «cổng
+kiểm giữ»: đã chuyển sang mục người xem lại. Lệnh kiểm cỡ vùng bấm bỏ sót ô đánh dấu: giờ nhận ra
+nó và tính cả vùng bấm nới bằng lớp giả. Audit không nêu một quyết định ngoài lõi đang đỏ: giờ
+nêu ở đầu báo cáo; ngoại lệ lint không ghi lý do được đếm riêng. Trang tầng context dạy ghi loại
+sản phẩm đọc từ kho như người đã quyết: giờ ghi riêng câu người đã trả lời. Hướng dẫn nhận kho
+nói rõ khi nào hỏi về các dòng chưa có lệnh kiểm, và phải hỏi thêm dòng mới hiện ra ở lần xem trước
+thứ hai. Cuốn sổ cắt cụt dòng mẫu chữ lớn, và câu «khớp» của phép đối chiếu nay nói rõ nó so gì.
+Câu báo của phép kiểm cột ghim không còn bảo «ghim ít cột hơn» khi chỉ có một cột ghim.
+
+**Điều còn nguyên**, chờ chủ kho hoặc Repo Standards:
+
+- Phép kiểm ở bề rộng 320 chỉ đo trên dữ liệu mẫu: một tên dài hơn khoảng 22 chữ sẽ làm nó đỏ mà
+  không trạng thái nào có sẵn tên như vậy.
+- Chưa có luật cho tên đọc được của một nút trên dòng khi đang chờ, cho cách đi lại giữa các màn
+  mà vẫn giữ dữ liệu giả, và cho hoàn tác một tình trạng mà một thao tác đã ghi đè.
+- Đổi một câu trả lời trong bản thiết kế thì đỏ dưới tên `tonal-palette` dù câu đó là bo góc hay
+  mức accessibility; khi đường dẫn của kiểu màn thôi khớp, lỗi về hướng nhập đổ cho việc nhập.
+- Xoá ghi chú «chưa ai xác nhận» khỏi một dòng sổ thì không gì đỏ.
+- Ở kho nhận, màu ở chế độ tối và các cặp màu khác chỉ đỏ tới khi chạy lại `make design-tokens`;
+  hướng nhập được tính là có dù luật lint chỉ phủ một phần mã; dòng «bước kế» vẫn chỉ sang adopt.
+- Cuốn sổ: tờ linh kiện vẽ Card và Alert sơ sài; ở kho nhận nó liệt cả hằng số là linh kiện và
+  không nêu phông; tờ xem lại cuối của bảng mẫu chỉ nói về màu.
+- Bản hướng dẫn của sàn dạy khoá nút bằng `disabled`, và cách thêm linh kiện bằng `shadcn add` đụng
+  luật «không cài gói». Hai tệp này của Repo Standards.
+- Các sửa đổi sau lần thử này chưa được tác tử độc lập thử.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.

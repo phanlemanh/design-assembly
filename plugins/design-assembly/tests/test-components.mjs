@@ -297,6 +297,29 @@ test("adopting writes the manifest and changes no source; no components means no
 const control = (name, element, classes) =>
   `export function ${name}(props) {\n  return <${element} className="${classes}" {...props} />;\n}\n`;
 
+test("a library's Root is the control it names, and a pseudo-element around it adds to its height", () => {
+  const files = {
+    // A checkbox drawn small, with a hit area grown around it: 16px plus 8px above and below.
+    "ui/a.tsx": control(
+      "Check",
+      "CheckboxPrimitive.Root",
+      "relative size-4 after:absolute after:-inset-x-3 after:-inset-y-2",
+    ),
+    // The same checkbox without the grown area is below the target.
+    "ui/b.tsx": control("Small", "SwitchPrimitive.Root", "h-4"),
+    // An inset that is not on a pseudo-element, or not around it, adds nothing.
+    "ui/c.tsx": control("Plain", "button", "h-5 -inset-y-2 after:inset-y-2"),
+  };
+  const sizes = targetSizes(files, 24);
+  assert.deepEqual(sizes.measured, ["Check", "Small", "Plain"]);
+  const byName = Object.fromEntries(readComponents(files).components.map((c) => [c.name, c]));
+  assert.equal(byName.Check.min_height, "32px");
+  assert.deepEqual(sizes.below, [
+    "Small (its own classes: h-4, 16px)",
+    "Plain (its own classes: h-5, 20px)",
+  ]);
+});
+
 test("a control's height is read from its own classes, and only from them", () => {
   const files = {
     // A child's size, a pseudo-element's size and a non-control's size are not the control's.

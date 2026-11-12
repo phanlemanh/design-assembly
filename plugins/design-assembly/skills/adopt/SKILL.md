@@ -55,7 +55,9 @@ the stylesheet declares its own sizes. It does not pin the framework's numbers.
 
 ## 3. Ask only what a person must decide
 
-Ask together, and only what `needs a person` lists:
+Ask together, in one message: what `needs a person` lists, and, when the preview has a
+`rows of yours with no check, that could have one` table, the last question below. Ask nothing
+else:
 
 - The conformance level, AA or AAA. Show the ratios first. Pass the answer as `--conformance-level`.
 - The product type. Pass the answer as `--product-type`.
@@ -75,7 +77,9 @@ stated level that the values do not reach is not a reason to lower the level: re
 ## 4. Write
 
 1. Run the preview again with the flags the person gave, and show what changed: the rows are not
-   the same as in the first preview.
+   the same as in the first preview. A row of theirs that could now have a check and was not in
+   the first preview (a target size is only measured once the level is known) was never put to
+   the person: ask about that row alone before writing.
 2. Run the same command without `--dry-run`. It ends with `done:` and the number of rows and files.
    It adds rows to `design/decisions.yaml`, and, when it holds any value, `design/theme.json`,
    `tools/design-assembly/` and `mk/design-assembly.mk`.

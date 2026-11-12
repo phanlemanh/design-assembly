@@ -131,19 +131,30 @@ export function parts(token) {
   return [...found, token.slice(from)];
 }
 
-// The heights a list of class names gives the element itself, in CSS pixels.
+// The heights a list of class names gives the element itself, in CSS pixels. A pseudo-element
+// placed around the element with a negative inset (`after:absolute after:-inset-y-2`) takes the
+// pointer for it, so it adds to the height a person can hit.
 function heights(classes) {
   const found = [];
+  let grown = null;
   for (const token of classes.split(/\s+/).filter(Boolean)) {
     const pieces = parts(token);
     const utility = pieces.at(-1).replace(/^!|!$/g, "");
-    if (pieces.slice(0, -1).some((prefix) => NOT_ITSELF.test(prefix))) continue;
+    const prefixes = pieces.slice(0, -1);
+    const around = /^-inset(?:-y)?-(\d+(?:\.\d+)?)$/.exec(utility);
+    if (around && prefixes.length === 1 && /^(before|after)$/.test(prefixes[0])) {
+      const px = 2 * Number(around[1]) * SPACING_UNIT_PX;
+      if (grown === null || px > grown.px) grown = { token, px };
+      continue;
+    }
+    if (prefixes.some((prefix) => NOT_ITSELF.test(prefix))) continue;
     const step = /^(?:h|size|min-h)-(\d+(?:\.\d+)?)$/.exec(utility);
     const exact = /^(?:h|size|min-h)-\[(\d+(?:\.\d+)?)(px|rem)\]$/.exec(utility);
     if (step) found.push({ token, px: Number(step[1]) * SPACING_UNIT_PX });
     else if (exact) found.push({ token, px: Number(exact[1]) * (exact[2] === "rem" ? 16 : 1) });
   }
-  return found;
+  if (grown === null) return found;
+  return found.map((item) => ({ token: `${item.token} ${grown.token}`, px: item.px + grown.px }));
 }
 
 // The attributes of a JSX opening tag: the text from just after its name to the `>` that closes
@@ -168,8 +179,12 @@ function rendered(source, text) {
   if (!root) return null;
   const [head, ...members] = root[1].split(".");
   const alias = new RegExp(`\\b(\\w+)\\s+as\\s+${head}\\b`).exec(text);
+  // `Root` names no kind of element: the library's own name does (`CheckboxPrimitive.Root` is a
+  // checkbox).
+  const part = members.at(-1);
+  const library = alias?.[1] ?? head.replace(/Primitives?$/, "");
   return {
-    element: members.at(-1) ?? alias?.[1] ?? head,
+    element: part === undefined || part === "Root" ? library : part,
     tag: openingTag(source, root.index + root[0].length),
   };
 }

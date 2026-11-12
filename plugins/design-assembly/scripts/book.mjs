@@ -1051,7 +1051,7 @@ export function renderBook(facts, { audience = "client", words = {}, drawn = nul
   .type li { display: grid; grid-template-columns: 120px 1fr; gap: 16px; align-items: baseline; padding: 10px 0; border-top: 1px solid var(--line); }
   .type .meta { font-size: var(--xs); color: var(--muted); }
   .type .meta em { display: block; font-style: normal; font-variant-numeric: tabular-nums; }
-  .type .specimen { white-space: nowrap; overflow: hidden; text-overflow: clip; font-weight: 500; }
+  .type .specimen { overflow-wrap: anywhere; font-weight: 500; }
   .radii { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
   .radii i { display: block; height: 72px; border: 1.5px solid var(--fg); background: var(--surface); }
   .radii b, .spacing b { display: block; margin-top: 8px; font-size: var(--xs); }
@@ -1269,7 +1269,11 @@ async function main() {
     }
     const stale = staleParts(readFileSync(file, "utf8"), facts);
     if (stale.length === 0) {
-      stdout.write("the book says what the repository says\n");
+      // Only what the book lists is compared: say so, so a match is not read as more than it is.
+      const compared = Object.keys(facts).sort().join(", ");
+      stdout.write(
+        `the book says what the repository says, in what this check compares (${compared}). The words on the screens and the pictures are not compared: a change to them needs the book drawn again\n`,
+      );
       return;
     }
     stderr.write(

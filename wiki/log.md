@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-12 — Chạy thử lần sáu bằng ba tác tử độc lập và sửa điều nó tìm ra: phần cột thao tác và nhãn giữ bề rộng cài cùng phép kiểm, trình đơn của dòng thành nút mở danh sách nút, trang luật không còn đặt luật không có lệnh kiểm dưới tiêu đề «cổng kiểm giữ», lệnh kiểm cỡ vùng bấm thấy ô đánh dấu, audit nêu quyết định ngoài lõi đang đỏ — [spec 0001](specs/0001-design-system-for-claude-code.md), [0021](decisions/0021-rules-the-builder-guessed.md), `design/escapes.md`.
 - 2026-11-12 — Chủ kho giữ phần mô hình dữ liệu của 0021: hai hành động `createItem`, `deleteItem` và vai `user` — [Item](entities/item.md), `ontology/actions.yaml`, `ontology/roles.yaml`.
 - 2026-11-12 — Sáu luật cho những gì tác tử dựng màn phải đoán ở lần thử năm: cột thao tác đứng yên khi bảng cuộn ngang (cột tên từ bề rộng 640), nút đang chờ giữ bề rộng, tiêu điểm thấy được, phần «linh kiện của kho», khái niệm mới qua mô hình dữ liệu, sổ chỉ cho luật dùng chung; khai `createItem`, `deleteItem` và vai `user` (chờ duyệt riêng) — [0021](decisions/0021-rules-the-builder-guessed.md), [Item](entities/item.md).
 - 2026-11-12 — Chạy thử lần năm bằng ba tác tử độc lập và sửa điều nó tìm ra: bản thiết kế đổi mà không gì đỏ, mô-đun toast thứ hai lọt lệnh kiểm, cuốn sổ nói sai ở kho không do plugin dựng, audit đếm nhầm ngoại lệ — [spec 0001](specs/0001-design-system-for-claude-code.md), `plugins/design-assembly/`, `design/escapes.md`.
