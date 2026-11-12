@@ -40,4 +40,5 @@ Hai hành động, khai trong `ontology/actions.yaml`, chỉ vai `user` được
 - 2026-11-12 — Thêm vào mô hình để tầng bảng dữ liệu của plugin có trường mà gắn kiểu cột.
 - 2026-11-12 — Chủ kho xem lại và giữ thực thể mẫu cùng khoá `display` («Giữ»).
 - 2026-11-12 — Khai hai hành động `createItem`, `deleteItem` và vai `user`: màn mẫu đã làm hai
-  việc này mà mô hình chưa có tên cho chúng (chạy thử lần năm). Chờ chủ kho duyệt riêng.
+  việc này mà mô hình chưa có tên cho chúng (chạy thử lần năm).
+- 2026-11-12 — Chủ kho xem riêng phần mô hình này và giữ hai hành động cùng vai `user` («Giữ»).

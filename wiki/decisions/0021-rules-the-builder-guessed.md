@@ -27,7 +27,7 @@ sources:
 
 Accepted. Lần thử năm để lại một danh sách điều tác tử dựng màn phải tự đoán. Máy đề xuất sáu luật,
 chủ kho duyệt dựng ngày 2026-11-12 («Làm tiếp»). Phần mô hình dữ liệu (hai hành động và một vai)
-chờ chủ kho duyệt riêng.
+được trình riêng; chủ kho giữ nó cùng ngày («Giữ»).
 
 ## Context
 

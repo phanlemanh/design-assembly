@@ -111,9 +111,6 @@ việc nào được duyệt:
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
 - **Lần chạy thử năm đã xong** (2026-11-12, kết quả ở cuối spec 0001). Điều sai rõ đã sửa; các
   sửa đổi đó chưa được thử lại. Điều nó để ngỏ nằm ở mục «Điều còn nguyên» của lần thử năm.
-- **Chủ kho duyệt riêng phần mô hình dữ liệu của 0021**: hai hành động `createItem`, `deleteItem`
-  và vai `user` trong `ontology/`. Bác thì gỡ hai tệp `ontology/actions.yaml`, `ontology/roles.yaml`
-  và chạy `make gen`.
 - **Khung điều hướng** chưa dựng: luật có rồi, chờ màn thứ hai.
 - **Đo token** theo giao thức của Repo Standards: đề bài hẹn làm khi cuộc dẫn dắt tới bậc
   templates. Tốn tiền API, cần chủ kho cho phép riêng.
