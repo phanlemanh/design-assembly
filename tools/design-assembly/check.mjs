@@ -42,6 +42,50 @@ export const FILES = {
 // One entry per kind of check. `run` returns null when the check passes, else what is wrong.
 // `change` returns the same state altered so that the check must fail.
 const KINDS = {
+  // What is applied is what the blueprint decides. An answer changed there without running the
+  // guide again is not in force, and nothing else would say so.
+  blueprint: {
+    run(state, check) {
+      let decided;
+      try {
+        decided = JSON.parse(state.files?.[check.file] ?? "null");
+      } catch {
+        return `${check.file} is not valid JSON`;
+      }
+      if (!decided) return `${check.file} is missing`;
+      const context = decided.layers?.context?.choice ?? {};
+      const foundations = decided.layers?.foundations?.choice ?? {};
+      const answers = {
+        sourceColor: foundations.source_color,
+        conformanceLevel: context.conformance_level,
+        typeScale: foundations.type_scale ?? "standard",
+        typeRatio: foundations.type_ratio,
+        cornerRadius: foundations.corner_radius ?? "floor",
+      };
+      const applied = state.theme?.inputs ?? {};
+      const differs = Object.keys(applied).filter(
+        (key) => String(answers[key]) !== String(applied[key]),
+      );
+      if (differs.length === 0) return null;
+      return `${check.file} decides ${differs.map((key) => `${key}: ${answers[key]}`).join(", ")}, and what is applied is ${differs.map((key) => applied[key]).join(", ")}: run the guide again, or put the answer back`;
+    },
+    change(state, check) {
+      const decided = JSON.parse(state.files?.[check.file] ?? "{}");
+      const layers = decided.layers ?? {};
+      const foundations = layers.foundations ?? {};
+      const changed = {
+        ...decided,
+        layers: {
+          ...layers,
+          foundations: {
+            ...foundations,
+            choice: { ...foundations.choice, source_color: "#010203" },
+          },
+        },
+      };
+      return { ...state, files: { ...state.files, [check.file]: JSON.stringify(changed) } };
+    },
+  },
   generated: {
     run(state) {
       const block = readBlock(state.css);
@@ -232,14 +276,22 @@ const KINDS = {
   // No screen opens a browser dialog or calls a toast library itself.
   channels: {
     run(state, check) {
-      return channelsProblem(state.folders?.[check.folder] ?? {}, check.skip);
+      // Every source file where the check names them; the screens alone in an older setting.
+      const files = state.sources?.[check.sources] ?? state.folders?.[check.folder] ?? {};
+      return channelsProblem(files, check.skip);
     },
     change(state, check) {
       const added = `${check.folder}/changed-copy.tsx`;
       const source =
         "export const ChangedCopy = () => <button onClick={() => window.alert(text)} />;\n";
       const files = { ...state.folders?.[check.folder], [added]: source };
-      return { ...state, folders: { ...state.folders, [check.folder]: files } };
+      const sources = check.sources
+        ? {
+            ...state.sources,
+            [check.sources]: { ...state.sources?.[check.sources], [added]: source },
+          }
+        : state.sources;
+      return { ...state, sources, folders: { ...state.folders, [check.folder]: files } };
     },
   },
   // Every error message a screen shows says what happened and what to do next.

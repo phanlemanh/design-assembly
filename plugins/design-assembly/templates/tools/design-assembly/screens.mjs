@@ -311,7 +311,8 @@ export function sizesProblem(sizesText, testText, file = SIZES_FILE, test = PAGE
   if (!code.includes(path.posix.basename(file))) {
     return `${test} does not read ${file}, so pages are not checked at these widths`;
   }
-  if (!/\bwidths\b/.test(code)) {
+  // The list itself, read off what was parsed: a type that only names the field is not a use.
+  if (!/\.widths\b/.test(code)) {
     return `${test} reads ${file} and does not go through its widths, so pages are not checked at them`;
   }
   return null;

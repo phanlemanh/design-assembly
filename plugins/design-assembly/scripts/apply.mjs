@@ -516,7 +516,7 @@ export function patternsPlan(target, { starter, code = false }) {
     }
   }
   if (Object.keys(sources).some((file) => !skip.some((prefix) => file.startsWith(prefix)))) {
-    propose("notification-channel", channelsProblem(sources, skip), {
+    propose("notification-channel", channelsProblem(readSources(target, "src"), skip), {
       what: "no screen opens a browser dialog or calls a toast library itself",
       row: {
         layer: "patterns",
@@ -525,7 +525,7 @@ export function patternsPlan(target, { starter, code = false }) {
         check: TOOL,
         note: "that no screen opens a browser dialog or calls a toast library itself; which channel a message takes is for the repository's own tests and a person's review",
       },
-      checks: [{ kind: "channels", folder: "src", skip }],
+      checks: [{ kind: "channels", folder: "src", sources: "src", skip }],
     });
   }
   // The toast and the one module screens tell results through: installed where the toast library
@@ -826,7 +826,10 @@ export function rulesPage(checks, has) {
       notify &&
       "Anything a toast's button does can also be done from the screen itself: the toast is never the only way.",
     held("notification-channel") &&
-      "Never call a toast library from a screen, and never `alert`, `confirm` or `prompt`.",
+      notify &&
+      "When a person leaves a screen its toasts go with it: whatever moves between screens calls `notifyClear` of the same module.",
+    held("notification-channel") &&
+      "Never call a toast library from a screen, and never `alert`, `confirm` or `prompt`. One module calls the toast library; a second one, whatever its name, fails the gate.",
   ]);
   const pages = has("tests/e2e/templates.spec.ts");
   section("After an action", [
@@ -850,7 +853,7 @@ export function rulesPage(checks, has) {
   ]);
   section("The system itself", [
     held("tier-direction") &&
-      "The code has parts, listed from the top down in `design/parts.json`. A file imports only its own part and the parts listed after it: a component never imports a screen. What two screens share moves down a part.",
+      "The code has parts, listed from the top down in `design/parts.json`. A file imports only its own part and the parts listed after it: a component never imports a screen. What two screens share: logic and data move down a part; a piece of drawing they share stays beside the screens of its kind, or becomes a component of the repository's own in a part a person adds to `design/parts.json` between the screens and the components.",
     held("escapes") &&
       "When you find a fault that every check let through, add a line to `design/escapes.md` before you fix it: the date, what slipped, the layer that should have caught it, and what was done.",
     (held("tier-direction") || held("escapes")) &&
@@ -903,11 +906,18 @@ function decisions(blueprint, theme, foundations) {
   // A person's call that the guide proposed is not theirs yet: the row says so until they confirm.
   // A layer the guide proposed may hold one answer the person has since given: `confirmed` lists
   // those choice keys, so that one row stops saying it is a proposal and the others still do.
-  const proposed = (layer, key) =>
-    blueprint.layers[layer].source === "proposed" &&
-    !(blueprint.layers[layer].confirmed ?? []).includes(key)
-      ? { note: "proposed by the guide; a person has not confirmed it" }
-      : {};
+  const proposed = (layer, key) => {
+    const entry = blueprint.layers[layer];
+    if ((entry.confirmed ?? []).includes(key)) return {};
+    if (entry.source === "proposed") {
+      return { note: "proposed by the guide; a person has not confirmed it" };
+    }
+    // Read off the repository is not a person's answer either, until a person says so.
+    if (entry.source === "repo") {
+      return { note: "read from the repository; a person has not confirmed it" };
+    }
+    return {};
+  };
   const call = (id, layer, key) => ({
     id,
     layer,
@@ -982,7 +992,7 @@ function decisions(blueprint, theme, foundations) {
     },
   ]);
   const checks = {
-    "tonal-palette": [{ kind: "generated" }],
+    "tonal-palette": [{ kind: "generated" }, { kind: "blueprint", file: BLUEPRINT }],
     "color-contrast": contrastChecks,
     "type-scale-values": [
       modular ? { kind: "scale" } : { kind: "absent", variables: TYPE_VARIABLES },

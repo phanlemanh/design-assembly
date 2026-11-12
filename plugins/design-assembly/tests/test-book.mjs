@@ -200,10 +200,7 @@ test("without a browser the book is still drawn: the states are listed, and it s
   const dir = guided();
   const drawn = run(BOOK, "--target", dir);
   assert.equal(drawn.status, 0, drawn.stderr);
-  assert.match(
-    drawn.stdout,
-    /note: the states are listed without pictures: the repository has no browser/,
-  );
+  assert.match(drawn.stdout, /note: no picture was drawn: the repository has no browser/);
   assert.match(drawn.stdout, /note: muted-foreground on muted reaches/);
   const page = readFileSync(path.join(dir, "coverage/design-book/book.html"), "utf8");
   assert.match(page, /<h4>loading<\/h4>/);
@@ -416,4 +413,41 @@ test("the components of the book are the component manifest's, and changing it m
   // Without pictures the families are still named, and the sheet says why nothing is drawn.
   assert.ok(page.includes(WORDS.noPictures));
   assert.match(page, /<ul class="parts"><li><b>Alert<\/b>/);
+});
+
+test("on a repository the guide did not build, the book says only what the repository has", () => {
+  const facts = { ...collectFacts(guided()), widths: [], font: null };
+  facts.kinds = [
+    { name: "grid", task: "Read rows", reference: "src/demo/showcase.tsx", body: "## Use" },
+  ];
+  facts.components = [
+    { name: "Button", file: "src/ui/button.tsx", variants: [], control: false, min_height: null },
+  ];
+  const page = renderBook(facts, { audience: "builder" });
+  const read = page.slice(0, page.indexOf('<script type="application/json"'));
+  // No width is named that the repository did not list.
+  assert.ok(read.includes(WORDS.noWidths));
+  assert.doesNotMatch(read, /1440 px/);
+  // A file that is no listed screen is not called the reference screen.
+  assert.ok(read.includes(WORDS.runningSample));
+  // Names that could not be drawn are a list, not "parts that work only inside another".
+  assert.ok(read.includes(WORDS.listedTitle));
+  assert.ok(!read.includes(WORDS.partsLede));
+  // Only commands the tool itself installs.
+  assert.doesNotMatch(read, /make design-audit/);
+  assert.match(read, /make design-tokens/);
+});
+
+test("a note is printed only for a pair the colour sheet draws", () => {
+  const facts = collectFacts(guided());
+  facts.pairs.push({
+    text: "warning-foreground",
+    ground: "warning",
+    light: 1.7,
+    dark: 1.9,
+    held: false,
+  });
+  const notes = belowThreshold(facts);
+  assert.ok(!notes.some((line) => line.includes("warning")));
+  assert.ok(notes.some((line) => line.includes("muted-foreground on muted")));
 });

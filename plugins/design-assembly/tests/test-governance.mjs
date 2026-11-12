@@ -321,7 +321,7 @@ test("the audit counts the record and the departures on purpose, and reaches the
   assert.match(empty.stdout, /design\/escapes\.md: no line yet\. An empty record is not proof/);
   assert.match(
     empty.stdout,
-    /departures on purpose: 1 lint exception\(s\), 0 screen\(s\) excused from the states, 1 file\(s\) left out of a kind of screen/,
+    /departures on purpose: 1 lint exception\(s\) in its own source, 0 screen\(s\) excused from the states, 1 file\(s\) left out of a kind of screen/,
   );
   assert.doesNotMatch(empty.stdout, /no row\s+tier-direction/);
   assert.doesNotMatch(empty.stdout, /missing: one of design\/escapes\.md/);
@@ -346,4 +346,50 @@ test("the rules page names the parts and the record only where they are held", (
   rmSync(path.join(bare, "design/patterns"), { recursive: true });
   assert.equal(run(APPLY, "--target", bare).status, 0);
   assert.doesNotMatch(text(bare, ".claude/rules/design-assembly.md"), /The code has parts/);
+});
+
+test("an answer changed in the blueprint without running the guide again turns the gate red", () => {
+  const dir = floor();
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  assert.equal(check(dir).status, 0, check(dir).stderr);
+  edit(dir, "design/blueprint.json", (s) => s.replace("#0246ff", "#aa3300"));
+  const changed = check(dir);
+  assert.equal(changed.status, 1);
+  assert.match(
+    changed.stderr,
+    /tonal-palette: design\/blueprint\.json decides sourceColor: #aa3300, and what is applied is #0246ff: run the guide again, or put the answer back/,
+  );
+  // Running the guide again puts the two in step.
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  assert.equal(check(dir).status, 0, check(dir).stderr);
+});
+
+test("what the guide read from the repository is not a person's answer until a person says so", () => {
+  const read = JSON.parse(blueprint());
+  read.layers.context.source = "repo";
+  const dir = floor({ "design/blueprint.json": JSON.stringify(read) });
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  assert.match(
+    rowsOf(dir)["product-type"].note,
+    /read from the repository; a person has not confirmed it/,
+  );
+  read.layers.context.confirmed = ["product_type"];
+  writeFileSync(path.join(dir, "design/blueprint.json"), JSON.stringify(read));
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  assert.equal(rowsOf(dir)["product-type"].note, undefined);
+  assert.match(rowsOf(dir)["conformance-level"].note, /a person has not confirmed it/);
+});
+
+test("the audit counts lint exceptions in the repository's own source, not in a library it took in", () => {
+  const dir = floor({
+    "src/components/ui/badge.tsx":
+      "// eslint-disable-next-line no-console -- vendor\nexport function Badge() {\n  return <span />;\n}\n",
+    "src/lib/join.ts":
+      '// eslint-disable-next-line no-console -- shown once\nexport const join = () => "";\n',
+  });
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  assert.match(
+    run(AUDIT, "--target", dir).stdout,
+    /departures on purpose: 1 lint exception\(s\) in its own source/,
+  );
 });

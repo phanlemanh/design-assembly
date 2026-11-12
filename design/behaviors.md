@@ -30,6 +30,8 @@ dẫn chỉ có mặt để chọn trạng thái. Bài kiểm chọn điều ki�
 - **Toast có nút thì ở lại** tới khi người dùng bấm nút đó hoặc bấm đóng. Toast không có nút tự
   tắt, và chỉ được tự tắt vì kết quả cũng đã thấy ngay trên màn.
 - **Mỗi lúc một toast:** toast mới thay toast cũ, không xếp chồng.
+- **Rời màn thì toast của màn đó đi theo:** thứ đưa người dùng sang màn khác gọi `notifyClear`
+  trong `src/lib/notify.ts`. Chỉ một mô-đun được gọi thư viện toast; mô-đun thứ hai làm cổng đỏ.
 - **Toast không là lối duy nhất:** việc nút trên toast làm được thì trên màn cũng làm được.
 - **Sự cố của cả màn:** hiện ở chỗ của nội dung, như trạng thái lỗi ở trên.
 

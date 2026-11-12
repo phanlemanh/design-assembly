@@ -271,10 +271,10 @@ function need(root, item, facts, tier) {
 
 // Departures on purpose, counted where each one lives: beside the rule it bends.
 function departures(root) {
-  const lint = Object.values(readSources(root)).reduce(
-    (sum, text) => sum + (text.match(/eslint-disable/g) ?? []).length,
-    0,
-  );
+  // In the repository's own source: a component library it took in is not its departure.
+  const lint = Object.entries(readSources(root))
+    .filter(([file]) => !VENDOR.test(file))
+    .reduce((sum, [, text]) => sum + (text.match(/eslint-disable/g) ?? []).length, 0);
   let excused;
   try {
     excused = Object.keys(JSON.parse(read(root, "design/states.json") ?? "{}").exempt ?? {}).length;
@@ -482,7 +482,7 @@ export function report(result, { all = false } = {}) {
   const d = result.departures;
   if (d.lint + d.excused + d.left > 0) {
     lines.push(
-      `departures on purpose: ${d.lint} lint exception(s), ${d.excused} screen(s) excused from the states, ${d.left} file(s) left out of a kind of screen`,
+      `departures on purpose: ${d.lint} lint exception(s) in its own source, ${d.excused} screen(s) excused from the states, ${d.left} file(s) left out of a kind of screen`,
     );
   }
   if (result.slips) {

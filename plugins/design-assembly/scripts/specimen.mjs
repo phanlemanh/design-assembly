@@ -152,13 +152,17 @@ export function around(color) {
     { label: "softer", color: written({ ...base, c: clamp(base.c - chroma, 0, 1) }) },
   ];
   // A step a screen cannot show lands on a colour already there: it is left out, and said.
-  const seen = new Set([written(base)]);
+  // Two colours an eye cannot tell apart are the same colour here.
+  const near = (a, b) =>
+    Math.abs(a.l - b.l) < 0.005 && Math.abs(a.c - b.c) < 0.005 && hueApart(a.h, b.h) < 1;
+  const seen = [asWritten(clipChroma(base))];
   const shown = [];
   const same = [];
   steps.forEach((step, index) => {
-    if (index > 0 && seen.has(step.color)) same.push(step.label);
+    const colour = parseColor(step.color);
+    if (index > 0 && seen.some((other) => near(other, colour))) same.push(step.label);
     else {
-      seen.add(step.color);
+      if (index > 0) seen.push(colour);
       shown.push(step);
     }
   });
@@ -400,7 +404,11 @@ export function renderSheet(plan, images) {
 </head>
 <body>
 <h1>Specimen sheet</h1>
-<p>The repository's own screen, once per option. Every option shown already meets the rules of the conformance level ${escape(plan.state.conformanceLevel)}. Answer with a letter.</p>
+<p>${escape(
+    plan.sections.every((section) => !section.key)
+      ? "The repository's own screen as it is now, beside the same screen with what the blueprint decides."
+      : `The repository's own screen, once per option. Every option shown already meets the rules of the conformance level ${plan.state.conformanceLevel}. Answer with a letter.`,
+  )}</p>
 ${body}
 </body>
 </html>
@@ -417,7 +425,7 @@ async function draw(target, plan, out) {
       ? readFileSync(path.join(target, REGISTRY), "utf8")
       : "",
   );
-  mkdirSync(path.join(target, out), { recursive: true });
+  mkdirSync(path.resolve(target, out), { recursive: true });
   const images = {};
   try {
     const { origin, browser } = stage;
@@ -450,7 +458,7 @@ async function draw(target, plan, out) {
             await page
               .locator("main")
               .first()
-              .screenshot({ path: path.join(target, out, file) });
+              .screenshot({ path: path.resolve(target, out, file) });
             (images[section.id][option.letter] ??= []).push({ file, what: `${shot}, ${mode}` });
           }
           await root.evaluate((node) => node.classList.remove("dark"));
@@ -458,11 +466,11 @@ async function draw(target, plan, out) {
         }
       }
     }
-    writeFileSync(path.join(target, out, "index.html"), renderSheet(plan, images));
+    writeFileSync(path.resolve(target, out, "index.html"), renderSheet(plan, images));
     // The whole sheet as one picture, for where a page cannot be opened.
     await page.setViewportSize({ width: 1440, height: 900 });
-    await page.goto(pathToFileURL(path.join(target, out, "index.html")).href);
-    await page.screenshot({ path: path.join(target, out, "sheet.png"), fullPage: true });
+    await page.goto(pathToFileURL(path.resolve(target, out, "index.html")).href);
+    await page.screenshot({ path: path.resolve(target, out, "sheet.png"), fullPage: true });
   } catch (error) {
     return { problem: `drawing stopped: ${error.message.split("\n")[0]}` };
   } finally {
@@ -530,12 +538,12 @@ async function main() {
     return;
   }
   writeFileSync(
-    path.join(target, out, "choices.json"),
+    path.resolve(target, out, "choices.json"),
     `${JSON.stringify(choices(plan), null, 2)}\n`,
   );
-  stdout.write(`\nsheet: ${path.join(target, out, "index.html")}\n`);
-  stdout.write(`one picture of it: ${path.join(target, out, "sheet.png")}\n`);
-  stdout.write(`what each letter writes: ${path.join(target, out, "choices.json")}\n`);
+  stdout.write(`\nsheet: ${path.resolve(target, out, "index.html")}\n`);
+  stdout.write(`one picture of it: ${path.resolve(target, out, "sheet.png")}\n`);
+  stdout.write(`what each letter writes: ${path.resolve(target, out, "choices.json")}\n`);
 }
 
 if (argv[1] && realpathSync(argv[1]) === realpathSync(fileURLToPath(import.meta.url))) await main();

@@ -16,7 +16,10 @@ Show before asking: `scripts/specimen.mjs` draws every option of this layer on t
 own screen, and the person answers with a letter (see "Show, then ask" in the guide). The words
 below are for explaining a letter, not for choosing by.
 
-Ask them in one stop.
+Ask one section at a time, in this order: each is shown on the sheet before it is asked. The
+sheet shows the type scales that suit the product type; `--all-ratios` draws every one, when the
+person asks for a stronger or a gentler scale than those. After `--around`, draw the other
+sections again with `--section type` and `--section radius`.
 
 1. **Source color**, as `#rrggbb` or as the stylesheet writes a colour, `oklch(L C H)`. Never
    convert a colour by hand: copy it in the form you found it.

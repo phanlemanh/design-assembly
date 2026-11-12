@@ -116,6 +116,9 @@ test("one step around a colour moves by fixed amounts, and a step a screen canno
   const full = around("#0246ff");
   assert.deepEqual(full.same, ["stronger"]);
   assert.ok(!full.shown.some((step) => step.label === "stronger"));
+  // A step an eye could not tell from the colour itself is left out too.
+  const green = around("oklch(0.55 0.15 150)");
+  assert.ok(green.same.includes("stronger"), JSON.stringify(green.same));
   assert.equal(around("nonsense"), null);
 });
 

@@ -5,7 +5,11 @@ budget: past it, the sheet stops saying one thing.
 
 The book keeps, inside itself, a list of every fact it shows (`design-book-facts`). `--check`
 reads that list back and compares it with the repository: the parts that differ are named. The
-pictures are not part of the list: they are drawn, not compared.
+pictures are not part of the list: they are drawn, not compared. So the check does not see a word
+on a button that the paths and the states print, and it reads the colours from the design tokens
+file: a value changed in the stylesheet shows once that file is written again, which the gate
+asks for. The revision on the cover ends in a plus when the repository had changes not yet
+committed.
 
 | Sheet            | The question it answers                      | Read from                                              |
 | ---------------- | -------------------------------------------- | ------------------------------------------------------ |
@@ -60,6 +64,8 @@ pictures are not part of the list: they are drawn, not compared.
   part of something larger: it is named under its family, and seen on the screens.
 - A component that needs another around it fails to draw by itself and is named as a part. The
   sheet never fakes its surroundings.
+- Where nothing could be drawn, the names are only the list the repository keeps: the sheet says
+  that, and does not call them parts.
 - The text inside a drawing is the option's own name, so nothing is invented; a size made for an
   icon is given a mark.
 - Drawn in light, at rest. The sheet for what is not shown says so.
@@ -70,6 +76,8 @@ pictures are not part of the list: they are drawn, not compared.
 
 - One kind per block: its name, its main task set large, and the picture of its reference screen;
   beside them, what the kind's page says, in the page's own words and order.
+- The picture is called the reference screen only when the file the page names is a listed
+  screen. Otherwise it is called what the page calls it: its running sample.
 - A `client` is not shown sections that hold code; a `builder` is shown the page whole.
 - The book never rewrites the page. A page that reads badly here reads badly in the repository:
   fix it there.
@@ -98,9 +106,11 @@ pictures are not part of the list: they are drawn, not compared.
 - Budget: every state of every screen, and nothing that is not a state. A screen with more than
   twelve states is two screens' worth of reading: say so to the person.
 - Without a browser the rows are there and the pictures are not; the sheet says why.
+- The widths are the repository's own list. Where it keeps none this tool reads, the sheet says
+  so and names no width.
 
 ## What is not here
 
-- Three lines, each one thing the book does not show, and one paragraph on how the book is kept
+- A few lines, each one thing the book does not show, and one paragraph on how the book is kept
   from saying something the repository does not.
 - This sheet is never left out.

@@ -357,3 +357,21 @@ test("words handed to a component in code are found too", () => {
   assert.match(found, /src\/b\.tsx: writes the text "Lưu trữ"/);
   assert.doesNotMatch(found, /src\/c\.tsx/);
 });
+
+test("one module may call the toast library; a second one is found, whatever it is called", () => {
+  const one = {
+    "src/lib/notify.ts": 'import { toast } from "sonner";\nexport const tell = toast;\n',
+  };
+  assert.equal(channelsProblem(one), null);
+  const two = {
+    ...one,
+    "src/lib/notify-clear.ts":
+      'import { toast } from "sonner";\nexport const clear = () => toast.dismiss();\n',
+  };
+  assert.match(
+    channelsProblem(two),
+    /src\/lib\/notify\.ts and src\/lib\/notify-clear\.ts each call a toast library/,
+  );
+  // A function of the repository's own that happens to be called confirm is not a browser dialog.
+  assert.equal(channelsProblem({ "src/lib/ask.ts": "export const ok = confirm(1);\n" }), null);
+});

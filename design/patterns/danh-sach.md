@@ -40,8 +40,9 @@ Cạnh tiêu đề là chỗ của việc chính của màn, khi màn có. Liên
 ## Thao tác trên một dòng
 
 Một dòng thay đổi thì danh sách đổi tại chỗ, không tải lại cả danh sách. Dòng ở yên với nút bị
-khoá tới khi có trả lời; thành công thì dòng rời đi và tiêu điểm sang cùng nút ở dòng kế; thất
-bại thì dòng còn nguyên và toast báo. Dòng cuối cùng rời đi thì tiêu điểm vào nút của trạng thái
+khoá tới khi có trả lời; thành công thì dòng rời đi và tiêu điểm sang cùng nút ở dòng kế; thao tác
+làm ngay mà thất bại thì dòng còn nguyên và toast báo (thao tác hỏi trước, như xoá, thì báo ngay
+trong hộp thoại). Dòng cuối cùng rời đi thì tiêu điểm vào nút của trạng thái
 trống. Chi tiết ở `design/behaviors.md`, «Sau một thao tác».
 
 ## Trạng thái trống

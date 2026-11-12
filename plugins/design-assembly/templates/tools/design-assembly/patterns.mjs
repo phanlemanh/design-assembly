@@ -143,14 +143,26 @@ export function channelsProblem(files, skip = []) {
   const found = [];
   const modules = TOAST_MODULES.map((name) => name.replace(/[-/]/g, "\\$&")).join("|");
   const direct = new RegExp(`from\\s+["'](${modules})["']`, "g");
+  // A module that draws nothing may be the one door to the toast library. A second one is a second
+  // door, whatever it is called.
+  const doors = [];
   for (const [file, text] of Object.entries(files)) {
     if (skip.some((prefix) => file.startsWith(prefix))) continue;
+    if (!/\.[jt]sx$/.test(file)) {
+      if ([...text.matchAll(direct)].length > 0) doors.push(file);
+      continue;
+    }
     for (const call of text.matchAll(/(?<![\w.])(?:window\.)?(alert|confirm|prompt)\s*\(/g)) {
       found.push(`${file}: opens the browser's own ${call[1]} dialog`);
     }
     for (const use of text.matchAll(direct)) {
       found.push(`${file}: calls the toast library ${use[1]} itself`);
     }
+  }
+  if (doors.length > 1) {
+    found.push(
+      `${doors.join(" and ")} each call a toast library: a result is told through one module`,
+    );
   }
   if (found.length === 0) return null;
   return `${found.slice(0, 5).join("; ")}: a screen tells a person through the repository's channels`;

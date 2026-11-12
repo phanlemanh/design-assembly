@@ -266,8 +266,14 @@ the preview again.
     proposed it, its note ends with `a person has not confirmed it`, and the audit names the row
     as not confirmed. The scripts keep a row as a person left it.
     The browser test can go red on screens that were there before it: a state that follows an
-    action and leaves nothing focused is a real fault of that screen. Read out the state it
-    names; `references/checks.md`, "After an action", says where focus belongs.
+    action and leaves nothing focused is a real fault of that screen. Never make it pass by
+    changing the test or leaving the state out. Do this, in order: add a line to
+    `design/escapes.md` (the fault, the layer `patterns`, what will be done); read out the states
+    it names; then fix the screen, which is the repository's own code: a control that waits is
+    held in a way that keeps focus, and a control that leaves hands focus on
+    (`references/checks.md`, "After an action"). The fix changes how a control behaves, so say it
+    in the summary as your change, not as part of what the guide generated. A test of the
+    repository that asserted the old behaviour changes with it.
     Say what a failed action does (`references/checks.md`, "A failed action"), and that a screen
     with an action done at once lists a state for that action failing. Where no toast is
     installed, say that the rule stands and the module that tells a failure is not there yet.

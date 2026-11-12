@@ -10,6 +10,10 @@
     "tonal-palette": [
       {
         "kind": "generated"
+      },
+      {
+        "kind": "blueprint",
+        "file": "design/blueprint.json"
       }
     ],
     "color-contrast": [
@@ -164,6 +168,7 @@
       {
         "kind": "channels",
         "folder": "src",
+        "sources": "src",
         "skip": ["src/components/ui/", "src/generated/"]
       }
     ],

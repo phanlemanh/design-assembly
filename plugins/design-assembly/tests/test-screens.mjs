@@ -290,6 +290,10 @@ test("the widths reach down to the reflow width, and the browser test reads them
   // Nor is a test that opens the file and then goes through widths of its own.
   const unused = "const sizes = read('design/screen-sizes.json');\nfor (const w of [1440]) {}";
   assert.match(sizesProblem(sizes([320]), unused), /does not go through its widths/);
+  // Nor one that only names the field in a type and then lists widths of its own.
+  const typed =
+    "const sizes = read('design/screen-sizes.json') as { widths: number[] };\nfor (const w of [320, 1440]) {}";
+  assert.match(sizesProblem(sizes([320]), typed), /does not go through its widths/);
 });
 
 test("the guide installs the layer, and each rule goes red when it is broken", () => {

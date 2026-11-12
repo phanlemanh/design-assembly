@@ -32,7 +32,8 @@ it.
 - An action done at once that fails is told through `notifyFailed` in the same module: what was not done, what to do next, and a button that tries again. Never drop a failure, and never tell a failed undo as done.
 - A failure where the dialog or form is still open is shown in it, not in a toast. What the person typed is kept.
 - Anything a toast's button does can also be done from the screen itself: the toast is never the only way.
-- Never call a toast library from a screen, and never `alert`, `confirm` or `prompt`.
+- When a person leaves a screen its toasts go with it: whatever moves between screens calls `notifyClear` of the same module.
+- Never call a toast library from a screen, and never `alert`, `confirm` or `prompt`. One module calls the toast library; a second one, whatever its name, fails the gate.
 
 ## After an action
 
@@ -49,7 +50,7 @@ it.
 
 ## The system itself
 
-- The code has parts, listed from the top down in `design/parts.json`. A file imports only its own part and the parts listed after it: a component never imports a screen. What two screens share moves down a part.
+- The code has parts, listed from the top down in `design/parts.json`. A file imports only its own part and the parts listed after it: a component never imports a screen. What two screens share: logic and data move down a part; a piece of drawing they share stays beside the screens of its kind, or becomes a component of the repository's own in a part a person adds to `design/parts.json` between the screens and the components.
 - When you find a fault that every check let through, add a line to `design/escapes.md` before you fix it: the date, what slipped, the layer that should have caught it, and what was done.
 - A departure on purpose stays beside the rule it bends, with its reason: a lint exception, a screen excused from the states, a file left out of its kind.
 

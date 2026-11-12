@@ -103,6 +103,10 @@ export const WORDS = {
     "The repository's own components, drawn from its source: one row for each thing a component can vary by, every other one left as it is by default.",
   atLeast: "at least",
   notAlone: "not drawn, needs another component around it",
+  listedTitle: "Listed in the component manifest",
+  listedLede: "None could be drawn here, so this is only the list the repository keeps.",
+  runningSample: "the file the page names as its running sample",
+  noWidths: "The repository does not list the widths it checks in a file this book reads.",
   partsTitle: "Parts",
   partsLede:
     "These work only inside another component. They are seen where they are used, on the screens.",
@@ -255,9 +259,14 @@ export function collectFacts(target) {
   const revision = spawnSync("git", ["-C", target, "rev-parse", "--short", "HEAD"], {
     encoding: "utf8",
   });
+  const dirty =
+    spawnSync("git", ["-C", target, "status", "--porcelain"], {
+      encoding: "utf8",
+    }).stdout?.trim() !== "";
   return {
     name: json("package.json")?.name ?? path.basename(target),
-    revision: revision.status === 0 ? revision.stdout.trim() : null,
+    // A plus says the repository had changes not yet committed when it was read.
+    revision: revision.status === 0 ? `${revision.stdout.trim()}${dirty ? "+" : ""}` : null,
     level,
     threshold: min,
     stylesheet,
@@ -267,7 +276,7 @@ export function collectFacts(target) {
       (entry) => entry.color,
     ),
     source,
-    font: value("--font-sans"),
+    font: /var\(/.test(value("--font-sans") ?? "var(") ? null : value("--font-sans"),
     type,
     radius: Object.entries(tokens.radius ?? {}).map(([step, token]) => ({
       step,
@@ -306,14 +315,23 @@ export function collectFacts(target) {
 // book shows them as they are; a person decides what to do about each.
 export function belowThreshold(facts) {
   if (facts.threshold === null) return [];
-  return facts.pairs.flatMap((pair) =>
-    ["light", "dark"]
-      .filter((mode) => pair[mode] !== null && pair[mode] < facts.threshold)
-      .map(
-        (mode) =>
-          `${pair.text} on ${pair.ground} reaches ${pair[mode].toFixed(2)}:1 in ${mode}, below the ${facts.threshold}:1 the conformance level asks${pair.held ? "" : ". No check holds this pair"}`,
-      ),
-  );
+  // Only the pairs the colour sheet draws: a pair made up from two names that the product never
+  // sets on each other would be a note about nothing.
+  const shown = (pair) =>
+    (SURFACES.includes(pair.ground) &&
+      pair.text === (pair.ground === "background" ? "foreground" : `${pair.ground}-foreground`)) ||
+    (pair.ground === "background" &&
+      ["muted-foreground", "primary", "destructive"].includes(pair.text));
+  return facts.pairs
+    .filter(shown)
+    .flatMap((pair) =>
+      ["light", "dark"]
+        .filter((mode) => pair[mode] !== null && pair[mode] < facts.threshold)
+        .map(
+          (mode) =>
+            `${pair.text} on ${pair.ground} reaches ${pair[mode].toFixed(2)}:1 in ${mode}, below the ${facts.threshold}:1 the conformance level asks${pair.held ? "" : ". No check holds this pair"}`,
+        ),
+    );
 }
 
 // ---- pages -------------------------------------------------------------------------------------
@@ -446,7 +464,7 @@ function colorSheet(facts, w, audience) {
       ? `<h3>${escape(w.palette)}</h3><div class="palette">${facts.palette
           .map(
             (entry) =>
-              `<span style="background:${escape(entry.color)}"><em>${entry.tone}</em></span>`,
+              `<span${entry.tone >= 60 ? ' class="pale"' : ""} style="background:${escape(entry.color)}"><em>${entry.tone}</em></span>`,
           )
           .join("")}</div>`
       : "";
@@ -472,7 +490,7 @@ function colorSheet(facts, w, audience) {
   );
 }
 
-function typeSheet(facts, w, audience) {
+function typeSheet(facts, w) {
   const steps = [...facts.type]
     .reverse()
     .map(
@@ -504,7 +522,7 @@ function typeSheet(facts, w, audience) {
       <div>
         <h3>${escape(w.typeScale)}</h3>
         <ol class="type">${steps}</ol>
-        ${facts.font ? `<p class="muted">${escape(w.fontStack)}: <code>${escape(facts.font)}</code>${audience === "builder" ? ` · ${escape(w.fontNote)}` : ""}</p>` : ""}
+        ${facts.font ? `<p class="muted">${escape(w.fontStack)}: <code>${escape(facts.font)}</code> · ${escape(w.fontNote)}</p>` : ""}
       </div>
       <div>
         <h3>${escape(w.radius)}</h3>
@@ -746,7 +764,7 @@ function componentsSheet(facts, w, audience, drawn) {
     w.componentsTitle,
     w.componentsQuestion,
     w.componentsLede,
-    `${none}${shown}${parts ? `<h3>${escape(w.partsTitle)}</h3><p class="muted">${escape(w.partsLede)}</p><ul class="parts">${parts}</ul>` : ""}`,
+    `${none}${shown}${parts ? `<h3>${escape(shown ? w.partsTitle : w.listedTitle)}</h3><p class="muted">${escape(shown ? w.partsLede : w.listedLede)}</p><ul class="parts">${parts}</ul>` : ""}`,
   );
 }
 
@@ -757,7 +775,7 @@ function kindsSheet(facts, w, audience, drawn) {
       const screen = facts.screens.find((item) => item.file === kind.reference);
       const state = screen?.states[0];
       const image = screen ? drawn?.images?.[`${screen.path}|${state}|${wide}`] : null;
-      const where = `${escape(w.referenceScreen)}${screen ? ` · <code>${escape(screen.path)}</code>` : ""}${audience === "builder" ? ` · <code>${escape(kind.reference)}</code>` : ""}`;
+      const where = `${escape(screen ? w.referenceScreen : w.runningSample)}${screen ? ` · <code>${escape(screen.path)}</code>` : ""}${audience === "builder" ? ` · <code>${escape(kind.reference)}</code>` : ""}`;
       const picture = image
         ? `<figure><img src="${image}" alt="${escape(`${kind.name}, ${w.referenceScreen}`)}" /><figcaption>${where}</figcaption></figure>`
         : `<p class="muted">${where}</p>`;
@@ -912,7 +930,11 @@ function statesSheet(facts, w, audience, drawn) {
     6,
     w.statesTitle,
     w.statesQuestion,
-    `${w.statesLede} ${widths.map((width) => `${width} px`).join(", ")}.`,
+    // The widths are the repository's own list. Where it keeps none this book can read, say so:
+    // a width nobody listed is never printed.
+    facts.widths.length > 0
+      ? `${w.statesLede} ${facts.widths.map((width) => `${width} px`).join(", ")}.`
+      : w.noWidths,
     `${none}${screens}`,
   );
 }
@@ -920,7 +942,7 @@ function statesSheet(facts, w, audience, drawn) {
 function closing(w, audience) {
   const commands =
     audience === "builder"
-      ? `<h3>${escape(w.commands)}</h3><ul class="plain mono"><li>make check</li><li>make design-assembly</li><li>make design-audit</li></ul>`
+      ? `<h3>${escape(w.commands)}</h3><ul class="plain mono"><li>make check</li><li>make design-assembly</li><li>make design-rate</li><li>make design-tokens</li></ul>`
       : "";
   return sheet(
     7,
@@ -1021,7 +1043,8 @@ export function renderBook(facts, { audience = "client", words = {}, drawn = nul
   .line { padding: 8px 14px; border: 2px solid; border-radius: var(--radius); font-size: var(--xs); }
   .palette { display: flex; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); }
   .palette span { flex: 1; height: 64px; position: relative; }
-  .palette em { position: absolute; left: 6px; bottom: 4px; font: 10px ui-monospace, monospace; font-style: normal; color: #fff; mix-blend-mode: difference; }
+  .palette em { position: absolute; left: 6px; bottom: 4px; font: 10px ui-monospace, monospace; font-style: normal; color: #fff; }
+  .palette span.pale em { color: #111; }
   .others { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: var(--xs); color: var(--muted); }
   .others i { display: inline-block; width: 12px; height: 12px; border: 1px solid var(--line); margin-right: 3px; vertical-align: -2px; }
   .type { margin: 0; padding: 0; list-style: none; }
@@ -1030,7 +1053,7 @@ export function renderBook(facts, { audience = "client", words = {}, drawn = nul
   .type .meta em { display: block; font-style: normal; font-variant-numeric: tabular-nums; }
   .type .specimen { white-space: nowrap; overflow: hidden; text-overflow: clip; font-weight: 500; }
   .radii { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-  .radii i { display: block; height: 72px; border: 1.5px solid var(--fg); border-right-color: transparent; border-bottom-color: transparent; background: var(--surface); }
+  .radii i { display: block; height: 72px; border: 1.5px solid var(--fg); background: var(--surface); }
   .radii b, .spacing b { display: block; margin-top: 8px; font-size: var(--xs); }
   .radii em, .spacing em, .target em { font-style: normal; font-size: var(--xs); color: var(--muted); font-variant-numeric: tabular-nums; }
   .spacing { display: flex; align-items: flex-end; gap: 20px; flex-wrap: wrap; }
@@ -1083,7 +1106,7 @@ export function renderBook(facts, { audience = "client", words = {}, drawn = nul
 <main class="book">
 ${cover(facts, w)}
 ${colorSheet(facts, w, audience)}
-${typeSheet(facts, w, audience)}
+${typeSheet(facts, w)}
 ${componentsSheet(facts, w, audience, drawn)}
 ${kindsSheet(facts, w, audience, drawn)}
 ${pathsSheet(facts, w, audience, drawn)}
@@ -1126,6 +1149,7 @@ async function drawStates(target, facts) {
   const images = {};
   const how = {};
   let components;
+  let partial = null;
   try {
     const { SCREENS } = await stage.load(`/${REGISTRY}`);
     const widths = facts.widths.length > 0 ? facts.widths : [1440];
@@ -1161,13 +1185,26 @@ async function drawStates(target, facts) {
       }
       await context.close();
     }
-    components = await drawComponents(stage, facts);
   } catch (error) {
+    await stage.close();
     return { problem: `drawing stopped: ${error.message.split("\n")[0]}` };
+  }
+  // The components are drawn apart: when they fail, the pictures of the states are kept. The
+  // development server may load the page again while it prepares a package for the first time, so
+  // one more try is made.
+  try {
+    try {
+      components = await drawComponents(stage, facts);
+    } catch {
+      components = await drawComponents(stage, facts);
+    }
+  } catch (error) {
+    components = null;
+    partial = `the components could not be drawn: ${error.message.split("\n")[0]}`;
   } finally {
     await stage.close();
   }
-  return { images, how, components };
+  return { images, how, components, partial };
 }
 
 // The same book as a file to print, or as one picture per sheet for slides.
@@ -1183,7 +1220,7 @@ async function exportBook(target, file, format, out) {
     await page.goto(pathToFileURL(file).href);
     if (format === "pdf") {
       await page.pdf({
-        path: path.join(target, out, "book.pdf"),
+        path: path.resolve(target, out, "book.pdf"),
         printBackground: true,
         width: "1440px",
         height: "1018px",
@@ -1191,9 +1228,9 @@ async function exportBook(target, file, format, out) {
     } else {
       const sheets = page.locator(".sheet");
       for (let i = 0; i < (await sheets.count()); i += 1) {
-        await sheets
-          .nth(i)
-          .screenshot({ path: path.join(target, out, `sheet-${String(i).padStart(2, "0")}.png`) });
+        await sheets.nth(i).screenshot({
+          path: path.resolve(target, out, `sheet-${String(i).padStart(2, "0")}.png`),
+        });
       }
     }
   } catch (error) {
@@ -1251,11 +1288,11 @@ async function main() {
   const wordsFile = value("--words") ?? path.join(target, WORDS_FILE);
   const words = existsSync(wordsFile) ? JSON.parse(readFileSync(wordsFile, "utf8")) : {};
   const drawn = await drawStates(target, facts);
-  if (drawn.problem)
-    stdout.write(`note: the states are listed without pictures: ${drawn.problem}\n`);
+  if (drawn.problem) stdout.write(`note: no picture was drawn: ${drawn.problem}\n`);
+  if (drawn.partial) stdout.write(`note: ${drawn.partial}\n`);
   const out = value("--out") ?? OUT;
-  mkdirSync(path.join(target, out), { recursive: true });
-  const file = path.join(target, out, "book.html");
+  mkdirSync(path.resolve(target, out), { recursive: true });
+  const file = path.resolve(target, out, "book.html");
   writeFileSync(file, renderBook(facts, { audience, words, drawn: drawn.problem ? null : drawn }));
   stdout.write(`book: ${file}\n`);
   stdout.write(
@@ -1265,7 +1302,9 @@ async function main() {
   if (format !== "html") {
     const problem = await exportBook(target, file, format, out);
     stdout.write(
-      problem ? `note: ${problem}\n` : `also written as ${format} in ${path.join(target, out)}\n`,
+      problem
+        ? `note: ${problem}\n`
+        : `also written as ${format} in ${path.resolve(target, out)}\n`,
     );
   }
 }

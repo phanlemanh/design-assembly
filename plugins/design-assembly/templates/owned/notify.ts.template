@@ -53,3 +53,9 @@ export function notifyFailed(message: string, detail: string, retry: Choice): vo
     ...stays(retry),
   });
 }
+
+// The person left the screen: its toasts go with it. Called by whatever moves between screens,
+// so a toast never offers an undo for a screen that is no longer there.
+export function notifyClear(): void {
+  toast.dismiss();
+}

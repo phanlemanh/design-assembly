@@ -44,7 +44,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 - Nhánh `main`, cây làm việc sạch. **Chưa có remote, chưa đẩy đi đâu**: kho chỉ nằm trên máy
   này. Mọi thứ đều đã commit. Cập nhật lần cuối 2026-11-12, sau quyết định 0020.
 - `make check` xanh: lint, typecheck, 68 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (22 quyết định, 27 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 195 bài kiểm của plugin.
+  (22 quyết định, 28 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 201 bài kiểm của plugin.
 - Kho này đáp **37/38 quyết định lõi**: 14 máy giữ, 17 tự khai, 6 đã ghi. Sổ có 47 dòng. Ngày 2026-11-12 chủ kho
   xác nhận cả sáu câu «đã ghi»; riêng lời văn thì chủ kho xác nhận cách viết, chưa đọc từng chữ.
 
@@ -108,8 +108,8 @@ việc nào được duyệt:
   `coverage/design-book/book.html`): lát 0020 chỉ nghiệm thu được bằng lượt đó.
 - **Chủ kho đã đi hết bảng mẫu của foundations** ngày 2026-11-12 và giữ cả ba giá trị đang dùng
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
-- **Lần chạy thử bốn đã xong** (2026-11-12, kết quả ở cuối spec 0001). Điều sai rõ đã sửa, và
-  bốn chỗ nó để ngỏ đã thành luật (quyết định 0017). Cả hai đợt sửa chưa được thử lại.
+- **Lần chạy thử năm đã xong** (2026-11-12, kết quả ở cuối spec 0001). Điều sai rõ đã sửa; các
+  sửa đổi đó chưa được thử lại. Điều nó để ngỏ nằm ở mục «Điều còn nguyên» của lần thử năm.
 - **Khung điều hướng** chưa dựng: luật có rồi, chờ màn thứ hai.
 - **Đo token** theo giao thức của Repo Standards: đề bài hẹn làm khi cuộc dẫn dắt tới bậc
   templates. Tốn tiền API, cần chủ kho cho phép riêng.
@@ -178,7 +178,7 @@ Cần Repo Standards:
 
 Giới hạn đã biết của plugin (chi tiết ở từng bản ghi):
 
-- Các sửa đổi sau lần chạy thử thứ bốn **chưa được tác tử độc lập thử lại**.
+- Các sửa đổi sau lần chạy thử thứ năm **chưa được tác tử độc lập thử lại**.
 - Nhiều dòng «máy giữ» chỉ giữ phần đọc được từ mã nguồn; dòng sổ có ghi chú nói phần nào.
 - Tương phản mới kiểm hai cặp của màu chính. Màu viết dạng pha trộn không đọc được.
 - Luật thao tác thất bại không đọc được từ mã nguồn: giữ bằng bài kiểm của kho, mức «tự khai».
@@ -189,7 +189,7 @@ Giới hạn đã biết của plugin (chi tiết ở từng bản ghi):
 
 ## Cách chạy thử bằng tác tử độc lập
 
-Đã làm bốn lần, lần nào cũng tìm ra lỗi mà bài kiểm trên kho giả không thấy. Tốn token, nên hỏi chủ
+Đã làm năm lần, lần nào cũng tìm ra lỗi mà bài kiểm trên kho giả không thấy. Tốn token, nên hỏi chủ
 kho trước.
 
 - Bản sao đặt ở thư mục tạm của phiên. Kho trước khi có plugin: clone kho này rồi checkout
@@ -202,6 +202,10 @@ kho trước.
   lần bốn cho mỗi tác tử một câu lệnh giữ khoá bằng thư mục (`mkdir` trước, `rmdir` sau) quanh
   `make check`, và ba tác tử chạy song song không vướng nhau.
 - Bản sao dùng cho vai dựng màn thì xoá trang bàn giao này đi, và cấm đọc cả `wiki/specs/`.
+- Lần năm: câu trả lời niêm phong viết bằng lời của người («xanh lục», «bản đậm hơn»), không
+  bằng chữ cái, để thử việc đổi lời thành giá trị trên bảng mẫu. Cho tác tử tự mở từng ảnh.
+- Ở kho này `src/lib/notify.ts` phải giống hệt bản mẫu trong plugin; tác tử dựng màn không biết
+  điều đó và bị bài kiểm của plugin đánh đỏ. Dặn trước trong đề bài.
 - Tác tử báo về là báo cáo, chưa phải bằng chứng: tự kiểm lại trước khi sửa.
 
 ## Bẫy đã gặp

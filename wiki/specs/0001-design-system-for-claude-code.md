@@ -382,6 +382,48 @@ người xác nhận. Trang luật để lại sau adopt tự nhận do cuộc d
 - Không lệnh kiểm nào buộc màn có thao tác làm ngay phải khai trạng thái thất bại.
 - Các sửa đổi sau lần thử này lại chưa được tác tử độc lập thử.
 
+### Chạy thử lần năm (2026-11-12)
+
+Ba tác tử, sau bảy đợt thay đổi chưa được thử: sau một thao tác, governance, bảng mẫu, cuốn sổ
+bàn giao. Tác tử dẫn dắt đi nhánh «dừng ở từng tầng», chọn bằng bảng mẫu rồi bàn giao; tác tử thứ
+hai adopt rồi bàn giao trên bản clone của kho đối chứng; tác tử dựng màn làm lại đúng đề bài của
+lần bốn để so trước và sau.
+
+**Điều đứng vững.** Cuộc dẫn dắt đi trọn với bảng mẫu: câu trả lời bằng lời («xanh lục, cho xem
+biến thể», rồi «bản đậm hơn») được đổi thành đúng một giá trị trên bảng, kho đi từ 0 lên 35/38,
+cổng xanh, cuốn sổ đủ tám tờ. Adopt vẫn không đổi gì của kho. Phép kiểm tiêu điểm bắt đúng màn cũ
+của sàn, và tác tử ghi sổ lỗi lọt rồi sửa màn, không đụng lệnh kiểm. Tác tử dựng màn nói bốn chỗ
+lần trước phải đoán nay đã có luật: đi lại giữa các màn, dòng rời đi và tiêu điểm, hoàn tác sang
+màn khác, trạng thái trống không tạo được gì; nó tự dựng khung điều hướng theo luật và ghi một
+dòng vào sổ lỗi lọt khi gặp lỗi không lệnh kiểm nào bắt.
+
+**Điều sai, đã sửa.** Đổi một câu trả lời trong bản thiết kế mà không chạy lại thì không gì đỏ:
+thêm lệnh kiểm so bản thiết kế với giá trị đã áp. Lệnh kiểm cỡ màn vẫn bị qua mặt bằng phần khai
+kiểu: giờ đòi đọc đúng trường của tệp. Lệnh kiểm kênh thông báo chỉ đọc tệp màn: giờ đọc mọi tệp
+mã và chỉ cho một mô-đun gọi thư viện toast; mô-đun thông báo có thêm cách xoá toast khi rời màn.
+Cuốn sổ nói sai ở kho không do plugin dựng (bề rộng tự bịa, mọi linh kiện bị gọi là «phần», trang
+trưng bày bị gọi là màn mẫu, lệnh không tồn tại, phông không đọc được): giờ chỉ nói điều kho có.
+Cuốn sổ hỏng giữa chừng khi vẽ linh kiện mà mất cả ảnh trạng thái: giờ thử lại và giữ phần đã vẽ.
+Audit đếm ngoại lệ lint cả trong thư viện linh kiện: giờ chỉ đếm mã của chính kho. Thứ đọc từ kho
+bị ghi là người quyết: giờ ghi rõ là chưa ai xác nhận. Hướng dẫn nói rõ phải làm gì khi phép kiểm
+tiêu điểm đỏ trên màn có từ trước.
+
+**Điều còn nguyên**, chờ chủ kho hoặc Repo Standards:
+
+- Một trạng thái «đã lưu trữ» là khái niệm mới của mô hình dữ liệu; tác tử dựng màn phải đi vòng
+  vì không được sửa ontology. Luật «hành vi mới vào mô hình dữ liệu ra sao» vẫn chưa có.
+- Phần vẽ dùng chung giữa hai màn chưa có chỗ đặt hợp lệ ngoài thư mục linh kiện của sàn; lời luật
+  đã nói rõ hai lối, nhưng kho chưa có phần «linh kiện của riêng kho».
+- Hàng có hai thao tác, nhiều hàng cùng chờ, trạng thái cần một thao tác ở màn khác mới tới được,
+  khi nào hành vi mới cần một dòng sổ: chưa có luật.
+- Ở bề rộng 320 cột thao tác nằm ngoài khung cho tới khi cuộn bảng; nhãn «đang làm» làm nút rộng
+  ra và đẩy cột; tiêu điểm đặt vào tiêu đề thì không thấy viền.
+- Adopt vẫn im lặng về kiểu màn, cỡ màn, hướng nhập và sổ lỗi lọt ở kho đã có; dòng «bước kế» sau
+  adopt vẫn chỉ sang adopt.
+- Phép đối chiếu cuốn sổ không thấy chữ trên nút và ảnh; đã ghi thành giới hạn.
+- Trang hành vi của sàn dạy khoá nút theo cách mà phép kiểm tiêu điểm đánh đỏ.
+- Các sửa đổi sau lần thử này lại chưa được tác tử độc lập thử.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.
