@@ -1,6 +1,6 @@
 # Product context
 
-Status: decided (proposed).
+Status: decided (user).
 
 ## Choice
 
@@ -9,7 +9,7 @@ Status: decided (proposed).
 
 ## Why
 
-Kho được dựng với design_surface là tool: màn mẫu là một danh sách làm việc có lọc, thêm và xoá. Không có yêu cầu pháp lý hay hợp đồng nào đòi cao hơn AA, mức phần lớn sản phẩm cam kết.
+Chủ kho xác nhận ngày 2026-11-12: đây là công cụ làm việc (danh sách có lọc, thêm và xoá), và không hợp đồng hay quy định nào đòi cao hơn AA, mức phần lớn sản phẩm cam kết.
 
 ## Rejected
 

@@ -9,12 +9,10 @@ decisions:
     layer: context
     kind: judgment
     source: "design/blueprint.json"
-    note: "proposed by the guide; a person has not confirmed it"
   - id: conformance-level
     layer: context
     kind: judgment
     source: "design/blueprint.json"
-    note: "proposed by the guide; a person has not confirmed it"
   - id: source-color
     layer: foundations
     kind: judgment

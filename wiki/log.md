@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-12 — Chủ kho xác nhận loại sản phẩm (ứng dụng làm việc) và mức accessibility (AA); tầng context giờ ghi là người quyết — `design/blueprint.json`, `design/decisions/context.md`.
 - 2026-11-12 — Chủ kho đi hết ba điểm dừng của foundations trên bảng mẫu (màu gốc, thang chữ, bo góc), giữ cả ba giá trị đang dùng; tầng foundations giờ ghi là người quyết — [0019](decisions/0019-show-then-ask.md), `design/blueprint.json`, `design/decisions/foundations.md`.
 - 2026-11-12 — Chủ kho xem bảng mẫu thang chữ và chọn thang chuẩn của sàn (phương án A) — [0019](decisions/0019-show-then-ask.md), `design/blueprint.json`.
 - 2026-11-12 — Chủ kho xác nhận màu gốc `#0246ff` sau khi xem bảng mẫu; sổ thôi ghi nó là đề xuất của máy. Một câu trả lời được xác nhận riêng thì chỉ dòng đó hết là đề xuất — [0019](decisions/0019-show-then-ask.md), `design/blueprint.json`, `plugins/design-assembly/scripts/apply.mjs`.

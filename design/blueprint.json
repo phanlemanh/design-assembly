@@ -1,18 +1,18 @@
 {
   "version": 1,
   "status": "approved",
-  "approval_note": "Máy đi trước: các giá trị đề xuất được áp vào reference implementation ngày 2026-11-11, trước khi chủ kho xem. Ngày 2026-11-12 chủ kho xem bảng mẫu và chọn cả ba hạng mục của foundations: màu gốc #0246ff, thang chữ chuẩn, bo góc của sàn. Loại sản phẩm và mức accessibility vẫn là máy đề xuất.",
+  "approval_note": "Máy đi trước: các giá trị đề xuất được áp vào reference implementation ngày 2026-11-11, trước khi chủ kho xem. Ngày 2026-11-12 chủ kho xác nhận loại sản phẩm và mức accessibility, và chọn cả ba hạng mục của foundations trên bảng mẫu: màu gốc #0246ff, thang chữ chuẩn, bo góc của sàn.",
   "depth": "hand",
   "conversation_language": "vi",
   "layers": {
     "context": {
       "status": "decided",
-      "source": "proposed",
+      "source": "user",
       "choice": {
         "product_type": "application",
         "conformance_level": "AA"
       },
-      "why": "Kho được dựng với design_surface là tool: màn mẫu là một danh sách làm việc có lọc, thêm và xoá. Không có yêu cầu pháp lý hay hợp đồng nào đòi cao hơn AA, mức phần lớn sản phẩm cam kết.",
+      "why": "Chủ kho xác nhận ngày 2026-11-12: đây là công cụ làm việc (danh sách có lọc, thêm và xoá), và không hợp đồng hay quy định nào đòi cao hơn AA, mức phần lớn sản phẩm cam kết.",
       "rejected": [
         {
           "option": "content-site",
