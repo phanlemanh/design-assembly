@@ -426,8 +426,7 @@ tiêu điểm đỏ trên màn có từ trước.
 
 **Sau đó, cùng ngày** (quyết định 0021): sáu luật cho những chỗ tác tử dựng màn phải đoán. Khái
 niệm mới qua mô hình dữ liệu, tác tử không được sửa thì hỏi; phần «linh kiện của kho» cho phần vẽ
-dùng chung; tối đa hai nút trên dòng, mỗi dòng chờ riêng, nút đang chờ giữ bề rộng; cột tên và cột
-thao tác đứng yên trên bảng hẹp, có phép kiểm trình duyệt; tiêu điểm thấy được; sổ chỉ cho luật dùng
+dùng chung; tối đa hai nút trên dòng, mỗi dòng chờ riêng, nút đang chờ giữ bề rộng; cột thao tác đứng yên khi bảng cuộn ngang và cột tên từ bề rộng 640, có phép kiểm trình duyệt; tiêu điểm thấy được; sổ chỉ cho luật dùng
 chung. Còn mở: trạng thái chỉ tới được từ màn khác, và các mục adopt, cuốn sổ, trang của sàn ở trên.
 
 ## Domain impact

@@ -15,7 +15,7 @@ it.
 - To add a column: give the property its `display` key, run `make gen` and `make design-columns`, add the header to the repository's words, then use the field in the screen.
 - Build the table from `TypedTable`, `TypedRow`, `TypedHead` and `TypedCell` (`src/components/ui/typed-table.tsx`). They take alignment, width and row height from the column type.
 - Never put a text-alignment or width class on a table cell, or a height or text-size class on a table row, typed or plain.
-- A column that holds actions and no data uses `TypedActionsHead` and `TypedActions` from the same file. On a narrow screen the table scrolls sideways under its first column and its column of actions: both stay in place, so a row's name and its actions are always in view.
+- A column that holds actions and no data uses `TypedActionsHead` and `TypedActions` from the same file. When the table is wider than its place it scrolls sideways inside itself: the column of actions always stays in place, and the first column stays too from 640px up. On a phone the name scrolls with the data, so every column can still be read.
 
 ## Actions on a row
 
@@ -47,7 +47,7 @@ it.
 - While an action done at once waits for its answer, the control that started it is held and keeps focus. A control that is removed, or disabled in a way that drops it from the keyboard, loses focus. From one second on, the control says it is working.
 - When a control leaves the page (its row is removed, its dialog closes on a deleted item, its state is replaced), move focus: to the same action on the row after it, else on the row before, else to the button of the state shown in place of the table, else to the screen's top heading.
 - Wherever focus is sent, it shows: a heading or any element given `tabIndex={-1}` to receive focus gets the same visible ring as a control.
-- At the narrowest width, every control of the first row of a table is inside the window: the browser test fails when one is not.
+- At every width, every control of the first row of a table is inside the window, and the columns that stay in place leave room to read the widest column that scrolls: the browser test fails when either is not so.
 - A button of a toast gives focus back to where the person was before the toast: the notification module does this.
 
 ## A screen

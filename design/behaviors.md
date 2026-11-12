@@ -80,10 +80,11 @@ Thất bại thì báo ở nơi người dùng vừa làm, và không bao giờ 
 - **Tối đa hai nút trên một dòng.** Từ ba thao tác trở lên thì gom vào một trình đơn của dòng.
   Thao tác đảo được đứng trước, xoá đứng cuối.
 - **Mỗi dòng chờ phần của nó.** Một dòng đang chờ trả lời thì các dòng khác vẫn dùng được.
-- **Bảng hẹp: cột tên và cột thao tác đứng yên.** Ở bề rộng hẹp, bảng cuộn ngang bên dưới cột
-  đầu và cột thao tác (`TypedActionsHead`, `TypedActions`), nên tên và nút của một dòng luôn nằm
-  trong khung nhìn. Bài kiểm trình duyệt đỏ khi một nút của dòng đầu nằm ngoài khung ở bề rộng
-  hẹp nhất.
+- **Bảng rộng hơn chỗ: cột thao tác luôn đứng yên.** Bảng cuộn ngang bên trong nó; cột thao tác
+  (`TypedActionsHead`, `TypedActions`) ở yên nên nút của một dòng luôn trong khung nhìn. Cột tên
+  cũng đứng yên từ bề rộng 640 trở lên; trên điện thoại nó cuộn cùng dữ liệu, vì ghim cả hai cột
+  thì không còn chỗ đọc các cột giữa. Bài kiểm trình duyệt đỏ khi một nút của dòng đầu nằm ngoài
+  khung, hoặc khi các cột đứng yên chừa không đủ chỗ cho cột rộng nhất cuộn qua.
 
 ## Đi lại giữa các màn
 

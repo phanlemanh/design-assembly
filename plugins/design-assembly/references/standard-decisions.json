@@ -359,7 +359,7 @@
       "id": "row-actions-in-view",
       "layer": "patterns",
       "kind": "standard",
-      "question": "Can a person reach a row's actions on the narrowest screen without scrolling sideways?",
+      "question": "Can a person reach a row's actions at every width without scrolling sideways, and still read every column?",
       "sources": ["design-assembly"]
     },
     {

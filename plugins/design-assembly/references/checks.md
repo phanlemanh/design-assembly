@@ -197,10 +197,13 @@ every page; the others are a person's review, and the rules page says so.
   the same visible ring as a control.
 - **A row's actions are in view** (`row-actions-in-view`). On a narrow screen a table scrolls
   sideways inside itself, and the column of actions, last in the row, ends up off the screen: a
-  person sees a name and cannot act on it. The first column and the column of actions stay in
-  place (`TypedActionsHead` and `TypedActions` of the typed table parts), and the middle scrolls.
-  The browser test checks, at every width, that every control of the first row is inside the
-  window. It checks the first row only, and a table built with other parts is held the same way.
+  person sees a name and cannot act on it. The column of actions stays in place (`TypedActionsHead`
+  and `TypedActions` of the typed table parts); the first column stays too from 640px up. Pinning
+  both on a phone leaves no room to read the columns between them, so there the name scrolls with
+  the data. The browser test checks, at every width, that every control of the first row is
+  inside the window, and that the pinned columns leave the scrolling band at least as wide as the
+  widest column that scrolls. It reads the first row and the first table only, and a table built
+  with other parts is held the same way.
 - **The actions of a row.** At most two show as buttons; three or more go into one menu on the
   row, the ones that can be taken back first and a delete last. Each row waits on its own. A
   button that says it is working keeps its width: the guide installs `HeldLabel` beside the

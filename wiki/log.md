@@ -7,7 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
-- 2026-11-12 — Sáu luật cho những gì tác tử dựng màn phải đoán ở lần thử năm: cột tên và cột thao tác đứng yên trên bảng hẹp, nút đang chờ giữ bề rộng, tiêu điểm thấy được, phần «linh kiện của kho», khái niệm mới qua mô hình dữ liệu, sổ chỉ cho luật dùng chung; khai `createItem`, `deleteItem` và vai `user` (chờ duyệt riêng) — [0021](decisions/0021-rules-the-builder-guessed.md), [Item](entities/item.md).
+- 2026-11-12 — Sáu luật cho những gì tác tử dựng màn phải đoán ở lần thử năm: cột thao tác đứng yên khi bảng cuộn ngang (cột tên từ bề rộng 640), nút đang chờ giữ bề rộng, tiêu điểm thấy được, phần «linh kiện của kho», khái niệm mới qua mô hình dữ liệu, sổ chỉ cho luật dùng chung; khai `createItem`, `deleteItem` và vai `user` (chờ duyệt riêng) — [0021](decisions/0021-rules-the-builder-guessed.md), [Item](entities/item.md).
 - 2026-11-12 — Chạy thử lần năm bằng ba tác tử độc lập và sửa điều nó tìm ra: bản thiết kế đổi mà không gì đỏ, mô-đun toast thứ hai lọt lệnh kiểm, cuốn sổ nói sai ở kho không do plugin dựng, audit đếm nhầm ngoại lệ — [spec 0001](specs/0001-design-system-for-claude-code.md), `plugins/design-assembly/`, `design/escapes.md`.
 - 2026-11-12 — Chủ kho xác nhận ba câu của kiểu màn danh sách (việc chính, thứ tự thông tin, cách viết lời); không còn câu «đã ghi» nào là đề xuất chưa ai xác nhận — `design/decisions.yaml`, `design/patterns/danh-sach.md`.
 - 2026-11-12 — Chủ kho xác nhận loại sản phẩm (ứng dụng làm việc) và mức accessibility (AA); tầng context giờ ghi là người quyết — `design/blueprint.json`, `design/decisions/context.md`.

@@ -804,8 +804,8 @@ export function rulesPage(checks, has) {
       "Never put a text-alignment or width class on a table cell, or a height or text-size class on a table row, typed or plain.",
     held("column-align") &&
       (typed
-        ? "A column that holds actions and no data uses `TypedActionsHead` and `TypedActions` from the same file. On a narrow screen the table scrolls sideways under its first column and its column of actions: both stay in place, so a row's name and its actions are always in view."
-        : "A column that holds actions and no data uses the plain table cell. On a narrow screen the first column and the column of actions stay in place while the rest scrolls sideways."),
+        ? "A column that holds actions and no data uses `TypedActionsHead` and `TypedActions` from the same file. When the table is wider than its place it scrolls sideways inside itself: the column of actions always stays in place, and the first column stays too from 640px up. On a phone the name scrolls with the data, so every column can still be read."
+        : "A column that holds actions and no data uses the plain table cell. When the table scrolls sideways, the column of actions stays in place; the first column stays too only where that leaves room to read the columns between them."),
   ]);
   const heldLabel = has("src/components/held-label.tsx");
   section("Actions on a row", [
@@ -860,7 +860,7 @@ export function rulesPage(checks, has) {
     pages &&
       "Wherever focus is sent, it shows: a heading or any element given `tabIndex={-1}` to receive focus gets the same visible ring as a control.",
     pages &&
-      "At the narrowest width, every control of the first row of a table is inside the window: the browser test fails when one is not.",
+      "At every width, every control of the first row of a table is inside the window, and the columns that stay in place leave room to read the widest column that scrolls: the browser test fails when either is not so.",
     pages &&
       notify &&
       "A button of a toast gives focus back to where the person was before the toast: the notification module does this.",

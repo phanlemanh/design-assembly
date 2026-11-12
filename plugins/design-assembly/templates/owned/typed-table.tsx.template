@@ -21,10 +21,11 @@ const FIELDS: Record<string, string> = columns.fields;
 const UNTYPED: ColumnType = { base: "text", align: "left", sample: 1 };
 
 const ALIGN_CLASS = { left: "text-left", right: "text-right tabular-nums" } as const;
-// When a table is wider than its place it scrolls sideways inside itself. Two columns stay where
-// they are: the first, which says which item a row is, and the one that holds a row's actions, so
-// a person on a narrow screen can still tell the row and act on it.
-const PINNED_START = "first:sticky first:left-0 first:z-10 first:bg-background";
+// When a table is wider than its place it scrolls sideways inside itself. The column that holds a
+// row's actions always stays where it is, so a person can act on a row at any width. The first
+// column, which says which item a row is, stays too once the screen is wide enough: on a phone,
+// two pinned columns would leave no room to read the columns between them.
+const PINNED_START = "sm:first:sticky sm:first:left-0 sm:first:z-10 sm:first:bg-background";
 const PINNED_END = "sticky right-0 z-10 bg-background";
 // A row is as tall as its tallest cell needs, so the dense row also tightens its cells: no
 // padding above and below a cell (a cell that holds a control would otherwise push the row past

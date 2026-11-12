@@ -49,9 +49,12 @@ sổ quyết định.
 3. **Thao tác trên dòng:** tối đa hai nút; từ ba thì gom vào trình đơn, thao tác đảo được trước,
    xoá cuối. Mỗi dòng chờ phần của nó. Nút đang chờ giữ nguyên bề rộng nhờ `HeldLabel`, một linh
    kiện của kho mà hướng dẫn cài cùng các phần của bảng.
-4. **Bảng hẹp: cột tên và cột thao tác đứng yên** (`TypedActionsHead`, `TypedActions`), phần giữa
-   cuộn ngang. Bài kiểm trình duyệt có thêm phép kiểm `row-actions-in-view`: ở mọi bề rộng, mọi nút
-   của dòng đầu nằm trong khung. Đã thấy nó đỏ khi bỏ phần ghim cột.
+4. **Bảng rộng hơn chỗ: cột thao tác luôn đứng yên** (`TypedActionsHead`, `TypedActions`); cột
+   tên đứng yên từ bề rộng 640. Đề xuất ban đầu ghim cả hai ở mọi bề rộng; đo trên màn mẫu ở 320
+   thì hai cột ghim chiếm 251 trên 272px, ba cột giữa không còn đọc được, nên trên điện thoại cột
+   tên cuộn cùng dữ liệu. Phép kiểm `row-actions-in-view` của bài kiểm trình duyệt đỏ khi một nút
+   của dòng đầu nằm ngoài khung, hoặc khi các cột đứng yên chừa không đủ chỗ cho cột rộng nhất
+   cuộn qua. Đã thấy cả hai vế đỏ: bỏ ghim cột thao tác, và ghim cột tên ở 320.
 5. **Tiêu điểm đi tới đâu thì thấy ở đó:** phần tử nhận tiêu điểm bằng `tabIndex={-1}` có viền như
    một nút.
 6. **Sổ quyết định chỉ cho luật mà màn thứ hai cũng phải theo.** Lựa chọn của riêng một màn ở lại
@@ -62,7 +65,7 @@ sổ quyết định.
 - Trang luật cho tác tử, trang hành vi và trang kiểu màn danh sách nói cả sáu luật; trang luật chỉ
   nhắc `TypedActions` và `HeldLabel` ở kho có cài chúng.
 - Sổ có thêm dòng `row-actions-in-view` (máy viết, bậc patterns); danh mục chuẩn có 67 quyết định.
-- Giới hạn: phép kiểm cột thao tác chỉ xem dòng đầu; luật nhiều thao tác, mỗi dòng chờ riêng và
+- Giới hạn: phép kiểm cột thao tác chỉ xem dòng đầu và bảng đầu; luật nhiều thao tác, mỗi dòng chờ riêng và
   sổ chỉ cho luật dùng chung không có lệnh kiểm, người xem lại. Phép kiểm viền tiêu điểm cũng chưa
   có: luật chỉ nằm trên trang.
 - Còn mở: trạng thái chỉ tới được nhờ một thao tác ở màn khác; adopt vẫn im lặng về kiểu màn, cỡ

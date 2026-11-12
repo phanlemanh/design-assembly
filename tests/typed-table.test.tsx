@@ -163,11 +163,12 @@ it("the first column and the column of actions stay in place when the table scro
       </TableBody>
     </TypedTable>,
   );
-  // The column that says which item a row is: pinned to the start when it is the first cell.
+  // The column that says which item a row is: pinned to the start when it is the first cell, on a
+  // screen wide enough to leave room for the columns between.
   expect(screen.getByText("first")).toHaveClass(
-    "first:sticky",
-    "first:left-0",
-    "first:bg-background",
+    "sm:first:sticky",
+    "sm:first:left-0",
+    "sm:first:bg-background",
   );
   // The column of actions: pinned to the end, on the header and on every row.
   for (const cell of [screen.getByText("Actions"), screen.getByText("act")]) {

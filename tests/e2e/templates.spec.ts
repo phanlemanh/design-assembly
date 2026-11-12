@@ -74,6 +74,25 @@ for (const route of ROUTES) {
           outside,
           `row-actions-in-view: ${outside} control(s) of the first row are outside a ${width}px window. Keep the column of actions in place when the table scrolls sideways`,
         ).toBe(0);
+        // What stays in place leaves room for what scrolls: the band between the pinned columns
+        // is at least as wide as the widest column that scrolls through it.
+        const cramped = await page
+          .locator("table thead tr")
+          .first()
+          .evaluate((head) => {
+            const place = head.closest("table")?.parentElement?.getBoundingClientRect().width ?? 0;
+            const cells = [...head.children].map((cell) => ({
+              width: cell.getBoundingClientRect().width,
+              pinned: getComputedStyle(cell).position === "sticky",
+            }));
+            const pinned = cells.filter((cell) => cell.pinned).reduce((sum, c) => sum + c.width, 0);
+            const widest = Math.max(0, ...cells.filter((c) => !c.pinned).map((c) => c.width));
+            return Math.ceil(widest - (place - pinned));
+          });
+        expect(
+          cramped,
+          `row-actions-in-view: at ${width}px the pinned columns leave ${cramped}px too little to read the widest column that scrolls between them. Pin fewer columns on a narrow screen`,
+        ).toBeLessThanOrEqual(0);
       }
       // Looked at last, once the page has settled: a control that left must not take focus with it.
       if (route.steps.some((step) => "press" in step)) {
