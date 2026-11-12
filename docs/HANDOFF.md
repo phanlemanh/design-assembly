@@ -14,7 +14,7 @@ sửa trang này hoặc xoá nó.
 2. `AGENTS.md` và `CLAUDE.md` ở gốc kho: lệnh, luật, ngôn ngữ.
 3. `wiki/index.md`, rồi `wiki/specs/0001-design-system-for-claude-code.md` (đề bài và kết quả từng
    lát, ba lần chạy thử).
-4. Bản ghi quyết định `wiki/decisions/0005` đến `0018`: mỗi phần đã dựng có một bản, kèm giới hạn.
+4. Bản ghi quyết định `wiki/decisions/0005` đến `0019`: mỗi phần đã dựng có một bản, kèm giới hạn.
 5. `plugins/design-assembly/references/checks.md`: mọi tệp plugin để lại ở một kho, và mỗi loại
    lệnh kiểm.
 
@@ -42,9 +42,9 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 ## Trạng thái lúc bàn giao
 
 - Nhánh `main`, cây làm việc sạch. **Chưa có remote, chưa đẩy đi đâu**: kho chỉ nằm trên máy
-  này. Mọi thứ đều đã commit. Cập nhật lần cuối 2026-11-12, sau quyết định 0018.
+  này. Mọi thứ đều đã commit. Cập nhật lần cuối 2026-11-12, sau quyết định 0019.
 - `make check` xanh: lint, typecheck, 68 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (22 quyết định, 27 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 163 bài kiểm của plugin.
+  (22 quyết định, 27 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 176 bài kiểm của plugin.
 - Kho này đáp **37/38 quyết định lõi**: 14 máy giữ, 17 tự khai, 6 đã ghi. Sổ có 47 dòng. Cả sáu
   câu «đã ghi» đều là máy đề xuất, chưa ai xác nhận; audit nêu tên chúng.
 
@@ -72,6 +72,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 | Trạng thái, chữ, câu báo lỗi                               | 0013    | `templates/tools/design-assembly/patterns.mjs`                                                     |
 | Kênh thông báo, hoàn tác, bài kiểm gắn thẻ làm bằng chứng  | 0014    | `src/lib/notify.ts`, `scripts/proofs.mjs`                                                          |
 | Trang luật cho tác tử; dòng sổ chưa có lệnh kiểm           | 0015    | `.claude/rules/design-assembly.md`, cờ `--hold` của adopt                                          |
+| Bảng mẫu thị giác cho tầng foundations                     | 0019    | `scripts/specimen.mjs`, `references/source-colors.json`                                            |
 | Hướng nhập giữa các phần, sổ lỗi lọt                       | 0018    | `templates/tools/design-assembly/governance.mjs`, `design/parts.json`, `design/escapes.md`         |
 | Sau một thao tác: tiêu điểm, đổi tại chỗ, trống, đi lại    | 0017    | `src/example/ReferenceScreen.tsx`, `src/lib/slow.ts`, `templates/owned/templates.spec.ts.template` |
 | Kiểu màn, cỡ màn được kiểm, thao tác thất bại              | 0016    | `templates/tools/design-assembly/screens.mjs`, `design/patterns/`, `src/lib/notify.ts`             |
@@ -80,12 +81,25 @@ Lệnh hay dùng ở kho này: `make design-audit`, `make design-plan`, `make de
 `make design-adopt`, `make design-adopt-reference` (xem trước trên kho đối chứng, không bao giờ
 ghi), `make design-tokens`, `make design-components`, `make design-columns`, `make plugin-test`.
 
+## Hướng chủ kho nêu ngày 2026-11-12
+
+«Tôi thích cách dẫn dắt như ở repo-standards. Ở repo này thị giác quan trọng hơn từ ngữ. Một
+chuyên gia cố vấn hàng đầu cần dẫn đi qua các hạng mục bằng thị giác nhưng phải thoả mãn sự tất
+định của Claude.» Máy đóng khung thành «chọn bằng mắt, giữ bằng máy» với bốn điều kiện (quyết
+định 0019). Lát đầu đã dựng: `make design-specimen` vẽ bảng mẫu cho màu gốc, thang chữ, bo góc.
+Các lát sau, mỗi lát duyệt riêng: điểm dừng thị giác cho năm tầng còn lại và phòng trưng bày
+trạng thái; độ sâu «mang sẵn thiết kế tới»; phản biện độc lập bằng ảnh; tờ hướng dẫn để lại.
+Khuôn mẫu về nhịp dẫn dắt: `~/dev/repo-standards/plugins/repo-setup/skills/new/`.
+
 ## Việc kế
 
 Câu hỏi về bậc templates và luật thao tác thất bại đã được chủ kho duyệt và dựng xong ngày
 2026-11-12 (quyết định 0016). Không còn câu hỏi nào đang treo. Những việc có thể làm tiếp, chưa
 việc nào được duyệt:
 
+- **Chủ kho đi qua bảng mẫu một lượt** (màu gốc, thang chữ, bo góc): lát 0019 chỉ nghiệm thu
+  được bằng lượt đó. Chữ cái chủ kho chọn được ghi vào `design/blueprint.json` là «người quyết»,
+  rồi chạy lại `make design-apply`.
 - **Chủ kho đọc trang kiểu màn** `design/patterns/danh-sach.md` rồi xác nhận hoặc sửa. Ba dòng sổ
   (việc chính, thứ tự thông tin, lời văn) đang ghi «chưa ai xác nhận».
 - **Lần chạy thử bốn đã xong** (2026-11-12, kết quả ở cuối spec 0001). Điều sai rõ đã sửa, và

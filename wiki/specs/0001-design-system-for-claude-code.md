@@ -163,6 +163,12 @@ Mã chia thành các phần liệt kê từ trên xuống; một tệp chỉ nh�
 dưới, và công cụ đọc mã để giữ điều đó. Lỗi nào lọt qua mọi lệnh kiểm thì ghi một dòng vào sổ lỗi
 lọt, kèm tầng đáng ra phải chặn và việc đã làm. Ngoại lệ có chủ ý ở lại cạnh luật mà nó bẻ.
 
+### Chọn bằng mắt, giữ bằng máy (quyết định 0019, 2026-11-12)
+
+Các lựa chọn của tầng foundations được cho xem chứ không mô tả: kịch bản vẽ màn thật của kho một
+lần cho mỗi phương án, sáng và tối, trên một bảng mẫu, và người trả lời bằng một chữ cái. Phương
+án lấy từ danh sách đóng và từ chính các hàm sẽ ghi giá trị, nên thứ được nhìn là thứ cổng sẽ giữ.
+
 ### Vì sao cần plugin này
 
 Bản trước ghi giả thuyết «giảm token», neo vào lần đo ba của Repo Standards (token gấp 1,43 lần).

@@ -121,6 +121,36 @@ conformance level is theirs too when a contract or a regulator sets it; otherwis
 `source: proposed`, and put them first in the final review so the person can replace them. Never
 ask about anything a layer page says the machine derives.
 
+### Show, then ask
+
+The choices of foundations are things a person sees, so they are shown, not described. Before the
+foundations stop, run `node ${CLAUDE_PLUGIN_ROOT}/scripts/specimen.mjs --target <repo>`. It draws
+the repository's own screen once per option, in light and in dark, on one sheet, and prints where
+the sheet is, where one picture of the whole sheet is, and what each letter stands for.
+
+- Put the sheet in front of the person in whatever way the session allows: open the page in the
+  browser pane, send the picture, or give the path to open. Then ask one section at a time, with
+  the letters as the answers and your recommendation first. Give the reason for the
+  recommendation, its trade-off and when it would be wrong, in one or two sentences; say what the
+  choice leaves undecided.
+- **A letter is the person's answer.** Write the value the script prints for that letter
+  (`choices.json` has them) to the blueprint with `source: user`. Never write a value the sheet
+  did not show.
+- The person has a colour of their own: pass it with `--color <colour>`, once per colour, and it
+  is drawn first.
+- "Warmer", "lighter", "less loud": run `--around <colour>`. It draws one step in each direction
+  around that colour, by fixed amounts. Ask again with the new letters. Never move a colour by
+  your own estimate.
+- Every option on the sheet already meets the conformance level: where a source color does not
+  reach the contrast ratio, the sheet shows the primary that does, and its note says it moved.
+  Read that note out for the option the person picks.
+- The sheet draws the screen the repository has. Say what that screen does not show: a screen that
+  uses two sizes shows little of a type scale, so the sheet lists every step beside it.
+- The script says so when it could not draw (no browser in the repository). It still prints the
+  same options in words: go on with those, and say that nothing could be shown.
+
+In **hand it to Claude**, do not stop here: draw the sheet for the final review instead.
+
 As soon as product context and foundations are decided, run the preview,
 `apply.mjs --target <repo> --dry-run`. It works before approval and prints, for light and dark, the
 primary and the contrast ratio it reaches, and whether the source color had to move; then the type
@@ -132,7 +162,13 @@ Keep the blueprint `status` at `designing` until the final review.
 
 ## 5. Final review
 
-Run the preview again, `apply.mjs --target <repo> --dry-run`, and show:
+Run `specimen.mjs --target <repo> --section review`: it draws the screen as it is now beside the
+screen as it will be. Show that first. In **hand it to Claude**, also draw the full sheet
+(`specimen.mjs --target <repo>`) and put the proposed values in front of the person as letters
+they can change: this is the one place they are asked to look. A letter they give here is their
+answer and is recorded as `source: user`; a value they did not look at stays `proposed`.
+
+Then run the preview again, `apply.mjs --target <repo> --dry-run`, and show:
 
 - one line per layer: what was chosen and where it came from (`user`, `proposed`, `repo`);
 - the primary for light and dark and the contrast ratio each reaches, and any note that the source

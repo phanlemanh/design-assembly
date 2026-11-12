@@ -20,6 +20,10 @@ scale, shape). Density, elevation, motion and iconography are not.
   already runs (`references/known-proofs.json`), and a check around each value its stylesheet holds
   today. It changes no value, no lint rule, no test and no existing row.
 - `/design-assembly:new` guides a person through the built layers and records each decision.
+- `scripts/specimen.mjs` shows the choices of foundations instead of describing them: it draws
+  the repository's own screen once per option, in light and in dark, on one sheet, and a person
+  answers with a letter. The options come from closed lists and the same functions that write the
+  values, so what is seen is what the gate will hold.
 - `scripts/apply.mjs` derives a tonal palette and the primary color roles from one source color,
   writes them into the repository's stylesheet, adds its rows to the ledger
   `design/decisions.yaml`, and installs the checks that hold them.

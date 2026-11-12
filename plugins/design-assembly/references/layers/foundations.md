@@ -12,6 +12,10 @@ person knows it. Spacing always has one answer in this version: say it in one li
 
 ## The questions
 
+Show before asking: `scripts/specimen.mjs` draws every option of this layer on the repository's
+own screen, and the person answers with a letter (see "Show, then ask" in the guide). The words
+below are for explaining a letter, not for choosing by.
+
 Ask them in one stop.
 
 1. **Source color**, as `#rrggbb` or as the stylesheet writes a colour, `oklch(L C H)`. Never

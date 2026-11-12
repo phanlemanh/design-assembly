@@ -29,6 +29,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 - [0003 Plugin nằm trong kho, ứng dụng làm bãi thử](decisions/0003-plugin-inside-the-repo.md) — động cơ ở `plugins/design-assembly/`
 - [0004 Output là plugin dẫn dắt, từ vựng lấy từ chuẩn của ngành](decisions/0004-output-and-vocabulary.md) — bảng từ vựng ở `plugins/design-assembly/references/vocabulary.json`
 - [0005 Đầu ra chuẩn hoá theo bậc; ranh giới với hai kho bên cạnh](decisions/0005-output-tiers-and-boundaries.md) — bảng bậc ở `plugins/design-assembly/references/tiers.json`
+- [0019 Chọn bằng mắt, giữ bằng máy: bảng mẫu cho tầng foundations](decisions/0019-show-then-ask.md) — kịch bản vẽ ở `plugins/design-assembly/scripts/specimen.mjs`
 - [0018 Hướng nhập giữa các phần, và sổ lỗi lọt](decisions/0018-import-direction-and-slips.md) — bộ đọc ở `plugins/design-assembly/templates/tools/design-assembly/governance.mjs`; sổ ở `design/escapes.md`
 - [0017 Sau một thao tác: tiêu điểm, danh sách đổi tại chỗ, trạng thái trống, đi lại giữa các màn](decisions/0017-after-an-action.md) — phép kiểm tiêu điểm ở `plugins/design-assembly/templates/owned/templates.spec.ts.template`; màn mẫu ở `src/example/ReferenceScreen.tsx`
 - [0016 Kiểu màn, cỡ màn được kiểm, và thao tác thất bại](decisions/0016-screen-kinds-and-failed-actions.md) — bộ đọc trang kiểu màn ở `plugins/design-assembly/templates/tools/design-assembly/screens.mjs`; luật thất bại ở `src/lib/notify.ts`

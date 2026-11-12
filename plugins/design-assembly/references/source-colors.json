@@ -1,0 +1,18 @@
+{
+  "about": "The source colors the guide shows when a person has none of their own, and how far one step moves a colour when they ask for a variation. A closed list: the guide never invents a colour. Each is written in OKLCH (lightness, chroma, hue) and is only a starting point: the primary color role is solved from it against the repository's own background, so every one of them reaches the contrast ratio of the conformance level.",
+  "show": 5,
+  "apart_degrees": 30,
+  "starters": [
+    { "name": "blue", "color": "oklch(0.52 0.2 262)" },
+    { "name": "teal", "color": "oklch(0.55 0.11 195)" },
+    { "name": "green", "color": "oklch(0.55 0.15 150)" },
+    { "name": "amber", "color": "oklch(0.62 0.14 70)" },
+    { "name": "red", "color": "oklch(0.55 0.2 27)" },
+    { "name": "violet", "color": "oklch(0.52 0.2 300)" }
+  ],
+  "steps": {
+    "hue_degrees": 20,
+    "lightness": 0.06,
+    "chroma": 0.05
+  }
+}
