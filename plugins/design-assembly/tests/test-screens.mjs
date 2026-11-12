@@ -381,6 +381,10 @@ test("with the table comes the record panel, opening a record as the blueprint d
     text(dir, ".claude/rules/design-assembly.md"),
     /## A record beside a list\n\n- .*`WithRecord`/,
   );
+  assert.match(
+    text(dir, ".claude/rules/design-assembly.md"),
+    /starts below the application frame's header, the page's banner, and never covers it/,
+  );
   assert.equal(check(dir).status, 0, check(dir).stderr);
 
   // The person's letter: the guide writes it into the panel, and the row stops being a proposal.

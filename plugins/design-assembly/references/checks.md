@@ -219,7 +219,11 @@ every page; the others are a person's review, and the rules page says so.
   `record-layout` check fails when that line differs from `design/blueprint.json`, so an answer
   changed without running the guide, or a hand edit, is caught. The browser test of every page
   measures any page with a record open: inside the window, beside the list or in its place as the
-  line says, a dialog for `over`, and focus inside once a person opened it. Every arrangement keeps
+  line says, a dialog for `over`, and focus inside once a person opened it. A sheet `over` the
+  list starts below the application frame's header (the page's banner landmark, measured when the
+  sheet opens) and the test fails when the sheet starts above it or anything covers it. The header
+  stays pressable with a pointer, which closes the sheet; the focus trap keeps the keyboard and a
+  screen reader in the sheet until it closes. Every arrangement keeps
   the open record in the address (a link opens it, Back closes it) and gives focus back to what
   opened it. A screen that opens a record with a panel of its own is not caught. A blueprint
   written before this was asked keeps `patterns` planned: the guide then applies the proposal for

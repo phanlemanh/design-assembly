@@ -106,6 +106,7 @@ for (const route of ROUTES) {
           const list = place?.checkVisibility() ? place.getBoundingClientRect() : null;
           return {
             layout: node.getAttribute("data-record-panel"),
+            top: Math.round(box.top),
             left: Math.round(box.left),
             right: Math.round(box.right),
             listRight: list ? Math.round(list.right) : null,
@@ -123,6 +124,25 @@ for (const route of ROUTES) {
           wrong.push("the list still shows where only one fits");
         }
         if (seen.layout === "over" && !seen.modal) wrong.push("it is not a dialog over the list");
+        // A sheet over the list leaves the application frame's header, the page's banner: it
+        // starts below it, and the header can still be seen and pressed.
+        const banner = await page.evaluate(() => {
+          const node = [...document.querySelectorAll("header, [role=banner]")].find(
+            (item) =>
+              item.getAttribute("role") === "banner" ||
+              item.closest("main, article, aside, nav, section, [role=dialog]") === null,
+          );
+          if (!node) return null;
+          const box = node.getBoundingClientRect();
+          const hit = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+          return { bottom: Math.round(box.bottom), clear: hit !== null && node.contains(hit) };
+        });
+        if (seen.layout === "over" && banner && seen.top < banner.bottom) {
+          wrong.push("it starts above the bottom of the frame's header");
+        }
+        if (seen.layout === "over" && banner && !banner.clear) {
+          wrong.push("something covers the frame's header");
+        }
         if (seen.layout === "in-place" && seen.listRight !== null) {
           wrong.push("the list still shows beside it");
         }

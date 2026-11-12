@@ -18,11 +18,11 @@ written to the repository to draw it. When no screen opens a record yet, it says
 same options in words: record the recommendation as proposed, and draw the sheet in a later run,
 once a screen opens one.
 
-| Option     | Why                                                                      | Trade-off                                                       | Wrong when                                                         | Label       |
-| ---------- | ------------------------------------------------------------------------ | --------------------------------------------------------------- | ------------------------------------------------------------------ | ----------- |
-| `beside`   | People go from record to record: the list stays in view and in its place | The list narrows: a wide table scrolls sideways sooner          | A record has many fields or a long form that needs the whole width | `automated` |
-| `over`     | A quick look that must not change the list's size                        | The list behind cannot be used until the record closes          | People compare records, or work on one for long                    | `automated` |
-| `in-place` | A record is a page of its own: many fields, long text, its own actions   | The list is out of sight: going to the next record is two steps | People go through records one after another                        | `automated` |
+| Option     | Why                                                                                 | Trade-off                                                       | Wrong when                                                         | Label       |
+| ---------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------ | ----------- |
+| `beside`   | People go from record to record: the list stays in view and in its place            | The list narrows: a wide table scrolls sideways sooner          | A record has many fields or a long form that needs the whole width | `automated` |
+| `over`     | A quick look that must not change the list's size; the frame's header stays in view | The list behind cannot be used until the record closes          | People compare records, or work on one for long                    | `automated` |
+| `in-place` | A record is a page of its own: many fields, long text, its own actions              | The list is out of sight: going to the next record is two steps | People go through records one after another                        | `automated` |
 
 **Recommendation:** `beside` for an `application`, `in-place` for a `content-site`. Say when it is
 wrong, from the table.

@@ -46,7 +46,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 - `make check` xanh: lint, typecheck, 76 bài kiểm của kho, ontology, lệnh kiểm design-assembly
   (23 quyết định, 29 lệnh kiểm), bộ rào của sàn, 48 lượt kiểm trình duyệt, 209 bài kiểm của plugin.
 - Kho này đáp **38/38 quyết định lõi**: 15 máy giữ, 17 tự khai, 6 đã ghi. Câu cuối, mở hồ sơ
-  cạnh danh sách, đang giữ đề xuất của máy («cạnh danh sách») và chờ chủ kho chọn trên bảng mẫu. Sổ có 48 dòng. Ngày 2026-11-12 chủ kho
+  cạnh danh sách: chủ kho chọn B (phủ lên danh sách, chừa thanh đầu của khung) ngày 2026-11-13. Sổ có 48 dòng. Ngày 2026-11-12 chủ kho
   xác nhận cả sáu câu «đã ghi»; riêng lời văn thì chủ kho xác nhận cách viết, chưa đọc từng chữ.
 
 | Bậc                           | Trạng thái       | Còn thiếu                                                 |
@@ -54,7 +54,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 | audit                         | đạt              |                                                           |
 | foundations                   | 9/9, «tự khai»   | lên «đạt» khi các luật lint của sàn được chạy lại         |
 | core components               | 10/10, «tự khai» | như trên                                                  |
-| trạng thái của màn và lời văn | 8/8              | cách mở hồ sơ là đề xuất, chờ chủ kho chọn bằng mắt       |
+| trạng thái của màn và lời văn | 8/8              | phép đo thanh đầu chờ khung ứng dụng thật                 |
 | templates                     | 8/8              | ba câu «đã ghi» chủ kho đã xác nhận; ba câu mới «tự khai» |
 | governance                    | 3/3              | sổ lỗi lọt không ai buộc được người ghi; xem 0018         |
 
@@ -112,10 +112,8 @@ việc nào được duyệt:
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
 - **Lần chạy thử sáu đã xong** (2026-11-12, kết quả ở cuối spec 0001). Điều sai rõ đã sửa; các
   sửa đổi đó chưa được thử lại. Điều nó để ngỏ nằm ở mục «Điều còn nguyên» của lần thử sáu.
-- **Chủ kho chọn cách mở hồ sơ** trên bảng mẫu (`node plugins/design-assembly/scripts/specimen.mjs
---target . --section record`, mở `coverage/design-specimen/index.html`): một chữ cái, rồi ghi vào
-  bản thiết kế và chạy `make design-apply`. Xem 0022.
-- **Khung điều hướng** chưa dựng: luật có rồi, chờ màn thứ hai.
+- **Khung điều hướng** chưa dựng: luật có rồi, chờ màn thứ hai. Khi dựng, thanh đầu là vùng
+  banner của trang; tấm hồ sơ tự chừa nó, và bài kiểm trình duyệt bắt đầu đo điều đó.
 - **Đo token** theo giao thức của Repo Standards: đề bài hẹn làm khi cuộc dẫn dắt tới bậc
   templates. Tốn tiền API, cần chủ kho cho phép riêng.
 - **Gặp lỗi lọt thì ghi `design/escapes.md` trước khi sửa.** Phiên nào cũng phải làm; không máy

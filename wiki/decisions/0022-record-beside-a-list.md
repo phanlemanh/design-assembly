@@ -26,9 +26,10 @@ sources:
 
 ## Status
 
-Proposed. Chủ kho chọn dựng ngày 2026-11-13 («Dựng hồ sơ»). Máy đã dựng cả ba cách bày, bảng mẫu
-và lệnh kiểm. Cách bày đang áp vào kho là đề xuất của máy («cạnh danh sách»), ghi rõ là chưa ai
-xác nhận, chờ chủ kho chọn một chữ cái trên bảng mẫu.
+Accepted. Chủ kho chọn dựng ngày 2026-11-13 («Dựng hồ sơ»). Máy dựng cả ba cách bày, bảng mẫu và
+lệnh kiểm, áp đề xuất «cạnh danh sách» trước. Cùng ngày, xem bảng mẫu, chủ kho chọn **B, phủ lên
+danh sách**, như ở sản phẩm Inventory của chủ kho, kèm một điều kiện: có khung ứng dụng thì tấm
+hồ sơ chừa thanh đầu của khung.
 
 ## Context
 
@@ -55,6 +56,12 @@ của 0019: phương án do kịch bản dựng, vẽ trên màn thật, chọn 
    lời; bài kiểm trình duyệt của mọi trang đo trang nào có hồ sơ đang mở: trong khung, cạnh hay
    thế chỗ danh sách đúng cách đã chọn, là hộp thoại khi phủ lên, và tiêu điểm nằm trong hồ sơ.
 
+6. **Tấm phủ chừa thanh đầu của khung ứng dụng** (điều kiện của chủ kho). Thanh đầu là vùng
+   banner của trang. Lúc tấm mở, nó đo đáy của thanh đầu và bắt đầu từ đó, cả lớp mờ phía sau;
+   chưa có khung thì chạy từ mép trên. Bài kiểm trình duyệt đỏ khi tấm bắt đầu cao hơn đáy thanh
+   đầu, hoặc khi có gì che thanh đầu. Tấm giữ tiêu điểm bên trong nhưng không chặn chuột ở ngoài:
+   bấm thanh đầu thì tấm đóng và việc bấm vẫn đi tiếp. Mở tấm thì tiêu điểm vào nút Đóng.
+
 ## Consequences
 
 - Màn mẫu có trạng thái mới `record-open`; sổ có dòng `record-panel` (bậc patterns, kind closed,
@@ -65,7 +72,12 @@ của 0019: phương án do kịch bản dựng, vẽ trên màn thật, chọn 
   sơ không nằm cạnh danh sách ở 1440.
 - Tìm thêm một lỗi cũ trên đường làm: hướng dẫn cài cột thao tác nhưng sổ linh kiện ghi cùng lúc
   thiếu phần đó, nên cổng đỏ ngay sau lần cài đầu. Đã sửa và ghi vào sổ lỗi lọt.
-- Giới hạn: màn tự dựng tấm hay trang hồ sơ riêng thì không gì bắt; bảng mẫu chỉ vẽ được khi đã
+- Đã thấy đỏ với một thanh đầu tạm (gỡ đi sau khi thử): tấm chạy từ mép trên thì bài kiểm báo
+  «bắt đầu cao hơn đáy thanh đầu» và «có gì che thanh đầu» ở cả 320 lẫn 1440.
+- Giới hạn: lúc tấm mở, thanh đầu bấm được bằng chuột nhưng bàn phím và trình đọc màn hình chỉ tới
+  được sau khi đóng tấm; vị trí thanh đầu chỉ đo lúc tấm mở, không đo lại khi cửa sổ đổi cỡ; kho
+  chưa có khung nên phép đo thanh đầu chưa chạy trên màn thật nào. Màn tự dựng tấm hay trang hồ sơ
+  riêng thì không gì bắt; bảng mẫu chỉ vẽ được khi đã
   có một màn mở hồ sơ, nên kho mới dựng từ trống thấy phương án bằng chữ trước; với `over`, tiêu
-  điểm vào nút Đóng chứ không vào tiêu đề, vì trang luật của sàn không cho đổi dáng tiêu đề hộp
+  điểm vào nút Đóng chứ không vào tiêu đề, vì luật lint của sàn không cho đổi dáng tiêu đề hộp
   thoại; hồ sơ mở trong lúc danh sách còn đang tải không giành tiêu điểm.

@@ -95,8 +95,12 @@ Thất bại thì báo ở nơi người dùng vừa làm, và không bao giờ 
   phủ lên danh sách như một tấm trượt từ cạnh phải, hoặc thế chỗ danh sách ở mọi bề rộng. Câu trả
   lời nằm trong `design/blueprint.json` và trong đúng một dòng của `src/components/record-panel.tsx`;
   cổng đỏ khi hai chỗ lệch nhau.
+- **Kho này chọn phủ lên danh sách** (chủ kho chọn B ngày 2026-11-13). Tấm hồ sơ bắt đầu dưới
+  thanh đầu của khung ứng dụng và không bao giờ che nó; khi kho chưa có khung thì tấm chạy từ mép
+  trên. Lúc tấm đang mở, bấm chuột vào thanh đầu vẫn được, và tấm đóng lại; bàn phím và trình đọc
+  màn hình tới được thanh đầu sau khi tấm đóng. Mở tấm thì tiêu điểm vào nút Đóng.
 - **Mọi cách bày giữ chung mấy điều:** hồ sơ đang mở có tên trên địa chỉ, nên một liên kết mở được
-  nó và nút Back đóng nó; mở thì tiêu điểm vào tiêu đề hồ sơ; đóng (nút Đóng, phím Esc hay Back)
+  nó và nút Back đóng nó; mở thì tiêu điểm vào hồ sơ; đóng (nút Đóng, phím Esc hay Back)
   thì tiêu điểm về đúng nút đã mở; chữ đã gõ vào ô lọc vẫn còn khi quay lại danh sách.
 - **Tên của mục trên dòng là nút mở hồ sơ.** Tiêu đề hồ sơ là tên mục; hồ sơ cho thấy các trường
   với đúng tiêu đề cột của bảng.

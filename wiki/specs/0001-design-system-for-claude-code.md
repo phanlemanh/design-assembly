@@ -479,8 +479,8 @@ Câu báo của phép kiểm cột ghim không còn bảo «ghim ít cột hơn�
 Chủ kho chọn dựng câu này bằng mắt («Dựng hồ sơ»). Đã dựng: ba cách bày trong một linh kiện của
 kho, bảng mẫu chụp màn thật với hồ sơ đang mở theo từng cách ở 1440 và 320, lệnh kiểm của cổng
 giữ cách bày đúng bản thiết kế, phép đo trong bài kiểm trình duyệt của mọi trang. Kho đủ 38/38 câu
-lõi; câu này đang giữ đề xuất «cạnh danh sách», audit nói rõ là chưa ai xác nhận. Chi tiết và giới
-hạn ở [0022](../decisions/0022-record-beside-a-list.md).
+lõi. Cùng ngày chủ kho chọn B, phủ lên danh sách, và đặt điều kiện tấm hồ sơ chừa thanh đầu của
+khung ứng dụng. Chi tiết và giới hạn ở [0022](../decisions/0022-record-beside-a-list.md).
 
 ## Domain impact
 

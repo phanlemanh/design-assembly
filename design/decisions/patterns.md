@@ -1,18 +1,19 @@
 # Interaction patterns
 
-Status: decided (proposed).
+Status: decided (user).
 
 ## Choice
 
-- list-detail layout: `beside`
+- list-detail layout: `over`
 
 ## Why
 
-Máy đề xuất ngày 2026-11-13 cho loại sản phẩm application: người dùng đi từ mục này sang mục khác, nên danh sách đứng yên trong tầm mắt và hồ sơ mở bên cạnh khi đủ chỗ cho cả hai. Chủ kho chưa xem bảng mẫu.
+Chủ kho chọn B trên bảng mẫu ngày 2026-11-13: hồ sơ phủ lên danh sách như một tấm trượt từ cạnh phải, cùng cách chủ kho đang dùng ở sản phẩm Inventory. Khi ứng dụng có khung, tấm hồ sơ chừa thanh đầu của khung.
 
 ## Rejected
 
-Nothing was turned down.
+- beside: Máy đề xuất; chủ kho xem trên bảng mẫu ngày 2026-11-13 và không chọn.
+- in-place: Chủ kho xem trên bảng mẫu ngày 2026-11-13 và không chọn.
 
 ## What is held
 

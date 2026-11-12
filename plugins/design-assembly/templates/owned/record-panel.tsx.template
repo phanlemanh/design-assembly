@@ -5,18 +5,35 @@
 // opens it and Back closes it. Opening moves focus to the record's heading; closing gives focus
 // back to what opened it (design/behaviors.md, a record beside a list). Which record is open, and
 // the address, are kept by `useOpenRecord` in src/lib/open-record.ts.
+import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { useEffect, useId, useRef, type ReactNode } from "react";
 
 import { cn } from "cn";
 
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogOverlay, DialogPortal, DialogTitle } from "@/components/ui/dialog";
 import type { OpenRecord } from "@/lib/open-record";
 
 export type RecordLayout = "beside" | "over" | "in-place";
 // The guide writes this line from the blueprint, and the gate fails when the two differ. To change
 // it, change the answer in the blueprint and run the guide again.
 export const RECORD_LAYOUT: RecordLayout = "beside";
+
+// The application frame's header: the page's banner landmark, a header that is not part of a
+// section of the page. A sheet over the list starts below it and never covers it.
+function bannerBottom(): number {
+  const banner = [...document.querySelectorAll("header, [role=banner]")].find(
+    (node) =>
+      node.getAttribute("role") === "banner" ||
+      node.closest("main, article, aside, nav, section, [role=dialog]") === null,
+  );
+  return Math.max(0, Math.round(banner?.getBoundingClientRect().bottom ?? 0));
+}
+
+// Where the sheet and the dim behind it start, measured once they are on the page: below the
+// frame's header when there is one, else at the top. A measured position, so it is set in code.
+const belowBanner = (node: HTMLElement | null) =>
+  node?.style.setProperty("--record-sheet-top", `${bannerBottom()}px`);
 
 // The list, and the open record arranged as RECORD_LAYOUT says. `title` is null when no record
 // is open, or when the address names one the list does not have.
@@ -30,9 +47,10 @@ export function WithRecord(props: {
   const layout: RecordLayout = RECORD_LAYOUT;
   const open = props.title !== null;
   const heading = useRef<HTMLHeadingElement>(null);
+  const closer = useRef<HTMLButtonElement>(null);
   const titleId = useId();
   const { record } = props;
-  // The dialog of `over` moves focus into itself; the other two move it to the heading.
+  // The sheet of `over` moves focus to its close button; the other two move it to the heading.
   useEffect(() => {
     if (open && record.takeFocus() && layout !== "over") heading.current?.focus();
   });
@@ -41,25 +59,32 @@ export function WithRecord(props: {
     return (
       <>
         {props.children}
+        {/* Focus stays in the sheet, but the frame's header above it can still be used: pressing
+            it closes the sheet. */}
         <Dialog
           open={open}
+          modal="trap-focus"
           onOpenChange={(next) => {
             if (!next) record.close();
           }}
         >
-          <DialogContent
-            data-record-panel={layout}
-            showCloseButton={false}
-            className="top-0 right-0 left-auto h-dvh max-h-dvh max-w-full translate-x-0 translate-y-0 content-start overflow-y-auto sm:max-w-sm"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <DialogTitle>{props.title}</DialogTitle>
-              <Button variant="outline" size="sm" onClick={record.close}>
-                {props.closeLabel}
-              </Button>
-            </div>
-            {props.content}
-          </DialogContent>
+          <DialogPortal>
+            <DialogOverlay ref={belowBanner} className="top-(--record-sheet-top)" />
+            <DialogPrimitive.Popup
+              ref={belowBanner}
+              data-record-panel={layout}
+              initialFocus={closer}
+              className="fixed top-(--record-sheet-top) right-0 bottom-0 z-50 flex w-full flex-col gap-4 overflow-y-auto bg-popover p-4 text-sm text-popover-foreground ring-1 ring-foreground/10 outline-none sm:max-w-sm"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <DialogTitle>{props.title}</DialogTitle>
+                <Button ref={closer} variant="outline" size="sm" onClick={record.close}>
+                  {props.closeLabel}
+                </Button>
+              </div>
+              {props.content}
+            </DialogPrimitive.Popup>
+          </DialogPortal>
         </Dialog>
       </>
     );

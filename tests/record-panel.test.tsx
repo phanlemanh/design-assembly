@@ -1,7 +1,7 @@
 // decision:record-panel
 // A record opens the way the person chose, keeps its place in the address, and hands focus back to
 // what opened it however it closes.
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
 import { afterEach, expect, it } from "vitest";
 
@@ -40,12 +40,16 @@ const open = (name: string) => {
 
 afterEach(() => window.history.replaceState(null, "", "/"));
 
-it("opens a record with focus on it, and names it in the address", () => {
+it("opens a record with focus on it, and names it in the address", async () => {
   window.history.replaceState(null, "", "/");
   render(<List />);
   open("First");
   expect(window.location.search).toBe("?record=1");
   expect(screen.getByRole("heading", { name: "First" })).toBeInTheDocument();
+  // Over the list, focus goes to the sheet's close button: the dialog's title takes no ring.
+  if (RECORD_LAYOUT === "over") {
+    await waitFor(() => expect(screen.getByRole("button", { name: "Close" })).toHaveFocus());
+  }
   if (RECORD_LAYOUT !== "over") {
     expect(screen.getByRole("heading", { name: "First" })).toHaveFocus();
     expect(document.querySelector("[data-record-panel]")).toHaveAttribute(

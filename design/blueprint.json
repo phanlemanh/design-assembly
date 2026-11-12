@@ -1,7 +1,7 @@
 {
   "version": 1,
   "status": "approved",
-  "approval_note": "Máy đi trước: các giá trị đề xuất được áp vào reference implementation ngày 2026-11-11, trước khi chủ kho xem. Ngày 2026-11-12 chủ kho xác nhận loại sản phẩm và mức accessibility, và chọn cả ba hạng mục của foundations trên bảng mẫu: màu gốc #0246ff, thang chữ chuẩn, bo góc của sàn.",
+  "approval_note": "Máy đi trước: các giá trị đề xuất được áp vào reference implementation ngày 2026-11-11, trước khi chủ kho xem. Ngày 2026-11-12 chủ kho xác nhận loại sản phẩm và mức accessibility, và chọn cả ba hạng mục của foundations trên bảng mẫu: màu gốc #0246ff, thang chữ chuẩn, bo góc của sàn. Ngày 2026-11-13 chủ kho chọn cách mở hồ sơ trên bảng mẫu: phủ lên danh sách (B).",
   "depth": "hand",
   "conversation_language": "vi",
   "layers": {
@@ -58,12 +58,21 @@
     },
     "patterns": {
       "status": "decided",
-      "source": "proposed",
+      "source": "user",
       "choice": {
-        "record_panel": "beside"
+        "record_panel": "over"
       },
-      "why": "Máy đề xuất ngày 2026-11-13 cho loại sản phẩm application: người dùng đi từ mục này sang mục khác, nên danh sách đứng yên trong tầm mắt và hồ sơ mở bên cạnh khi đủ chỗ cho cả hai. Chủ kho chưa xem bảng mẫu.",
-      "rejected": []
+      "why": "Chủ kho chọn B trên bảng mẫu ngày 2026-11-13: hồ sơ phủ lên danh sách như một tấm trượt từ cạnh phải, cùng cách chủ kho đang dùng ở sản phẩm Inventory. Khi ứng dụng có khung, tấm hồ sơ chừa thanh đầu của khung.",
+      "rejected": [
+        {
+          "option": "beside",
+          "why": "Máy đề xuất; chủ kho xem trên bảng mẫu ngày 2026-11-13 và không chọn."
+        },
+        {
+          "option": "in-place",
+          "why": "Chủ kho xem trên bảng mẫu ngày 2026-11-13 và không chọn."
+        }
+      ]
     },
     "content": {
       "status": "planned"
