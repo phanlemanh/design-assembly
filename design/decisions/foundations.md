@@ -1,6 +1,6 @@
 # Foundations
 
-Status: decided (proposed).
+Status: decided (user).
 
 ## Choice
 
@@ -11,11 +11,13 @@ Status: decided (proposed).
 
 ## Why
 
-Kho này chưa có nhận diện. Máy đề xuất một màu lam để reference implementation có thứ cho người xem phản ứng; chủ kho thay được bất cứ lúc nào. Type scale và corner radius giữ của sàn theo khuyến nghị cho một application: các cỡ quen thuộc với mọi người dùng Tailwind, và bộ linh kiện sàn vốn được vẽ cho chúng.
+Chủ kho chọn bằng mắt trên bảng mẫu ngày 2026-11-12, trên màn thật của kho: giữ màu gốc lam #0246ff, thang chữ chuẩn của sàn và bo góc của sàn. Khoảng cách chỉ có một phương án.
 
 ## Rejected
 
-- Giữ theme trung tính của sàn: Khi đó cuộc dẫn dắt không sinh design token màu nào, và không có gì để chứng minh.
+- Màu gốc: lục lam, lục, hổ phách, đỏ (bốn màu khởi đầu): Chủ kho xem trên bảng mẫu ngày 2026-11-12 và không chọn.
+- Thang chữ: modular major-second, modular minor-third: Chủ kho xem trên bảng mẫu ngày 2026-11-12 và không chọn.
+- Bo góc: none, extra-small, small, medium, large: Chủ kho xem trên bảng mẫu ngày 2026-11-12 và không chọn.
 - modular, major-third: Đã thử trên trình duyệt ngày 2026-11-11: text-xs xuống 10px, và nút của bộ linh kiện sàn vẫn giữ cỡ chữ riêng nên thang không đồng nhất.
 
 ## What is held

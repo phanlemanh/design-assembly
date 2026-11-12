@@ -1,7 +1,7 @@
 {
   "version": 1,
   "status": "approved",
-  "approval_note": "Máy đi trước: các giá trị đề xuất được áp vào reference implementation ngày 2026-11-11, trước khi chủ kho xem. Ngày 2026-11-12 chủ kho xem bảng mẫu và xác nhận màu gốc #0246ff và thang chữ chuẩn; bo góc, loại sản phẩm và mức accessibility vẫn là máy đề xuất.",
+  "approval_note": "Máy đi trước: các giá trị đề xuất được áp vào reference implementation ngày 2026-11-11, trước khi chủ kho xem. Ngày 2026-11-12 chủ kho xem bảng mẫu và chọn cả ba hạng mục của foundations: màu gốc #0246ff, thang chữ chuẩn, bo góc của sàn. Loại sản phẩm và mức accessibility vẫn là máy đề xuất.",
   "depth": "hand",
   "conversation_language": "vi",
   "layers": {
@@ -26,25 +26,32 @@
     },
     "foundations": {
       "status": "decided",
-      "source": "proposed",
+      "source": "user",
       "choice": {
         "source_color": "#0246ff",
         "type_scale": "standard",
         "spacing_unit": "4px",
         "corner_radius": "floor"
       },
-      "why": "Kho này chưa có nhận diện. Máy đề xuất một màu lam để reference implementation có thứ cho người xem phản ứng; chủ kho thay được bất cứ lúc nào. Type scale và corner radius giữ của sàn theo khuyến nghị cho một application: các cỡ quen thuộc với mọi người dùng Tailwind, và bộ linh kiện sàn vốn được vẽ cho chúng.",
+      "why": "Chủ kho chọn bằng mắt trên bảng mẫu ngày 2026-11-12, trên màn thật của kho: giữ màu gốc lam #0246ff, thang chữ chuẩn của sàn và bo góc của sàn. Khoảng cách chỉ có một phương án.",
       "rejected": [
         {
-          "option": "Giữ theme trung tính của sàn",
-          "why": "Khi đó cuộc dẫn dắt không sinh design token màu nào, và không có gì để chứng minh."
+          "option": "Màu gốc: lục lam, lục, hổ phách, đỏ (bốn màu khởi đầu)",
+          "why": "Chủ kho xem trên bảng mẫu ngày 2026-11-12 và không chọn."
+        },
+        {
+          "option": "Thang chữ: modular major-second, modular minor-third",
+          "why": "Chủ kho xem trên bảng mẫu ngày 2026-11-12 và không chọn."
+        },
+        {
+          "option": "Bo góc: none, extra-small, small, medium, large",
+          "why": "Chủ kho xem trên bảng mẫu ngày 2026-11-12 và không chọn."
         },
         {
           "option": "modular, major-third",
           "why": "Đã thử trên trình duyệt ngày 2026-11-11: text-xs xuống 10px, và nút của bộ linh kiện sàn vẫn giữ cỡ chữ riêng nên thang không đồng nhất."
         }
-      ],
-      "confirmed": ["source_color", "type_scale"]
+      ]
     },
     "components": {
       "status": "planned"

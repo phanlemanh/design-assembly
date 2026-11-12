@@ -67,6 +67,10 @@ Việc đó làm lộ một chỗ hở: bản thiết kế chỉ ghi «ai quyế
 sẽ thành nhận cả thang chữ lẫn bo góc mà chủ kho chưa xem. Đã thêm: một tầng do máy đề xuất được
 liệt kê riêng các câu người đã xác nhận, và chỉ những dòng đó hết ghi là đề xuất.
 
+Cùng ngày chủ kho đi nốt hai điểm dừng còn lại và chọn thang chữ chuẩn (A) và bo góc của sàn
+(A). Cả ba hạng mục của tầng foundations giờ là người quyết, chọn bằng mắt trên màn thật. Lát đầu
+được nghiệm thu bằng chính lượt đi này.
+
 Giới hạn:
 
 - **Màn có gì thì bảng mẫu cho thấy nấy.** Màn mẫu của sàn dùng rất ít màu chính và chỉ hai cỡ

@@ -107,9 +107,8 @@ việc nào được duyệt:
 
 - **Chủ kho xem cuốn sổ bàn giao một lượt** (`make design-book`, mở
   `coverage/design-book/book.html`): lát 0020 chỉ nghiệm thu được bằng lượt đó.
-- **Chủ kho đi qua bảng mẫu một lượt** (màu gốc, thang chữ, bo góc): lát 0019 chỉ nghiệm thu
-  được bằng lượt đó. Chữ cái chủ kho chọn được ghi vào `design/blueprint.json` là «người quyết»,
-  rồi chạy lại `make design-apply`.
+- **Chủ kho đã đi hết bảng mẫu của foundations** ngày 2026-11-12 và giữ cả ba giá trị đang dùng
+  (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
 - **Chủ kho đọc trang kiểu màn** `design/patterns/danh-sach.md` rồi xác nhận hoặc sửa. Ba dòng sổ
   (việc chính, thứ tự thông tin, lời văn) đang ghi «chưa ai xác nhận».
 - **Lần chạy thử bốn đã xong** (2026-11-12, kết quả ở cuối spec 0001). Điều sai rõ đã sửa, và
