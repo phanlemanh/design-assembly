@@ -332,9 +332,12 @@ test("the guide writes the widths and the browser test once, and points three ro
     assert.equal(rows[id].check, `e2e:${PAGES_TEST}`, id);
     assert.equal(rows[id].layer, "templates", id);
   }
-  // The same test also proves where focus is after an action, a decision about behaviour.
-  assert.equal(rows["focus-after-action"].check, `e2e:${PAGES_TEST}`);
-  assert.equal(rows["focus-after-action"].layer, "patterns");
+  // The same test also proves where focus is after an action, and that a row's actions are in
+  // view: decisions about behaviour.
+  for (const id of ["focus-after-action", "row-actions-in-view"]) {
+    assert.equal(rows[id].check, `e2e:${PAGES_TEST}`, id);
+    assert.equal(rows[id].layer, "patterns", id);
+  }
   // Both files are the repository's from then on: a person's widths and edits are kept.
   edit(dir, SIZES_FILE, (s) => s.replace("1440", "1024"));
   edit(dir, PAGES_TEST, (s) => `${s}// kept\n`);
@@ -421,7 +424,13 @@ test("adopting claims the page checks from a browser test that names them, and w
   const adopted = run(ADOPT, "--target", dir);
   assert.equal(adopted.status, 0, adopted.stderr);
   const rows = rowsOf(dir);
-  for (const id of ["one-main-one-h1", "no-sideways-scroll", "wcag-aa", "focus-after-action"]) {
+  for (const id of [
+    "one-main-one-h1",
+    "no-sideways-scroll",
+    "wcag-aa",
+    "focus-after-action",
+    "row-actions-in-view",
+  ]) {
     assert.equal(rows[id].check, `e2e:${PAGES_TEST}`, id);
   }
   assert.doesNotMatch(adopted.stdout, /screen-sizes\.json/);

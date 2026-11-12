@@ -21,6 +21,11 @@ const FIELDS: Record<string, string> = columns.fields;
 const UNTYPED: ColumnType = { base: "text", align: "left", sample: 1 };
 
 const ALIGN_CLASS = { left: "text-left", right: "text-right tabular-nums" } as const;
+// When a table is wider than its place it scrolls sideways inside itself. Two columns stay where
+// they are: the first, which says which item a row is, and the one that holds a row's actions, so
+// a person on a narrow screen can still tell the row and act on it.
+const PINNED_START = "first:sticky first:left-0 first:z-10 first:bg-background";
+const PINNED_END = "sticky right-0 z-10 bg-background";
 // A row is as tall as its tallest cell needs, so the dense row also tightens its cells: no
 // padding above and below a cell (a cell that holds a control would otherwise push the row past
 // the dense height), and a header cell no taller than the row.
@@ -111,7 +116,7 @@ function TypedHead({
 }: Omit<React.ComponentProps<typeof TableHead>, "children"> & TypedColumn) {
   return (
     <TableHead
-      className={cn(ALIGN_CLASS[alignOf(field)], className)}
+      className={cn(ALIGN_CLASS[alignOf(field)], PINNED_START, className)}
       style={{
         minWidth: `${columnWidthCh(values ? { field, header, values } : { field, header })}ch`,
         ...style,
@@ -128,7 +133,28 @@ function TypedCell({
   className,
   ...props
 }: React.ComponentProps<typeof TableCell> & { field: ColumnField }) {
-  return <TableCell className={cn(ALIGN_CLASS[alignOf(field)], className)} {...props} />;
+  return (
+    <TableCell className={cn(ALIGN_CLASS[alignOf(field)], PINNED_START, className)} {...props} />
+  );
 }
 
-export { TypedTable, TypedRow, TypedHead, TypedCell, columnWidthCh, densityFor };
+/** The header of the column that holds a row's actions and no data. It stays in view. */
+function TypedActionsHead({ className, ...props }: React.ComponentProps<typeof TableHead>) {
+  return <TableHead className={cn(PINNED_END, className)} {...props} />;
+}
+
+/** The cell that holds a row's actions. It stays in view when the table scrolls sideways. */
+function TypedActions({ className, ...props }: React.ComponentProps<typeof TableCell>) {
+  return <TableCell className={cn(PINNED_END, className)} {...props} />;
+}
+
+export {
+  TypedTable,
+  TypedRow,
+  TypedHead,
+  TypedCell,
+  TypedActionsHead,
+  TypedActions,
+  columnWidthCh,
+  densityFor,
+};

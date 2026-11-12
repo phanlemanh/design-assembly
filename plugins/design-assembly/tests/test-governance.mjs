@@ -141,6 +141,32 @@ test("a file is of the first part that names it, and screens are the files the p
   assert.equal(name("src/lib/labels.ts"), "base");
 });
 
+test("the repository's own components sit between the screens and the library, and only where there is room", () => {
+  const parts = JSON.parse(PARTS).parts;
+  assert.deepEqual(
+    parts.map((part) => part.name),
+    ["app", "screens", "shared", "components", "base"],
+  );
+  const sources = {
+    ...SOURCES,
+    "src/components/held.tsx": 'import { Badge } from "./ui/badge";\nexport const Held = Badge;\n',
+  };
+  const of = partOf(parts, sources, PAGES);
+  const name = (file) => parts[of[file]]?.name;
+  // The library is left out of the folder around it, so it stays below.
+  assert.equal(name("src/components/held.tsx"), "shared");
+  assert.equal(name("src/components/ui/badge.tsx"), "components");
+  assert.equal(importsProblem(JSON.stringify({ parts }), sources, PAGES), null);
+  // A component of the library that reaches up to the repository's own goes against the direction.
+  const up = { ...sources, "src/components/ui/badge.tsx": 'import "../held";\n' };
+  assert.match(
+    importsProblem(JSON.stringify({ parts }), up, PAGES),
+    /badge\.tsx \(components\) imports src\/components\/held\.tsx \(shared\)/,
+  );
+  // A library directly under the source folder has no folder around it: no such part.
+  assert.ok(!starterParts("src/ui").parts.some((part) => part.name === "shared"));
+});
+
 test("a part imports only itself and the parts listed after it", () => {
   assert.equal(importsProblem(PARTS, SOURCES, PAGES), null);
   // A component that reaches up to a screen, through the alias or a relative path.

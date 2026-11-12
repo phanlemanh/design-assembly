@@ -1,0 +1,19 @@
+# What can be done to the domain, and by whom. Each action names the function that does it today.
+actions:
+  - name: createItem
+    description: A person adds a sample item to the list. It is done at once and taken back by deleteItem.
+    entity: Item
+    kind: create
+    output: Item
+    roles: [user]
+    agent: forbidden
+    idempotent: false
+  - name: deleteItem
+    description: A person deletes an item from the list, after confirming. It cannot be taken back.
+    entity: Item
+    kind: delete
+    input:
+      id: { type: integer, required: true }
+    roles: [user]
+    agent: forbidden
+    idempotent: true

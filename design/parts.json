@@ -10,6 +10,11 @@
       "kinds": "design/patterns"
     },
     {
+      "name": "shared",
+      "files": ["src/components/**"],
+      "except": ["src/components/ui/**"]
+    },
+    {
       "name": "components",
       "files": ["src/components/ui/**"]
     },

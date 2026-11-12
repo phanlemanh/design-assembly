@@ -193,7 +193,19 @@ every page; the others are a person's review, and the rules page says so.
   heading. A control that waits for an answer is held in a way that keeps focus. A button of a
   toast gives focus back to where the person was. The browser test checks, for every state that
   follows an action, that something has focus once the page has settled. It does not check that
-  it is the right thing.
+  it is the right thing. Wherever focus is sent, it shows: a heading given `tabIndex={-1}` gets
+  the same visible ring as a control.
+- **A row's actions are in view** (`row-actions-in-view`). On a narrow screen a table scrolls
+  sideways inside itself, and the column of actions, last in the row, ends up off the screen: a
+  person sees a name and cannot act on it. The first column and the column of actions stay in
+  place (`TypedActionsHead` and `TypedActions` of the typed table parts), and the middle scrolls.
+  The browser test checks, at every width, that every control of the first row is inside the
+  window. It checks the first row only, and a table built with other parts is held the same way.
+- **The actions of a row.** At most two show as buttons; three or more go into one menu on the
+  row, the ones that can be taken back first and a delete last. Each row waits on its own. A
+  button that says it is working keeps its width: the guide installs `HeldLabel` beside the
+  component library with the table parts, and the rules page names it. No check reads these: a
+  person reviews them.
 - **One item changing changes the list in place.** The row stays, with its controls held, until
   the answer; then it leaves, or stays and the failure is told. The loading state is for the
   first load and for trying again. Under a second nothing is shown; from a second on the control
@@ -279,9 +291,10 @@ repository adds the widths its own layouts change at.
 Where the floor's browser checks are installed, the guide writes the file with 320 and 1440, and
 installs a browser test that reads it. For every state of every screen, at every width, that test
 checks one main region and one top heading, no sideways scroll, and the automated accessibility
-checks, and that focus is not lost after an action. It names `decision:one-main-one-h1`,
-`decision:no-sideways-scroll`, `decision:wcag-aa` and `decision:focus-after-action`, so four
-rows point at it as `claimed`. The row `test-screen-sizes` is held
+checks, that focus is not lost after an action, and that a row's actions are in view. It names
+`decision:one-main-one-h1`, `decision:no-sideways-scroll`, `decision:wcag-aa`,
+`decision:focus-after-action` and `decision:row-actions-in-view`, so five rows point at it as
+`claimed`. The row `test-screen-sizes` is held
 by the tool: the widths reach down to 320, and the test opens the file and names its widths. The
 tool reads the test's code, not its comments; it does not run the test, so a test that skips a
 width is not caught. A failure of the browser test names the decision it belongs to.
@@ -295,7 +308,11 @@ Two rules about the system, and one about how it is bent on purpose.
   for the screens the pages of kinds name. A file is of the first part that names it, and every
   source file is of a part. A file imports only its own part and the parts listed after it. The
   guide writes the list once the kinds of screen are described: the files that start the
-  application, the screens, the components, and everything else. The tool reads imports as they
+  application, the screens, the repository's own components (`shared`: the folder around the
+  component library, without the library, where the library has such a folder), the component
+  library, and everything else. A part may leave out files with `except` globs. What two screens
+  share goes down a part: a piece of drawing becomes a component in `shared`; one screen's own
+  drawing stays in that screen. The tool reads imports as they
   are written in source, static and dynamic; a lint rule on imports reads only the static ones.
   It does not follow an import into a package.
 - **`escapes`: the record of what slipped past the checks.** `design/escapes.md` holds a table,
@@ -303,6 +320,10 @@ Two rules about the system, and one about how it is bent on purpose.
   the date, what slipped, the layer that should have caught it, what was done. The tool checks
   that every line has all four and names a real layer. It cannot know that a fault was left out:
   an empty record passes, and the audit says that an empty record is not proof.
+- **What the gate cannot hold, the rules page says.** A concept or an action a screen needs that
+  the data model does not name is added to the data model first; an agent that may not change it
+  stops and asks. A row of the ledger is for a rule a second screen must follow; one screen's own
+  choice stays in that screen.
 - **A departure on purpose stays beside the rule it bends, with its reason.** A lint exception
   says why after `--`. A screen excused from the states says why in `design/states.json`. A file
   left out of its kind says why on the kind's page (`ly_do`), which `page-layouts` now checks.

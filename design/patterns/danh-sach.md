@@ -45,6 +45,11 @@ làm ngay mà thất bại thì dòng còn nguyên và toast báo (thao tác h�
 trong hộp thoại). Dòng cuối cùng rời đi thì tiêu điểm vào nút của trạng thái
 trống. Chi tiết ở `design/behaviors.md`, «Sau một thao tác».
 
+Một dòng có tối đa hai nút; từ ba thao tác thì gom vào một trình đơn của dòng, thao tác đảo được
+đứng trước, xoá đứng cuối. Mỗi dòng chờ phần của nó: các dòng khác vẫn dùng được. Nút đang chờ
+giữ nguyên bề rộng. Ở bề rộng hẹp, cột tên và cột thao tác đứng yên, phần giữa cuộn ngang. Chi
+tiết ở `design/behaviors.md`, «Thao tác trên dòng».
+
 ## Trạng thái trống
 
 Nói vì sao trống và mục tới đây bằng cách nào. Màn thêm được mục thì có nút thêm mục đầu tiên.

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ComponentProps, type ReactNode, type 
 
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { HeldLabel } from "@/components/held-label";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,8 +23,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TableBody, TableCell, TableHead, TableHeader } from "@/components/ui/table";
+import { TableBody, TableHeader } from "@/components/ui/table";
 import {
+  TypedActions,
+  TypedActionsHead,
   TypedCell,
   TypedHead,
   TypedRow,
@@ -65,7 +68,7 @@ function Notice({
 }: {
   title: string;
   detail: string;
-  action: string;
+  action: ReactNode;
   onAction: () => void;
   actionRef: Ref<HTMLButtonElement>;
   pending?: boolean;
@@ -312,7 +315,9 @@ export function ReferenceScreen() {
       <Notice
         title={LABELS.emptyTitle}
         detail={LABELS.emptyDetail}
-        action={addingSlowly ? LABELS.adding : LABELS.emptyAction}
+        action={
+          <HeldLabel label={LABELS.emptyAction} busyLabel={LABELS.adding} busy={addingSlowly} />
+        }
         onAction={addFirst}
         actionRef={noticeAction}
         pending={adding}
@@ -336,7 +341,7 @@ export function ReferenceScreen() {
             {columns.map((column) => (
               <TypedHead key={column.field} {...column} />
             ))}
-            <TableHead>{LABELS.columnActions}</TableHead>
+            <TypedActionsHead>{LABELS.columnActions}</TypedActionsHead>
           </TypedRow>
         </TableHeader>
         <TableBody>
@@ -348,7 +353,7 @@ export function ReferenceScreen() {
               </TypedCell>
               <TypedCell field="Item.date">{formatDate(item.date)}</TypedCell>
               <TypedCell field="Item.total">{formatMoney(item.total)}</TypedCell>
-              <TableCell>
+              <TypedActions>
                 <Button
                   ref={(button) => {
                     if (button) rowActions.current.set(item.id, button);
@@ -361,7 +366,7 @@ export function ReferenceScreen() {
                 >
                   {LABELS.deleteAction}
                 </Button>
-              </TableCell>
+              </TypedActions>
             </TypedRow>
           ))}
         </TableBody>
@@ -371,7 +376,11 @@ export function ReferenceScreen() {
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-4 p-6 text-sm">
-      <h1 ref={heading} tabIndex={-1} className="text-lg font-semibold">
+      <h1
+        ref={heading}
+        tabIndex={-1}
+        className="rounded-sm text-lg font-semibold outline-none focus:ring-3 focus:ring-ring/50"
+      >
         {LABELS.screenTitle}
       </h1>
       {items && items.length > 0 && (

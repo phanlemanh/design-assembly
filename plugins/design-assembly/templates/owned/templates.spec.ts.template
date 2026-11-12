@@ -1,4 +1,5 @@
 // decision:one-main-one-h1 decision:no-sideways-scroll decision:wcag-aa decision:focus-after-action
+// decision:row-actions-in-view
 // Every state of every screen, at every width of design/screen-sizes.json: one main region and one
 // top heading, no sideways scroll, and the automated accessibility checks. The widths are a
 // person's list; the narrowest is the reflow width of WCAG 2.2.
@@ -56,6 +57,24 @@ for (const route of ROUTES) {
         ),
         "wcag-aa: the automated accessibility checks found these",
       ).toEqual([]);
+      // A table may scroll sideways inside itself, but what a person does with a row stays in
+      // view: the controls of the first row are inside the window at every width.
+      const row = page.locator("table tbody tr").first();
+      if ((await row.count()) > 0 && (await row.isVisible())) {
+        const outside = await row
+          .getByRole("button")
+          .evaluateAll(
+            (buttons, edge) =>
+              buttons
+                .map((button) => button.getBoundingClientRect())
+                .filter((box) => box.width > 0 && (box.left < 0 || box.right > edge)).length,
+            width,
+          );
+        expect(
+          outside,
+          `row-actions-in-view: ${outside} control(s) of the first row are outside a ${width}px window. Keep the column of actions in place when the table scrolls sideways`,
+        ).toBe(0);
+      }
       // Looked at last, once the page has settled: a control that left must not take focus with it.
       if (route.steps.some((step) => "press" in step)) {
         const lost = await page.evaluate(

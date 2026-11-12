@@ -14,9 +14,10 @@ export interface Item {
 
 // ---- Roles, actions and personal data (ontology/roles.yaml, actions.yaml)
 
-export type Role = string;
+export type Role = "user";
 
 export const ROLE_INHERITS: Readonly<Record<string, readonly Role[]>> = {
+  "user": [],
 };
 
 /** Who runs an action, and as which role. */
@@ -25,8 +26,19 @@ export interface ActionContext {
   actor: string;
 }
 
+export interface CreateItemInput {
+}
+
+export interface DeleteItemInput {
+  id: number;
+}
+
 /** Implement these in src/actions/ — one function per ontology action. */
 export interface ActionHandlers {
+  /** A person adds a sample item to the list. It is done at once and taken back by deleteItem. */
+  createItem(input: CreateItemInput, ctx: ActionContext): Promise<Item>;
+  /** A person deletes an item from the list, after confirming. It cannot be taken back. */
+  deleteItem(input: DeleteItemInput, ctx: ActionContext): Promise<void>;
 }
 
 export interface ActionSpec {
@@ -41,7 +53,43 @@ export interface ActionSpec {
   inputSchema: Record<string, unknown>;
 }
 
-export const ACTIONS: readonly ActionSpec[] = [];
+export const ACTIONS: readonly ActionSpec[] = [
+  {
+    name: "createItem",
+    description: "A person adds a sample item to the list. It is done at once and taken back by deleteItem.",
+    entity: "Item",
+    kind: "create",
+    roles: ["user"],
+    agent: "forbidden",
+    idempotent: false,
+    output: "Item",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "deleteItem",
+    description: "A person deletes an item from the list, after confirming. It cannot be taken back.",
+    entity: "Item",
+    kind: "delete",
+    roles: ["user"],
+    agent: "forbidden",
+    idempotent: true,
+    output: null,
+    inputSchema: {
+      type: "object",
+      properties: {
+        id: {
+          type: "integer",
+        },
+      },
+      additionalProperties: false,
+      required: ["id"],
+    },
+  },
+];
 
 /** True if `role` (or a role it inherits) may run the action. */
 export function can(role: Role, action: ActionSpec): boolean {

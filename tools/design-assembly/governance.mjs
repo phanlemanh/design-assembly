@@ -36,11 +36,19 @@ export function readSources(root, folder = SOURCE_FOLDER) {
 // The parts a repository would start from: the files that start the application, the screens its
 // pages of kinds name, its components, and everything else underneath.
 export function starterParts(componentsFolder) {
+  // The repository's own components, shared by its screens, live beside the component library:
+  // above it, below the screens. Where the library has no folder around it there is no such place.
+  const around = path.posix.dirname(componentsFolder);
+  const shared =
+    around !== SOURCE_FOLDER && around !== "."
+      ? [{ name: "shared", files: [`${around}/**`], except: [`${componentsFolder}/**`] }]
+      : [];
   return {
     version: 1,
     parts: [
       { name: "app", files: [`${SOURCE_FOLDER}/*.ts`, `${SOURCE_FOLDER}/*.tsx`] },
       { name: "screens", kinds: KINDS_FOLDER },
+      ...shared,
       { name: "components", files: [`${componentsFolder}/**`] },
       { name: "base", files: [`${SOURCE_FOLDER}/**`] },
     ],
@@ -110,8 +118,12 @@ export function partOf(parts, sources, pages) {
   const isScreen = ofAKind(pages);
   const tests = parts.map((part) => {
     const patterns = (part.files ?? []).map(globPattern);
+    // `except` leaves out what another part owns inside the same folder.
+    const left = (part.except ?? []).map(globPattern);
     return (file) =>
-      patterns.some((pattern) => pattern.test(file)) || (Boolean(part.kinds) && isScreen(file));
+      (patterns.some((pattern) => pattern.test(file)) &&
+        !left.some((pattern) => pattern.test(file))) ||
+      (Boolean(part.kinds) && isScreen(file));
   });
   return Object.fromEntries(
     Object.keys(sources).map((file) => [file, tests.findIndex((test) => test(file))]),

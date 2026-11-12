@@ -424,6 +424,12 @@ tiêu điểm đỏ trên màn có từ trước.
 - Trang hành vi của sàn dạy khoá nút theo cách mà phép kiểm tiêu điểm đánh đỏ.
 - Các sửa đổi sau lần thử này lại chưa được tác tử độc lập thử.
 
+**Sau đó, cùng ngày** (quyết định 0021): sáu luật cho những chỗ tác tử dựng màn phải đoán. Khái
+niệm mới qua mô hình dữ liệu, tác tử không được sửa thì hỏi; phần «linh kiện của kho» cho phần vẽ
+dùng chung; tối đa hai nút trên dòng, mỗi dòng chờ riêng, nút đang chờ giữ bề rộng; cột tên và cột
+thao tác đứng yên trên bảng hẹp, có phép kiểm trình duyệt; tiêu điểm thấy được; sổ chỉ cho luật dùng
+chung. Còn mở: trạng thái chỉ tới được từ màn khác, và các mục adopt, cuốn sổ, trang của sàn ở trên.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.

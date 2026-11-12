@@ -332,6 +332,8 @@ test("the table parts the guide installs are the ones the reference implementati
   for (const [template, file] of [
     ["typed-table.tsx.template", "src/components/ui/typed-table.tsx"],
     ["typed-table.test.tsx.template", "tests/typed-table.test.tsx"],
+    ["held-label.tsx.template", "src/components/held-label.tsx"],
+    ["held-label.test.tsx.template", "tests/held-label.test.tsx"],
   ]) {
     assert.equal(text(PLUGIN, `templates/owned/${template}`), own(file), file);
   }

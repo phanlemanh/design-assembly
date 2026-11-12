@@ -248,3 +248,8 @@ decisions:
     source: "design/escapes.md, one line per fault that every check let through"
     check: "tool:tools/design-assembly/check.mjs"
     note: "that every line can be acted on; that a fault gets a line at all is a person's habit, and an empty record passes"
+  - id: row-actions-in-view
+    layer: patterns
+    kind: standard
+    source: "the repository's own browser test of it"
+    check: "e2e:tests/e2e/templates.spec.ts"

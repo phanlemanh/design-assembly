@@ -245,7 +245,7 @@ the preview again.
     (`design/states.json`) is the person's from now on, and excusing a screen there needs a
     reason. Each of the four rows holds only what can be read from source; its note says what.
 11. Kinds of screen. Repeat the lines for `test-screen-sizes`, `one-main-one-h1`,
-    `no-sideways-scroll`, `wcag-aa` and `focus-after-action`: where the floor's browser checks are installed, the guide
+    `no-sideways-scroll`, `wcag-aa`, `focus-after-action` and `row-actions-in-view`: where the floor's browser checks are installed, the guide
     wrote `design/screen-sizes.json` with 320 and 1440 and installed a browser test that checks
     every state of every screen at those widths. The widths are the person's from now on; the
     narrowest stays at 320 or less.

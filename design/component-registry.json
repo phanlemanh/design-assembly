@@ -331,6 +331,16 @@
       "name": "TypedCell",
       "category": "component",
       "file": "src/components/ui/typed-table.tsx"
+    },
+    {
+      "name": "TypedActionsHead",
+      "category": "component",
+      "file": "src/components/ui/typed-table.tsx"
+    },
+    {
+      "name": "TypedActions",
+      "category": "component",
+      "file": "src/components/ui/typed-table.tsx"
     }
   ]
 }

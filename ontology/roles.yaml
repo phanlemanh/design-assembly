@@ -1,0 +1,5 @@
+# Who may run the actions of ontology/actions.yaml. No AI agent acts on this application, so there
+# is no `agent` role.
+roles:
+  - name: user
+    description: A person using the application's screens.

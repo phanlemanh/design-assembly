@@ -70,6 +70,20 @@ Thất bại thì báo ở nơi người dùng vừa làm, và không bao giờ 
   đó.
 - **Nút trên toast trả tiêu điểm** về nơi người dùng đang đứng trước khi với tới toast; mô-đun
   thông báo làm việc này.
+- **Tiêu điểm đi tới đâu thì thấy ở đó.** Tiêu đề hay phần tử nào nhận tiêu điểm bằng
+  `tabIndex={-1}` cũng có viền như một nút khi nhận tiêu điểm.
+- **Nút đang chờ giữ nguyên bề rộng.** Chữ «đang làm» không làm nút dài ra hay co lại: nhãn viết
+  bằng `HeldLabel` (`src/components/held-label.tsx`), đưa cả chữ thường lẫn chữ lúc chờ.
+
+## Thao tác trên dòng
+
+- **Tối đa hai nút trên một dòng.** Từ ba thao tác trở lên thì gom vào một trình đơn của dòng.
+  Thao tác đảo được đứng trước, xoá đứng cuối.
+- **Mỗi dòng chờ phần của nó.** Một dòng đang chờ trả lời thì các dòng khác vẫn dùng được.
+- **Bảng hẹp: cột tên và cột thao tác đứng yên.** Ở bề rộng hẹp, bảng cuộn ngang bên dưới cột
+  đầu và cột thao tác (`TypedActionsHead`, `TypedActions`), nên tên và nút của một dòng luôn nằm
+  trong khung nhìn. Bài kiểm trình duyệt đỏ khi một nút của dòng đầu nằm ngoài khung ở bề rộng
+  hẹp nhất.
 
 ## Đi lại giữa các màn
 
@@ -91,7 +105,14 @@ accessibility tự động. Bề rộng hẹp nhất là 320.
 
 - **Hướng nhập.** Mã chia thành các phần, liệt kê từ trên xuống trong `design/parts.json`: khung
   ứng dụng, các màn, linh kiện, phần nền. Một tệp chỉ nhập phần của mình và các phần nằm dưới:
-  linh kiện không bao giờ nhập một màn. Thứ hai màn dùng chung thì chuyển xuống một phần.
+  linh kiện không bao giờ nhập một màn. Thứ hai màn dùng chung thì chuyển xuống một phần: logic
+  và dữ liệu xuống phần nền; phần vẽ dùng chung thành linh kiện của kho, ở phần `shared` nằm giữa
+  các màn và thư viện linh kiện. Phần vẽ của riêng một màn ở lại trong màn đó.
+- **Khái niệm mới đi qua mô hình dữ liệu.** Màn cần một khái niệm hay một hành động mà mô hình
+  dữ liệu chưa có thì thêm vào `ontology/` trước, trong cùng thay đổi. Tác tử không được sửa mô
+  hình thì dừng lại và hỏi, không tự đặt tên khái niệm trong màn.
+- **Sổ quyết định chỉ cho luật dùng chung.** Một dòng của `design/decisions.yaml` là luật mà màn
+  thứ hai cũng phải theo. Lựa chọn của riêng một màn ở lại trong màn đó.
 - **Lỗi lọt.** Gặp một lỗi mà mọi lệnh kiểm đều cho qua thì ghi một dòng vào `design/escapes.md`
   trước khi sửa: ngày, lỗi gì, tầng nào đáng ra phải chặn, đã làm gì.
 - **Ngoại lệ có chủ ý** ở lại cạnh luật mà nó bẻ, kèm lý do: ngoại lệ lint, màn được miễn trạng

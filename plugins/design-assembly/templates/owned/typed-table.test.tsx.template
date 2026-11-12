@@ -9,6 +9,8 @@ import { TableBody, TableHeader } from "../src/components/ui/table.tsx";
 import {
   columnWidthCh,
   densityFor,
+  TypedActions,
+  TypedActionsHead,
   TypedCell,
   TypedHead,
   TypedRow,
@@ -141,4 +143,34 @@ it("rows take their height from the density of the table, not from the screen", 
   measuredAt(total * 8 - 8);
   show(list);
   for (const row of screen.getAllByRole("row")) expect(row).toHaveClass("h-8");
+});
+
+it("the first column and the column of actions stay in place when the table scrolls sideways", () => {
+  const field = Object.keys(columns.fields)[0] as ColumnField;
+  render(
+    <TypedTable aria-label="items" columns={[{ field, header: "Name" }]}>
+      <TableHeader>
+        <TypedRow>
+          <TypedHead field={field} header="Name" />
+          <TypedActionsHead>Actions</TypedActionsHead>
+        </TypedRow>
+      </TableHeader>
+      <TableBody>
+        <TypedRow>
+          <TypedCell field={field}>first</TypedCell>
+          <TypedActions>act</TypedActions>
+        </TypedRow>
+      </TableBody>
+    </TypedTable>,
+  );
+  // The column that says which item a row is: pinned to the start when it is the first cell.
+  expect(screen.getByText("first")).toHaveClass(
+    "first:sticky",
+    "first:left-0",
+    "first:bg-background",
+  );
+  // The column of actions: pinned to the end, on the header and on every row.
+  for (const cell of [screen.getByText("Actions"), screen.getByText("act")]) {
+    expect(cell).toHaveClass("sticky", "right-0", "bg-background");
+  }
 });

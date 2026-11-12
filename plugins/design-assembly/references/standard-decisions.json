@@ -356,6 +356,13 @@
       "sources": ["design-assembly"]
     },
     {
+      "id": "row-actions-in-view",
+      "layer": "patterns",
+      "kind": "standard",
+      "question": "Can a person reach a row's actions on the narrowest screen without scrolling sideways?",
+      "sources": ["design-assembly"]
+    },
+    {
       "id": "feedback-by-delay",
       "layer": "patterns",
       "kind": "standard",

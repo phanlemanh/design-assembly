@@ -358,6 +358,9 @@ const STARTER_TYPES = {
 const OWNED = {
   "typed-table.tsx.template": (folder) => `${folder}/typed-table.tsx`,
   "typed-table.test.tsx.template": () => "tests/typed-table.test.tsx",
+  // A button's label that keeps its width while the action waits: the column of actions needs it.
+  "held-label.tsx.template": (folder) => `${path.posix.dirname(folder)}/held-label.tsx`,
+  "held-label.test.tsx.template": () => "tests/held-label.test.tsx",
 };
 
 // The data table layer: the repository's column types, the file code reads, the rows and checks
@@ -558,6 +561,7 @@ const PAGE_PROOFS = {
   "no-sideways-scroll": { layer: "templates", kind: "formula" },
   "wcag-aa": { layer: "templates", kind: "standard" },
   "focus-after-action": { layer: "patterns", kind: "standard" },
+  "row-actions-in-view": { layer: "patterns", kind: "standard" },
 };
 // Where the floor lists every state of every screen for its browser checks.
 const ROUTES = "tests/e2e/routes.ts";
@@ -798,7 +802,21 @@ export function rulesPage(checks, has) {
         : "Alignment and width come from the column type of the field."),
     held("column-align") &&
       "Never put a text-alignment or width class on a table cell, or a height or text-size class on a table row, typed or plain.",
-    held("column-align") && "A column that holds actions and no data uses the plain table cell.",
+    held("column-align") &&
+      (typed
+        ? "A column that holds actions and no data uses `TypedActionsHead` and `TypedActions` from the same file. On a narrow screen the table scrolls sideways under its first column and its column of actions: both stay in place, so a row's name and its actions are always in view."
+        : "A column that holds actions and no data uses the plain table cell. On a narrow screen the first column and the column of actions stay in place while the rest scrolls sideways."),
+  ]);
+  const heldLabel = has("src/components/held-label.tsx");
+  section("Actions on a row", [
+    held("column-align") &&
+      "A row shows at most two actions as buttons. Three or more go into one menu on the row. The actions that can be taken back come first, a delete comes last.",
+    held("column-align") &&
+      "Each row waits on its own: while one row's action waits, the other rows can still be used.",
+    held("column-align") &&
+      (heldLabel
+        ? "A button that says it is working keeps its width: write its label with `HeldLabel` (`src/components/held-label.tsx`), giving both the label and the label while it waits."
+        : "A button that says it is working keeps its width: the label while it waits takes no more room than the label before."),
   ]);
   section("Words", [
     held("labels") &&
@@ -840,6 +858,10 @@ export function rulesPage(checks, has) {
     pages &&
       "When a control leaves the page (its row is removed, its dialog closes on a deleted item, its state is replaced), move focus: to the same action on the row after it, else on the row before, else to the button of the state shown in place of the table, else to the screen's top heading.",
     pages &&
+      "Wherever focus is sent, it shows: a heading or any element given `tabIndex={-1}` to receive focus gets the same visible ring as a control.",
+    pages &&
+      "At the narrowest width, every control of the first row of a table is inside the window: the browser test fails when one is not.",
+    pages &&
       notify &&
       "A button of a toast gives focus back to where the person was before the toast: the notification module does this.",
   ]);
@@ -853,9 +875,12 @@ export function rulesPage(checks, has) {
   ]);
   section("The system itself", [
     held("tier-direction") &&
-      "The code has parts, listed from the top down in `design/parts.json`. A file imports only its own part and the parts listed after it: a component never imports a screen. What two screens share: logic and data move down a part; a piece of drawing they share stays beside the screens of its kind, or becomes a component of the repository's own in a part a person adds to `design/parts.json` between the screens and the components.",
+      "The code has parts, listed from the top down in `design/parts.json`. A file imports only its own part and the parts listed after it: a component never imports a screen. What two screens share: logic and data move down a part; a piece of drawing they share becomes a component of the repository's own, in the part between the screens and the component library (named `shared` where the guide wrote the list). One screen's own drawing stays in that screen.",
     held("escapes") &&
       "When you find a fault that every check let through, add a line to `design/escapes.md` before you fix it: the date, what slipped, the layer that should have caught it, and what was done.",
+    has("ontology/glossary.md") &&
+      "A screen that needs a concept or an action the data model does not name adds it to `ontology/` first, in the same change. An agent that may not change the data model stops and asks: it never names the concept in a screen alone.",
+    "A row of `design/decisions.yaml` is for a rule a second screen must follow. A choice that only one screen makes stays in that screen.",
     (held("tier-direction") || held("escapes")) &&
       "A departure on purpose stays beside the rule it bends, with its reason: a lint exception, a screen excused from the states, a file left out of its kind.",
   ]);

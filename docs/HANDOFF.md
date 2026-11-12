@@ -14,7 +14,7 @@ sửa trang này hoặc xoá nó.
 2. `AGENTS.md` và `CLAUDE.md` ở gốc kho: lệnh, luật, ngôn ngữ.
 3. `wiki/index.md`, rồi `wiki/specs/0001-design-system-for-claude-code.md` (đề bài và kết quả từng
    lát, ba lần chạy thử).
-4. Bản ghi quyết định `wiki/decisions/0005` đến `0020`: mỗi phần đã dựng có một bản, kèm giới hạn.
+4. Bản ghi quyết định `wiki/decisions/0005` đến `0021`: mỗi phần đã dựng có một bản, kèm giới hạn.
 5. `plugins/design-assembly/references/checks.md`: mọi tệp plugin để lại ở một kho, và mỗi loại
    lệnh kiểm.
 
@@ -42,10 +42,10 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 ## Trạng thái lúc bàn giao
 
 - Nhánh `main`, cây làm việc sạch. **Chưa có remote, chưa đẩy đi đâu**: kho chỉ nằm trên máy
-  này. Mọi thứ đều đã commit. Cập nhật lần cuối 2026-11-12, sau quyết định 0020.
-- `make check` xanh: lint, typecheck, 68 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (22 quyết định, 28 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 201 bài kiểm của plugin.
-- Kho này đáp **37/38 quyết định lõi**: 14 máy giữ, 17 tự khai, 6 đã ghi. Sổ có 47 dòng. Ngày 2026-11-12 chủ kho
+  này. Mọi thứ đều đã commit. Cập nhật lần cuối 2026-11-12, sau quyết định 0021.
+- `make check` xanh: lint, typecheck, 70 bài kiểm của kho, ontology, lệnh kiểm design-assembly
+  (22 quyết định, 28 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 202 bài kiểm của plugin.
+- Kho này đáp **37/38 quyết định lõi**: 14 máy giữ, 17 tự khai, 6 đã ghi. Sổ có 48 dòng. Ngày 2026-11-12 chủ kho
   xác nhận cả sáu câu «đã ghi»; riêng lời văn thì chủ kho xác nhận cách viết, chưa đọc từng chữ.
 
 | Bậc                           | Trạng thái       | Còn thiếu                                                 |
@@ -76,6 +76,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 | Bảng mẫu thị giác cho tầng foundations                     | 0019    | `scripts/specimen.mjs`, `references/source-colors.json`                                            |
 | Hướng nhập giữa các phần, sổ lỗi lọt                       | 0018    | `templates/tools/design-assembly/governance.mjs`, `design/parts.json`, `design/escapes.md`         |
 | Sau một thao tác: tiêu điểm, đổi tại chỗ, trống, đi lại    | 0017    | `src/example/ReferenceScreen.tsx`, `src/lib/slow.ts`, `templates/owned/templates.spec.ts.template` |
+| Sáu luật cho điều tác tử dựng màn phải đoán ở lần thử năm  | 0021    | `src/components/held-label.tsx`, `typed-table.tsx`, `design/parts.json`, `ontology/actions.yaml`   |
 | Kiểu màn, cỡ màn được kiểm, thao tác thất bại              | 0016    | `templates/tools/design-assembly/screens.mjs`, `design/patterns/`, `src/lib/notify.ts`             |
 
 Lệnh hay dùng ở kho này: `make design-audit`, `make design-plan`, `make design-apply`,
@@ -110,6 +111,9 @@ việc nào được duyệt:
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
 - **Lần chạy thử năm đã xong** (2026-11-12, kết quả ở cuối spec 0001). Điều sai rõ đã sửa; các
   sửa đổi đó chưa được thử lại. Điều nó để ngỏ nằm ở mục «Điều còn nguyên» của lần thử năm.
+- **Chủ kho duyệt riêng phần mô hình dữ liệu của 0021**: hai hành động `createItem`, `deleteItem`
+  và vai `user` trong `ontology/`. Bác thì gỡ hai tệp `ontology/actions.yaml`, `ontology/roles.yaml`
+  và chạy `make gen`.
 - **Khung điều hướng** chưa dựng: luật có rồi, chờ màn thứ hai.
 - **Đo token** theo giao thức của Repo Standards: đề bài hẹn làm khi cuộc dẫn dắt tới bậc
   templates. Tốn tiền API, cần chủ kho cho phép riêng.
