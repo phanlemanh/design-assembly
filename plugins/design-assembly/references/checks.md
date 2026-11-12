@@ -193,6 +193,40 @@ the kit's own. This tool reads five of them:
 | `mau_dang_chay.tep` | The source file of the kind's reference screen                  |
 | `ngoai_le`          | Files left out; one with no `khoi` key is no longer of the kind |
 
+A page that both tools read, for a kind named `list`, in `design/patterns/list.md`:
+
+```markdown
+---
+nhom: list
+doi_tuong: A screen that shows many items of one type in a table.
+khuon:
+  ten: Table
+  nhap: "@/components/ui/table"
+nhan_dien:
+  - "src/lists/**/*.tsx"
+mau_dang_chay:
+  tep: src/lists/Orders.tsx
+khe_bat_buoc: []
+cam_ngoai_khuon: []
+ngoai_le: []
+nhan_viec: Find one order, then open it or cancel it
+---
+
+## Main task
+
+## Order of the parts
+
+## Words
+
+## When to use, and when not
+```
+
+The other keys (`doi_tuong`, `khuon`, `khe_bat_buoc`, `cam_ngoai_khuon`) are the acceptance
+kit's: what the kind is, the component its screens are built from, the parts that component must
+be given, and the components a screen of the kind must not use directly. This tool does not read
+them; keep them so the kit accepts the page. An entry of `ngoai_le` is
+`{ tep: <file>, ly_do: <why> }`.
+
 The body is for people and for the agent that builds the next screen: the main task, the order of
 the parts, how the words are written, when to use the kind and when not.
 
@@ -219,7 +253,9 @@ installs a browser test that reads it. For every state of every screen, at every
 checks one main region and one top heading, no sideways scroll, and the automated accessibility
 checks. It names `decision:one-main-one-h1`, `decision:no-sideways-scroll` and
 `decision:wcag-aa`, so three rows point at it as `claimed`. The row `test-screen-sizes` is held
-by the tool: the widths reach down to 320 and the test reads them.
+by the tool: the widths reach down to 320, and the test opens the file and names its widths. The
+tool reads the test's code, not its comments; it does not run the test, so a test that skips a
+width is not caught. A failure of the browser test names the decision it belongs to.
 
 ## A row that has no check
 

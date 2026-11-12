@@ -647,7 +647,7 @@ export function templatesPlan(target, { starter, code = false, pending = {} }) {
           kind: "formula",
           source: `${SIZES_FILE}: the reflow width of WCAG 2.2, and the widths a person adds`,
           check: TOOL,
-          note: "that the widths reach down to the reflow width and that the browser test reads them; the browser test itself is not run again here",
+          note: "that the widths reach down to the reflow width, and that the browser test opens the file and names its widths; the test itself is not run again here, so a test that skips a width is not caught",
         },
         checks: [{ kind: "screen-sizes", file: SIZES_FILE, test: PAGES_TEST }],
       });
@@ -680,9 +680,10 @@ export function rulesPage(checks, has) {
     "",
     "# Design rules the gate holds",
     "",
-    "`make design-assembly` checks every rule below, and `make check` runs it. A failure names the",
-    "decision, the file and what to do. `design/decisions.yaml` lists every design decision of this",
-    "repository and what holds it. This page is written by the design-assembly guide: do not edit it.",
+    "`make design-assembly` checks what this page lists, and `make check` runs it. A failure names",
+    "the decision and what is wrong. `design/decisions.yaml` lists every design decision of this",
+    "repository and what holds it. This page is written by the design-assembly scripts: do not edit",
+    "it.",
   ];
   const section = (title, items) => {
     const shown = items.filter(Boolean);

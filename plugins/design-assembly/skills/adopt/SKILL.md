@@ -87,9 +87,15 @@ stated level that the values do not reach is not a reason to lower the level: re
    builds next.
 5. Run the repository's formatter if it has one, then its gate.
 
-From then on a change to a value in the stylesheet is followed by `make design-tokens`, and a
-change to a component by `make design-components`. The gate fails until the file is written again,
-and the message names what differs.
+From then on a change to a value in the stylesheet is followed by `make design-tokens`, and, where
+adopting wrote the component manifest, a change to a component by `make design-components`. The
+gate fails until the file is written again, and the message names what differs. Where the
+repository keeps a manifest of its own, this tool holds nothing about components: say so.
+
+Adopting does not take in the pages a repository keeps for its kinds of screen, nor its screen
+sizes: it only claims a browser test that names `decision:<id>`. When the audit lists
+`test-screen-sizes` or `reference-implementation` as open, say that this version closes them
+only through the guide.
 
 Running adopt again adds only what is new. A row already in the ledger is never rewritten.
 

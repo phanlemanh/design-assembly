@@ -552,7 +552,9 @@ export function report(result) {
       ? `stylesheet: ${result.stylesheet} (${result.files_read.length} file(s) read)`
       : "stylesheet: none found",
   );
-  lines.push(`already in the ledger: ${result.in_ledger} decision(s), left as they are`);
+  lines.push(
+    `already in the ledger: ${result.in_ledger} decision(s). None is rewritten; a row named with --hold gains its check line`,
+  );
   section("contrast ratios today:", result.contrast, (mode) => {
     const pairs = mode.pairs.map((pair) => {
       const value =

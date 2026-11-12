@@ -285,8 +285,13 @@ export function sizesProblem(sizesText, testText, file = SIZES_FILE, test = PAGE
   if (testText === null || testText === undefined) {
     return `${test} is missing, so no page is checked at these widths`;
   }
-  if (!testText.includes(path.posix.basename(file))) {
+  // What the test does, not what its comments say: it opens the file and goes through its widths.
+  const code = testText.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  if (!code.includes(path.posix.basename(file))) {
     return `${test} does not read ${file}, so pages are not checked at these widths`;
+  }
+  if (!/\bwidths\b/.test(code)) {
+    return `${test} reads ${file} and does not go through its widths, so pages are not checked at them`;
   }
   return null;
 }

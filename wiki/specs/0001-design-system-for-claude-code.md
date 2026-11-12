@@ -319,6 +319,44 @@ ai bắt; một hành vi mới vào mô hình dữ liệu ra sao.
 Hai điều đầu đã đóng ngày 2026-11-12 bằng quyết định 0016: luật thao tác thất bại, và hai trạng
 thái thất bại đưa toast vào tầm bài kiểm trình duyệt.
 
+### Chạy thử lần bốn (2026-11-12)
+
+Ba tác tử như lần ba, trên bản có bậc templates và luật thao tác thất bại (quyết định 0016). Tác
+tử dựng màn nhận việc khác: thêm thao tác «Lưu trữ» có hoàn tác và một màn mới thuộc kiểu danh
+sách, không được đọc phần trong của plugin.
+
+**Điều đứng vững.** Cuộc dẫn dắt đưa kho chưa có plugin từ 0 lên 34/38, cổng xanh, và tác tử tự
+viết được trang kiểu màn mà lệnh kiểm nhận. Adopt trên bản clone của kho đối chứng chỉ thêm dòng
+vào sổ: mọi dòng cũ nguyên từng byte, trừ hai dòng người nêu tên được thêm đúng một dòng lệnh
+kiểm. Mười bốn lần phá ở đó và hơn ba mươi lần phá ở kho được dẫn dắt làm cổng đỏ đúng dòng. Tác
+tử dựng màn làm xong cả hai việc, cổng xanh ngay lần đầu, và báo rằng trang kiểu màn cùng trang
+hành vi đã định sẵn gần hết: kiểu của màn mới, chỗ đặt tệp, thứ tự các phần, thất bại và hoàn
+tác thất bại báo thế nào. Bài kiểm trình duyệt mới đỏ ở 320 khi bài của sàn ở 390 vẫn xanh.
+
+**Điều sai, đã sửa.** Lệnh kiểm «bài kiểm trình duyệt đọc các bề rộng» chỉ tìm tên tệp, nên một
+lời chú thích cũng đủ qua: giờ nó đọc mã, bỏ chú thích, và đòi bài kiểm đi qua các bề rộng. Bản
+audit thường không in dòng nào về những câu «đã ghi» mà chưa ai xác nhận, và nói «không còn gì để
+làm» khi trang kiểu màn chưa có: giờ nó nêu tên cả hai. Bài kiểm trình duyệt đỏ mà chỉ in con số:
+giờ nêu tên quyết định và việc cần làm. Hướng dẫn có một câu cụt đầu, không có ví dụ cho trang
+kiểu màn, và bảo thêm tay hai dòng sổ trong khi luật của chính nó cấm: đã viết lại, kèm cách một
+người xác nhận. Trang luật để lại sau adopt tự nhận do cuộc dẫn dắt viết và hứa các luật không có
+ở dưới. Lời adopt nói về sổ linh kiện sai ở kho tự giữ sổ riêng.
+
+**Điều còn nguyên**, chờ chủ kho hoặc Repo Standards:
+
+- Trang kiểu màn chưa nói: đi lại giữa các màn, thao tác làm ngay trên một dòng (dòng rời đi thế
+  nào, tiêu điểm về đâu), hoàn tác mà kết quả nằm ở màn khác, trạng thái trống ở màn không tạo
+  được gì. Tác tử dựng màn phải đoán cả bốn.
+- Công thức «liên kết trông như nút» trong trang luật giao diện của sàn vẽ ra nút không viền.
+  Trang đó còn ghi kiểm ở 1440 và 390, trong khi kho giờ kiểm cả 320.
+- Sau khi adopt xong, dòng «bước kế» của audit vẫn chỉ sang adopt dù chạy lại không thêm được gì.
+- Adopt chưa nói gì về kiểu màn và cỡ màn ở kho đã có: kho đối chứng kiểm bốn bề rộng, hẹp nhất
+  360, và không được báo rằng mốc là 320.
+- Dòng cỡ vùng bấm bỏ sót những control không khai chiều cao theo cách công cụ đọc được (ô đánh
+  dấu 16 px ở kho đối chứng): không nằm trong danh sách đã đo lẫn danh sách không đo được.
+- Không lệnh kiểm nào buộc màn có thao tác làm ngay phải khai trạng thái thất bại.
+- Các sửa đổi sau lần thử này lại chưa được tác tử độc lập thử.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.

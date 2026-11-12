@@ -30,6 +30,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
 const ROOT = path.resolve(PLUGIN, "../..");
 const APPLY = path.join(PLUGIN, "scripts/apply.mjs");
+const AUDIT = path.join(PLUGIN, "scripts/inventory.mjs");
 const ADOPT = path.join(PLUGIN, "scripts/adopt.mjs");
 const LAYERS = JSON.parse(readFileSync(path.join(PLUGIN, "references/layers.json"), "utf8")).layers;
 
@@ -270,7 +271,8 @@ test("a kind's reference is a listed screen of that kind with every required sta
 
 test("the widths reach down to the reflow width, and the browser test reads them", () => {
   const sizes = (widths) => JSON.stringify({ version: 1, widths });
-  const reads = "readFileSync(new URL('../../design/screen-sizes.json', import.meta.url))";
+  const reads =
+    "const sizes = read('../../design/screen-sizes.json');\nfor (const w of sizes.widths) {}";
   assert.equal(sizesProblem(sizes([320, 1440]), reads), null);
   assert.equal(sizesProblem(sizes([280]), reads), null);
   assert.match(sizesProblem(null, reads), /is missing/);
@@ -280,6 +282,14 @@ test("the widths reach down to the reflow width, and the browser test reads them
   assert.match(sizesProblem(sizes([390, 1440]), reads), /narrowest width is 390px/);
   assert.match(sizesProblem(sizes([320]), null), /is missing, so no page is checked/);
   assert.match(sizesProblem(sizes([320]), "for (const width of [1440]) {}"), /does not read/);
+  // A comment that names the file is not a test that reads it.
+  const said = "// widths of design/screen-sizes.json\nfor (const width of [1440]) {}";
+  assert.match(sizesProblem(sizes([320]), said), /does not read/);
+  const block = "/* screen-sizes.json, its widths */\nfor (const width of [1440]) {}";
+  assert.match(sizesProblem(sizes([320]), block), /does not read/);
+  // Nor is a test that opens the file and then goes through widths of its own.
+  const unused = "const sizes = read('design/screen-sizes.json');\nfor (const w of [1440]) {}";
+  assert.match(sizesProblem(sizes([320]), unused), /does not go through its widths/);
 });
 
 test("the guide installs the layer, and each rule goes red when it is broken", () => {
@@ -408,4 +418,43 @@ test("adopting claims the page checks from a browser test that names them, and w
     assert.equal(rows[id].check, `e2e:${PAGES_TEST}`, id);
   }
   assert.doesNotMatch(adopted.stdout, /screen-sizes\.json/);
+});
+
+test("the audit says which recorded rows nobody confirmed, and that the kinds of screen are open", () => {
+  // No page yet: the next step names the kinds of screen instead of saying nothing is left.
+  const bare = floor();
+  rmSync(path.join(bare, "design/patterns"), { recursive: true });
+  assert.equal(run(APPLY, "--target", bare).status, 0);
+  const before = run(AUDIT, "--target", bare);
+  assert.equal(before.status, 0, before.stderr);
+  assert.match(before.stdout, /next: .*the kinds of screen close when each has its page/);
+  // With a page: the main task is recorded, and the report says a person has not confirmed it.
+  const dir = floor();
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  const audited = run(AUDIT, "--target", dir);
+  assert.match(
+    audited.stdout,
+    /of the recorded are a proposal a person has not confirmed: .*primary-task/,
+  );
+  assert.doesNotMatch(audited.stdout, /the kinds of screen close/);
+  // The person confirms by taking the note away: the row is no longer named.
+  edit(dir, "design/decisions.yaml", (s) => s.replace(/\n {4}note: "written for 1 kind.*"/, ""));
+  const confirmed = run(AUDIT, "--target", dir);
+  assert.doesNotMatch(confirmed.stdout, /not confirmed: .*primary-task/);
+});
+
+test("the rules page says who wrote it and names the screen rules only where they are held", () => {
+  const dir = floor();
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  const page = text(dir, ".claude/rules/design-assembly.md");
+  assert.match(page, /written by the design-assembly scripts/);
+  assert.match(page, /## A screen\n\n- Every screen is of one kind/);
+  assert.match(page, /design\/screen-sizes\.json/);
+  const bare = floor();
+  rmSync(path.join(bare, "design/patterns"), { recursive: true });
+  assert.equal(run(APPLY, "--target", bare).status, 0);
+  assert.doesNotMatch(
+    text(bare, ".claude/rules/design-assembly.md"),
+    /Every screen is of one kind/,
+  );
 });

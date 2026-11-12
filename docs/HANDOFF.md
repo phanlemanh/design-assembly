@@ -44,7 +44,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 - Nhánh `main`, cây làm việc sạch. **Chưa có remote, chưa đẩy đi đâu**: kho chỉ nằm trên máy
   này. Mọi thứ đều đã commit. Cập nhật lần cuối 2026-11-12, sau khi dựng bậc templates.
 - `make check` xanh: lint, typecheck, 58 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (20 quyết định, 25 lệnh kiểm), bộ rào của sàn, 40 lượt kiểm trình duyệt, 148 bài kiểm của plugin.
+  (20 quyết định, 25 lệnh kiểm), bộ rào của sàn, 40 lượt kiểm trình duyệt, 150 bài kiểm của plugin.
 - Kho này đáp **36/38 quyết định lõi**: 13 máy giữ, 17 tự khai, 6 đã ghi. Sổ có 44 dòng.
 
 | Bậc                           | Trạng thái       | Còn thiếu                                                  |
@@ -85,8 +85,10 @@ việc nào được duyệt:
 
 - **Chủ kho đọc trang kiểu màn** `design/patterns/danh-sach.md` rồi xác nhận hoặc sửa. Ba dòng sổ
   (việc chính, thứ tự thông tin, lời văn) đang ghi «chưa ai xác nhận».
-- **Chạy thử lần bốn bằng tác tử độc lập**: các sửa đổi từ sau lần ba, cùng toàn bộ phần mới,
-  chưa được thử. Tốn token, hỏi trước.
+- **Lần chạy thử bốn đã xong** (2026-11-12, kết quả ở cuối spec 0001). Điều sai rõ đã sửa; các
+  sửa đổi đó chưa được thử lại. Điều nó để ngỏ, cần chủ kho quyết: trang kiểu màn nói thêm về đi
+  lại giữa các màn, thao tác làm ngay trên một dòng, hoàn tác sang màn khác, và trạng thái trống
+  ở màn không tạo được gì.
 - **Bậc governance** (2/3): hướng nhập giữa các phần, và tệp ghi các lần lệch chuẩn.
 - **Lệnh kiểm tương phản cho nút khi rê chuột**: lần này bài kiểm trình duyệt tình cờ bắt được
   (xem 0016, giới hạn).
@@ -151,7 +153,7 @@ Cần Repo Standards:
 
 Giới hạn đã biết của plugin (chi tiết ở từng bản ghi):
 
-- Các sửa đổi sau lần chạy thử thứ ba, và toàn bộ bậc templates, **chưa được tác tử độc lập thử**.
+- Các sửa đổi sau lần chạy thử thứ bốn **chưa được tác tử độc lập thử lại**.
 - Nhiều dòng «máy giữ» chỉ giữ phần đọc được từ mã nguồn; dòng sổ có ghi chú nói phần nào.
 - Tương phản mới kiểm hai cặp của màu chính. Màu viết dạng pha trộn không đọc được.
 - Luật thao tác thất bại không đọc được từ mã nguồn: giữ bằng bài kiểm của kho, mức «tự khai».
@@ -162,7 +164,7 @@ Giới hạn đã biết của plugin (chi tiết ở từng bản ghi):
 
 ## Cách chạy thử bằng tác tử độc lập
 
-Đã làm ba lần, lần nào cũng tìm ra lỗi mà bài kiểm trên kho giả không thấy. Tốn token, nên hỏi chủ
+Đã làm bốn lần, lần nào cũng tìm ra lỗi mà bài kiểm trên kho giả không thấy. Tốn token, nên hỏi chủ
 kho trước.
 
 - Bản sao đặt ở thư mục tạm của phiên. Kho trước khi có plugin: clone kho này rồi checkout
@@ -171,8 +173,10 @@ kho trước.
 - Ba vai: đi trọn cuộc dẫn dắt; adopt trên kho đã có hệ riêng; và **dựng màn** trên bản sao kho
   hiện tại, không cho đọc `plugins/` và `wiki/decisions/`. Vai thứ ba đo đúng mục đích của plugin.
 - Câu trả lời của người để trong tệp niêm phong, **mỗi câu một tệp**, chỉ mở khi skill bảo hỏi.
-- Không sửa plugin trong lúc tác tử còn đọc nó. Hai lượt kiểm trình duyệt dùng chung cổng 4173,
-  nên không cho hai tác tử chạy `make check` cùng lúc.
+- Không sửa plugin trong lúc tác tử còn đọc nó. Hai lượt kiểm trình duyệt dùng chung cổng 4173:
+  lần bốn cho mỗi tác tử một câu lệnh giữ khoá bằng thư mục (`mkdir` trước, `rmdir` sau) quanh
+  `make check`, và ba tác tử chạy song song không vướng nhau.
+- Bản sao dùng cho vai dựng màn thì xoá trang bàn giao này đi, và cấm đọc cả `wiki/specs/`.
 - Tác tử báo về là báo cáo, chưa phải bằng chứng: tự kiểm lại trước khi sửa.
 
 ## Bẫy đã gặp

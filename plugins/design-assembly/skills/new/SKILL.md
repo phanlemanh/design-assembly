@@ -198,11 +198,12 @@ the preview again.
 10. Repeat the lines for `state-matrix`, `labels`, `error-copy` and `notification-channel`. Where
     the repository already depends on the toast library, the guide installs the toast and the one
     module screens tell results through; otherwise it prints how to get them. Never install a
-    package yourself: say what is missing and let the person decide.
+    package yourself: say in the summary what is missing and what adding it would give. This is
+    not a stop.
     Then, for all four: a `note:` for one of them means the repository does not meet that rule
-    today; read out the place it names.
-    every screen must declare is the person's from now on, and excusing a screen there needs a
-    reason. Each of the three rows holds only what can be read from source; its note says what.
+    today; read out the place it names. The list of states every screen must declare
+    (`design/states.json`) is the person's from now on, and excusing a screen there needs a
+    reason. Each of the four rows holds only what can be read from source; its note says what.
 11. Kinds of screen. Repeat the lines for `test-screen-sizes`, `one-main-one-h1`,
     `no-sideways-scroll` and `wcag-aa`: where the floor's browser checks are installed, the guide
     wrote `design/screen-sizes.json` with 320 and 1440 and installed a browser test that checks
@@ -210,14 +211,23 @@ the preview again.
     narrowest stays at 320 or less.
     A `hint:` that no page describes a kind of screen means the kinds are not held yet. The guide
     never writes such a page. Offer to write one with the person, per kind of screen the
-    repository has, in the format `references/checks.md` gives under "Kinds of screen". Ask what
-    a person comes to that kind of screen to do: that sentence is the main task. Propose the order
-    of the parts from the screens that exist, and name one real screen as the reference. Then run
-    the script again: it holds `page-layouts` and `reference-implementation`, and records
-    `primary-task` as not confirmed. After the person has read the page, add the rows
-    `information-order` and `copy-content` to the ledger as their calls, with no check.
+    repository has, starting from the example `references/checks.md` gives under "Kinds of
+    screen". Ask what a person comes to that kind of screen to do: that sentence is the main
+    task. Propose the order of the parts from the screens that exist, and name as the reference
+    one screen of the registry that declares every required state; a screen the floor shipped as
+    its sample counts while it is the only one. Then run the script again: it holds
+    `page-layouts` and `reference-implementation`, and records `primary-task`.
+    Three rows are the person's calls, and the scripts cannot tell whether a person made them:
+    `primary-task`, which the script writes with a note that nobody has confirmed it, and
+    `information-order` and `copy-content`, which you add to the ledger by hand, as `judgment`
+    rows of the `context` layer with no check and a `source` that names the page. These three
+    rows are the one exception to the rule that you touch only what `apply.mjs` writes. For each:
+    when the person gave the answer or read the page and agreed, the row has no note; when you
+    proposed it, its note ends with `a person has not confirmed it`, and the audit names the row
+    as not confirmed. The scripts keep a row as a person left it.
     Say what a failed action does (`references/checks.md`, "A failed action"), and that a screen
-    with an action done at once lists a state for that action failing.
+    with an action done at once lists a state for that action failing. Where no toast is
+    installed, say that the rule stands and the module that tells a failure is not there yet.
 12. Repeat the `target size:` line the script printed: the smallest control and the controls it
     could not measure. If it printed a note instead, some controls are below what the conformance
     level asks and no check was added: name them, and say that the components change first or the

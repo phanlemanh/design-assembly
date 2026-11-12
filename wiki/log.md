@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-12 — Chạy thử lần bốn bằng ba tác tử độc lập và sửa điều nó tìm ra: lệnh kiểm cỡ màn bị qua mặt bằng chú thích, audit im lặng về câu chưa ai xác nhận, hướng dẫn về trang kiểu màn — [spec 0001](specs/0001-design-system-for-claude-code.md), `plugins/design-assembly/`.
 - 2026-11-12 — Dựng bậc templates (kiểu màn, màn mẫu, cỡ màn được kiểm, bài kiểm trình duyệt có thẻ) và luật thao tác thất bại; sửa tương phản của nút chính khi rê chuột — [0016](decisions/0016-screen-kinds-and-failed-actions.md), `design/patterns/`, `src/lib/notify.ts`.
 - 2026-11-12 — Viết bàn giao phiên làm việc, để một phiên mới tiếp tục được khi chủ kho đổi tài khoản — `docs/HANDOFF.md`.
 - 2026-11-12 — Chạy thử lần ba bằng ba tác tử độc lập (dẫn dắt, adopt, và lần đầu một tác tử dựng màn); cuộc dẫn dắt để lại trang luật cho tác tử; adopt gọi tên dòng sổ chưa có lệnh kiểm và gắn khi người bảo; đóng hai lỗ hổng của cổng và hai điều lệnh nói sai — [0015](decisions/0015-rules-page-and-rows-without-a-check.md).

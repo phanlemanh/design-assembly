@@ -4,9 +4,10 @@ paths: ["src/**/*.tsx"]
 
 # Design rules the gate holds
 
-`make design-assembly` checks every rule below, and `make check` runs it. A failure names the
-decision, the file and what to do. `design/decisions.yaml` lists every design decision of this
-repository and what holds it. This page is written by the design-assembly guide: do not edit it.
+`make design-assembly` checks what this page lists, and `make check` runs it. A failure names
+the decision and what is wrong. `design/decisions.yaml` lists every design decision of this
+repository and what holds it. This page is written by the design-assembly scripts: do not edit
+it.
 
 ## A table of data
 

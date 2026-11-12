@@ -18,6 +18,7 @@ import {
 } from "../templates/tools/design-assembly/ledger.mjs";
 
 import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
+import { readPages } from "../templates/tools/design-assembly/screens.mjs";
 import { readBlock } from "../templates/tools/design-assembly/theme.mjs";
 import { findProofs } from "./proofs.mjs";
 
@@ -214,6 +215,11 @@ function nextStep(facts, decisions) {
       ...(decisions.some((d) => d.id === "display-kind" && !d.in_ledger)
         ? ["display-kind closes when a field of the data model names its column type"]
         : []),
+      ...(facts.screens && !facts.kinds
+        ? [
+            "the kinds of screen close when each has its page under design/patterns and the guide runs again (reference-implementation, primary-task)",
+          ]
+        : []),
     ];
     return `nothing more to generate or adopt now${own.length > 0 ? `. The repository can still close: ${own.join("; ")}` : ""}. The rest of what is open belongs to layers this version does not build`;
   }
@@ -286,6 +292,9 @@ export function inventory(root) {
   facts.generated = styles !== null && readBlock(styles.css) !== null;
   facts.adopted = (state.theme?.adopted ?? []).length > 0;
   facts.proofs = findProofs(root);
+  // Whether the repository lists its screens, and whether any kind of screen has a page.
+  facts.screens = existsSync(path.join(root, "src/screens.ts"));
+  facts.kinds = Object.keys(readPages(root)).length > 0;
   const held = new Set(
     state.theme
       ? runChecks(state)
@@ -413,6 +422,15 @@ export function report(result, { all = false } = {}) {
   if (b.held + b.claimed + b.recorded > 0) {
     lines.push(
       `  beyond the core, the ledger also answers: ${b.held} held, ${b.claimed} claimed, ${b.recorded} recorded (${b.ids.join(", ")})`,
+    );
+  }
+  // A person's call that nobody has confirmed is not an answer yet: named in every report.
+  const open = result.decisions.filter(
+    (d) => d.state === "recorded" && /has not (confirmed|reviewed)/.test(d.note ?? ""),
+  );
+  if (open.length > 0) {
+    lines.push(
+      `  ${open.length} of the recorded are a proposal a person has not confirmed: ${open.map((d) => d.id).join(", ")}`,
     );
   }
   if (result.ledger) {

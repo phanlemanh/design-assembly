@@ -200,7 +200,7 @@ decisions:
     kind: formula
     source: "design/screen-sizes.json: the reflow width of WCAG 2.2, and the widths a person adds"
     check: "tool:tools/design-assembly/check.mjs"
-    note: "that the widths reach down to the reflow width and that the browser test reads them; the browser test itself is not run again here"
+    note: "that the widths reach down to the reflow width, and that the browser test opens the file and names its widths; the test itself is not run again here, so a test that skips a width is not caught"
   - id: primary-task
     layer: context
     kind: judgment
