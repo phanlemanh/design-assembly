@@ -176,10 +176,15 @@ the preview again.
    guide installed once and the repository now owns. A `note:` under it means a rule is not held
    yet: read it out. Adding a `display` key changes the data model: follow the repository's own
    rule for such a change.
-9. Repeat the `target size:` line the script printed: the smallest control and the controls it
-   could not measure. If it printed a note instead, some controls are below what the conformance
-   level asks and no check was added: name them, and say that the components change first or the
-   level does. That choice is the person's.
+9. Repeat the lines for `state-matrix`, `labels` and `error-copy`. A `note:` for one of them
+   means the repository does not meet that rule today, and no check was added: read out the
+   place it names. The guide wrote `design/states.json` if there was none: the list of states
+   every screen must declare is the person's from now on, and excusing a screen there needs a
+   reason. Each of the three rows holds only what can be read from source; its note says what.
+10. Repeat the `target size:` line the script printed: the smallest control and the controls it
+    could not measure. If it printed a note instead, some controls are below what the conformance
+    level asks and no check was added: name them, and say that the components change first or the
+    level does. That choice is the person's.
 
 ## 7. Finish
 

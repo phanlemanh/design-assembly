@@ -20,6 +20,7 @@ import {
   TOOL,
 } from "./ledger.mjs";
 import { toPx, toRatio, TYPE_STEPS } from "./scale.mjs";
+import { errorCopyProblem, statesProblem, wordsProblem } from "./patterns.mjs";
 import { DEFAULT_STYLESHEET, findStylesheet, loadStyles, resolve } from "./styles.mjs";
 import { buildTheme, readBlock, renderBlock, withoutBlock } from "./theme.mjs";
 import { tokensProblem } from "./tokens.mjs";
@@ -200,6 +201,44 @@ const KINDS = {
       return { ...state, folders: { ...state.folders, [check.folder]: files } };
     },
   },
+  // Every screen of the registry declares the states every view of data has.
+  states: {
+    run(state, check) {
+      return statesProblem(state.files?.[check.file], state.files?.[check.registry], check.file);
+    },
+    // One more screen, with only its ready state.
+    change(state, check) {
+      const added =
+        '\nexport const CHANGED = [{ path: "/changed-copy", states: [{ name: "ready" }] }];\n';
+      const registry = `${state.files?.[check.registry] ?? ""}${added}`;
+      return { ...state, files: { ...state.files, [check.registry]: registry } };
+    },
+  },
+  // No screen writes its own words.
+  words: {
+    run(state, check) {
+      return wordsProblem(state.folders?.[check.folder] ?? {}, check.skip);
+    },
+    change(state, check) {
+      const added = `${check.folder}/changed-copy.tsx`;
+      const source = 'export const ChangedCopy = () => <p title="Changed copy">Changed copy</p>;\n';
+      const files = { ...state.folders?.[check.folder], [added]: source };
+      return { ...state, folders: { ...state.folders, [check.folder]: files } };
+    },
+  },
+  // Every error message a screen shows says what happened and what to do next.
+  "error-copy": {
+    run(state, check) {
+      return errorCopyProblem(state.folders?.[check.folder] ?? {}, check.skip);
+    },
+    change(state, check) {
+      const added = `${check.folder}/changed-copy.tsx`;
+      const source =
+        'export const ChangedCopy = () => (\n  <Alert variant="destructive">\n    <AlertTitle>{title}</AlertTitle>\n  </Alert>\n);\n';
+      const files = { ...state.folders?.[check.folder], [added]: source };
+      return { ...state, folders: { ...state.folders, [check.folder]: files } };
+    },
+  },
   gate: {
     run(state) {
       if (state.gate === null) return `${FILES.gate} is missing, so make check does not run this`;
@@ -229,7 +268,7 @@ export function readState(root) {
   // Other files a check names, as they are on disk.
   const checks = Object.values(data?.checks ?? {}).flat();
   const named = checks
-    .flatMap((check) => [check.file, check.types])
+    .flatMap((check) => [check.file, check.types, check.registry])
     .filter(Boolean)
     .map((file) => [file, read(file)]);
   // Source folders a check names, file by file.

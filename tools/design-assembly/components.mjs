@@ -53,7 +53,7 @@ function skipString(text, at) {
 }
 
 // The index of the bracket that closes the one at `at`.
-function closing(text, at) {
+export function closing(text, at) {
   const pairs = { "{": "}", "(": ")", "[": "]" };
   const stack = [];
   for (let i = at; i < text.length; i += 1) {

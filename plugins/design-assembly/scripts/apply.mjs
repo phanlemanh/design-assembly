@@ -35,6 +35,14 @@ import {
   targetSizes,
 } from "../templates/tools/design-assembly/components.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
+import {
+  CORE_STATES,
+  errorCopyProblem,
+  REGISTRY as SCREENS,
+  STATES_FILE,
+  statesProblem,
+  wordsProblem,
+} from "../templates/tools/design-assembly/patterns.mjs";
 import { mergeLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import { SPACING_UNIT_PX, TYPE_VARIABLES } from "../templates/tools/design-assembly/scale.mjs";
 import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
@@ -409,6 +417,73 @@ export function columnsPlan(target, { starter, code }) {
   return { files, held, failing, displays, fields, bases: Object.keys(BASES) };
 }
 
+// The patterns and content layer, as far as a tool can read it from source: the states every
+// screen declares, that no screen writes its own words, and that an error message has both of its
+// parts. A rule the repository does not meet today gets no row: it is listed under `failing`.
+// `starter` writes the list of required states when the repository has none.
+export function patternsPlan(target, { starter }) {
+  const read = (file) =>
+    existsSync(path.join(target, file)) ? readFileSync(path.join(target, file), "utf8") : null;
+  const folder = componentsFolder(target);
+  const skip = [`${folder}/`, "src/generated/"];
+  const sources = readFolder(target, "src");
+  const files = {};
+  const held = {};
+  const failing = [];
+  const propose = (id, problem, item) => {
+    if (problem) failing.push({ id, why: problem });
+    else held[id] = item;
+  };
+
+  const registry = read(SCREENS);
+  let statesText = read(STATES_FILE);
+  if (registry !== null && statesText === null && starter) {
+    statesText = renderJson({ version: 1, required: CORE_STATES, exempt: {} }, lineWidth(target));
+    files[STATES_FILE] = statesText;
+  }
+  if (registry !== null && statesText !== null) {
+    propose("state-matrix", statesProblem(statesText, registry), {
+      what: `every screen of ${SCREENS} declares the states of ${STATES_FILE}`,
+      row: {
+        layer: "patterns",
+        kind: "closed",
+        source: STATES_FILE,
+        check: TOOL,
+        note: "that every screen declares the required states; that each one can be reached, and what it shows, is for the repository's own browser tests",
+      },
+      checks: [{ kind: "states", file: STATES_FILE, registry: SCREENS }],
+    });
+  }
+  if (Object.keys(sources).some((file) => !skip.some((prefix) => file.startsWith(prefix)))) {
+    propose("labels", wordsProblem(sources, skip), {
+      what: "no screen writes its own words: text and spoken labels come from one place",
+      row: {
+        layer: "content",
+        kind: "closed",
+        source: "one place for every word a screen shows",
+        check: TOOL,
+        note: "text between tags and in attributes a person reads or hears; text built in code is not read",
+      },
+      checks: [{ kind: "words", folder: "src", skip }],
+    });
+    const errors = errorCopyProblem(sources, skip);
+    if (!errors?.includes("nothing is measured")) {
+      propose("error-copy", errors, {
+        what: "every error message a screen shows says what happened and what to do next",
+        row: {
+          layer: "content",
+          kind: "closed",
+          source: "an error message says what happened, then what to do next",
+          check: TOOL,
+          note: "that every error message has both parts; whether the words are right is a person's review",
+        },
+        checks: [{ kind: "error-copy", folder: "src", skip }],
+      });
+    }
+  }
+  return { files, held, failing };
+}
+
 // The tool and its gate step, as they are copied into a repository.
 export function vendored() {
   const files = {};
@@ -562,6 +637,12 @@ export function plan(target, blueprint) {
     rows.push({ id, ...item.row });
     checks[id] = item.checks;
   }
+  const patterns = patternsPlan(target, { starter: true });
+  Object.assign(files, patterns.files);
+  for (const [id, item] of Object.entries(patterns.held)) {
+    rows.push({ id, ...item.row });
+    checks[id] = item.checks;
+  }
   const targets = targetPlan(target, inputs.conformanceLevel);
   if (targets.row) {
     rows.push(targets.row);
@@ -584,7 +665,15 @@ export function plan(target, blueprint) {
     const values = layer.id === "foundations" ? foundations.choice : entry.choice;
     files[`design/decisions/${layer.id}.md`] = record(layer, entry, rows, values);
   }
-  return { files: { ...files, ...vendored() }, theme, tokens, components, targets, columns };
+  return {
+    files: { ...files, ...vendored() },
+    theme,
+    tokens,
+    components,
+    targets,
+    columns,
+    patterns,
+  };
 }
 
 // Writes the files that differ, or only says what it would do. One line per file.
@@ -722,7 +811,11 @@ function main() {
     );
     return;
   }
-  const { files, tokens, components, targets, columns } = plan(target, blueprint);
+  const { files, tokens, components, targets, columns, patterns } = plan(target, blueprint);
+  for (const [id, item] of Object.entries(patterns.held)) stdout.write(`${id}: ${item.what}\n`);
+  for (const item of patterns.failing) {
+    stdout.write(`note: ${item.id}: ${item.why}. No check is added until that changes.\n`);
+  }
   if (columns.problem) {
     stdout.write(
       `note: column types: ${columns.problem}. No check is added until the table is right.\n`,

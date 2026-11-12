@@ -20,9 +20,13 @@ const FIELDS: Record<string, string> = columns.fields;
 const UNTYPED: ColumnType = { base: "text", align: "left", sample: 1 };
 
 const ALIGN_CLASS = { left: "text-left", right: "text-right tabular-nums" } as const;
-// A row is as tall as its tallest cell needs, so the dense row also tightens the padding of its
-// cells: otherwise a cell that holds a control keeps the row above the dense height.
-const ROW_CLASS: Record<Density, string> = { normal: "h-12", dense: "h-10 [&>td]:py-1" };
+// A row is as tall as its tallest cell needs, so the dense row also tightens its cells: no
+// padding above and below a cell (a cell that holds a control would otherwise push the row past
+// the dense height), and a header cell no taller than the row.
+const ROW_CLASS: Record<Density, string> = {
+  normal: "h-12",
+  dense: "h-8 [&>td]:py-0 [&>th]:h-8",
+};
 
 function columnType(field: ColumnField): ColumnType {
   return TYPES[FIELDS[field] ?? ""] ?? UNTYPED;

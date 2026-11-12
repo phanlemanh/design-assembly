@@ -151,3 +151,21 @@ decisions:
     source: "whether the columns fit at their least width"
     check: "tool:tools/design-assembly/check.mjs"
     note: "that no screen sets a row height; the choice between the two densities is made by the table parts, covered by their own tests"
+  - id: state-matrix
+    layer: patterns
+    kind: closed
+    source: "design/states.json"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "that every screen declares the required states; that each one can be reached, and what it shows, is for the repository's own browser tests"
+  - id: labels
+    layer: content
+    kind: closed
+    source: "one place for every word a screen shows"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "text between tags and in attributes a person reads or hears; text built in code is not read"
+  - id: error-copy
+    layer: content
+    kind: closed
+    source: "an error message says what happened, then what to do next"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "that every error message has both parts; whether the words are right is a person's review"

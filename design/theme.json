@@ -139,6 +139,27 @@
         "rule": "density"
       }
     ],
+    "state-matrix": [
+      {
+        "kind": "states",
+        "file": "design/states.json",
+        "registry": "src/screens.ts"
+      }
+    ],
+    "labels": [
+      {
+        "kind": "words",
+        "folder": "src",
+        "skip": ["src/components/ui/", "src/generated/"]
+      }
+    ],
+    "error-copy": [
+      {
+        "kind": "error-copy",
+        "folder": "src",
+        "skip": ["src/components/ui/", "src/generated/"]
+      }
+    ],
     "target-size": [
       {
         "kind": "target-size",

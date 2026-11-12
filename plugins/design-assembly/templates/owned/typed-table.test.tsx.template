@@ -114,5 +114,5 @@ it("rows take their height from the density of the table, not from the screen", 
 
   measuredAt(total * 8 - 8);
   show(list);
-  for (const row of screen.getAllByRole("row")) expect(row).toHaveClass("h-10");
+  for (const row of screen.getAllByRole("row")) expect(row).toHaveClass("h-8");
 });

@@ -129,6 +129,13 @@ canh phải) và bề rộng tối thiểu của cột; bảng tự chuyển san
 không tự đặt ba thứ đó, và một lệnh kiểm làm cổng đỏ khi có màn làm vậy. Bậc core components của
 kho này đủ 10/10 quyết định lõi, ở mức «tự khai».
 
+### Trạng thái, chữ và câu báo lỗi (quyết định 0013, 2026-11-12)
+
+Mỗi màn khai đủ bốn trạng thái mà vùng dữ liệu nào cũng có, cộng các trạng thái riêng của kho. Màn
+không viết chữ trực tiếp. Câu báo lỗi có hai phần: chuyện gì xảy ra, làm gì tiếp. Máy giữ phần đọc
+được từ mã nguồn của cả ba; phần hành vi lúc chạy do bài kiểm của kho giữ. Ba câu còn lại của bậc
+này (kênh thông báo, hỏi trước hay hoàn tác, mở hồ sơ cạnh danh sách) chưa dựng.
+
 ### Vì sao cần plugin này
 
 Bản trước ghi giả thuyết «giảm token», neo vào lần đo ba của Repo Standards (token gấp 1,43 lần).

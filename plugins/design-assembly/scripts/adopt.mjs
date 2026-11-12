@@ -33,6 +33,7 @@ import {
   columnsPlan,
   componentsPlan,
   gateProblem,
+  patternsPlan,
   targetPlan,
   tokensPlan,
   vendored,
@@ -335,6 +336,14 @@ export function adoption(root, { conformanceLevel = null, productType = null, re
       derived[id] = columns.files;
     }
     for (const item of columns.failing ?? []) if (open(item.id)) result.failing.push(item);
+    // States, words and error messages: held where the repository meets the rule today. The list
+    // of required states is a person's file, so adopting writes none.
+    const patterns = patternsPlan(root, { starter: false });
+    for (const [id, item] of Object.entries(patterns.held).filter(([key]) => open(key))) {
+      const row = { kind: item.row.kind, source: item.row.source, note: item.row.note };
+      candidates[id] = { what: item.what, row, checks: item.checks };
+    }
+    for (const item of patterns.failing) if (open(item.id)) result.failing.push(item);
     const artifacts = { [TOKENS_DECISION]: tokens, [COMPONENTS_DECISION]: components };
     const gate = gateProblem(root);
     const ids = Object.keys(candidates);
@@ -368,7 +377,7 @@ export function adoption(root, { conformanceLevel = null, productType = null, re
           ...Object.fromEntries(
             Object.values(candidates)
               .flatMap((candidate) => candidate.checks)
-              .flatMap((item) => [item.file, item.types])
+              .flatMap((item) => [item.file, item.types, item.registry])
               .filter((file) => file && existsSync(path.join(root, file)))
               .map((file) => [file, read(root, file)]),
           ),

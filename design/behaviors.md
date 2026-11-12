@@ -4,6 +4,9 @@ Mỗi tình huống có một câu trả lời. Dùng nó, đừng nghĩ ra các
 
 ## Trạng thái
 
+Mỗi màn khai đủ các trạng thái trong `design/states.json`; màn không tải dữ liệu thì được miễn ở
+đó, kèm lý do.
+
 Một trạng thái hiện ra vì một điều kiện thật: yêu cầu đang chờ hoặc thất bại, kết quả rỗng, bộ lọc
 không khớp, thao tác của người dùng. Không bao giờ vì một công tắc: một prop hay giá trị trên đường
 dẫn chỉ có mặt để chọn trạng thái. Bài kiểm chọn điều kiện qua nguồn dữ liệu.
@@ -21,6 +24,6 @@ dẫn chỉ có mặt để chọn trạng thái. Bài kiểm chọn điều ki�
 Sản phẩm này là công cụ làm việc. Chữ dùng `text-sm`.
 
 Dòng của bảng lấy chiều cao từ mật độ của bảng, màn không tự đặt: bảng ở mức thường (48 px) khi
-mọi cột hiện đủ bề rộng tối thiểu, và ở mức dày (40 px) khi không đủ chỗ. Canh lề và bề rộng tối
+mọi cột hiện đủ bề rộng tối thiểu, và ở mức dày (32 px) khi không đủ chỗ. Canh lề và bề rộng tối
 thiểu của một cột lấy từ kiểu cột của trường (`design/column-types.json`). Dùng `TypedTable`,
 `TypedRow`, `TypedHead`, `TypedCell` cho cột dữ liệu.

@@ -38,6 +38,10 @@ Column types are held only where the repository keeps a table of them
 (`design/column-types.json`). Adopting writes no such table and installs no code: when the data
 model names column types and there is no table, it says so under `needs a person`.
 
+Words and error messages are held as found, when the screens meet the rule today. The states
+every screen must declare are held only where the repository keeps the list
+(`design/states.json`); adopting writes none.
+
 The target-size line names the smallest control and the controls it could not measure: repeat
 both. It is a measure of the height declared in component source, not of a rendered screen.
 

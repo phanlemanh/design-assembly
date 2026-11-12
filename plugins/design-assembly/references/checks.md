@@ -15,6 +15,7 @@ Read this when you build (step 6 of the guide) or explain a failing check.
 | `design/component-registry.json`     | The component manifest: every exported component with its variants. Written from the source  | `make design-components` only        |
 | `design/column-types.json`           | The column types of the repository: each with its base type and sample length                | A person                             |
 | `design/columns.json`                | What code reads: each column type with its alignment, each field with its type               | `make design-columns` only           |
+| `design/states.json`                 | The states every screen must declare, and the screens excused from them                      | A person                             |
 | The typed table parts and their test | Table parts that apply the column type. Installed once, then the repository's own            | The repository                       |
 | `tools/design-assembly/`             | The checks. They belong to the plugin: change them in the plugin and run the guide again     | Nobody, in the repository            |
 | `mk/design-assembly.mk`              | Adds `design-assembly` to `make check`, and `make design-rate`                               | Nobody, in the repository            |
@@ -116,7 +117,7 @@ to and how wide the column is at least.
 - A field names its column type once, in the data model: a `display` key on the property. A
   screen names the field and the header, nothing else.
 - A column is at least as wide as the longer of its header and its sample, plus `padding_ch`.
-- A table is dense (40px rows) when its columns cannot all be shown at that width, and normal
+- A table is dense (32px rows, no padding above and below a cell) when its columns cannot all be shown at that width, and normal
   (48px rows) otherwise.
 - `design/columns.json` is derived. Change the table or a field's type, then run
   `make design-columns`.
@@ -126,6 +127,26 @@ to and how wide the column is at least.
 What the tool holds, and what it does not: alignment is held in full. For width it holds the
 numbers and that no screen sets one; for density only that no screen sets a row height. The sum
 and the choice of density are done by the typed table parts, which carry their own tests.
+
+## States, words and error messages
+
+Three rules a tool can read from source. Each holds part of a larger decision, and its row says
+which part.
+
+- **States.** Four states belong to every view of data: `loading`, `empty`, `error`,
+  `no-results`. `design/states.json` lists the states every screen must declare (`required`) and
+  the screens excused from them, each with a reason (`exempt`). A repository adds states of its
+  own; the four cannot be removed. The check reads the screen registry (`src/screens.ts`). It
+  shows that a screen declares a state, not that the state can be reached or what it shows: that
+  is for the repository's browser tests.
+- **Words.** A screen takes every word from the repository's one place for words. The check finds
+  text written between two tags, and in `aria-label`, `aria-description`, `placeholder`, `title`
+  and `alt`. Text assembled in code is not read.
+- **Error messages.** An error message says what happened, then what to do next. The check reads
+  every `Alert` of the destructive kind in a screen: it needs an `AlertTitle` and an
+  `AlertDescription`. Whether the words are right is a person's review.
+
+A rule the repository does not meet today gets no row: the scripts say where it is broken.
 
 ## How a value is read
 
@@ -141,20 +162,23 @@ Its tool reads the real files (the stylesheet, the gate), not a copy of what was
 run also changes a copy of those files so that the check must fail, and reports a check that still
 passes: a check that cannot fail proves nothing.
 
-| Kind           | Passes when                                                                           |
-| -------------- | ------------------------------------------------------------------------------------- |
-| `generated`    | The block in the stylesheet is exactly what the source color gives                    |
-| `contrast`     | Two color roles reach the contrast ratio of the conformance level                     |
-| `value`        | A variable resolves to the decided value, whatever is written after it                |
-| `absent`       | The stylesheet does not redeclare variables that the floor's scale owns               |
-| `scale`        | Every step of the type scale is larger than the one before                            |
-| `tokens`       | The design tokens file is exactly what the stylesheet gives                           |
-| `components`   | The component manifest is exactly what the component source gives                     |
-| `target-size`  | Every control declares a height that reaches the target size of the conformance level |
-| `column-types` | The table of column types is well formed, and every field names one of its types      |
-| `columns`      | The file code reads is exactly what the table and the data model give                 |
-| `cells`        | No screen sets on a table what the column type decides                                |
-| `gate`         | `make check` runs the tool in a way that can fail                                     |
+| Kind           | Passes when                                                                            |
+| -------------- | -------------------------------------------------------------------------------------- |
+| `generated`    | The block in the stylesheet is exactly what the source color gives                     |
+| `contrast`     | Two color roles reach the contrast ratio of the conformance level                      |
+| `value`        | A variable resolves to the decided value, whatever is written after it                 |
+| `absent`       | The stylesheet does not redeclare variables that the floor's scale owns                |
+| `scale`        | Every step of the type scale is larger than the one before                             |
+| `tokens`       | The design tokens file is exactly what the stylesheet gives                            |
+| `components`   | The component manifest is exactly what the component source gives                      |
+| `target-size`  | Every control declares a height that reaches the target size of the conformance level  |
+| `column-types` | The table of column types is well formed, and every field names one of its types       |
+| `columns`      | The file code reads is exactly what the table and the data model give                  |
+| `cells`        | No screen sets on a table what the column type decides                                 |
+| `states`       | Every screen of the registry declares the required states, or is excused with a reason |
+| `words`        | No screen writes its own words                                                         |
+| `error-copy`   | Every error message a screen shows has a title and a description                       |
+| `gate`         | `make check` runs the tool in a way that can fail                                      |
 
 The tool also checks that it and the ledger agree in both directions: every row that points at it
 has checks behind it, and every decision it holds is a row.

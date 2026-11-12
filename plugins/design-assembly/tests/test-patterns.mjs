@@ -1,0 +1,238 @@
+// States, words and error messages, as far as a tool reads them from source: every screen declares
+// the states every view of data has, no screen writes its own words, and an error message has
+// both of its parts. Each rule is shown going red on a real change.
+import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import { execPath } from "node:process";
+import { after, test } from "node:test";
+import { fileURLToPath } from "node:url";
+
+import { parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
+import {
+  CORE_STATES,
+  errorCopyProblem,
+  readScreens,
+  statesProblem,
+  wordsProblem,
+} from "../templates/tools/design-assembly/patterns.mjs";
+import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const PLUGIN = path.resolve(HERE, "..");
+const ROOT = path.resolve(PLUGIN, "../..");
+const APPLY = path.join(PLUGIN, "scripts/apply.mjs");
+const ADOPT = path.join(PLUGIN, "scripts/adopt.mjs");
+const LAYERS = JSON.parse(readFileSync(path.join(PLUGIN, "references/layers.json"), "utf8")).layers;
+const STATES = "design/states.json";
+
+const made = [];
+after(() => made.forEach((dir) => rmSync(dir, { recursive: true, force: true })));
+
+function folder(files) {
+  const dir = mkdtempSync(path.join(tmpdir(), "design-assembly-patterns-"));
+  made.push(dir);
+  for (const [file, content] of Object.entries(files)) {
+    mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    writeFileSync(path.join(dir, file), content);
+  }
+  return dir;
+}
+
+function blueprint() {
+  const choices = {
+    context: { product_type: "application", conformance_level: "AA" },
+    foundations: { source_color: "#0246ff" },
+  };
+  const layers = {};
+  for (const layer of LAYERS) {
+    layers[layer.id] = layer.built
+      ? { status: "decided", source: "proposed", choice: choices[layer.id], why: "For the test." }
+      : { status: "planned" };
+  }
+  return JSON.stringify({ version: 1, status: "approved", layers });
+}
+
+const state = (name) => `{ name: "${name}", shows: LABELS.title }`;
+const registry = (...screens) =>
+  `export const SCREENS = [\n${screens
+    .map(([route, names]) => `  { path: "${route}", states: [${names.map(state).join(", ")}] },`)
+    .join("\n")}\n];\n`;
+const ALL = ["ready", ...CORE_STATES];
+const SCREEN = [
+  'import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";',
+  'import { LABELS } from "@/lib/labels";',
+  "",
+  "export function List(props: { items: Array<string>; failed: boolean }) {",
+  "  if (props.failed) {",
+  "    return (",
+  '      <Alert variant="destructive">',
+  "        <AlertTitle>{LABELS.errorTitle}</AlertTitle>",
+  "        <AlertDescription>{LABELS.errorDetail}</AlertDescription>",
+  "      </Alert>",
+  "    );",
+  "  }",
+  "  return (",
+  "    <main aria-label={LABELS.title}>",
+  "      <h1>{LABELS.title}</h1>",
+  "      {props.items.length > 3 && <p>{LABELS.many}</p>}",
+  "    </main>",
+  "  );",
+  "}",
+  "",
+].join("\n");
+
+const own = (file) => readFileSync(path.join(ROOT, file), "utf8");
+const floor = (extra = {}) =>
+  folder({
+    "src/index.css": withoutBlock(own("src/index.css")),
+    Makefile: own("Makefile"),
+    "src/screens.ts": registry(["/", ALL]),
+    "src/pages/List.tsx": SCREEN,
+    "design/blueprint.json": blueprint(),
+    ...extra,
+  });
+
+const run = (script, ...args) => spawnSync(execPath, [script, ...args], { encoding: "utf8" });
+const check = (dir) => run(path.join(dir, "tools/design-assembly/check.mjs"), "--target", dir);
+const text = (dir, file) => readFileSync(path.join(dir, file), "utf8");
+const edit = (dir, file, change) => {
+  const before = text(dir, file);
+  const next = change(before);
+  assert.notEqual(next, before, `the edit of ${file} changed nothing`);
+  writeFileSync(path.join(dir, file), next);
+};
+const rowsOf = (dir) =>
+  Object.fromEntries(parseLedger(text(dir, "design/decisions.yaml")).map((r) => [r.id, r]));
+
+test("screens are read from the registry with the states each declares", () => {
+  const source = registry(["/", ALL], ["/about", ["ready"]]);
+  assert.deepEqual(readScreens(source), [
+    { path: "/", states: ALL },
+    { path: "/about", states: ["ready"] },
+  ]);
+  // The registry of the repository this plugin lives in: the real shape.
+  const real = readScreens(own("src/screens.ts"));
+  assert.equal(real[0].path, "/");
+  for (const name of CORE_STATES) assert.ok(real[0].states.includes(name), name);
+});
+
+test("every screen declares the required states, or is excused with a reason", () => {
+  const table = (extra = {}) => JSON.stringify({ version: 1, required: CORE_STATES, ...extra });
+  const two = registry(["/", ALL], ["/about", ["ready"]]);
+  assert.equal(statesProblem(table(), registry(["/", ALL])), null);
+  assert.match(
+    statesProblem(table(), two),
+    /^\/about declares no state named loading, empty, error, no-results$/,
+  );
+  assert.equal(statesProblem(table({ exempt: { "/about": "it loads no data" } }), two), null);
+  assert.match(
+    statesProblem(table({ exempt: { "/about": " " } }), two),
+    /\/about is excused without a reason/,
+  );
+  // A repository adds states of its own; it cannot take away the four every view of data has.
+  const more = table({ required: [...CORE_STATES, "no-permission"] });
+  assert.match(
+    statesProblem(more, registry(["/", ALL])),
+    /\/ declares no state named no-permission/,
+  );
+  const fewer = JSON.stringify({ version: 1, required: ["loading", "error"] });
+  assert.match(statesProblem(fewer, registry(["/", ALL])), /empty, no-results must stay required/);
+  // Measuring nothing is not passing.
+  assert.match(statesProblem(table(), "export const SCREENS = [];\n"), /no screen is listed/);
+});
+
+test("a screen that writes its own words is found; code that looks like tags is not", () => {
+  const skip = ["src/components/ui/"];
+  assert.equal(wordsProblem({ "src/pages/List.tsx": SCREEN }, skip), null);
+  const files = {
+    "src/a.tsx": "export const A = () => <h1>Danh sách mục</h1>;\n",
+    "src/b.tsx":
+      'export const B = () => <input placeholder="Tìm theo tên" aria-label={"Tìm"} />;\n',
+    "src/c.tsx": "export const C = () => (\n  <p>\n    Chưa có gì ở đây\n  </p>\n);\n",
+    // Type arguments and comparisons are not text between tags.
+    "src/d.tsx":
+      'type V = ComponentProps<typeof Badge>["variant"];\nconst m = new Map<string, number>();\nexport const D = (n: number) => (n > 1 ? <b>{n}</b> : null);\n',
+    "src/components/ui/x.tsx": "export const X = () => <span>Close</span>;\n",
+  };
+  const found = wordsProblem(files, skip);
+  assert.match(found, /src\/a\.tsx: <h1> holds the text "Danh sách mục"/);
+  assert.match(found, /src\/b\.tsx: <input> has placeholder="Tìm theo tên"/);
+  assert.match(found, /src\/b\.tsx: <input> has aria-label="Tìm"/);
+  assert.match(found, /src\/c\.tsx: <p> holds the text "Chưa có gì ở đây"/);
+  assert.doesNotMatch(found, /src\/d\.tsx|components\/ui/);
+});
+
+test("an error message has both parts: what happened, and what to do next", () => {
+  assert.equal(errorCopyProblem({ "src/pages/List.tsx": SCREEN }), null);
+  const half = SCREEN.replace(/\n\s+<AlertDescription>.*<\/AlertDescription>/, "");
+  assert.match(
+    errorCopyProblem({ "src/pages/List.tsx": half }),
+    /src\/pages\/List\.tsx: an error message has no description: what to do next/,
+  );
+  // A notice that is not an error is not held to it; with no error message nothing is measured.
+  const calm = SCREEN.replace(' variant="destructive"', "");
+  assert.match(errorCopyProblem({ "src/pages/List.tsx": calm }), /nothing is measured/);
+});
+
+test("the guide installs the three rules, and each goes red when it is broken", () => {
+  const breaks = {
+    "state-matrix": (dir) =>
+      edit(dir, "src/screens.ts", (s) => s.replace('{ name: "empty", shows: LABELS.title }, ', "")),
+    labels: (dir) =>
+      edit(dir, "src/pages/List.tsx", (s) => s.replace("{LABELS.many}", "Nhiều mục")),
+    "error-copy": (dir) =>
+      edit(dir, "src/pages/List.tsx", (s) => s.replace(/\n\s+<AlertTitle>.*<\/AlertTitle>/, "")),
+  };
+  for (const [id, change] of Object.entries(breaks)) {
+    const dir = floor();
+    const applied = run(APPLY, "--target", dir);
+    assert.equal(applied.status, 0, applied.stderr);
+    assert.match(applied.stdout, new RegExp(`^${id}: `, "m"));
+    assert.deepEqual(JSON.parse(text(dir, STATES)).required, CORE_STATES);
+    const rows = rowsOf(dir);
+    assert.equal(rows[id].check, TOOL, id);
+    assert.ok(rows[id].note, id);
+    assert.equal(check(dir).status, 0, check(dir).stderr);
+    change(dir);
+    const broken = check(dir);
+    assert.equal(broken.status, 1, id);
+    assert.match(broken.stderr, new RegExp(`${id}: `), id);
+  }
+});
+
+test("a rule the repository does not meet today gets no row, and the guide says where", () => {
+  const dir = floor({
+    "src/screens.ts": registry(["/", ALL], ["/about", ["ready"]]),
+    "src/pages/List.tsx": SCREEN.replace("{LABELS.title}</h1>", "Mục</h1>"),
+  });
+  const applied = run(APPLY, "--target", dir);
+  assert.equal(applied.status, 0, applied.stderr);
+  assert.match(applied.stdout, /note: state-matrix: \/about declares no state named loading/);
+  assert.match(applied.stdout, /note: labels: src\/pages\/List\.tsx: <h1> holds the text "Mục"/);
+  const rows = rowsOf(dir);
+  assert.equal(rows["state-matrix"], undefined);
+  assert.equal(rows.labels, undefined);
+  assert.equal(rows["error-copy"].check, TOOL);
+  assert.equal(check(dir).status, 0, check(dir).stderr);
+
+  // The list of required states is the person's: excusing the page there is their decision.
+  edit(dir, STATES, (json) => json.replace('"exempt": {}', '"exempt": { "/about": "no data" }'));
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  assert.equal(rowsOf(dir)["state-matrix"].check, TOOL);
+  assert.match(text(dir, STATES), /"\/about": "no data"/);
+});
+
+test("adopting holds words and error messages as found, and writes no list of states", () => {
+  const dir = floor();
+  const adopted = run(ADOPT, "--target", dir);
+  assert.equal(adopted.status, 0, adopted.stderr);
+  const rows = rowsOf(dir);
+  assert.equal(rows.labels.check, TOOL);
+  assert.equal(rows["error-copy"].check, TOOL);
+  assert.equal(rows["state-matrix"], undefined);
+  assert.ok(!existsSync(path.join(dir, STATES)));
+  assert.equal(check(dir).status, 0, check(dir).stderr);
+});
