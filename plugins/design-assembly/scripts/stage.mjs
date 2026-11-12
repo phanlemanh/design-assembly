@@ -8,7 +8,9 @@ import { pathToFileURL } from "node:url";
 // Opens the stage, or says why the repository has nothing to draw with. `load` reads a module of
 // the repository the way its own build would, so a list written in its source language can be
 // read with its words resolved.
-export async function openStage(target) {
+// `modules` are extra modules the stage serves beside the repository's own, by address: code that
+// exists only while the stage is open, so nothing is added to the repository to draw it.
+export async function openStage(target, { modules = {} } = {}) {
   const require = createRequire(path.join(target, "package.json"));
   let chromium;
   let createServer;
@@ -37,6 +39,13 @@ export async function openStage(target) {
       root: target,
       logLevel: "silent",
       server: { host: "127.0.0.1", port: 5290, strictPort: false },
+      plugins: [
+        {
+          name: "design-assembly-stage",
+          resolveId: (id) => (id in modules ? id : null),
+          load: (id) => (id in modules ? modules[id] : null),
+        },
+      ],
     });
     await server.listen();
     browser = await chromium.launch();

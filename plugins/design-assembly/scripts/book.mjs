@@ -14,6 +14,7 @@ import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { contrast, parseColor } from "../templates/tools/design-assembly/color.mjs";
+import { REGISTRY as COMPONENTS } from "../templates/tools/design-assembly/components.mjs";
 import { readSources } from "../templates/tools/design-assembly/governance.mjs";
 import { REGISTRY } from "../templates/tools/design-assembly/patterns.mjs";
 import { toPx, toRatio } from "../templates/tools/design-assembly/scale.mjs";
@@ -96,6 +97,15 @@ export const WORDS = {
   spacing: "Spacing scale",
   unit: "unit",
   target: "Smallest control",
+  componentsTitle: "Components",
+  componentsQuestion: "Which pieces the screens are built from, and the forms each takes",
+  componentsLede:
+    "The repository's own components, drawn from its source: one row for each thing a component can vary by, every other one left as it is by default.",
+  atLeast: "at least",
+  notAlone: "not drawn, needs another component around it",
+  partsTitle: "Parts",
+  partsLede:
+    "These work only inside another component. They are seen where they are used, on the screens.",
   kindsTitle: "Kinds of screen",
   kindsQuestion: "What each kind of screen is for, and what it is built like",
   kindsLede:
@@ -124,7 +134,8 @@ export const WORDS = {
   closeTitle: "What this book does not show",
   closeLede: "A book that claims more than it shows is worse than none.",
   notShown: [
-    "Components one by one, with their variants: a later sheet.",
+    "A component in use: pressed, focused, or with real content in it. The sheet draws each one at rest.",
+    "The components in dark: they are drawn in light.",
     "What a state looks like while it changes: the pictures are of states at rest.",
     "Whether the result looks right. No check measures that: a person looks.",
   ],
@@ -274,6 +285,13 @@ export function collectFacts(target) {
       .filter((d) => !["held", "claimed", "recorded"].includes(d.state))
       .map((d) => ({ id: d.id, question: d.question })),
     slips: audit.slips,
+    components: (json(COMPONENTS)?.components ?? []).map((entry) => ({
+      name: entry.name,
+      file: entry.file,
+      variants: entry.variants ?? [],
+      control: entry.control === true,
+      min_height: entry.min_height ?? null,
+    })),
     kinds,
     screens: screenFiles(read(REGISTRY) ?? "", readSources(target)).map((screen) => ({
       path: screen.path,
@@ -557,6 +575,181 @@ function forClient(markdown) {
     .join("\n");
 }
 
+// The page the components are drawn on: served by the stage while it is open, and nowhere in the
+// repository. It loads a component from the repository's own source and draws it once per option,
+// each in its own root, so one that cannot stand alone fails by itself.
+const HARNESS = "/@design-assembly/harness.js";
+const HARNESS_CODE = `
+import React from "react";
+import { createRoot } from "react-dom/client";
+class Catch extends React.Component {
+  constructor(props) { super(props); this.state = { failed: false }; }
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() {}
+  render() { return this.state.failed ? null : this.props.children; }
+}
+const frames = () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
+window.__designAssembly = {
+  async draw(items) {
+    document.querySelectorAll("body > *").forEach((node) => { node.style.display = "none"; });
+    const stage = document.createElement("div");
+    stage.style.cssText = "padding:24px;display:flex;flex-direction:column;gap:24px;width:760px";
+    document.body.append(stage);
+    const report = {};
+    for (const item of items) {
+      let module = null;
+      try { module = await import(/* @vite-ignore */ "/" + item.file); } catch { module = null; }
+      const Component = module ? module[item.name] : null;
+      const block = document.createElement("div");
+      block.dataset.daItem = item.id;
+      block.style.cssText = "display:flex;flex-direction:column;gap:18px;padding:6px";
+      stage.append(block);
+      const failed = [];
+      let drawn = 0;
+      for (const row of item.rows) {
+        const line = document.createElement("div");
+        line.style.cssText = "display:flex;flex-wrap:wrap;align-items:flex-end;gap:18px 24px";
+        block.append(line);
+        for (const cell of row.cells) {
+          const box = document.createElement("div");
+          box.style.cssText = "display:flex;flex-direction:column;align-items:flex-start;gap:6px";
+          const slot = document.createElement("div");
+          const caption = document.createElement("span");
+          caption.textContent = cell.label;
+          caption.style.cssText = "font:11px ui-monospace,SFMono-Regular,Menlo,monospace;opacity:0.6";
+          box.append(slot, caption);
+          line.append(box);
+          const attempt = async (text) => {
+            if (!Component) return false;
+            const root = createRoot(slot);
+            root.render(React.createElement(Catch, null, React.createElement(Component, cell.props, text)));
+            await frames();
+            const size = slot.getBoundingClientRect();
+            const shown = slot.childElementCount > 0 && size.width > 0 && size.height > 0;
+            if (!shown) root.unmount();
+            return shown;
+          };
+          // With its text first; an element that takes none, such as a field, without.
+          if ((await attempt(cell.text)) || (await attempt(undefined))) drawn += 1;
+          else {
+            failed.push(cell.label);
+            box.remove();
+          }
+        }
+      }
+      if (drawn === 0) block.remove();
+      report[item.id] = { drawn, failed };
+    }
+    await frames();
+    return report;
+  },
+};
+`;
+
+// What of a component is drawn: one row per thing it can vary by, every other one at its default.
+// A component with nothing to vary by is drawn once. Only a component that can vary, or that a
+// person operates, is drawn alone: the rest are parts, and are seen where they are used.
+export function componentItems(components) {
+  return components
+    .filter((entry) => (entry.variants ?? []).length > 0 || entry.control)
+    .map((entry) => {
+      const axes = {};
+      for (const option of entry.variants ?? []) {
+        const at = option.indexOf("=");
+        (axes[option.slice(0, at)] ??= []).push(option.slice(at + 1));
+      }
+      const rows = Object.entries(axes).map(([axis, values]) => ({
+        axis,
+        cells: values.map((value) => ({
+          label: `${axis}=${value}`,
+          props: { [axis]: value },
+          // A size made for an icon is given a mark, not a word that would not fit it.
+          text: /^icon/.test(value) ? "+" : value,
+        })),
+      }));
+      if (rows.length === 0) {
+        rows.push({ axis: null, cells: [{ label: entry.name, props: {}, text: entry.name }] });
+      }
+      return { id: `${entry.file}|${entry.name}`, file: entry.file, name: entry.name, rows };
+    });
+}
+
+async function drawComponents(stage, facts) {
+  const items = componentItems(facts.components);
+  const images = {};
+  if (items.length === 0) return { images, report: {} };
+  const context = await stage.browser.newContext({
+    viewport: { width: 860, height: 700 },
+    deviceScaleFactor: 2,
+    reducedMotion: "reduce",
+  });
+  const page = await context.newPage();
+  // Any page of the application carries its stylesheet: the first screen will do.
+  await page.goto(`${stage.origin}${facts.screens[0]?.path ?? "/"}`, { waitUntil: "networkidle" });
+  await page.addScriptTag({ type: "module", url: `${stage.origin}${HARNESS}` });
+  await page.waitForFunction("Boolean(window.__designAssembly)", null, { timeout: 8000 });
+  const report = await page.evaluate(
+    `window.__designAssembly.draw(${JSON.stringify(items).replaceAll("<", "\\u003c")})`,
+  );
+  for (const item of items.filter((entry) => report[entry.id]?.drawn > 0)) {
+    const picture = await page.locator(`[data-da-item="${item.id}"]`).screenshot();
+    images[item.id] = `data:image/png;base64,${picture.toString("base64")}`;
+  }
+  await context.close();
+  return { images, report };
+}
+
+function componentsSheet(facts, w, audience, drawn) {
+  const items = componentItems(facts.components);
+  const pictures = drawn?.components?.images ?? {};
+  const report = drawn?.components?.report ?? {};
+  const shown = items
+    .filter((item) => pictures[item.id])
+    .map((item) => {
+      const entry = facts.components.find((c) => `${c.file}|${c.name}` === item.id);
+      const failed = report[item.id]?.failed ?? [];
+      const axes = item.rows
+        .filter((row) => row.axis)
+        .map((row) => `${row.axis} × ${row.cells.length}`);
+      return `<article class="component">
+        <div>
+          <h3 class="component-name">${escape(item.name)}</h3>
+          <p class="muted">${escape(axes.join(" · "))}${entry?.min_height ? `${axes.length > 0 ? " · " : ""}${escape(w.atLeast)} ${escape(entry.min_height)}` : ""}</p>
+          ${audience === "builder" ? `<p class="muted"><code>${escape(item.file)}</code></p>` : ""}
+          ${failed.length > 0 ? `<p class="muted">${escape(w.notAlone)}: ${escape(failed.join(", "))}</p>` : ""}
+        </div>
+        <figure><img src="${pictures[item.id]}" alt="${escape(item.name)}" /></figure>
+      </article>`;
+    })
+    .join("");
+  // Everything else, by the file it lives in: parts of something larger, seen on the screens.
+  const alone = new Set(items.filter((item) => pictures[item.id]).map((item) => item.id));
+  const families = new Map();
+  for (const entry of facts.components) {
+    const family = families.get(entry.file) ?? { lead: entry.name, parts: [] };
+    if (!alone.has(`${entry.file}|${entry.name}`) && entry.name !== family.lead) {
+      family.parts.push(entry.name);
+    }
+    families.set(entry.file, family);
+  }
+  // A family is listed when something of it is not drawn above: its parts, or the whole of it.
+  const parts = [...families.entries()]
+    .filter(([file, family]) => family.parts.length > 0 || !alone.has(`${file}|${family.lead}`))
+    .map(
+      ([, family]) =>
+        `<li><b>${escape(family.lead)}</b>${family.parts.length > 0 ? ` <span>${escape(family.parts.join(" · "))}</span>` : ""}</li>`,
+    )
+    .join("");
+  const none = drawn?.components ? "" : `<p class="note">${escape(w.noPictures)}</p>`;
+  return sheet(
+    3,
+    w.componentsTitle,
+    w.componentsQuestion,
+    w.componentsLede,
+    `${none}${shown}${parts ? `<h3>${escape(w.partsTitle)}</h3><p class="muted">${escape(w.partsLede)}</p><ul class="parts">${parts}</ul>` : ""}`,
+  );
+}
+
 function kindsSheet(facts, w, audience, drawn) {
   const wide = facts.widths.length > 0 ? Math.max(...facts.widths) : 1440;
   const kinds = facts.kinds
@@ -581,7 +774,7 @@ function kindsSheet(facts, w, audience, drawn) {
     })
     .join("");
   return sheet(
-    3,
+    4,
     w.kindsTitle,
     w.kindsQuestion,
     w.kindsLede,
@@ -631,7 +824,7 @@ export function pathsOf(screen, how) {
 function pathsSheet(facts, w, audience, drawn) {
   if (!drawn?.how) {
     return sheet(
-      4,
+      5,
       w.pathsTitle,
       w.pathsQuestion,
       w.pathsLede,
@@ -671,7 +864,7 @@ function pathsSheet(facts, w, audience, drawn) {
       </div>`;
     })
     .join("");
-  return sheet(4, w.pathsTitle, w.pathsQuestion, w.pathsLede, maps);
+  return sheet(5, w.pathsTitle, w.pathsQuestion, w.pathsLede, maps);
 }
 
 function statesSheet(facts, w, audience, drawn) {
@@ -716,7 +909,7 @@ function statesSheet(facts, w, audience, drawn) {
     .join("");
   const none = drawn?.images ? "" : `<p class="note">${escape(w.noPictures)}</p>`;
   return sheet(
-    5,
+    6,
     w.statesTitle,
     w.statesQuestion,
     `${w.statesLede} ${widths.map((width) => `${width} px`).join(", ")}.`,
@@ -730,7 +923,7 @@ function closing(w, audience) {
       ? `<h3>${escape(w.commands)}</h3><ul class="plain mono"><li>make check</li><li>make design-assembly</li><li>make design-audit</li></ul>`
       : "";
   return sheet(
-    6,
+    7,
     w.closeTitle,
     w.closeTitle,
     w.closeLede,
@@ -844,6 +1037,13 @@ export function renderBook(facts, { audience = "client", words = {}, drawn = nul
   .spacing i { display: block; height: 28px; background: var(--accent); border-radius: 2px; }
   .target { display: flex; align-items: center; gap: 12px; }
   .target i { display: block; border: 1.5px solid var(--fg); border-radius: 4px; }
+  .component { display: grid; grid-template-columns: 220px 1fr; gap: 40px; align-items: start; padding: 28px 0; border-top: 1px solid var(--line); }
+  .sheet-head + .component { margin-top: 40px; }
+  .component-name { margin: 0; font-size: var(--xl); font-weight: 620; letter-spacing: -0.01em; text-transform: none; color: var(--fg); }
+  .component figure img { width: auto; max-width: 100%; border: 0; border-radius: 0; }
+  .parts { margin: 16px 0 0; padding: 0; list-style: none; columns: 2; column-gap: 56px; }
+  .parts li { padding: 8px 0; border-top: 1px solid var(--line); break-inside: avoid; }
+  .parts span { color: var(--muted); font-size: var(--xs); }
   .kind-sheet { display: grid; grid-template-columns: 1.25fr 1fr; gap: 64px; margin-top: 48px; }
   .kind-name { margin: 0; font-size: var(--h2); font-weight: 620; line-height: 1.1; letter-spacing: -0.01em; text-transform: none; color: var(--fg); }
   .task { margin: 16px 0 28px; font-size: var(--lg); line-height: 1.45; max-width: 44ch; }
@@ -884,6 +1084,7 @@ export function renderBook(facts, { audience = "client", words = {}, drawn = nul
 ${cover(facts, w)}
 ${colorSheet(facts, w, audience)}
 ${typeSheet(facts, w, audience)}
+${componentsSheet(facts, w, audience, drawn)}
 ${kindsSheet(facts, w, audience, drawn)}
 ${pathsSheet(facts, w, audience, drawn)}
 ${statesSheet(facts, w, audience, drawn)}
@@ -920,10 +1121,11 @@ export function staleParts(html, facts) {
 // Draws every state of every screen at the narrowest and the widest of the widths, the way a
 // person reaches it. Returns the pictures as data, and how each state was reached.
 async function drawStates(target, facts) {
-  const stage = await openStage(target);
+  const stage = await openStage(target, { modules: { [HARNESS]: HARNESS_CODE } });
   if (stage.problem) return { problem: stage.problem };
   const images = {};
   const how = {};
+  let components;
   try {
     const { SCREENS } = await stage.load(`/${REGISTRY}`);
     const widths = facts.widths.length > 0 ? facts.widths : [1440];
@@ -959,12 +1161,13 @@ async function drawStates(target, facts) {
       }
       await context.close();
     }
+    components = await drawComponents(stage, facts);
   } catch (error) {
     return { problem: `drawing stopped: ${error.message.split("\n")[0]}` };
   } finally {
     await stage.close();
   }
-  return { images, how };
+  return { images, how, components };
 }
 
 // The same book as a file to print, or as one picture per sheet for slides.

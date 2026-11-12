@@ -12,6 +12,7 @@ import { fileURLToPath } from "node:url";
 import {
   belowThreshold,
   collectFacts,
+  componentItems,
   factsOf,
   pathsOf,
   renderBook,
@@ -250,7 +251,15 @@ test("on a repository with a browser every state is drawn at the narrowest and t
   const states = facts.screens.reduce((sum, screen) => sum + screen.states.length, 0);
   // One picture per state and width; the paths and the kinds show some of them again.
   const pictures = new Set(page.match(/<img src="data:image\/png;base64,[^"]{0,400}/g));
-  assert.ok(pictures.size >= states && pictures.size <= states * 2, String(pictures.size));
+  assert.ok(pictures.size >= states, String(pictures.size));
+  // The components are drawn from the repository's own source, each alone.
+  for (const name of ["Button", "Badge", "Input"]) {
+    assert.match(page, new RegExp(`<h3 class="component-name">${name}</h3>`), name);
+    assert.match(page, new RegExp(`<img src="data:image/png;base64,[^"]+" alt="${name}" />`), name);
+  }
+  // A part that works only inside another component is named, not drawn.
+  assert.match(page, /<li><b>Dialog<\/b> <span>[^<]*DialogContent/);
+  assert.doesNotMatch(page, /<h3 class="component-name">DialogContent<\/h3>/);
   assert.equal(page.match(/<figure class="(narrow|wide)">/g).length, states * 2);
   // How a state is reached is told in the repository's own words for its buttons.
   assert.match(page, /bấm «Thêm mục»/);
@@ -358,4 +367,53 @@ test("an open question is asked in the repository's own language when it gives o
   const read = own.slice(0, own.indexOf('<script type="application/json"'));
   assert.ok(read.includes("Hồ sơ mở thế nào?"));
   assert.ok(!read.includes("How does a record open beside a list?"));
+});
+
+test("a component is drawn once for each thing it can vary by; parts are not drawn alone", () => {
+  const items = componentItems([
+    {
+      name: "Button",
+      file: "src/ui/button.tsx",
+      variants: ["variant=default", "variant=outline", "size=default", "size=icon-sm"],
+      control: true,
+    },
+    { name: "Input", file: "src/ui/input.tsx", variants: [], control: true },
+    { name: "AlertTitle", file: "src/ui/alert.tsx", variants: [], control: false },
+  ]);
+  assert.deepEqual(
+    items.map((item) => item.id),
+    ["src/ui/button.tsx|Button", "src/ui/input.tsx|Input"],
+  );
+  const [button, input] = items;
+  assert.deepEqual(
+    button.rows.map((row) => [row.axis, row.cells.map((cell) => cell.label)]),
+    [
+      ["variant", ["variant=default", "variant=outline"]],
+      ["size", ["size=default", "size=icon-sm"]],
+    ],
+  );
+  // One thing varies in a cell; the rest stay at the component's own default.
+  assert.deepEqual(button.rows[0].cells[1].props, { variant: "outline" });
+  assert.equal(button.rows[0].cells[1].text, "outline");
+  assert.equal(button.rows[1].cells[1].text, "+");
+  assert.deepEqual(input.rows, [
+    { axis: null, cells: [{ label: "Input", props: {}, text: "Input" }] },
+  ]);
+});
+
+test("the components of the book are the component manifest's, and changing it makes a book stale", () => {
+  const facts = collectFacts(ROOT);
+  const manifest = JSON.parse(
+    readFileSync(path.join(ROOT, "design/component-registry.json"), "utf8"),
+  );
+  assert.deepEqual(
+    facts.components.map((entry) => entry.name),
+    manifest.components.map((entry) => entry.name),
+  );
+  const page = renderBook(facts);
+  const fewer = { ...facts, components: facts.components.slice(1) };
+  assert.deepEqual(staleParts(page, fewer), ["components"]);
+  // Without pictures the families are still named, and the sheet says why nothing is drawn.
+  assert.ok(page.includes(WORDS.noPictures));
+  assert.match(page, /<ul class="parts"><li><b>Alert<\/b>/);
 });

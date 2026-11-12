@@ -73,13 +73,28 @@ Lát hai, cùng ngày, sau khi chủ kho xem lát đầu và nói «Đạt, làm
 - Trang kiểu màn giờ nằm trong bản kê: sửa trang thì cuốn sổ cũ bị báo là lệch.
 - Bài kiểm của plugin 188 lên 192.
 
+Lát ba, cùng ngày («Làm tiếp»):
+
+- **Tờ linh kiện.** Linh kiện được vẽ từ chính mã nguồn của kho, trong một trang chỉ tồn tại lúc
+  vẽ: không tệp nào được thêm vào kho, nên không cần chủ kho quyết chỗ dựng. Mỗi hàng là một thứ
+  linh kiện thay đổi được, các thứ còn lại để ở mặc định; không vẽ mọi tổ hợp.
+- Chỉ linh kiện có biến thể, hoặc là thứ người dùng thao tác, mới được vẽ riêng. Phần còn lại là
+  các phần của một linh kiện lớn hơn: được nêu tên theo họ, và hiện trên các màn.
+- Linh kiện cần một linh kiện khác bao quanh thì tự nó không vẽ được và được nêu tên; tờ này
+  không dựng giả phần bao quanh.
+- Sổ linh kiện giờ nằm trong bản kê của cuốn sổ. Bài kiểm của plugin 192 lên 194.
+
 Giới hạn:
 
 - **Phần «đẹp» chỉ người nhìn mới chấm được.** Máy đã tự soi năm tờ và chỉnh một lượt; chủ kho
   chưa xem.
 - Tệp phông không nằm trong cuốn sổ: máy không có phông của sản phẩm sẽ hiện phông kế tiếp.
 - Ảnh không nằm trong bản kê, nên phép đối chiếu không biết ảnh đã cũ.
-- Chưa có: tờ linh kiện (cần chỗ dựng từng linh kiện riêng lẻ) và xuất slide theo khổ.
+- Chưa có: xuất slide theo khổ.
+- Linh kiện được vẽ lúc đứng yên, ở chế độ sáng, với chữ bên trong là chính tên biến thể. Thẻ và
+  vùng minh hoạ trông trơ trọi vì chúng vốn chứa các phần khác.
+- Bốn linh kiện người dùng thao tác (nút mở và đóng hộp thoại, ô chọn và mục của nó) cần linh
+  kiện cha nên không được vẽ riêng.
 - Tờ đường đi cần trình duyệt; không có thì nó nói rõ và không vẽ gì. Người đọc là khách không
   được cho biết vì sao cùng một thao tác dẫn tới hai trạng thái khác nhau (do dữ liệu trả lời
   khác): chỉ người dựng thấy điều đó.

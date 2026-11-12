@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Hand a repository's design system to a person the way a professional designer hands one to a client — one book, drawn from the repository itself, that shows the colours by role with their contrast ratios, the type scale, corner radius and spacing, each kind of screen beside its reference screen, how a person gets from state to state, and every state of every screen, and says how many decisions are held, claimed, recorded and still open. Every value in it is read from the repository, never typed; it is drawn in the system it describes. Use when the user wants to see, present, review, share or hand over their design system, asks for a style guide, brand sheet, design system documentation or a state gallery, wants to show a client or a team what was decided, or after the guide or adopting has finished. Not for choosing values (the guide shows those on a specimen sheet) and not for drawing diagrams.
+description: Hand a repository's design system to a person the way a professional designer hands one to a client — one book, drawn from the repository itself, that shows the colours by role with their contrast ratios, the type scale, corner radius and spacing, the components with their variants, each kind of screen beside its reference screen, how a person gets from state to state, and every state of every screen, and says how many decisions are held, claimed, recorded and still open. Every value in it is read from the repository, never typed; it is drawn in the system it describes. Use when the user wants to see, present, review, share or hand over their design system, asks for a style guide, brand sheet, design system documentation or a state gallery, wants to show a client or a team what was decided, or after the guide or adopting has finished. Not for choosing values (the guide shows those on a specimen sheet) and not for drawing diagrams.
 ---
 
 # Hand the design system over
@@ -93,6 +93,9 @@ what the sheet answers, the one thing to look at, and what on it is still open.
 - **Colour.** Read out every pair below the contrast ratio. Say which ratios the gate holds and
   which the book only measured.
 - **Type and shape.** Say what the book cannot show: the font file is not inside it.
+- **Components.** Each drawing is the repository's own component, not a picture of one. Say
+  that they are shown at rest and in light, and that the parts listed under them are seen on the
+  screens.
 - **Kinds of screen.** The words are the repository's own page, not a summary of it. Say whether
   a person has confirmed the page or it is still a proposal.
 - **Paths.** It shows the states the repository lists and how each is reached. A path that is not

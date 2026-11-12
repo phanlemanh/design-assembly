@@ -12,6 +12,7 @@ pictures are not part of the list: they are drawn, not compared.
 | Cover            | What do I have, and what is open?            | The audit: coverage, tiers, open core decisions        |
 | Colour           | Which colours, and what may sit on what?     | The design tokens file, the stylesheet, the theme data |
 | Type and shape   | Which sizes, corners and distances?          | The design tokens file, the stylesheet                 |
+| Components       | Which pieces, and what forms does each take? | The component manifest, and the components' own source |
 | Kinds of screen  | What is each kind for, and built like?       | The kind pages, and the reference screen each names    |
 | Paths            | How does a person get from state to state?   | The screen registry, read with its words resolved      |
 | States           | What does every screen show, in every state? | The screen registry, the screen sizes                  |
@@ -48,6 +49,22 @@ pictures are not part of the list: they are drawn, not compared.
   true size.
 - The font is named, and the sheet says the font file is not inside the book.
 - Budget: no paragraph of text. Sizes are compared by eye, not explained.
+
+## Components
+
+- A component is drawn from the repository's own source, in a page that exists only while the
+  book is drawn: nothing is added to the repository.
+- One row for each thing the component can vary by, with every other one at its default. Under
+  each drawing, the option as code writes it. A component with nothing to vary by is drawn once.
+- Only a component that can vary, or that a person operates, is drawn alone. Every other is a
+  part of something larger: it is named under its family, and seen on the screens.
+- A component that needs another around it fails to draw by itself and is named as a part. The
+  sheet never fakes its surroundings.
+- The text inside a drawing is the option's own name, so nothing is invented; a size made for an
+  icon is given a mark.
+- Drawn in light, at rest. The sheet for what is not shown says so.
+- Budget: one row per thing that varies, never every combination. A component with more than
+  three things to vary by is doing several jobs: say so to the person.
 
 ## Kinds of screen
 

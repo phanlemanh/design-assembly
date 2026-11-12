@@ -44,7 +44,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 - Nhánh `main`, cây làm việc sạch. **Chưa có remote, chưa đẩy đi đâu**: kho chỉ nằm trên máy
   này. Mọi thứ đều đã commit. Cập nhật lần cuối 2026-11-12, sau quyết định 0020.
 - `make check` xanh: lint, typecheck, 68 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (22 quyết định, 27 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 192 bài kiểm của plugin.
+  (22 quyết định, 27 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 194 bài kiểm của plugin.
 - Kho này đáp **37/38 quyết định lõi**: 14 máy giữ, 17 tự khai, 6 đã ghi. Sổ có 47 dòng. Cả sáu
   câu «đã ghi» đều là máy đề xuất, chưa ai xác nhận; audit nêu tên chúng.
 
@@ -91,9 +91,9 @@ chuyên gia cố vấn hàng đầu cần dẫn đi qua các hạng mục bằng
 Nửa «sau khi quyết» cũng đã có lát đầu: skill `handoff` và `make design-book` vẽ cuốn sổ bàn giao
 (quyết định 0020), mượn ý từ skill Diagram Design. Lời tiếng Việt của cuốn sổ ở
 `design/book-words.json`.
-Cuốn sổ đã có bảy tờ: bìa, màu, chữ và hình khối, kiểu màn, đường đi, trạng thái, và «không cho
-thấy gì». Chủ kho đã xem lát đầu và nói đạt.
-Các lát sau, mỗi lát duyệt riêng: tờ linh kiện trong cuốn sổ; điểm dừng
+Cuốn sổ đã có tám tờ: bìa, màu, chữ và hình khối, linh kiện, kiểu màn, đường đi, trạng thái, và
+«không cho thấy gì». Chủ kho đã xem lát đầu và nói đạt; ba tờ sau chưa được chủ kho nhận xét.
+Các lát sau, mỗi lát duyệt riêng: xuất slide theo khổ; điểm dừng
 thị giác cho năm tầng còn lại và phòng trưng bày
 trạng thái; độ sâu «mang sẵn thiết kế tới»; phản biện độc lập bằng ảnh; tờ hướng dẫn để lại.
 Khuôn mẫu về nhịp dẫn dắt: `~/dev/repo-standards/plugins/repo-setup/skills/new/`.

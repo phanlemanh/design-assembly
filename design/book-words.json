@@ -56,7 +56,8 @@
   "closeTitle": "Cuốn sổ này không cho thấy gì",
   "closeLede": "Một cuốn sổ nói nhiều hơn những gì nó cho thấy thì tệ hơn không có.",
   "notShown": [
-    "Từng linh kiện với các biến thể của nó: một tờ sẽ làm sau.",
+    "Linh kiện lúc đang dùng: đang bấm, đang có tiêu điểm, hay chứa nội dung thật. Tờ linh kiện vẽ mỗi cái lúc đứng yên.",
+    "Linh kiện ở chế độ tối: chúng được vẽ ở chế độ sáng.",
     "Một trạng thái trông thế nào trong lúc đang chuyển: ảnh chụp là của trạng thái khi đã yên.",
     "Kết quả có đẹp hay không. Không lệnh kiểm nào đo điều đó: phải có người nhìn."
   ],
@@ -78,5 +79,12 @@
   "pathsLede": "Mọi trạng thái của một màn, nối với nhau bằng thao tác dẫn tới nó. Đọc từ chính danh sách trạng thái của kho, vẽ từ chính màn của kho.",
   "whenData": "khi dữ liệu trả lời",
   "noPaths": "Đường đi được vẽ từ chính các màn: không có trình duyệt thì không có gì để vẽ.",
-  "afterAction": "Sau một thao tác"
+  "afterAction": "Sau một thao tác",
+  "componentsTitle": "Linh kiện",
+  "componentsQuestion": "Màn được dựng từ những mảnh nào, và mỗi mảnh có những dạng nào",
+  "componentsLede": "Linh kiện của chính kho, vẽ từ mã nguồn: mỗi hàng là một thứ linh kiện thay đổi được, các thứ còn lại để ở mặc định.",
+  "atLeast": "cao ít nhất",
+  "notAlone": "không vẽ được, cần một linh kiện khác bao quanh",
+  "partsTitle": "Các phần",
+  "partsLede": "Những phần này chỉ dùng được bên trong một linh kiện khác. Chúng hiện ở nơi được dùng, trên các màn."
 }
