@@ -36,8 +36,9 @@ export function loadStyles(root, entry, instead = {}) {
   return { css: inline(entry), base: read(root, FRAMEWORK_THEME) ?? "", files };
 }
 
-// The selectors a repository may write its dark mode under, most common first.
-export const DARK_SCOPES = [".dark", ":root.dark", "html.dark"];
+// The selectors a repository may write its dark mode under, the one that wins the cascade first:
+// a class on the root element outranks the class alone.
+export const DARK_SCOPES = [":root.dark", "html.dark", ".dark"];
 const MODE_MARKERS = ["--background", "--foreground", "--primary", "--primary-foreground"];
 
 // A variable the repository's own text declares for a selector, or null: no fallback to the root.
@@ -49,6 +50,14 @@ export function ownValue(styles, scope, name) {
 export function darkScope(styles) {
   return (
     DARK_SCOPES.find((scope) => MODE_MARKERS.some((name) => ownValue(styles, scope, name))) ?? null
+  );
+}
+
+// Every selector the repository writes dark-mode values under. A stylesheet may split them: the
+// color roles under one, further values under another. Reading one alone would miss the rest.
+export function darkScopes(styles) {
+  return DARK_SCOPES.filter((scope) =>
+    new RegExp(`(?:^|\\n)${scope.replaceAll(".", "\\.")}\\s*\\{`).test(styles.css),
   );
 }
 
@@ -64,10 +73,13 @@ export function themeDeclarations(styles) {
 }
 
 // What a variable is declared as for a selector: its own block, the root, the repository's theme,
-// then the framework's.
+// then the framework's. `scope` may be several selectors that apply together, strongest first.
 function declared(styles, scope, name) {
-  const own = readVariable(styles.css, scope, name) ?? readVariable(styles.css, ":root", name);
-  if (own !== null) return own;
+  const own = [scope, ":root"]
+    .flat()
+    .map((selector) => readVariable(styles.css, selector, name))
+    .find((value) => value !== null);
+  if (own !== undefined) return own;
   const themed = themeDeclarations(styles).findLast((item) => item.name === name);
   if (themed) return themed.value;
   const pattern = new RegExp(`(?:^|[\\s;{])${name}\\s*:\\s*([^;]+);`, "g");

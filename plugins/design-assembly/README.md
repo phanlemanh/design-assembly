@@ -32,6 +32,10 @@ scale, shape). Density, elevation, motion and iconography are not.
   every view of data has, no screen writes its own words, an error message has both parts, and
   no screen opens a browser dialog or calls a toast library itself.
 - A repository's own test that names a decision with `decision:<id>` is taken as a proof of it.
+- Both paths leave `.claude/rules/design-assembly.md`: the rules held in that repository, written
+  for the agent that builds the next screen.
+- A row a repository already has, with no check, is named with what could hold it, and given its
+  pointer only when a person says so.
 - Both paths leave `design/component-registry.json`: the component manifest, written from the
   component source, with every variant an agent may use, and held to the source by a check.
 

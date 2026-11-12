@@ -118,9 +118,19 @@ function sockets(root) {
 }
 
 // The state of a decision the repository's ledger has a row for.
-function fromLedger(root, row, held) {
-  if (row.kind === "judgment") return { state: "recorded", by: "the ledger" };
-  if (!row.check) return { state: "not-held", by: null };
+function fromLedger(root, row, held, proofs) {
+  if (row.kind === "judgment") return { state: "recorded", by: "the ledger", note: row.note };
+  if (!row.check) {
+    // The row names no check. A proof the repository runs may be there all the same.
+    const proof = proofs.find((item) => item.id === row.id && !item.problem);
+    return {
+      state: "not-held",
+      by: null,
+      seen: proof
+        ? `a proof the row does not point at, ${proof.check}: adopting with --hold ${row.id} adds the pointer`
+        : null,
+    };
+  }
   if (row.check === TOOL) {
     return held.has(row.id)
       ? { state: "held", by: "this plugin's tool, run now", note: row.note }
@@ -180,20 +190,37 @@ function nextStep(facts, decisions) {
   const calls = decisions.filter(
     (d) => ["product-type", "conformance-level", "source-color"].includes(d.id) && !d.in_ledger,
   );
+  const unheld = decisions.filter((d) => d.state === "not-held");
+  const untagged = decisions.filter((d) =>
+    d.seen?.startsWith("a proof the ledger cannot point at"),
+  );
   const reasons = [
     ...(proofs.length > 0 ? [`${proofs.length} proof(s) seen without a row`] : []),
     ...(calls.length > 0 ? [`${calls.map((d) => d.id).join(", ")} to confirm with a person`] : []),
+    ...(unheld.length > 0
+      ? [`${unheld.length} row(s) with no check, some of which it may be able to hold`]
+      : []),
   ];
   const adopt = `/design-assembly:adopt, to record what the repository already has${reasons.length > 0 ? ` (${reasons.join("; ")})` : ""}`;
   if (facts.generated || facts.adopted) {
-    return reasons.length > 0
-      ? adopt
-      : "nothing more to generate or adopt: what is open above belongs to layers this version does not build";
+    if (reasons.length > 0) return adopt;
+    // Nothing for the scripts to do. Say what the repository can still close by itself.
+    const own = [
+      ...(untagged.length > 0
+        ? [
+            `${untagged.length} proof(s) need a decision:<id> tag in their test before a row can point at them (${untagged.map((d) => d.id).join(", ")})`,
+          ]
+        : []),
+      ...(decisions.some((d) => d.id === "display-kind" && !d.in_ledger)
+        ? ["display-kind closes when a field of the data model names its column type"]
+        : []),
+    ];
+    return `nothing more to generate or adopt now${own.length > 0 ? `. The repository can still close: ${own.join("; ")}` : ""}. The rest of what is open belongs to layers this version does not build`;
   }
   if (facts.primary?.own) {
     return `${adopt}. Not the guide: the stylesheet has a primary color role of its own (${facts.primary.value}), which the guide would replace`;
   }
-  return `/design-assembly:new, to choose the values the repository does not have (its primary color role is a grey default); then ${adopt}`;
+  return `/design-assembly:new, to choose the values the repository does not have (its primary color role is a grey default). The guide ends by adopting what the repository already proves${reasons.length > 0 ? ` (${reasons.join("; ")})` : ""}`;
 }
 
 function need(root, item, facts, tier) {
@@ -269,7 +296,7 @@ export function inventory(root) {
 
   facts.decisions = STANDARD.decisions.map((decision) => {
     const row = rows.find((r) => r.id === decision.id);
-    const found = row ? fromLedger(root, row, held) : fromRepository(decision, facts);
+    const found = row ? fromLedger(root, row, held, facts.proofs) : fromRepository(decision, facts);
     const around = bypass[decision.id] ?? { count: 0, files: [] };
     return {
       id: decision.id,
@@ -320,6 +347,7 @@ export function inventory(root) {
       held: count(beyond, "held"),
       claimed: count(beyond, "claimed"),
       recorded: count(beyond, "recorded"),
+      ids: beyond.filter((d) => ANSWERED.includes(d.state)).map((d) => d.id),
     },
     next: nextStep(facts, facts.decisions),
     ledger:
@@ -355,7 +383,11 @@ const NOTE = {
 function line(decision) {
   const lines = [`      ${LABEL[decision.state].padEnd(9)} ${decision.id}: ${decision.question}`];
   if (decision.by) lines.push(`                by ${decision.by}`);
-  if (decision.note) lines.push(`                covers: ${decision.note}`);
+  if (decision.note) {
+    lines.push(
+      `                ${decision.state === "held" ? "covers" : "note"}: ${decision.note}`,
+    );
+  }
   if (decision.seen) lines.push(`                seen: ${decision.seen}`);
   if (decision.bypassed > 0) {
     lines.push(
@@ -380,17 +412,17 @@ export function report(result, { all = false } = {}) {
   const b = result.beyond_core;
   if (b.held + b.claimed + b.recorded > 0) {
     lines.push(
-      `  beyond the core, the ledger also answers: ${b.held} held, ${b.claimed} claimed, ${b.recorded} recorded`,
+      `  beyond the core, the ledger also answers: ${b.held} held, ${b.claimed} claimed, ${b.recorded} recorded (${b.ids.join(", ")})`,
     );
   }
   if (result.ledger) {
     const l = result.ledger;
     lines.push(
-      `ledger design/decisions.yaml: ${l.total} rows in all, ${l.automatic} of them naming a check that exists and is wired in`,
+      `ledger design/decisions.yaml: ${l.total} rows in all, ${l.automatic} of them naming a check that can be found`,
     );
     if (l.own_decisions.length > 0)
       lines.push(
-        `  ${l.own_decisions.length} of them are the repository's own, beyond the standard ones`,
+        `  ${l.own_decisions.length} of them are the repository's own, beyond the standard ones: ${l.own_decisions.slice(0, 5).join(", ")}${l.own_decisions.length > 5 ? ", ..." : ""}`,
       );
     if (l.old_layer_names.length > 0)
       lines.push(`  ${l.old_layer_names.length} row(s) use an older layer name`);

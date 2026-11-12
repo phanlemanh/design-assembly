@@ -90,6 +90,18 @@ export function wordsProblem(files, skip = []) {
         found.push(`${file}: <${tag[1]}> holds the text "${between.trim().slice(0, 40)}"`);
       }
     }
+    // Words written in code where a screen hands them to a component: a string on its own between
+    // braces, and a string given as a header, label, title or placeholder.
+    for (const child of text.matchAll(/\{\s*(["'`])([^"'`\n{}]*)\1\s*\}/g)) {
+      if (HAS_WORD.test(child[2]))
+        found.push(`${file}: writes the text "${child[2].slice(0, 40)}"`);
+    }
+    for (const given of text.matchAll(
+      /\b(header|label|title|placeholder)\s*:\s*(["'`])([^"'`\n]*)\2/g,
+    )) {
+      if (HAS_WORD.test(given[3]))
+        found.push(`${file}: gives ${given[1]}: "${given[3].slice(0, 40)}"`);
+    }
   }
   if (found.length === 0) return null;
   return `${found.slice(0, 5).join("; ")}: a screen takes its words from the repository's one place for them`;

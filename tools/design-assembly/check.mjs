@@ -61,15 +61,16 @@ const KINDS = {
       const foreground = resolve(state, check.scope, check.foreground);
       const background = resolve(state, check.scope, check.background);
       if (!foreground?.color || !background?.color) {
-        return `cannot read ${check.foreground} and ${check.background} in ${check.scope}`;
+        return `cannot read ${check.foreground} and ${check.background} in ${[check.scope].flat().join(", ")}`;
       }
       const ratio = contrast(foreground.color, background.color);
       if (ratio >= check.min) return null;
-      return `${check.foreground} on ${check.background} in ${check.scope} has a contrast ratio of ${ratio.toFixed(2)}:1, below ${check.min}:1`;
+      return `${check.foreground} on ${check.background} in ${[check.scope].flat().join(", ")} has a contrast ratio of ${ratio.toFixed(2)}:1, below ${check.min}:1`;
     },
     change(state, check) {
       const background = resolve(state, check.scope, check.background);
-      const same = `${check.scope} {\n  ${check.foreground}: ${background?.value ?? "oklch(1 0 0)"};\n}\n`;
+      const where = [check.scope].flat()[0];
+      const same = `${where} {\n  ${check.foreground}: ${background?.value ?? "oklch(1 0 0)"};\n}\n`;
       return { ...state, css: `${state.css}\n${same}` };
     },
   },
@@ -261,6 +262,10 @@ const KINDS = {
       if (!/^\t@?node tools\/design-assembly\/check\.mjs$/m.test(state.gate)) {
         return `${FILES.gate} does not run the check, or runs it in a way that cannot fail`;
       }
+      // The gate itself must still run what the included files add to it.
+      if (!/^check:.*(\$\(CHECK_TARGETS\)|\bdesign-assembly\b)/m.test(state.makefile ?? "")) {
+        return "the Makefile's check target no longer runs CHECK_TARGETS, so make check does not run this";
+      }
       return null;
     },
     change(state) {
@@ -301,6 +306,7 @@ export function readState(root) {
     // The column type each field of the data model names.
     displays: readDisplays(root),
     gate: read(FILES.gate),
+    makefile: read("Makefile"),
   };
 }
 

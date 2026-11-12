@@ -27,6 +27,11 @@ primary color roles and would replace them, and adopting keeps them.
 A stylesheet whose primary color role is a grey is the floor's default, not a brand colour: the
 guide is for that repository.
 
+A person's call that the guide proposed (the product type, the conformance level, the source
+color, when nobody stated them) is written to the ledger with a note saying a person has not
+confirmed it, and the audit prints that note. Say so in the summary; the note goes when the person
+gives the answer and the guide runs again.
+
 `apply.mjs` enforces this. It refuses to write where the stylesheet has a primary color role with
 a hue of its own, or where values were adopted. `--replace` lifts the refusal: pass it only when
 the person has said, in their own words, that the existing values are to be given up.
@@ -40,8 +45,9 @@ The floor is checked first, then the blueprint.
 
 - It refuses because the floor is missing: say what is missing in plain words and stop. A repository
   set up with `repo-setup` and its design layer has the floor.
-- It says the floor is in place and `design/blueprint.json` is missing: that is the normal start.
-  Create it with the shape below, then go on.
+- It says the floor is in place and `design/blueprint.json` is not there yet: that is the normal
+  start, and the preview ends without an error. Create the file with the shape below, then go on.
+
 - `design/blueprint.json` exists: resume from the first built layer that is `pending`.
 
 The blueprint is the only file you write by hand. Its shape:
@@ -83,8 +89,9 @@ the repository, `proposed` for everything else, including a layer with a single 
 ## 2. Show the whole picture
 
 List the layers from `references/layers.json` in order, each with its state: already known, to
-decide, or not built yet. Say in one line that the layers marked not built are announced and
-skipped in this version. Invite the person to paste anything they have already decided, in any
+decide, or not built yet. A layer that is not built has no question for the person in this
+version. Say so in one line, and say that the guide still installs, in step 6, the rules of
+those layers that need no decision: they are listed there, not here. Invite the person to paste anything they have already decided, in any
 form, and mark what they give as `source: user`. This is not a stop: go on in the same message.
 
 ## 3. Choose the depth
@@ -148,8 +155,16 @@ the preview again.
    component registry was already there and says something else, it is kept and the script says
    so: tell the person.
 
-   The generated block sets the primary color role, the text on it and the focus ring, in light
-   and dark, and the corner radius. Every other color role keeps the floor's value, the sidebar's
+   It also writes `.claude/rules/design-assembly.md`: the rules it now holds here, where the
+   agent that builds the next screen reads them first. It names only what is installed.
+
+   The preview's list of files is the full list of what is written. Beyond the files named
+   above it holds the starting tables a person owns from then on (`design/column-types.json`,
+   `design/states.json`) and the file derived from the first (`design/columns.json`).
+
+   The generated block sets the tonal palette of the source color (`--palette-primary-*`), the
+   primary color role, the text on it and the focus ring, in light and dark, and the corner
+   radius. Every other color role keeps the floor's value, the sidebar's
    included: say so if the person expects the whole theme to turn to their colour.
 
 2. `node ${CLAUDE_PLUGIN_ROOT}/scripts/adopt.mjs --target <repo>`, with no flags. The guide writes
@@ -169,23 +184,26 @@ the preview again.
    are a person's calls.
 7. Say how far the contrast check reaches: the primary on the background and the text on the
    primary, in light and dark. The other color roles are not checked in this version.
-8. Repeat the `column types:` line. The guide wrote `design/column-types.json` with six starting
+8. Lines that start with `note:` and `hint:` mean different things. A `note:` says a rule is not
+   met today and names the place: no check was added for it, or, if the row was already there,
+   its check stays and the gate fails. A `hint:` says nothing is wrong: it names something the
+   person may want to do later. Read both out, and never call a hint a failure.
+9. Repeat the `column types:` line. The guide wrote `design/column-types.json` with six starting
    types if there was none: its sample lengths are a proposal, and the file is the person's from
-   now on. Say that each data field names its column type with a `display` key in the data model,
-   and that a table is built from `TypedTable`, `TypedRow`, `TypedHead` and `TypedCell`, which the
-   guide installed once and the repository now owns. A `note:` under it means a rule is not held
-   yet: read it out. Adding a `display` key changes the data model: follow the repository's own
-   rule for such a change.
-9. Repeat the lines for `state-matrix`, `labels`, `error-copy` and `notification-channel`. Where
-   the repository already depends on the toast library, the guide installs the toast and the one
-   module screens tell results through; otherwise it prints how to get them. Never install a
-   package yourself: say what is missing and let the person decide.
-   Then, for all four: a `note:` for one of them
-   means the repository does not meet that rule today, and no check was added: read out the
-   place it names. The guide wrote `design/states.json` if there was none: the list of states
-   every screen must declare is the person's from now on, and excusing a screen there needs a
-   reason. Each of the three rows holds only what can be read from source; its note says what.
-10. Repeat the `target size:` line the script printed: the smallest control and the controls it
+   now on. A field names its column type with a `display` key in the data model. With the first
+   field that does, the guide also holds `display-kind` and installs the typed table parts
+   (`TypedTable`, `TypedRow`, `TypedHead`, `TypedCell`), which the repository then owns; before
+   that it prints a `hint:` and installs neither. Adding a `display` key changes the data model:
+   follow the repository's own rule for such a change.
+10. Repeat the lines for `state-matrix`, `labels`, `error-copy` and `notification-channel`. Where
+    the repository already depends on the toast library, the guide installs the toast and the one
+    module screens tell results through; otherwise it prints how to get them. Never install a
+    package yourself: say what is missing and let the person decide.
+    Then, for all four: a `note:` for one of them means the repository does not meet that rule
+    today; read out the place it names.
+    every screen must declare is the person's from now on, and excusing a screen there needs a
+    reason. Each of the three rows holds only what can be read from source; its note says what.
+11. Repeat the `target size:` line the script printed: the smallest control and the controls it
     could not measure. If it printed a note instead, some controls are below what the conformance
     level asks and no check was added: name them, and say that the components change first or the
     level does. That choice is the person's.

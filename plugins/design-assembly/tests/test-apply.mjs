@@ -377,7 +377,7 @@ test("a blueprint that is not approved, or misses or mistypes a choice, is refus
   });
   const colour = apply(repository(bad));
   assert.equal(colour.status, 2);
-  assert.match(colour.stderr, /source color must be a #rrggbb colour/);
+  assert.match(colour.stderr, /source color must be written as #rrggbb or oklch\(L C H\)/);
 
   const draft = apply(repository({ ...blueprint(), status: "designing" }));
   assert.equal(draft.status, 2);
@@ -400,4 +400,55 @@ test("a blueprint that is not approved, or misses or mistypes a choice, is refus
   const shape = apply(repository(old));
   assert.equal(shape.status, 2);
   assert.match(shape.stderr, /patterns: missing/);
+});
+
+test("the gate check follows the Makefile: a check target that drops the added steps is caught", () => {
+  const dir = repository();
+  assert.equal(apply(dir).status, 0);
+  assert.equal(check(dir).status, 0);
+  edit(dir, "Makefile", (make) => make.replace(/^check:.*$/m, "check: lint"));
+  const broken = check(dir);
+  assert.equal(broken.status, 1);
+  assert.match(
+    broken.stderr,
+    /checks-in-gate: the Makefile's check target no longer runs CHECK_TARGETS/,
+  );
+});
+
+test("a source color may be written as the stylesheet writes colours", () => {
+  const content = blueprint();
+  content.layers.foundations.choice = { source_color: "oklch(0.488 0.243 264.376)" };
+  const dir = repository(content);
+  const applied = apply(dir);
+  assert.equal(applied.status, 0, applied.stderr);
+  assert.equal(check(dir).status, 0, check(dir).stderr);
+});
+
+test("a call the guide proposed is marked as not confirmed, in the ledger", () => {
+  const dir = repository();
+  assert.equal(apply(dir).status, 0);
+  const rows = parseLedger(text(dir, "design/decisions.yaml"));
+  for (const id of ["product-type", "conformance-level", "source-color"]) {
+    assert.match(
+      rows.find((row) => row.id === id).note,
+      /proposed by the guide; a person has not confirmed it/,
+    );
+  }
+  // Once the person gave it, the note is gone.
+  const theirs = blueprint();
+  theirs.layers.context.source = "user";
+  theirs.layers.foundations.source = "user";
+  const other = repository(theirs);
+  assert.equal(apply(other).status, 0);
+  const own = parseLedger(text(other, "design/decisions.yaml"));
+  assert.equal(own.find((row) => row.id === "source-color").note, undefined);
+});
+
+test("a preview before any blueprint is the normal start, not a failure", () => {
+  const dir = repository();
+  rmSync(path.join(dir, "design/blueprint.json"));
+  const preview = apply(dir, "--dry-run");
+  assert.equal(preview.status, 0, preview.stderr);
+  assert.match(preview.stdout, /the floor is in place\. design\/blueprint\.json is not there yet/);
+  assert.equal(apply(dir).status, 2);
 });

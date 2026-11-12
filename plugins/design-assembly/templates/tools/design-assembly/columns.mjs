@@ -128,17 +128,17 @@ export function columnsProblem(text, typesText, displays, file = COLUMNS_FILE) {
 // names, and where the value comes from instead.
 const RULES = {
   align: {
-    on: /^(TableCell|TableHead|td|th)$/,
+    on: /^(TableCell|TableHead|TypedCell|TypedHead|td|th)$/,
     classes: /^text-(left|right|center|start|end|justify)$/,
     from: "alignment comes from the column type",
   },
   width: {
-    on: /^(TableCell|TableHead|td|th|col)$/,
+    on: /^(TableCell|TableHead|TypedCell|TypedHead|td|th|col)$/,
     classes: /^(w|min-w|max-w|basis)-/,
     from: "width comes from the column type and the header",
   },
   density: {
-    on: /^(TableRow|tr)$/,
+    on: /^(TableRow|TypedRow|tr)$/,
     classes: /^((h|min-h|max-h)-|text-(xs|sm|base|lg|xl|\dxl)$)/,
     from: "row height comes from the table's density",
   },

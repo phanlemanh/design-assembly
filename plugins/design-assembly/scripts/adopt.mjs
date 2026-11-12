@@ -3,7 +3,7 @@
 // configuration, the tests or a row that is already in the ledger, and it adds a check only when
 // that check passes on the repository as it is and was seen failing on a changed copy.
 // Usage: node adopt.mjs --target DIR [--dry-run] [--conformance-level AA|AAA]
-//                       [--product-type TYPE] [--record ID[,ID]]
+//                       [--product-type TYPE] [--record ID[,ID]] [--hold ID[,ID]]
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { argv, exit, stderr, stdout } from "node:process";
@@ -16,13 +16,15 @@ import {
   LEDGER,
   mergeLedger,
   parseLedger,
+  pointRow,
   TOOL,
 } from "../templates/tools/design-assembly/ledger.mjs";
 import { SPACING_UNIT_PX, TYPE_VARIABLES } from "../templates/tools/design-assembly/scale.mjs";
 import {
-  DARK_SCOPES,
+  darkScopes,
   findStylesheet,
   loadStyles,
+  expand,
   ownValue,
   resolve,
 } from "../templates/tools/design-assembly/styles.mjs";
@@ -34,6 +36,8 @@ import {
   componentsPlan,
   gateProblem,
   patternsPlan,
+  RULES_PAGE,
+  rulesPage,
   targetPlan,
   tokensPlan,
   vendored,
@@ -71,11 +75,11 @@ const declares = (css, name) =>
 // The contrast ratio of each pair in each mode, as the stylesheet stands. A pair that cannot be
 // read says why instead of a ratio.
 export function contrastToday(styles) {
-  const dark = DARK_SCOPES.find((scope) =>
-    PAIRS.flat().some((name) => ownValue(styles, scope, name) !== null),
-  );
+  // Every dark selector the stylesheet uses applies together: a pair is read through all of them.
+  const scopes = darkScopes(styles);
+  const dark = scopes.some((scope) => PAIRS.flat().some((name) => ownValue(styles, scope, name)));
   const modes = [{ name: "light", scope: ":root" }];
-  if (dark) modes.push({ name: "dark", scope: dark });
+  if (dark) modes.push({ name: "dark", scope: scopes.length === 1 ? scopes[0] : scopes });
   return modes.map((mode) => ({
     ...mode,
     pairs: PAIRS.map(([foreground, background]) => {
@@ -211,7 +215,10 @@ function valueCandidates(styles, level, open) {
 }
 
 // What adopting would add to the repository at `root`, and what it leaves for a person.
-export function adoption(root, { conformanceLevel = null, productType = null, record = [] } = {}) {
+export function adoption(
+  root,
+  { conformanceLevel = null, productType = null, record = [], hold = [] } = {},
+) {
   if (productType !== null && !PRODUCT_TYPES.includes(productType)) {
     throw new Error(`product type must be one of ${PRODUCT_TYPES.join(", ")}`);
   }
@@ -226,7 +233,19 @@ export function adoption(root, { conformanceLevel = null, productType = null, re
   }
 
   const ledgerText = read(root, LEDGER);
-  const have = new Set((ledgerText === null ? [] : parseLedger(ledgerText)).map((row) => row.id));
+  const existing = ledgerText === null ? [] : parseLedger(ledgerText);
+  const have = new Set(existing.map((row) => row.id));
+  // Rows of the repository's own that say a decision is made and name no check. They are never
+  // touched, unless a person names them with --hold: then a row gets its pointer, and only that.
+  const unheld = new Set(
+    existing.filter((row) => !row.check && row.kind !== "judgment").map((row) => row.id),
+  );
+  const notHoldable = hold.filter((id) => !unheld.has(id));
+  if (notHoldable.length > 0) {
+    throw new Error(
+      `--hold takes rows of the ledger that have no check; ${notHoldable.join(", ")} is not one`,
+    );
+  }
   const theme = JSON.parse(read(root, FILES.theme) ?? "null");
   const result = {
     stylesheet: theme?.stylesheet ?? findStylesheet(root),
@@ -236,13 +255,24 @@ export function adoption(root, { conformanceLevel = null, productType = null, re
     failing: [],
     unreadable: [],
     unclaimed: [],
+    pointed: [],
+    holdable: [],
     kept: [],
     person: [],
     in_ledger: have.size,
     files: {},
   };
-  const open = (id) => !have.has(id) && !result.rows.some((row) => row.id === id);
-  const add = (id, row, how) => result.rows.push({ id, layer: layerOf(id), ...row, how });
+  const taken = (id) =>
+    [result.rows, result.pointed, result.holdable].some((list) => list.some((r) => r.id === id));
+  // Open: no row yet, or a row of the repository's that has no check.
+  const open = (id) => (!have.has(id) || unheld.has(id)) && !taken(id);
+  // True when the proof is taken up now: a new row, or a pointer the person asked for.
+  const add = (id, row, how) => {
+    if (!have.has(id)) result.rows.push({ id, layer: layerOf(id), ...row, how });
+    else if (hold.includes(id)) result.pointed.push({ id, ...row, how });
+    else result.holdable.push({ id, ...row, how });
+    return !have.has(id) || hold.includes(id);
+  };
 
   const styles = result.stylesheet ? loadStyles(root, result.stylesheet) : null;
   const recorded = theme?.inputs?.conformanceLevel ?? null;
@@ -367,6 +397,7 @@ export function adoption(root, { conformanceLevel = null, productType = null, re
         stylesheet: result.stylesheet,
         ...styles,
         gate: vendored()[FILES.gate],
+        makefile: read(root, "Makefile"),
         displays: columns.displays ?? {},
         files: {
           ...Object.fromEntries(
@@ -397,12 +428,13 @@ export function adoption(root, { conformanceLevel = null, productType = null, re
       };
       for (const outcome of runChecks(trial)) {
         if (outcome.held) {
-          checks[outcome.id] = candidates[outcome.id].checks;
-          add(
+          const now = add(
             outcome.id,
             { ...candidates[outcome.id].row, check: TOOL, what: candidates[outcome.id].what },
             "held",
           );
+          if (!now) continue;
+          checks[outcome.id] = candidates[outcome.id].checks;
           const artifact = artifacts[outcome.id];
           if (artifact) result.files[artifact.file] = artifact.content;
           Object.assign(result.files, derived[outcome.id]);
@@ -430,13 +462,15 @@ export function adoption(root, { conformanceLevel = null, productType = null, re
   }
   if (open("source-color")) {
     const primary = styles ? ownValue(styles, ":root", "--primary") : null;
+    const followed = primary ? expand(styles, ":root", primary) : null;
+    const shown = followed && followed !== primary ? `, which is ${followed}` : "";
     if (record.includes("source-color")) {
       if (primary === null) throw new Error("--record source-color: --primary is not declared");
       add("source-color", { kind: "judgment", source: result.stylesheet }, "recorded");
     } else if (primary !== null) {
       result.person.push({
         id: "source-color",
-        why: `--primary is ${primary} in ${result.stylesheet}. If that is the decided brand colour, run again with --record source-color`,
+        why: `--primary is ${primary} in ${result.stylesheet}${shown}. If that is the decided brand colour, run again with --record source-color`,
       });
     }
   }
@@ -458,9 +492,13 @@ export function adoption(root, { conformanceLevel = null, productType = null, re
     else add(proof.id, { kind: proof.kind, source: proof.source, check: proof.check }, "claimed");
   }
 
-  if (result.rows.length > 0) {
+  if (result.rows.length > 0 || result.pointed.length > 0) {
     // Only the ledger's own keys are written: how a row is held is for the report.
-    result.files[LEDGER] = mergeLedger(ledgerText, result.rows);
+    const merged = result.rows.length > 0 ? mergeLedger(ledgerText, result.rows) : ledgerText;
+    result.files[LEDGER] = result.pointed.reduce(
+      (text, row) => pointRow(text, row.id, row.check),
+      merged,
+    );
   }
   const tooled = Object.keys(checks);
   const said =
@@ -483,7 +521,15 @@ export function adoption(root, { conformanceLevel = null, productType = null, re
     };
     result.files[FILES.theme] = renderJson(data, lineWidth(root));
   }
-  if (tooled.length > 0) Object.assign(result.files, vendored());
+  if (tooled.length > 0) {
+    Object.assign(result.files, vendored());
+    // The page an agent reads first, written from every rule the tool now holds here.
+    const all = { ...theme?.checks, ...checks };
+    result.files[RULES_PAGE] = rulesPage(
+      all,
+      (file) => file in result.files || read(root, file) !== null,
+    );
+  }
   return result;
 }
 
@@ -513,7 +559,7 @@ export function report(result) {
         pair.ratio === null ? `cannot be read (${pair.why})` : `${pair.ratio.toFixed(2)}:1`;
       return `${pair.foreground} on ${pair.background} ${value}`;
     });
-    return `${mode.name} (${mode.scope}): ${pairs.join("; ")}`;
+    return `${mode.name} (${[mode.scope].flat().join(", ")}): ${pairs.join("; ")}`;
   });
   lines.push("", `rows to add: ${result.rows.length}`);
   for (const how of Object.keys(HOW)) {
@@ -525,6 +571,13 @@ export function report(result) {
       lines.push(`    ${row.id}${detail}`);
     }
   }
+  const proof = (row) => `${row.id}: ${row.what ?? row.check}`;
+  section("rows of yours that now point at a check:", result.pointed, proof);
+  section(
+    "rows of yours with no check, that could have one (pass --hold with their names):",
+    result.holdable,
+    proof,
+  );
   section("would fail today, so nothing was added:", result.failing, reason);
   section("cannot be read here:", result.unreadable, reason);
   section("a proof is there but the ledger cannot point at it yet:", result.unclaimed, reason);
@@ -540,6 +593,8 @@ const USAGE = `usage: node adopt.mjs --target DIR [--dry-run] [--conformance-lev
   --conformance-level  The level the product commits to, as a person stated it. Writes that row
                        and lets the contrast of the color roles be checked against it.
   --product-type       What kind of product the screens are for, as a person stated it.
+  --hold               Give rows of the ledger that have no check their pointer, once the person
+                       has said which. One line is added to each row; nothing else in it changes.
   --record             Write a row for a person's call the script can only see, once the person
                        has confirmed it. Takes: ${RECORDABLE.join(", ")}.
 
@@ -567,6 +622,7 @@ function main() {
       conformanceLevel: value("--conformance-level") ?? null,
       productType: value("--product-type") ?? null,
       record: (value("--record") ?? "").split(",").filter(Boolean),
+      hold: (value("--hold") ?? "").split(",").filter(Boolean),
     });
   } catch (error) {
     stderr.write(`design-assembly: ${error.message}\n`);
@@ -581,7 +637,7 @@ function main() {
   else {
     const changed = written.filter((line) => !line.startsWith("unchanged")).length;
     stdout.write(
-      `done: ${result.rows.length} row(s) added to the ledger, ${changed} file(s) written\n`,
+      `done: ${result.rows.length} row(s) added to the ledger, ${result.pointed.length} given a check, ${changed} file(s) written\n`,
     );
   }
 }

@@ -1,13 +1,5 @@
 // From a source color to a tonal palette and color roles. Pure: the same input gives the same text.
-import {
-  asWritten,
-  clipChroma,
-  contrast,
-  formatOklch,
-  hexToOklch,
-  luminance,
-  parseColor,
-} from "./color.mjs";
+import { asWritten, clipChroma, contrast, formatOklch, luminance, parseColor } from "./color.mjs";
 import { CORNER_RADII, modularScale, typeDeclarations } from "./scale.mjs";
 
 export const START = "/* design-assembly:tokens:start";
@@ -106,7 +98,8 @@ export function buildTheme(inputs, css) {
   const { sourceColor, conformanceLevel, typeScale, typeRatio, cornerRadius } = inputs;
   const thresholds = THRESHOLDS[conformanceLevel];
   if (!thresholds) throw new Error(`conformance level must be one of ${Object.keys(THRESHOLDS)}`);
-  const source = hexToOklch(sourceColor);
+  const source = parseColor(String(sourceColor ?? ""));
+  if (!source) throw new Error("source color must be written as #rrggbb or oklch(L C H)");
   const floor = withoutBlock(css);
   const modes = Object.keys(FALLBACK_BACKGROUND).map((selector) => {
     const declared = readVariable(floor, selector, "--background");

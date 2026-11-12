@@ -198,7 +198,7 @@ test("the guide installs the layer: the table, the derived file, four rows and t
     assert.equal(rows[id].layer, "components", id);
   }
   // The rows that hold only part of the rule say which part.
-  assert.match(rows["column-width"].note, /the sum itself is done by the table parts/);
+  assert.match(rows["column-width"].note, /the sum itself is done by whatever draws the table/);
   assert.match(rows["table-density"].note, /the choice between the two densities/);
   assert.equal(check(dir).status, 0, check(dir).stderr);
 
@@ -284,11 +284,17 @@ test("with no typed field the kinds are not claimed; a screen already setting wi
   });
   const applied = run(APPLY, "--target", dir);
   assert.equal(applied.status, 0, applied.stderr);
-  assert.match(applied.stdout, /note: no field names a column type yet/);
+  assert.match(
+    applied.stdout,
+    /hint: no field names a column type yet\. The three table rules are held all the same/,
+  );
   assert.match(
     applied.stdout,
     /note: column-width: src\/screens\/Row\.tsx: <TableCell> sets w-40 itself/,
   );
+  // No typed field, so nothing to type yet: the table parts and their tests are not installed.
+  assert.ok(!existsSync(path.join(dir, "src/components/ui/typed-table.tsx")));
+  assert.ok(!existsSync(path.join(dir, "tests/typed-table.test.tsx")));
   const rows = rowsOf(dir);
   assert.equal(rows["display-kind"], undefined);
   assert.equal(rows["column-width"], undefined);
@@ -329,4 +335,50 @@ test("the table parts the guide installs are the ones the reference implementati
   ]) {
     assert.equal(text(PLUGIN, `templates/owned/${template}`), own(file), file);
   }
+});
+
+test("the typed table parts are held to the rule too: a screen cannot restyle them", () => {
+  const files = {
+    "src/a.tsx":
+      'export const A = () => <TypedCell field="Order.total" className="min-w-40 text-left" />;\n',
+    "src/b.tsx":
+      'export const B = () => <TypedHead field="Order.total" header={h} className="w-24 text-center" />;\n',
+    "src/c.tsx": 'export const C = () => <TypedRow className="h-9" />;\n',
+  };
+  assert.match(
+    cellProblems(files, "align"),
+    /src\/a\.tsx: <TypedCell> sets text-left itself; src\/b\.tsx: <TypedHead> sets text-center itself/,
+  );
+  assert.match(
+    cellProblems(files, "width"),
+    /<TypedCell> sets min-w-40 itself; .*<TypedHead> sets w-24 itself/,
+  );
+  assert.match(cellProblems(files, "density"), /src\/c\.tsx: <TypedRow> sets h-9 itself/);
+});
+
+test("the guide leaves a page of rules for the agent that builds next, naming only what is there", () => {
+  const dir = floor();
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  const page = text(dir, ".claude/rules/design-assembly.md");
+  assert.match(page, /^---\npaths: \["src\/\*\*\/\*\.tsx"\]\n---\n/);
+  assert.match(
+    page,
+    /To add a column: give the property its `display` key, run `make gen` and `make design-columns`/,
+  );
+  assert.match(page, /Build the table from `TypedTable`, `TypedRow`, `TypedHead` and `TypedCell`/);
+  assert.match(page, /run `make design-tokens`/);
+  // No toast here: the page does not send the agent to a module that does not exist.
+  assert.doesNotMatch(page, /notify\.ts/);
+  assert.match(page, /told through the repository's one module for it/);
+  // Every path the page names in backticks is in the repository.
+  for (const [, file] of page.matchAll(/`((?:src|design|tools|mk|ontology)\/[^`*<]*[^`*</])`/g)) {
+    assert.ok(existsSync(path.join(dir, file)), file);
+  }
+
+  // Without a typed field there are no typed parts, and the page does not name them.
+  const bare = floor({ "ontology/entities/Order.yaml": ORDER.replaceAll(/,? *display: \w+/g, "") });
+  assert.equal(run(APPLY, "--target", bare).status, 0);
+  const plain = text(bare, ".claude/rules/design-assembly.md");
+  assert.doesNotMatch(plain, /TypedTable|display` key on its property/);
+  assert.match(plain, /Alignment and width come from the column type of the field/);
 });

@@ -92,7 +92,10 @@ test("a floor with no ledger and no lint: nothing is answered, and what is seen 
   assert.equal(color.state, "no-row");
   assert.match(color.seen, /a grey default and not a brand colour: a person confirms it/);
   assert.equal(result.coverage.answered, 0);
-  assert.match(result.next, /^\/design-assembly:new, .*then \/design-assembly:adopt/);
+  assert.match(
+    result.next,
+    /^\/design-assembly:new, .*The guide ends by adopting what the repository already proves/,
+  );
   assert.equal(state(result, "product-type"), "no-row");
   assert.equal(result.coverage.held, 0);
   assert.equal(tier(result, "audit").state, "reached");

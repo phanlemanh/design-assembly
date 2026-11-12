@@ -174,6 +174,13 @@ test("on the floor: rows for the proofs it has, checks around its values, nothin
   assert.equal(checked.status, 0, checked.stderr);
   assert.match(checked.stdout, /6 decisions held by \d+ checks, each seen failing/);
 
+  // Adopting leaves the page of rules too, written from what it now holds.
+  const page = text(dir, ".claude/rules/design-assembly.md");
+  // This repository has no screen and no control, so the page states no rule about either.
+  assert.doesNotMatch(page, /A control is at least|toast library|## Words/);
+  assert.match(page, /run `make design-tokens`/);
+  assert.doesNotMatch(page, /TypedTable|notify\.ts/);
+
   const again = adopt(dir, "--conformance-level", "AA");
   assert.equal(again.status, 0, again.stderr);
   assert.match(again.stdout, /rows to add: 0/);
@@ -374,7 +381,10 @@ test("the audit and adopting give one answer about the same repository", () => {
   const before = inventory(dir);
   // Nothing has a row yet, so nothing is answered: the audit says what it sees and what to do.
   assert.equal(before.coverage.answered, 0);
-  assert.match(before.next, /^\/design-assembly:new, .*then \/design-assembly:adopt/);
+  assert.match(
+    before.next,
+    /^\/design-assembly:new, .*The guide ends by adopting what the repository already proves/,
+  );
   const seen = before.decisions
     .filter((d) => d.seen?.startsWith("a proof the repository already runs"))
     .map((d) => d.id);
@@ -416,8 +426,14 @@ test("the preview says which value each check holds, and a write says that it wr
   assert.match(preview.stdout, /type-scale-values: the framework's type sizes: fails when/);
   assert.doesNotMatch(preview.stdout, /^done:/m);
   const written = adopt(dir);
-  assert.match(written.stdout, /^done: \d+ row\(s\) added to the ledger, \d+ file\(s\) written$/m);
-  assert.match(adopt(dir).stdout, /^done: 0 row\(s\) added to the ledger, 0 file\(s\) written$/m);
+  assert.match(
+    written.stdout,
+    /^done: \d+ row\(s\) added to the ledger, 0 given a check, \d+ file\(s\) written$/m,
+  );
+  assert.match(
+    adopt(dir).stdout,
+    /^done: 0 row\(s\) added to the ledger, 0 given a check, 0 file\(s\) written$/m,
+  );
 });
 
 test("the product type is written on a person's word, like the conformance level", () => {
@@ -478,3 +494,81 @@ test(
     }
   },
 );
+
+test("a row of the repository's own that has no check is named, and pointed only on a person's word", () => {
+  const mine = [
+    "# our own ledger",
+    "version: 1",
+    "decisions:",
+    "  - id: target-size",
+    "    layer: components",
+    "    kind: standard",
+    '    source: "WCAG 2.2"   # decided in March',
+    "  - id: undo-or-confirm",
+    "    layer: patterns",
+    "    kind: formula",
+    '    source: "reversibility"',
+    "  - id: conformance-level",
+    "    layer: context",
+    "    kind: judgment",
+    '    source: "the accessibility statement"',
+    "",
+  ].join("\n");
+  const dir = floor({
+    "design/decisions.yaml": mine,
+    "src/components/ui/button.tsx": own("src/components/ui/button.tsx"),
+    "tests/change.test.tsx": "// decision:undo-or-confirm\nit('asks first', () => {});\n",
+  });
+
+  // The audit sees the proof the row does not point at.
+  const seen = inventory(dir).decisions.find((d) => d.id === "undo-or-confirm");
+  assert.equal(seen.state, "not-held");
+  assert.match(seen.seen, /a proof the row does not point at, test:tests\/change\.test\.tsx/);
+
+  // Without the person's word: both rows are named, and stay byte for byte as they were.
+  const listed = adopt(dir, "--conformance-level", "AA");
+  assert.equal(listed.status, 0, listed.stderr);
+  assert.match(
+    listed.stdout,
+    /rows of yours with no check, that could have one \(pass --hold with their names\):\n(.*\n)*\s+target-size: every control that declares a height is at least 24px/,
+  );
+  assert.match(listed.stdout, /\s+undo-or-confirm: test:tests\/change\.test\.tsx/);
+  assert.ok(text(dir, "design/decisions.yaml").startsWith(mine.trimEnd()));
+  assert.equal(JSON.parse(text(dir, "design/theme.json")).checks["target-size"], undefined);
+
+  // A name that is not such a row is refused.
+  const wrong = adopt(dir, "--hold", "conformance-level");
+  assert.equal(wrong.status, 2);
+  assert.match(
+    wrong.stderr,
+    /--hold takes rows of the ledger that have no check; conformance-level is not one/,
+  );
+
+  // With it: each row gains one line, and nothing else in it moves.
+  const held = adopt(dir, "--hold", "target-size,undo-or-confirm");
+  assert.equal(held.status, 0, held.stderr);
+  assert.match(held.stdout, /rows of yours that now point at a check:/);
+  assert.match(held.stdout, /^done: 0 row\(s\) added to the ledger, 2 given a check, /m);
+  const after = text(dir, "design/decisions.yaml");
+  assert.ok(
+    after.startsWith(
+      mine
+        .trimEnd()
+        .replace("# decided in March", `# decided in March\n    check: "${TOOL}"`)
+        .replace('"reversibility"', '"reversibility"\n    check: "test:tests/change.test.tsx"'),
+    ),
+    after,
+  );
+  assert.equal(check(dir).status, 0, check(dir).stderr);
+  // The pointer is real: a control that shrinks now turns the gate red.
+  edit(dir, "src/components/ui/button.tsx", (source) => source.replace('xs: "h-6 ', 'xs: "h-5 '));
+  assert.match(check(dir).stderr, /target-size: Button \(size=xs: h-5, 20px\)/);
+});
+
+test("the brand colour question shows the colour, not only the variable that points at it", () => {
+  const dir = folder(BRAND);
+  assert.match(
+    adopt(dir, "--dry-run").stdout,
+    /source-color: --primary is var\(--brand-blue\) in src\/app\/globals\.css, which is #0246ff\./,
+  );
+});

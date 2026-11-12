@@ -9,14 +9,17 @@ decisions:
     layer: context
     kind: judgment
     source: "design/blueprint.json"
+    note: "proposed by the guide; a person has not confirmed it"
   - id: conformance-level
     layer: context
     kind: judgment
     source: "design/blueprint.json"
+    note: "proposed by the guide; a person has not confirmed it"
   - id: source-color
     layer: foundations
     kind: judgment
     source: "design/blueprint.json"
+    note: "proposed by the guide; a person has not confirmed it"
   - id: tonal-palette
     layer: foundations
     kind: formula
@@ -144,13 +147,13 @@ decisions:
     kind: formula
     source: "the header and the sample length of the column type"
     check: "tool:tools/design-assembly/check.mjs"
-    note: "the sample lengths and the padding, and that no screen sets a width; the sum itself is done by the table parts, covered by their own tests"
+    note: "the sample lengths and the padding, and that no screen sets a width; the sum itself is done by whatever draws the table, such as the typed table parts with their own tests"
   - id: table-density
     layer: components
     kind: formula
     source: "whether the columns fit at their least width"
     check: "tool:tools/design-assembly/check.mjs"
-    note: "that no screen sets a row height; the choice between the two densities is made by the table parts, covered by their own tests"
+    note: "that no screen sets a row height; the choice between the two densities is made by whatever draws the table, such as the typed table parts with their own tests"
   - id: state-matrix
     layer: patterns
     kind: closed

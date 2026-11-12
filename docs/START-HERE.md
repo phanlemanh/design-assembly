@@ -39,6 +39,7 @@ Việc của kho này nằm ở [đề bài lát mỏng](../wiki/specs/0001-desi
 | `design/column-types.json`                          | Bảng kiểu cột của kho: kiểu nền và độ dài mẫu của từng kiểu                  | Sửa ở đây khi thêm kiểu, rồi `make design-columns`        |
 | `design/columns.json`                               | Kiểu cột của từng trường, sinh từ bảng trên và mô hình dữ liệu               | Không sửa tay                                             |
 | `design/states.json`                                | Các trạng thái mọi màn phải khai, và màn nào được miễn kèm lý do             | Sửa ở đây khi thêm trạng thái hay miễn một màn            |
+| `.claude/rules/design-assembly.md`                  | Các luật thiết kế cổng đang giữ ở kho này, viết cho tác tử dựng màn          | Không sửa tay; plugin viết lại                            |
 | `src/lib/notify.ts`, `src/components/ui/sonner.tsx` | Nơi duy nhất màn báo kết quả một thao tác (toast, kèm hoàn tác khi đảo được) | Của kho; màn không gọi thẳng thư viện toast               |
 | `src/components/ui/typed-table.tsx`                 | Các phần bảng lấy canh lề, bề rộng, chiều cao hàng từ kiểu cột               | Của kho; plugin không ghi đè                              |
 | `tools/design-assembly/`, `mk/design-assembly.mk`   | Lệnh kiểm do plugin cài vào                                                  | Không sửa ở đây                                           |

@@ -4,21 +4,22 @@ Read this when you build (step 6 of the guide) or explain a failing check.
 
 ## The files
 
-| File                                 | What it is                                                                                   | Who edits it                         |
-| ------------------------------------ | -------------------------------------------------------------------------------------------- | ------------------------------------ |
-| `design/blueprint.json`              | What the person chose, layer by layer, with why and what was turned down                     | You, during the guide                |
-| `design/decisions.yaml`              | The ledger: one row per design decision, pointing at the proof that holds it                 | People, and the scripts for new rows |
-| `design/theme.json`                  | What this plugin's tool needs to check its decisions: the inputs and the checks per decision | `apply.mjs` and `adopt.mjs` only     |
-| `design/decisions/<layer>.md`        | A decision record per decided layer                                                          | `apply.mjs` only                     |
-| The marked block in `src/index.css`  | The design tokens                                                                            | `apply.mjs` only                     |
-| `design/tokens.json`                 | The design tokens, for tools that do not read CSS. Written from the stylesheet               | `make design-tokens` only            |
-| `design/component-registry.json`     | The component manifest: every exported component with its variants. Written from the source  | `make design-components` only        |
-| `design/column-types.json`           | The column types of the repository: each with its base type and sample length                | A person                             |
-| `design/columns.json`                | What code reads: each column type with its alignment, each field with its type               | `make design-columns` only           |
-| `design/states.json`                 | The states every screen must declare, and the screens excused from them                      | A person                             |
-| The typed table parts and their test | Table parts that apply the column type. Installed once, then the repository's own            | The repository                       |
-| `tools/design-assembly/`             | The checks. They belong to the plugin: change them in the plugin and run the guide again     | Nobody, in the repository            |
-| `mk/design-assembly.mk`              | Adds `design-assembly` to `make check`, and `make design-rate`                               | Nobody, in the repository            |
+| File                                 | What it is                                                                                                  | Who edits it                         |
+| ------------------------------------ | ----------------------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `design/blueprint.json`              | What the person chose, layer by layer, with why and what was turned down                                    | You, during the guide                |
+| `design/decisions.yaml`              | The ledger: one row per design decision, pointing at the proof that holds it                                | People, and the scripts for new rows |
+| `design/theme.json`                  | What this plugin's tool needs to check its decisions: the inputs and the checks per decision                | `apply.mjs` and `adopt.mjs` only     |
+| `design/decisions/<layer>.md`        | A decision record per decided layer                                                                         | `apply.mjs` only                     |
+| The marked block in `src/index.css`  | The design tokens                                                                                           | `apply.mjs` only                     |
+| `design/tokens.json`                 | The design tokens, for tools that do not read CSS. Written from the stylesheet                              | `make design-tokens` only            |
+| `design/component-registry.json`     | The component manifest: every exported component with its variants. Written from the source                 | `make design-components` only        |
+| `design/column-types.json`           | The column types of the repository: each with its base type and sample length                               | A person                             |
+| `design/columns.json`                | What code reads: each column type with its alignment, each field with its type                              | `make design-columns` only           |
+| `design/states.json`                 | The states every screen must declare, and the screens excused from them                                     | A person                             |
+| The typed table parts and their test | Table parts that apply the column type. Installed once, then the repository's own                           | The repository                       |
+| `tools/design-assembly/`             | The checks. They belong to the plugin: change them in the plugin and run the guide again                    | Nobody, in the repository            |
+| `mk/design-assembly.mk`              | Adds `design-assembly` to `make check`, and `make design-rate`                                              | Nobody, in the repository            |
+| `.claude/rules/design-assembly.md`   | The rules the tool holds in this repository, for the agent that builds next. Written from what is installed | The scripts only                     |
 
 ## The ledger
 
@@ -156,6 +157,13 @@ which part.
 A rule the repository does not meet today gets no row: the scripts say where it is broken. Once a
 row is there, its check is never removed for being broken: the gate fails and names the place.
 
+## A row that has no check
+
+A repository may already have a row for a decision, with no check. The scripts never rewrite a
+row. Adopting lists such rows when it finds what would hold them, and gives a row its pointer only
+when a person names it with `--hold`: one `check:` line is added, and the rest of the row stays
+byte for byte.
+
 ## A repository's own test as a proof
 
 A test under `tests/` that names a standard decision with `decision:<id>` is a proof of it.
@@ -166,7 +174,8 @@ a decision about behaviour, such as asking first or offering an undo, enters the
 
 The tool reads the stylesheet the repository names (`design/theme.json`, else `components.json`,
 else `src/index.css`), with its relative imports put in place. A variable that points at another
-with `var()` is followed, down to the framework's own theme. A value it cannot turn into a colour,
+with `var()` is followed, down to the framework's own theme. Dark-mode values are read from every dark selector the stylesheet uses (`:root.dark`, `html.dark`,
+`.dark`), the strongest first. A value it cannot turn into a colour,
 such as a mix of two colours, is not guessed: the check says it cannot read it, and adopting adds
 no check for it.
 

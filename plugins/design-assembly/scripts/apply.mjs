@@ -15,7 +15,7 @@ import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { FILES } from "../templates/tools/design-assembly/check.mjs";
-import { contrast, formatOklch } from "../templates/tools/design-assembly/color.mjs";
+import { contrast, formatOklch, parseColor } from "../templates/tools/design-assembly/color.mjs";
 import {
   BASES,
   buildColumns,
@@ -153,8 +153,8 @@ export function blueprintProblems(blueprint, { preview = false } = {}) {
     }
   }
   const color = blueprint.layers?.foundations?.choice?.source_color;
-  if (color !== undefined && !/^#[0-9a-f]{6}$/i.test(String(color))) {
-    found.push("foundations: source color must be a #rrggbb colour");
+  if (color !== undefined && parseColor(String(color)) === null) {
+    found.push("foundations: source color must be written as #rrggbb or oklch(L C H)");
   }
   return found;
 }
@@ -353,7 +353,9 @@ export function columnsPlan(target, { starter, code }) {
 
   const folder = componentsFolder(target);
   const floorTable = folder === COMPONENTS_FOLDER && read(`${folder}/table.tsx`) !== null;
-  if (code && floorTable) {
+  // The table parts are installed with the first typed field: before that there is no column to
+  // type, and their own tests would have nothing to run on.
+  if (code && floorTable && Object.keys(displays).length > 0) {
     for (const [name, place] of Object.entries(OWNED)) {
       const file = place(folder);
       if (read(file) === null) {
@@ -376,14 +378,14 @@ export function columnsPlan(target, { starter, code }) {
       rule: "width",
       source: "the header and the sample length of the column type",
       what: "the sample lengths are the table's, and no screen sets a width on a cell",
-      note: "the sample lengths and the padding, and that no screen sets a width; the sum itself is done by the table parts, covered by their own tests",
+      note: "the sample lengths and the padding, and that no screen sets a width; the sum itself is done by whatever draws the table, such as the typed table parts with their own tests",
       checks: [inSync],
     },
     "table-density": {
       rule: "density",
       source: "whether the columns fit at their least width",
       what: "no screen sets a row height or text size on a table row",
-      note: "that no screen sets a row height; the choice between the two densities is made by the table parts, covered by their own tests",
+      note: "that no screen sets a row height; the choice between the two densities is made by whatever draws the table, such as the typed table parts with their own tests",
       checks: [],
     },
   };
@@ -512,11 +514,81 @@ export function patternsPlan(target, { starter, code = false }) {
       }
     } else {
       notes.push(
-        "no toast is installed: add the sonner package and run the guide again to get the toast and the module screens tell results through",
+        "no toast is installed. The channel rule is held all the same. To tell results in a toast, add the sonner package and run the guide again: it installs the toast and the module screens tell results through",
       );
     }
   }
   return { files, held, failing, notes };
+}
+
+// The page an agent reads before it touches a screen: the rules this tool holds in this
+// repository, and the command to run after each kind of change. Written from what is installed, so
+// it never names a rule that is not held or a file that is not there.
+export const RULES_PAGE = ".claude/rules/design-assembly.md";
+
+export function rulesPage(checks, has) {
+  const held = (id) => id in checks;
+  const lines = [
+    "---",
+    'paths: ["src/**/*.tsx"]',
+    "---",
+    "",
+    "# Design rules the gate holds",
+    "",
+    "`make design-assembly` checks every rule below, and `make check` runs it. A failure names the",
+    "decision, the file and what to do. `design/decisions.yaml` lists every design decision of this",
+    "repository and what holds it. This page is written by the design-assembly guide: do not edit it.",
+  ];
+  const section = (title, items) => {
+    const shown = items.filter(Boolean);
+    if (shown.length > 0) lines.push("", `## ${title}`, "", ...shown.map((item) => `- ${item}`));
+  };
+  const typed = has("src/components/ui/typed-table.tsx");
+  section("A table of data", [
+    held("display-kind") &&
+      "A column shows a field of the data model. The field names its column type once: a `display` key on its property in `ontology/entities/`, with a type listed in `design/column-types.json`.",
+    held("column-align") &&
+      "To add a column: give the property its `display` key, run `make gen` and `make design-columns`, add the header to the repository's words, then use the field in the screen.",
+    held("column-align") &&
+      (typed
+        ? "Build the table from `TypedTable`, `TypedRow`, `TypedHead` and `TypedCell` (`src/components/ui/typed-table.tsx`). They take alignment, width and row height from the column type."
+        : "Alignment and width come from the column type of the field."),
+    held("column-align") &&
+      "Never put a text-alignment or width class on a table cell, or a height or text-size class on a table row, typed or plain.",
+    held("column-align") && "A column that holds actions and no data uses the plain table cell.",
+  ]);
+  section("Words", [
+    held("labels") &&
+      "A screen writes no word itself: not between tags, not in `aria-label`, `placeholder`, `title` or `alt`, not as a header or label in code. Take every word from the repository's one place for words.",
+    held("error-copy") &&
+      "An error message is an `Alert` of the destructive kind with a title that says what happened and a description that says what to do next.",
+  ]);
+  section("States", [
+    held("state-matrix") &&
+      "Every screen in `src/screens.ts` declares the states listed in `design/states.json`. A screen that loads no data is excused in that file, with a reason: that is a person's decision.",
+  ]);
+  section("Telling a person", [
+    held("notification-channel") &&
+      (has("src/lib/notify.ts")
+        ? "The result of an action is told through `notifyDone` in `src/lib/notify.ts`; pass it the undo when the action can be taken back."
+        : "The result of an action is told through the repository's one module for it."),
+    held("notification-channel") &&
+      "Never call a toast library from a screen, and never `alert`, `confirm` or `prompt`.",
+  ]);
+  const target = checks["target-size"]?.[0]?.min;
+  section("Controls", [
+    target &&
+      `A control is at least ${target}px high. Do not add a smaller size to a component, and do not shrink one in a screen.`,
+  ]);
+  section("After a change", [
+    held("design-tokens") && "A value in the stylesheet changed: run `make design-tokens`.",
+    held("component-manifest") &&
+      "A component or one of its variants changed: run `make design-components`. Look a component and its variants up in `design/component-registry.json` before reading its source.",
+    held("column-align") &&
+      "A field's column type or the table of column types changed: run `make design-columns`.",
+    "Never edit by hand the files those commands write, `design/theme.json`, `tools/design-assembly/` or `mk/design-assembly.mk`.",
+  ]);
+  return `${lines.join("\n")}\n`;
 }
 
 // The tool and its gate step, as they are copied into a repository.
@@ -537,10 +609,22 @@ function decisions(blueprint, theme, foundations) {
   const level = blueprint.layers.context.choice.conformance_level;
   const modular = foundations.choice.type_scale === "modular";
   const recorded = `${BLUEPRINT}`;
+  // A person's call that the guide proposed is not theirs yet: the row says so until they confirm.
+  const proposed = (layer) =>
+    blueprint.layers[layer].source === "proposed"
+      ? { note: "proposed by the guide; a person has not confirmed it" }
+      : {};
+  const call = (id, layer) => ({
+    id,
+    layer,
+    kind: "judgment",
+    source: recorded,
+    ...proposed(layer),
+  });
   const rows = [
-    { id: "product-type", layer: "context", kind: "judgment", source: recorded },
-    { id: "conformance-level", layer: "context", kind: "judgment", source: recorded },
-    { id: "source-color", layer: "foundations", kind: "judgment", source: recorded },
+    call("product-type", "context"),
+    call("conformance-level", "context"),
+    call("source-color", "foundations"),
     {
       id: "tonal-palette",
       layer: "foundations",
@@ -703,6 +787,7 @@ export function plan(target, blueprint) {
     checks,
   };
   files[FILES.theme] = renderJson(data, lineWidth(target));
+  files[RULES_PAGE] = rulesPage(checks, (file) => file in files || read(file) !== null);
   // The ledger may hold rows this plugin did not write: they are kept exactly as they are.
   files[FILES.ledger] = mergeLedger(read(FILES.ledger), rows);
   for (const layer of LAYERS.filter((l) => l.built)) {
@@ -817,6 +902,12 @@ function main() {
   const floor = floorProblem(target);
   if (floor) stop(floor);
   const blueprintPath = path.join(target, BLUEPRINT);
+  if (!existsSync(blueprintPath) && dryRun) {
+    stdout.write(
+      `the floor is in place. ${BLUEPRINT} is not there yet: write it, in the shape the guide's first step gives, then run this again.\n`,
+    );
+    exit(0);
+  }
   if (!existsSync(blueprintPath)) {
     stop(
       `the floor is in place. ${BLUEPRINT} is missing: write it, in the shape the guide's first step gives, then run this again.`,
@@ -866,7 +957,7 @@ function main() {
   for (const item of patterns.failing) {
     stdout.write(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.\n`);
   }
-  for (const note of patterns.notes) stdout.write(`note: ${note}.\n`);
+  for (const note of patterns.notes) stdout.write(`hint: ${note}.\n`);
   if (columns.problem) {
     stdout.write(
       `note: column types: ${columns.problem}. No check is added until the table is right.\n`,
@@ -877,7 +968,7 @@ function main() {
     );
     if (columns.fields === 0) {
       stdout.write(
-        "note: no field names a column type yet. Give each field of the data model a `display` key, then run make design-columns.\n",
+        "hint: no field names a column type yet. The three table rules are held all the same. Give a field of the data model a `display` key and run the guide again: it then holds display-kind and installs the typed table parts.\n",
       );
     }
     for (const item of columns.failing) {

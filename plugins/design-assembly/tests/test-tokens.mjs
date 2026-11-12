@@ -287,3 +287,30 @@ test(
     assert.equal(JSON.parse(raw.stdout).data.overall.raw, 1);
   },
 );
+
+test("dark values are read from every dark selector the stylesheet uses", () => {
+  // Color roles under one selector, further values under another: both are the dark mode.
+  const sheet = [
+    "@theme inline {",
+    "  --color-primary: var(--primary);",
+    "  --color-success: var(--success);",
+    "}",
+    ":root {",
+    "  --primary: #0246ff;",
+    "  --success: #15803d;",
+    "}",
+    ":root.dark {",
+    "  --primary: #7aa2ff;",
+    "}",
+    ".dark {",
+    "  --success: #34d399;",
+    "  --primary: #000000;",
+    "}",
+    "",
+  ].join("\n");
+  const dir = folder({ "src/index.css": sheet });
+  const { tokens: found } = readTokens(loadStyles(dir, "src/index.css"));
+  assert.equal(found.color.success.$extensions["design-assembly"].dark, "#34d399");
+  // Where both name a variable, the class on the root element wins, as in the browser.
+  assert.equal(found.color.primary.$extensions["design-assembly"].dark, "#7aa2ff");
+});

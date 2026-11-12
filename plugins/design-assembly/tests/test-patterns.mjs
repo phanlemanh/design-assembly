@@ -262,7 +262,7 @@ test("the channel rule is held, and the toast is installed only where its librar
   const bare = floor();
   const first = run(APPLY, "--target", bare);
   assert.equal(first.status, 0, first.stderr);
-  assert.match(first.stdout, /note: no toast is installed: add the sonner package/);
+  assert.match(first.stdout, /hint: no toast is installed\. The channel rule is held all the same/);
   assert.ok(!existsSync(path.join(bare, "src/lib/notify.ts")));
   assert.equal(rowsOf(bare)["notification-channel"].check, TOOL);
   assert.equal(check(bare).status, 0, check(bare).stderr);
@@ -342,4 +342,18 @@ test("an expression between two tags is not text", () => {
   const app =
     "export const App = () => (\n  <>\n    {Screen ? <Screen /> : null}\n    <Toaster />\n  </>\n);\n";
   assert.equal(wordsProblem({ "src/App.tsx": app }), null);
+});
+
+test("words handed to a component in code are found too", () => {
+  const files = {
+    "src/a.tsx": 'const COLUMNS = [{ field: "Order.total", header: "Số lượng" }];\n',
+    "src/b.tsx": 'export const B = () => <Button>{"Lưu trữ"}</Button>;\n',
+    // A field name, a variant and a label taken from the words file are not words written here.
+    "src/c.tsx":
+      'const C = [{ field: "Order.total", header: LABELS.total, variant: "outline" }];\n',
+  };
+  const found = wordsProblem(files);
+  assert.match(found, /src\/a\.tsx: gives header: "Số lượng"/);
+  assert.match(found, /src\/b\.tsx: writes the text "Lưu trữ"/);
+  assert.doesNotMatch(found, /src\/c\.tsx/);
 });

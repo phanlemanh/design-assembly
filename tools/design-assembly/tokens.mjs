@@ -8,7 +8,7 @@ import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { TYPE_STEPS } from "./scale.mjs";
-import { darkScope, expand, loadStyles, themeDeclarations } from "./styles.mjs";
+import { darkScopes, expand, loadStyles, themeDeclarations } from "./styles.mjs";
 
 // The file a repository gets when nothing names another one.
 export const TOKENS = "design/tokens.json";
@@ -32,7 +32,7 @@ function fold(value) {
 export function readTokens(styles) {
   const declared = themeDeclarations(styles).map((item) => item.name);
   const names = [...new Set([...declared, ...TYPE_STEPS.map(([step]) => `--text-${step}`)])];
-  const dark = darkScope(styles);
+  const dark = darkScopes(styles);
   const tokens = {};
   const unresolved = [];
   for (const variable of names) {
@@ -45,7 +45,7 @@ export function readTokens(styles) {
       continue;
     }
     const token = { $type: GROUPS[group], $value: value };
-    const other = dark === null ? value : fold(expand(styles, dark, `var(${variable})`));
+    const other = dark.length === 0 ? value : fold(expand(styles, dark, `var(${variable})`));
     if (other !== value && !other.includes("var("))
       token.$extensions = { [OWNER]: { dark: other } };
     tokens[group] = { ...tokens[group], [name]: token };
@@ -89,7 +89,8 @@ export function tokensProblem(text, styles, file, stylesheet) {
   for (const name of listed.keys()) {
     if (!given.has(name)) differs.push(`${name} is not in the stylesheet`);
   }
-  const detail = differs.length > 0 ? ` (${differs.slice(0, 3).join("; ")})` : "";
+  const more = differs.length > 3 ? `; and ${differs.length - 3} more` : "";
+  const detail = differs.length > 0 ? ` (${differs.slice(0, 3).join("; ")}${more})` : "";
   return `${file} is not what ${stylesheet} gives${detail}: the stylesheet is where a value changes, so ${again}`;
 }
 

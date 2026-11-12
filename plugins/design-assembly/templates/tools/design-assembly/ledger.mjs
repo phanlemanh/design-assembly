@@ -94,6 +94,24 @@ export function mergeLedger(text, rows, drop = []) {
   return `${[head, ...all.map((block) => block.join("\n"))].join("\n")}\n`;
 }
 
+// Gives a row that has no check its pointer: one `check:` line added to that row. Every other
+// byte of the ledger, the rest of the row included, stays as it is.
+export function pointRow(text, id, check) {
+  const { head, blocks } = split(text);
+  const pointed = blocks.map((block) => {
+    const row = parseBlock(block);
+    if (row.id !== id || row.check) return block;
+    const last = block.findLastIndex((line) => line.trim() !== "" && !line.trim().startsWith("#"));
+    const indent = /^(\s*)/.exec(block[Math.max(1, last)] ?? "    ")[1] || "    ";
+    return [
+      ...block.slice(0, last + 1),
+      `${indent}check: ${JSON.stringify(check)}`,
+      ...block.slice(last + 1),
+    ];
+  });
+  return `${[head, ...pointed.map((block) => block.join("\n"))].join("\n")}\n`;
+}
+
 function filesNamed(root, names, dir = "") {
   const full = path.join(root, dir);
   if (!existsSync(full)) return false;

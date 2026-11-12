@@ -32,11 +32,13 @@ section that is not printed has nothing in it. Read the sections to the person i
 | `cannot be read here`                                | Written in a way the tool does not read, such as a mixed colour. No check covers it. Printed every run  |
 | `a proof is there but the ledger cannot point at it` | A test that does not name its decision with `decision:<id>`. Say which file; do not edit it yourself    |
 | `already kept by the repository, and left as it is`  | A tokens file or a component registry a person keeps, that says something else. It is theirs: untouched |
+| `rows of yours with no check, that could have one`   | The ledger already has the row, with no check. The line says what would hold it. See step 3             |
 | `needs a person`                                     | The questions in step 3                                                                                 |
 
 Column types are held only where the repository keeps a table of them
 (`design/column-types.json`). Adopting writes no such table and installs no code: when the data
-model names column types and there is no table, it says so under `needs a person`.
+model names column types, there is no table and the decision is open, it says so under
+`needs a person`.
 
 A test of the repository's own that names a decision with `decision:<id>` is listed under
 `claimed`, pointing at that test. Say that the tool did not run it.
@@ -45,8 +47,8 @@ Words, error messages and the channel rule are held as found, when the screens m
 every screen must declare are held only where the repository keeps the list
 (`design/states.json`); adopting writes none.
 
-The target-size line names the smallest control and the controls it could not measure: repeat
-both. It is a measure of the height declared in component source, not of a rendered screen.
+When a target-size line is printed, it names the smallest control and the controls it could not
+measure: repeat both. It is a measure of the height declared in component source, not of a rendered screen.
 
 A held check on the type scale or the spacing unit keeps the framework's standard: it fails when
 the stylesheet declares its own sizes. It does not pin the framework's numbers.
@@ -59,6 +61,13 @@ Ask together, and only what `needs a person` lists:
 - The product type. Pass the answer as `--product-type`.
 - Whether the primary color role the script shows is the decided brand colour. Only on a yes, pass
   `--record source-color`.
+
+- Whether rows of theirs that have no check should get the one the script found. Read the list
+  to them. Only for the rows they name, pass `--hold <id>,<id>`: each gains one `check:` line and
+  nothing else in it changes.
+
+The script only speaks of a decision that is open: one with no row, or with a row and no check. A
+decision whose row already names a check is left alone and not mentioned.
 
 Never pass a flag on your own judgment, and never from what the audit printed under `seen:`. A
 stated level that the values do not reach is not a reason to lower the level: report it.
@@ -74,7 +83,9 @@ stated level that the values do not reach is not a reason to lower the level: re
    the component manifest (`design/component-registry.json`), unless the repository already keeps
    one that says something else: then that file is listed as kept, and `make design-tokens` or
    `make design-components` will say this tool manages none.
-4. Run the repository's formatter if it has one, then its gate.
+4. It writes `.claude/rules/design-assembly.md`: the rules it now holds here, for the agent that
+   builds next.
+5. Run the repository's formatter if it has one, then its gate.
 
 From then on a change to a value in the stylesheet is followed by `make design-tokens`, and a
 change to a component by `make design-components`. The gate fails until the file is written again,

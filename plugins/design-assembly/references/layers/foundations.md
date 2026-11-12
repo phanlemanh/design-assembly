@@ -14,7 +14,8 @@ person knows it. Spacing always has one answer in this version: say it in one li
 
 Ask them in one stop.
 
-1. **Source color**, as `#rrggbb`.
+1. **Source color**, as `#rrggbb` or as the stylesheet writes a colour, `oklch(L C H)`. Never
+   convert a colour by hand: copy it in the form you found it.
 2. **Type scale**: the floor's standard, or a modular scale. If modular, which ratio.
 3. **Corner radius**: one step of the shape scale.
 

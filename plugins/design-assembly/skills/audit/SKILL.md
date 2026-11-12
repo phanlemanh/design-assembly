@@ -36,16 +36,16 @@ is printed under the decision as `seen:` and is not an answer.
 
 ## 3. Read the states
 
-| State       | Meaning                                                                    | What closes it                                    |
-| ----------- | -------------------------------------------------------------------------- | ------------------------------------------------- |
-| `held`      | This plugin's tool ran the check now and saw it fail on a changed copy     | Nothing. `covers:` says how far the check reaches |
-| `claimed`   | The ledger names a check that exists and is wired in; nothing here ran it  | Nothing, if the claim is true                     |
-| `recorded`  | The ledger has a row for a person's call. No check, by design              | Nothing                                           |
-| `not held`  | The ledger has a row, and nothing would catch a change                     | A check, and its pointer in the row               |
-| `no row`    | The ledger has no row. `seen:` says what the repository shows, if anything | See below                                         |
-| `undecided` | The audit can see that nothing answers it                                  | A person decides                                  |
-| `BYPASSED`  | The repository's own source goes around it in the places listed            | Fix those places first: a check would fail today  |
-| `FAILING`   | Its check fails, or its pointer does not resolve                           | Read the reason printed under it                  |
+| State       | Meaning                                                                    | What closes it                                                                                        |
+| ----------- | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `held`      | This plugin's tool ran the check now and saw it fail on a changed copy     | Nothing. `covers:` says how far the check reaches                                                     |
+| `claimed`   | The ledger names a check that exists and is wired in; nothing here ran it  | Nothing, if the claim is true                                                                         |
+| `recorded`  | The ledger has a row for a person's call. No check, by design              | Nothing. A `note:` under it says when the guide proposed it and nobody confirmed                      |
+| `not held`  | The ledger has a row for it, and the row names no check                    | A check, and its pointer in the row. `seen:` names a proof the row does not point at, if one is there |
+| `no row`    | The ledger has no row. `seen:` says what the repository shows, if anything | See below                                                                                             |
+| `undecided` | The audit can see that nothing answers it                                  | A person decides                                                                                      |
+| `BYPASSED`  | The repository's own source goes around it in the places listed            | Fix those places first: a check would fail today                                                      |
+| `FAILING`   | Its check fails, or its pointer does not resolve                           | Read the reason printed under it                                                                      |
 
 Under a `no row` decision, `seen:` is one of:
 
@@ -73,13 +73,14 @@ templates, governance (`references/tiers.json`). Each says:
 The last line, `next:`, names the skill to run. It is decided from the files, not from a reading of
 the report: follow it, and repeat its reason to the person.
 
-- `/design-assembly:new, ... then /design-assembly:adopt`: the repository has no brand colour of
-  its own. The guide chooses the values with the person; adopting then records what the repository
-  already proves.
+- `/design-assembly:new, ...`: the repository has no brand colour of its own. The guide chooses
+  the values with the person, and ends by adopting what the repository already proves: there is
+  no separate adopt step to run after it.
 - `/design-assembly:adopt`: there is something to take in. When it adds "Not the guide", the
   stylesheet has a primary color role of its own, which the guide would replace.
-- "nothing more to generate or adopt": what is open belongs to layers this version does not build.
-  Say which decisions those are; do not invent a way to close them.
+- "nothing more to generate or adopt now": the scripts have nothing left to do. The line names
+  what the repository can still close by itself, such as a test that needs a `decision:<id>` tag;
+  the rest belongs to layers this version does not build. Do not invent a way to close those.
 
 Before that line:
 

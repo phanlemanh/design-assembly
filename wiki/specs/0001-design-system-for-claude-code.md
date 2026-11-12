@@ -288,6 +288,26 @@ trị đều làm cổng đỏ đúng dòng. Chạy lại lần hai không đổ
 - Tệp niêm phong lộ mọi câu trả lời ngay lần mở đầu; đó là lỗi của cách dựng cuộc thử.
 - Các sửa đổi chưa được tác tử độc lập thử lại.
 
+### Chạy thử lần ba (2026-11-12)
+
+Ba tác tử, mỗi tác tử một bản sao. Hai tác tử đầu như lần hai (dẫn dắt trên kho chưa có plugin,
+adopt trên bản clone của kho đối chứng). Tác tử thứ ba, lần đầu, làm việc của người dùng cuối:
+dựng màn trên kho hiện tại (thêm một cột, thêm một thao tác có hoàn tác), không được đọc phần trong
+của plugin.
+
+**Điều đứng vững.** Cuộc dẫn dắt để kho ở trạng thái cổng xanh; dòng «bước kế» dẫn đúng đường;
+adopt không đổi gì kho đã có (chỉ nối dòng vào sổ), và mọi lần cố ý phá một giá trị đều làm cổng đỏ
+đúng dòng. Tác tử dựng màn làm xong cả hai việc, cổng xanh ngay lần đầu, và tìm được luật canh lề,
+bề rộng, kênh thông báo, hoàn tác mà không phải đoán.
+
+**Điều sai, đã sửa** (quyết định 0015): các luật đó nằm ở một trang viết tay cho riêng kho này, nên
+cuộc dẫn dắt giờ tự để lại trang luật; hai lỗ hổng của cổng; hai điều lệnh nói sai về kho đối
+chứng; adopt im lặng trước dòng sổ chưa có lệnh kiểm; năm chỗ hướng dẫn nói sai.
+
+**Điều còn nguyên**, là việc của chủ kho hoặc Repo Standards: thao tác làm ngay mà thất bại thì báo
+thế nào; toast không được bài kiểm trình duyệt đi qua; số hiện ra không qua bộ định dạng thì không
+ai bắt; một hành vi mới vào mô hình dữ liệu ra sao.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.
