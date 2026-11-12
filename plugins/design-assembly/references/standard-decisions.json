@@ -249,6 +249,13 @@
       "sources": ["reference-ledger", "repo-standards-floor"]
     },
     {
+      "id": "component-manifest",
+      "layer": "components",
+      "kind": "formula",
+      "question": "Does the component manifest list exactly the components and variants the source declares?",
+      "sources": ["design-assembly"]
+    },
+    {
       "id": "component-level",
       "layer": "components",
       "kind": "formula",

@@ -117,3 +117,8 @@ decisions:
     kind: standard
     source: "no palette colour in source: neutral and status colours are color roles of the stylesheet"
     check: "eslint:shadcn/no-raw-colors"
+  - id: component-manifest
+    layer: components
+    kind: formula
+    source: "src/components/ui, written out by make design-components"
+    check: "tool:tools/design-assembly/check.mjs"

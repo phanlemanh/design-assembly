@@ -1,6 +1,6 @@
 CHECK_TARGETS += design-assembly
 
-.PHONY: design-assembly design-rate design-tokens
+.PHONY: design-assembly design-rate design-tokens design-components
 design-assembly: ## Check the generated design tokens, and show each check failing on a changed copy
 	@node tools/design-assembly/check.mjs
 
@@ -9,3 +9,6 @@ design-rate: ## Print the determinism rate: decisions held by a check that can f
 
 design-tokens: ## Write the design tokens file again from the stylesheet, after a value changed
 	@node tools/design-assembly/tokens.mjs --write
+
+design-components: ## Write the component manifest again from the source, after a component changed
+	@node tools/design-assembly/components.mjs --write

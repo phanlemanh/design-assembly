@@ -12,6 +12,7 @@ Read this when you build (step 6 of the guide) or explain a failing check.
 | `design/decisions/<layer>.md`       | A decision record per decided layer                                                          | `apply.mjs` only                     |
 | The marked block in `src/index.css` | The design tokens                                                                            | `apply.mjs` only                     |
 | `design/tokens.json`                | The design tokens, for tools that do not read CSS. Written from the stylesheet               | `make design-tokens` only            |
+| `design/component-registry.json`    | The component manifest: every exported component with its variants. Written from the source  | `make design-components` only        |
 | `tools/design-assembly/`            | The checks. They belong to the plugin: change them in the plugin and run the guide again     | Nobody, in the repository            |
 | `mk/design-assembly.mk`             | Adds `design-assembly` to `make check`, and `make design-rate`                               | Nobody, in the repository            |
 
@@ -66,6 +67,23 @@ and a `$value`.
 - A tokens file a person already keeps, and that says something else, is never written over: the
   scripts say so and write none.
 
+## The component manifest
+
+`design/component-registry.json` (or the path the acceptance kit is told to read) lists every
+component the repository's component folder exports: its name, its file, its variants and the
+default of each axis. Look a component up here before reading its source.
+
+- A variant is written `axis=value`, such as `size=sm`: the form a plan names it in.
+- Variants are read from two places in the source: variant sets declared with the class-variance
+  helper, and props typed as a closed list of words. A true/false prop is not a variant.
+- The file is derived. Change the component, then run `make design-components`. The `components`
+  check fails when the two disagree, whichever side moved.
+- A component with no `variants` has none the reader could see. It is listed, and its variants are
+  not checked.
+- States, the list of props, the parts of a component and components outside that folder are not
+  in the manifest yet.
+- A registry a person already keeps, and that says something else, is never written over.
+
 ## How a value is read
 
 The tool reads the stylesheet the repository names (`design/theme.json`, else `components.json`,
@@ -80,15 +98,16 @@ Its tool reads the real files (the stylesheet, the gate), not a copy of what was
 run also changes a copy of those files so that the check must fail, and reports a check that still
 passes: a check that cannot fail proves nothing.
 
-| Kind        | Passes when                                                             |
-| ----------- | ----------------------------------------------------------------------- |
-| `generated` | The block in the stylesheet is exactly what the source color gives      |
-| `contrast`  | Two color roles reach the contrast ratio of the conformance level       |
-| `value`     | A variable resolves to the decided value, whatever is written after it  |
-| `absent`    | The stylesheet does not redeclare variables that the floor's scale owns |
-| `scale`     | Every step of the type scale is larger than the one before              |
-| `tokens`    | The design tokens file is exactly what the stylesheet gives             |
-| `gate`      | `make check` runs the tool in a way that can fail                       |
+| Kind         | Passes when                                                             |
+| ------------ | ----------------------------------------------------------------------- |
+| `generated`  | The block in the stylesheet is exactly what the source color gives      |
+| `contrast`   | Two color roles reach the contrast ratio of the conformance level       |
+| `value`      | A variable resolves to the decided value, whatever is written after it  |
+| `absent`     | The stylesheet does not redeclare variables that the floor's scale owns |
+| `scale`      | Every step of the type scale is larger than the one before              |
+| `tokens`     | The design tokens file is exactly what the stylesheet gives             |
+| `components` | The component manifest is exactly what the component source gives       |
+| `gate`       | `make check` runs the tool in a way that can fail                       |
 
 The tool also checks that it and the ledger agree in both directions: every row that points at it
 has checks behind it, and every decision it holds is a row.

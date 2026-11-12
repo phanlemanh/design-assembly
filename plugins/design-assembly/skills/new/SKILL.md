@@ -130,7 +130,8 @@ the preview again.
 ## 6. Build without stopping
 
 1. `node ${CLAUDE_PLUGIN_ROOT}/scripts/apply.mjs --target <repo>`. It writes the tokens into the
-   stylesheet, its rows into the ledger `design/decisions.yaml`, the design tokens file
+   stylesheet, its rows into the ledger `design/decisions.yaml`, the component manifest
+   `design/component-registry.json` read from the component source, the design tokens file
    `design/tokens.json` read back from that stylesheet, and installs the checks into the
    repository's gate. `references/checks.md` says what each file is. If a tokens file was already
    there and says something else, it is kept and the script says so: tell the person.

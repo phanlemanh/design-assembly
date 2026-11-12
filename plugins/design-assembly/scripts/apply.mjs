@@ -16,6 +16,16 @@ import { fileURLToPath } from "node:url";
 
 import { FILES } from "../templates/tools/design-assembly/check.mjs";
 import { contrast, formatOklch } from "../templates/tools/design-assembly/color.mjs";
+import {
+  COMPONENTS_DECISION,
+  COMPONENTS_FOLDER,
+  componentsProblem,
+  lineWidth,
+  readComponents,
+  readFolder,
+  REGISTRY,
+  renderManifest,
+} from "../templates/tools/design-assembly/components.mjs";
 import { mergeLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import { SPACING_UNIT_PX, TYPE_VARIABLES } from "../templates/tools/design-assembly/scale.mjs";
 import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
@@ -174,11 +184,56 @@ export function ownValuesProblem(target) {
   return null;
 }
 
-// Where the design tokens file goes: the path the acceptance kit is told to read, else the default.
-export function tokensFile(target) {
+// A path the acceptance kit is told to read from this repository, or null.
+function socket(target, key) {
   const config = path.join(target, "_acceptance/config.yaml");
   const text = existsSync(config) ? readFileSync(config, "utf8") : "";
-  return /^\s+tokens:\s*["']?([^"'#\n]+)/m.exec(text)?.[1].trim() ?? TOKENS;
+  return new RegExp(`^\\s+${key}:\\s*["']?([^"'#\\n]+)`, "m").exec(text)?.[1].trim() ?? null;
+}
+
+// Where the design tokens file goes: the path the acceptance kit is told to read, else the default.
+export function tokensFile(target) {
+  return socket(target, "tokens") ?? TOKENS;
+}
+
+// The folder that holds the repository's components: where its component settings say, else the
+// usual place.
+export function componentsFolder(target) {
+  const settings = path.join(target, "components.json");
+  const alias = existsSync(settings)
+    ? JSON.parse(readFileSync(settings, "utf8")).aliases?.ui
+    : null;
+  return typeof alias === "string" && alias.startsWith("@/")
+    ? `src/${alias.slice(2)}`
+    : COMPONENTS_FOLDER;
+}
+
+// The component manifest for the source as it is, with its ledger row and its check; or why it
+// is left alone. `nothing` means the repository has no components to list.
+export function componentsPlan(target, alreadyHeld) {
+  const folder = componentsFolder(target);
+  const sources = readFolder(target, folder);
+  if (Object.keys(sources).length === 0) return { nothing: true };
+  const file = socket(target, "registry") ?? REGISTRY;
+  const full = path.join(target, file);
+  const before = existsSync(full) ? readFileSync(full, "utf8") : null;
+  if (before !== null && !alreadyHeld && componentsProblem(before, sources, file, folder)) {
+    return {
+      skipped: `${file} is already there and is not what ${folder} gives. It is kept, and no component manifest is written`,
+    };
+  }
+  return {
+    file,
+    content: renderManifest(readComponents(sources), lineWidth(target)),
+    row: {
+      id: COMPONENTS_DECISION,
+      layer: "components",
+      kind: "formula",
+      source: `${folder}, written out by make design-components`,
+      check: TOOL,
+    },
+    checks: [{ kind: "components", file, folder }],
+  };
 }
 
 // The design tokens file for a stylesheet, with its ledger row and its check; or why it is left
@@ -344,10 +399,16 @@ export function plan(target, blueprint) {
   // The design tokens file is read from the stylesheet as it is about to be written.
   const held = JSON.parse(read(FILES.theme) ?? "{}").checks?.[TOKENS_DECISION];
   const tokens = tokensPlan(target, loadStyles(target, FILES.css, files), FILES.css, Boolean(held));
-  if (!tokens.skipped) {
-    rows.push(tokens.row);
-    checks[TOKENS_DECISION] = tokens.checks;
-    files[tokens.file] = tokens.content;
+  const prior = JSON.parse(read(FILES.theme) ?? "{}").checks ?? {};
+  const components = componentsPlan(target, Boolean(prior[COMPONENTS_DECISION]));
+  const derived = [
+    [TOKENS_DECISION, tokens],
+    [COMPONENTS_DECISION, components],
+  ];
+  for (const [id, artifact] of derived.filter(([, item]) => item.file)) {
+    rows.push(artifact.row);
+    checks[id] = artifact.checks;
+    files[artifact.file] = artifact.content;
   }
   // Everything generated here replaces what was adopted for the same decision; the stylesheet the
   // tool data names is kept.
@@ -366,7 +427,7 @@ export function plan(target, blueprint) {
     const values = layer.id === "foundations" ? foundations.choice : entry.choice;
     files[`design/decisions/${layer.id}.md`] = record(layer, entry, rows, values);
   }
-  return { files: { ...files, ...vendored() }, theme, tokens };
+  return { files: { ...files, ...vendored() }, theme, tokens, components };
 }
 
 // Writes the files that differ, or only says what it would do. One line per file.
@@ -500,8 +561,10 @@ function main() {
     );
     return;
   }
-  const { files, tokens } = plan(target, blueprint);
-  if (tokens.skipped) stdout.write(`note: ${tokens.skipped}.\n`);
+  const { files, tokens, components } = plan(target, blueprint);
+  for (const artifact of [tokens, components]) {
+    if (artifact.skipped) stdout.write(`note: ${artifact.skipped}.\n`);
+  }
   for (const variable of tokens.unresolved ?? []) {
     stdout.write(`note: ${variable} points nowhere, so it is not in the design tokens file.\n`);
   }

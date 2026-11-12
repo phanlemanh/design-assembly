@@ -109,6 +109,13 @@ Vật của bậc foundations là `design/tokens.json`, sinh từ stylesheet the
 làm cổng đỏ khi hai bên lệch nhau. Kho này có 47 token và đáp 18/38 quyết định lõi; bậc foundations
 ở mức «tự khai».
 
+### Sổ linh kiện (quyết định 0009, 2026-11-12)
+
+Vật của bậc core components là `design/component-registry.json`, sinh từ mã nguồn linh kiện: mỗi
+linh kiện được xuất ra có tên, tệp và các biến thể dạng `trục=giá trị`. Sổ được ghi lại bằng
+`make design-components`, và một lệnh kiểm làm cổng đỏ khi sổ lệch mã nguồn. Bậc này vẫn chưa đạt:
+năm quyết định lõi về bảng dữ liệu và cỡ vùng bấm chưa có lời đáp.
+
 ### Vì sao cần plugin này
 
 Bản trước ghi giả thuyết «giảm token», neo vào lần đo ba của Repo Standards (token gấp 1,43 lần).

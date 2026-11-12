@@ -7,6 +7,7 @@ import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { contrast } from "./color.mjs";
+import { componentsProblem, readFolder } from "./components.mjs";
 import {
   LAYER_ALIASES,
   LAYERS,
@@ -134,6 +135,22 @@ const KINDS = {
       return { ...state, css: `${state.css}\n@theme inline {\n  --color-changed-copy: #000;\n}\n` };
     },
   },
+  // The component manifest says what the source says: the components exported, and their variants.
+  components: {
+    run(state, check) {
+      const files = state.folders?.[check.folder] ?? {};
+      return componentsProblem(state.files?.[check.file], files, check.file, check.folder);
+    },
+    // A new source file is a new component: the file on disk no longer matches.
+    change(state, check) {
+      const added = `${check.folder}/changed-copy.tsx`;
+      const files = {
+        ...state.folders?.[check.folder],
+        [added]: "export function ChangedCopy() {}\n",
+      };
+      return { ...state, folders: { ...state.folders, [check.folder]: files } };
+    },
+  },
   gate: {
     run(state) {
       if (state.gate === null) return `${FILES.gate} is missing, so make check does not run this`;
@@ -161,10 +178,12 @@ export function readState(root) {
   const data = theme === null ? null : JSON.parse(theme);
   const stylesheet = data?.stylesheet ?? findStylesheet(root) ?? DEFAULT_STYLESHEET;
   // Other files a check names, as they are on disk.
-  const named = Object.values(data?.checks ?? {})
-    .flat()
-    .filter((check) => check.file)
-    .map((check) => [check.file, read(check.file)]);
+  const checks = Object.values(data?.checks ?? {}).flat();
+  const named = checks.filter((check) => check.file).map((check) => [check.file, read(check.file)]);
+  // Source folders a check names, file by file.
+  const folders = checks
+    .filter((check) => check.folder)
+    .map((check) => [check.folder, readFolder(root, check.folder)]);
   return {
     root,
     theme: data,
@@ -174,6 +193,7 @@ export function readState(root) {
     // framework's theme, read only when a value points into it.
     ...loadStyles(root, stylesheet),
     files: Object.fromEntries(named),
+    folders: Object.fromEntries(folders),
     gate: read(FILES.gate),
   };
 }

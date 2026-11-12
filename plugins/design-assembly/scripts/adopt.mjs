@@ -26,8 +26,9 @@ import {
   resolve,
 } from "../templates/tools/design-assembly/styles.mjs";
 import { THRESHOLDS, withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
+import { COMPONENTS_DECISION, readFolder } from "../templates/tools/design-assembly/components.mjs";
 import { TOKENS_DECISION } from "../templates/tools/design-assembly/tokens.mjs";
-import { gateProblem, tokensPlan, vendored, writeFiles } from "./apply.mjs";
+import { componentsPlan, gateProblem, tokensPlan, vendored, writeFiles } from "./apply.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const reference = (name) =>
@@ -257,6 +258,17 @@ export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
         result.unreadable.push({ id: TOKENS_DECISION, why: `${variable} points nowhere` });
       }
     }
+    // The same for the component manifest: read from the source, which is left as it is.
+    const components = open(COMPONENTS_DECISION) ? componentsPlan(root, false) : {};
+    if (components.skipped) {
+      result.unclaimed.push({ id: COMPONENTS_DECISION, why: components.skipped });
+    } else if (components.file) {
+      candidates[COMPONENTS_DECISION] = {
+        row: { kind: components.row.kind, source: components.row.source },
+        checks: components.checks,
+      };
+    }
+    const artifacts = { [TOKENS_DECISION]: tokens, [COMPONENTS_DECISION]: components };
     const gate = gateProblem(root);
     const ids = Object.keys(candidates);
     if (gate && ids.length > 0) {
@@ -278,7 +290,14 @@ export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
         stylesheet: result.stylesheet,
         ...styles,
         gate: vendored()[FILES.gate],
-        files: tokens.file ? { [tokens.file]: tokens.content } : {},
+        files: Object.fromEntries(
+          Object.values(artifacts)
+            .filter((artifact) => artifact.file)
+            .map((artifact) => [artifact.file, artifact.content]),
+        ),
+        folders: components.file
+          ? { [components.checks[0].folder]: readFolder(root, components.checks[0].folder) }
+          : {},
         theme: {
           checks: Object.fromEntries(
             Object.entries(candidates).map(([id, candidate]) => [id, candidate.checks]),
@@ -289,7 +308,8 @@ export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
         if (outcome.held) {
           checks[outcome.id] = candidates[outcome.id].checks;
           add(outcome.id, { ...candidates[outcome.id].row, check: TOOL }, "held");
-          if (outcome.id === TOKENS_DECISION) result.files[tokens.file] = tokens.content;
+          const artifact = artifacts[outcome.id];
+          if (artifact) result.files[artifact.file] = artifact.content;
         } else {
           result.unreadable.push({
             id: outcome.id,

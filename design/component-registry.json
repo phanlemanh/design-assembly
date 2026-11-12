@@ -1,0 +1,302 @@
+{
+  "version": "1",
+  "components": [
+    {
+      "name": "Alert",
+      "category": "component",
+      "file": "src/components/ui/alert.tsx",
+      "variants": ["variant=default", "variant=destructive"],
+      "defaults": {
+        "variant": "default"
+      }
+    },
+    {
+      "name": "AlertTitle",
+      "category": "component",
+      "file": "src/components/ui/alert.tsx"
+    },
+    {
+      "name": "AlertDescription",
+      "category": "component",
+      "file": "src/components/ui/alert.tsx"
+    },
+    {
+      "name": "AlertAction",
+      "category": "component",
+      "file": "src/components/ui/alert.tsx"
+    },
+    {
+      "name": "Badge",
+      "category": "component",
+      "file": "src/components/ui/badge.tsx",
+      "variants": [
+        "variant=default",
+        "variant=secondary",
+        "variant=destructive",
+        "variant=outline",
+        "variant=ghost",
+        "variant=link"
+      ],
+      "defaults": {
+        "variant": "default"
+      }
+    },
+    {
+      "name": "Button",
+      "category": "component",
+      "file": "src/components/ui/button.tsx",
+      "variants": [
+        "variant=default",
+        "variant=outline",
+        "variant=secondary",
+        "variant=ghost",
+        "variant=destructive",
+        "variant=link",
+        "size=default",
+        "size=xs",
+        "size=sm",
+        "size=lg",
+        "size=icon",
+        "size=icon-xs",
+        "size=icon-sm",
+        "size=icon-lg"
+      ],
+      "defaults": {
+        "variant": "default",
+        "size": "default"
+      }
+    },
+    {
+      "name": "Card",
+      "category": "component",
+      "file": "src/components/ui/card.tsx",
+      "variants": ["size=default", "size=sm"],
+      "defaults": {
+        "size": "default"
+      }
+    },
+    {
+      "name": "CardHeader",
+      "category": "component",
+      "file": "src/components/ui/card.tsx"
+    },
+    {
+      "name": "CardFooter",
+      "category": "component",
+      "file": "src/components/ui/card.tsx"
+    },
+    {
+      "name": "CardTitle",
+      "category": "component",
+      "file": "src/components/ui/card.tsx"
+    },
+    {
+      "name": "CardAction",
+      "category": "component",
+      "file": "src/components/ui/card.tsx"
+    },
+    {
+      "name": "CardDescription",
+      "category": "component",
+      "file": "src/components/ui/card.tsx"
+    },
+    {
+      "name": "CardContent",
+      "category": "component",
+      "file": "src/components/ui/card.tsx"
+    },
+    {
+      "name": "Dialog",
+      "category": "component",
+      "file": "src/components/ui/dialog.tsx"
+    },
+    {
+      "name": "DialogClose",
+      "category": "component",
+      "file": "src/components/ui/dialog.tsx"
+    },
+    {
+      "name": "DialogContent",
+      "category": "component",
+      "file": "src/components/ui/dialog.tsx"
+    },
+    {
+      "name": "DialogDescription",
+      "category": "component",
+      "file": "src/components/ui/dialog.tsx"
+    },
+    {
+      "name": "DialogFooter",
+      "category": "component",
+      "file": "src/components/ui/dialog.tsx"
+    },
+    {
+      "name": "DialogHeader",
+      "category": "component",
+      "file": "src/components/ui/dialog.tsx"
+    },
+    {
+      "name": "DialogOverlay",
+      "category": "component",
+      "file": "src/components/ui/dialog.tsx"
+    },
+    {
+      "name": "DialogPortal",
+      "category": "component",
+      "file": "src/components/ui/dialog.tsx"
+    },
+    {
+      "name": "DialogTitle",
+      "category": "component",
+      "file": "src/components/ui/dialog.tsx"
+    },
+    {
+      "name": "DialogTrigger",
+      "category": "component",
+      "file": "src/components/ui/dialog.tsx"
+    },
+    {
+      "name": "Empty",
+      "category": "component",
+      "file": "src/components/ui/empty.tsx"
+    },
+    {
+      "name": "EmptyHeader",
+      "category": "component",
+      "file": "src/components/ui/empty.tsx"
+    },
+    {
+      "name": "EmptyTitle",
+      "category": "component",
+      "file": "src/components/ui/empty.tsx"
+    },
+    {
+      "name": "EmptyDescription",
+      "category": "component",
+      "file": "src/components/ui/empty.tsx"
+    },
+    {
+      "name": "EmptyContent",
+      "category": "component",
+      "file": "src/components/ui/empty.tsx"
+    },
+    {
+      "name": "EmptyMedia",
+      "category": "component",
+      "file": "src/components/ui/empty.tsx",
+      "variants": ["variant=default", "variant=icon"],
+      "defaults": {
+        "variant": "default"
+      }
+    },
+    {
+      "name": "Input",
+      "category": "component",
+      "file": "src/components/ui/input.tsx"
+    },
+    {
+      "name": "Label",
+      "category": "component",
+      "file": "src/components/ui/label.tsx"
+    },
+    {
+      "name": "Select",
+      "category": "component",
+      "file": "src/components/ui/select.tsx"
+    },
+    {
+      "name": "SelectContent",
+      "category": "component",
+      "file": "src/components/ui/select.tsx"
+    },
+    {
+      "name": "SelectGroup",
+      "category": "component",
+      "file": "src/components/ui/select.tsx"
+    },
+    {
+      "name": "SelectItem",
+      "category": "component",
+      "file": "src/components/ui/select.tsx"
+    },
+    {
+      "name": "SelectLabel",
+      "category": "component",
+      "file": "src/components/ui/select.tsx"
+    },
+    {
+      "name": "SelectScrollDownButton",
+      "category": "component",
+      "file": "src/components/ui/select.tsx"
+    },
+    {
+      "name": "SelectScrollUpButton",
+      "category": "component",
+      "file": "src/components/ui/select.tsx"
+    },
+    {
+      "name": "SelectSeparator",
+      "category": "component",
+      "file": "src/components/ui/select.tsx"
+    },
+    {
+      "name": "SelectTrigger",
+      "category": "component",
+      "file": "src/components/ui/select.tsx",
+      "variants": ["size=sm", "size=default"],
+      "defaults": {
+        "size": "default"
+      }
+    },
+    {
+      "name": "SelectValue",
+      "category": "component",
+      "file": "src/components/ui/select.tsx"
+    },
+    {
+      "name": "Skeleton",
+      "category": "component",
+      "file": "src/components/ui/skeleton.tsx"
+    },
+    {
+      "name": "Table",
+      "category": "component",
+      "file": "src/components/ui/table.tsx"
+    },
+    {
+      "name": "TableHeader",
+      "category": "component",
+      "file": "src/components/ui/table.tsx"
+    },
+    {
+      "name": "TableBody",
+      "category": "component",
+      "file": "src/components/ui/table.tsx"
+    },
+    {
+      "name": "TableFooter",
+      "category": "component",
+      "file": "src/components/ui/table.tsx"
+    },
+    {
+      "name": "TableHead",
+      "category": "component",
+      "file": "src/components/ui/table.tsx"
+    },
+    {
+      "name": "TableRow",
+      "category": "component",
+      "file": "src/components/ui/table.tsx"
+    },
+    {
+      "name": "TableCell",
+      "category": "component",
+      "file": "src/components/ui/table.tsx"
+    },
+    {
+      "name": "TableCaption",
+      "category": "component",
+      "file": "src/components/ui/table.tsx"
+    }
+  ]
+}

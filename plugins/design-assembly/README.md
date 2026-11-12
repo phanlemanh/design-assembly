@@ -25,6 +25,8 @@ scale, shape). Density, elevation, motion and iconography are not.
   `design/decisions.yaml`, and installs the checks that hold them.
 - Both paths leave `design/tokens.json`: the design tokens, written from the stylesheet in the
   format the acceptance kit reads, and held to the stylesheet by a check.
+- Both paths leave `design/component-registry.json`: the component manifest, written from the
+  component source, with every variant an agent may use, and held to the source by a check.
 
 What a repository ends up with is a standardised design system under its own `design/` folder,
 reached tier by tier. The ledger is a format already in use in one of the owner's product

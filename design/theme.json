@@ -91,6 +91,13 @@
         "kind": "tokens",
         "file": "design/tokens.json"
       }
+    ],
+    "component-manifest": [
+      {
+        "kind": "components",
+        "file": "design/component-registry.json",
+        "folder": "src/components/ui"
+      }
     ]
   }
 }
