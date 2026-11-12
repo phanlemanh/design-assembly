@@ -43,20 +43,22 @@ năng. Plugin này đi từ sàn lên một design system.
 Người quyết từ trên xuống, máy dựng từ dưới lên. Tầng chỉ có một đáp án hợp lý thì máy tự đi và báo
 một dòng.
 
-| Tầng                 | Quyết định gì                                                          | Ai trả lời                                   | Máy giữ bằng                                     |
-| -------------------- | ---------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------ |
-| Context              | Sản phẩm là công cụ làm việc hay trang đọc; nền kỹ thuật               | Người                                        | Decision record                                  |
-| Foundations          | Theme: source color, type scale, spacing scale, shape, density, motion | Người chọn theme; máy tính các design tokens | Hàm thuần; contrast ratio và target size tự kiểm |
-| Components           | Bộ core components; variant và state của từng cái                      | Máy đề xuất, người có quyền bác              | Kiểu đóng: sai thì không biên dịch               |
-| Interaction patterns | Empty, loading, error state; lưu; destructive action                   | Máy, theo chuẩn có sẵn                       | State bắt buộc trong kiểu                        |
-| Content guidelines   | Voice and tone, từ vựng nghiệp vụ, localization                        | Người                                        | Một nguồn nhãn, một hàm định dạng, design lint   |
-| Templates            | Những template nào sản phẩm cần                                        | Người chọn trong danh sách đóng              | Một reference implementation cho mỗi template    |
-| Accessibility        | Conformance level                                                      | Máy: AA, người có quyền bác                  | Kiểm trên màn đang chạy                          |
-| Conformance          | Design lint, visual regression                                         | Máy                                          | Mỗi luật có ca đỏ và ca xanh                     |
-| Distribution         | Registry và component manifest                                         | Máy                                          | Manifest sinh từ mã, có bước so                  |
-| Governance           | Recipes, snowflakes, graduation, optical adjustment                    | Máy đặt sổ; người ghi lý do khi dùng         | Ngoại lệ không lý do thì bị chặn                 |
+Từ quyết định 0006 (2026-11-12) chỉ còn một danh sách tầng, dùng chung cho cuộc dẫn dắt, sổ quyết
+định và bản audit. Một quyết định thuộc tầng của vật mà nó ràng buộc.
 
-Người trả lời bốn loại câu hỏi: Context, theme, Content guidelines, Templates.
+| Tầng        | Vật nó ràng buộc                                        | Ai trả lời                                   | Đã dựng |
+| ----------- | ------------------------------------------------------- | -------------------------------------------- | ------- |
+| Context     | Không vật nào: phán đoán về sản phẩm và từng màn        | Người                                        | Có      |
+| Foundations | Giá trị trong stylesheet: màu, chữ, khoảng cách, bo góc | Người chọn theme; máy tính các design tokens | Có      |
+| Components  | Một linh kiện                                           | Máy đề xuất, người có quyền bác              | Chưa    |
+| Patterns    | Hành vi theo thời gian: state, lưu, xoá, báo            | Máy, theo chuẩn có sẵn                       | Chưa    |
+| Content     | Lời và định dạng                                        | Người                                        | Chưa    |
+| Templates   | Cấu trúc của một trang                                  | Người chọn trong danh sách đóng              | Chưa    |
+| Governance  | Luật về chính hệ: ngoại lệ, chiều phụ thuộc, cổng kiểm  | Máy đặt sổ; người ghi lý do khi dùng         | Chưa    |
+
+Accessibility, conformance và distribution không phải tầng. Mỗi yêu cầu accessibility rơi về vật nó
+ràng buộc, tên chuẩn ghi ở trường nguồn. Conformance là cột lệnh kiểm của mọi dòng. Distribution là
+việc vật tới được tay kit và kho khác.
 
 ### Kho của người dùng nhận được gì
 
@@ -82,7 +84,16 @@ foundations, core components, patterns và content, templates, governance. Mỗi
 repo, lệnh kiểm từng đỏ, và một việc Claude Code tự làm được. Bảng bậc, ranh giới với Repo
 Standards và kit nghiệm thu, và năm điều chỉnh nằm ở quyết định 0005.
 
-Mười tầng của cuộc dẫn dắt là các bước người dùng đi qua; bậc là thứ họ nhận được.
+Tầng là các bước người dùng đi qua; bậc là thứ họ nhận được. Một bậc đạt khi mọi quyết định lõi
+của nó trong danh mục chuẩn (`plugins/design-assembly/references/standard-decisions.json`) đã có lời
+đáp và vật của nó nằm trong repo.
+
+### Sổ chuẩn, danh mục chuẩn (quyết định 0006, 2026-11-12)
+
+Sổ quyết định là `design/decisions.yaml`, theo định dạng một kho của chủ kho đã dùng: mỗi dòng trỏ
+tới nơi chứng minh, không chứa giá trị. Plugin chỉ ghi các dòng nó giữ, và giữ nguyên từng byte dòng
+của người khác. Danh mục chuẩn có 64 quyết định từ bốn nguồn; 38 quyết định thấy ở ít nhất hai
+nguồn là lõi. Đo ngày 2026-11-12: kho này đáp 9/38, kho đối chứng đáp 26/38.
 
 ### Vì sao cần plugin này
 

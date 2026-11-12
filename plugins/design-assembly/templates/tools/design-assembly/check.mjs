@@ -1,4 +1,5 @@
-// Checks what the guide generated, and shows every check failing on a changed copy.
+// Checks the decisions this tool holds, shows every check failing on a changed copy, and validates
+// the ledger that points at them.
 // Usage: node tools/design-assembly/check.mjs [--rate] [--target DIR]
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
@@ -6,11 +7,25 @@ import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { contrast, parseColor } from "./color.mjs";
+import {
+  LAYER_ALIASES,
+  LAYERS,
+  LEDGER,
+  ledgerProblems,
+  oldLayerNames,
+  parseLedger,
+  pointerProblem,
+  TOOL,
+} from "./ledger.mjs";
 import { toPx, toRatio, TYPE_STEPS } from "./scale.mjs";
 import { buildTheme, readBlock, readVariable, renderBlock, withoutBlock } from "./theme.mjs";
 
 export const FILES = {
-  decisions: "design/decisions.json",
+  // What this tool needs to check its decisions: the inputs they were derived from, and one or
+  // more checks per decision id. The ledger says that the decisions exist; this file says how
+  // this tool proves them.
+  theme: "design/theme.json",
+  ledger: LEDGER,
   css: "src/index.css",
   gate: "mk/design-assembly.mk",
 };
@@ -28,7 +43,7 @@ const KINDS = {
     run(state) {
       const block = readBlock(state.css);
       if (block === null) return "the generated block is missing from src/index.css";
-      const expected = renderBlock(buildTheme(state.decisions.inputs, state.css));
+      const expected = renderBlock(buildTheme(state.theme.inputs, state.css));
       if (block === expected) return null;
       return "the generated block is not what the source color gives: run the guide again instead of editing it";
     },
@@ -133,31 +148,71 @@ export function readState(root) {
     const full = path.join(root, file);
     return existsSync(full) ? readFileSync(full, "utf8") : null;
   };
-  const decisions = read(FILES.decisions);
+  const theme = read(FILES.theme);
+  const ledger = read(FILES.ledger);
   return {
-    decisions: decisions === null ? null : JSON.parse(decisions),
+    root,
+    theme: theme === null ? null : JSON.parse(theme),
+    ledger: ledger === null ? null : parseLedger(ledger),
     css: read(FILES.css) ?? "",
     gate: read(FILES.gate),
   };
 }
 
-// Every decision with what its check says, and whether that check was seen failing.
+// For every decision this tool holds: what is wrong, or null, and whether each of its checks was
+// seen failing on a changed copy.
 export function runChecks(state) {
-  return state.decisions.decisions.map((decision) => {
-    if (!decision.check) return { id: decision.id, kind: decision.kind, checked: false };
-    const kind = KINDS[decision.check.kind];
-    if (!kind) {
-      return { id: decision.id, kind: decision.kind, checked: true, problem: "unknown check" };
+  return Object.entries(state.theme?.checks ?? {}).map(([id, checks]) => {
+    const problems = [];
+    let seenFailing = true;
+    for (const check of checks) {
+      const kind = KINDS[check.kind];
+      if (!kind) {
+        problems.push(`unknown check ${check.kind}`);
+        continue;
+      }
+      const problem = kind.run(state, check);
+      if (problem) problems.push(problem);
+      if (kind.run(kind.change(state, check), check) === null) seenFailing = false;
     }
-    const problem = kind.run(state, decision.check);
-    const seenFailing = kind.run(kind.change(state, decision.check), decision.check) !== null;
-    return { id: decision.id, kind: decision.kind, checked: true, problem, seenFailing };
+    return {
+      id,
+      problem: problems[0] ?? null,
+      seenFailing,
+      held: problems.length === 0 && seenFailing,
+    };
   });
 }
 
-export function rate(results) {
-  const held = results.filter((r) => r.checked && r.problem === null && r.seenFailing).length;
-  return { held, total: results.length, percent: Math.round((100 * held) / results.length) };
+// The ledger and this tool must agree in both directions.
+function crossProblems(state, results) {
+  const rows = state.ledger ?? [];
+  const pointed = rows.filter((row) => row.check === TOOL).map((row) => row.id);
+  const held = results.map((r) => r.id);
+  return [
+    ...pointed
+      .filter((id) => !held.includes(id))
+      .map((id) => `${id}: the ledger points at this tool, which holds no check for it`),
+    ...held
+      .filter((id) => !pointed.includes(id))
+      .map((id) => `${id}: held by this tool but not a row of ${FILES.ledger} that points at it`),
+  ];
+}
+
+// Every row of the ledger with how it is held.
+export function ledgerView(state) {
+  const results = runChecks(state);
+  return (state.ledger ?? []).map((row) => {
+    const id = String(row.id);
+    if (!row.check)
+      return { id, kind: row.kind, state: row.kind === "judgment" ? "recorded" : "no check" };
+    if (row.check === TOOL) {
+      const mine = results.find((r) => r.id === id);
+      return { id, kind: row.kind, state: mine?.held ? "held" : "FAILING" };
+    }
+    const broken = pointerProblem(state.root, id, row.check);
+    return { id, kind: row.kind, state: broken ? "FAILING" : "claimed", by: row.check };
+  });
 }
 
 function main() {
@@ -165,31 +220,47 @@ function main() {
   const at = args.indexOf("--target");
   const root = at === -1 ? cwd() : path.resolve(args[at + 1] ?? "");
   const state = readState(root);
-  if (state.decisions === null) {
-    stderr.write(`design-assembly: ${FILES.decisions} is missing. Run the guide first.\n`);
+  if (state.theme === null || state.ledger === null) {
+    stderr.write(
+      `design-assembly: ${FILES.theme} or ${FILES.ledger} is missing. Run the guide first.\n`,
+    );
     exit(1);
   }
   const results = runChecks(state);
-  const problems = results.flatMap((r) => {
-    if (!r.checked) return [];
-    if (r.problem) return [`${r.id}: ${r.problem}`];
-    return r.seenFailing ? [] : [`${r.id}: the check cannot fail, so it proves nothing`];
-  });
+  const problems = [
+    ...results.flatMap((r) => {
+      if (r.problem) return [`${r.id}: ${r.problem}`];
+      return r.seenFailing ? [] : [`${r.id}: the check cannot fail, so it proves nothing`];
+    }),
+    ...crossProblems(state, results),
+    ...ledgerProblems(root, state.ledger, [...LAYERS, ...Object.keys(LAYER_ALIASES)]),
+  ];
   if (args.includes("--rate")) {
-    const { held, total, percent } = rate(results);
-    stdout.write(`determinism rate: ${held}/${total} (${percent}%)\n`);
-    for (const r of results) {
-      const label = !r.checked ? "no check" : r.problem || !r.seenFailing ? "FAILING" : "held";
-      stdout.write(`  ${label.padEnd(8)} ${r.kind.padEnd(11)} ${r.id}\n`);
+    const view = ledgerView(state);
+    const count = (name) => view.filter((row) => row.state === name).length;
+    const automatic = count("held") + count("claimed");
+    const percent = Math.round((100 * automatic) / view.length);
+    stdout.write(`determinism rate: ${automatic}/${view.length} (${percent}%)\n`);
+    stdout.write(
+      `  ${count("held")} held and re-run here, ${count("claimed")} claimed by another check and not re-run\n`,
+    );
+    for (const row of view) {
+      stdout.write(
+        `  ${row.state.padEnd(8)} ${row.kind.padEnd(8)} ${row.id}${row.by ? `  (${row.by})` : ""}\n`,
+      );
     }
+    for (const line of oldLayerNames(state.ledger))
+      stdout.write(`  note: older layer name, ${line}\n`);
   }
   if (problems.length > 0) {
     stderr.write(`design-assembly: ${problems.length} problem(s)\n`);
     for (const line of problems) stderr.write(`  ${line}\n`);
     exit(1);
   }
-  const count = results.filter((r) => r.checked).length;
-  stdout.write(`design-assembly: ${count} checks ok, each seen failing on a changed copy\n`);
+  const count = results.reduce((sum, r) => sum + state.theme.checks[r.id].length, 0);
+  stdout.write(
+    `design-assembly: ${results.length} decisions held by ${count} checks, each seen failing on a changed copy\n`,
+  );
 }
 
 // Runs only when this file is the script. Real paths on both sides: a folder reached through a

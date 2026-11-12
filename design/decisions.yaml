@@ -1,0 +1,49 @@
+# Determinism ledger: one row per design decision.
+#   kind   standard | formula | closed | judgment
+#   check  test:<path> | e2e:<path> | tool:<path> | eslint:<rule>. Leave it out until a check exists.
+#          A test or e2e file names the decision it proves with `decision:<id>`. A tool is run by the gate.
+#          Keep this file in block style.
+version: 1
+decisions:
+  - id: product-type
+    layer: context
+    kind: judgment
+    source: "design/blueprint.json"
+  - id: conformance-level
+    layer: context
+    kind: judgment
+    source: "design/blueprint.json"
+  - id: source-color
+    layer: foundations
+    kind: judgment
+    source: "design/blueprint.json"
+  - id: tonal-palette
+    layer: foundations
+    kind: formula
+    source: "the source color, tones 0 to 100"
+    check: "tool:tools/design-assembly/check.mjs"
+  - id: color-contrast
+    layer: foundations
+    kind: formula
+    source: "WCAG 2.2 level AA, contrast ratio for text"
+    check: "tool:tools/design-assembly/check.mjs"
+  - id: type-scale-values
+    layer: foundations
+    kind: standard
+    source: "the framework's type scale"
+    check: "tool:tools/design-assembly/check.mjs"
+  - id: spacing-values
+    layer: foundations
+    kind: standard
+    source: "the framework's 4px unit"
+    check: "tool:tools/design-assembly/check.mjs"
+  - id: radius-value
+    layer: foundations
+    kind: closed
+    source: "shape scale, floor"
+    check: "tool:tools/design-assembly/check.mjs"
+  - id: checks-in-gate
+    layer: governance
+    kind: standard
+    source: "make check"
+    check: "tool:tools/design-assembly/check.mjs"

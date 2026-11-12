@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-12 — Sổ quyết định chuyển sang `design/decisions.yaml` chuẩn; mười tầng gộp về bảy; thêm danh mục 64 quyết định chuẩn và audit cho mọi bậc — [0006](decisions/0006-one-ledger-one-layer-list.md).
 - 2026-11-12 — Chốt đầu ra là design system chuẩn hoá theo bậc và ranh giới với Repo Standards, kit; dựng bậc audit (kiểm kê chỉ đọc, chạy trên mọi kho) — [0005](decisions/0005-output-tiers-and-boundaries.md), `plugins/design-assembly/scripts/inventory.mjs`.
 - 2026-11-11 — Foundations thêm type scale, spacing scale, shape, kèm ba loại lệnh kiểm mới; ghi hai giới hạn của bộ linh kiện sàn — [spec 0001](specs/0001-design-system-for-claude-code.md).
 - 2026-11-11 — Chạy thử cuộc dẫn dắt bằng hai tác tử mới (giao hết, từng tầng); sửa bản xem trước để chạy trước khi duyệt, và năm chỗ hướng dẫn mơ hồ — [spec 0001](specs/0001-design-system-for-claude-code.md).

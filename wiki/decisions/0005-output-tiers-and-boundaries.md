@@ -93,7 +93,8 @@ Ba điều còn mở, cần chủ kho quyết khi tới lúc:
 
 - **Định dạng sổ quyết định.** onehub-inventory đã có `design/decisions.yaml` (50 quyết định, cùng
   bốn loại) theo đề xuất chuẩn hoá của chủ kho. Plugin này ghi `design/decisions.json` theo dạng
-  riêng. Bản kiểm kê đọc được cả hai, nhưng chuẩn chỉ nên có một.
+  riêng. Bản kiểm kê đọc được cả hai, nhưng chuẩn chỉ nên có một. Đã quyết ở 0006: lấy định dạng
+  YAML làm chuẩn.
 - **Tầng design của Repo Standards chưa vào nhánh chính**; kho này dựng từ một nhánh chưa gộp.
 - **Định dạng tệp tokens và sổ linh kiện mà kit đọc** chưa được đọc kỹ. Phải đọc trước khi dựng
   Foundations cho đủ và Core components.

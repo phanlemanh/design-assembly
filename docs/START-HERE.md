@@ -30,8 +30,10 @@ Việc của kho này nằm ở [đề bài lát mỏng](../wiki/specs/0001-desi
 | `ontology/`                                       | Khái niệm nghiệp vụ. Đang trống                                       | Thêm bằng `/ontology-add`                             |
 | `wiki/`                                           | Lý do của các quyết định                                              | Ghi khi quyết điều gì đáng nhớ                        |
 | `setup-blueprint.yaml`                            | Các lựa chọn lúc dựng kho                                             | Chỉ để đọc                                            |
-| `plugins/design-assembly/`                        | Plugin dẫn dắt: bốn tầng đầu, hàm tính màu, lệnh kiểm, bảng từ vựng   | Chỉ viết tiếng Anh ở đây                              |
+| `plugins/design-assembly/`                        | Plugin: audit, cuộc dẫn dắt hai tầng đầu, sổ chuẩn, bảng từ vựng      | Chỉ viết tiếng Anh ở đây                              |
 | `design/blueprint.json`, `design/decisions/`      | Các lựa chọn của cuộc dẫn dắt ở kho này, và decision record từng tầng | Đổi lựa chọn ở blueprint rồi chạy `make design-apply` |
+| `design/decisions.yaml`                           | Sổ quyết định chuẩn: mỗi dòng trỏ tới nơi chứng minh                  | Người thêm dòng được; dòng của plugin thì không sửa   |
+| `design/theme.json`                               | Dữ liệu cho lệnh kiểm của plugin                                      | Không sửa ở đây                                       |
 | `tools/design-assembly/`, `mk/design-assembly.mk` | Lệnh kiểm do plugin cài vào                                           | Không sửa ở đây                                       |
 
 ## Điều gì tự chạy

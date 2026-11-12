@@ -7,26 +7,17 @@
   "layers": {
     "context": {
       "status": "decided",
-      "source": "repo",
+      "source": "proposed",
       "choice": {
-        "product_type": "application"
+        "product_type": "application",
+        "conformance_level": "AA"
       },
-      "why": "Kho được dựng với design_surface là tool: màn mẫu là một danh sách làm việc có lọc, thêm và xoá.",
+      "why": "Kho được dựng với design_surface là tool: màn mẫu là một danh sách làm việc có lọc, thêm và xoá. Không có yêu cầu pháp lý hay hợp đồng nào đòi cao hơn AA, mức phần lớn sản phẩm cam kết.",
       "rejected": [
         {
           "option": "content-site",
           "why": "Không có trang nào chủ yếu để đọc."
-        }
-      ]
-    },
-    "accessibility": {
-      "status": "decided",
-      "source": "proposed",
-      "choice": {
-        "conformance_level": "AA"
-      },
-      "why": "Không có yêu cầu pháp lý hay hợp đồng nào đòi cao hơn. AA là mức phần lớn sản phẩm cam kết.",
-      "rejected": [
+        },
         {
           "option": "AAA",
           "why": "Không ai yêu cầu, và màu chính sẽ phải lùi xa màu gốc hơn."
@@ -57,24 +48,13 @@
     "components": {
       "status": "planned"
     },
-    "interaction-patterns": {
+    "patterns": {
       "status": "planned"
     },
     "content": {
       "status": "planned"
     },
     "templates": {
-      "status": "planned"
-    },
-    "conformance": {
-      "status": "decided",
-      "source": "proposed",
-      "choice": {
-        "gate": "make-check"
-      },
-      "why": "Lệnh kiểm chạy trong make check thì CI và mọi tác tử đều chạy nó."
-    },
-    "distribution": {
       "status": "planned"
     },
     "governance": {

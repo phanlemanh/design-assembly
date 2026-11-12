@@ -1,5 +1,5 @@
 {
-  "about": "The decision layers of the guide, in the order they are visited. `title` and every choice `name` are terms from vocabulary.json. A layer with `built: false` is announced in one line and skipped.",
+  "about": "The layers of a design system, in the order the guide visits them. One list: the guide, the ledger and the audit all use these ids. A layer is the artifact its decisions constrain. `title` and every choice `name` are terms from vocabulary.json. A layer with `built: false` is announced in one line and skipped.",
   "layers": [
     {
       "id": "context",
@@ -14,15 +14,7 @@
             "application": "People work in the screens: data-dense, task after task.",
             "content-site": "People mostly read: marketing, documentation, editorial."
           }
-        }
-      ]
-    },
-    {
-      "id": "accessibility",
-      "title": "accessibility",
-      "depends_on": ["context"],
-      "built": true,
-      "choices": [
+        },
         {
           "key": "conformance_level",
           "name": "conformance level",
@@ -36,7 +28,7 @@
     {
       "id": "foundations",
       "title": "foundations",
-      "depends_on": ["context", "accessibility"],
+      "depends_on": ["context"],
       "built": true,
       "choices": [
         {
@@ -91,49 +83,18 @@
       "built": false
     },
     {
-      "id": "interaction-patterns",
+      "id": "patterns",
       "title": "interaction patterns",
       "depends_on": ["components"],
       "built": false
     },
-    {
-      "id": "content",
-      "title": "content guidelines",
-      "depends_on": ["context"],
-      "built": false
-    },
+    { "id": "content", "title": "content guidelines", "depends_on": ["context"], "built": false },
     {
       "id": "templates",
       "title": "templates",
-      "depends_on": ["components", "interaction-patterns", "content"],
+      "depends_on": ["components", "patterns", "content"],
       "built": false
     },
-    {
-      "id": "conformance",
-      "title": "conformance",
-      "depends_on": ["foundations"],
-      "built": true,
-      "choices": [
-        {
-          "key": "gate",
-          "name": "conformance",
-          "options": {
-            "make-check": "The checks run inside the repository's own gate, so they also run in CI."
-          }
-        }
-      ]
-    },
-    {
-      "id": "distribution",
-      "title": "distribution",
-      "depends_on": ["components"],
-      "built": false
-    },
-    {
-      "id": "governance",
-      "title": "governance",
-      "depends_on": ["conformance", "distribution"],
-      "built": false
-    }
+    { "id": "governance", "title": "governance", "depends_on": ["templates"], "built": false }
   ]
 }

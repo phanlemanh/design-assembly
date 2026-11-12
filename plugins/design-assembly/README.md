@@ -9,20 +9,25 @@ shown there and graded by `make check`.
 
 ## What is here today
 
-Four of the ten decision layers: product context, accessibility, foundations (color, type scale,
-spacing scale, shape) and conformance. Density, elevation, motion and iconography are not built.
+Two of the seven layers are built: product context, and foundations (color, type scale, spacing
+scale, shape). Density, elevation, motion and iconography are not.
 
-- `/design-assembly:new` guides a person through those layers and records each decision.
+- `/design-assembly:audit` reads any repository without changing it. For each standard decision
+  (`references/standard-decisions.json`) it says whether it is held, claimed, recorded, not held,
+  bypassed or without a row, then the deliverable tier reached (`references/tiers.json`) and what
+  the next tier misses.
+- `/design-assembly:new` guides a person through the built layers and records each decision.
 - `scripts/apply.mjs` derives a tonal palette and the primary color roles from one source color,
-  writes them into the repository's stylesheet, and installs the checks that hold them.
-- `/design-assembly:audit` reads any repository without changing it: the state of each foundations
-  decision, the deliverable tier reached (`references/tiers.json`), and what the next tier misses.
+  writes them into the repository's stylesheet, adds its rows to the ledger
+  `design/decisions.yaml`, and installs the checks that hold them.
 
 What a repository ends up with is a standardised design system under its own `design/` folder,
-reached tier by tier. The artifacts use the paths and formats the acceptance kit already reads.
+reached tier by tier. The ledger is a format already in use in one of the owner's product
+repositories; artifacts use the paths the acceptance kit already reads. `references/checks.md` describes
+every file.
 
-The other six layers are listed in `references/layers.json` as not built. The guide has not yet been
-run from an installed plugin in a fresh session; the machine parts are covered by `tests/`.
+The guide still generates the primary color roles, so it is for repositories with no brand values
+of their own yet. Adding checks around values a repository already has is not built.
 
 ## Vocabulary
 

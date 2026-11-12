@@ -1,0 +1,500 @@
+{
+  "about": "The decisions a design system has to answer, so that coverage can be measured instead of claimed. A repository's ledger (design/decisions.yaml) reuses these ids and may add its own. `layer` is the artifact a decision constrains: the thing you would have to change to break it. `sources` says where the question was seen: a decision seen in two or more is core, the rest are candidates. `tier` overrides the tier of its layer. `note` marks a decision that could sit elsewhere.",
+  "sources": {
+    "reference-ledger": "A working ledger of 50 decisions in one of the owner's product repositories, read 2026-11-12.",
+    "component-audit": "The owner's audit of 49 design-system components in another product repository, and the target table of the architecture note, 2026-11-09.",
+    "repo-standards-floor": "What the design floor of repo-setup decides, generates or checks.",
+    "design-assembly": "What this plugin decides and checks today."
+  },
+  "layers": {
+    "context": {
+      "title": "product context",
+      "tier": "foundations"
+    },
+    "foundations": {
+      "title": "foundations",
+      "tier": "foundations"
+    },
+    "components": {
+      "title": "core components",
+      "tier": "core-components"
+    },
+    "patterns": {
+      "title": "interaction patterns",
+      "tier": "patterns-and-content"
+    },
+    "content": {
+      "title": "content guidelines",
+      "tier": "patterns-and-content"
+    },
+    "templates": {
+      "title": "templates",
+      "tier": "templates"
+    },
+    "governance": {
+      "title": "governance",
+      "tier": "governance"
+    }
+  },
+  "decisions": [
+    {
+      "id": "product-type",
+      "layer": "context",
+      "kind": "judgment",
+      "question": "Is the product an application people work in, or a content site people read?",
+      "sources": ["design-assembly", "repo-standards-floor"]
+    },
+    {
+      "id": "conformance-level",
+      "layer": "context",
+      "kind": "judgment",
+      "question": "Which accessibility conformance level does the product commit to?",
+      "sources": ["design-assembly", "reference-ledger"],
+      "note": "In the reference ledger it is recorded as the source of wcag-aa, not as a row of its own."
+    },
+    {
+      "id": "primary-task",
+      "layer": "context",
+      "kind": "judgment",
+      "question": "What is the main task of each screen?",
+      "sources": ["reference-ledger", "component-audit"],
+      "tier": "templates",
+      "note": "Decided per screen, so it belongs with templates, not with foundations."
+    },
+    {
+      "id": "information-order",
+      "layer": "context",
+      "kind": "judgment",
+      "question": "In what order does each screen present its information?",
+      "sources": ["reference-ledger", "component-audit"],
+      "tier": "templates",
+      "note": "Decided per screen, so it belongs with templates, not with foundations."
+    },
+    {
+      "id": "copy-content",
+      "layer": "context",
+      "kind": "judgment",
+      "question": "What do the words on each screen say?",
+      "sources": ["reference-ledger", "component-audit"],
+      "tier": "templates",
+      "note": "Decided per screen, so it belongs with templates, not with foundations."
+    },
+    {
+      "id": "source-color",
+      "layer": "foundations",
+      "kind": "judgment",
+      "question": "Which source color does the theme start from?",
+      "sources": ["design-assembly", "repo-standards-floor"]
+    },
+    {
+      "id": "color-role",
+      "layer": "foundations",
+      "kind": "standard",
+      "question": "Does the source use color roles only, never a raw colour?",
+      "sources": ["reference-ledger", "repo-standards-floor", "component-audit"]
+    },
+    {
+      "id": "color-palette",
+      "layer": "foundations",
+      "kind": "standard",
+      "question": "Which palette may neutral and status colours come from?",
+      "sources": ["reference-ledger", "component-audit"]
+    },
+    {
+      "id": "color-contrast",
+      "layer": "foundations",
+      "kind": "formula",
+      "question": "Does every pair of color roles reach the contrast ratio of the conformance level?",
+      "sources": ["design-assembly", "repo-standards-floor", "component-audit"]
+    },
+    {
+      "id": "tonal-palette",
+      "layer": "foundations",
+      "kind": "formula",
+      "question": "Is the tonal palette exactly what the source color gives?",
+      "sources": ["design-assembly"]
+    },
+    {
+      "id": "type-scale",
+      "layer": "foundations",
+      "kind": "standard",
+      "question": "Does the source use the type scale only, never an arbitrary size?",
+      "sources": ["reference-ledger", "repo-standards-floor", "component-audit"]
+    },
+    {
+      "id": "type-scale-values",
+      "layer": "foundations",
+      "kind": "formula",
+      "question": "Are the sizes and line heights of the type scale the decided ones?",
+      "sources": ["design-assembly"]
+    },
+    {
+      "id": "spacing",
+      "layer": "foundations",
+      "kind": "standard",
+      "question": "Does the source use the spacing scale only, never an arbitrary distance?",
+      "sources": ["reference-ledger", "repo-standards-floor"]
+    },
+    {
+      "id": "spacing-values",
+      "layer": "foundations",
+      "kind": "standard",
+      "question": "Is the unit of the spacing scale the decided one?",
+      "sources": ["design-assembly"]
+    },
+    {
+      "id": "radius",
+      "layer": "foundations",
+      "kind": "standard",
+      "question": "Does the source use the shape scale only, never an arbitrary corner radius?",
+      "sources": ["reference-ledger", "repo-standards-floor"]
+    },
+    {
+      "id": "radius-value",
+      "layer": "foundations",
+      "kind": "closed",
+      "question": "Is the corner radius the decided step of the shape scale?",
+      "sources": ["design-assembly"]
+    },
+    {
+      "id": "motion",
+      "layer": "foundations",
+      "kind": "standard",
+      "question": "Which durations and easings may motion use?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "theme-modes",
+      "layer": "foundations",
+      "kind": "closed",
+      "question": "Which modes does the theme have: light, dark?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "status-tone",
+      "layer": "foundations",
+      "kind": "closed",
+      "question": "Which status tones exist, and what colour does each take?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "brand-exceptions",
+      "layer": "foundations",
+      "kind": "closed",
+      "question": "Which brand values depart from the standard palette, and where are they listed?",
+      "sources": ["reference-ledger"],
+      "note": "Could sit in governance: it is a list of exceptions."
+    },
+    {
+      "id": "raw-controls",
+      "layer": "components",
+      "kind": "standard",
+      "question": "Does the source use the core components only, never a raw control?",
+      "sources": ["reference-ledger", "repo-standards-floor", "component-audit"]
+    },
+    {
+      "id": "raw-table",
+      "layer": "components",
+      "kind": "standard",
+      "question": "Does every table go through the system's table component?",
+      "sources": ["reference-ledger", "repo-standards-floor", "component-audit"]
+    },
+    {
+      "id": "native-dialogs",
+      "layer": "components",
+      "kind": "standard",
+      "question": "Does every dialog go through the system's dialog component?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "no-aschild",
+      "layer": "components",
+      "kind": "standard",
+      "question": "How does a component render as another element?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "icons",
+      "layer": "components",
+      "kind": "standard",
+      "question": "Which icon set is used, at which sizes and stroke?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "no-restyled-component",
+      "layer": "components",
+      "kind": "closed",
+      "question": "Is a component's look changed only through its variants?",
+      "sources": ["reference-ledger", "repo-standards-floor"]
+    },
+    {
+      "id": "no-inline-style",
+      "layer": "components",
+      "kind": "closed",
+      "question": "Is inline style forbidden?",
+      "sources": ["reference-ledger", "repo-standards-floor"]
+    },
+    {
+      "id": "whole-class-names",
+      "layer": "components",
+      "kind": "closed",
+      "question": "Are class names written whole, so that tools can read them?",
+      "sources": ["reference-ledger", "repo-standards-floor"]
+    },
+    {
+      "id": "component-level",
+      "layer": "components",
+      "kind": "formula",
+      "question": "How is a component's size on the atoms-to-organisms scale determined?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "display-kind",
+      "layer": "components",
+      "kind": "closed",
+      "question": "Which column type does each data field have?",
+      "sources": ["reference-ledger", "component-audit"],
+      "note": "Could sit in content: it decides formatting as well as the cell component."
+    },
+    {
+      "id": "column-align",
+      "layer": "components",
+      "kind": "formula",
+      "question": "How does a column type decide alignment?",
+      "sources": ["reference-ledger", "component-audit"]
+    },
+    {
+      "id": "column-width",
+      "layer": "components",
+      "kind": "formula",
+      "question": "How is a column's width computed?",
+      "sources": ["reference-ledger", "component-audit"]
+    },
+    {
+      "id": "table-density",
+      "layer": "components",
+      "kind": "formula",
+      "question": "When is a table dense?",
+      "sources": ["reference-ledger", "component-audit"]
+    },
+    {
+      "id": "target-size",
+      "layer": "components",
+      "kind": "standard",
+      "question": "Does every control reach the target size of the conformance level?",
+      "sources": ["reference-ledger", "component-audit"],
+      "note": "Could sit in foundations: a size token can carry it."
+    },
+    {
+      "id": "state-matrix",
+      "layer": "patterns",
+      "kind": "closed",
+      "question": "Which states does a view have, and what does each show: loading state, empty state, error state?",
+      "sources": ["reference-ledger", "repo-standards-floor", "component-audit"]
+    },
+    {
+      "id": "notification-channel",
+      "layer": "patterns",
+      "kind": "closed",
+      "question": "Through which single channel is the person notified?",
+      "sources": ["reference-ledger", "component-audit"]
+    },
+    {
+      "id": "record-panel",
+      "layer": "patterns",
+      "kind": "closed",
+      "question": "How does a record open beside a list?",
+      "sources": ["reference-ledger", "component-audit"]
+    },
+    {
+      "id": "read-only-cell",
+      "layer": "patterns",
+      "kind": "closed",
+      "question": "How does a cell that cannot be edited show it?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "edit-in-cell",
+      "layer": "patterns",
+      "kind": "formula",
+      "question": "Which cells are edited in place?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "undo-or-confirm",
+      "layer": "patterns",
+      "kind": "formula",
+      "question": "When does a destructive action ask first, and when does it offer undo?",
+      "sources": ["reference-ledger", "repo-standards-floor", "component-audit"]
+    },
+    {
+      "id": "feedback-by-delay",
+      "layer": "patterns",
+      "kind": "standard",
+      "question": "What feedback does a wait of each length get?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "paste-login-code",
+      "layer": "patterns",
+      "kind": "standard",
+      "question": "Can a login code be pasted?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "search-filter-pagination",
+      "layer": "patterns",
+      "kind": "closed",
+      "question": "How do search, filters and paging behave on a list?",
+      "sources": ["component-audit"]
+    },
+    {
+      "id": "labels",
+      "layer": "content",
+      "kind": "closed",
+      "question": "Where does every label on a screen come from?",
+      "sources": ["reference-ledger", "repo-standards-floor", "component-audit"]
+    },
+    {
+      "id": "terms",
+      "layer": "content",
+      "kind": "closed",
+      "question": "Which words must not be swapped for one another?",
+      "sources": ["repo-standards-floor", "component-audit"]
+    },
+    {
+      "id": "label-lookup",
+      "layer": "content",
+      "kind": "formula",
+      "question": "Which label wins when more than one source names a thing?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "tone-position",
+      "layer": "content",
+      "kind": "closed",
+      "question": "Which voice and tone does each kind of message take?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "error-copy",
+      "layer": "content",
+      "kind": "closed",
+      "question": "What are the parts of an error sentence?",
+      "sources": ["reference-ledger", "component-audit"]
+    },
+    {
+      "id": "format-number-date",
+      "layer": "content",
+      "kind": "standard",
+      "question": "Are numbers, money and dates formatted in one place, for the product's localization?",
+      "sources": ["reference-ledger", "repo-standards-floor", "component-audit"]
+    },
+    {
+      "id": "one-main-one-h1",
+      "layer": "templates",
+      "kind": "standard",
+      "question": "Does every page have exactly one main region and one top heading?",
+      "sources": ["reference-ledger", "repo-standards-floor", "component-audit"]
+    },
+    {
+      "id": "no-sideways-scroll",
+      "layer": "templates",
+      "kind": "formula",
+      "question": "Does every page fit its width at every tested screen size?",
+      "sources": ["reference-ledger", "repo-standards-floor"]
+    },
+    {
+      "id": "wcag-aa",
+      "layer": "templates",
+      "kind": "standard",
+      "question": "Does every page pass the automated accessibility checks?",
+      "sources": ["reference-ledger", "repo-standards-floor", "component-audit"],
+      "note": "A page-level check; the conformance level it tests against is conformance-level."
+    },
+    {
+      "id": "test-screen-sizes",
+      "layer": "templates",
+      "kind": "formula",
+      "question": "At which screen sizes are pages checked?",
+      "sources": ["reference-ledger", "repo-standards-floor"]
+    },
+    {
+      "id": "focus-not-obscured",
+      "layer": "templates",
+      "kind": "standard",
+      "question": "Is the focused element never hidden by another?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "mobile-navigation",
+      "layer": "templates",
+      "kind": "closed",
+      "question": "How does navigation change on a small screen?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "web-vitals",
+      "layer": "templates",
+      "kind": "standard",
+      "question": "Which loading and responsiveness thresholds must pages meet?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "page-layouts",
+      "layer": "templates",
+      "kind": "closed",
+      "question": "Which page layouts exist?",
+      "sources": ["component-audit"]
+    },
+    {
+      "id": "reference-implementation",
+      "layer": "templates",
+      "kind": "closed",
+      "question": "Which real screen is the reference implementation of each template?",
+      "sources": ["repo-standards-floor", "component-audit"]
+    },
+    {
+      "id": "lint-exceptions",
+      "layer": "governance",
+      "kind": "closed",
+      "question": "Does every exception to a design lint rule carry a reason?",
+      "sources": ["reference-ledger", "repo-standards-floor"]
+    },
+    {
+      "id": "checks-in-gate",
+      "layer": "governance",
+      "kind": "standard",
+      "question": "Do the design checks run in the repository's gate, in a way that can fail?",
+      "sources": ["design-assembly", "repo-standards-floor"]
+    },
+    {
+      "id": "tier-direction",
+      "layer": "governance",
+      "kind": "closed",
+      "question": "Which part of the system may import which?",
+      "sources": ["reference-ledger", "component-audit"]
+    },
+    {
+      "id": "module-doors",
+      "layer": "governance",
+      "kind": "closed",
+      "question": "Through which entry points may a module be used?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "product-invariants",
+      "layer": "governance",
+      "kind": "closed",
+      "question": "Which product rules may no screen break?",
+      "sources": ["reference-ledger"]
+    },
+    {
+      "id": "escapes",
+      "layer": "governance",
+      "kind": "closed",
+      "question": "Does every escape name the layer that should have caught it?",
+      "sources": ["component-audit"]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 ---
 name: new
-description: Guide a person through the decision layers of a design system for their repository — product context, accessibility, foundations, conformance — with a recommendation at each layer, then generate the design tokens and the checks that hold them, so Claude Code can build screens without guessing. Use when the user wants to create, set up or start a design system, choose a brand colour, type scale or corner radius for a repository, or make a repository's design decisions checkable.
+description: Guide a person through the decision layers of a design system for their repository — product context and foundations today — with a recommendation at each layer, then generate the design tokens, the checks that hold them and the ledger rows that record them, so Claude Code can build screens without guessing. Use when the user wants to create, set up or start a design system in a repository that has no brand values of its own yet, choose a brand colour, type scale or corner radius for a repository, or make a repository's design decisions checkable.
 ---
 
 # Guide a person to a design system Claude Code can build from
@@ -16,6 +16,13 @@ folder two levels above this file). Layer pages are in `${CLAUDE_PLUGIN_ROOT}/re
 Every name you show comes from `references/vocabulary.json`. Keep the term in English in every
 conversation language, and explain it in one clause the first time it appears. Do not coin a word
 for something the list already names, and do not use a word its `avoid` lists.
+
+## 0. Audit first
+
+Run `/design-assembly:audit` on the repository before anything else. If it shows that the
+repository already has its own brand values (a source color recorded from the stylesheet, a ledger
+with foundations rows), stop: this version of the guide generates the primary color roles and would
+replace them. Say so, and say that adding checks around existing values is not built yet.
 
 ## 1. Check the repository
 
@@ -87,12 +94,13 @@ A layer with only one sensible answer gets one line, no question. A layer with `
 recorded as `{"status": "planned"}`.
 
 Four answers belong to the person, because they are taste or brand: the product type, when the
-repository does not already record it; the source color; the type scale; and the corner radius. In
+repository does not already record it; the source color; the type scale; and the corner radius. The
+conformance level is theirs too when a contract or a regulator sets it; otherwise it is AA. In
 **review each layer**, ask for them. In **hand it to Claude**, propose them, record
 `source: proposed`, and put them first in the final review so the person can replace them. Never
 ask about anything a layer page says the machine derives.
 
-As soon as accessibility and foundations are decided, run the preview,
+As soon as product context and foundations are decided, run the preview,
 `apply.mjs --target <repo> --dry-run`. It works before approval and prints, for light and dark, the
 primary and the contrast ratio it reaches, and whether the source color had to move; then the type
 scale, the spacing scale and the corner radius, and any note. In **review each layer**, show those
@@ -117,14 +125,19 @@ the preview again.
 
 ## 6. Build without stopping
 
-1. `node ${CLAUDE_PLUGIN_ROOT}/scripts/apply.mjs --target <repo>`.
+1. `node ${CLAUDE_PLUGIN_ROOT}/scripts/apply.mjs --target <repo>`. It writes the tokens into the
+   stylesheet, its rows into the ledger `design/decisions.yaml`, and installs the checks into the
+   repository's gate. `references/checks.md` says what each file is.
 2. `make format`, then `make design-assembly`. Then the repository's own `make check`.
 3. A failure of `make design-assembly` means a decision is no longer held. Read the message: it
    names the decision and what is wrong. Fix the cause, never the check.
-4. `make design-rate`, and explain the number: the determinism rate is the share of decisions held
-   by a check that was seen failing. Decisions of kind judgment have no check by design: the
-   product type, the conformance level and the source color are a person's calls. What follows
-   from them, such as every contrast ratio, is checked.
+4. `make design-rate`, and explain the number: the determinism rate is the share of the ledger's
+   decisions that have a check. `held` means this plugin's tool ran it now and saw it fail on a
+   changed copy; `claimed` means another check is named and was not run here. Decisions of kind
+   judgment have no check by design: the product type, the conformance level and the source color
+   are a person's calls. What follows from them, such as every contrast ratio, is checked.
+5. `/design-assembly:audit` again, and show which tier the repository has reached and what the
+   next one misses.
 
 ## 7. Finish
 
@@ -134,8 +147,10 @@ with the same answers changes nothing.
 
 ## Rules
 
-- Never edit `tools/design-assembly/`, `mk/design-assembly.mk` or the generated block in
-  `src/index.css` by hand. Change the blueprint and run `apply.mjs` again.
+- Never edit `tools/design-assembly/`, `mk/design-assembly.mk`, `design/theme.json` or the
+  generated block in `src/index.css` by hand. Change the blueprint and run `apply.mjs` again.
+- In `design/decisions.yaml`, touch only what `apply.mjs` writes. Rows another person wrote stay
+  exactly as they are.
 - Never weaken a check to make it pass.
 - Never present a layer that is not built as if it were.
 - Never change a choice the person stated without asking.

@@ -4,8 +4,8 @@
 and a corner radius; the machine derives the rest and checks it. Spacing stays on the floor's unit.
 Density, elevation, motion and iconography are not in this version.
 
-**Depends on:** product context, accessibility. The conformance level fixes the contrast ratio every
-color role must reach. The product type sets which type scale is recommended.
+**Depends on:** product context. Its conformance level fixes the contrast ratio every color role
+must reach. Its product type sets which type scale is recommended.
 
 **Only one sensible answer when:** never for the source color: it is brand character, only the
 person knows it. Spacing always has one answer in this version: say it in one line.

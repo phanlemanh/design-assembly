@@ -20,12 +20,9 @@ Kho này chưa có nhận diện. Máy đề xuất một màu lam để referen
 
 ## What is held
 
-- `foundations.source-color`: judgment, no check
-- `foundations.tonal-palette`: formula, checked (generated)
-- `foundations.type-scale`: standard, checked (absent)
-- `foundations.spacing-scale`: standard, checked (absent)
-- `foundations.shape`: closed-list, checked (value)
-- `foundations.color-role.primary.light`: formula, checked (contrast)
-- `foundations.color-role.on-primary.light`: formula, checked (contrast)
-- `foundations.color-role.primary.dark`: formula, checked (contrast)
-- `foundations.color-role.on-primary.dark`: formula, checked (contrast)
+- `source-color`: judgment, a person's call, no check
+- `tonal-palette`: formula, checked by this plugin's tool
+- `color-contrast`: formula, checked by this plugin's tool
+- `type-scale-values`: standard, checked by this plugin's tool
+- `spacing-values`: standard, checked by this plugin's tool
+- `radius-value`: closed, checked by this plugin's tool

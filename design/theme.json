@@ -1,0 +1,90 @@
+{
+  "version": 1,
+  "inputs": {
+    "sourceColor": "#0246ff",
+    "conformanceLevel": "AA",
+    "typeScale": "standard",
+    "cornerRadius": "floor"
+  },
+  "checks": {
+    "tonal-palette": [
+      {
+        "kind": "generated"
+      }
+    ],
+    "color-contrast": [
+      {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--primary",
+        "background": "--background",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--primary-foreground",
+        "background": "--primary",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--primary",
+        "background": "--background",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--primary-foreground",
+        "background": "--primary",
+        "min": 4.5
+      }
+    ],
+    "type-scale-values": [
+      {
+        "kind": "absent",
+        "variables": [
+          "--text-xs",
+          "--text-xs--line-height",
+          "--text-sm",
+          "--text-sm--line-height",
+          "--text-base",
+          "--text-base--line-height",
+          "--text-lg",
+          "--text-lg--line-height",
+          "--text-xl",
+          "--text-xl--line-height",
+          "--text-2xl",
+          "--text-2xl--line-height",
+          "--text-3xl",
+          "--text-3xl--line-height",
+          "--text-4xl",
+          "--text-4xl--line-height",
+          "--text-5xl",
+          "--text-5xl--line-height"
+        ]
+      }
+    ],
+    "spacing-values": [
+      {
+        "kind": "absent",
+        "variables": ["--spacing"]
+      }
+    ],
+    "radius-value": [
+      {
+        "kind": "value",
+        "scope": ":root",
+        "variable": "--radius",
+        "expected": "0.625rem"
+      }
+    ],
+    "checks-in-gate": [
+      {
+        "kind": "gate"
+      }
+    ]
+  }
+}
