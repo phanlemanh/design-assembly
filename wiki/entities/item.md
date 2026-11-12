@@ -30,3 +30,4 @@ Không có luật nghiệp vụ. Mỗi trường khai kiểu cột của nó b�
 ## History
 
 - 2026-11-12 — Thêm vào mô hình để tầng bảng dữ liệu của plugin có trường mà gắn kiểu cột.
+- 2026-11-12 — Chủ kho xem lại và giữ thực thể mẫu cùng khoá `display` («Giữ»).

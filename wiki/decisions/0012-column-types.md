@@ -56,8 +56,8 @@ canh phải». Không hệ nào cho ra cùng một bảng từ cùng một đầ
   thoại tự chuyển sang dày, hàng đúng 40 px; cột tiền canh phải; trang không cuộn ngang.
 - **Kho đáp 23/38 quyết định lõi** (7 máy giữ, 13 tự khai, 3 đã ghi). Bậc core components đủ 10/10
   và ở mức «tự khai».
-- **Mô hình dữ liệu có thay đổi cần người xem lại**: thêm thực thể mẫu `Item` và khoá `display`
-  trên thuộc tính. Xem [Item](../entities/item.md).
+- **Mô hình dữ liệu có thay đổi**: thêm thực thể mẫu `Item` và khoá `display` trên thuộc tính.
+  Chủ kho đã xem lại và giữ cả hai ngày 2026-11-12. Xem [Item](../entities/item.md).
 - **Trang hành vi của kho đổi một đoạn**: sàn ghi «dòng của bảng giữ chiều cao mặc định»; đoạn đó
   giờ nói theo luật mật độ đã duyệt.
 - **Kho đối chứng không đổi gì**: sổ của nó đã có dòng cho cả bốn câu, và adopt không ghi bảng kiểu
