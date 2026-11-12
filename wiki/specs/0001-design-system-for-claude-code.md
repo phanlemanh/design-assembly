@@ -229,6 +229,39 @@ Ba điều tìm ra khi dựng:
 - Lệnh kiểm chạy qua một đường dẫn liên kết thì thoát êm mà không kiểm gì. Đã sửa và có bài kiểm.
 - Material Design 3 gọi là source color; «seed» là từ của Flutter. Đã đổi theo Material.
 
+### Chạy thử lần hai (2026-11-12)
+
+Hai tác tử chưa thấy cuộc trao đổi nào, mỗi tác tử một bản sao: kho này ở trạng thái trước khi có
+plugin, và một bản clone của kho đối chứng. Chúng chỉ được đọc ba skill và đầu ra của lệnh. Câu của
+người nằm trong tệp niêm phong, chỉ mở khi skill bảo hỏi.
+
+**Điều đứng vững.** Không tệp nào của kho bị đổi sai: ở bản sao kho đối chứng chỉ sổ quyết định
+được nối thêm dòng, 50 dòng cũ nguyên từng byte, stylesheet, lint, bài kiểm và các tệp thiết kế giữ
+tay không đổi. Tác tử tự tính lại tương phản và ra cùng số (6,32:1). Bốn lần cố ý làm hỏng một giá
+trị đều làm cổng đỏ đúng dòng. Chạy lại lần hai không đổi gì.
+
+**Điều sai, đã sửa.**
+
+- Bản audit đếm điều nó suy ra là «người đã ghi», và nhìn kho khác với lệnh adopt (quyết định
+  0010).
+- Không rõ kho nào đi đường nào; bản audit giờ in bước kế.
+- Tệp dữ liệu công cụ do adopt ghi làm bước kiểm định dạng của kho đỏ. Đã xác nhận bằng bộ định
+  dạng thật, và giờ có bài kiểm dùng chính bộ định dạng đó.
+- Bản xem trước của adopt chỉ in tên quyết định, không in giá trị nó sẽ giữ; lần chạy hai im lặng
+  về phần chưa đọc được; tệp người tự giữ bị xếp nhầm mục; không có đường ghi loại sản phẩm.
+- Thông báo khi tệp token lệch bảo «đừng sửa tay» trong khi chính stylesheet mới là bên đổi. Giờ
+  nó nêu tên token và cả hai giá trị.
+- Cuộc dẫn dắt nói «mọi tỉ lệ tương phản đều được kiểm»; thật ra chỉ hai cặp của màu chính. Đã sửa
+  lời và ghi phạm vi vào dòng sổ.
+- Cuộc dẫn dắt một mình không đưa kho tới bậc nó dựng; giờ nó chạy adopt ở cuối.
+
+**Điều còn nguyên.**
+
+- Ba bài kiểm trình duyệt của sàn vẫn chưa vào sổ được vì tệp không mang thẻ tên quyết định.
+- Màu máy đề xuất khi người chưa có màu là chọn tuỳ ý; hướng dẫn giờ bắt nói rõ điều đó.
+- Tệp niêm phong lộ mọi câu trả lời ngay lần mở đầu; đó là lỗi của cách dựng cuộc thử.
+- Các sửa đổi chưa được tác tử độc lập thử lại.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.

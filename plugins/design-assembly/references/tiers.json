@@ -6,7 +6,11 @@
       "terms": ["audit"],
       "maps_to": null,
       "gives": "Know what is decided, what is held, and what is bypassed, before changing anything.",
-      "needs": [{ "kind": "readable" }]
+      "needs": [
+        {
+          "kind": "readable"
+        }
+      ]
     },
     {
       "id": "foundations",
@@ -14,8 +18,15 @@
       "maps_to": "L1",
       "gives": "Never choose a raw colour, size, distance or radius.",
       "needs": [
-        { "kind": "decisions" },
-        { "kind": "file", "socket": "design_floor.tokens", "path": "design/tokens.json" }
+        {
+          "kind": "decisions"
+        },
+        {
+          "kind": "file",
+          "socket": "design_floor.tokens",
+          "path": "design/tokens.json",
+          "about": "the design tokens, for tools that do not read CSS"
+        }
       ]
     },
     {
@@ -24,11 +35,14 @@
       "maps_to": "L2",
       "gives": "Pick a component by looking it up, and be unable to write a wrong variant.",
       "needs": [
-        { "kind": "decisions" },
+        {
+          "kind": "decisions"
+        },
         {
           "kind": "file",
           "socket": "design_floor.registry",
-          "path": "design/component-registry.json"
+          "path": "design/component-registry.json",
+          "about": "the component manifest: components and their variants"
         }
       ]
     },
@@ -38,11 +52,18 @@
       "maps_to": "L3",
       "gives": "Answer what a view shows when loading, empty or failing, and how it says it.",
       "needs": [
-        { "kind": "decisions" },
-        { "kind": "any-file", "paths": ["design/behaviors.md", "design/states.md"] },
+        {
+          "kind": "decisions"
+        },
         {
           "kind": "any-file",
-          "paths": ["design/terms.json", "design/language.md", "design/content.md"]
+          "paths": ["design/behaviors.md", "design/states.md"],
+          "about": "what each state of a view shows"
+        },
+        {
+          "kind": "any-file",
+          "paths": ["design/terms.json", "design/language.md", "design/content.md"],
+          "about": "the words the product uses and must not swap"
         }
       ]
     },
@@ -52,8 +73,15 @@
       "maps_to": "L3",
       "gives": "Build a new screen of a known kind.",
       "needs": [
-        { "kind": "decisions" },
-        { "kind": "folder", "path": "design/patterns", "extension": ".md" }
+        {
+          "kind": "decisions"
+        },
+        {
+          "kind": "folder",
+          "path": "design/patterns",
+          "extension": ".md",
+          "about": "one page per kind of screen: which parts it has, in which order"
+        }
       ]
     },
     {
@@ -62,8 +90,14 @@
       "maps_to": "L5",
       "gives": "Handle a departure from the system without eroding it.",
       "needs": [
-        { "kind": "decisions" },
-        { "kind": "any-file", "paths": ["design/escapes.md", "design/patterns/lech-lot.md"] }
+        {
+          "kind": "decisions"
+        },
+        {
+          "kind": "any-file",
+          "paths": ["design/escapes.md", "design/patterns/lech-lot.md"],
+          "about": "the record of accepted departures from the system"
+        }
       ]
     }
   ]

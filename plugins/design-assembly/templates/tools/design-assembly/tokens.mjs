@@ -56,17 +56,41 @@ export function readTokens(styles) {
 export const renderTokens = (tokens) => `${JSON.stringify(tokens, null, 2)}\n`;
 
 // Why the file is not what the stylesheet gives, or null. Compared as data: a formatter may lay
-// the file out differently.
+// the file out differently. The reason names the first tokens that differ, so a person can see
+// which side moved.
 export function tokensProblem(text, styles, file, stylesheet) {
-  if (text === null || text === undefined) return `${file} is missing: run make design-tokens`;
+  const again = "run make design-tokens to write the file again from the stylesheet";
+  if (text === null || text === undefined) return `${file} is missing: ${again}`;
   let data;
   try {
     data = JSON.parse(text);
   } catch {
-    return `${file} is not valid JSON: run make design-tokens`;
+    return `${file} is not valid JSON: ${again}`;
   }
-  if (JSON.stringify(data) === JSON.stringify(readTokens(styles).tokens)) return null;
-  return `${file} is not what ${stylesheet} gives: run make design-tokens instead of editing it`;
+  const expected = readTokens(styles).tokens;
+  if (JSON.stringify(data) === JSON.stringify(expected)) return null;
+  const flat = (tree) =>
+    new Map(
+      Object.entries(tree ?? {}).flatMap(([group, entries]) =>
+        Object.entries(entries ?? {}).map(([name, token]) => [`${group}.${name}`, token]),
+      ),
+    );
+  const [given, listed] = [flat(expected), flat(data)];
+  const differs = [];
+  for (const [name, token] of given) {
+    const other = listed.get(name);
+    if (!other) differs.push(`${name} is not in the file`);
+    else if (other.$value !== token.$value) {
+      differs.push(`${name}: the stylesheet gives ${token.$value}, the file says ${other.$value}`);
+    } else if (JSON.stringify(other) !== JSON.stringify(token)) {
+      differs.push(`${name}: its dark value differs`);
+    }
+  }
+  for (const name of listed.keys()) {
+    if (!given.has(name)) differs.push(`${name} is not in the stylesheet`);
+  }
+  const detail = differs.length > 0 ? ` (${differs.slice(0, 3).join("; ")})` : "";
+  return `${file} is not what ${stylesheet} gives${detail}: the stylesheet is where a value changes, so ${again}`;
 }
 
 function main() {
@@ -77,7 +101,9 @@ function main() {
   const theme = existsSync(themeFile) ? JSON.parse(readFileSync(themeFile, "utf8")) : null;
   const check = theme?.checks?.[TOKENS_DECISION]?.[0];
   if (!check) {
-    stderr.write("design-assembly: this repository does not keep a design tokens file yet\n");
+    stderr.write(
+      "design-assembly: this tool manages no design tokens file here: the repository has none yet, or keeps one of its own\n",
+    );
     exit(1);
   }
   const stylesheet = theme.stylesheet ?? "src/index.css";

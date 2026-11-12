@@ -216,7 +216,7 @@ export function runChecks(state) {
     }
     return {
       id,
-      problem: problems[0] ?? null,
+      problem: problems.length > 0 ? problems.join("; ") : null,
       seenFailing,
       held: problems.length === 0 && seenFailing,
     };
@@ -244,7 +244,7 @@ export function ledgerView(state) {
   return (state.ledger ?? []).map((row) => {
     const id = String(row.id);
     if (!row.check)
-      return { id, kind: row.kind, state: row.kind === "judgment" ? "recorded" : "no check" };
+      return { id, kind: row.kind, state: row.kind === "judgment" ? "recorded" : "not held" };
     if (row.check === TOOL) {
       const mine = results.find((r) => r.id === id);
       return { id, kind: row.kind, state: mine?.held ? "held" : "FAILING" };

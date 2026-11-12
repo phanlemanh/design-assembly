@@ -82,12 +82,17 @@ test("a folder with nothing in it: nothing is answered and no tier is reached", 
   assert.match(report(result), /ledger design\/decisions\.yaml: none/);
 });
 
-test("a floor with no ledger and no lint: its scales are decided, and nothing holds them", () => {
+test("a floor with no ledger and no lint: nothing is answered, and what is seen is not an answer", () => {
   const result = inventory(floor());
   for (const id of ["color-role", "type-scale", "spacing", "radius"]) {
-    assert.equal(state(result, id), "not-held", id);
+    assert.equal(state(result, id), "no-row", id);
   }
-  assert.equal(state(result, "source-color"), "recorded");
+  // The grey default is seen and named as such: it is not a person's decision, and not counted.
+  const color = result.decisions.find((d) => d.id === "source-color");
+  assert.equal(color.state, "no-row");
+  assert.match(color.seen, /a grey default and not a brand colour: a person confirms it/);
+  assert.equal(result.coverage.answered, 0);
+  assert.match(result.next, /^\/design-assembly:new, .*then \/design-assembly:adopt/);
   assert.equal(state(result, "product-type"), "no-row");
   assert.equal(result.coverage.held, 0);
   assert.equal(tier(result, "audit").state, "reached");
@@ -174,7 +179,13 @@ test("another team's ledger: a row that names a check is claimed, a broken point
   assert.equal(state(result, "color-role"), "claimed");
   assert.equal(state(result, "radius"), "not-held");
   assert.equal(state(result, "raw-controls"), "failing");
-  assert.equal(state(result, "conformance-level"), "recorded");
+  // A level named in another row's source is seen, not taken as the person's answer.
+  const level = result.decisions.find((d) => d.id === "conformance-level");
+  assert.equal(level.state, "no-row");
+  assert.match(
+    level.seen,
+    /an accessibility row of the ledger names a level: a person confirms it/,
+  );
   assert.deepEqual(result.ledger.own_decisions, ["team-only-rule"]);
   assert.equal(result.ledger.total, 5);
   assert.equal(result.ledger.automatic, 1);
@@ -225,7 +236,7 @@ test("a tier is reached only with every core decision answered and its artifact 
   assert.deepEqual(
     tier(inventory(dir), "foundations")
       .needs.filter((need) => !need.ok)
-      .map((need) => need.what),
+      .map((need) => need.what.split(" (")[0]),
     ["design/tokens.json"],
   );
 
@@ -233,7 +244,7 @@ test("a tier is reached only with every core decision answered and its artifact 
   assert.deepEqual(
     tier(inventory(dir), "foundations")
       .needs.filter((need) => !need.ok)
-      .map((need) => need.what),
+      .map((need) => need.what.split(" (")[0]),
     ["design/brand.tokens.json"],
   );
   put(dir, "design/brand.tokens.json", "{}\n");

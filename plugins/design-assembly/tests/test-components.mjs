@@ -10,11 +10,8 @@ import { env, execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import {
-  readComponents,
-  readFolder,
-  renderManifest,
-} from "../templates/tools/design-assembly/components.mjs";
+import { readComponents, readFolder } from "../templates/tools/design-assembly/components.mjs";
+import { renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
 
@@ -160,15 +157,15 @@ test("components and variants are read from source: variant sets, typed props, s
 test("the manifest is laid out as a formatter leaves it, for the width the repository uses", () => {
   const manifest = readComponents({ "ui/toggle.tsx": TOGGLE });
   for (const width of [60, 80, 200]) {
-    const out = renderManifest(manifest, width);
+    const out = renderJson(manifest, width);
     assert.deepEqual(JSON.parse(out), manifest);
     for (const line of out.split("\n")) {
       // A line longer than the width is one that cannot be broken: a single word.
       assert.ok(line.length <= width || !line.includes(", "), line);
     }
   }
-  assert.match(renderManifest(manifest, 200), /"variants": \["variant=default", "variant=outline"/);
-  assert.match(renderManifest(manifest, 60), /"variants": \[\n\s+"variant=default",/);
+  assert.match(renderJson(manifest, 200), /"variants": \["variant=default", "variant=outline"/);
+  assert.match(renderJson(manifest, 60), /"variants": \[\n\s+"variant=default",/);
 });
 
 test("the guide writes the manifest of the components the repository has", () => {
@@ -231,7 +228,10 @@ test("the manifest is held to the source: a change on either side turns the gate
   edit(dir, REGISTRY, (json) => json.replace('"size=lg"', '"size=huge"'));
   const edited = check(dir);
   assert.equal(edited.status, 1);
-  assert.match(edited.stderr, /component-manifest: .* instead of editing it/);
+  assert.match(
+    edited.stderr,
+    /component-manifest: .*\(Button differs\): the source is where a component changes/,
+  );
 
   rmSync(path.join(dir, REGISTRY));
   assert.match(

@@ -15,6 +15,8 @@ import path from "node:path";
 import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
+import { lineWidth, renderJson } from "./json.mjs";
+
 // The file a repository gets when nothing names another one, and the folder read by default.
 export const REGISTRY = "design/component-registry.json";
 export const COMPONENTS_FOLDER = "src/components/ui";
@@ -188,64 +190,34 @@ export function readComponents(files) {
   return { version: VERSION, components };
 }
 
-// The line width the repository's formatter keeps, so the file is written the way it leaves it.
-export function lineWidth(root) {
-  const read = (file) => {
-    try {
-      return JSON.parse(readFileSync(path.join(root, file), "utf8"));
-    } catch {
-      return null;
-    }
-  };
-  return (
-    read(".prettierrc.json")?.printWidth ??
-    read(".prettierrc")?.printWidth ??
-    read("package.json")?.prettier?.printWidth ??
-    80
-  );
-}
-
-// JSON laid out as a formatter leaves it: objects open, a list of words on one line when it fits.
-export function renderManifest(manifest, width = 80) {
-  const lines = (value, indent, lead, tail) => {
-    const pad = " ".repeat(indent);
-    if (Array.isArray(value) && value.every((item) => typeof item !== "object")) {
-      const flat = `${pad}${lead}[${value.map((item) => JSON.stringify(item)).join(", ")}]${tail}`;
-      if (flat.length <= width) return [flat];
-    }
-    if (typeof value !== "object" || value === null) {
-      return [`${pad}${lead}${JSON.stringify(value)}${tail}`];
-    }
-    const list = Array.isArray(value);
-    const items = list ? value.map((item) => ["", item]) : Object.entries(value);
-    if (items.length === 0) return [`${pad}${lead}${list ? "[]" : "{}"}${tail}`];
-    return [
-      `${pad}${lead}${list ? "[" : "{"}`,
-      ...items.flatMap(([key, item], index) =>
-        lines(
-          item,
-          indent + 2,
-          list ? "" : `${JSON.stringify(key)}: `,
-          index < items.length - 1 ? "," : "",
-        ),
-      ),
-      `${pad}${list ? "]" : "}"}${tail}`,
-    ];
-  };
-  return `${lines(manifest, 0, "", "").join("\n")}\n`;
-}
-
-// Why the file is not what the source gives, or null. Compared as data.
+// Why the file is not what the source gives, or null. Compared as data. The reason names the
+// first components that differ, so a person can see which side moved.
 export function componentsProblem(text, files, file, folder) {
-  if (text === null || text === undefined) return `${file} is missing: run make design-components`;
+  const again = "run make design-components to write the file again from the source";
+  if (text === null || text === undefined) return `${file} is missing: ${again}`;
   let data;
   try {
     data = JSON.parse(text);
   } catch {
-    return `${file} is not valid JSON: run make design-components`;
+    return `${file} is not valid JSON: ${again}`;
   }
-  if (JSON.stringify(data) === JSON.stringify(readComponents(files))) return null;
-  return `${file} is not what ${folder} gives: run make design-components instead of editing it`;
+  const expected = readComponents(files);
+  if (JSON.stringify(data) === JSON.stringify(expected)) return null;
+  const listed = new Map((data.components ?? []).map((item) => [item.name, JSON.stringify(item)]));
+  const found = new Map(expected.components.map((item) => [item.name, JSON.stringify(item)]));
+  const differs = [
+    ...[...found.keys()]
+      .filter((name) => !listed.has(name))
+      .map((name) => `${name} is not in the file`),
+    ...[...listed.keys()]
+      .filter((name) => !found.has(name))
+      .map((name) => `${name} is not in the source`),
+    ...[...found.keys()]
+      .filter((name) => listed.has(name) && listed.get(name) !== found.get(name))
+      .map((name) => `${name} differs`),
+  ];
+  const detail = differs.length > 0 ? ` (${differs.slice(0, 3).join("; ")})` : "";
+  return `${file} is not what ${folder} gives${detail}: the source is where a component changes, so ${again}`;
 }
 
 function main() {
@@ -256,7 +228,9 @@ function main() {
   const theme = existsSync(themeFile) ? JSON.parse(readFileSync(themeFile, "utf8")) : null;
   const check = theme?.checks?.[COMPONENTS_DECISION]?.[0];
   if (!check) {
-    stderr.write("design-assembly: this repository does not keep a component manifest yet\n");
+    stderr.write(
+      "design-assembly: this tool manages no component manifest here: the repository has no components to list, or keeps a registry of its own\n",
+    );
     exit(1);
   }
   const files = readFolder(root, check.folder);
@@ -273,7 +247,7 @@ function main() {
     exit(1);
   }
   mkdirSync(path.dirname(full), { recursive: true });
-  writeFileSync(full, renderManifest(manifest, lineWidth(root)));
+  writeFileSync(full, renderJson(manifest, lineWidth(root)));
   stdout.write(`component manifest: wrote ${check.file} from ${check.folder} (${count})\n`);
 }
 

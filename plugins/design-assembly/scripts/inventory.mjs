@@ -17,6 +17,10 @@ import {
   TOOL,
 } from "../templates/tools/design-assembly/ledger.mjs";
 
+import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
+import { readBlock } from "../templates/tools/design-assembly/theme.mjs";
+import { findProofs } from "./proofs.mjs";
+
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const reference = (name) =>
   JSON.parse(readFileSync(path.join(HERE, "../references", name), "utf8"));
@@ -26,7 +30,8 @@ const STANDARD = reference("standard-decisions.json");
 const SKIP_DIRS = new Set(["node_modules", "dist", "coverage", "test-results", "generated"]);
 // Code the repository did not write: a vendor's components are not the repository's decisions.
 const VENDOR = /(^|\/)components\/(ui|reui)\//;
-// A decision is answered when it is held, claimed or recorded.
+// A decision is answered when the ledger has a row for it that is held, claimed or recorded.
+// What the audit can see without a row is said beside the decision, and is not an answer.
 const ANSWERED = ["held", "claimed", "recorded"];
 
 function walk(root, dir, keep) {
@@ -118,14 +123,19 @@ function fromLedger(root, row, held) {
   if (!row.check) return { state: "not-held", by: null };
   if (row.check === TOOL) {
     return held.has(row.id)
-      ? { state: "held", by: "this plugin's tool, run now" }
+      ? { state: "held", by: "this plugin's tool, run now", note: row.note }
       : { state: "failing", by: "this plugin's tool reports a problem" };
   }
   const broken = pointerProblem(root, row.id, row.check);
   return broken ? { state: "failing", by: broken } : { state: "claimed", by: row.check };
 }
 
-// The state of a decision with no row, from what the repository shows.
+// Above this chroma a primary color role has a hue of its own: the floor's default is a grey.
+const OWN_HUE_CHROMA = 0.05;
+
+// A decision with no row. The audit says what the repository shows, and never counts it as an
+// answer: a proof it already runs (adopting adds the row), or a value that looks like the answer
+// (a person confirms it).
 function fromRepository(decision, facts) {
   const usage = USAGE[decision.id];
   if (usage) {
@@ -133,25 +143,57 @@ function fromRepository(decision, facts) {
       ? facts.declared.some((d) => d.name === usage.variable && d.scope === ":root")
       : facts.tailwind;
     if (!decided) return { state: "undecided", by: null };
-    const lint = usage.lint.exec(facts.eslint)?.[0];
-    return lint
-      ? { state: "claimed", by: `lint rule ${lint}, not a row of the ledger` }
-      : { state: "not-held", by: null };
   }
-  const seen = {
-    "product-type": facts.setup.vars?.design_surface && ".repo-setup.json",
+  const proof = facts.proofs.find((item) => item.id === decision.id);
+  if (proof) {
+    return {
+      state: "no-row",
+      seen: proof.problem
+        ? `a proof the ledger cannot point at yet (${proof.problem})`
+        : `a proof the repository already runs, ${proof.check}: adopting adds the row`,
+    };
+  }
+  const primary = facts.primary;
+  const looks = {
+    "product-type":
+      facts.setup.vars?.design_surface &&
+      `.repo-setup.json records design_surface: ${facts.setup.vars.design_surface}`,
     "source-color":
-      (facts.setup.vars?.brand_primary && ".repo-setup.json") ||
-      (facts.declared.some((d) => d.name === "--primary" && d.scope === ":root") &&
-        "the stylesheet's --primary"),
+      primary &&
+      (primary.own
+        ? `the stylesheet's --primary is ${primary.value}`
+        : `the stylesheet's --primary is ${primary.value}, a grey default and not a brand colour`),
     "conformance-level":
       facts.rows.find(
         (r) => /\bA{2,3}\b/.test(r.source ?? "") && /wcag/i.test(`${r.id} ${r.source}`),
-      ) && "the source of an accessibility row of the ledger",
+      ) && "an accessibility row of the ledger names a level",
   }[decision.id];
-  // No row and nothing the audit can read: it cannot tell "never decided" from "decided somewhere
-  // the ledger does not say". Either way the next step is a row.
-  return seen ? { state: "recorded", by: seen } : { state: "no-row", by: null };
+  return { state: "no-row", seen: looks ? `${looks}: a person confirms it` : null };
+}
+
+// What to do next, decided from the files and not from a reading of this report.
+function nextStep(facts, decisions) {
+  if (facts.styles === null) {
+    return "nothing to read: the guide and adopting both need a stylesheet that declares color roles";
+  }
+  const proofs = decisions.filter((d) => d.seen?.startsWith("a proof the repository already runs"));
+  const calls = decisions.filter(
+    (d) => ["product-type", "conformance-level", "source-color"].includes(d.id) && !d.in_ledger,
+  );
+  const reasons = [
+    ...(proofs.length > 0 ? [`${proofs.length} proof(s) seen without a row`] : []),
+    ...(calls.length > 0 ? [`${calls.map((d) => d.id).join(", ")} to confirm with a person`] : []),
+  ];
+  const adopt = `/design-assembly:adopt, to record what the repository already has${reasons.length > 0 ? ` (${reasons.join("; ")})` : ""}`;
+  if (facts.generated || facts.adopted) {
+    return reasons.length > 0
+      ? adopt
+      : "nothing more to generate or adopt: what is open above belongs to layers this version does not build";
+  }
+  if (facts.primary?.own) {
+    return `${adopt}. Not the guide: the stylesheet has a primary color role of its own (${facts.primary.value}), which the guide would replace`;
+  }
+  return `/design-assembly:new, to choose the values the repository does not have (its primary color role is a grey default); then ${adopt}`;
 }
 
 function need(root, item, facts, tier) {
@@ -168,13 +210,14 @@ function need(root, item, facts, tier) {
       missing: open.map((d) => `${d.id}: ${d.state}`),
     };
   }
+  const about = item.about ? ` (${item.about})` : "";
   if (item.kind === "file") {
     const file = facts.sockets[item.socket] ?? item.path;
-    return { ok: existsSync(path.join(root, file)), what: file };
+    return { ok: existsSync(path.join(root, file)), what: `${file}${about}` };
   }
   if (item.kind === "any-file") {
     const found = item.paths.find((file) => existsSync(path.join(root, file)));
-    return { ok: Boolean(found), what: found ?? `one of ${item.paths.join(", ")}` };
+    return { ok: Boolean(found), what: found ?? `one of ${item.paths.join(", ")}${about}` };
   }
   if (item.kind === "folder") {
     const files = walk(root, item.path, (file) => file.endsWith(item.extension)).filter(
@@ -182,7 +225,7 @@ function need(root, item, facts, tier) {
     );
     return {
       ok: files.length > 0,
-      what: `${item.path}/*${item.extension} (${files.length} found)`,
+      what: `${item.path}/*${item.extension} (${files.length} found)${about}`,
     };
   }
   throw new Error(`unknown need ${item.kind}`);
@@ -204,6 +247,18 @@ export function inventory(root) {
   };
   const bypass = bypasses(root, sources);
   const state = readState(root);
+  const styles = existsSync(path.join(root, state.stylesheet))
+    ? loadStyles(root, state.stylesheet)
+    : null;
+  const primary = styles ? resolve(styles, ":root", "--primary") : null;
+  facts.styles = styles;
+  facts.primary = primary && {
+    value: primary.value,
+    own: !primary.color || primary.color.c > OWN_HUE_CHROMA,
+  };
+  facts.generated = styles !== null && readBlock(styles.css) !== null;
+  facts.adopted = (state.theme?.adopted ?? []).length > 0;
+  facts.proofs = findProofs(root);
   const held = new Set(
     state.theme
       ? runChecks(state)
@@ -224,11 +279,10 @@ export function inventory(root) {
       question: decision.question,
       in_ledger: Boolean(row),
       // Source that goes around a decision outranks whatever claims to hold it.
-      state:
-        around.count > 0 && !["undecided", "no-row"].includes(found.state)
-          ? "bypassed"
-          : found.state,
-      by: found.by,
+      state: around.count > 0 && found.state !== "undecided" ? "bypassed" : found.state,
+      by: found.by ?? null,
+      seen: found.seen ?? null,
+      note: found.note ?? null,
       bypassed: around.count,
       bypassed_in: around.files.slice(0, 5),
     };
@@ -245,6 +299,7 @@ export function inventory(root) {
     lower = result === "reached" || result === "claimed" ? lower : "missing";
     return { id: tier.id, maps_to: tier.maps_to, state: result, needs };
   });
+  const beyond = facts.decisions.filter((d) => !d.core && d.in_ledger);
 
   const core = facts.decisions.filter((d) => d.core);
   const count = (list, name) => list.filter((d) => d.state === name).length;
@@ -260,6 +315,13 @@ export function inventory(root) {
       claimed: count(core, "claimed"),
       recorded: count(core, "recorded"),
     },
+    // Rows of the ledger for standard decisions that are not core: one source names them.
+    beyond_core: {
+      held: count(beyond, "held"),
+      claimed: count(beyond, "claimed"),
+      recorded: count(beyond, "recorded"),
+    },
+    next: nextStep(facts, facts.decisions),
     ledger:
       rows.length === 0
         ? null
@@ -293,6 +355,8 @@ const NOTE = {
 function line(decision) {
   const lines = [`      ${LABEL[decision.state].padEnd(9)} ${decision.id}: ${decision.question}`];
   if (decision.by) lines.push(`                by ${decision.by}`);
+  if (decision.note) lines.push(`                covers: ${decision.note}`);
+  if (decision.seen) lines.push(`                seen: ${decision.seen}`);
   if (decision.bypassed > 0) {
     lines.push(
       `                ${decision.bypassed} place(s) go around it: ${decision.bypassed_in.join(", ")}`,
@@ -305,16 +369,24 @@ function line(decision) {
 export function report(result, { all = false } = {}) {
   const lines = [];
   lines.push(`stylesheets: ${result.stylesheets.join(", ") || "none found under src/"}`);
-  lines.push(`source files read: ${result.source_files} (vendor components left out)`);
+  lines.push(
+    `source files read: ${result.source_files} screens and components of the repository's own, searched for values that go around a scale (the component library's files are left out)`,
+  );
   const c = result.coverage;
   lines.push(
     "",
     `coverage: ${c.answered} of ${c.core} core decisions answered (${c.held} held and re-run here, ${c.claimed} claimed and not re-run, ${c.recorded} recorded)`,
   );
+  const b = result.beyond_core;
+  if (b.held + b.claimed + b.recorded > 0) {
+    lines.push(
+      `  beyond the core, the ledger also answers: ${b.held} held, ${b.claimed} claimed, ${b.recorded} recorded`,
+    );
+  }
   if (result.ledger) {
     const l = result.ledger;
     lines.push(
-      `ledger design/decisions.yaml: ${l.total} decisions, ${l.automatic} with a check that resolves`,
+      `ledger design/decisions.yaml: ${l.total} rows in all, ${l.automatic} of them naming a check that exists and is wired in`,
     );
     if (l.own_decisions.length > 0)
       lines.push(
@@ -325,7 +397,7 @@ export function report(result, { all = false } = {}) {
   } else lines.push("ledger design/decisions.yaml: none");
   lines.push("", "tiers:");
   for (const tier of result.tiers) {
-    lines.push(`  ${tier.id}${tier.maps_to ? ` (${tier.maps_to})` : ""}: ${NOTE[tier.state]}`);
+    lines.push(`  ${tier.id}: ${NOTE[tier.state]}`);
     for (const item of tier.needs) {
       if (item.missing === undefined && !item.ok) lines.push(`      missing: ${item.what}`);
       if (item.missing !== undefined) lines.push(`      ${item.what}`);
@@ -335,6 +407,7 @@ export function report(result, { all = false } = {}) {
       lines.push(...line(decision));
     }
   }
+  lines.push("", `next: ${result.next}`);
   return `${lines.join("\n")}\n`;
 }
 

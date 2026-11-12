@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-12 — Chạy thử lần hai bằng hai tác tử độc lập (kho trước plugin, bản sao kho đối chứng); sửa audit để chỉ dòng sổ mới là lời đáp và tự in bước kế, sửa adopt và ba skill theo 27 phát hiện — [0010](decisions/0010-only-a-row-is-an-answer.md), [spec 0001](specs/0001-design-system-for-claude-code.md).
 - 2026-11-12 — Thêm sổ linh kiện sinh từ mã nguồn (50 linh kiện ở kho này), có lệnh kiểm giữ khớp và lệnh sinh lại; lệnh soát kế hoạch của kit nhận sổ — [0009](decisions/0009-component-manifest.md).
 - 2026-11-12 — Thêm tệp design tokens sinh từ stylesheet, có lệnh kiểm giữ khớp và lệnh sinh lại; bộ đọc của kit nhận tệp; bậc foundations của kho này lên «tự khai» — [0008](decisions/0008-design-tokens-file.md).
 - 2026-11-12 — Thêm lệnh adopt: ghi dòng sổ và đặt lệnh kiểm quanh giá trị kho đã có, không ghi đè; cuộc dẫn dắt từ chối sinh đè lên giá trị riêng; kho này từ 9/38 lên 17/38 quyết định lõi — [0007](decisions/0007-adopt-existing-values.md).

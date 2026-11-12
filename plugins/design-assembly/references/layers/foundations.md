@@ -23,7 +23,8 @@ Then record the layer as `decided`, keep the blueprint `designing`, and run
 
 - the primary for light and for dark, and the contrast ratio each reaches;
 - whether the source color itself could be kept. When it does not reach the threshold on the
-  background, the machine keeps its hue and moves its lightness to the nearest value that does.
+  background, the machine keeps its hue and moves its lightness to the nearest value that does;
+  chroma follows where the screen cannot show the colour at that lightness.
   Tell the person in those words: the brand colour is still the source, the button colour is a
   step away from it;
 - the type sizes and line heights, when the scale is modular;
@@ -46,6 +47,14 @@ contrast ratio or a size yourself: the preview computes them from the repository
 | Color role primary            | The source color when it meets the contrast ratio on the background, else the nearest lightness that does | A contrast check on the values in the stylesheet |
 | Color role on-primary         | Near-white or near-black, whichever reads better on the primary                                           | A contrast check                                 |
 | Focus ring                    | The primary                                                                                               | The same check as the primary                    |
+
+**When Claude proposes the colour.** Any choice is a placeholder: say so, and record
+`source: proposed`. Prefer a colour with a hue that the repository already uses somewhere, and say
+where it came from; if there is none, say that the pick is arbitrary. It is not a brand decision
+until the person says it is.
+
+The generated block changes the primary color role, the text on it, the focus ring and the corner
+radius. Every other color role keeps the floor's value.
 
 The floor names its variables its own way: on-primary is written to `--primary-foreground`. The
 background is read from the repository's own stylesheet, so the roles are solved against the real

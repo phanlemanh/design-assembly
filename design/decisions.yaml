@@ -27,6 +27,7 @@ decisions:
     kind: formula
     source: "WCAG 2.2 level AA, contrast ratio for text"
     check: "tool:tools/design-assembly/check.mjs"
+    note: "the primary color roles in light and dark mode: the primary on the background, and the text on the primary"
   - id: type-scale-values
     layer: foundations
     kind: standard

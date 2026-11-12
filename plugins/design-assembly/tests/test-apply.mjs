@@ -105,7 +105,9 @@ test("the ledger is the standard one: every row this plugin holds points at its 
   assert.deepEqual(pointed.sort(), Object.keys(theme.checks).sort());
   for (const row of rows) {
     assert.deepEqual(
-      Object.keys(row).filter((key) => !["id", "layer", "kind", "source", "check"].includes(key)),
+      Object.keys(row).filter(
+        (key) => !["id", "layer", "kind", "source", "check", "note"].includes(key),
+      ),
       [],
     );
     if (row.kind === "judgment") assert.equal(row.check, undefined, row.id);
@@ -172,7 +174,7 @@ test("rows another team wrote are kept byte for byte, and only this plugin's row
   const rated = check(dir, "--rate");
   assert.equal(rated.status, 0, rated.stderr);
   assert.match(rated.stdout, /note: older layer name, raw-controls: layer 'core'/);
-  assert.match(rated.stdout, /no check standard raw-controls/);
+  assert.match(rated.stdout, /not held standard raw-controls/);
   assert.match(apply(dir).stdout, /^unchanged design\/decisions\.yaml$/m);
 });
 
@@ -234,7 +236,7 @@ test("the determinism rate is read from the ledger, and only a person's call goe
   assert.match(result.stdout, new RegExp(`${held} held and re-run here, 0 claimed`));
   const unchecked = result.stdout
     .split("\n")
-    .filter((line) => /^\s+(recorded|no check) /.test(line));
+    .filter((line) => /^\s+(recorded|not held) /.test(line));
   assert.equal(unchecked.length, rows.length - held);
   for (const line of unchecked) assert.match(line, /recorded judgment /);
 });

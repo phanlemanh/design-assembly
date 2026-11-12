@@ -3,13 +3,14 @@
 // both directions: the check passes on the repository as found, and fails once the value moves.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { inventory } from "../scripts/inventory.mjs";
 import { parseColor } from "../templates/tools/design-assembly/color.mjs";
 import { parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
@@ -367,3 +368,113 @@ test("the guide does not write over a primary color role that has a hue of its o
   assert.equal(text(dir, "src/index.css"), css);
   assert.equal(run(APPLY, "--target", dir, "--replace").status, 0);
 });
+
+test("the audit and adopting give one answer about the same repository", () => {
+  const dir = floor();
+  const before = inventory(dir);
+  // Nothing has a row yet, so nothing is answered: the audit says what it sees and what to do.
+  assert.equal(before.coverage.answered, 0);
+  assert.match(before.next, /^\/design-assembly:new, .*then \/design-assembly:adopt/);
+  const seen = before.decisions
+    .filter((d) => d.seen?.startsWith("a proof the repository already runs"))
+    .map((d) => d.id);
+  const untagged = before.decisions.find((d) => d.id === "wcag-aa");
+  assert.match(untagged.seen, /a proof the ledger cannot point at yet/);
+
+  const result = adopt(dir);
+  assert.equal(result.status, 0, result.stderr);
+  const rows = rowsOf(dir);
+  const claimed = rows.filter((row) => row.check && row.check !== TOOL).map((row) => row.id);
+  // Every proof the audit saw has a row after adopting: claimed, or held by this plugin's own
+  // tool where it proves the same thing itself. And adopting claimed nothing the audit did not see.
+  for (const id of seen)
+    assert.ok(
+      rows.some((row) => row.id === id),
+      id,
+    );
+  for (const id of claimed) assert.ok(seen.includes(id), id);
+  const after = inventory(dir);
+  for (const id of claimed) {
+    assert.equal(after.decisions.find((d) => d.id === id).state, "claimed", id);
+  }
+  // What is left for adopting is a person's word.
+  assert.match(after.next, /^\/design-assembly:adopt, .*to confirm with a person/);
+});
+
+test("a repository with a brand colour of its own is sent to adopting, never to the guide", () => {
+  const dir = folder(BRAND);
+  assert.match(
+    inventory(dir).next,
+    /^\/design-assembly:adopt, .*Not the guide: the stylesheet has a primary color role of its own \(var\(--brand-blue\)\)/,
+  );
+});
+
+test("the preview says which value each check holds, and a write says that it wrote", () => {
+  const dir = floor();
+  const preview = adopt(dir, "--dry-run");
+  assert.match(preview.stdout, /radius-value: --radius stays 0\.625rem/);
+  assert.match(preview.stdout, /type-scale-values: the framework's type sizes: fails when/);
+  assert.doesNotMatch(preview.stdout, /^done:/m);
+  const written = adopt(dir);
+  assert.match(written.stdout, /^done: \d+ row\(s\) added to the ledger, \d+ file\(s\) written$/m);
+  assert.match(adopt(dir).stdout, /^done: 0 row\(s\) added to the ledger, 0 file\(s\) written$/m);
+});
+
+test("the product type is written on a person's word, like the conformance level", () => {
+  const dir = floor();
+  assert.match(adopt(dir, "--dry-run").stdout, /product-type: say what kind of product this is/);
+  const bad = adopt(dir, "--product-type", "game");
+  assert.equal(bad.status, 2);
+  assert.match(bad.stderr, /product type must be one of application, content-site/);
+  assert.equal(adopt(dir, "--product-type", "application").status, 0);
+  const row = rowsOf(dir).find((item) => item.id === "product-type");
+  assert.equal(row.kind, "judgment");
+  assert.equal(JSON.parse(text(dir, "design/theme.json")).inputs.productType, "application");
+  assert.doesNotMatch(adopt(dir).stdout, /product-type: say/);
+});
+
+test("what cannot be read is said on every run, not only the first", () => {
+  const dir = folder(BRAND);
+  assert.equal(adopt(dir, "--conformance-level", "AA").status, 0);
+  const again = adopt(dir);
+  assert.match(again.stdout, /rows to add: 0/);
+  assert.match(again.stdout, /contrast ratios today:/);
+  assert.match(
+    again.stdout,
+    /cannot be read here:\n\s+color-contrast: dark: .*color-mix.*Not checked/,
+  );
+  // And the audit says what the held row covers.
+  const held = inventory(dir).decisions.find((d) => d.id === "color-contrast");
+  assert.equal(held.state, "held");
+  assert.match(held.note, /light mode; the pairs that could not be read are not checked/);
+});
+
+// The repository's own formatter, when it is installed next to this plugin.
+const PRETTIER = path.join(ROOT, "node_modules/.bin/prettier");
+
+test(
+  "every file the scripts write is laid out as the repository's formatter leaves it",
+  { skip: !existsSync(PRETTIER) && "the formatter is not installed here" },
+  () => {
+    const width = JSON.parse(own(".prettierrc.json")).printWidth;
+    const withComponents = {
+      ".prettierrc.json": own(".prettierrc.json"),
+      "components.json": own("components.json"),
+      "src/components/ui/button.tsx": own("src/components/ui/button.tsx"),
+      "src/components/ui/card.tsx": own("src/components/ui/card.tsx"),
+    };
+    const adopted = floor(withComponents);
+    assert.equal(adopt(adopted, "--conformance-level", "AA").status, 0);
+    const guided = floor({ ...withComponents, "design/blueprint.json": blueprint() });
+    assert.equal(run(APPLY, "--target", guided).status, 0);
+    for (const dir of [adopted, guided]) {
+      const files = ["theme.json", "tokens.json", "component-registry.json"].map((name) =>
+        path.join(dir, "design", name),
+      );
+      const checked = spawnSync(PRETTIER, ["--check", "--print-width", String(width), ...files], {
+        encoding: "utf8",
+      });
+      assert.equal(checked.status, 0, checked.stdout + checked.stderr);
+    }
+  },
+);

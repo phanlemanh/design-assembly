@@ -119,7 +119,14 @@ has checks behind it, and every decision it holds is a row.
 - `held`: this plugin's tool ran the check now and saw it fail on a changed copy.
 - `claimed`: the row names another check (a lint rule, a test). It resolves, and was not run here.
 - `recorded`: a judgment, written down. No check, by design.
-- `no check`: decided, and nothing holds it yet.
+- `not held`: decided, and nothing holds it yet.
 - `FAILING`: the check fails, or the pointer does not resolve.
+
+Two counts exist, and they answer different questions:
+
+- The audit's `coverage` line counts the core standard decisions that the ledger answers, and
+  splits them into held, claimed and recorded. Use it to say where the design system stands.
+- `make design-rate` counts every row of the ledger that names a check, held and claimed together,
+  over all rows, core or not. It says how much of the ledger is automatic, not how much was run.
 
 Visual regression and design lint for components are not in this version.

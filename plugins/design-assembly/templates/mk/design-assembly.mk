@@ -1,7 +1,7 @@
 CHECK_TARGETS += design-assembly
 
 .PHONY: design-assembly design-rate design-tokens design-components
-design-assembly: ## Check the generated design tokens, and show each check failing on a changed copy
+design-assembly: ## Check every design decision this tool holds, and show each check failing on a changed copy
 	@node tools/design-assembly/check.mjs
 
 design-rate: ## Print the determinism rate: decisions held by a check that can fail

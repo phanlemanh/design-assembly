@@ -20,12 +20,11 @@ import {
   COMPONENTS_DECISION,
   COMPONENTS_FOLDER,
   componentsProblem,
-  lineWidth,
   readComponents,
   readFolder,
   REGISTRY,
-  renderManifest,
 } from "../templates/tools/design-assembly/components.mjs";
+import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { mergeLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import { SPACING_UNIT_PX, TYPE_VARIABLES } from "../templates/tools/design-assembly/scale.mjs";
 import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
@@ -224,7 +223,7 @@ export function componentsPlan(target, alreadyHeld) {
   }
   return {
     file,
-    content: renderManifest(readComponents(sources), lineWidth(target)),
+    content: renderJson(readComponents(sources), lineWidth(target)),
     row: {
       id: COMPONENTS_DECISION,
       layer: "components",
@@ -299,6 +298,7 @@ function decisions(blueprint, theme, foundations) {
       kind: "formula",
       source: `WCAG 2.2 level ${level}, contrast ratio for text`,
       check: TOOL,
+      note: "the primary color roles in light and dark mode: the primary on the background, and the text on the primary",
     },
     {
       id: "type-scale-values",
@@ -419,7 +419,7 @@ export function plan(target, blueprint) {
     inputs,
     checks,
   };
-  files[FILES.theme] = `${JSON.stringify(data, null, 2)}\n`;
+  files[FILES.theme] = renderJson(data, lineWidth(target));
   // The ledger may hold rows this plugin did not write: they are kept exactly as they are.
   files[FILES.ledger] = mergeLedger(read(FILES.ledger), rows);
   for (const layer of LAYERS.filter((l) => l.built)) {
@@ -476,7 +476,7 @@ export function themeSummary(theme) {
   for (const mode of theme.modes) {
     const name = mode.selector === ":root" ? "light" : "dark";
     const kept = mode.adjusted
-      ? "the source color does not reach the threshold here, so the primary keeps its hue and moves its lightness"
+      ? "the source color does not reach the threshold here, so the primary keeps its hue and moves its lightness; chroma follows where the screen cannot show it"
       : "the primary is the source color itself";
     lines.push(
       `${name}: primary ${formatOklch(mode.primary)}, ${ratio(contrast(mode.primary, mode.background))} on the background; ` +
@@ -525,7 +525,11 @@ function main() {
   const floor = floorProblem(target);
   if (floor) stop(floor);
   const blueprintPath = path.join(target, BLUEPRINT);
-  if (!existsSync(blueprintPath)) stop(`${BLUEPRINT} is missing. Run the guide first.`);
+  if (!existsSync(blueprintPath)) {
+    stop(
+      `the floor is in place. ${BLUEPRINT} is missing: write it, in the shape the guide's first step gives, then run this again.`,
+    );
+  }
   const blueprint = readJson(blueprintPath);
   const problems = blueprintProblems(blueprint, { preview: dryRun });
   if (problems.length > 0) {

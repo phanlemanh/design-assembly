@@ -2,7 +2,8 @@
 // around the values the stylesheet holds today. It never changes the stylesheet, the lint
 // configuration, the tests or a row that is already in the ledger, and it adds a check only when
 // that check passes on the repository as it is and was seen failing on a changed copy.
-// Usage: node adopt.mjs --target DIR [--dry-run] [--conformance-level AA|AAA] [--record ID[,ID]]
+// Usage: node adopt.mjs --target DIR [--dry-run] [--conformance-level AA|AAA]
+//                       [--product-type TYPE] [--record ID[,ID]]
 import { existsSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { argv, exit, stderr, stdout } from "node:process";
@@ -10,11 +11,11 @@ import { fileURLToPath } from "node:url";
 
 import { FILES, runChecks } from "../templates/tools/design-assembly/check.mjs";
 import { contrast } from "../templates/tools/design-assembly/color.mjs";
+import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import {
   LEDGER,
   mergeLedger,
   parseLedger,
-  pointerProblem,
   TOOL,
 } from "../templates/tools/design-assembly/ledger.mjs";
 import { SPACING_UNIT_PX, TYPE_VARIABLES } from "../templates/tools/design-assembly/scale.mjs";
@@ -29,12 +30,17 @@ import { THRESHOLDS, withoutBlock } from "../templates/tools/design-assembly/the
 import { COMPONENTS_DECISION, readFolder } from "../templates/tools/design-assembly/components.mjs";
 import { TOKENS_DECISION } from "../templates/tools/design-assembly/tokens.mjs";
 import { componentsPlan, gateProblem, tokensPlan, vendored, writeFiles } from "./apply.mjs";
+import { findProofs } from "./proofs.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const reference = (name) =>
   JSON.parse(readFileSync(path.join(HERE, "../references", name), "utf8"));
 const STANDARD = reference("standard-decisions.json").decisions;
-const PROOFS = reference("known-proofs.json").proofs;
+const PRODUCT_TYPES = Object.keys(
+  reference("layers.json")
+    .layers.find((layer) => layer.id === "context")
+    .choices.find((choice) => choice.key === "product_type").options,
+);
 
 // The pairs of color roles the tool can check today: the primary on the background, and the text
 // on the primary.
@@ -95,12 +101,6 @@ function valueCandidates(styles, level, open) {
     const label = (pair) => `${pair.mode}: ${pair.foreground} on ${pair.background}`;
     const blind = pairs.filter((pair) => pair.ratio === null);
     const seen = pairs.filter((pair) => pair.ratio !== null);
-    if (blind.length > 0) {
-      unreadable.push({
-        id: "color-contrast",
-        why: blind.map((pair) => `${label(pair)}: ${pair.why}`).join("; "),
-      });
-    }
     if (level && seen.length > 0) {
       const min = THRESHOLDS[level].text;
       const below = seen.filter((pair) => pair.ratio < min);
@@ -115,6 +115,7 @@ function valueCandidates(styles, level, open) {
         const modes = [...new Set(seen.map((pair) => pair.mode))];
         const whole = blind.length === 0;
         candidates["color-contrast"] = {
+          what: `the primary color roles reach ${min}:1 in ${modes.join(" and ")} mode (${seen.length} pairs)`,
           row: {
             kind: "formula",
             source: `WCAG 2.2 level ${level}, contrast ratio for text`,
@@ -138,6 +139,7 @@ function valueCandidates(styles, level, open) {
       unreadable.push({ id: "radius-value", why: "--radius is not declared in :root" });
     } else {
       candidates["radius-value"] = {
+        what: `--radius stays ${radius.replace(/\s+/g, " ")}`,
         row: { kind: "closed", source: "the stylesheet's corner radius, as found" },
         checks: [
           {
@@ -155,10 +157,12 @@ function valueCandidates(styles, level, open) {
     const ownSizes = TYPE_VARIABLES.some((name) => declares(own, name));
     candidates["type-scale-values"] = ownSizes
       ? {
+          what: "the stylesheet's own type sizes: each step stays larger than the one before",
           row: { kind: "closed", source: "the stylesheet's type scale, as found" },
           checks: [{ kind: "scale" }],
         }
       : {
+          what: "the framework's type sizes: fails when the stylesheet declares its own",
           row: { kind: "standard", source: "the framework's type scale" },
           checks: [{ kind: "absent", variables: TYPE_VARIABLES }],
         };
@@ -167,6 +171,7 @@ function valueCandidates(styles, level, open) {
   if (open("spacing-values")) {
     if (!declares(own, "--spacing")) {
       candidates["spacing-values"] = {
+        what: `the framework's ${SPACING_UNIT_PX}px spacing unit: fails when the stylesheet declares its own`,
         row: { kind: "standard", source: `the framework's ${SPACING_UNIT_PX}px unit` },
         checks: [{ kind: "absent", variables: ["--spacing"] }],
       };
@@ -179,6 +184,7 @@ function valueCandidates(styles, level, open) {
         });
       } else {
         candidates["spacing-values"] = {
+          what: `--spacing stays ${unit.replace(/\s+/g, " ")}`,
           row: { kind: "closed", source: "the stylesheet's spacing unit, as found" },
           checks: [
             {
@@ -196,7 +202,10 @@ function valueCandidates(styles, level, open) {
 }
 
 // What adopting would add to the repository at `root`, and what it leaves for a person.
-export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
+export function adoption(root, { conformanceLevel = null, productType = null, record = [] } = {}) {
+  if (productType !== null && !PRODUCT_TYPES.includes(productType)) {
+    throw new Error(`product type must be one of ${PRODUCT_TYPES.join(", ")}`);
+  }
   if (conformanceLevel !== null && !(conformanceLevel in THRESHOLDS)) {
     throw new Error(`conformance level must be one of ${Object.keys(THRESHOLDS).join(", ")}`);
   }
@@ -218,6 +227,7 @@ export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
     failing: [],
     unreadable: [],
     unclaimed: [],
+    kept: [],
     person: [],
     in_ledger: have.size,
     files: {},
@@ -239,7 +249,16 @@ export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
     result.unreadable.push({ id: "stylesheet", why: "no stylesheet found to read values from" });
   } else {
     result.files_read = styles.files;
-    if (open("color-contrast")) result.contrast = contrastToday(styles);
+    // What cannot be read is said on every run, whether or not a row already covers the rest.
+    result.contrast = contrastToday(styles);
+    const blind = result.contrast.flatMap((mode) =>
+      mode.pairs
+        .filter((pair) => pair.ratio === null)
+        .map((pair) => `${mode.name}: ${pair.foreground} on ${pair.background}: ${pair.why}`),
+    );
+    if (blind.length > 0) {
+      result.unreadable.push({ id: "color-contrast", why: `${blind.join("; ")}. Not checked` });
+    }
     const { candidates, failing, unreadable } = valueCandidates(styles, level, open);
     result.failing.push(...failing);
     result.unreadable.push(...unreadable);
@@ -248,9 +267,10 @@ export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
     const tokens = open(TOKENS_DECISION)
       ? tokensPlan(root, styles, result.stylesheet, false)
       : { skipped: null };
-    if (tokens.skipped) result.unclaimed.push({ id: TOKENS_DECISION, why: tokens.skipped });
+    if (tokens.skipped) result.kept.push({ id: TOKENS_DECISION, why: tokens.skipped });
     else if (tokens.file) {
       candidates[TOKENS_DECISION] = {
+        what: `${tokens.file} says what the stylesheet says`,
         row: { kind: tokens.row.kind, source: tokens.row.source },
         checks: tokens.checks,
       };
@@ -261,9 +281,10 @@ export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
     // The same for the component manifest: read from the source, which is left as it is.
     const components = open(COMPONENTS_DECISION) ? componentsPlan(root, false) : {};
     if (components.skipped) {
-      result.unclaimed.push({ id: COMPONENTS_DECISION, why: components.skipped });
+      result.kept.push({ id: COMPONENTS_DECISION, why: components.skipped });
     } else if (components.file) {
       candidates[COMPONENTS_DECISION] = {
+        what: `${components.file} lists the components and variants of ${components.checks[0].folder}`,
         row: { kind: components.row.kind, source: components.row.source },
         checks: components.checks,
       };
@@ -279,6 +300,7 @@ export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
     } else if (ids.length > 0) {
       if (open("checks-in-gate")) {
         candidates["checks-in-gate"] = {
+          what: "make check runs this tool, in a way that can fail",
           row: { kind: "standard", source: "make check" },
           checks: [{ kind: "gate" }],
         };
@@ -307,7 +329,11 @@ export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
       for (const outcome of runChecks(trial)) {
         if (outcome.held) {
           checks[outcome.id] = candidates[outcome.id].checks;
-          add(outcome.id, { ...candidates[outcome.id].row, check: TOOL }, "held");
+          add(
+            outcome.id,
+            { ...candidates[outcome.id].row, check: TOOL, what: candidates[outcome.id].what },
+            "held",
+          );
           const artifact = artifacts[outcome.id];
           if (artifact) result.files[artifact.file] = artifact.content;
         } else {
@@ -345,19 +371,20 @@ export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
     }
   }
 
+  const knownType = theme?.inputs?.productType ?? null;
+  if (open("product-type")) {
+    if (productType) add("product-type", { kind: "judgment", source: FILES.theme }, "recorded");
+    else if (!knownType) {
+      result.person.push({
+        id: "product-type",
+        why: `say what kind of product this is with --product-type ${PRODUCT_TYPES.join(" or ")}`,
+      });
+    }
+  }
+
   // Proofs the repository already has. Named, wired in, and not run here.
-  const lintConfig = ["eslint.config.js", "eslint.config.mjs", "eslint.config.ts"]
-    .map((file) => read(root, file) ?? "")
-    .join("\n");
-  for (const proof of PROOFS.filter((item) => open(item.id))) {
-    const [prefix, ...rest] = proof.check.split(":");
-    const text = prefix === "eslint" ? lintConfig : (read(root, rest.join(":")) ?? "");
-    const present =
-      proof.needs.every((part) => text.includes(part)) &&
-      (proof.files ?? []).every((file) => read(root, file) !== null);
-    if (!present) continue;
-    const problem = pointerProblem(root, proof.id, proof.check);
-    if (problem) result.unclaimed.push({ id: proof.id, why: problem });
+  for (const proof of findProofs(root).filter((item) => open(item.id))) {
+    if (proof.problem) result.unclaimed.push({ id: proof.id, why: proof.problem });
     else add(proof.id, { kind: proof.kind, source: proof.source, check: proof.check }, "claimed");
   }
 
@@ -366,18 +393,25 @@ export function adoption(root, { conformanceLevel = null, record = [] } = {}) {
     result.files[LEDGER] = mergeLedger(ledgerText, result.rows);
   }
   const tooled = Object.keys(checks);
-  if (tooled.length > 0 || (conformanceLevel && conformanceLevel !== recorded)) {
+  const said =
+    (conformanceLevel && conformanceLevel !== recorded) ||
+    (productType && productType !== knownType);
+  if (tooled.length > 0 || said) {
     const adopted = [
       ...new Set([...(theme?.adopted ?? []), ...tooled.filter((id) => VALUES.includes(id))]),
     ];
     const data = {
       version: 1,
       ...(result.stylesheet ? { stylesheet: result.stylesheet } : {}),
-      inputs: { ...theme?.inputs, ...(level ? { conformanceLevel: level } : {}) },
+      inputs: {
+        ...theme?.inputs,
+        ...(level ? { conformanceLevel: level } : {}),
+        ...(productType ? { productType } : {}),
+      },
       ...(adopted.length > 0 ? { adopted } : {}),
       checks: { ...theme?.checks, ...checks },
     };
-    result.files[FILES.theme] = `${JSON.stringify(data, null, 2)}\n`;
+    result.files[FILES.theme] = renderJson(data, lineWidth(root));
   }
   if (tooled.length > 0) Object.assign(result.files, vendored());
   return result;
@@ -417,21 +451,25 @@ export function report(result) {
     if (rows.length === 0) continue;
     lines.push(`  ${HOW[how]}`);
     for (const row of rows) {
-      lines.push(`    ${row.id}${row.check && row.check !== TOOL ? `  (${row.check})` : ""}`);
+      const detail = row.what ? `: ${row.what}` : row.check ? `  (${row.check})` : "";
+      lines.push(`    ${row.id}${detail}`);
     }
   }
   section("would fail today, so nothing was added:", result.failing, reason);
   section("cannot be read here:", result.unreadable, reason);
   section("a proof is there but the ledger cannot point at it yet:", result.unclaimed, reason);
+  section("already kept by the repository, and left as it is:", result.kept, reason);
   section("needs a person:", result.person, reason);
   return lines;
 }
 
-const USAGE = `usage: node adopt.mjs --target DIR [--dry-run] [--conformance-level AA|AAA] [--record ID[,ID]]
+const USAGE = `usage: node adopt.mjs --target DIR [--dry-run] [--conformance-level AA|AAA]
+                      [--product-type ${PRODUCT_TYPES.join("|")}] [--record ID[,ID]]
 
   --dry-run            Show what would be added. Nothing is written.
   --conformance-level  The level the product commits to, as a person stated it. Writes that row
                        and lets the contrast of the color roles be checked against it.
+  --product-type       What kind of product the screens are for, as a person stated it.
   --record             Write a row for a person's call the script can only see, once the person
                        has confirmed it. Takes: ${RECORDABLE.join(", ")}.
 
@@ -457,6 +495,7 @@ function main() {
   try {
     result = adoption(root, {
       conformanceLevel: value("--conformance-level") ?? null,
+      productType: value("--product-type") ?? null,
       record: (value("--record") ?? "").split(",").filter(Boolean),
     });
   } catch (error) {
@@ -469,6 +508,12 @@ function main() {
   for (const line of written) stdout.write(`  ${line}\n`);
   if (written.length === 0) stdout.write("  nothing to write\n");
   if (dryRun) stdout.write("preview only: nothing was written\n");
+  else {
+    const changed = written.filter((line) => !line.startsWith("unchanged")).length;
+    stdout.write(
+      `done: ${result.rows.length} row(s) added to the ledger, ${changed} file(s) written\n`,
+    );
+  }
 }
 
 if (argv[1] && realpathSync(argv[1]) === realpathSync(fileURLToPath(import.meta.url))) main();

@@ -1,6 +1,6 @@
 ---
 name: adopt
-description: Take in the design system a repository already has, without changing it — add ledger rows for the proofs the repository already runs (lint rules, guard tools, tagged tests) and add checks around the values its stylesheet holds today (contrast of the color roles, corner radius, type scale, spacing unit), so that a later change to them fails the gate. Never rewrites the stylesheet, the lint configuration, a test or an existing ledger row. Use when a repository has its own brand values or a partial design system and the user wants it held, standardised or made deterministic for agents, or when an audit shows decisions with no row that the repository visibly answers.
+description: Take in the design system a repository already has, without changing it — add ledger rows for the proofs the repository already runs (lint rules, guard tools, tagged tests), add checks around the values its stylesheet holds today (contrast of the primary color roles, corner radius, that the framework's type scale and spacing unit are not overridden), and write the design tokens file and the component manifest from what is there, so that a later change fails the gate. Never rewrites the stylesheet, the lint configuration, a test, an existing ledger row or a design file a person already keeps. Use when a repository has its own brand values or a partial design system and the user wants it kept and held, or when the audit's `next:` line names this skill.
 ---
 
 # Adopt what a repository already has
@@ -9,7 +9,8 @@ The guide (`/design-assembly:new`) generates values. This does the opposite: it 
 the repository has and puts a row and a check around each one it can read.
 
 Scripts are in `${CLAUDE_PLUGIN_ROOT}/scripts/` (if the variable is not expanded, use the `scripts/`
-folder two levels above this file).
+folder two levels above this file). `references/checks.md` says what each file and each kind of
+check is: read it before explaining a result.
 
 ## 1. Audit first
 
@@ -18,53 +19,70 @@ comes first: adopting does not fix it.
 
 ## 2. Preview
 
-`node ${CLAUDE_PLUGIN_ROOT}/scripts/adopt.mjs --target <repo> --dry-run`. Nothing is written. Read
-the sections to the person in this order:
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/adopt.mjs --target <repo> --dry-run`. Nothing is written. A
+section that is not printed has nothing in it. Read the sections to the person in this order:
 
-| Section                                              | What it means                                                                                      |
-| ---------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `contrast ratios today`                              | The ratio each pair of color roles reaches now, per mode. Read the numbers; never estimate them    |
-| `rows to add`, `held`                                | A value this plugin's tool will check: it passes now and was seen failing on a changed copy        |
-| `rows to add`, `claimed`                             | A proof the repository already runs, named in the ledger. Not run here. Say so                     |
-| `rows to add`, `recorded`                            | A person's call, written on their word                                                             |
-| `would fail today, so nothing was added`             | The value does not meet the stated level. The repository fixes it, or the person decides otherwise |
-| `cannot be read here`                                | Written in a way the tool does not read, such as a mixed colour. No check, and no claim            |
-| `a proof is there but the ledger cannot point at it` | Usually a test that does not name its decision with `decision:<id>`. One comment line closes it    |
-| `needs a person`                                     | The questions in step 3                                                                            |
+| Section                                              | What it means                                                                                           |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `contrast ratios today`                              | The ratio each pair of color roles reaches now, per mode. Read the numbers; never estimate them         |
+| `rows to add`, `held`                                | A check this plugin's tool will run. Each line says what it holds: the value kept, or the file written  |
+| `rows to add`, `claimed`                             | A proof the repository already runs, named in the ledger. Not run here. Say so                          |
+| `rows to add`, `recorded`                            | A person's call, written on their word                                                                  |
+| `would fail today, so nothing was added`             | The value does not meet the stated level. The repository fixes it, or the person decides otherwise      |
+| `cannot be read here`                                | Written in a way the tool does not read, such as a mixed colour. No check covers it. Printed every run  |
+| `a proof is there but the ledger cannot point at it` | A test that does not name its decision with `decision:<id>`. Say which file; do not edit it yourself    |
+| `already kept by the repository, and left as it is`  | A tokens file or a component registry a person keeps, that says something else. It is theirs: untouched |
+| `needs a person`                                     | The questions in step 3                                                                                 |
+
+A held check on the type scale or the spacing unit keeps the framework's standard: it fails when
+the stylesheet declares its own sizes. It does not pin the framework's numbers.
 
 ## 3. Ask only what a person must decide
 
-At most two questions, together:
+Ask together, and only what `needs a person` lists:
 
-- The conformance level, AA or AAA, when no row records it. Show the ratios first. Pass the answer
-  as `--conformance-level`.
+- The conformance level, AA or AAA. Show the ratios first. Pass the answer as `--conformance-level`.
+- The product type. Pass the answer as `--product-type`.
 - Whether the primary color role the script shows is the decided brand colour. Only on a yes, pass
   `--record source-color`.
 
-Never pass either flag on your own judgment. A stated level that the values do not reach is not a
-reason to lower the level: report it.
+Never pass a flag on your own judgment, and never from what the audit printed under `seen:`. A
+stated level that the values do not reach is not a reason to lower the level: report it.
 
 ## 4. Write
 
-Run the same command without `--dry-run`, with the flags the person gave. It adds rows to
-`design/decisions.yaml`, and, when it holds any value, `design/theme.json`, the design tokens file
-(`design/tokens.json`, written from the stylesheet), the component manifest
-(`design/component-registry.json`, written from the component source), `tools/design-assembly/` and
-`mk/design-assembly.mk`. Then run the repository's gate.
+1. Run the preview again with the flags the person gave, and show what changed: the rows are not
+   the same as in the first preview.
+2. Run the same command without `--dry-run`. It ends with `done:` and the number of rows and files.
+   It adds rows to `design/decisions.yaml`, and, when it holds any value, `design/theme.json`,
+   `tools/design-assembly/` and `mk/design-assembly.mk`.
+3. It also writes, from what the repository has, the design tokens file (`design/tokens.json`) and
+   the component manifest (`design/component-registry.json`), unless the repository already keeps
+   one that says something else: then that file is listed as kept, and `make design-tokens` or
+   `make design-components` will say this tool manages none.
+4. Run the repository's formatter if it has one, then its gate.
 
 From then on a change to a value in the stylesheet is followed by `make design-tokens`, and a
-change to a component by `make design-components`; the gate fails until the file is written again.
+change to a component by `make design-components`. The gate fails until the file is written again,
+and the message names what differs.
 
-Running it again adds only what is new. A row already in the ledger is never rewritten.
+Running adopt again adds only what is new. A row already in the ledger is never rewritten.
 
 ## 5. Say what is now true, and what is not
 
-- Give held, claimed and recorded as three numbers. Never add claimed to held.
-- A contrast row covers the pairs listed in its note: the primary on the background and the text on
-  the primary, in the modes that could be read. It does not cover every pair of color roles.
-- Name everything under `cannot be read here` and `a proof is there`: those are still open.
+- Run the audit again. Give held, claimed and recorded from its `coverage` line, as three numbers,
+  and the `beyond the core` line beside them. Never add claimed to held. `make design-rate` counts
+  something else: every row of the ledger that names a check, held or claimed together.
+- A contrast row covers what the audit prints under `covers:`: the primary on the background and
+  the text on the primary, in the modes that could be read. It does not cover every pair of color
+  roles.
+- The brand colour itself is not pinned. A new colour that still reaches the contrast ratio passes
+  once `make design-tokens` has been run: that command is the deliberate step.
+- Name everything under `cannot be read here`, `a proof is there` and `already kept`: those are
+  still open.
 - After adopting, the guide refuses to generate over the adopted values. `--replace` on the guide
   is the person's decision to give them up.
-- Run the audit again and give the new coverage line.
+- Then follow the repository's own rules for finished work, if it has any (its agent instructions
+  may ask for a log line or a decision record).
 
 Use the terms in `references/vocabulary.json`.

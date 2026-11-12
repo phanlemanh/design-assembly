@@ -177,9 +177,10 @@ test("the file is held to the stylesheet: an edit on either side turns the gate 
   edit(dir, "src/index.css", (css) => css.replace(/--border: [^;]+;/, "--border: oklch(0.5 0 0);"));
   const stale = check(dir);
   assert.equal(stale.status, 1);
+  // The message names the token and both values, so it is clear which side moved.
   assert.match(
     stale.stderr,
-    /design-tokens: design\/tokens\.json is not what src\/index\.css gives/,
+    /design-tokens: design\/tokens\.json is not what src\/index\.css gives \(color\.border: the stylesheet gives oklch\(0\.5 0 0\), the file says oklch\(0\.922 0 0\)/,
   );
   assert.equal(tokens(dir).status, 1);
 
@@ -195,7 +196,7 @@ test("the file is held to the stylesheet: an edit on either side turns the gate 
   edit(dir, "design/tokens.json", (json) => json.replace("oklch(0.5 0 0)", "#808080"));
   const edited = check(dir);
   assert.equal(edited.status, 1);
-  assert.match(edited.stderr, /design-tokens: .* instead of editing it/);
+  assert.match(edited.stderr, /design-tokens: .*the file says #808080.*run make design-tokens/);
 
   // The file is gone.
   rmSync(path.join(dir, "design/tokens.json"));
