@@ -160,6 +160,17 @@ export function blueprintProblems(blueprint, { preview = false } = {}) {
       found.push(`${layer.id}: source must be one of ${SOURCES.join(", ")}`);
     }
     if (typeof entry.why !== "string" || entry.why.trim() === "") found.push(`${layer.id}: no why`);
+    const keys = layer.choices.map((choice) => choice.key);
+    const strange = (Array.isArray(entry.confirmed) ? entry.confirmed : []).filter(
+      (key) => !keys.includes(key),
+    );
+    if (entry.confirmed !== undefined && !Array.isArray(entry.confirmed)) {
+      found.push(`${layer.id}: confirmed is a list of choice keys`);
+    } else if (strange.length > 0) {
+      found.push(
+        `${layer.id}: confirmed names ${strange.join(", ")}, which is not a choice of this layer`,
+      );
+    }
     const values =
       layer.id === "foundations" ? themeInputs(blueprint).choice : (entry.choice ?? {});
     for (const choice of layer.choices.filter((c) => applies(c, values))) {
@@ -890,21 +901,24 @@ function decisions(blueprint, theme, foundations) {
   const modular = foundations.choice.type_scale === "modular";
   const recorded = `${BLUEPRINT}`;
   // A person's call that the guide proposed is not theirs yet: the row says so until they confirm.
-  const proposed = (layer) =>
-    blueprint.layers[layer].source === "proposed"
+  // A layer the guide proposed may hold one answer the person has since given: `confirmed` lists
+  // those choice keys, so that one row stops saying it is a proposal and the others still do.
+  const proposed = (layer, key) =>
+    blueprint.layers[layer].source === "proposed" &&
+    !(blueprint.layers[layer].confirmed ?? []).includes(key)
       ? { note: "proposed by the guide; a person has not confirmed it" }
       : {};
-  const call = (id, layer) => ({
+  const call = (id, layer, key) => ({
     id,
     layer,
     kind: "judgment",
     source: recorded,
-    ...proposed(layer),
+    ...proposed(layer, key),
   });
   const rows = [
-    call("product-type", "context"),
-    call("conformance-level", "context"),
-    call("source-color", "foundations"),
+    call("product-type", "context", "product_type"),
+    call("conformance-level", "context", "conformance_level"),
+    call("source-color", "foundations", "source_color"),
     {
       id: "tonal-palette",
       layer: "foundations",

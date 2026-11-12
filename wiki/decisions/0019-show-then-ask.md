@@ -62,6 +62,11 @@ xem lại cuối.
   nào nó sai.
 - Bài kiểm của plugin 163 lên 176.
 
+Lượt đi qua đầu tiên, 2026-11-12: chủ kho xem bảng mẫu màu gốc và xác nhận giữ lam `#0246ff`.
+Việc đó làm lộ một chỗ hở: bản thiết kế chỉ ghi «ai quyết» cho cả một tầng, nên xác nhận một màu
+sẽ thành nhận cả thang chữ lẫn bo góc mà chủ kho chưa xem. Đã thêm: một tầng do máy đề xuất được
+liệt kê riêng các câu người đã xác nhận, và chỉ những dòng đó hết ghi là đề xuất.
+
 Giới hạn:
 
 - **Màn có gì thì bảng mẫu cho thấy nấy.** Màn mẫu của sàn dùng rất ít màu chính và chỉ hai cỡ

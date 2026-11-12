@@ -134,8 +134,12 @@ the sheet is, where one picture of the whole sheet is, and what each letter stan
   recommendation, its trade-off and when it would be wrong, in one or two sentences; say what the
   choice leaves undecided.
 - **A letter is the person's answer.** Write the value the script prints for that letter
-  (`choices.json` has them) to the blueprint with `source: user`. Never write a value the sheet
-  did not show.
+  (`choices.json` has them) to the blueprint. When the person answered every choice of the layer,
+  the layer is `source: user`. When they answered some and the rest are still your proposals,
+  keep `source: proposed` and list the choice keys they answered under `confirmed`, such as
+  `"confirmed": ["source_color"]`: only those rows stop saying they are a proposal. The same
+  holds when a person simply says a proposed value is right. Never write a value the sheet did
+  not show, and never list a key the person did not answer.
 - The person has a colour of their own: pass it with `--color <colour>`, once per colour, and it
   is drawn first.
 - "Warmer", "lighter", "less loud": run `--around <colour>`. It draws one step in each direction

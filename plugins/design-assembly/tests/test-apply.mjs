@@ -452,3 +452,30 @@ test("a preview before any blueprint is the normal start, not a failure", () => 
   assert.match(preview.stdout, /the floor is in place\. design\/blueprint\.json is not there yet/);
   assert.equal(apply(dir).status, 2);
 });
+
+test("one answer a person confirms stops being a proposal; the rest of the layer still is", () => {
+  const proposal = { status: "decided", source: "proposed", why: "For the test." };
+  const dir = repository(
+    blueprint({
+      foundations: { ...proposal, choice: CHOICES.foundations, confirmed: ["source_color"] },
+    }),
+  );
+  assert.equal(apply(dir).status, 0);
+  const rows = Object.fromEntries(
+    parseLedger(text(dir, "design/decisions.yaml")).map((r) => [r.id, r]),
+  );
+  assert.equal(rows["source-color"].note, undefined);
+  assert.match(rows["product-type"].note, /a person has not confirmed it/);
+  // A key that is not a choice of the layer is refused, so a typing slip confirms nothing.
+  const slip = repository(
+    blueprint({
+      foundations: { ...proposal, choice: CHOICES.foundations, confirmed: ["colour"] },
+    }),
+  );
+  const refused = apply(slip);
+  assert.equal(refused.status, 2);
+  assert.match(
+    refused.stderr,
+    /foundations: confirmed names colour, which is not a choice of this layer/,
+  );
+});

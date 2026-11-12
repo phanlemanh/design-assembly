@@ -19,7 +19,6 @@ decisions:
     layer: foundations
     kind: judgment
     source: "design/blueprint.json"
-    note: "proposed by the guide; a person has not confirmed it"
   - id: tonal-palette
     layer: foundations
     kind: formula

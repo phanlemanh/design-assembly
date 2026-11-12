@@ -44,9 +44,10 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 - Nhánh `main`, cây làm việc sạch. **Chưa có remote, chưa đẩy đi đâu**: kho chỉ nằm trên máy
   này. Mọi thứ đều đã commit. Cập nhật lần cuối 2026-11-12, sau quyết định 0020.
 - `make check` xanh: lint, typecheck, 68 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (22 quyết định, 27 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 194 bài kiểm của plugin.
-- Kho này đáp **37/38 quyết định lõi**: 14 máy giữ, 17 tự khai, 6 đã ghi. Sổ có 47 dòng. Cả sáu
-  câu «đã ghi» đều là máy đề xuất, chưa ai xác nhận; audit nêu tên chúng.
+  (22 quyết định, 27 lệnh kiểm), bộ rào của sàn, 44 lượt kiểm trình duyệt, 195 bài kiểm của plugin.
+- Kho này đáp **37/38 quyết định lõi**: 14 máy giữ, 17 tự khai, 6 đã ghi. Sổ có 47 dòng. Chủ kho đã
+  xác nhận màu gốc `#0246ff` ngày 2026-11-12; năm câu «đã ghi» còn lại vẫn là máy đề xuất, audit
+  nêu tên chúng.
 
 | Bậc                           | Trạng thái       | Còn thiếu                                                  |
 | ----------------------------- | ---------------- | ---------------------------------------------------------- |

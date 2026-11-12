@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-12 — Chủ kho xác nhận màu gốc `#0246ff` sau khi xem bảng mẫu; sổ thôi ghi nó là đề xuất của máy. Một câu trả lời được xác nhận riêng thì chỉ dòng đó hết là đề xuất — [0019](decisions/0019-show-then-ask.md), `design/blueprint.json`, `plugins/design-assembly/scripts/apply.mjs`.
 - 2026-11-12 — Cuốn sổ bàn giao thêm tờ linh kiện: linh kiện vẽ từ mã nguồn của kho trong một trang tạm, mỗi hàng một thứ thay đổi được — [0020](decisions/0020-handoff-book.md), `plugins/design-assembly/scripts/book.mjs`, `plugins/design-assembly/scripts/stage.mjs`.
 - 2026-11-12 — Cuốn sổ bàn giao thêm tờ kiểu màn và tờ đường đi; câu hỏi còn mở hiện bằng ngôn ngữ của kho — [0020](decisions/0020-handoff-book.md), `plugins/design-assembly/scripts/book.mjs`.
 - 2026-11-12 — Skill bàn giao và cuốn sổ design system: bìa, màu theo vai kèm tương phản, chữ và hình khối, mọi trạng thái của màn thật; cuốn sổ làm lộ cặp chữ phụ trên nền phụ dưới ngưỡng — [0020](decisions/0020-handoff-book.md), `plugins/design-assembly/scripts/book.mjs`, `plugins/design-assembly/skills/handoff/`.
