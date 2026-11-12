@@ -1,5 +1,7 @@
 # Bắt đầu từ đây
 
+> Đang tiếp tục một phiên dở? Đọc [bàn giao](HANDOFF.md) trước.
+
 ## Kho đang ở đâu
 
 Đây là bộ khung, chưa phải sản phẩm. Hiện có một màn mẫu: danh sách có ô lọc, thêm và xoá mục, đủ

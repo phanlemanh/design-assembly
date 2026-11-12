@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-12 — Viết bàn giao phiên làm việc, để một phiên mới tiếp tục được khi chủ kho đổi tài khoản — `docs/HANDOFF.md`.
 - 2026-11-12 — Chạy thử lần ba bằng ba tác tử độc lập (dẫn dắt, adopt, và lần đầu một tác tử dựng màn); cuộc dẫn dắt để lại trang luật cho tác tử; adopt gọi tên dòng sổ chưa có lệnh kiểm và gắn khi người bảo; đóng hai lỗ hổng của cổng và hai điều lệnh nói sai — [0015](decisions/0015-rules-page-and-rows-without-a-check.md).
 - 2026-11-12 — Thêm kênh thông báo (toast qua một mô-đun, cài gói `sonner`) và luật hỏi trước hay hoàn tác; adopt nhận bài kiểm gắn thẻ của kho làm bằng chứng; cột chữ co theo nội dung; kho này lên 28/38 quyết định lõi — [0014](decisions/0014-channels-and-undo.md).
 - 2026-11-12 — Thêm ba lệnh kiểm cho bậc trạng thái và lời văn (màn khai đủ trạng thái, màn không viết chữ trực tiếp, câu báo lỗi đủ hai phần); sửa mức dày của bảng về 32 px theo luật hiện tại của chủ kho; kho này lên 26/38 quyết định lõi — [0013](decisions/0013-states-words-error-messages.md).
