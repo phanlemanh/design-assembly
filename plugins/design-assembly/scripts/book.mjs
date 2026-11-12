@@ -595,7 +595,7 @@ export function renderBook(facts, { audience = "client", words = {}, drawn = nul
   .key { display: inline-block; width: 10px; height: 10px; margin-right: 8px; }
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
   .stat b { display: block; font-size: var(--h2); font-weight: 620; line-height: 1.1; }
-  .stat span { color: var(--muted); font-size: var(--xs); }
+  .stat span { display: block; padding-left: 18px; text-indent: -18px; color: var(--muted); font-size: var(--xs); }
   .note { margin: 20px 0 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); }
   .tiers { margin: 0; padding: 0; list-style: none; counter-reset: tier; }
   .tiers li { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); counter-increment: tier; }
