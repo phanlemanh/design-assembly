@@ -36,6 +36,9 @@ Việc của kho này nằm ở [đề bài lát mỏng](../wiki/specs/0001-desi
 | `design/theme.json`                               | Dữ liệu cho lệnh kiểm của plugin                                      | Không sửa ở đây                                           |
 | `design/tokens.json`                              | Design tokens cho công cụ không đọc CSS, sinh từ stylesheet           | Không sửa tay; đổi stylesheet rồi `make design-tokens`    |
 | `design/component-registry.json`                  | Sổ linh kiện: tên, tệp, biến thể; sinh từ mã nguồn linh kiện          | Không sửa tay; đổi linh kiện rồi `make design-components` |
+| `design/column-types.json`                        | Bảng kiểu cột của kho: kiểu nền và độ dài mẫu của từng kiểu           | Sửa ở đây khi thêm kiểu, rồi `make design-columns`        |
+| `design/columns.json`                             | Kiểu cột của từng trường, sinh từ bảng trên và mô hình dữ liệu        | Không sửa tay                                             |
+| `src/components/ui/typed-table.tsx`               | Các phần bảng lấy canh lề, bề rộng, chiều cao hàng từ kiểu cột        | Của kho; plugin không ghi đè                              |
 | `tools/design-assembly/`, `mk/design-assembly.mk` | Lệnh kiểm do plugin cài vào                                           | Không sửa ở đây                                           |
 
 ## Điều gì tự chạy

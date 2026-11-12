@@ -4,17 +4,20 @@ Read this when you build (step 6 of the guide) or explain a failing check.
 
 ## The files
 
-| File                                | What it is                                                                                   | Who edits it                         |
-| ----------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------ |
-| `design/blueprint.json`             | What the person chose, layer by layer, with why and what was turned down                     | You, during the guide                |
-| `design/decisions.yaml`             | The ledger: one row per design decision, pointing at the proof that holds it                 | People, and the scripts for new rows |
-| `design/theme.json`                 | What this plugin's tool needs to check its decisions: the inputs and the checks per decision | `apply.mjs` and `adopt.mjs` only     |
-| `design/decisions/<layer>.md`       | A decision record per decided layer                                                          | `apply.mjs` only                     |
-| The marked block in `src/index.css` | The design tokens                                                                            | `apply.mjs` only                     |
-| `design/tokens.json`                | The design tokens, for tools that do not read CSS. Written from the stylesheet               | `make design-tokens` only            |
-| `design/component-registry.json`    | The component manifest: every exported component with its variants. Written from the source  | `make design-components` only        |
-| `tools/design-assembly/`            | The checks. They belong to the plugin: change them in the plugin and run the guide again     | Nobody, in the repository            |
-| `mk/design-assembly.mk`             | Adds `design-assembly` to `make check`, and `make design-rate`                               | Nobody, in the repository            |
+| File                                 | What it is                                                                                   | Who edits it                         |
+| ------------------------------------ | -------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `design/blueprint.json`              | What the person chose, layer by layer, with why and what was turned down                     | You, during the guide                |
+| `design/decisions.yaml`              | The ledger: one row per design decision, pointing at the proof that holds it                 | People, and the scripts for new rows |
+| `design/theme.json`                  | What this plugin's tool needs to check its decisions: the inputs and the checks per decision | `apply.mjs` and `adopt.mjs` only     |
+| `design/decisions/<layer>.md`        | A decision record per decided layer                                                          | `apply.mjs` only                     |
+| The marked block in `src/index.css`  | The design tokens                                                                            | `apply.mjs` only                     |
+| `design/tokens.json`                 | The design tokens, for tools that do not read CSS. Written from the stylesheet               | `make design-tokens` only            |
+| `design/component-registry.json`     | The component manifest: every exported component with its variants. Written from the source  | `make design-components` only        |
+| `design/column-types.json`           | The column types of the repository: each with its base type and sample length                | A person                             |
+| `design/columns.json`                | What code reads: each column type with its alignment, each field with its type               | `make design-columns` only           |
+| The typed table parts and their test | Table parts that apply the column type. Installed once, then the repository's own            | The repository                       |
+| `tools/design-assembly/`             | The checks. They belong to the plugin: change them in the plugin and run the guide again     | Nobody, in the repository            |
+| `mk/design-assembly.mk`              | Adds `design-assembly` to `make check`, and `make design-rate`                               | Nobody, in the repository            |
 
 ## The ledger
 
@@ -100,6 +103,30 @@ conformance level: 24 CSS pixels at AA (WCAG 2.2, 2.5.8), 44 at AAA (2.5.5).
 - When any control is below the level's target size, no check is added: the scripts name each one.
 - The message of a failing check names the control, the variant and the class.
 
+## Column types
+
+A column type is the kind of data a table column holds. It decides the side the column is aligned
+to and how wide the column is at least.
+
+- Six base types, named as data grids name them: `text`, `number`, `date`, `datetime`, `boolean`,
+  `select`. Only `number` is aligned to the right: a quantity is compared down its column.
+- A repository lists its own column types in `design/column-types.json`. Each names its base type
+  and a `sample`: the length in characters of the longest value it typically shows. A person owns
+  this file; the guide writes a starting table once and never again.
+- A field names its column type once, in the data model: a `display` key on the property. A
+  screen names the field and the header, nothing else.
+- A column is at least as wide as the longer of its header and its sample, plus `padding_ch`.
+- A table is dense (40px rows) when its columns cannot all be shown at that width, and normal
+  (48px rows) otherwise.
+- `design/columns.json` is derived. Change the table or a field's type, then run
+  `make design-columns`.
+- A screen may not set alignment or width on a table cell, nor a height on a table row. The
+  `cells` check names the file and the class.
+
+What the tool holds, and what it does not: alignment is held in full. For width it holds the
+numbers and that no screen sets one; for density only that no screen sets a row height. The sum
+and the choice of density are done by the typed table parts, which carry their own tests.
+
 ## How a value is read
 
 The tool reads the stylesheet the repository names (`design/theme.json`, else `components.json`,
@@ -114,17 +141,20 @@ Its tool reads the real files (the stylesheet, the gate), not a copy of what was
 run also changes a copy of those files so that the check must fail, and reports a check that still
 passes: a check that cannot fail proves nothing.
 
-| Kind          | Passes when                                                                           |
-| ------------- | ------------------------------------------------------------------------------------- |
-| `generated`   | The block in the stylesheet is exactly what the source color gives                    |
-| `contrast`    | Two color roles reach the contrast ratio of the conformance level                     |
-| `value`       | A variable resolves to the decided value, whatever is written after it                |
-| `absent`      | The stylesheet does not redeclare variables that the floor's scale owns               |
-| `scale`       | Every step of the type scale is larger than the one before                            |
-| `tokens`      | The design tokens file is exactly what the stylesheet gives                           |
-| `components`  | The component manifest is exactly what the component source gives                     |
-| `target-size` | Every control declares a height that reaches the target size of the conformance level |
-| `gate`        | `make check` runs the tool in a way that can fail                                     |
+| Kind           | Passes when                                                                           |
+| -------------- | ------------------------------------------------------------------------------------- |
+| `generated`    | The block in the stylesheet is exactly what the source color gives                    |
+| `contrast`     | Two color roles reach the contrast ratio of the conformance level                     |
+| `value`        | A variable resolves to the decided value, whatever is written after it                |
+| `absent`       | The stylesheet does not redeclare variables that the floor's scale owns               |
+| `scale`        | Every step of the type scale is larger than the one before                            |
+| `tokens`       | The design tokens file is exactly what the stylesheet gives                           |
+| `components`   | The component manifest is exactly what the component source gives                     |
+| `target-size`  | Every control declares a height that reaches the target size of the conformance level |
+| `column-types` | The table of column types is well formed, and every field names one of its types      |
+| `columns`      | The file code reads is exactly what the table and the data model give                 |
+| `cells`        | No screen sets on a table what the column type decides                                |
+| `gate`         | `make check` runs the tool in a way that can fail                                     |
 
 The tool also checks that it and the ledger agree in both directions: every row that points at it
 has checks behind it, and every decision it holds is a row.

@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "padding_ch": 2,
+  "types": {
+    "text": {
+      "base": "text",
+      "sample": 16
+    },
+    "number": {
+      "base": "number",
+      "sample": 6
+    },
+    "date": {
+      "base": "date",
+      "sample": 10
+    },
+    "datetime": {
+      "base": "datetime",
+      "sample": 16
+    },
+    "boolean": {
+      "base": "boolean",
+      "sample": 5
+    },
+    "select": {
+      "base": "select",
+      "sample": 14
+    },
+    "money": {
+      "base": "number",
+      "sample": 13
+    }
+  }
+}

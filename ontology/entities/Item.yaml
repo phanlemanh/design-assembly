@@ -1,0 +1,16 @@
+name: Item
+description: The sample record the reference screen lists. It stands in for a real business record.
+
+# `display` names the column type of a field (design/column-types.json): it decides how a table
+# column that shows the field is aligned and how wide it is at least.
+properties:
+  id: { type: integer, required: true, unique: true }
+  name: { type: string, required: true, display: text }
+  status: { type: enum, values: [active, pending, overdue], required: true, display: select }
+  date: { type: date, required: true, display: date }
+  total: { type: number, required: true, min: 0, display: money }
+
+code:
+  model: src/example/data.ts
+  tests: tests/App.test.tsx
+wiki: wiki/entities/item.md

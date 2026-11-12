@@ -18,5 +18,9 @@ dẫn chỉ có mặt để chọn trạng thái. Bài kiểm chọn điều ki�
 
 ## Mật độ
 
-Sản phẩm này là công cụ làm việc. Chữ dùng `text-sm`. Dòng của bảng giữ chiều cao mặc định của
-linh kiện.
+Sản phẩm này là công cụ làm việc. Chữ dùng `text-sm`.
+
+Dòng của bảng lấy chiều cao từ mật độ của bảng, màn không tự đặt: bảng ở mức thường (48 px) khi
+mọi cột hiện đủ bề rộng tối thiểu, và ở mức dày (40 px) khi không đủ chỗ. Canh lề và bề rộng tối
+thiểu của một cột lấy từ kiểu cột của trường (`design/column-types.json`). Dùng `TypedTable`,
+`TypedRow`, `TypedHead`, `TypedCell` cho cột dữ liệu.

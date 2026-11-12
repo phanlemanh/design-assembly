@@ -169,7 +169,14 @@ the preview again.
    are a person's calls.
 7. Say how far the contrast check reaches: the primary on the background and the text on the
    primary, in light and dark. The other color roles are not checked in this version.
-8. Repeat the `target size:` line the script printed: the smallest control and the controls it
+8. Repeat the `column types:` line. The guide wrote `design/column-types.json` with six starting
+   types if there was none: its sample lengths are a proposal, and the file is the person's from
+   now on. Say that each data field names its column type with a `display` key in the data model,
+   and that a table is built from `TypedTable`, `TypedRow`, `TypedHead` and `TypedCell`, which the
+   guide installed once and the repository now owns. A `note:` under it means a rule is not held
+   yet: read it out. Adding a `display` key changes the data model: follow the repository's own
+   rule for such a change.
+9. Repeat the `target size:` line the script printed: the smallest control and the controls it
    could not measure. If it printed a note instead, some controls are below what the conformance
    level asks and no check was added: name them, and say that the components change first or the
    level does. That choice is the person's.

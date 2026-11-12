@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-12 — Thêm tầng bảng dữ liệu: kiểu cột quyết định canh lề, bề rộng, mật độ; thêm thực thể mẫu `Item` và khoá `display` vào mô hình dữ liệu (cần người xem lại); màn mẫu dùng các phần bảng mới; kho này lên 23/38 quyết định lõi — [0012](decisions/0012-column-types.md), [Item](entities/item.md).
 - 2026-11-12 — Thêm lệnh kiểm cỡ vùng bấm, đo chiều cao control từ mã nguồn; ngưỡng 24 px (AA) và 44 px (AAA) đối chiếu tại nguồn WCAG 2.2; kho này lên 19/38 quyết định lõi — [0011](decisions/0011-target-size-from-source.md).
 - 2026-11-12 — Chạy thử lần hai bằng hai tác tử độc lập (kho trước plugin, bản sao kho đối chứng); sửa audit để chỉ dòng sổ mới là lời đáp và tự in bước kế, sửa adopt và ba skill theo 27 phát hiện — [0010](decisions/0010-only-a-row-is-an-answer.md), [spec 0001](specs/0001-design-system-for-claude-code.md).
 - 2026-11-12 — Thêm sổ linh kiện sinh từ mã nguồn (50 linh kiện ở kho này), có lệnh kiểm giữ khớp và lệnh sinh lại; lệnh soát kế hoạch của kit nhận sổ — [0009](decisions/0009-component-manifest.md).

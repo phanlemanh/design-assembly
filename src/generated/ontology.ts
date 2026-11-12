@@ -1,5 +1,16 @@
 // Generated from ontology/ by tools/ontology_codegen.py. Do not edit: run `make gen`.
 
+export type ItemStatus = "active" | "pending" | "overdue";
+
+/** The sample record the reference screen lists. It stands in for a real business record. */
+export interface Item {
+  id: number;
+  name: string;
+  status: ItemStatus;
+  /** ISO date */
+  date: string;
+  total: number;
+}
 
 // ---- Roles, actions and personal data (ontology/roles.yaml, actions.yaml)
 

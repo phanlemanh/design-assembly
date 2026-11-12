@@ -34,6 +34,10 @@ section that is not printed has nothing in it. Read the sections to the person i
 | `already kept by the repository, and left as it is`  | A tokens file or a component registry a person keeps, that says something else. It is theirs: untouched |
 | `needs a person`                                     | The questions in step 3                                                                                 |
 
+Column types are held only where the repository keeps a table of them
+(`design/column-types.json`). Adopting writes no such table and installs no code: when the data
+model names column types and there is no table, it says so under `needs a person`.
+
 The target-size line names the smallest control and the controls it could not measure: repeat
 both. It is a measure of the height declared in component source, not of a rendered screen.
 

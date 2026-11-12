@@ -22,14 +22,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TableBody, TableCell, TableHead, TableHeader } from "@/components/ui/table";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  TypedCell,
+  TypedHead,
+  TypedRow,
+  TypedTable,
+  type TypedColumn,
+} from "@/components/ui/typed-table";
 import { createItem, deleteItem, listItems, type Item, type Status } from "@/example/data";
 import { formatDate, formatMoney } from "@/lib/format";
 import { LABELS } from "@/lib/labels";
@@ -41,6 +41,15 @@ const STATUS: Record<Status, { label: string; variant: Variant }> = {
   pending: { label: LABELS.statusPending, variant: "outline" },
   overdue: { label: LABELS.statusOverdue, variant: "destructive" },
 };
+
+// The data columns: a field of the data model and its header. The column type of the field decides
+// alignment and width, so a screen writes neither. The last column holds actions, not data.
+const COLUMNS: TypedColumn[] = [
+  { field: "Item.name", header: LABELS.columnName },
+  { field: "Item.status", header: LABELS.columnStatus },
+  { field: "Item.date", header: LABELS.columnDate },
+  { field: "Item.total", header: LABELS.columnTotal },
+];
 
 function Notice(props: { title: string; detail: string; action: string; onAction: () => void }) {
   return (
@@ -209,25 +218,24 @@ export function ReferenceScreen() {
     );
   } else {
     body = (
-      <Table aria-label={LABELS.tableName}>
+      <TypedTable aria-label={LABELS.tableName} columns={COLUMNS}>
         <TableHeader>
-          <TableRow>
-            <TableHead>{LABELS.columnName}</TableHead>
-            <TableHead>{LABELS.columnStatus}</TableHead>
-            <TableHead>{LABELS.columnDate}</TableHead>
-            <TableHead>{LABELS.columnTotal}</TableHead>
+          <TypedRow>
+            {COLUMNS.map((column) => (
+              <TypedHead key={column.field} {...column} />
+            ))}
             <TableHead>{LABELS.columnActions}</TableHead>
-          </TableRow>
+          </TypedRow>
         </TableHeader>
         <TableBody>
           {shown.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>{item.name}</TableCell>
-              <TableCell>
+            <TypedRow key={item.id}>
+              <TypedCell field="Item.name">{item.name}</TypedCell>
+              <TypedCell field="Item.status">
                 <Badge variant={STATUS[item.status].variant}>{STATUS[item.status].label}</Badge>
-              </TableCell>
-              <TableCell>{formatDate(item.date)}</TableCell>
-              <TableCell>{formatMoney(item.total)}</TableCell>
+              </TypedCell>
+              <TypedCell field="Item.date">{formatDate(item.date)}</TypedCell>
+              <TypedCell field="Item.total">{formatMoney(item.total)}</TypedCell>
               <TableCell>
                 <Button
                   variant="outline"
@@ -238,10 +246,10 @@ export function ReferenceScreen() {
                   {LABELS.deleteAction}
                 </Button>
               </TableCell>
-            </TableRow>
+            </TypedRow>
           ))}
         </TableBody>
-      </Table>
+      </TypedTable>
     );
   }
 

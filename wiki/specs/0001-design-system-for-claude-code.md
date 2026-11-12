@@ -122,6 +122,13 @@ Mọi control phải khai chiều cao đạt cỡ vùng bấm của mức confor
 Chiều cao đọc từ lớp CSS trong mã nguồn linh kiện, không từ màn đã vẽ, và chỉ đo chiều cao. Kho này
 có ba control đo được, nhỏ nhất đúng 24 px.
 
+### Bảng dữ liệu (quyết định 0012, 2026-11-12)
+
+Mỗi trường khai kiểu cột một lần ở mô hình dữ liệu. Kiểu cột quyết định canh lề (chỉ kiểu «số»
+canh phải) và bề rộng tối thiểu của cột; bảng tự chuyển sang mức dày khi các cột không đủ chỗ. Màn
+không tự đặt ba thứ đó, và một lệnh kiểm làm cổng đỏ khi có màn làm vậy. Bậc core components của
+kho này đủ 10/10 quyết định lõi, ở mức «tự khai».
+
 ### Vì sao cần plugin này
 
 Bản trước ghi giả thuyết «giảm token», neo vào lần đo ba của Repo Standards (token gấp 1,43 lần).

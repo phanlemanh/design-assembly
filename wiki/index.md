@@ -12,6 +12,8 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 
 <!-- - [Customer](entities/customer.md) — who buys; VIP rules -->
 
+- [Item](entities/item.md) — bản ghi mẫu của màn mẫu; mỗi trường khai kiểu cột
+
 ## Flows
 
 <!-- - [Checkout](flows/checkout.md) -->
@@ -27,6 +29,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 - [0003 Plugin nằm trong kho, ứng dụng làm bãi thử](decisions/0003-plugin-inside-the-repo.md) — động cơ ở `plugins/design-assembly/`
 - [0004 Output là plugin dẫn dắt, từ vựng lấy từ chuẩn của ngành](decisions/0004-output-and-vocabulary.md) — bảng từ vựng ở `plugins/design-assembly/references/vocabulary.json`
 - [0005 Đầu ra chuẩn hoá theo bậc; ranh giới với hai kho bên cạnh](decisions/0005-output-tiers-and-boundaries.md) — bảng bậc ở `plugins/design-assembly/references/tiers.json`
+- [0012 Kiểu cột quyết định canh lề, bề rộng và mật độ của bảng dữ liệu](decisions/0012-column-types.md) — bảng kiểu cột ở `design/column-types.json`, lệnh kiểm ở `plugins/design-assembly/templates/tools/design-assembly/columns.mjs`
 - [0011 Cỡ vùng bấm được đo từ mã nguồn linh kiện](decisions/0011-target-size-from-source.md) — phép đo ở `plugins/design-assembly/templates/tools/design-assembly/components.mjs`
 - [0010 Chỉ dòng sổ mới là lời đáp; bản audit tự nói bước kế](decisions/0010-only-a-row-is-an-answer.md) — rút từ lần chạy thử hai; bộ dò bằng chứng chung ở `plugins/design-assembly/scripts/proofs.mjs`
 - [0009 Sổ linh kiện là vật dẫn xuất từ mã nguồn linh kiện](decisions/0009-component-manifest.md) — bộ đọc và lệnh kiểm ở `plugins/design-assembly/templates/tools/design-assembly/components.mjs`

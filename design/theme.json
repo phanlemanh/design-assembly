@@ -99,6 +99,46 @@
         "folder": "src/components/ui"
       }
     ],
+    "display-kind": [
+      {
+        "kind": "column-types",
+        "file": "design/column-types.json"
+      }
+    ],
+    "column-align": [
+      {
+        "kind": "columns",
+        "file": "design/columns.json",
+        "types": "design/column-types.json"
+      },
+      {
+        "kind": "cells",
+        "folder": "src",
+        "skip": ["src/components/ui/", "src/generated/"],
+        "rule": "align"
+      }
+    ],
+    "column-width": [
+      {
+        "kind": "columns",
+        "file": "design/columns.json",
+        "types": "design/column-types.json"
+      },
+      {
+        "kind": "cells",
+        "folder": "src",
+        "skip": ["src/components/ui/", "src/generated/"],
+        "rule": "width"
+      }
+    ],
+    "table-density": [
+      {
+        "kind": "cells",
+        "folder": "src",
+        "skip": ["src/components/ui/", "src/generated/"],
+        "rule": "density"
+      }
+    ],
     "target-size": [
       {
         "kind": "target-size",

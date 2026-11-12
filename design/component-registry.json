@@ -306,6 +306,26 @@
       "name": "TableCaption",
       "category": "component",
       "file": "src/components/ui/table.tsx"
+    },
+    {
+      "name": "TypedTable",
+      "category": "component",
+      "file": "src/components/ui/typed-table.tsx"
+    },
+    {
+      "name": "TypedRow",
+      "category": "component",
+      "file": "src/components/ui/typed-table.tsx"
+    },
+    {
+      "name": "TypedHead",
+      "category": "component",
+      "file": "src/components/ui/typed-table.tsx"
+    },
+    {
+      "name": "TypedCell",
+      "category": "component",
+      "file": "src/components/ui/typed-table.tsx"
     }
   ]
 }

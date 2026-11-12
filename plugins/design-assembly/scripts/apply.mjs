@@ -17,6 +17,15 @@ import { fileURLToPath } from "node:url";
 import { FILES } from "../templates/tools/design-assembly/check.mjs";
 import { contrast, formatOklch } from "../templates/tools/design-assembly/color.mjs";
 import {
+  BASES,
+  buildColumns,
+  cellProblems,
+  COLUMNS_FILE,
+  readDisplays,
+  TYPES_FILE,
+  typesProblem,
+} from "../templates/tools/design-assembly/columns.mjs";
+import {
   COMPONENTS_DECISION,
   COMPONENTS_FOLDER,
   componentsProblem,
@@ -210,9 +219,11 @@ export function componentsFolder(target) {
 
 // The component manifest for the source as it is, with its ledger row and its check; or why it
 // is left alone. `nothing` means the repository has no components to list.
-export function componentsPlan(target, alreadyHeld) {
+export function componentsPlan(target, alreadyHeld, pending = {}) {
   const folder = componentsFolder(target);
-  const sources = readFolder(target, folder);
+  // `pending` holds files about to be written: a component installed in the same run is listed.
+  const arriving = Object.entries(pending).filter(([file]) => file.startsWith(`${folder}/`));
+  const sources = { ...readFolder(target, folder), ...Object.fromEntries(arriving) };
   if (Object.keys(sources).length === 0) return { nothing: true };
   const file = socket(target, "registry") ?? REGISTRY;
   const full = path.join(target, file);
@@ -290,6 +301,112 @@ export function targetPlan(target, level) {
     },
     checks: [{ kind: "target-size", folder, min }],
   };
+}
+
+// The table a repository starts from: one column type per base type. The sample lengths are a
+// proposal for a person to correct: they depend on the language and on how values are formatted.
+const STARTER_TYPES = {
+  version: 1,
+  padding_ch: 2,
+  types: Object.fromEntries(
+    Object.entries({ text: 16, number: 6, date: 10, datetime: 16, boolean: 5, select: 14 }).map(
+      ([name, sample]) => [name, { base: name, sample }],
+    ),
+  ),
+};
+// Code the repository owns once it is there: written when missing, never written over.
+const OWNED = {
+  "typed-table.tsx.template": (folder) => `${folder}/typed-table.tsx`,
+  "typed-table.test.tsx.template": () => "tests/typed-table.test.tsx",
+};
+
+// The data table layer: the repository's column types, the file code reads, the rows and checks
+// that hold alignment, width and density, and the table parts that apply them. `starter` writes
+// the table of column types when the repository has none; without it, no table means `nothing`.
+// `code` installs the table parts where the floor's table component is.
+export function columnsPlan(target, { starter, code }) {
+  const read = (file) =>
+    existsSync(path.join(target, file)) ? readFileSync(path.join(target, file), "utf8") : null;
+  const displays = readDisplays(target);
+  const files = {};
+  let typesText = read(TYPES_FILE);
+  if (typesText === null) {
+    if (!starter) return { nothing: true, displays };
+    typesText = renderJson(STARTER_TYPES, lineWidth(target));
+    files[TYPES_FILE] = typesText;
+  }
+  const problem = typesProblem(typesText, displays);
+  if (problem) return { files, problem, displays };
+  files[COLUMNS_FILE] = renderJson(
+    buildColumns(JSON.parse(typesText), displays),
+    lineWidth(target),
+  );
+
+  const folder = componentsFolder(target);
+  const floorTable = folder === COMPONENTS_FOLDER && read(`${folder}/table.tsx`) !== null;
+  if (code && floorTable) {
+    for (const [name, place] of Object.entries(OWNED)) {
+      const file = place(folder);
+      if (read(file) === null) {
+        files[file] = readFileSync(path.join(PLUGIN, "templates/owned", name), "utf8");
+      }
+    }
+  }
+
+  const skip = [`${folder}/`, "src/generated/"];
+  const sources = readFolder(target, "src");
+  const inSync = { kind: "columns", file: COLUMNS_FILE, types: TYPES_FILE };
+  const rules = {
+    "column-align": {
+      rule: "align",
+      source: "the column type of the field",
+      what: "a column is aligned by its column type, and no screen sets alignment on a cell",
+      checks: [inSync],
+    },
+    "column-width": {
+      rule: "width",
+      source: "the header and the sample length of the column type",
+      what: "the sample lengths are the table's, and no screen sets a width on a cell",
+      note: "the sample lengths and the padding, and that no screen sets a width; the sum itself is done by the table parts, covered by their own tests",
+      checks: [inSync],
+    },
+    "table-density": {
+      rule: "density",
+      source: "whether the columns fit at their least width",
+      what: "no screen sets a row height or text size on a table row",
+      note: "that no screen sets a row height; the choice between the two densities is made by the table parts, covered by their own tests",
+      checks: [],
+    },
+  };
+  const held = {};
+  const failing = [];
+  const fields = Object.keys(displays).length;
+  if (fields > 0) {
+    held["display-kind"] = {
+      what: `${fields} field(s) of the data model each name a column type of ${TYPES_FILE}`,
+      row: { layer: "components", kind: "closed", source: TYPES_FILE, check: TOOL },
+      checks: [{ kind: "column-types", file: TYPES_FILE }],
+    };
+  }
+  for (const [id, item] of Object.entries(rules)) {
+    const bypass = cellProblems(sources, item.rule, skip);
+    if (bypass) {
+      failing.push({ id, why: bypass });
+      continue;
+    }
+    held[id] = {
+      what: item.what,
+      row: {
+        layer: "components",
+        kind: "formula",
+        source: item.source,
+        check: TOOL,
+        ...(item.note ? { note: item.note } : {}),
+      },
+      checks: [...item.checks, { kind: "cells", folder: "src", skip, rule: item.rule }],
+    };
+  }
+  return { files, held, failing, displays, fields, bases: Object.keys(BASES) };
 }
 
 // The tool and its gate step, as they are copied into a repository.
@@ -429,7 +546,8 @@ export function plan(target, blueprint) {
   const held = JSON.parse(read(FILES.theme) ?? "{}").checks?.[TOKENS_DECISION];
   const tokens = tokensPlan(target, loadStyles(target, FILES.css, files), FILES.css, Boolean(held));
   const prior = JSON.parse(read(FILES.theme) ?? "{}").checks ?? {};
-  const components = componentsPlan(target, Boolean(prior[COMPONENTS_DECISION]));
+  const columns = columnsPlan(target, { starter: true, code: true });
+  const components = componentsPlan(target, Boolean(prior[COMPONENTS_DECISION]), columns.files);
   const derived = [
     [TOKENS_DECISION, tokens],
     [COMPONENTS_DECISION, components],
@@ -438,6 +556,11 @@ export function plan(target, blueprint) {
     rows.push(artifact.row);
     checks[id] = artifact.checks;
     files[artifact.file] = artifact.content;
+  }
+  Object.assign(files, columns.files);
+  for (const [id, item] of Object.entries(columns.held ?? {})) {
+    rows.push({ id, ...item.row });
+    checks[id] = item.checks;
   }
   const targets = targetPlan(target, inputs.conformanceLevel);
   if (targets.row) {
@@ -461,7 +584,7 @@ export function plan(target, blueprint) {
     const values = layer.id === "foundations" ? foundations.choice : entry.choice;
     files[`design/decisions/${layer.id}.md`] = record(layer, entry, rows, values);
   }
-  return { files: { ...files, ...vendored() }, theme, tokens, components, targets };
+  return { files: { ...files, ...vendored() }, theme, tokens, components, targets, columns };
 }
 
 // Writes the files that differ, or only says what it would do. One line per file.
@@ -599,7 +722,24 @@ function main() {
     );
     return;
   }
-  const { files, tokens, components, targets } = plan(target, blueprint);
+  const { files, tokens, components, targets, columns } = plan(target, blueprint);
+  if (columns.problem) {
+    stdout.write(
+      `note: column types: ${columns.problem}. No check is added until the table is right.\n`,
+    );
+  } else {
+    stdout.write(
+      `column types: ${columns.fields} field(s) of the data model name a column type; alignment, width and density come from it\n`,
+    );
+    if (columns.fields === 0) {
+      stdout.write(
+        "note: no field names a column type yet. Give each field of the data model a `display` key, then run make design-columns.\n",
+      );
+    }
+    for (const item of columns.failing) {
+      stdout.write(`note: ${item.id}: ${item.why}. No check is added until those places change.\n`);
+    }
+  }
   if (targets.what) stdout.write(`target size: ${targets.what}\n`);
   else if (targets.below?.length > 0) {
     stdout.write(

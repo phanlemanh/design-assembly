@@ -30,6 +30,7 @@ import { THRESHOLDS, withoutBlock } from "../templates/tools/design-assembly/the
 import { COMPONENTS_DECISION, readFolder } from "../templates/tools/design-assembly/components.mjs";
 import { TOKENS_DECISION } from "../templates/tools/design-assembly/tokens.mjs";
 import {
+  columnsPlan,
   componentsPlan,
   gateProblem,
   targetPlan,
@@ -311,6 +312,29 @@ export function adoption(root, { conformanceLevel = null, productType = null, re
         why: `${targets.below.join("; ")}: below the ${targets.min}px target size`,
       });
     }
+    // Column types: only where the repository keeps the table of them. Adopting writes no table
+    // and installs no code: which column types a product has is a person's list.
+    const columns = columnsPlan(root, { starter: false, code: false });
+    const named = [...new Set(Object.values(columns.displays ?? {}))];
+    if (columns.nothing && named.length > 0 && open("display-kind")) {
+      result.person.push({
+        id: "display-kind",
+        why: `the data model names ${named.length} column type(s) (${named.join(", ")}) and there is no design/column-types.json listing them`,
+      });
+    } else if (columns.problem) {
+      result.failing.push({ id: "display-kind", why: columns.problem });
+    }
+    const derived = {};
+    for (const [id, item] of Object.entries(columns.held ?? {}).filter(([key]) => open(key))) {
+      const row = {
+        kind: item.row.kind,
+        source: item.row.source,
+        ...(item.row.note ? { note: item.row.note } : {}),
+      };
+      candidates[id] = { what: item.what, row, checks: item.checks };
+      derived[id] = columns.files;
+    }
+    for (const item of columns.failing ?? []) if (open(item.id)) result.failing.push(item);
     const artifacts = { [TOKENS_DECISION]: tokens, [COMPONENTS_DECISION]: components };
     const gate = gateProblem(root);
     const ids = Object.keys(candidates);
@@ -334,11 +358,22 @@ export function adoption(root, { conformanceLevel = null, productType = null, re
         stylesheet: result.stylesheet,
         ...styles,
         gate: vendored()[FILES.gate],
-        files: Object.fromEntries(
-          Object.values(artifacts)
-            .filter((artifact) => artifact.file)
-            .map((artifact) => [artifact.file, artifact.content]),
-        ),
+        displays: columns.displays ?? {},
+        files: {
+          ...Object.fromEntries(
+            Object.values(artifacts)
+              .filter((artifact) => artifact.file)
+              .map((artifact) => [artifact.file, artifact.content]),
+          ),
+          ...Object.fromEntries(
+            Object.values(candidates)
+              .flatMap((candidate) => candidate.checks)
+              .flatMap((item) => [item.file, item.types])
+              .filter((file) => file && existsSync(path.join(root, file)))
+              .map((file) => [file, read(root, file)]),
+          ),
+          ...columns.files,
+        },
         folders: Object.fromEntries(
           Object.values(candidates)
             .flatMap((candidate) => candidate.checks)
@@ -361,6 +396,7 @@ export function adoption(root, { conformanceLevel = null, productType = null, re
           );
           const artifact = artifacts[outcome.id];
           if (artifact) result.files[artifact.file] = artifact.content;
+          Object.assign(result.files, derived[outcome.id]);
         } else {
           result.unreadable.push({
             id: outcome.id,

@@ -129,3 +129,25 @@ decisions:
     source: "WCAG 2.2 level AA, target size"
     check: "tool:tools/design-assembly/check.mjs"
     note: "the height each control declares in its own classes; its width, and controls that take their size from elsewhere, are not measured"
+  - id: display-kind
+    layer: components
+    kind: closed
+    source: "design/column-types.json"
+    check: "tool:tools/design-assembly/check.mjs"
+  - id: column-align
+    layer: components
+    kind: formula
+    source: "the column type of the field"
+    check: "tool:tools/design-assembly/check.mjs"
+  - id: column-width
+    layer: components
+    kind: formula
+    source: "the header and the sample length of the column type"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "the sample lengths and the padding, and that no screen sets a width; the sum itself is done by the table parts, covered by their own tests"
+  - id: table-density
+    layer: components
+    kind: formula
+    source: "whether the columns fit at their least width"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "that no screen sets a row height; the choice between the two densities is made by the table parts, covered by their own tests"

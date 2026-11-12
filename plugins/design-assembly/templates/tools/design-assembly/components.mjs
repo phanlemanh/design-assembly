@@ -92,7 +92,7 @@ function entries(text, at) {
 }
 
 // The text of every string literal in a piece of source, joined: the class names it carries.
-function literals(text) {
+export function literals(text) {
   const found = [];
   for (let i = 0; i < text.length; i += 1) {
     if (text[i] === '"' || text[i] === "'" || text[i] === "`") {
@@ -116,7 +116,7 @@ const NOT_ITSELF = /^(\[&|\*+$|(file|placeholder|before|after|marker|selection|b
 const SPACING_UNIT_PX = 4;
 
 // A class name split at its colons, leaving the colons inside brackets alone.
-function parts(token) {
+export function parts(token) {
   const found = [];
   let depth = 0;
   let from = 0;
@@ -146,12 +146,9 @@ function heights(classes) {
   return found;
 }
 
-// The element a component renders, by the name its library gives it, and the class names written
-// on that element.
-function rendered(source, text) {
-  const root = /return\s*\(?\s*<([A-Za-z][\w.]*)/.exec(source);
-  if (!root) return null;
-  const from = root.index + root[0].length;
+// The attributes of a JSX opening tag: the text from just after its name to the `>` that closes
+// it, with braces and strings read as such.
+export function openingTag(source, from) {
   let depth = 0;
   let end = from;
   for (; end < source.length; end += 1) {
@@ -161,11 +158,19 @@ function rendered(source, text) {
     else if (char === "}") depth -= 1;
     else if (char === ">" && depth === 0) break;
   }
+  return source.slice(from, end);
+}
+
+// The element a component renders, by the name its library gives it, and the class names written
+// on that element.
+function rendered(source, text) {
+  const root = /return\s*\(?\s*<([A-Za-z][\w.]*)/.exec(source);
+  if (!root) return null;
   const [head, ...members] = root[1].split(".");
   const alias = new RegExp(`\\b(\\w+)\\s+as\\s+${head}\\b`).exec(text);
   return {
     element: members.at(-1) ?? alias?.[1] ?? head,
-    tag: source.slice(from, end),
+    tag: openingTag(source, root.index + root[0].length),
   };
 }
 

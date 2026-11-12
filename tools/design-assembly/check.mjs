@@ -7,6 +7,7 @@ import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { contrast } from "./color.mjs";
+import { cellProblems, columnsProblem, readDisplays, typesProblem } from "./columns.mjs";
 import { componentsProblem, readFolder, targetProblem } from "./components.mjs";
 import {
   LAYER_ALIASES,
@@ -164,6 +165,41 @@ const KINDS = {
       return { ...state, folders: { ...state.folders, [check.folder]: files } };
     },
   },
+  // The table of column types is well formed, and every field of the data model names one of them.
+  "column-types": {
+    run(state, check) {
+      return typesProblem(state.files?.[check.file], state.displays ?? {}, check.file);
+    },
+    // A field that names a type nobody listed.
+    change(state) {
+      return { ...state, displays: { ...state.displays, "ChangedCopy.field": "not-a-type" } };
+    },
+  },
+  // The file code reads is exactly what the table and the data model give.
+  columns: {
+    run(state, check) {
+      const types = state.files?.[check.types];
+      return columnsProblem(state.files?.[check.file], types, state.displays ?? {}, check.file);
+    },
+    // One more typed field in the data model: the file on disk no longer matches.
+    change(state, check) {
+      const first = Object.keys(JSON.parse(state.files?.[check.types] ?? "{}").types ?? {})[0];
+      return { ...state, displays: { ...state.displays, "ChangedCopy.field": first } };
+    },
+  },
+  // No screen sets on a table what the column type decides.
+  cells: {
+    run(state, check) {
+      return cellProblems(state.folders?.[check.folder] ?? {}, check.rule, check.skip);
+    },
+    change(state, check) {
+      const added = `${check.folder}/changed-copy.tsx`;
+      const source =
+        'export const ChangedCopy = () => (\n  <tr className="h-9">\n    <td className="w-40 text-right" />\n  </tr>\n);\n';
+      const files = { ...state.folders?.[check.folder], [added]: source };
+      return { ...state, folders: { ...state.folders, [check.folder]: files } };
+    },
+  },
   gate: {
     run(state) {
       if (state.gate === null) return `${FILES.gate} is missing, so make check does not run this`;
@@ -192,7 +228,10 @@ export function readState(root) {
   const stylesheet = data?.stylesheet ?? findStylesheet(root) ?? DEFAULT_STYLESHEET;
   // Other files a check names, as they are on disk.
   const checks = Object.values(data?.checks ?? {}).flat();
-  const named = checks.filter((check) => check.file).map((check) => [check.file, read(check.file)]);
+  const named = checks
+    .flatMap((check) => [check.file, check.types])
+    .filter(Boolean)
+    .map((file) => [file, read(file)]);
   // Source folders a check names, file by file.
   const folders = checks
     .filter((check) => check.folder)
@@ -207,6 +246,8 @@ export function readState(root) {
     ...loadStyles(root, stylesheet),
     files: Object.fromEntries(named),
     folders: Object.fromEntries(folders),
+    // The column type each field of the data model names.
+    displays: readDisplays(root),
     gate: read(FILES.gate),
   };
 }

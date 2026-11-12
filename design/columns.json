@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "padding_ch": 2,
+  "types": {
+    "text": {
+      "base": "text",
+      "align": "left",
+      "sample": 16
+    },
+    "number": {
+      "base": "number",
+      "align": "right",
+      "sample": 6
+    },
+    "date": {
+      "base": "date",
+      "align": "left",
+      "sample": 10
+    },
+    "datetime": {
+      "base": "datetime",
+      "align": "left",
+      "sample": 16
+    },
+    "boolean": {
+      "base": "boolean",
+      "align": "left",
+      "sample": 5
+    },
+    "select": {
+      "base": "select",
+      "align": "left",
+      "sample": 14
+    },
+    "money": {
+      "base": "number",
+      "align": "right",
+      "sample": 13
+    }
+  },
+  "fields": {
+    "Item.name": "text",
+    "Item.status": "select",
+    "Item.date": "date",
+    "Item.total": "money"
+  }
+}

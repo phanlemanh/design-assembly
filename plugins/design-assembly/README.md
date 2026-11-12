@@ -25,6 +25,9 @@ scale, shape). Density, elevation, motion and iconography are not.
   `design/decisions.yaml`, and installs the checks that hold them.
 - Both paths leave `design/tokens.json`: the design tokens, written from the stylesheet in the
   format the acceptance kit reads, and held to the stylesheet by a check.
+- The guide installs the data table layer: a table of column types, the file code reads from it,
+  table parts that take alignment, width and row height from a field's column type, and checks
+  that no screen sets them itself.
 - Both paths leave `design/component-registry.json`: the component manifest, written from the
   component source, with every variant an agent may use, and held to the source by a check.
 
