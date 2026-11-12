@@ -253,3 +253,9 @@ decisions:
     kind: standard
     source: "the repository's own browser test of it"
     check: "e2e:tests/e2e/templates.spec.ts"
+  - id: record-panel
+    layer: patterns
+    kind: closed
+    source: "design/blueprint.json, list-detail layout: beside"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "proposed by the guide; a person has not confirmed it. The check: that the record panel opens a record as the blueprint decides; the browser test of every page measures the arrangement at every width, and a screen that opens a record with a panel of its own is not caught"

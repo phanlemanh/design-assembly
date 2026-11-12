@@ -275,3 +275,64 @@ test("on a repository with a browser the sheet is drawn from its own screen", (t
     },
   );
 });
+
+test("how a record opens is offered as the list-detail layout, the recommendation first", () => {
+  const application = specimenPlan(
+    repository(layers({ product_type: "application", conformance_level: "AA" })),
+    { section: "record" },
+  );
+  const record = section(application, "record");
+  assert.equal(record.key, "record_panel");
+  assert.deepEqual(
+    record.options.map((option) => [option.letter, option.value]),
+    [
+      ["A", "beside"],
+      ["B", "over"],
+      ["C", "in-place"],
+    ],
+  );
+  assert.deepEqual(choices(application).record.C, { record_panel: "in-place" });
+  // Every option says what it is, from the same list the guide records.
+  for (const option of record.options) assert.ok(option.notes.length > 0, option.value);
+  // A content site reads records as pages: that is offered first there.
+  const site = specimenPlan(
+    repository(layers({ product_type: "content-site", conformance_level: "AA" })),
+    { section: "record" },
+  );
+  assert.equal(section(site, "record").options[0].value, "in-place");
+  // It is asked on its own: the full sheet of foundations does not carry it.
+  const all = specimenPlan(repository(layers()), {});
+  assert.equal(section(all, "record"), undefined);
+});
+
+test("on a repository whose screen opens a record, each arrangement is drawn at two widths", (t) => {
+  if (!existsSync(path.join(ROOT, "node_modules/@playwright/test"))) {
+    t.skip("the reference implementation has no browser installed");
+    return;
+  }
+  const out = "coverage/plugin-specimen-record-test";
+  rmSync(path.join(ROOT, out), { recursive: true, force: true });
+  const drawn = run("--target", ROOT, "--section", "record", "--out", out);
+  assert.equal(drawn.status, 0, drawn.stderr);
+  assert.match(drawn.stdout, /sheet: .*plugin-specimen-record-test\/index\.html/, drawn.stdout);
+  for (const letter of ["A", "B", "C"]) {
+    for (const width of [1440, 320]) {
+      const file = `record-${letter}-${width}.png`;
+      assert.ok(statSync(path.join(ROOT, out, file)).size > 2000, file);
+    }
+  }
+  // The arrangement was changed as the page was served: the repository's own file is untouched.
+  assert.match(own("src/components/record-panel.tsx"), /RECORD_LAYOUT: RecordLayout = "/);
+});
+
+test("a repository where no screen opens a record gets the options in words, and why", (t) => {
+  if (!existsSync(path.join(ROOT, "node_modules/@playwright/test"))) {
+    t.skip("the reference implementation has no browser installed");
+    return;
+  }
+  const dir = repository(layers({ product_type: "application", conformance_level: "AA" }));
+  const said = run("--target", dir, "--section", "record");
+  assert.equal(said.status, 0, said.stderr);
+  assert.match(said.stdout, /^ {2}A {2}beside the list, where both fit {2}\[beside\]$/m);
+  assert.match(said.stdout, /no sheet was drawn: /);
+});

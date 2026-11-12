@@ -24,6 +24,13 @@ it.
 - Each row waits on its own: while one row's action waits, the other rows can still be used.
 - A button that says it is working keeps its width: write its label with `HeldLabel` (`src/components/held-label.tsx`), giving both the label and the label while it waits.
 
+## A record beside a list
+
+- A record opened from a list opens with `WithRecord` (`src/components/record-panel.tsx`), and the screen keeps which one is open with `useOpenRecord` (`src/lib/open-record.ts`). It opens as the person chose in `design/blueprint.json`: beside the list, over it, or in its place. Never build a panel, a sheet or a page of a screen's own for it.
+- The record's name in its row is the button that opens it. The record's title is its name; it shows the record's fields under the same headers as the table's columns.
+- A screen that opens a record lists a state for it in `src/screens.ts`, reached by pressing that button, so the browser test measures it at every width.
+- To change how a record opens, change the answer in `design/blueprint.json` and run the guide again. Never edit the `RECORD_LAYOUT` line by hand: the gate fails when it differs from the answer.
+
 ## Words
 
 - A screen writes no word itself: not between tags, not in `aria-label`, `placeholder`, `title` or `alt`, not as a header or label in code. Take every word from the repository's one place for words.

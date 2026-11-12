@@ -44,6 +44,7 @@ function guided() {
   mkdirSync(path.join(dir, "design"));
   const choices = {
     context: { product_type: "application", conformance_level: "AA" },
+    patterns: { record_panel: "beside" },
     foundations: { source_color: "#ffee00" },
   };
   const layers = {};

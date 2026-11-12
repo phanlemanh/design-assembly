@@ -49,6 +49,7 @@ function folder(files) {
 function blueprint() {
   const choices = {
     context: { product_type: "application", conformance_level: "AA" },
+    patterns: { record_panel: "beside" },
     foundations: { source_color: "#0246ff" },
   };
   const layers = {};

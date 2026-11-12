@@ -4,7 +4,9 @@
 // Every option comes from a closed list or a formula, and its values are computed by the same
 // code that later writes them, so what is seen is what the gate will hold. Nothing is written to
 // the repository's sources: the sheet goes to a folder for build output.
-// Usage: node specimen.mjs --target DIR [--section color|around|type|radius|review|all]
+// The record section shows how a record opens from a list instead: the same screen and state,
+// once per arrangement of the list-detail layout.
+// Usage: node specimen.mjs --target DIR [--section color|around|type|radius|review|record|all]
 //          [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -20,7 +22,11 @@ import {
   formatOklch,
   parseColor,
 } from "../templates/tools/design-assembly/color.mjs";
-import { REGISTRY } from "../templates/tools/design-assembly/patterns.mjs";
+import {
+  RECORD_LAYOUTS,
+  RECORD_LINE,
+  REGISTRY,
+} from "../templates/tools/design-assembly/patterns.mjs";
 import {
   CORNER_RADII,
   modularScale,
@@ -38,6 +44,23 @@ import {
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
 const COLORS = JSON.parse(readFileSync(path.join(PLUGIN, "references/source-colors.json"), "utf8"));
+const LAYERS = JSON.parse(readFileSync(path.join(PLUGIN, "references/layers.json"), "utf8")).layers;
+const RECORD_CHOICE = LAYERS.find((layer) => layer.id === "patterns")?.choices?.find(
+  (choice) => choice.key === "record_panel",
+);
+// The arrangements in the order they are offered: the recommendation for the product type first.
+const RECORD_ORDER = {
+  application: ["beside", "over", "in-place"],
+  "content-site": ["in-place", "beside", "over"],
+};
+const RECORD_LABELS = {
+  beside: "beside the list, where both fit",
+  over: "over the list, as a side sheet",
+  "in-place": "in the list's place",
+};
+const SIZES = "design/screen-sizes.json";
+// What the stage sets on the page to pick the arrangement it draws.
+const RECORD_GLOBAL = "__designAssemblyRecordLayout";
 const BLUEPRINT = "design/blueprint.json";
 export const OUT = "coverage/design-specimen";
 const LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -62,6 +85,7 @@ export function decided(blueprint) {
     typeScale: foundations.type_scale ?? "standard",
     typeRatio: foundations.type_ratio ?? null,
     cornerRadius: foundations.corner_radius ?? "floor",
+    recordPanel: blueprint?.layers?.patterns?.choice?.record_panel ?? null,
     assumed: [
       ...(context.conformance_level ? [] : ["conformance level AA"]),
       ...(context.product_type ? [] : ["product type application"]),
@@ -295,6 +319,32 @@ export function specimenPlan(target, options = {}) {
       ),
     });
   }
+  // How a record opens: asked on its own, once a screen opens one.
+  if (wanted === "record") {
+    const order = RECORD_ORDER[state.productType] ?? RECORD_ORDER.application;
+    sections.push({
+      id: "record",
+      key: "record_panel",
+      title: "list-detail layout",
+      question:
+        "How does a record open from the list? Each picture is the same state of the same screen.",
+      shots: [],
+      options: letter(
+        order
+          .filter((layout) => RECORD_LAYOUTS.includes(layout))
+          .map((layout) => ({
+            value: layout,
+            label: RECORD_LABELS[layout],
+            notes: [
+              RECORD_CHOICE?.options?.[layout],
+              ...(layout === state.recordPanel ? ["what the blueprint decides so far"] : []),
+            ].filter(Boolean),
+            css: "",
+            modes: ["light"],
+          })),
+      ),
+    });
+  }
   if (wanted === "review" && state.sourceColor) {
     const chosen = colorOption(state.sourceColor, "what the blueprint decides", state, css);
     if (chosen.dropped) dropped.push(chosen.dropped);
@@ -348,7 +398,7 @@ export function renderSheet(plan, images) {
         const shots = (images[section.id]?.[option.letter] ?? [])
           .map(
             (shot) =>
-              `<figure><img src="${escape(shot.file)}" alt="${escape(`${option.letter}, ${shot.what}`)}" /><figcaption>${escape(shot.what)}</figcaption></figure>`,
+              `<figure${shot.narrow ? ' class="narrow"' : ""}><img src="${escape(shot.file)}" alt="${escape(`${option.letter}, ${shot.what}`)}" /><figcaption>${escape(shot.what)}</figcaption></figure>`,
           )
           .join("");
         const swatches = (option.swatches ?? [])
@@ -365,13 +415,13 @@ export function renderSheet(plan, images) {
               `<div style="font-size:${escape(step.size)}"><small>text-${escape(step.step)}</small> Aa 123</div>`,
           )
           .join("");
-        return `<article><header><b>${option.letter}</b><span>${escape(option.label)}</span><code>${escape(option.value)}</code></header>${swatches ? `<div class="swatches">${swatches}</div>` : ""}${shots}${steps ? `<div class="steps">${steps}</div>` : ""}${notes ? `<ul>${notes}</ul>` : ""}</article>`;
+        return `<article><header><b>${option.letter}</b><span>${escape(option.label)}</span><code>${escape(option.value)}</code></header>${swatches ? `<div class="swatches">${swatches}</div>` : ""}<div class="shots">${shots}</div>${steps ? `<div class="steps">${steps}</div>` : ""}${notes ? `<ul>${notes}</ul>` : ""}</article>`;
       })
       .join("\n");
   const body = plan.sections
     .map(
       (section) =>
-        `<section><h2>${escape(section.title)}</h2><p>${escape(section.question)}</p><div class="cards">\n${cards(section)}\n</div></section>`,
+        `<section class="${escape(section.id)}"><h2>${escape(section.title)}</h2><p>${escape(section.question)}</p><div class="cards">\n${cards(section)}\n</div></section>`,
     )
     .join("\n");
   return `<!doctype html>
@@ -391,6 +441,10 @@ export function renderSheet(plan, images) {
   code { color: #52525b; font-size: 12px; }
   figure { margin: 0 0 8px; }
   img { display: block; width: 100%; border: 1px solid #e4e4e7; border-radius: 4px; }
+  .record .cards { grid-template-columns: 1fr; }
+  .record .shots { display: flex; gap: 12px; align-items: flex-start; }
+  .record figure { flex: 1 1 0; min-width: 0; }
+  .record figure.narrow { flex: 0 0 22%; }
   figcaption { font-size: 12px; color: #71717a; }
   ul { margin: 0; padding-left: 16px; font-size: 12px; color: #52525b; }
   .steps { margin-bottom: 8px; line-height: 1.25; white-space: nowrap; overflow: hidden; }
@@ -407,7 +461,9 @@ export function renderSheet(plan, images) {
 <p>${escape(
     plan.sections.every((section) => !section.key)
       ? "The repository's own screen as it is now, beside the same screen with what the blueprint decides."
-      : `The repository's own screen, once per option. Every option shown already meets the rules of the conformance level ${plan.state.conformanceLevel}. Answer with a letter.`,
+      : plan.sections.every((section) => section.id === "record")
+        ? "The repository's own screen with a record open, once per arrangement, at the widest and the narrowest width its pages are checked at. Answer with a letter."
+        : `The repository's own screen, once per option. Every option shown already meets the rules of the conformance level ${plan.state.conformanceLevel}. Answer with a letter.`,
   )}</p>
 ${body}
 </body>
@@ -479,6 +535,110 @@ async function draw(target, plan, out) {
   return { images };
 }
 
+// Draws the record section: the first state of the registry that opens a record, once per
+// arrangement, at the widest and the narrowest width the pages are checked at. The arrangement is
+// changed as the panel is served, never on disk. Returns why it could not.
+async function drawRecord(target, plan, out) {
+  const section = plan.sections.find((item) => item.id === "record");
+  const stage = await openStage(target, {
+    transform: (code) =>
+      RECORD_LINE.test(code)
+        ? code.replace(
+            RECORD_LINE,
+            (line, layout) =>
+              `export const RECORD_LAYOUT: RecordLayout = ((globalThis as { ${RECORD_GLOBAL}?: RecordLayout }).${RECORD_GLOBAL} ?? "${layout}");`,
+          )
+        : null,
+  });
+  if (stage.problem) return { problem: stage.problem };
+  const images = { record: {} };
+  try {
+    const { SCREENS } = await stage.load(`/${REGISTRY}`);
+    const sizes = existsSync(path.join(target, SIZES))
+      ? (JSON.parse(readFileSync(path.join(target, SIZES), "utf8")).widths ?? [])
+      : [];
+    const widths = sizes.length > 0 ? [Math.max(...sizes), Math.min(...sizes)] : [1440, 390];
+    const reach = async (page, screen, state) => {
+      const url = state.scenario ? `${screen.path}?scenario=${state.scenario}` : screen.path;
+      await page.goto(`${stage.origin}${url}`, { waitUntil: "networkidle" });
+      for (const step of state.steps ?? []) {
+        if ("press" in step) {
+          await page.getByRole("button", { name: step.press, exact: true }).click();
+        } else await page.getByLabel(step.fill, { exact: true }).fill(step.text);
+      }
+      await page.getByText(state.shows, { exact: false }).first().waitFor({ timeout: 8000 });
+    };
+    // The state that opens a record: the first one whose page then shows the record panel.
+    const look = await stage.browser.newContext({ viewport: { width: 1440, height: 640 } });
+    let found = null;
+    for (const screen of SCREENS ?? []) {
+      for (const state of screen.states.filter((item) => (item.steps ?? []).length > 0)) {
+        const page = await look.newPage();
+        await reach(page, screen, state).catch(() => undefined);
+        const opens = (await page.locator("[data-record-panel]").count()) > 0;
+        await page.close();
+        if (opens) {
+          found = { screen, state };
+          break;
+        }
+      }
+      if (found) break;
+    }
+    await look.close();
+    if (!found) {
+      return {
+        problem: `no state of ${REGISTRY} opens a record yet, so there is no screen to draw it on`,
+      };
+    }
+    mkdirSync(path.resolve(target, out), { recursive: true });
+    for (const option of section.options) {
+      for (const width of widths) {
+        const narrow = width < 600;
+        const context = await stage.browser.newContext({
+          viewport: { width, height: 560 },
+          deviceScaleFactor: narrow ? 2 : 1,
+          reducedMotion: "reduce",
+        });
+        await context.addInitScript(
+          ([name, layout]) => {
+            globalThis[name] = layout;
+          },
+          [RECORD_GLOBAL, option.value],
+        );
+        const page = await context.newPage();
+        await reach(page, found.screen, found.state);
+        await page.waitForTimeout(400);
+        const file = `record-${option.letter}-${width}.png`;
+        // Down to the end of what is drawn: empty space below says nothing about the arrangement.
+        const bottom = await page.evaluate(() =>
+          Math.max(
+            ...[...globalThis.document.querySelectorAll("main, [data-record-panel] > *")].map(
+              (node) => node.getBoundingClientRect().bottom,
+            ),
+          ),
+        );
+        const height = Math.min(page.viewportSize().height, Math.max(320, Math.ceil(bottom) + 32));
+        await page.screenshot({
+          path: path.resolve(target, out, file),
+          clip: { x: 0, y: 0, width, height },
+        });
+        (images.record[option.letter] ??= []).push({ file, what: `${width}px`, narrow });
+        await context.close();
+      }
+    }
+    section.drawn = `${found.screen.path}, state ${found.state.name}`;
+    writeFileSync(path.resolve(target, out, "index.html"), renderSheet(plan, images));
+    const page = await stage.browser.newPage({ viewport: { width: 1440, height: 900 } });
+    await page.goto(pathToFileURL(path.resolve(target, out, "index.html")).href);
+    await page.screenshot({ path: path.resolve(target, out, "sheet.png"), fullPage: true });
+  } catch (error) {
+    return { problem: `drawing stopped: ${error.message.split("\n")[0]}` };
+  } finally {
+    await stage.close();
+  }
+  return { images };
+}
+
 // What each letter stands for, as the choice keys of the blueprint.
 export function choices(plan) {
   const found = {};
@@ -499,7 +659,7 @@ async function main() {
   const all = (flag) => args.flatMap((arg, index) => (arg === flag ? [args[index + 1]] : []));
   if (!value("--target")) {
     stderr.write(
-      "usage: node specimen.mjs --target DIR [--section color|around|type|radius|review|all] [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]\n",
+      "usage: node specimen.mjs --target DIR [--section color|around|type|radius|review|record|all] [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]\n",
     );
     exit(2);
   }
@@ -523,7 +683,9 @@ async function main() {
     stdout.write(`note: not decided yet, so shown with ${what}\n`);
   for (const why of plan.dropped) stdout.write(`note: not shown: ${why}\n`);
   const out = value("--out") ?? OUT;
-  const drawn = await draw(target, plan, out);
+  const drawn = plan.sections.some((section) => section.id === "record")
+    ? await drawRecord(target, plan, out)
+    : await draw(target, plan, out);
   for (const section of plan.sections) {
     stdout.write(`\n${section.title}: ${section.question}\n`);
     for (const option of section.options) {

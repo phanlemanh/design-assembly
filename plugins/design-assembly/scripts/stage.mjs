@@ -10,7 +10,9 @@ import { pathToFileURL } from "node:url";
 // read with its words resolved.
 // `modules` are extra modules the stage serves beside the repository's own, by address: code that
 // exists only while the stage is open, so nothing is added to the repository to draw it.
-export async function openStage(target, { modules = {} } = {}) {
+// `transform` may change a module of the repository as it is served, never on disk: it gets the
+// source and the file, and returns the new source or null.
+export async function openStage(target, { modules = {}, transform = null } = {}) {
   const require = createRequire(path.join(target, "package.json"));
   let chromium;
   let createServer;
@@ -42,6 +44,8 @@ export async function openStage(target, { modules = {} } = {}) {
       plugins: [
         {
           name: "design-assembly-stage",
+          enforce: "pre",
+          transform: (code, id) => (transform ? transform(code, id) : null),
           resolveId: (id) => (id in modules ? id : null),
           load: (id) => (id in modules ? modules[id] : null),
         },

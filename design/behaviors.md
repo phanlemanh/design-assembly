@@ -88,6 +88,20 @@ Thất bại thì báo ở nơi người dùng vừa làm, và không bao giờ 
   thì không còn chỗ đọc các cột giữa. Bài kiểm trình duyệt đỏ khi một nút của dòng đầu nằm ngoài
   khung, hoặc khi các cột đứng yên chừa không đủ chỗ cho cột rộng nhất cuộn qua.
 
+## Mở một hồ sơ cạnh danh sách
+
+- **Cách bày do người chọn bằng mắt**, trên bảng mẫu vẽ chính màn của kho với một hồ sơ đang mở:
+  cạnh danh sách (khi đủ chỗ cho cả hai, từ bề rộng 1024; hẹp hơn thì hồ sơ thế chỗ danh sách),
+  phủ lên danh sách như một tấm trượt từ cạnh phải, hoặc thế chỗ danh sách ở mọi bề rộng. Câu trả
+  lời nằm trong `design/blueprint.json` và trong đúng một dòng của `src/components/record-panel.tsx`;
+  cổng đỏ khi hai chỗ lệch nhau.
+- **Mọi cách bày giữ chung mấy điều:** hồ sơ đang mở có tên trên địa chỉ, nên một liên kết mở được
+  nó và nút Back đóng nó; mở thì tiêu điểm vào tiêu đề hồ sơ; đóng (nút Đóng, phím Esc hay Back)
+  thì tiêu điểm về đúng nút đã mở; chữ đã gõ vào ô lọc vẫn còn khi quay lại danh sách.
+- **Tên của mục trên dòng là nút mở hồ sơ.** Tiêu đề hồ sơ là tên mục; hồ sơ cho thấy các trường
+  với đúng tiêu đề cột của bảng.
+- Màn tự dựng tấm hay trang hồ sơ của riêng nó thì không lệnh kiểm nào bắt: người xem lại.
+
 ## Đi lại giữa các màn
 
 Điều hướng thuộc về khung ứng dụng: một vùng, cùng chỗ và cùng thứ tự ở mọi màn, có đánh dấu màn

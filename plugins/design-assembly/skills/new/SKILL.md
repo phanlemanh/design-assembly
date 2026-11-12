@@ -114,8 +114,9 @@ For each layer with `built: true`, read `references/layers/<id>.md` and run this
 A layer with only one sensible answer gets one line, no question. A layer with `built: false` is
 recorded as `{"status": "planned"}`.
 
-Four answers belong to the person, because they are taste or brand: the product type, when the
-repository does not already record it; the source color; the type scale; and the corner radius. The
+Five answers belong to the person, because they are taste or brand: the product type, when the
+repository does not already record it; the source color; the type scale; the corner radius; and
+the list-detail layout. The
 conformance level is theirs too when a contract or a regulator sets it; otherwise it is AA. In
 **review each layer**, ask for them. In **hand it to Claude**, propose them, record
 `source: proposed`, and put them first in the final review so the person can replace them. Never
@@ -154,6 +155,18 @@ the sheet is, where one picture of the whole sheet is, and what each letter stan
   same options in words: go on with those, and say that nothing could be shown.
 
 In **hand it to Claude**, do not stop here: draw the sheet for the final review instead.
+
+### How a record opens
+
+The interaction patterns layer asks one thing, and it is seen too: how a record of a list opens
+(`references/layers/patterns.md`). Run `specimen.mjs --target <repo> --section record`. It finds
+the first state of the screen registry that opens a record and draws it once per arrangement, at
+the widest and the narrowest width the pages are checked at. Ask with the letters, the
+recommendation first, as above; a letter is the person's answer and is written to
+`layers.patterns` with `source: user`. When the script says no screen opens a record yet, say so,
+record the recommendation as `source: proposed`, and tell the person the sheet can be drawn once a
+screen opens one. In **hand it to Claude**, propose it and show the sheet at the final review when
+it can be drawn.
 
 As soon as product context and foundations are decided, run the preview,
 `apply.mjs --target <repo> --dry-run`. It works before approval and prints, for light and dark, the

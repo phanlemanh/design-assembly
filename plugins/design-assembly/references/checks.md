@@ -209,6 +209,22 @@ every page; the others are a person's review, and the rules page says so.
   inside the window, and that the pinned columns leave the scrolling band at least as wide as the
   widest column that scrolls. It reads the first row and the first table only, and a table built
   with other parts is held the same way.
+- **A record beside a list** (`record-panel`). How one record of a list opens is the person's
+  choice, made by sight on the specimen sheet (`specimen.mjs --section record`): `beside` the list
+  where both fit (from 1024px; below that the record takes the list's place), `over` it as a side
+  sheet, or `in-place` at every width. Where the floor's table and the browser test are, the guide
+  installs `WithRecord` (`record-panel.tsx`, beside `held-label.tsx`), `useOpenRecord`
+  (`src/lib/open-record.ts`) and their test, and writes the answer into the panel's one
+  `RECORD_LAYOUT` line every time it runs; the rest of the panel is the repository's. The gate's
+  `record-layout` check fails when that line differs from `design/blueprint.json`, so an answer
+  changed without running the guide, or a hand edit, is caught. The browser test of every page
+  measures any page with a record open: inside the window, beside the list or in its place as the
+  line says, a dialog for `over`, and focus inside once a person opened it. Every arrangement keeps
+  the open record in the address (a link opens it, Back closes it) and gives focus back to what
+  opened it. A screen that opens a record with a panel of its own is not caught. A blueprint
+  written before this was asked keeps `patterns` planned: the guide then applies the proposal for
+  the product type, `beside` for an application and `in-place` for a content site, and the row
+  says a person has not confirmed it.
 - **The actions of a row.** At most two show as buttons; three or more go behind one button on the
   row that opens them as a list of buttons (a disclosure, not an ARIA menu: the browser tests,
   the floor's and this plugin's, reach a state by pressing a button), the ones that can be taken back first and a delete last. Each row waits on its own. A

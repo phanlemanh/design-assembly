@@ -196,6 +196,13 @@
         "test": "tests/e2e/templates.spec.ts"
       }
     ],
+    "record-panel": [
+      {
+        "kind": "record-layout",
+        "file": "src/components/record-panel.tsx",
+        "blueprint": "design/blueprint.json"
+      }
+    ],
     "tier-direction": [
       {
         "kind": "import-direction",

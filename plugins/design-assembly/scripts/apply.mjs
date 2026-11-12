@@ -48,9 +48,11 @@ import {
   channelsProblem,
   CORE_STATES,
   errorCopyProblem,
+  RECORD_LINE,
   REGISTRY as SCREENS,
   STATES_FILE,
   statesProblem,
+  withRecordLayout,
   wordsProblem,
 } from "../templates/tools/design-assembly/patterns.mjs";
 import { mergeLedger, parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
@@ -102,6 +104,22 @@ const FOUNDATIONS_DEFAULTS = {
   corner_radius: "floor",
 };
 
+// A layer built after the first version: a blueprint that still has it `planned` was written
+// before it could be asked, so its answer is the guide's proposal until the person gives one.
+const LATER_LAYERS = ["patterns"];
+
+// How a record opens: the person's answer, else the proposal for the product type.
+export function recordLayout(blueprint) {
+  const entry = blueprint.layers?.patterns ?? {};
+  const answer = entry.status === "decided" ? entry.choice?.record_panel : undefined;
+  if (answer) {
+    const confirmed = entry.source === "user" || (entry.confirmed ?? []).includes("record_panel");
+    return { layout: answer, confirmed, source: entry.source };
+  }
+  const type = blueprint.layers?.context?.choice?.product_type;
+  return { layout: type === "content-site" ? "in-place" : "beside", confirmed: false };
+}
+
 // The floor's text-xs. A modular step below it is shown as a note, not refused: no standard sets a
 // minimum text size.
 const FLOOR_SMALLEST_PX = 12;
@@ -151,6 +169,7 @@ export function blueprintProblems(blueprint, { preview = false } = {}) {
         found.push(`${layer.id}: not built yet, status must be planned`);
       continue;
     }
+    if (entry.status === "planned" && LATER_LAYERS.includes(layer.id)) continue;
     if (entry.status !== "decided") {
       const enoughForPreview = preview && !THEME_LAYERS.includes(layer.id);
       if (!enoughForPreview) found.push(`${layer.id}: must be decided`);
@@ -368,6 +387,15 @@ const ROW_PARTS = {
   "held-label.tsx.template": (folder) => `${path.posix.dirname(folder)}/held-label.tsx`,
   "held-label.test.tsx.template": () => "tests/held-label.test.tsx",
 };
+// How one record of a list opens, installed with the same parts: the panel that arranges it as the
+// blueprint decides, and what keeps the open record in the address.
+const RECORD_PARTS = {
+  "record-panel.tsx.template": (folder) => `${path.posix.dirname(folder)}/record-panel.tsx`,
+  "open-record.ts.template": (folder) =>
+    `${path.posix.dirname(path.posix.dirname(folder))}/lib/open-record.ts`,
+  "record-panel.test.tsx.template": () => "tests/record-panel.test.tsx",
+};
+const RECORD_TEMPLATE = "record-panel.tsx.template";
 
 // The data table layer: the repository's column types, the file code reads, the rows and checks
 // that hold alignment, width and density, and the table parts that apply them. `starter` writes
@@ -577,7 +605,7 @@ const ROUTES = "tests/e2e/routes.ts";
 // checked at the widths a person listed. `starter` writes the list of widths when the repository
 // has none; `code` installs the browser test that reads it. What a kind's page says is a person's:
 // no page is ever written here.
-export function templatesPlan(target, { starter, code = false, pending = {} }) {
+export function templatesPlan(target, { starter, code = false, pending = {}, layout = null }) {
   const read = (file) =>
     file in pending
       ? pending[file]
@@ -589,6 +617,7 @@ export function templatesPlan(target, { starter, code = false, pending = {} }) {
   const rows = [];
   const failing = [];
   const notes = [];
+  let recordPanel = null;
   const propose = (id, problem, item) => {
     if (problem) failing.push({ id, why: problem });
     else held[id] = item;
@@ -683,6 +712,19 @@ export function templatesPlan(target, { starter, code = false, pending = {} }) {
           files[file] = readFileSync(path.join(PLUGIN, "templates/owned", name), "utf8");
         }
       }
+      // The record panel is the repository's from then on, but for its one line that says how a
+      // record opens: the guide writes the blueprint's answer there, every time it runs.
+      for (const [name, place] of Object.entries(layout ? RECORD_PARTS : {})) {
+        const file = place(folder);
+        const now = read(file);
+        if (now === null) {
+          const text = readFileSync(path.join(PLUGIN, "templates/owned", name), "utf8");
+          files[file] = name === RECORD_TEMPLATE ? withRecordLayout(text, layout) : text;
+        } else if (name === RECORD_TEMPLATE && RECORD_LINE.test(now)) {
+          files[file] = withRecordLayout(now, layout);
+        }
+        if (name === RECORD_TEMPLATE) recordPanel = file;
+      }
     }
     if (sizes !== null && test !== null) {
       propose("test-screen-sizes", sizesProblem(sizes, test), {
@@ -708,7 +750,7 @@ export function templatesPlan(target, { starter, code = false, pending = {} }) {
       }
     }
   }
-  return { files, held, rows, known, failing, notes };
+  return { files, held, rows, known, failing, notes, recordPanel };
 }
 
 // The record a repository starts with: a table and no line. A line is added when a fault is found
@@ -843,6 +885,17 @@ export function rulesPage(checks, has) {
       (heldLabel
         ? "A button that says it is working keeps its width: write its label with `HeldLabel` (`src/components/held-label.tsx`), giving both the label and the label while it waits."
         : "A button that says it is working keeps its width: the label while it waits takes no more room than the label before."),
+  ]);
+  section("A record beside a list", [
+    held("record-panel") &&
+      has("src/components/record-panel.tsx") &&
+      "A record opened from a list opens with `WithRecord` (`src/components/record-panel.tsx`), and the screen keeps which one is open with `useOpenRecord` (`src/lib/open-record.ts`). It opens as the person chose in `design/blueprint.json`: beside the list, over it, or in its place. Never build a panel, a sheet or a page of a screen's own for it.",
+    held("record-panel") &&
+      "The record's name in its row is the button that opens it. The record's title is its name; it shows the record's fields under the same headers as the table's columns.",
+    held("record-panel") &&
+      "A screen that opens a record lists a state for it in `src/screens.ts`, reached by pressing that button, so the browser test measures it at every width.",
+    held("record-panel") &&
+      "To change how a record opens, change the answer in `design/blueprint.json` and run the guide again. Never edit the `RECORD_LAYOUT` line by hand: the gate fails when it differs from the answer.",
   ]);
   section("Words", [
     held("labels") &&
@@ -1096,11 +1149,20 @@ export function plan(target, blueprint) {
   const prior = JSON.parse(read(FILES.theme) ?? "{}").checks ?? {};
   const columns = columnsPlan(target, { starter: true, code: true });
   const patterns = patternsPlan(target, { starter: true, code: true });
-  const templates = templatesPlan(target, { starter: true, code: true, pending: patterns.files });
+  const opening = recordLayout(blueprint);
+  const templates = templatesPlan(target, {
+    starter: true,
+    code: true,
+    pending: patterns.files,
+    layout: opening.layout,
+  });
   const governance = governancePlan(target, { starter: true });
+  // The component manifest is read from the components as they are about to be: with the parts
+  // this run installs among them.
   const components = componentsPlan(target, Boolean(prior[COMPONENTS_DECISION]), {
     ...columns.files,
     ...patterns.files,
+    ...templates.files,
   });
   const derived = [
     [TOKENS_DECISION, tokens],
@@ -1127,6 +1189,25 @@ export function plan(target, blueprint) {
     checks[id] = item.checks;
   }
   rows.push(...templates.rows);
+  // How a record opens: a person's call, held where the record panel is installed.
+  if (templates.recordPanel) {
+    const unconfirmed = opening.confirmed
+      ? ""
+      : opening.source === "repo"
+        ? "read from the repository; a person has not confirmed it. The check: "
+        : "proposed by the guide; a person has not confirmed it. The check: ";
+    rows.push({
+      id: "record-panel",
+      layer: "patterns",
+      kind: "closed",
+      source: `${BLUEPRINT}, list-detail layout: ${opening.layout}`,
+      check: TOOL,
+      note: `${unconfirmed}that the record panel opens a record as the blueprint decides; the browser test of every page measures the arrangement at every width, and a screen that opens a record with a panel of its own is not caught`,
+    });
+    checks["record-panel"] = [
+      { kind: "record-layout", file: templates.recordPanel, blueprint: BLUEPRINT },
+    ];
+  }
   Object.assign(files, governance.files);
   for (const [id, item] of Object.entries(governance.held)) {
     rows.push({ id, ...item.row });
@@ -1159,6 +1240,7 @@ export function plan(target, blueprint) {
   files[FILES.ledger] = mergeLedger(read(FILES.ledger), rows);
   for (const layer of LAYERS.filter((l) => l.built)) {
     const entry = blueprint.layers[layer.id];
+    if (entry.status !== "decided") continue;
     const values = layer.id === "foundations" ? foundations.choice : entry.choice;
     const listed = [...rows, ...templates.known];
     files[`design/decisions/${layer.id}.md`] = record(layer, entry, listed, values);
@@ -1311,7 +1393,12 @@ function main() {
     );
   }
 
-  const pending = LAYERS.filter((l) => l.built && blueprint.layers[l.id].status !== "decided");
+  const pending = LAYERS.filter(
+    (l) =>
+      l.built &&
+      blueprint.layers[l.id].status !== "decided" &&
+      !(LATER_LAYERS.includes(l.id) && blueprint.layers[l.id].status === "planned"),
+  );
   if (pending.length > 0) {
     stdout.write(
       `files: shown once these layers are decided: ${pending.map((l) => l.title).join(", ")}\n`,
@@ -1330,6 +1417,11 @@ function main() {
   }
   for (const note of patterns.notes) stdout.write(`hint: ${note}.\n`);
   for (const [id, item] of Object.entries(templates.held)) stdout.write(`${id}: ${item.what}\n`);
+  if (templates.recordPanel) {
+    const opening = recordLayout(blueprint);
+    const whose = opening.confirmed ? "as the person chose" : "proposed, until a person chooses";
+    stdout.write(`record-panel: a record opens ${opening.layout}, ${whose}\n`);
+  }
   for (const row of templates.rows) {
     const how = row.check ? `proved by ${row.check}` : "recorded, for a person to confirm";
     stdout.write(`${row.id}: ${how}\n`);

@@ -18,6 +18,7 @@ import {
   typesProblem,
 } from "../templates/tools/design-assembly/columns.mjs";
 import { parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
+import { withRecordLayout } from "../templates/tools/design-assembly/patterns.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -45,6 +46,7 @@ function folder(files) {
 function blueprint() {
   const choices = {
     context: { product_type: "application", conformance_level: "AA" },
+    patterns: { record_panel: "beside" },
     foundations: { source_color: "#0246ff" },
   };
   const layers = {};
@@ -334,9 +336,17 @@ test("the table parts the guide installs are the ones the reference implementati
     ["typed-table.test.tsx.template", "tests/typed-table.test.tsx"],
     ["held-label.tsx.template", "src/components/held-label.tsx"],
     ["held-label.test.tsx.template", "tests/held-label.test.tsx"],
+    ["open-record.ts.template", "src/lib/open-record.ts"],
+    ["record-panel.test.tsx.template", "tests/record-panel.test.tsx"],
   ]) {
     assert.equal(text(PLUGIN, `templates/owned/${template}`), own(file), file);
   }
+  // The record panel is the same but for its one line, which follows this repository's answer.
+  const layout = JSON.parse(own("design/blueprint.json")).layers.patterns.choice.record_panel;
+  assert.equal(
+    withRecordLayout(text(PLUGIN, "templates/owned/record-panel.tsx.template"), layout),
+    own("src/components/record-panel.tsx"),
+  );
 });
 
 test("the typed table parts are held to the rule too: a screen cannot restyle them", () => {

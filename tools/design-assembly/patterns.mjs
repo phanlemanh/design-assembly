@@ -167,3 +167,14 @@ export function channelsProblem(files, skip = []) {
   if (found.length === 0) return null;
   return `${found.slice(0, 5).join("; ")}: a screen tells a person through the repository's channels`;
 }
+
+// How a record opens beside a list: the arrangements a person picks from, and the one line of the
+// record panel that says which it uses. The guide writes that line; the gate reads it.
+export const RECORD_LAYOUTS = ["beside", "over", "in-place"];
+export const RECORD_LINE = /^export const RECORD_LAYOUT: RecordLayout = "([\w-]+)";$/m;
+
+// The record panel's source with its arrangement set, or null when the line is gone.
+export function withRecordLayout(source, layout) {
+  if (!RECORD_LINE.test(source)) return null;
+  return source.replace(RECORD_LINE, `export const RECORD_LAYOUT: RecordLayout = "${layout}";`);
+}

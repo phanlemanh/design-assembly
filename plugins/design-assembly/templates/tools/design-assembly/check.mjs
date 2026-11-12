@@ -20,7 +20,14 @@ import {
   TOOL,
 } from "./ledger.mjs";
 import { toPx, toRatio, TYPE_STEPS } from "./scale.mjs";
-import { channelsProblem, errorCopyProblem, statesProblem, wordsProblem } from "./patterns.mjs";
+import {
+  channelsProblem,
+  errorCopyProblem,
+  RECORD_LINE,
+  statesProblem,
+  withRecordLayout,
+  wordsProblem,
+} from "./patterns.mjs";
 import { againstDirection, importsProblem, readSources, slipsProblem } from "./governance.mjs";
 import { kindsProblem, readPages, referenceProblem, sizesProblem } from "./screens.mjs";
 import { DEFAULT_STYLESHEET, findStylesheet, loadStyles, resolve } from "./styles.mjs";
@@ -84,6 +91,37 @@ const KINDS = {
         },
       };
       return { ...state, files: { ...state.files, [check.file]: JSON.stringify(changed) } };
+    },
+  },
+  // A record opens the way the blueprint decides. The guide writes it into the record panel; a hand
+  // edit there, or an answer changed without running the guide again, is not in force.
+  "record-layout": {
+    run(state, check) {
+      const source = state.files?.[check.file];
+      if (source === null || source === undefined) return `${check.file} is missing`;
+      const written = RECORD_LINE.exec(source)?.[1];
+      if (!written) {
+        return `${check.file} no longer says how a record opens: put back its RECORD_LAYOUT line, or run the guide again`;
+      }
+      let decided;
+      try {
+        decided = JSON.parse(state.files?.[check.blueprint] ?? "null");
+      } catch {
+        return `${check.blueprint} is not valid JSON`;
+      }
+      const answer = decided?.layers?.patterns?.choice?.record_panel;
+      if (!answer) return `${check.blueprint} does not decide how a record opens`;
+      if (answer === written) return null;
+      return `${check.blueprint} decides that a record opens ${answer}, and ${check.file} opens it ${written}: run the guide again, or put the answer back`;
+    },
+    change(state, check) {
+      const source = state.files?.[check.file] ?? "";
+      const written = RECORD_LINE.exec(source)?.[1];
+      const other = written === "over" ? "beside" : "over";
+      return {
+        ...state,
+        files: { ...state.files, [check.file]: withRecordLayout(source, other) ?? "" },
+      };
     },
   },
   generated: {
@@ -417,7 +455,7 @@ export function readState(root) {
   // Other files a check names, as they are on disk.
   const checks = Object.values(data?.checks ?? {}).flat();
   const named = checks
-    .flatMap((check) => [check.file, check.types, check.registry, check.test])
+    .flatMap((check) => [check.file, check.types, check.registry, check.test, check.blueprint])
     .filter(Boolean)
     .map((file) => [file, read(file)]);
   // Source folders a check names, file by file.

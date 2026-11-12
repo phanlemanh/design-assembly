@@ -86,7 +86,18 @@
       "id": "patterns",
       "title": "interaction patterns",
       "depends_on": ["components"],
-      "built": false
+      "built": true,
+      "choices": [
+        {
+          "key": "record_panel",
+          "name": "list-detail layout",
+          "options": {
+            "beside": "The record opens in a pane beside the list where both fit, from 1024px; below that it takes the list's place.",
+            "over": "The record opens in a side sheet over the list, as a dialog: the list stays as it was behind it.",
+            "in-place": "The record takes the list's place at every width, and Back returns to the list."
+          }
+        }
+      ]
     },
     { "id": "content", "title": "content guidelines", "depends_on": ["context"], "built": false },
     {

@@ -476,6 +476,15 @@ export function report(result, { all = false } = {}) {
       `  ${open.length} of the recorded are a proposal a person has not confirmed: ${open.map((d) => d.id).join(", ")}`,
     );
   }
+  // A choice a check holds can still be one nobody made: the check holds the proposal.
+  const proposedHeld = result.decisions.filter(
+    (d) => d.state !== "recorded" && /a person has not confirmed it/.test(d.note ?? ""),
+  );
+  if (proposedHeld.length > 0) {
+    lines.push(
+      `  ${proposedHeld.length} held by a check are still a proposal a person has not confirmed: ${proposedHeld.map((d) => d.id).join(", ")}`,
+    );
+  }
   if (result.ledger) {
     const l = result.ledger;
     lines.push(

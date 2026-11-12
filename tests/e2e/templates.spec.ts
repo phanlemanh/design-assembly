@@ -94,6 +94,44 @@ for (const route of ROUTES) {
           `row-actions-in-view: at ${width}px the pinned columns leave ${cramped}px too little to read the widest column that scrolls between them. Make the pinned columns narrower, or pin fewer, on a narrow screen`,
         ).toBeLessThanOrEqual(0);
       }
+      // A record opens the way the person chose (design/blueprint.json, record panel; the gate's
+      // record-panel row holds the choice, this measures what it draws): beside the
+      // list where both fit, from 1024px, and in its place below that; over the list; or in its
+      // place at every width. Inside the window either way, and, once a person opened it, with focus.
+      const panel = page.locator("[data-record-panel]");
+      if ((await panel.count()) > 0) {
+        const seen = await panel.first().evaluate((node) => {
+          const box = node.getBoundingClientRect();
+          const place = document.querySelector("table")?.parentElement;
+          const list = place?.checkVisibility() ? place.getBoundingClientRect() : null;
+          return {
+            layout: node.getAttribute("data-record-panel"),
+            left: Math.round(box.left),
+            right: Math.round(box.right),
+            listRight: list ? Math.round(list.right) : null,
+            modal: node.closest("[role=dialog]") !== null,
+            focused: node.contains(document.activeElement),
+          };
+        });
+        const wrong = [];
+        if (seen.left < 0 || seen.right > width) wrong.push("it is not inside the window");
+        if (seen.layout === "beside" && width >= 1024) {
+          if (seen.listRight === null) wrong.push("the list is hidden where both fit");
+          else if (seen.listRight > seen.left) wrong.push("it is not beside the list");
+        }
+        if (seen.layout === "beside" && width < 1024 && seen.listRight !== null) {
+          wrong.push("the list still shows where only one fits");
+        }
+        if (seen.layout === "over" && !seen.modal) wrong.push("it is not a dialog over the list");
+        if (seen.layout === "in-place" && seen.listRight !== null) {
+          wrong.push("the list still shows beside it");
+        }
+        if (route.steps.length > 0 && !seen.focused) wrong.push("focus is not in it");
+        expect(
+          wrong,
+          `record-panel: at ${width}px the record that opened ${seen.layout} the list is wrong: ${wrong.join("; ")}. Open it with WithRecord, never with a panel of the screen's own`,
+        ).toEqual([]);
+      }
       // Looked at last, once the page has settled: a control that left must not take focus with it.
       if (route.steps.some((step) => "press" in step)) {
         const lost = await page.evaluate(

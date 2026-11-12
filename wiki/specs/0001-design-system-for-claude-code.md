@@ -474,6 +474,14 @@ Câu báo của phép kiểm cột ghim không còn bảo «ghim ít cột hơn�
   luật «không cài gói». Hai tệp này của Repo Standards.
 - Các sửa đổi sau lần thử này chưa được tác tử độc lập thử.
 
+### Câu lõi cuối: mở một hồ sơ cạnh danh sách (2026-11-13)
+
+Chủ kho chọn dựng câu này bằng mắt («Dựng hồ sơ»). Đã dựng: ba cách bày trong một linh kiện của
+kho, bảng mẫu chụp màn thật với hồ sơ đang mở theo từng cách ở 1440 và 320, lệnh kiểm của cổng
+giữ cách bày đúng bản thiết kế, phép đo trong bài kiểm trình duyệt của mọi trang. Kho đủ 38/38 câu
+lõi; câu này đang giữ đề xuất «cạnh danh sách», audit nói rõ là chưa ai xác nhận. Chi tiết và giới
+hạn ở [0022](../decisions/0022-record-beside-a-list.md).
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.

@@ -50,6 +50,7 @@ function folder(files) {
 function blueprint() {
   const choices = {
     context: { product_type: "application", conformance_level: "AA" },
+    patterns: { record_panel: "beside" },
     foundations: { source_color: "#0246ff" },
   };
   const layers = {};
@@ -346,6 +347,91 @@ test("with the browser test come the parts it asks for, before the data model ty
   edit(dir, parts[0], (s) => `${s}// kept\n`);
   assert.equal(run(APPLY, "--target", dir).status, 0);
   assert.match(text(dir, parts[0]), /\/\/ kept\n$/);
+});
+
+test("with the table comes the record panel, opening a record as the blueprint decides", () => {
+  const parts = [
+    "src/components/record-panel.tsx",
+    "src/lib/open-record.ts",
+    "tests/record-panel.test.tsx",
+  ];
+  const bare = floor();
+  assert.equal(run(APPLY, "--target", bare).status, 0);
+  for (const file of parts) assert.ok(!existsSync(path.join(bare, file)), file);
+  assert.equal(rowsOf(bare)["record-panel"], undefined);
+
+  const dir = floor({ "src/components/ui/table.tsx": own("src/components/ui/table.tsx") });
+  const applied = run(APPLY, "--target", dir);
+  assert.equal(applied.status, 0, applied.stderr);
+  for (const file of parts) assert.ok(existsSync(path.join(dir, file)), file);
+  assert.match(
+    applied.stdout,
+    /record-panel: a record opens beside, proposed, until a person chooses/,
+  );
+  const row = rowsOf(dir)["record-panel"];
+  assert.equal(row.check, TOOL);
+  assert.equal(row.layer, "patterns");
+  assert.match(row.note, /a person has not confirmed it/);
+  // The audit names it: a check holds the proposal, and nobody has made the choice yet.
+  assert.match(
+    run(AUDIT, "--target", dir).stdout,
+    /held by a check are still a proposal a person has not confirmed: record-panel/,
+  );
+  assert.match(
+    text(dir, ".claude/rules/design-assembly.md"),
+    /## A record beside a list\n\n- .*`WithRecord`/,
+  );
+  assert.equal(check(dir).status, 0, check(dir).stderr);
+
+  // The person's letter: the guide writes it into the panel, and the row stops being a proposal.
+  edit(dir, "design/blueprint.json", (s) => {
+    const blueprint = JSON.parse(s);
+    blueprint.layers.patterns = {
+      status: "decided",
+      source: "user",
+      choice: { record_panel: "over" },
+      why: "Chosen on the sheet.",
+    };
+    return JSON.stringify(blueprint);
+  });
+  // Changed without running the guide again, the answer is not in force, and the gate says so.
+  const stale = check(dir);
+  assert.equal(stale.status, 1);
+  assert.match(
+    stale.stderr,
+    /record-panel: .*decides that a record opens over, and .* opens it beside/,
+  );
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  assert.match(text(dir, parts[0]), /RECORD_LAYOUT: RecordLayout = "over";/);
+  assert.doesNotMatch(rowsOf(dir)["record-panel"].note, /not confirmed/);
+  assert.doesNotMatch(run(AUDIT, "--target", dir).stdout, /not confirmed: record-panel/);
+  assert.equal(check(dir).status, 0, check(dir).stderr);
+  // The rest of the panel is the repository's: an edit is kept; the line itself is held.
+  edit(dir, parts[0], (s) => `${s}// kept\n`);
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  assert.match(text(dir, parts[0]), /\/\/ kept\n$/);
+  edit(dir, parts[0], (s) => s.replace('= "over";', '= "in-place";'));
+  const edited = check(dir);
+  assert.equal(edited.status, 1);
+  assert.match(edited.stderr, /record-panel: /);
+});
+
+test("a blueprint written before the record layout could be asked is applied with the proposal", () => {
+  const dir = floor({ "src/components/ui/table.tsx": own("src/components/ui/table.tsx") });
+  edit(dir, "design/blueprint.json", (s) => {
+    const blueprint = JSON.parse(s);
+    blueprint.layers.patterns = { status: "planned" };
+    blueprint.layers.context.choice.product_type = "content-site";
+    return JSON.stringify(blueprint);
+  });
+  const applied = run(APPLY, "--target", dir);
+  assert.equal(applied.status, 0, applied.stderr);
+  assert.match(text(dir, "src/components/record-panel.tsx"), /= "in-place";/);
+  assert.match(
+    rowsOf(dir)["record-panel"].note,
+    /proposed by the guide; a person has not confirmed it/,
+  );
+  assert.ok(!existsSync(path.join(dir, "design/decisions/patterns.md")));
 });
 
 test("the guide writes the widths and the browser test once, and points three rows at the test", () => {

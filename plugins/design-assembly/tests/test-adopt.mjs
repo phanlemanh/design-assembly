@@ -331,6 +331,7 @@ test("flags that would put words in a person's mouth are refused", () => {
 function blueprint() {
   const choices = {
     context: { product_type: "application", conformance_level: "AA" },
+    patterns: { record_panel: "beside" },
     foundations: { source_color: "#0246ff" },
   };
   const layers = {};

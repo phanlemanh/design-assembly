@@ -51,6 +51,13 @@ giữ nguyên bề rộng. Bảng rộng hơn chỗ thì cuộn ngang: cột tha
 yên từ bề rộng 640. Chi
 tiết ở `design/behaviors.md`, «Thao tác trên dòng».
 
+## Mở một mục
+
+Tên của mục trên dòng là nút mở hồ sơ của nó. Hồ sơ mở theo cách bày người đã chọn cho mọi màn
+(`design/behaviors.md`, «Mở một hồ sơ cạnh danh sách»), luôn qua `WithRecord`; màn không tự dựng
+tấm hay trang hồ sơ riêng. Màn mẫu khai trạng thái `record-open` để bài kiểm trình duyệt đo nó ở
+mọi bề rộng.
+
 ## Trạng thái trống
 
 Nói vì sao trống và mục tới đây bằng cách nào. Màn thêm được mục thì có nút thêm mục đầu tiên.

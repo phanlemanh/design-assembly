@@ -23,6 +23,7 @@ after(() => made.forEach((dir) => rmSync(dir, { recursive: true, force: true }))
 
 const CHOICES = {
   context: { product_type: "application", conformance_level: "AA" },
+  patterns: { record_panel: "beside" },
   foundations: { source_color: "#0246ff" },
 };
 

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, type ComponentProps, type ReactNode, type 
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { HeldLabel } from "@/components/held-label";
+import { WithRecord } from "@/components/record-panel";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -35,6 +36,7 @@ import { TableActions, TableActionsHead } from "@/components/ui/table-actions";
 import { createItem, deleteItem, listItems, type Item, type Status } from "@/example/data";
 import { formatDate, formatMoney } from "@/lib/format";
 import { LABELS } from "@/lib/labels";
+import { useOpenRecord } from "@/lib/open-record";
 import { notifyDone, notifyFailed } from "@/lib/notify";
 import { useSlow } from "@/lib/slow";
 
@@ -135,6 +137,22 @@ function ConfirmDelete(props: {
   );
 }
 
+// One item's fields, as the record that opens beside the list shows them.
+function ItemRecord({ item }: { item: Item }) {
+  return (
+    <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
+      <dt className="text-muted-foreground">{LABELS.columnStatus}</dt>
+      <dd>
+        <Badge variant={STATUS[item.status].variant}>{STATUS[item.status].label}</Badge>
+      </dd>
+      <dt className="text-muted-foreground">{LABELS.columnDate}</dt>
+      <dd>{formatDate(item.date)}</dd>
+      <dt className="text-muted-foreground">{LABELS.columnTotal}</dt>
+      <dd>{formatMoney(item.total)}</dd>
+    </dl>
+  );
+}
+
 // Every state follows from a request or from the user, never from a switch.
 export function ReferenceScreen() {
   // The list request: pending while items is null, then the items or a failure.
@@ -151,6 +169,8 @@ export function ReferenceScreen() {
   // Adding the first item: the empty state stays, with its button held, until the answer.
   const [adding, setAdding] = useState(false);
   const addingSlowly = useSlow(adding);
+  // The record a person opened from the list, kept in the address.
+  const record = useOpenRecord();
   // Focus never falls on nothing (design/behaviors.md, focus). When a control leaves, `focusNext`
   // names the row whose action takes focus; with no such row, the button of the state shown in
   // place of the table; with none, the heading.
@@ -283,6 +303,8 @@ export function ReferenceScreen() {
     item.name.toLowerCase().includes(query.toLowerCase()),
   );
 
+  const opened = (items ?? []).find((item) => String(item.id) === record.id) ?? null;
+
   // The name column is text: it is fitted to the names being shown.
   const columns = COLUMNS.map((column) =>
     column.field === "Item.name" ? { ...column, values: shown.map((item) => item.name) } : column,
@@ -346,7 +368,16 @@ export function ReferenceScreen() {
         <TableBody>
           {shown.map((item) => (
             <TypedRow key={item.id}>
-              <TypedCell field="Item.name">{item.name}</TypedCell>
+              <TypedCell field="Item.name">
+                <Button
+                  variant="link"
+                  size="sm"
+                  className="-ml-2"
+                  onClick={(event) => record.open(String(item.id), event.currentTarget)}
+                >
+                  {item.name}
+                </Button>
+              </TypedCell>
               <TypedCell field="Item.status">
                 <Badge variant={STATUS[item.status].variant}>{STATUS[item.status].label}</Badge>
               </TypedCell>
@@ -382,18 +413,25 @@ export function ReferenceScreen() {
       >
         {LABELS.screenTitle}
       </h1>
-      {items && items.length > 0 && (
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="filter">{LABELS.filter}</Label>
-          <Input
-            id="filter"
-            type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </div>
-      )}
-      {body}
+      <WithRecord
+        record={record}
+        title={opened?.name ?? null}
+        closeLabel={LABELS.close}
+        content={opened && <ItemRecord item={opened} />}
+      >
+        {items && items.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <Label htmlFor="filter">{LABELS.filter}</Label>
+            <Input
+              id="filter"
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </div>
+        )}
+        {body}
+      </WithRecord>
       <ConfirmDelete
         open={asking}
         item={target}

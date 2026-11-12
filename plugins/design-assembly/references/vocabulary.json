@@ -288,6 +288,13 @@
       "avoid": ["behaviour recipes"]
     },
     {
+      "term": "list-detail layout",
+      "meaning": "A list of items and the one item opened from it, arranged together: side by side where both fit, one at a time where they do not. A side sheet over the list and a page of its own are the other arrangements.",
+      "source": "Common practice (Material Design 3 names list-detail among its canonical layouts)",
+      "trust": "practice",
+      "avoid": ["master-detail", "drawer"]
+    },
+    {
       "term": "empty state",
       "meaning": "What a view shows when there is nothing yet, with the first action to take.",
       "source": "Common practice",
