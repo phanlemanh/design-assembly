@@ -21,8 +21,12 @@ for something the list already names, and do not use a word its `avoid` lists.
 
 Run `/design-assembly:audit` on the repository before anything else. If it shows that the
 repository already has its own brand values (a source color recorded from the stylesheet, a ledger
-with foundations rows), stop: this version of the guide generates the primary color roles and would
-replace them. Say so, and say that adding checks around existing values is not built yet.
+with foundations rows), stop: the guide generates the primary color roles and would replace them.
+Offer `/design-assembly:adopt` instead, which keeps those values and puts checks around them.
+
+`apply.mjs` enforces this. It refuses to write where the stylesheet has a primary color role with
+a hue of its own, or where values were adopted. `--replace` lifts the refusal: pass it only when
+the person has said, in their own words, that the existing values are to be given up.
 
 ## 1. Check the repository
 

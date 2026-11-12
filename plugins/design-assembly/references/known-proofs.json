@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "about": "Proofs a repository may already have, and the standard decision each one answers. The adopt script adds a ledger row for a proof only when every string under `needs` is found in the file the pointer names (for an eslint pointer, the lint configuration), every path under `files` exists, and the pointer resolves. A row added this way is claimed: the proof is named and wired in, and nothing here runs it.",
+  "proofs": [
+    {
+      "id": "color-role",
+      "kind": "standard",
+      "source": "the stylesheet's color roles",
+      "check": "eslint:shadcn/no-raw-colors",
+      "needs": ["shadcn/no-raw-colors"]
+    },
+    {
+      "id": "type-scale",
+      "kind": "standard",
+      "source": "the framework's type scale",
+      "check": "eslint:shadcn/no-arbitrary-values",
+      "needs": ["shadcn/no-arbitrary-values"]
+    },
+    {
+      "id": "spacing",
+      "kind": "standard",
+      "source": "the framework's spacing scale",
+      "check": "eslint:shadcn/no-arbitrary-values",
+      "needs": ["shadcn/no-arbitrary-values"]
+    },
+    {
+      "id": "radius",
+      "kind": "standard",
+      "source": "the shape scale derived from the stylesheet's corner radius",
+      "check": "eslint:shadcn/no-arbitrary-values",
+      "needs": ["shadcn/no-arbitrary-values"]
+    },
+    {
+      "id": "no-restyled-component",
+      "kind": "closed",
+      "source": "the variants each component declares",
+      "check": "eslint:shadcn/no-restyle",
+      "needs": ["shadcn/no-restyle"]
+    },
+    {
+      "id": "no-inline-style",
+      "kind": "closed",
+      "source": "no inline style",
+      "check": "eslint:shadcn/no-inline-styles",
+      "needs": ["shadcn/no-inline-styles"]
+    },
+    {
+      "id": "whole-class-names",
+      "kind": "closed",
+      "source": "class names written whole",
+      "check": "eslint:shadcn/require-static-classes",
+      "needs": ["shadcn/require-static-classes"]
+    },
+    {
+      "id": "raw-controls",
+      "kind": "standard",
+      "source": "the core components",
+      "check": "eslint:no-restricted-syntax",
+      "needs": ["JSXOpeningElement[name.name=/^(button|input|select|textarea"]
+    },
+    {
+      "id": "raw-table",
+      "kind": "standard",
+      "source": "the table component",
+      "check": "eslint:no-restricted-syntax",
+      "needs": ["JSXOpeningElement[name.name=/^(button|input|select|textarea|table)$/]"]
+    },
+    {
+      "id": "format-number-date",
+      "kind": "standard",
+      "source": "one formatting module",
+      "check": "eslint:no-restricted-syntax",
+      "needs": [
+        "CallExpression[callee.property.name=/^toLocale",
+        "CallExpression[callee.object.name='Intl']"
+      ]
+    },
+    {
+      "id": "lint-exceptions",
+      "kind": "closed",
+      "source": "a reason after every lint exception",
+      "check": "tool:tools/design_guards.mjs",
+      "needs": ["eslint-disable without a reason"]
+    },
+    {
+      "id": "terms",
+      "kind": "closed",
+      "source": "design/terms.json",
+      "check": "tool:tools/design_guards.mjs",
+      "needs": ["forbidden term"],
+      "files": ["design/terms.json"]
+    },
+    {
+      "id": "checks-in-gate",
+      "kind": "standard",
+      "source": "make check",
+      "check": "tool:tools/design_guards.mjs",
+      "needs": ["can no longer fail the gate"]
+    },
+    {
+      "id": "one-main-one-h1",
+      "kind": "standard",
+      "source": "one main region and one top heading per page",
+      "check": "e2e:tests/e2e/floor.spec.ts",
+      "needs": ["getByRole(\"main\""]
+    },
+    {
+      "id": "no-sideways-scroll",
+      "kind": "standard",
+      "source": "the page fits its width",
+      "check": "e2e:tests/e2e/floor.spec.ts",
+      "needs": ["scrollWidth"]
+    },
+    {
+      "id": "wcag-aa",
+      "kind": "standard",
+      "source": "the automated accessibility checks",
+      "check": "e2e:tests/e2e/floor.spec.ts",
+      "needs": ["AxeBuilder"]
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import path from "node:path";
 import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
-import { contrast, parseColor } from "./color.mjs";
+import { contrast } from "./color.mjs";
 import {
   LAYER_ALIASES,
   LAYERS,
@@ -18,23 +18,20 @@ import {
   TOOL,
 } from "./ledger.mjs";
 import { toPx, toRatio, TYPE_STEPS } from "./scale.mjs";
-import { buildTheme, readBlock, readVariable, renderBlock, withoutBlock } from "./theme.mjs";
+import { DEFAULT_STYLESHEET, findStylesheet, loadStyles, resolve } from "./styles.mjs";
+import { buildTheme, readBlock, renderBlock, withoutBlock } from "./theme.mjs";
 
 export const FILES = {
-  // What this tool needs to check its decisions: the inputs they were derived from, and one or
-  // more checks per decision id. The ledger says that the decisions exist; this file says how
-  // this tool proves them.
+  // What this tool needs to check its decisions: the stylesheet it reads, the inputs the decisions
+  // were derived from, and one or more checks per decision id. The ledger says that the decisions
+  // exist; this file says how this tool proves them.
   theme: "design/theme.json",
   ledger: LEDGER,
-  css: "src/index.css",
+  // Where the guide writes its generated block. The checks read the stylesheet the tool data
+  // names, which may be another file.
+  css: DEFAULT_STYLESHEET,
   gate: "mk/design-assembly.mk",
 };
-
-// A variable as the cascade resolves it for a selector: its own declaration, else the root one.
-function resolve(css, scope, name) {
-  const value = readVariable(css, scope, name) ?? readVariable(css, ":root", name);
-  return value === null ? null : { value, color: parseColor(value) };
-}
 
 // One entry per kind of check. `run` returns null when the check passes, else what is wrong.
 // `change` returns the same state altered so that the check must fail.
@@ -42,7 +39,7 @@ const KINDS = {
   generated: {
     run(state) {
       const block = readBlock(state.css);
-      if (block === null) return "the generated block is missing from src/index.css";
+      if (block === null) return `the generated block is missing from ${state.stylesheet}`;
       const expected = renderBlock(buildTheme(state.theme.inputs, state.css));
       if (block === expected) return null;
       return "the generated block is not what the source color gives: run the guide again instead of editing it";
@@ -57,8 +54,8 @@ const KINDS = {
   },
   contrast: {
     run(state, check) {
-      const foreground = resolve(state.css, check.scope, check.foreground);
-      const background = resolve(state.css, check.scope, check.background);
+      const foreground = resolve(state, check.scope, check.foreground);
+      const background = resolve(state, check.scope, check.background);
       if (!foreground?.color || !background?.color) {
         return `cannot read ${check.foreground} and ${check.background} in ${check.scope}`;
       }
@@ -67,7 +64,7 @@ const KINDS = {
       return `${check.foreground} on ${check.background} in ${check.scope} has a contrast ratio of ${ratio.toFixed(2)}:1, below ${check.min}:1`;
     },
     change(state, check) {
-      const background = resolve(state.css, check.scope, check.background);
+      const background = resolve(state, check.scope, check.background);
       const same = `${check.scope} {\n  ${check.foreground}: ${background?.value ?? "oklch(1 0 0)"};\n}\n`;
       return { ...state, css: `${state.css}\n${same}` };
     },
@@ -75,7 +72,7 @@ const KINDS = {
   // The variable resolves to the decided value: nothing later in the stylesheet overrides it.
   value: {
     run(state, check) {
-      const found = resolve(state.css, check.scope, check.variable);
+      const found = resolve(state, check.scope, check.variable);
       if (found === null) return `${check.variable} is not declared in ${check.scope}`;
       if (found.value.replace(/\s+/g, " ") === check.expected) return null;
       return `${check.variable} in ${check.scope} is ${found.value}, not the decided ${check.expected}`;
@@ -96,7 +93,7 @@ const KINDS = {
         new RegExp(`(^|[\\s;{])${name.replace(/[-]/g, "\\-")}\\s*:`, "m").test(own),
       );
       if (found.length === 0) return null;
-      return `${found.join(", ")} declared in src/index.css: the decision keeps the floor's standard, so change the decision instead`;
+      return `${found.join(", ")} declared in ${state.stylesheet}: the decision keeps the framework's standard, so change the decision instead`;
     },
     change(state, check) {
       return { ...state, css: `${state.css}\n:root {\n  ${check.variables[0]}: 1px;\n}\n` };
@@ -107,8 +104,8 @@ const KINDS = {
     run(state) {
       const steps = TYPE_STEPS.map(([step]) => ({
         step,
-        size: toPx(resolve(state.css, ":root", `--text-${step}`)?.value),
-        leading: toRatio(resolve(state.css, ":root", `--text-${step}--line-height`)?.value),
+        size: toPx(resolve(state, ":root", `--text-${step}`)?.value),
+        leading: toRatio(resolve(state, ":root", `--text-${step}--line-height`)?.value),
       }));
       const unreadable = steps.find((s) => s.size === null || s.leading === null);
       if (unreadable) return `cannot read --text-${unreadable.step} and its line height`;
@@ -122,7 +119,7 @@ const KINDS = {
       return null;
     },
     change(state) {
-      const base = resolve(state.css, ":root", "--text-base")?.value ?? "1rem";
+      const base = resolve(state, ":root", "--text-base")?.value ?? "1rem";
       return { ...state, css: `${state.css}\n:root {\n  --text-lg: ${base};\n}\n` };
     },
   },
@@ -150,11 +147,16 @@ export function readState(root) {
   };
   const theme = read(FILES.theme);
   const ledger = read(FILES.ledger);
+  const data = theme === null ? null : JSON.parse(theme);
+  const stylesheet = data?.stylesheet ?? findStylesheet(root) ?? DEFAULT_STYLESHEET;
   return {
     root,
-    theme: theme === null ? null : JSON.parse(theme),
+    theme: data,
     ledger: ledger === null ? null : parseLedger(ledger),
-    css: read(FILES.css) ?? "",
+    stylesheet,
+    // `css` is the repository's own text with its relative imports put in place; `base` is the
+    // framework's theme, read only when a value points into it.
+    ...loadStyles(root, stylesheet),
     gate: read(FILES.gate),
   };
 }

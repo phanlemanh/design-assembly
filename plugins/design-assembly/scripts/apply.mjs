@@ -1,7 +1,7 @@
 // Writes what the guide decided into a repository. Adds and updates only its own files, its own
 // block in src/index.css and its own rows of the ledger. Running it again with the same blueprint
 // changes nothing.
-// Usage: node apply.mjs --target DIR [--dry-run]
+// Usage: node apply.mjs --target DIR [--dry-run] [--replace]
 import {
   existsSync,
   mkdirSync,
@@ -17,10 +17,12 @@ import { fileURLToPath } from "node:url";
 import { FILES } from "../templates/tools/design-assembly/check.mjs";
 import { contrast, formatOklch } from "../templates/tools/design-assembly/color.mjs";
 import { mergeLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
-import { SPACING_UNIT_PX, TYPE_STEPS } from "../templates/tools/design-assembly/scale.mjs";
+import { SPACING_UNIT_PX, TYPE_VARIABLES } from "../templates/tools/design-assembly/scale.mjs";
+import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
 import {
   applyBlock,
   buildTheme,
+  readBlock,
   renderBlock,
   THRESHOLDS,
 } from "../templates/tools/design-assembly/theme.mjs";
@@ -48,10 +50,6 @@ const FOUNDATIONS_DEFAULTS = {
 // The floor's text-xs. A modular step below it is shown as a note, not refused: no standard sets a
 // minimum text size.
 const FLOOR_SMALLEST_PX = 12;
-const TYPE_VARIABLES = TYPE_STEPS.flatMap(([step]) => [
-  `--text-${step}`,
-  `--text-${step}--line-height`,
-]);
 
 // Whether a choice applies, given the other choices of its layer.
 const applies = (choice, values) =>
@@ -126,16 +124,59 @@ export function blueprintProblems(blueprint, { preview = false } = {}) {
   return found;
 }
 
-// Why this folder cannot take the result, or null. The guide builds on a floor; it does not lay one.
-export function floorProblem(target) {
-  if (!existsSync(path.join(target, "src/index.css"))) {
-    return "src/index.css is missing: this repository has no design floor to build on";
-  }
+// Why this plugin's checks could not join the repository's gate, or null.
+export function gateProblem(target) {
   const makefile = path.join(target, "Makefile");
   if (!existsSync(makefile) || !/^-?include mk\/\*\.mk/m.test(readFileSync(makefile, "utf8"))) {
     return "the Makefile does not include mk/*.mk, so the checks could not join make check";
   }
   return null;
+}
+
+// Why this folder cannot take the result, or null. The guide builds on a floor; it does not lay one.
+export function floorProblem(target) {
+  if (!existsSync(path.join(target, FILES.css))) {
+    return `${FILES.css} is missing: this repository has no design floor to build on`;
+  }
+  return gateProblem(target);
+}
+
+// The decisions whose values the guide generates.
+const GENERATED_VALUES = ["color-contrast", "type-scale-values", "spacing-values", "radius-value"];
+// Above this chroma a primary color role has a hue of its own: the floor's default is a grey.
+const OWN_HUE_CHROMA = 0.05;
+
+// Why generating would write over a value the repository holds as its own, or null. The guide
+// generates the primary color roles; a repository that already has them keeps them unless a
+// person says to replace them.
+export function ownValuesProblem(target) {
+  const read = (file) =>
+    existsSync(path.join(target, file)) ? readFileSync(path.join(target, file), "utf8") : null;
+  const adopted = (JSON.parse(read(FILES.theme) ?? "{}").adopted ?? []).filter((id) =>
+    GENERATED_VALUES.includes(id),
+  );
+  if (adopted.length > 0) {
+    return `${adopted.join(", ")} hold values adopted from this repository, and generating would replace them`;
+  }
+  // Once the generated block is there, the primary color roles are the guide's own.
+  if (readBlock(read(FILES.css) ?? "") !== null) return null;
+  const primary = resolve(loadStyles(target, FILES.css), ":root", "--primary");
+  if (primary && (!primary.color || primary.color.c > OWN_HUE_CHROMA)) {
+    return `${FILES.css} already declares a primary color role of its own (${primary.value}), and generating would replace it`;
+  }
+  return null;
+}
+
+// The tool and its gate step, as they are copied into a repository.
+export function vendored() {
+  const files = {};
+  const templates = path.join(PLUGIN, "templates");
+  for (const folder of ["tools/design-assembly", "mk"]) {
+    for (const name of readdirSync(path.join(templates, folder)).sort()) {
+      files[`${folder}/${name}`] = readFileSync(path.join(templates, folder, name), "utf8");
+    }
+  }
+  return files;
 }
 
 // The decisions this plugin answers, as ledger rows, and the checks its tool runs for each.
@@ -221,7 +262,7 @@ function decisions(blueprint, theme, foundations) {
     ],
     "checks-in-gate": [{ kind: "gate" }],
   };
-  return { rows, data: { version: 1, inputs: foundations.inputs, checks } };
+  return { rows, inputs: foundations.inputs, checks };
 }
 
 // One page per decided layer: what was chosen, why, what was turned down, what the machine holds.
@@ -256,8 +297,17 @@ export function plan(target, blueprint) {
   const css = read(FILES.css);
   const foundations = themeInputs(blueprint);
   const theme = buildTheme(foundations.inputs, css);
-  const { rows, data } = decisions(blueprint, theme, foundations);
+  const { rows, inputs, checks } = decisions(blueprint, theme, foundations);
   const files = { [FILES.css]: applyBlock(css, renderBlock(theme)) };
+  // Everything generated here replaces what was adopted for the same decision; the stylesheet the
+  // tool data names is kept.
+  const before = JSON.parse(read(FILES.theme) ?? "{}");
+  const data = {
+    version: 1,
+    ...(before.stylesheet ? { stylesheet: before.stylesheet } : {}),
+    inputs,
+    checks,
+  };
   files[FILES.theme] = `${JSON.stringify(data, null, 2)}\n`;
   // The ledger may hold rows this plugin did not write: they are kept exactly as they are.
   files[FILES.ledger] = mergeLedger(read(FILES.ledger), rows);
@@ -266,13 +316,22 @@ export function plan(target, blueprint) {
     const values = layer.id === "foundations" ? foundations.choice : entry.choice;
     files[`design/decisions/${layer.id}.md`] = record(layer, entry, rows, values);
   }
-  const templates = path.join(PLUGIN, "templates");
-  for (const folder of ["tools/design-assembly", "mk"]) {
-    for (const name of readdirSync(path.join(templates, folder)).sort()) {
-      files[`${folder}/${name}`] = readFileSync(path.join(templates, folder, name), "utf8");
+  return { files: { ...files, ...vendored() }, theme };
+}
+
+// Writes the files that differ, or only says what it would do. One line per file.
+export function writeFiles(target, files, dryRun) {
+  return Object.entries(files).map(([file, content]) => {
+    const full = path.join(target, file);
+    const before = existsSync(full) ? readFileSync(full, "utf8") : null;
+    const state =
+      before === null ? "create" : sameContent(file, before, content) ? "unchanged" : "update";
+    if (state !== "unchanged" && !dryRun) {
+      mkdirSync(path.dirname(full), { recursive: true });
+      writeFileSync(full, content);
     }
-  }
-  return { files, theme };
+    return `${state.padEnd(9)} ${file}`;
+  });
 }
 
 // A JSON file is the same when it holds the same data: the repository's formatter may lay it out
@@ -287,13 +346,16 @@ export function sameContent(file, before, after) {
   }
 }
 
-const USAGE = `usage: node apply.mjs --target DIR [--dry-run]
+const USAGE = `usage: node apply.mjs --target DIR [--dry-run] [--replace]
 
   --dry-run  Preview without writing: the primary color role for light and dark, the contrast
              ratio each reaches, the type scale, the corner radius, and the files that would
              change. Works before approval, as soon as context and foundations are decided.
   (none)     Write. Needs design/blueprint.json with status "approved" and every built layer
              decided.
+  --replace  Generate even where the repository holds values of its own: a primary color role
+             with its own hue, or values taken in by the adopt script. Without it the guide
+             refuses to write over them.
 `;
 
 // What the person needs to see to approve the foundations: one line per mode, with the numbers.
@@ -360,10 +422,20 @@ function main() {
     stop(`${BLUEPRINT} cannot be ${what}:\n  ${problems.join("\n  ")}`);
   }
 
+  const own = args.includes("--replace") ? null : ownValuesProblem(target);
+  if (own && !dryRun) {
+    stop(
+      `${own}.\n  Keep them: run the adopt script instead.\n  Replace them: run this again with --replace.`,
+    );
+  }
+
   const css = readFileSync(path.join(target, FILES.css), "utf8");
   const foundations = themeInputs(blueprint);
   const theme = buildTheme(foundations.inputs, css);
   for (const line of themeSummary(theme)) stdout.write(`${line}\n`);
+  if (own) {
+    stdout.write(`note: ${own}. Writing will be refused: adopt the values, or pass --replace.\n`);
+  }
   if (foundations.defaulted.length > 0) {
     stdout.write(
       `note: foundations was decided before ${foundations.defaulted.join(", ")} could be chosen; ` +
@@ -379,17 +451,7 @@ function main() {
     return;
   }
   const { files } = plan(target, blueprint);
-  for (const [file, content] of Object.entries(files)) {
-    const full = path.join(target, file);
-    const before = existsSync(full) ? readFileSync(full, "utf8") : null;
-    const state =
-      before === null ? "create" : sameContent(file, before, content) ? "unchanged" : "update";
-    if (state !== "unchanged" && !dryRun) {
-      mkdirSync(path.dirname(full), { recursive: true });
-      writeFileSync(full, content);
-    }
-    stdout.write(`${state.padEnd(9)} ${file}\n`);
-  }
+  for (const line of writeFiles(target, files, dryRun)) stdout.write(`${line}\n`);
   if (dryRun) stdout.write("preview only: nothing was written\n");
 }
 

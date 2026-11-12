@@ -95,6 +95,13 @@ tới nơi chứng minh, không chứa giá trị. Plugin chỉ ghi các dòng n
 của người khác. Danh mục chuẩn có 64 quyết định từ bốn nguồn; 38 quyết định thấy ở ít nhất hai
 nguồn là lõi. Đo ngày 2026-11-12: kho này đáp 9/38, kho đối chứng đáp 26/38.
 
+### Sinh hoặc nhận (quyết định 0007, 2026-11-12)
+
+Một giá trị vào sổ theo một trong hai đường. Kho chưa có giá trị riêng thì cuộc dẫn dắt sinh ra.
+Kho đã có thì lệnh adopt để nguyên giá trị, thêm dòng sổ cho bằng chứng kho đang chạy, và đặt lệnh
+kiểm quanh giá trị đang có, chỉ khi lệnh kiểm đó đang xanh và đỏ được. Cuộc dẫn dắt từ chối ghi đè
+giá trị riêng của kho trừ khi người bảo thay. Sau khi adopt, kho này đáp 17/38 quyết định lõi.
+
 ### Vì sao cần plugin này
 
 Bản trước ghi giả thuyết «giảm token», neo vào lần đo ba của Repo Standards (token gấp 1,43 lần).

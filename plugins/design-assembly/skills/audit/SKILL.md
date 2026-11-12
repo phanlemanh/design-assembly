@@ -55,9 +55,10 @@ templates, governance (`references/tiers.json`). Each says:
   higher tiers in detail unless asked.
 - `no row` or `undecided`, in a repository that has no brand values of its own yet: offer
   `/design-assembly:new`.
-- The same in a repository that already has its own values: do not offer the guide. This version
-  generates the primary color roles from a source color and would replace the ones the repository
-  has. Adding rows and checks around existing values is not built yet; say so.
+- The same in a repository that already has its own values, or that already runs lint rules and
+  tests for its design: offer `/design-assembly:adopt`, not the guide. Adopting adds rows and
+  checks around what is there and changes no value. The guide generates the primary color roles
+  from a source color, and refuses to write over values a repository holds as its own.
 - If the ledger uses older layer names, say that they are read as they are and can be renamed
   whenever convenient.
 - Say what the audit does not measure: whether the screens look good or serve their users.

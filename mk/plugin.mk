@@ -5,7 +5,7 @@ CHECK_TARGETS += plugin-test
 # and the count below says so.
 REFERENCE_LEDGER ?= ../onehub-inventory
 
-.PHONY: plugin-test design-apply design-plan design-audit
+.PHONY: plugin-test design-apply design-plan design-audit design-adopt design-adopt-plan design-adopt-reference
 
 design-audit: ## Audit this repository: each standard decision's state, and the tier it has reached
 	@node plugins/design-assembly/scripts/inventory.mjs --target .
@@ -20,3 +20,15 @@ design-plan: ## Show what the guide would write into this repository, the refere
 
 design-apply: ## Write what design/blueprint.json decides into this repository
 	@node plugins/design-assembly/scripts/apply.mjs --target .
+
+# Extra flags for adopting, such as ADOPT_ARGS="--conformance-level AA".
+ADOPT_ARGS ?=
+
+design-adopt-plan: ## Show what adopting would add here: rows and checks around what the repository already has
+	@node plugins/design-assembly/scripts/adopt.mjs --target . --dry-run $(ADOPT_ARGS)
+
+design-adopt: ## Add those rows and checks. Changes no stylesheet, lint rule, test or existing row
+	@node plugins/design-assembly/scripts/adopt.mjs --target . $(ADOPT_ARGS)
+
+design-adopt-reference: ## Preview adopting on the reference repository. Never writes there
+	@node plugins/design-assembly/scripts/adopt.mjs --target $(REFERENCE_LEDGER) --dry-run $(ADOPT_ARGS)

@@ -72,7 +72,7 @@ function solvePrimary(source, background, min) {
 
 // Declarations of one variable for one selector, top-level blocks only. The last one wins.
 export function readVariable(css, selector, name) {
-  const blocks = new RegExp(`(?:^|\\n)${selector.replace(".", "\\.")}\\s*\\{([^}]*)\\}`, "g");
+  const blocks = new RegExp(`(?:^|\\n)${selector.replaceAll(".", "\\.")}\\s*\\{([^}]*)\\}`, "g");
   let value = null;
   for (const block of css.matchAll(blocks)) {
     const found = [...block[1].matchAll(new RegExp(`${name}\\s*:\\s*([^;]+);`, "g"))].pop();

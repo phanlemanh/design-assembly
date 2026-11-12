@@ -69,14 +69,18 @@ export function formatOklch(color) {
   return `oklch(${round(color.l, 3)} ${round(color.c, 3)} ${round(color.h, 2)})`;
 }
 
-// Reads `oklch(L C H)` or `#rrggbb`. Returns null for anything else, such as a value with alpha.
+// Reads `oklch(L C H)`, `#rrggbb` or `#rgb`. A hue written `none` is read as 0: it only appears
+// with zero chroma. Returns null for anything else, such as a value with alpha or a color-mix().
 export function parseColor(text) {
   const value = text.trim();
-  if (value.startsWith("#")) return hexToOklch(value);
-  const match = /^oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)\s*\)$/i.exec(value);
+  const short = /^#([0-9a-f])([0-9a-f])([0-9a-f])$/i.exec(value);
+  if (short)
+    return hexToOklch(`#${short[1]}${short[1]}${short[2]}${short[2]}${short[3]}${short[3]}`);
+  if (/^#[0-9a-f]{6}$/i.test(value)) return hexToOklch(value);
+  const match = /^oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+|none)\s*\)$/i.exec(value);
   if (!match) return null;
   const l = Number(match[1]) / (match[2] === "%" ? 100 : 1);
-  return { l, c: Number(match[3]), h: Number(match[4]) };
+  return { l, c: Number(match[3]), h: match[4].toLowerCase() === "none" ? 0 : Number(match[4]) };
 }
 
 // The colour exactly as CSS will hold it. Lightness and hue are rounded first, then chroma is cut to

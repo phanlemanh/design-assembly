@@ -16,6 +16,9 @@ scale, shape). Density, elevation, motion and iconography are not.
   (`references/standard-decisions.json`) it says whether it is held, claimed, recorded, not held,
   bypassed or without a row, then the deliverable tier reached (`references/tiers.json`) and what
   the next tier misses.
+- `/design-assembly:adopt` takes in what a repository already has: a ledger row for each proof it
+  already runs (`references/known-proofs.json`), and a check around each value its stylesheet holds
+  today. It changes no value, no lint rule, no test and no existing row.
 - `/design-assembly:new` guides a person through the built layers and records each decision.
 - `scripts/apply.mjs` derives a tonal palette and the primary color roles from one source color,
   writes them into the repository's stylesheet, adds its rows to the ledger
@@ -26,8 +29,10 @@ reached tier by tier. The ledger is a format already in use in one of the owner'
 repositories; artifacts use the paths the acceptance kit already reads. `references/checks.md` describes
 every file.
 
-The guide still generates the primary color roles, so it is for repositories with no brand values
-of their own yet. Adding checks around values a repository already has is not built.
+The guide generates the primary color roles, so it is for repositories with no brand values of
+their own yet, and it refuses to write over values a repository holds as its own. Those
+repositories adopt instead. Adopting reads a stylesheet across its relative imports and through
+`var()`; a colour written as a mix is reported as not read, and gets no check.
 
 ## Vocabulary
 
@@ -43,7 +48,7 @@ Add a folder only when its first real file exists.
 
 | Path          | Holds                                                         | Reaches the consuming repository as              |
 | ------------- | ------------------------------------------------------------- | ------------------------------------------------ |
-| `references/` | The vocabulary, and one page per decision layer               | What the guide says at each step                 |
+| `references/` | The vocabulary, the standard decisions, one page per layer    | What the guide says at each step                 |
 | `skills/`     | The guide itself, and the score                               | Commands a person runs                           |
 | `scripts/`    | Pure functions from a theme to design tokens and their checks | Files it writes, each with a check that can fail |
 | `templates/`  | Component and template sources                                | Code the repository then owns                    |

@@ -18,6 +18,12 @@ export const TYPE_STEPS = [
   ["5xl", 6],
 ];
 
+// The variables the framework's type scale is made of: a size and a line height per step.
+export const TYPE_VARIABLES = TYPE_STEPS.flatMap(([step]) => [
+  `--text-${step}`,
+  `--text-${step}--line-height`,
+]);
+
 // Ratios of a modular scale, named after musical intervals as modular scales name them.
 export const RATIOS = {
   "minor-second": 1.067,

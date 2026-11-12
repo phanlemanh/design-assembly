@@ -4,15 +4,15 @@ Read this when you build (step 6 of the guide) or explain a failing check.
 
 ## The files
 
-| File                                | What it is                                                                                   | Who edits it                             |
-| ----------------------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| `design/blueprint.json`             | What the person chose, layer by layer, with why and what was turned down                     | You, during the guide                    |
-| `design/decisions.yaml`             | The ledger: one row per design decision, pointing at the proof that holds it                 | People, and `apply.mjs` for its own rows |
-| `design/theme.json`                 | What this plugin's tool needs to check its decisions: the inputs and the checks per decision | `apply.mjs` only                         |
-| `design/decisions/<layer>.md`       | A decision record per decided layer                                                          | `apply.mjs` only                         |
-| The marked block in `src/index.css` | The design tokens                                                                            | `apply.mjs` only                         |
-| `tools/design-assembly/`            | The checks. They belong to the plugin: change them in the plugin and run the guide again     | Nobody, in the repository                |
-| `mk/design-assembly.mk`             | Adds `design-assembly` to `make check`, and `make design-rate`                               | Nobody, in the repository                |
+| File                                | What it is                                                                                   | Who edits it                         |
+| ----------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------ |
+| `design/blueprint.json`             | What the person chose, layer by layer, with why and what was turned down                     | You, during the guide                |
+| `design/decisions.yaml`             | The ledger: one row per design decision, pointing at the proof that holds it                 | People, and the scripts for new rows |
+| `design/theme.json`                 | What this plugin's tool needs to check its decisions: the inputs and the checks per decision | `apply.mjs` and `adopt.mjs` only     |
+| `design/decisions/<layer>.md`       | A decision record per decided layer                                                          | `apply.mjs` only                     |
+| The marked block in `src/index.css` | The design tokens                                                                            | `apply.mjs` only                     |
+| `tools/design-assembly/`            | The checks. They belong to the plugin: change them in the plugin and run the guide again     | Nobody, in the repository            |
+| `mk/design-assembly.mk`             | Adds `design-assembly` to `make check`, and `make design-rate`                               | Nobody, in the repository            |
 
 ## The ledger
 
@@ -32,8 +32,29 @@ The row does not hold the value. A rebrand changes the stylesheet, not the ledge
 Ids come from `references/standard-decisions.json`, so two repositories can be compared. A
 repository may add rows of its own.
 
-The plugin writes only the rows it holds. They point at `tool:tools/design-assembly/check.mjs`. A
-row another person wrote is kept byte for byte, comments included.
+The guide writes only the rows it holds. They point at `tool:tools/design-assembly/check.mjs`.
+Adopting adds rows for decisions that have none, and points them at the proof the repository
+already runs. A row that is already there is kept byte for byte, comments included.
+
+## Generated or adopted
+
+A value reaches the ledger in one of two ways, and never both:
+
+- Generated: the guide computes it from the person's choices and writes it into the marked block.
+- Adopted: the repository already has it. `adopt.mjs` leaves it where it is and adds a check that
+  passes on the value as found. `design/theme.json` lists these decisions under `adopted`, and
+  names the `stylesheet` the checks read.
+
+The guide refuses to generate over an adopted value, or over a primary color role that has a hue
+of its own, unless it is run with `--replace`.
+
+## How a value is read
+
+The tool reads the stylesheet the repository names (`design/theme.json`, else `components.json`,
+else `src/index.css`), with its relative imports put in place. A variable that points at another
+with `var()` is followed, down to the framework's own theme. A value it cannot turn into a colour,
+such as a mix of two colours, is not guessed: the check says it cannot read it, and adopting adds
+no check for it.
 
 ## What a check of this plugin is
 
