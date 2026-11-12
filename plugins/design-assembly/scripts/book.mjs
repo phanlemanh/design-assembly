@@ -857,7 +857,7 @@ export function renderBook(facts, { audience = "client", words = {}, drawn = nul
   .words pre { margin: 0 0 10px; padding: 12px 14px; overflow-x: auto; background: var(--surface); border-radius: var(--radius); font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
   .map { margin-top: 24px; }
   .strip { display: flex; flex-wrap: wrap; gap: 24px; }
-  .rows { display: grid; grid-template-columns: 1fr 1fr; gap: 32px 24px; align-items: center; overflow-x: auto; padding-bottom: 8px; }
+  .rows { display: grid; grid-auto-flow: row dense; grid-template-columns: 1fr 1fr; gap: 32px 24px; align-items: center; overflow-x: auto; padding-bottom: 8px; }
   .rows > .kid:has(.kids) { grid-column: 1 / -1; }
   .branch { display: flex; align-items: center; }
   .kids { display: flex; flex-direction: column; gap: 20px; }
