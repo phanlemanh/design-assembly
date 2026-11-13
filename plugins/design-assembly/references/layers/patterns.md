@@ -1,10 +1,11 @@
 # Layer: interaction patterns
 
 **Framing.** How a person moves through the screens once they are built. Most of this layer is not
-a choice: the states every view of data has, the one channel that tells a person what happened, a
-destructive action that asks first, and where focus goes after an action are derived and held by
-checks, and the guide installs them without a question. One answer is the person's, because it is
-seen: how one record of a list opens.
+a choice: the states every view of data has, the one channel that tells a person what happened, and
+where focus goes after an action are derived and held by checks, and the guide installs them
+without a question. When a destructive action asks first and when it offers undo has no check the
+guide can install: the audit counts it once a test of the repository's own is named for it in the
+ledger. One answer is the person's, because it is seen: how one record of a list opens.
 
 **Depends on:** core components (the table a list is drawn with).
 

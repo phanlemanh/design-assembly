@@ -8,9 +8,15 @@ import { expect, it } from "vitest";
 import { Button } from "../src/components/ui/button.tsx";
 import { RowActions } from "../src/components/ui/row-actions.tsx";
 
-function Row(props: { row: string; pending?: boolean; onDone?: () => void }) {
+function Row(props: { row: string; pending?: boolean; busy?: boolean; onDone?: () => void }) {
   return (
-    <RowActions label="Actions" name={`Actions for ${props.row}`} pending={props.pending}>
+    <RowActions
+      label={props.busy ? "Working" : "Actions"}
+      name={`Actions for ${props.row}`}
+      pending={props.pending}
+      busy={props.busy}
+      busyName={`Working on ${props.row}`}
+    >
       <Button onClick={props.onDone}>Put aside</Button>
       <Button variant="destructive">Delete</Button>
     </RowActions>
@@ -70,4 +76,11 @@ it("one list is open at a time", async () => {
   await waitFor(() =>
     expect(screen.queryByRole("dialog", { name: "Actions for first" })).not.toBeInTheDocument(),
   );
+});
+
+it("while it says it is working, a screen reader hears the words a person sees", () => {
+  render(<Row row="first" pending busy />);
+  const button = screen.getByRole("button", { name: "Working on first" });
+  expect(button).toHaveTextContent(/^Working/);
+  expect(button).toHaveAttribute("aria-disabled", "true");
 });

@@ -11,8 +11,31 @@ export const REGISTRY = "src/screens.ts";
 // or filter that matches nothing.
 export const CORE_STATES = ["loading", "empty", "error", "no-results"];
 
+// The source with its comments blanked out, strings kept: an apostrophe in a comment would
+// otherwise read as the start of a string and hide everything after it.
+export function withoutComments(text) {
+  let out = "";
+  for (let i = 0; i < text.length; i += 1) {
+    const char = text[i];
+    if (char === '"' || char === "'" || char === "`") {
+      let end = i + 1;
+      while (end < text.length && text[end] !== char) end += text[end] === "\\" ? 2 : 1;
+      out += text.slice(i, end + 1);
+      i = end;
+    } else if (char === "/" && text[i + 1] === "/") {
+      const end = text.indexOf("\n", i);
+      i = (end === -1 ? text.length : end) - 1;
+    } else if (char === "/" && text[i + 1] === "*") {
+      const end = text.indexOf("*/", i + 2);
+      i = (end === -1 ? text.length : end + 2) - 1;
+    } else out += char;
+  }
+  return out;
+}
+
 // Each screen of the registry with the names of the states it declares.
-export function readScreens(text) {
+export function readScreens(source) {
+  const text = withoutComments(source);
   const found = [];
   for (const screen of text.matchAll(/\bpath:\s*["']([^"']+)["']/g)) {
     const rest = text.slice(screen.index);

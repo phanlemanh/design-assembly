@@ -551,6 +551,63 @@ Mỗi sửa có bài kiểm hoặc dòng đã đóng trong sổ giới hạn.
   không phải bước lùi.
 - Chuỗi đầy đủ ở `docs/trials/results.tsv`.
 
+### Chạy thử lần tám (2026-11-13)
+
+Lần thứ hai theo bộ đề cố định, sau quyết định 0026 và phần nút «Thao tác». Đề dò bảo thêm hai
+thao tác lên màn quá hạn: dời ngày một tuần (hoàn tác được) và đánh dấu đã nhắc (không hoàn tác
+được), để thử đúng hai luật vừa sửa và phần vừa dựng (`docs/trials/probes/08-overdue-actions.md`).
+Phiên điều phối mất giữa chừng cùng thư mục tạm, nên vai dẫn dắt và vai dựng màn được chạy lại từ
+đầu trên bản sao mới, với đúng bản plugin của lúc bắt đầu. Mọi con số dưới đây đã chạy lại trên
+bản sao của tác tử, trừ cổng kiểm của đề dò: bản sao đó mất trước khi kịp chạy lại.
+
+**Điều đứng vững.**
+
+- **Dẫn dắt:** 36/38 câu lõi, cổng xanh, bằng lần bảy; lời thường đổi đúng thành cùng các giá trị.
+- **Nhận:** 29/38. Lần này cả bảy lệnh kiểm phải giữ đều xanh: lỗi lint của lần bảy đã hết. Sổ
+  của nhóm chỉ được thêm dòng, không dòng cũ nào bị sửa.
+- **Dựng màn:** cổng xanh, 105 bài kiểm thường và 143 lượt kiểm trình duyệt. Không dừng lại hỏi
+  về mô hình dữ liệu: nó thêm khái niệm mới và ghi rõ chờ người duyệt, đúng luật 0026. Nó dùng nút
+  «Thao tác» cho hai thao tác trên dòng.
+- **Ba chỗ phải đoán quanh danh sách thao tác của lần bảy đã biến mất.** Danh sách hiện ở đâu, mở
+  riêng hay chung, có tự đóng không: phần nút «Thao tác» quyết cả ba.
+
+**Điều sai, đã sửa.**
+
+- **Nút «Thao tác» đọc tên cũ trong lúc nói «đang làm».** Cả vai dựng màn lẫn đề dò đều gặp: làm
+  đúng lời ghi của phần đó thì phép kiểm accessibility đỏ. Giờ phần đó nhận chữ lúc chờ và tên đọc
+  lúc chờ, tên bắt đầu bằng đúng chữ người thấy.
+- **Lệnh kiểm đọc nhầm dấu nháy trong lời chú thích** của danh sách màn, rồi báo cả màn không khai
+  trạng thái nào. Giờ nó bỏ lời chú thích trước khi đọc.
+- **Cuốn sổ nói mọi khoảng cách trên màn là một trong bảy nấc nó vẽ.** Giờ nó nói đó chỉ là ví dụ.
+- **Trang của tầng patterns hứa cài sẵn luật «hỏi trước hay cho hoàn tác»**, trong khi không có gì
+  cài nó. Giờ trang nói luật này chỉ được giữ bằng bài kiểm của chính repo.
+
+**Điều tìm ra, chưa sửa** (sổ giới hạn thêm 14 dòng mở, cùng 4 dòng mở rồi đóng ngay):
+
+- **Nút «Thao tác» vẫn chật ở 320.** Nút giữ bề rộng của chữ dài hơn trong hai chữ, nên cột đứng
+  yên lấn chỗ của cột cuộn. Tác tử dựng màn phải thu lề màn trên điện thoại cho cả ba màn mới qua.
+- **Màn mẫu làm khác trang luật:** nói «Đang xoá» ngay chứ không đợi một giây, và xoá xong không báo
+  gì.
+- **Màu viết dạng trộn màu thì không đọc được,** nên chế độ tối của repo nhận không có phép kiểm
+  tương phản nào.
+- **Các lỗi nhỏ hơn:**
+  - Luật «hỏi trước việc không đảo được» chỉ có ví dụ là xoá.
+  - Chưa có luật cho tiêu điểm khi hoàn tác làm một dòng hiện lại.
+  - Chữ «repo cấm tác tử sửa mô hình» chưa nói cấm trông thế nào.
+  - Cuốn sổ gọi kiểu màn bằng tên tệp.
+  - Bảng mẫu chỉ vẽ màu ở chế độ tối.
+  - Mỗi bước dịch màu đổi hai chiều cùng lúc.
+- **Hai lỗi cũ vẫn còn:** cuộc dẫn dắt vẫn ghi cách mở hồ sơ là đề xuất mà không hỏi, và màn có sẵn
+  của sàn vẫn đỏ ngay khi cài bài kiểm trình duyệt.
+
+**Con số.** Dựng màn phải tự quyết **12** chỗ (tác tử khai 19, bỏ 7 chỗ đã có trang hoặc màn mẫu chỉ
+hướng), bằng lần bảy, không dừng hỏi lần nào (lần bảy là 1).
+
+- **Ba chỗ quanh danh sách thao tác đã mất.** Thay vào đó là ba chỗ quanh nút «Thao tác»: chữ lúc
+  chờ, tên đọc lúc chờ, và cách gỡ khi nút chật ở 320. Hai chỗ đầu đã được bản sửa ở trên trả lời.
+- **Chín chỗ còn lại phần lớn đã có dòng trong sổ giới hạn,** nặng nhất là chép hay rút phần chung
+  giữa các màn danh sách.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.

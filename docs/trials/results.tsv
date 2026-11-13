@@ -17,3 +17,6 @@ trial	date	role	brief	coverage	gate	guesses	asks	escapes	note
 7	2026-11-13	guide	standard	36/38	green		7	2	Tác tử khai 20 chỗ tự quyết; chưa đếm lại theo luật đếm của vai dựng màn.
 7	2026-11-13	adopt	standard	29/38	red		2		Đỏ ở lint vì một tệp của plugin; hai lượt hỏi, năm câu.
 7	2026-11-13	screen	standard		green	12	1	1	Điểm đầu của chuỗi đề chuẩn; tác tử khai 19, bỏ 7 chỗ đã có trang chỉ hướng.
+8	2026-11-13	guide	standard	36/38	green		9	1	Chạy lại sau khi bản sao đầu bị mất cùng phiên; hỏi thêm một lượt về màu so với lần bảy.
+8	2026-11-13	adopt	standard	29/38	green		2		Bảy lệnh kiểm phải giữ đều xanh; cuốn sổ được bảo ghi ra ngoài repo.
+8	2026-11-13	screen	standard		green	12	0	0	Không dừng hỏi về mô hình dữ liệu, đúng luật 0026; tác tử khai 19, bỏ 7 chỗ đã có trang chỉ hướng.

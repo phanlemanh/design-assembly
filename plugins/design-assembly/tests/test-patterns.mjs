@@ -115,6 +115,14 @@ test("screens are read from the registry with the states each declares", () => {
     { path: "/", states: ALL },
     { path: "/about", states: ["ready"] },
   ]);
+  // An apostrophe in a comment is not the start of a string: trial 8 saw a screen lose every
+  // state to a comment that said "row's".
+  const commented = source.replace(
+    "states: [",
+    "states: [\n    // the row's own states, and a /* block */ one\n",
+  );
+  assert.deepEqual(readScreens(commented), readScreens(source));
+  assert.deepEqual(readScreens('const a = "http://x"; // it\'s\n' + source), readScreens(source));
   // The registry of the repository this plugin lives in: the real shape.
   const real = readScreens(own("src/screens.ts"));
   assert.equal(real[0].path, "/");

@@ -477,3 +477,12 @@ test("a repository that keeps its screens elsewhere is told so, not that it lack
   assert.ok(page.includes(WORDS.noPicturesScreens));
   assert.ok(!page.includes(WORDS.noPictures));
 });
+
+test("the distances drawn are a few multiples of the unit, and the book does not claim they are all", () => {
+  // A repository's own lint may allow half steps and many more; the book reads only the unit.
+  const facts = collectFacts(ROOT);
+  assert.ok(facts.spacing, "this repository declares its unit of distance");
+  const page = renderBook(facts);
+  assert.ok(!page.includes("is one of these steps"));
+  assert.ok(page.includes("These are examples: the repository may allow other steps."));
+});

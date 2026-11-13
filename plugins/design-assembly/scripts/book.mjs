@@ -87,7 +87,10 @@ export const WORDS = {
   notRead: "not measured",
   typeTitle: "Type and shape",
   typeQuestion: "Which sizes, which corners, which distances",
-  typeLede: "Every size, corner and distance on a screen is one of these steps.",
+  typeLede:
+    "The sizes of text and the corners a screen uses, and the unit its distances are measured in.",
+  spacingNote:
+    "A few multiples of the unit, drawn to show how large it is. These are examples: the repository may allow other steps.",
   typeScale: "Type scale",
   sample: "The quick brown fox 0123456789",
   fontStack: "font",
@@ -513,7 +516,9 @@ function typeSheet(facts, w) {
     ? `<h3>${escape(w.spacing)}</h3><div class="spacing">${SPACING_STEPS.map(
         (step) =>
           `<div><i style="width:${step * facts.spacing}px"></i><b>${step}</b><em>${step * facts.spacing} px</em></div>`,
-      ).join("")}</div><p class="muted">1 ${escape(w.unit)} = ${facts.spacing} px</p>`
+      ).join(
+        "",
+      )}</div><p class="muted">1 ${escape(w.unit)} = ${facts.spacing} px. ${escape(w.spacingNote)}</p>`
     : "";
   const target = facts.target
     ? `<h3>${escape(w.target)}</h3><div class="target"><i style="width:${facts.target}px;height:${facts.target}px"></i><em>${facts.target} px</em></div>`
