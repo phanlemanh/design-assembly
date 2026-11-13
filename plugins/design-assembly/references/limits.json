@@ -1016,9 +1016,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials", "spec"],
-      "status": "open",
-      "note": "The rule that two screens' shared logic moves down a part and the list page's \"they differ only in title, data and empty text\" pull opposite ways, so a third list screen copied about a hundred lines of loading, retry and filtering."
+      "where": ["d0027", "spec", "trials"],
+      "status": "closed",
+      "note": "The rule that two screens' shared logic moves down a part and the list page's \"they differ only in title, data and empty text\" pull opposite ways, so a third list screen copied about a hundred lines of loading, retry and filtering.",
+      "closed": "2026-11-13",
+      "closed_by": "loading, retrying and filtering are one shared piece every list screen uses, and the rules say copies of the reference screen's logic move down too; the person chose it (decision 0027)"
     },
     {
       "id": "filtered-content-unchecked",
@@ -1198,9 +1200,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials", "spec"],
-      "status": "open",
-      "note": "The reference screen says it is deleting at once instead of after a second, and tells no result after a delete, where the rules page says both."
+      "where": ["d0027", "spec", "trials"],
+      "status": "closed",
+      "note": "The reference screen says it is deleting at once instead of after a second, and tells no result after a delete, where the rules page says both.",
+      "closed": "2026-11-13",
+      "closed_by": "the reference screen's delete says it is working from one second on, on its own row, and tells its result in a toast (decision 0027)"
     },
     {
       "id": "mixed-colour-unread",
@@ -1323,9 +1327,11 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials", "spec"],
-      "status": "open",
-      "note": "The rules say where focus goes when a row leaves, not when an undo brings a row back and the control that had focus is gone."
+      "where": ["d0027", "spec", "trials"],
+      "status": "closed",
+      "note": "The rules say where focus goes when a row leaves, not when an undo brings a row back and the control that had focus is gone.",
+      "closed": "2026-11-13",
+      "closed_by": "the rules say an undo that brings a row back sends focus to that row's same control (decision 0027)"
     },
     {
       "id": "frame-toast-test-flaky",
@@ -1404,9 +1410,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials", "spec"],
-      "status": "open",
-      "note": "Moving between screens reloads the page, so the sample data forgets what a person just did on another screen, and no check opens two screens in one visit."
+      "where": ["d0027", "spec", "trials"],
+      "status": "closed",
+      "note": "Moving between screens reloads the page, so the sample data forgets what a person just did on another screen, and no check opens two screens in one visit.",
+      "closed": "2026-11-13",
+      "closed_by": "the frame moves between screens without loading the page again, held by a unit test and a browser test that delete on one screen and look on the other (decision 0027)"
     },
     {
       "id": "dialog-wait-blocks-rows",
@@ -1415,9 +1423,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials", "spec"],
-      "status": "open",
-      "note": "An action asked first keeps its dialog open while it waits so a failure can be shown there, which holds every other row for that time against the rule that each row waits on its own."
+      "where": ["d0027", "spec", "trials"],
+      "status": "closed",
+      "note": "An action asked first keeps its dialog open while it waits so a failure can be shown there, which holds every other row for that time against the rule that each row waits on its own.",
+      "closed": "2026-11-13",
+      "closed_by": "an action on a row that asks first closes its dialog on confirm and waits on its own row, told by toast after; the person chose it (decision 0027)"
     },
     {
       "id": "spoken-only-state-unlisted",

@@ -1,4 +1,4 @@
-import { useEffect, useState, type ComponentType } from "react";
+import { useEffect, useState, type ComponentType, type MouseEvent } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { LABELS } from "@/lib/labels";
@@ -16,12 +16,37 @@ const ELSEWHERE = `${LINK} text-muted-foreground hover:text-foreground`;
 // (design/behaviors.md, moving between screens). A screen never puts a link to another screen
 // beside its own heading.
 export function App() {
-  const [Screen, setScreen] = useState<ComponentType | null>(null);
-  // An address no screen claims shows the first screen, so the frame marks that one as open.
-  const open = pick(window.location.pathname);
+  // The frame moves between screens without loading the page again, so what a person did on one
+  // screen is still there on the next: the data source keeps it until the page reloads.
+  const [path, setPath] = useState(() => window.location.pathname);
   useEffect(() => {
-    void open?.load().then((loaded) => setScreen(() => loaded));
+    const moved = () => setPath(window.location.pathname);
+    window.addEventListener("popstate", moved);
+    return () => window.removeEventListener("popstate", moved);
+  }, []);
+  // An address no screen claims shows the first screen, so the frame marks that one as open.
+  const open = pick(path);
+  const [shown, setShown] = useState<{ path: string; Screen: ComponentType } | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    let current = true;
+    void open.load().then((Screen) => current && setShown({ path: open.path, Screen }));
+    return () => {
+      current = false;
+    };
   }, [open]);
+  function go(event: MouseEvent<HTMLAnchorElement>, to: string) {
+    // A toast belongs to the screen it was raised on and does not follow a person to the next one
+    // (design/behaviors.md, telling a person).
+    notifyClear();
+    // A click that asks for a new tab or window is the browser's to handle.
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+    event.preventDefault();
+    if (to !== window.location.pathname) window.history.pushState(null, "", to);
+    setPath(to);
+  }
   return (
     <>
       <header className="sticky top-0 border-b bg-background">
@@ -36,9 +61,7 @@ export function App() {
                 <a
                   href={screen.path}
                   aria-current={screen.path === open?.path ? "page" : undefined}
-                  // A toast belongs to the screen it was raised on and does not follow a person
-                  // to the next one (design/behaviors.md, telling a person).
-                  onClick={notifyClear}
+                  onClick={(event) => go(event, screen.path)}
                   className={screen.path === open?.path ? HERE : ELSEWHERE}
                 >
                   {screen.title}
@@ -48,7 +71,7 @@ export function App() {
           </ul>
         </nav>
       </header>
-      {Screen ? <Screen /> : null}
+      {shown && shown.path === open?.path ? <shown.Screen key={shown.path} /> : null}
       {/* The toaster is mounted once, beside whatever screen is shown. */}
       <Toaster />
     </>

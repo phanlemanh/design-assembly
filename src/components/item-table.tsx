@@ -41,7 +41,7 @@ export function ItemTable({
   // The name of an item is the button that opens its record; `from` takes focus back on close.
   onOpen: (item: Item, from: HTMLElement) => void;
   // A screen that can act on a row passes the header of the column and what each row holds.
-  actions?: { header: string; cell: (item: Item) => ReactNode };
+  actions?: { header: string; cell: (item: Item) => ReactNode } | undefined;
 }) {
   // The name column is text: it is fitted to the names being shown.
   const columns = COLUMNS.map((column) =>

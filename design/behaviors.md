@@ -20,7 +20,10 @@ dẫn chỉ có mặt để chọn trạng thái. Bài kiểm chọn điều ki�
 - **Không tìm thấy (no results):** nói rằng tìm không ra và mời xoá bộ lọc, bằng `Empty` và một `Button`.
 - **Đang lưu (saving):** giữ biểu mẫu trên màn và khoá nút gửi, bằng `Button` với `disabled`.
 - **Xác nhận xoá (confirm delete):** gọi tên thứ sắp xoá và hỏi trước khi làm, bằng `Dialog`.
-- **Xoá thất bại (delete failed):** giữ hộp thoại và mục đó, nói rằng chưa xoá được, bằng `Alert`.
+- **Đang xoá (saving):** bấm xác nhận thì hộp thoại đóng ngay; nút của dòng được giữ trong lúc
+  chờ và từ giây thứ nhất nói «Đang xoá». Các dòng khác vẫn dùng được.
+- **Xoá thất bại (delete failed):** giữ mục đó, báo bằng toast rằng chưa xoá được, có nút «Thử lại»
+  làm lại ngay mà không hỏi lại.
 
 ## Báo cho người dùng
 
@@ -44,8 +47,9 @@ Việc đảo được thì làm ngay, và toast báo kết quả kèm nút hoà
 
 Thất bại thì báo ở nơi người dùng vừa làm, và không bao giờ im lặng.
 
-- **Hộp thoại hay biểu mẫu còn mở:** báo ngay trong đó, giữ nguyên thứ người dùng đã nhập: xoá
-  một mục thất bại.
+- **Hộp thoại hay biểu mẫu còn mở:** báo ngay trong đó, giữ nguyên thứ người dùng đã nhập. Một
+  thao tác trên dòng có hỏi trước thì không thuộc loại này: hộp thoại đóng ngay khi người xác
+  nhận, để các dòng khác không phải chờ, và từ đó nó là một thao tác làm ngay.
 - **Thao tác làm ngay:** báo bằng toast qua `notifyFailed` trong `src/lib/notify.ts`. Toast nói
   việc gì chưa xong rồi nói làm gì tiếp, có nút «Thử lại», không tự tắt và được đọc lên như một
   cảnh báo: thêm một mục thất bại.
@@ -68,6 +72,8 @@ Thất bại thì báo ở nơi người dùng vừa làm, và không bao giờ 
 - **Hoàn tác đưa mọi thứ về chỗ cũ** và không hiện thêm toast: kết quả đã thấy trên màn. Toast
   hoàn tác ở lại màn nơi thao tác được làm; từ màn khác, lối đảo lại là thao tác thường của màn
   đó.
+- **Hoàn tác làm một dòng quay lại** thì tiêu điểm vào đúng nút đó của dòng vừa quay lại, để người
+  dùng đứng ngay chỗ thứ họ vừa lấy lại.
 - **Nút trên toast trả tiêu điểm** về nơi người dùng đang đứng trước khi với tới toast; mô-đun
   thông báo làm việc này.
 - **Tiêu điểm đi tới đâu thì thấy ở đó.** Tiêu đề hay phần tử nào nhận tiêu điểm bằng
@@ -116,7 +122,8 @@ Thất bại thì báo ở nơi người dùng vừa làm, và không bao giờ 
 màn. Khung đã dựng cùng màn thứ hai, ở `src/App.tsx`: một thanh đầu dính ở mép trên, trong đó là một
 vùng điều hướng liệt kê mọi màn của `src/screens.ts` theo đúng thứ tự nó ghi. Màn đang mở mang
 dấu `aria-current` và một gạch chân, chứ không chỉ khác màu. Bấm sang màn khác thì toast của màn
-vừa rời bị xoá.
+vừa rời bị xoá. Khung đổi màn mà không tải lại trang, nên điều người dùng vừa làm ở màn này vẫn
+còn khi sang màn kia.
 
 ## Kiểu màn
 

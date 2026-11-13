@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 
 import { expect, test } from "@playwright/test";
 
+import { LABELS } from "../../src/lib/labels.ts";
 import { SCREENS } from "../../src/screens.ts";
 
 const sizes = JSON.parse(
@@ -33,3 +34,14 @@ for (const width of widths) {
     expect(broken, `these names break across lines at ${width}px`).toEqual([]);
   });
 }
+
+// What a person did on one screen is still there on the next: the frame moves without loading
+// the page again, so the data source keeps what changed (found by trial 9).
+test("a change made on one screen is still there after moving to another", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: LABELS.deleteItem(LABELS.sampleThirdName) }).click();
+  await page.getByRole("button", { name: LABELS.deleteAction, exact: true }).click();
+  await expect(page.getByText(LABELS.sampleThirdName)).toHaveCount(0);
+  await page.getByRole("navigation").getByRole("link", { name: LABELS.overdueTitle }).click();
+  await expect(page.getByText(LABELS.overdueEmptyTitle)).toBeVisible();
+});

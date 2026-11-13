@@ -60,10 +60,12 @@ mọi bề rộng.
 
 ## Hai màn cùng kiểu
 
-Màn danh sách thứ hai vẽ bảng bằng `ItemTable` và các trạng thái bằng `Notice`
-(`src/components/`), đúng phần vẽ mà màn mẫu dùng, nên người dùng đọc hai danh sách như một thứ.
-Khác nhau chỉ ở tiêu đề, dữ liệu, lời của trạng thái trống, và việc trên dòng. Màn không lấy được
-mục về thì trạng thái trống không có nút.
+Mọi màn danh sách dùng chung hai phần: `useList` (`src/lib/list.ts`) tải mục, thử lại, lọc theo
+tên và đổi một dòng tại chỗ; `ItemList` (`src/components/item-list.tsx`) vẽ ô lọc cùng bảng, hoặc
+trạng thái thay chỗ bảng. Nên người dùng đọc các danh sách như một thứ, và sửa một lỗi là sửa một
+chỗ. Mỗi màn chỉ đưa nguồn dữ liệu, tiêu đề, lời của trạng thái trống và việc trên dòng; không
+chép phần tải hay phần lọc của màn mẫu. Màn không lấy được mục về thì trạng thái trống không có
+nút.
 
 ## Trạng thái trống
 

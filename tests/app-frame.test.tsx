@@ -54,3 +54,19 @@ it("leaves a screen's toasts behind when a person goes to another screen", async
     expect(screen.queryByText(LABELS.added(LABELS.sampleNewName))).not.toBeInTheDocument(),
   );
 });
+
+it("moves between screens without loading the page again, so what a person did is still there", async () => {
+  render(<App />);
+  // On every item, delete the one overdue item.
+  fireEvent.click(
+    await screen.findByRole("button", { name: LABELS.deleteItem(LABELS.sampleThirdName) }),
+  );
+  fireEvent.click(await screen.findByRole("button", { name: LABELS.deleteAction }));
+  await waitFor(() => expect(screen.queryByText(LABELS.sampleThirdName)).not.toBeInTheDocument());
+  // Then go to the overdue screen through the frame: it no longer lists it.
+  const overdue = [...links()].find((link) => link.getAttribute("href") === "/overdue")!;
+  fireEvent.click(overdue);
+  expect(await screen.findByText(LABELS.overdueEmptyTitle)).toBeInTheDocument();
+  expect(window.location.pathname).toBe("/overdue");
+  expect(overdue).toHaveAttribute("aria-current", "page");
+});

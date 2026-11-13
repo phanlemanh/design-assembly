@@ -31,7 +31,7 @@ export function Notice({
   detail: string;
   action?: ReactNode;
   onAction?: () => void;
-  actionRef?: Ref<HTMLButtonElement>;
+  actionRef?: Ref<HTMLButtonElement> | undefined;
   pending?: boolean;
 }) {
   return (

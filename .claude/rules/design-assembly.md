@@ -46,6 +46,7 @@ it.
 - The result of an action is told through `notifyDone` in `src/lib/notify.ts`; pass it the undo when the action can be taken back.
 - An action done at once that fails is told through `notifyFailed` in the same module: what was not done, what to do next, and a button that tries again. Never drop a failure, and never tell a failed undo as done.
 - A failure where the dialog or form is still open is shown in it, not in a toast. What the person typed is kept.
+- An action on a row that asks first closes its dialog as soon as the person confirms: the row's own control waits for the answer, so the other rows can still be used. From there it is an action done at once: done, it is told through `notifyDone`; failed, through `notifyFailed`, whose button tries again without asking again.
 - Anything a toast's button does can also be done from the screen itself: the toast is never the only way.
 - When a person leaves a screen its toasts go with it: whatever moves between screens calls `notifyClear` of the same module.
 - Never call a toast library from a screen, and never `alert`, `confirm` or `prompt`. One module calls the toast library; a second one, whatever its name, fails the gate.
@@ -55,6 +56,7 @@ it.
 - Focus never falls on nothing: the browser test of every page fails when, after the last action of a state, nothing has focus.
 - While an action done at once waits for its answer, the control that started it is held and keeps focus. A control that is removed, or disabled in a way that drops it from the keyboard, loses focus. From one second on, the control says it is working.
 - When a control leaves the page (its row is removed, its dialog closes on a deleted item, its state is replaced), move focus: to the same control on the row after it (the button that opens a row's actions, where they are behind one), else on the row before, else to the button of the state shown in place of the table, else to the screen's top heading.
+- When an undo brings a row back, focus goes to that row's same control, so a person is where the thing they took back now is.
 - Wherever focus is sent, it shows: a heading or any element given `tabIndex={-1}` to receive focus gets the same visible ring as a control.
 - At every width, every control of the first row of a table is inside the window, and the columns that stay in place leave room to read the widest column that scrolls: the browser test fails when either is not so.
 - A button of a toast gives focus back to where the person was before the toast: the notification module does this.
@@ -67,7 +69,7 @@ it.
 
 ## The system itself
 
-- The code has parts, listed from the top down in `design/parts.json`. A file imports only its own part and the parts listed after it: a component never imports a screen. What two screens share: logic and data move down a part; a piece of drawing they share becomes a component of the repository's own, in the part between the screens and the component library (named `shared` where the guide wrote the list). One screen's own drawing stays in that screen.
+- The code has parts, listed from the top down in `design/parts.json`. A file imports only its own part and the parts listed after it: a component never imports a screen. What two screens share: logic and data move down a part; a piece of drawing they share becomes a component of the repository's own, in the part between the screens and the component library (named `shared` where the guide wrote the list). One screen's own drawing stays in that screen. This holds for what screens of one kind copy from its reference screen too: loading, trying again and filtering that two list screens do alike are one shared piece, not two copies.
 - When you find a fault that every check let through, add a line to `design/escapes.md` before you fix it: the date, what slipped, the layer that should have caught it, and what was done.
 - A departure on purpose stays beside the rule it bends, with its reason: a lint exception, a screen excused from the states, a file left out of its kind.
 

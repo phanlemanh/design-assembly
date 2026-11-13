@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { LoaderCircleIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
-import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { HeldLabel } from "@/components/held-label";
+import { ItemList } from "@/components/item-list";
 import { ItemRecord } from "@/components/item-record";
-import { ItemTable } from "@/components/item-table";
 import { Notice } from "@/components/notice";
 import { WithRecord } from "@/components/record-panel";
 import { Button } from "@/components/ui/button";
@@ -16,56 +16,35 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Skeleton } from "@/components/ui/skeleton";
 import { createItem, deleteItem, listItems, type Item } from "@/example/data";
 import { LABELS } from "@/lib/labels";
+import { useList } from "@/lib/list";
 import { useOpenRecord } from "@/lib/open-record";
 import { notifyDone, notifyFailed } from "@/lib/notify";
 import { useSlow } from "@/lib/slow";
 
+// Asking before a delete. The dialog closes as soon as the person confirms: the row's own button
+// waits for the answer, so every other row can still be used (design/behaviors.md, actions on a
+// row).
 function ConfirmDelete(props: {
   open: boolean;
   item: Item | null;
-  saving: boolean;
-  failed: boolean;
   onConfirm: () => void;
   onCancel: () => void;
-  // Where focus goes when the dialog closes, when its trigger has gone with the deleted item.
+  // Where focus goes when the dialog closes: the row's button, which now waits for the answer.
   finalFocus: () => HTMLElement | boolean;
 }) {
   return (
-    <Dialog
-      open={props.open}
-      onOpenChange={(open) => {
-        if (!open && !props.saving) props.onCancel();
-      }}
-    >
+    <Dialog open={props.open} onOpenChange={(open) => !open && props.onCancel()}>
       <DialogContent showCloseButton={false} finalFocus={props.finalFocus}>
         <DialogHeader>
           <DialogTitle>{props.item ? LABELS.deleteItem(props.item.name) : ""}</DialogTitle>
           <DialogDescription>{LABELS.deleteDetail}</DialogDescription>
         </DialogHeader>
-        {props.failed && props.item && (
-          <Alert variant="destructive">
-            <AlertTitle>{LABELS.deleteFailed(props.item.name)}</AlertTitle>
-            <AlertDescription>{LABELS.errorDetail}</AlertDescription>
-          </Alert>
-        )}
         <DialogFooter>
-          <DialogClose
-            render={<Button variant="outline" disabled={props.saving} focusableWhenDisabled />}
-          >
-            {LABELS.cancel}
-          </DialogClose>
-          <Button
-            variant="destructive"
-            disabled={props.saving}
-            focusableWhenDisabled
-            onClick={props.onConfirm}
-          >
-            {props.saving ? LABELS.saving : LABELS.deleteAction}
+          <DialogClose render={<Button variant="outline" />}>{LABELS.cancel}</DialogClose>
+          <Button variant="destructive" onClick={props.onConfirm}>
+            {LABELS.deleteAction}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -73,19 +52,58 @@ function ConfirmDelete(props: {
   );
 }
 
-// Every state follows from a request or from the user, never from a switch.
+// A row's one action. While its delete waits, the button is held and keeps focus; from one second
+// on it says it is working the way the row's "⋯" button does: a turning circle in place of its
+// word, at the same width, so the column never widens at 320px, and a name that says what it is
+// doing. The words stay on the page for a screen reader and the checks. Each row keeps its own
+// clock, so one row waiting never holds another.
+function DeleteButton({
+  item,
+  pending,
+  onPress,
+  ref,
+}: {
+  item: Item;
+  pending: boolean;
+  onPress: () => void;
+  ref: (button: HTMLButtonElement | null) => void;
+}) {
+  const slow = useSlow(pending);
+  return (
+    <Button
+      ref={ref}
+      variant="outline"
+      size="sm"
+      aria-label={slow ? LABELS.deletingItem(item.name) : LABELS.deleteItem(item.name)}
+      disabled={pending}
+      focusableWhenDisabled
+      onClick={onPress}
+    >
+      <span className="grid">
+        <span className={slow ? "invisible col-start-1 row-start-1" : "col-start-1 row-start-1"}>
+          {LABELS.deleteAction}
+        </span>
+        {slow && (
+          <LoaderCircleIcon
+            aria-hidden="true"
+            className="col-start-1 row-start-1 place-self-center motion-safe:animate-spin"
+          />
+        )}
+      </span>
+      {slow && <span className="sr-only">{LABELS.saving}</span>}
+    </Button>
+  );
+}
+
+// Every state follows from a request or from the user, never from a switch. Loading, retrying and
+// filtering are the list kind's, shared with every screen of it (`useList`, `ItemList`).
 export function ReferenceScreen() {
-  // The list request: pending while items is null, then the items or a failure.
-  const [items, setItems] = useState<Item[] | null>(null);
-  const [failed, setFailed] = useState(false);
-  const [attempt, setAttempt] = useState(0);
-  // What the user is doing: filtering, or deleting one item. The dialog keeps showing the last
-  // target while it closes.
-  const [query, setQuery] = useState("");
+  const list = useList(listItems);
+  // The item a person is asked about. The dialog keeps showing it while it closes.
   const [asking, setAsking] = useState(false);
   const [target, setTarget] = useState<Item | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [deleteFailed, setDeleteFailed] = useState(false);
+  // The rows whose delete waits for its answer: each row waits on its own.
+  const [deleting, setDeleting] = useState<ReadonlySet<number>>(new Set());
   // Adding the first item: the empty state stays, with its button held, until the answer.
   const [adding, setAdding] = useState(false);
   const addingSlowly = useSlow(adding);
@@ -107,15 +125,15 @@ export function ReferenceScreen() {
   // After every render: move focus where it was asked to go, once that place is on the page.
   useEffect(() => {
     if (asking) return; // the dialog hands focus on when it has closed
-    const target = focusTarget();
-    if (!target) return;
+    const place = focusTarget();
+    if (!place) return;
     focusNext.current = null;
-    target.focus();
+    place.focus();
   });
   // The row after the one that leaves, else the one before it, else none.
   function neighbour(id: number): { row?: number } {
-    const at = shown.findIndex((item) => item.id === id);
-    const next = shown[at + 1] ?? shown[at - 1];
+    const at = list.shown.findIndex((item) => item.id === id);
+    const next = list.shown[at + 1] ?? list.shown[at - 1];
     return next ? { row: next.id } : {};
   }
   // Whether the screen is still there when an answer arrives.
@@ -127,23 +145,6 @@ export function ReferenceScreen() {
     };
   }, []);
 
-  useEffect(() => {
-    let current = true; // ignore an answer that arrives after the screen has moved on
-    listItems().then(
-      (found) => current && setItems(found),
-      () => current && setFailed(true),
-    );
-    return () => {
-      current = false;
-    };
-  }, [attempt]);
-
-  function reload() {
-    setItems(null);
-    setFailed(false);
-    setAttempt((n) => n + 1);
-  }
-
   // Adding can be taken back, so it happens at once and the toast offers the undo. Deleting
   // cannot, so it asks first (design/behaviors.md, changing data). One item changing never sends
   // the whole list back to loading: the list changes in place.
@@ -153,7 +154,7 @@ export function ReferenceScreen() {
       (item) => {
         if (!mounted.current) return;
         setAdding(false);
-        setItems((current) => [...(current ?? []), item]);
+        list.change((current) => [...current, item]);
         // The button that was pressed leaves with the empty state: focus goes to the new item.
         focusNext.current = { row: item.id };
         notifyDone(LABELS.added(item.name), {
@@ -182,7 +183,7 @@ export function ReferenceScreen() {
       () => {
         if (!mounted.current) return;
         focusNext.current = neighbour(item.id);
-        setItems((current) => current?.filter((other) => other.id !== item.id) ?? null);
+        list.change((current) => current.filter((other) => other.id !== item.id));
       },
       () =>
         notifyFailed(LABELS.undoFailed(item.name), LABELS.errorDetail, {
@@ -195,106 +196,35 @@ export function ReferenceScreen() {
 
   function askDelete(item: Item) {
     setTarget(item);
-    setDeleteFailed(false);
     setAsking(true);
   }
 
-  async function confirmDelete() {
-    if (!target) return;
-    setSaving(true);
-    setDeleteFailed(false);
-    const deleted = await deleteItem(target.id).then(
-      () => true,
-      () => false,
-    );
-    if (!mounted.current) return; // ignore an answer that arrives after the screen has gone
-    setSaving(false);
-    if (deleted) {
-      // The button that opened the dialog leaves with its row.
-      focusNext.current = neighbour(target.id);
-      setItems((current) => current?.filter((item) => item.id !== target.id) ?? null);
-      setAsking(false);
-    } else {
-      setDeleteFailed(true);
-    }
-  }
-
-  const shown = (items ?? []).filter((item) =>
-    item.name.toLowerCase().includes(query.toLowerCase()),
-  );
-
-  const opened = (items ?? []).find((item) => String(item.id) === record.id) ?? null;
-
-  let body: ReactNode;
-  if (failed) {
-    body = (
-      <Alert variant="destructive">
-        <AlertTitle>{LABELS.errorTitle}</AlertTitle>
-        <AlertDescription>{LABELS.errorDetail}</AlertDescription>
-        <AlertAction>
-          <Button variant="outline" size="sm" onClick={reload}>
-            {LABELS.retry}
-          </Button>
-        </AlertAction>
-      </Alert>
-    );
-  } else if (items === null) {
-    body = (
-      <div role="status" className="flex flex-col gap-2">
-        <span className="sr-only">{LABELS.loading}</span>
-        <Skeleton className="h-8 w-full" />
-        <Skeleton className="h-8 w-full" />
-      </div>
-    );
-  } else if (items.length === 0) {
-    body = (
-      <Notice
-        title={LABELS.emptyTitle}
-        detail={LABELS.emptyDetail}
-        action={
-          <HeldLabel label={LABELS.emptyAction} busyLabel={LABELS.adding} busy={addingSlowly} />
-        }
-        onAction={addFirst}
-        actionRef={noticeAction}
-        pending={adding}
-      />
-    );
-  } else if (shown.length === 0) {
-    body = (
-      <Notice
-        title={LABELS.noResultsTitle}
-        detail={LABELS.noResultsDetail}
-        action={LABELS.noResultsAction}
-        onAction={() => setQuery("")}
-        actionRef={noticeAction}
-      />
-    );
-  } else {
-    body = (
-      <ItemTable
-        label={LABELS.tableName}
-        items={shown}
-        onOpen={(item, from) => record.open(String(item.id), from)}
-        actions={{
-          header: LABELS.columnActions,
-          cell: (item) => (
-            <Button
-              ref={(button) => {
-                if (button) rowActions.current.set(item.id, button);
-                else rowActions.current.delete(item.id);
-              }}
-              variant="outline"
-              size="sm"
-              aria-label={LABELS.deleteItem(item.name)}
-              onClick={() => askDelete(item)}
-            >
-              {LABELS.deleteAction}
-            </Button>
-          ),
-        }}
-      />
+  // Confirmed: the dialog has closed and the row's button waits. Done, the row leaves and the
+  // toast says so; failed, the row stays and the toast offers to try again, which asks nothing
+  // more: the person already said yes.
+  function runDelete(item: Item) {
+    setDeleting((current) => new Set(current).add(item.id));
+    void deleteItem(item.id).then(
+      () => {
+        if (!mounted.current) return;
+        focusNext.current = neighbour(item.id);
+        setDeleting((current) => without(current, item.id));
+        list.change((current) => current.filter((other) => other.id !== item.id));
+        notifyDone(LABELS.deleted(item.name));
+      },
+      () => {
+        if (!mounted.current) return;
+        setDeleting((current) => without(current, item.id));
+        notifyFailed(LABELS.deleteFailed(item.name), LABELS.errorDetail, {
+          label: LABELS.retry,
+          run: () => runDelete(item),
+          close: LABELS.close,
+        });
+      },
     );
   }
+
+  const opened = (list.items ?? []).find((item) => String(item.id) === record.id) ?? null;
 
   return (
     <main className="mx-auto flex max-w-5xl flex-col gap-4 p-6 text-sm">
@@ -311,32 +241,63 @@ export function ReferenceScreen() {
         closeLabel={LABELS.close}
         content={opened && <ItemRecord item={opened} />}
       >
-        {items && items.length > 0 && (
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="filter">{LABELS.filter}</Label>
-            <Input
-              id="filter"
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+        <ItemList
+          list={list}
+          label={LABELS.tableName}
+          noResultsRef={noticeAction}
+          empty={
+            <Notice
+              title={LABELS.emptyTitle}
+              detail={LABELS.emptyDetail}
+              action={
+                <HeldLabel
+                  label={LABELS.emptyAction}
+                  busyLabel={LABELS.adding}
+                  busy={addingSlowly}
+                />
+              }
+              onAction={addFirst}
+              actionRef={noticeAction}
+              pending={adding}
             />
-          </div>
-        )}
-        {body}
+          }
+          onOpen={(item, from) => record.open(String(item.id), from)}
+          actions={{
+            header: LABELS.columnActions,
+            cell: (item) => (
+              <DeleteButton
+                item={item}
+                pending={deleting.has(item.id)}
+                onPress={() => askDelete(item)}
+                ref={(button) => {
+                  if (button) rowActions.current.set(item.id, button);
+                  else rowActions.current.delete(item.id);
+                }}
+              />
+            ),
+          }}
+        />
       </WithRecord>
       <ConfirmDelete
         open={asking}
         item={target}
-        saving={saving}
-        failed={deleteFailed}
-        onConfirm={confirmDelete}
+        onConfirm={() => {
+          setAsking(false);
+          if (target) runDelete(target);
+        }}
         onCancel={() => setAsking(false)}
         finalFocus={() => {
-          const target = focusTarget();
-          focusNext.current = null;
-          return target ?? true;
+          // The row's button, which waits now; a row gone meanwhile hands focus on.
+          const row = target ? rowActions.current.get(target.id) : undefined;
+          return row ?? focusTarget() ?? true;
         }}
       />
     </main>
   );
+}
+
+function without(set: ReadonlySet<number>, id: number): ReadonlySet<number> {
+  const next = new Set(set);
+  next.delete(id);
+  return next;
 }

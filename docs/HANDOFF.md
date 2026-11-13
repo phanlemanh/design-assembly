@@ -117,9 +117,9 @@ việc nào được duyệt:
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
 - **Lần chạy thử chín đã xong** (2026-11-13, kết quả ở cuối spec 0001, số ở
   `docs/trials/results.tsv`). Dựng màn đoán 13 chỗ, chuỗi 12, 12, 13: các chỗ đoán cũ đã mất nhưng
-  chỗ mới hiện ra. Điều nặng nhất còn mở: dữ liệu mẫu quên mọi thứ khi đổi màn, hộp thoại chờ giữ mọi
-  dòng khác, và chép hay rút phần chung giữa các màn danh sách. Các sửa đổi sau lần này chưa được
-  thử lại.
+  chỗ mới hiện ra. Bốn chỗ đoán lớn nhất nó để lại đã sửa ngay sau (quyết định 0027): hộp thoại hỏi trước
+  đóng ngay, các màn danh sách dùng chung phần tải, khung đổi màn không tải lại trang, và tiêu điểm
+  khi một dòng quay lại. Các sửa đổi đó chưa được tác tử độc lập thử.
 - **Khung điều hướng đã dựng** cùng màn thứ hai ngày 2026-11-13 (quyết định 0025). Phép đo tấm hồ
   sơ chừa thanh đầu giờ chạy trên thanh đầu thật.
 - **Đo token** theo giao thức của Repo Standards: đề bài hẹn làm khi cuộc dẫn dắt tới bậc

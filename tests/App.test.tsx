@@ -4,6 +4,7 @@ import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { Toaster } from "../src/components/ui/sonner.tsx";
 import { formatDate, formatMoney } from "../src/lib/format.ts";
 import { LABELS } from "../src/lib/labels.ts";
+import { notifyClear } from "../src/lib/notify.ts";
 import { pick, SCREENS, type Step } from "../src/screens.ts";
 import { ROUTES } from "./e2e/routes.ts";
 
@@ -18,7 +19,13 @@ const answer = () => act(() => vi.advanceTimersByTimeAsync(200));
 async function show(scenario?: string) {
   setScenario(scenario);
   const { ReferenceScreen } = await import("../src/example/ReferenceScreen.tsx");
-  const view = render(<ReferenceScreen />);
+  // The toaster is mounted beside the screen, as the app does: a delete tells its result there.
+  const view = render(
+    <>
+      <ReferenceScreen />
+      <Toaster />
+    </>,
+  );
   await answer();
   return view;
 }
@@ -39,7 +46,11 @@ beforeEach(() => {
   vi.resetModules();
 });
 
-afterEach(() => {
+afterEach(async () => {
+  // A toast outlives the screen that raised it in this file's one toaster: clear it, so the next
+  // test starts with none.
+  notifyClear();
+  await act(() => vi.advanceTimersByTimeAsync(1000));
   vi.useRealTimers();
   vi.restoreAllMocks();
   setScenario();
@@ -114,7 +125,7 @@ it("fails for real when the browser is offline, with no scenario", async () => {
   setOnline(false);
   await take({ press: LABELS.deleteItem(LABELS.sampleFirstName) });
   await take({ press: LABELS.deleteAction });
-  expect(screen.getByText(LABELS.deleteFailed(LABELS.sampleFirstName))).toBeInTheDocument();
+  expect(await screen.findByText(LABELS.deleteFailed(LABELS.sampleFirstName))).toBeInTheDocument();
 });
 
 it("reaches the empty state by deleting every item, and Add item brings one back", async () => {
@@ -155,32 +166,49 @@ it("asks before deleting, names the item, and can be cancelled", async () => {
   expect(screen.getByText(LABELS.sampleSecondName)).toBeInTheDocument();
 });
 
-it("shows saving while the delete request runs, then removes the item", async () => {
+it("closes the dialog when the person confirms, and the row's button waits for the answer", async () => {
   await show();
-  fireEvent.click(screen.getByRole("button", { name: LABELS.deleteItem(LABELS.sampleFirstName) }));
+  const row = LABELS.deleteItem(LABELS.sampleFirstName);
+  fireEvent.click(screen.getByRole("button", { name: row }));
   fireEvent.click(screen.getByRole("button", { name: LABELS.deleteAction }));
-  // Held, not removed from the keyboard's reach: a disabled button would drop focus.
-  expect(screen.getByRole("button", { name: LABELS.saving })).toHaveAttribute(
-    "aria-disabled",
-    "true",
-  );
-  expect(screen.getByRole("button", { name: LABELS.cancel })).toHaveAttribute(
-    "aria-disabled",
-    "true",
-  );
+  await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  // Held, not removed from the keyboard's reach: a disabled button would drop focus. The other
+  // rows can still be used while this one waits.
+  expect(screen.getByRole("button", { name: row })).toHaveAttribute("aria-disabled", "true");
+  expect(
+    screen.getByRole("button", { name: LABELS.deleteItem(LABELS.sampleSecondName) }),
+  ).not.toHaveAttribute("aria-disabled", "true");
   await answer();
   await waitFor(() => expect(screen.queryByText(LABELS.sampleFirstName)).not.toBeInTheDocument());
+  expect(await screen.findByText(LABELS.deleted(LABELS.sampleFirstName))).toBeInTheDocument();
 });
 
-it("keeps the item and says so in the dialog when the delete request fails", async () => {
+it("from one second of waiting on, the row's button says it is deleting, in words and in its name", async () => {
+  await show("slow-delete");
+  fireEvent.click(screen.getByRole("button", { name: LABELS.deleteItem(LABELS.sampleFirstName) }));
+  fireEvent.click(screen.getByRole("button", { name: LABELS.deleteAction }));
+  await act(() => vi.advanceTimersByTimeAsync(1000));
+  const button = screen.getByRole("button", {
+    name: LABELS.deletingItem(LABELS.sampleFirstName),
+  });
+  expect(button).toHaveTextContent(LABELS.saving);
+});
+
+it("keeps the item when the delete request fails, says so in a toast, and tries again from it", async () => {
   await show("fail-delete");
   await take({ press: LABELS.deleteItem(LABELS.sampleFirstName) });
   await take({ press: LABELS.deleteAction });
-  expect(screen.getByText(LABELS.deleteFailed(LABELS.sampleFirstName))).toBeInTheDocument();
-  expect(screen.getByRole("button", { name: LABELS.deleteAction })).toBeEnabled();
-  fireEvent.click(screen.getByRole("button", { name: LABELS.cancel }));
-  await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  expect(await screen.findByText(LABELS.deleteFailed(LABELS.sampleFirstName))).toBeInTheDocument();
   expect(screen.getByText(LABELS.sampleFirstName)).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: LABELS.deleteItem(LABELS.sampleFirstName) }),
+  ).not.toHaveAttribute("aria-disabled", "true");
+  // Trying again asks nothing more: the person already said yes.
+  setScenario();
+  fireEvent.click(screen.getByRole("button", { name: LABELS.retry }));
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  await answer();
+  await waitFor(() => expect(screen.queryByText(LABELS.sampleFirstName)).not.toBeInTheDocument());
 });
 
 it("gives every status its own badge, one of them destructive", async () => {

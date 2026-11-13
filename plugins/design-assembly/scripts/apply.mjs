@@ -928,6 +928,9 @@ export function rulesPage(checks, has) {
       "A failure where the dialog or form is still open is shown in it, not in a toast. What the person typed is kept.",
     held("notification-channel") &&
       notify &&
+      "An action on a row that asks first closes its dialog as soon as the person confirms: the row's own control waits for the answer, so the other rows can still be used. From there it is an action done at once: done, it is told through `notifyDone`; failed, through `notifyFailed`, whose button tries again without asking again.",
+    held("notification-channel") &&
+      notify &&
       "Anything a toast's button does can also be done from the screen itself: the toast is never the only way.",
     held("notification-channel") &&
       notify &&
@@ -942,6 +945,8 @@ export function rulesPage(checks, has) {
       "While an action done at once waits for its answer, the control that started it is held and keeps focus. A control that is removed, or disabled in a way that drops it from the keyboard, loses focus. From one second on, the control says it is working.",
     pages &&
       "When a control leaves the page (its row is removed, its dialog closes on a deleted item, its state is replaced), move focus: to the same control on the row after it (the button that opens a row's actions, where they are behind one), else on the row before, else to the button of the state shown in place of the table, else to the screen's top heading.",
+    pages &&
+      "When an undo brings a row back, focus goes to that row's same control, so a person is where the thing they took back now is.",
     pages &&
       "Wherever focus is sent, it shows: a heading or any element given `tabIndex={-1}` to receive focus gets the same visible ring as a control.",
     pages &&
@@ -960,7 +965,7 @@ export function rulesPage(checks, has) {
   ]);
   section("The system itself", [
     held("tier-direction") &&
-      "The code has parts, listed from the top down in `design/parts.json`. A file imports only its own part and the parts listed after it: a component never imports a screen. What two screens share: logic and data move down a part; a piece of drawing they share becomes a component of the repository's own, in the part between the screens and the component library (named `shared` where the guide wrote the list). One screen's own drawing stays in that screen.",
+      "The code has parts, listed from the top down in `design/parts.json`. A file imports only its own part and the parts listed after it: a component never imports a screen. What two screens share: logic and data move down a part; a piece of drawing they share becomes a component of the repository's own, in the part between the screens and the component library (named `shared` where the guide wrote the list). One screen's own drawing stays in that screen. This holds for what screens of one kind copy from its reference screen too: loading, trying again and filtering that two list screens do alike are one shared piece, not two copies.",
     held("escapes") &&
       "When you find a fault that every check let through, add a line to `design/escapes.md` before you fix it: the date, what slipped, the layer that should have caught it, and what was done.",
     (held("tier-direction") || held("escapes")) &&
