@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ba lớp lời đáp: riêng của kho, chung của họ, đề xuất của chuẩn</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --color-paper: #f5f5f5;
+        --color-ink: #2d3142;
+        --color-muted: #4f5d75;
+        --color-accent: #eb6c36;
+        --font-sans: "Geist", system-ui, sans-serif;
+        --font-serif: "Instrument Serif", "Lora", serif;
+        --font-mono: "Geist Mono", ui-monospace, monospace;
+      }
+      body {
+        font-family: var(--font-sans);
+        background: var(--color-paper);
+        color: var(--color-ink);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 3rem 2rem;
+      }
+      .frame {
+        max-width: 1200px;
+        width: 100%;
+      }
+      .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 0.66rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--color-muted);
+        margin-bottom: 0.5rem;
+      }
+      h1 {
+        font-family: var(--font-serif);
+        font-size: clamp(1.5rem, 2.4vw + 0.75rem, 2rem);
+        font-weight: 400;
+        letter-spacing: -0.02em;
+        line-height: 1.2;
+        color: var(--color-ink);
+        margin-bottom: 0.5rem;
+      }
+      .sub {
+        color: var(--color-muted);
+        font-size: 1rem;
+        line-height: 1.5;
+        max-width: 46rem;
+        margin-bottom: 1.5rem;
+      }
+      svg {
+        width: 100%;
+        min-width: 900px;
+        display: block;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: 0.9fr 1.2fr 1fr;
+        gap: 1rem;
+        margin-top: 1.5rem;
+      }
+      .card {
+        background: #ffffff;
+        border: 1px solid rgba(45, 49, 66, 0.12);
+        border-radius: 6px;
+        padding: 1.25rem;
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0.25rem 0 0.75rem;
+      }
+      .card-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--color-muted);
+      }
+      .card-dot.coral {
+        background: var(--color-accent);
+      }
+      .card h3 {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+      .card h4 {
+        font-family: var(--font-mono);
+        font-size: 0.66rem;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--color-muted);
+        margin: 0.75rem 0 0.25rem;
+      }
+      .card li {
+        font-size: 0.875rem;
+        line-height: 1.5;
+        margin-left: 1rem;
+      }
+      @media (max-width: 760px) {
+        .cards {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <p class="eyebrow">Chồng lớp · đề xuất, chưa duyệt</p>
+      <h1>Ba lớp lời đáp: riêng của kho, chung của họ, đề xuất của chuẩn</h1>
+      <p class="sub">
+        Một câu hỏi tìm lời đáp từ trên xuống và dừng ở lớp đầu tiên có. Kho vẫn chỉ có một hệ
+        design: bộ sổ của chính nó.
+      </p>
+      <svg
+        viewBox="0 40 1000 352"
+        xmlns="http://www.w3.org/2000/svg"
+        role="img"
+        aria-label="Ba lớp lời đáp: riêng của kho, chung của họ, đề xuất của chuẩn"
+      >
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#4f5d75" />
+          </marker>
+          <marker
+            id="arrow-accent"
+            markerWidth="8"
+            markerHeight="6"
+            refX="7"
+            refY="3"
+            orient="auto"
+          >
+            <polygon points="0 0, 8 3, 0 6" fill="#eb6c36" />
+          </marker>
+          <marker id="arrow-ink" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#2d3142" />
+          </marker>
+          <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+            <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8" />
+          </marker>
+        </defs>
+        <rect x="0" y="0" width="1000" height="1000" fill="#f5f5f5" />
+        <text
+          x="40"
+          y="68"
+          fill="#4f5d75"
+          font-size="9"
+          font-family="'Geist Mono', monospace"
+          text-anchor="start"
+          letter-spacing="0.18em"
+        >
+          HỎI TRƯỚC
+        </text>
+        <line x1="80" y1="84" x2="80" y2="276" stroke="rgba(45,49,66,0.30)" stroke-width="1" />
+        <polygon points="76,276 84,276 80,284" fill="#4f5d75" />
+        <text
+          x="40"
+          y="308"
+          fill="#4f5d75"
+          font-size="9"
+          font-family="'Geist Mono', monospace"
+          text-anchor="start"
+          letter-spacing="0.18em"
+        >
+          HỎI SAU CÙNG
+        </text>
+        <line x1="160" y1="72" x2="960" y2="72" stroke="rgba(45,49,66,0.12)" stroke-width="1" />
+        <rect x="160" y="72" width="800" height="72" fill="#ffffff" />
+        <line x1="160" y1="144" x2="960" y2="144" stroke="rgba(45,49,66,0.12)" stroke-width="1" />
+        <text
+          x="180"
+          y="112"
+          fill="#4f5d75"
+          font-size="9"
+          font-family="'Geist Mono', monospace"
+          text-anchor="start"
+          letter-spacing="0.14em"
+        >
+          LỚP 3
+        </text>
+        <text
+          x="260"
+          y="104"
+          fill="#2d3142"
+          font-size="16"
+          font-family="'Geist', sans-serif"
+          text-anchor="start"
+          font-weight="600"
+        >
+          Phần riêng của kho
+        </text>
+        <text
+          x="260"
+          y="124"
+          fill="#4f5d75"
+          font-size="10"
+          font-family="'Geist', sans-serif"
+          text-anchor="start"
+        >
+          lời đáp chỉ kho này cần, và ngoại lệ có ghi lý do
+        </text>
+        <text
+          x="940"
+          y="112"
+          fill="#4f5d75"
+          font-size="10"
+          font-family="'Geist', sans-serif"
+          text-anchor="end"
+        >
+          chủ của kho đó, lúc dẫn dắt
+        </text>
+        <rect x="160" y="144" width="800" height="72" fill="rgba(235,108,54,0.08)" />
+        <line x1="160" y1="216" x2="960" y2="216" stroke="rgba(45,49,66,0.12)" stroke-width="1" />
+        <text
+          x="180"
+          y="184"
+          fill="#ba4513"
+          font-size="9"
+          font-family="'Geist Mono', monospace"
+          text-anchor="start"
+          letter-spacing="0.14em"
+        >
+          LỚP 2
+        </text>
+        <text
+          x="260"
+          y="176"
+          fill="#2d3142"
+          font-size="16"
+          font-family="'Geist', sans-serif"
+          text-anchor="start"
+          font-weight="600"
+        >
+          Lõi của họ sản phẩm
+        </text>
+        <text
+          x="260"
+          y="196"
+          fill="#4f5d75"
+          font-size="10"
+          font-family="'Geist', sans-serif"
+          text-anchor="start"
+        >
+          lời đáp dùng chung cả họ: màu, cách mở hồ sơ, khối đã nâng hạng
+        </text>
+        <text
+          x="940"
+          y="184"
+          fill="#ba4513"
+          font-size="10"
+          font-family="'Geist', sans-serif"
+          text-anchor="end"
+        >
+          chọn họ lúc đặt kho
+        </text>
+        <rect x="160" y="216" width="800" height="72" fill="#ececec" />
+        <line x1="160" y1="288" x2="960" y2="288" stroke="rgba(45,49,66,0.12)" stroke-width="1" />
+        <text
+          x="180"
+          y="256"
+          fill="#4f5d75"
+          font-size="9"
+          font-family="'Geist Mono', monospace"
+          text-anchor="start"
+          letter-spacing="0.14em"
+        >
+          LỚP 1
+        </text>
+        <text
+          x="260"
+          y="248"
+          fill="#2d3142"
+          font-size="16"
+          font-family="'Geist', sans-serif"
+          text-anchor="start"
+          font-weight="600"
+        >
+          Chuẩn chung
+        </text>
+        <text
+          x="260"
+          y="268"
+          fill="#4f5d75"
+          font-size="10"
+          font-family="'Geist', sans-serif"
+          text-anchor="start"
+        >
+          mọi câu hỏi, kèm lời đáp đề xuất theo loại sản phẩm
+        </text>
+        <text
+          x="940"
+          y="256"
+          fill="#4f5d75"
+          font-size="10"
+          font-family="'Geist', sans-serif"
+          text-anchor="end"
+        >
+          có sẵn trong plugin
+        </text>
+        <rect
+          x="160"
+          y="144"
+          width="800"
+          height="72"
+          fill="none"
+          stroke="#eb6c36"
+          stroke-width="1.4"
+        />
+        <text
+          x="260"
+          y="324"
+          fill="#ba4513"
+          font-size="14"
+          font-family="'Instrument Serif', 'Lora', serif"
+          text-anchor="start"
+          font-style="italic"
+        >
+          Lớp giữa là lựa chọn lúc đặt kho. Không chọn họ nào thì kho bỏ qua lớp này.
+        </text>
+        <line x1="40" y1="352" x2="960" y2="352" stroke="rgba(45,49,66,0.12)" stroke-width="0.8" />
+        <text
+          x="40"
+          y="376"
+          fill="#4f5d75"
+          font-size="9"
+          font-family="'Geist Mono', monospace"
+          text-anchor="start"
+          letter-spacing="0.18em"
+        >
+          CHÚ GIẢI
+        </text>
+        <rect
+          x="136"
+          y="364"
+          width="24"
+          height="16"
+          rx="4"
+          fill="rgba(235,108,54,0.08)"
+          stroke="#eb6c36"
+          stroke-width="1.4"
+        />
+        <text
+          x="168"
+          y="376"
+          fill="#4f5d75"
+          font-size="10"
+          font-family="'Geist', sans-serif"
+          text-anchor="start"
+        >
+          lớp được chọn lúc đặt kho
+        </text>
+        <text
+          x="336"
+          y="376"
+          fill="#4f5d75"
+          font-size="10"
+          font-family="'Geist', sans-serif"
+          text-anchor="start"
+        >
+          Kho vẫn chỉ có một bộ sổ; mỗi dòng ghi lời đáp đến từ lớp nào.
+        </text>
+      </svg>
+      <div class="cards">
+        <div class="card">
+          <p class="eyebrow">Có chọn họ</p>
+          <div class="card-header">
+            <span class="card-dot coral"></span>
+            <h3>Kho thuộc một họ</h3>
+          </div>
+          <ul>
+            <li>Câu họ đã khoá: không hỏi lại, sổ ghi «thừa hưởng».</li>
+            <li>Câu họ để mặc định: điền sẵn, đổi được, sổ ghi là đã đổi.</li>
+            <li>Câu của riêng kho: hỏi như thường.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <p class="eyebrow">Mặc định</p>
+          <div class="card-header">
+            <span class="card-dot"></span>
+            <h3>Kho đứng một mình</h3>
+          </div>
+          <ul>
+            <li>Dùng khi không chọn họ, hoặc chưa có họ nào.</li>
+            <li>Câu phải nhìn: người chọn trên bảng mẫu.</li>
+            <li>
+              Câu giao cho máy: lấy đề xuất của chuẩn, sổ ghi «máy đề xuất, chưa ai xác nhận».
+            </li>
+            <li>Sau này vẫn vào họ được: so từng câu, chỗ khác thành ngoại lệ có lý do.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <p class="eyebrow">Hôm nay</p>
+          <div class="card-header">
+            <span class="card-dot"></span>
+            <h3>Chưa có họ nào</h3>
+          </div>
+          <ul>
+            <li>Mọi kho đang đứng một mình.</li>
+            <li>Câu «kho này thuộc họ nào» chưa được dựng.</li>
+            <li>Lớp giữa là chặng cuối của lộ trình.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

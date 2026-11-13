@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-13 — Thêm sơ đồ ba lớp lời đáp: kho chọn họ lúc đặt kho, không chọn thì đứng một mình và lấy đề xuất của chuẩn — `docs/diagrams/meta-layer/06-three-layers.html`, [spec 0002](specs/0002-meta-layer-for-many-repositories.md).
 - 2026-11-13 — Năm sơ đồ cho tầm nhìn lớp meta: nguyên lý gốc, vai của người và Claude Code, ranh giới ba plugin, vòng đời một kho, lộ trình theo chặng — `docs/diagrams/meta-layer/`, [spec 0002](specs/0002-meta-layer-for-many-repositories.md).
 - 2026-11-13 — Chủ kho nêu tầm nhìn: design-assembly là lớp meta tạo và giữ design system cho nhiều kho; máy kiểm kê ba kho bên cạnh (chỉ đọc) và viết bản nháp kiến trúc, chờ duyệt — [spec 0002](specs/0002-meta-layer-for-many-repositories.md).
 - 2026-11-13 — Chủ kho chọn B, hồ sơ phủ lên danh sách, như ở sản phẩm Inventory; tấm hồ sơ bắt đầu dưới thanh đầu của khung ứng dụng và bài kiểm trình duyệt đỏ khi nó che thanh đầu — [0022](decisions/0022-record-beside-a-list.md).
