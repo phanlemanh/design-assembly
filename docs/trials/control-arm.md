@@ -176,3 +176,10 @@ Nên chạy thêm một lượt mỗi nhánh trên repo mới trước khi dựa
   màn không tải lại trang;
 - lệnh kiểm đọc danh sách màn như văn bản, nên trạng thái phải viết ra từng dòng;
 - màn mẫu sau khi vai dẫn dắt sửa vẫn xoá theo cách cũ, trái với trang luật.
+
+## Lần ba: repo mới của sàn, lượt thứ hai (dựng 2026-11-13)
+
+Cùng repo gốc với lần hai (commit `f957067` của bản sao), cùng đề, cùng 13 luật. Khác lần hai đúng
+một điều: mỗi nhánh là một repo **không có lịch sử**, chỉ một commit mở đầu, nên các trang đã bỏ
+không còn nằm đâu trong bản sao. Hiệu chỉnh đạt: nhánh không và nhánh có đều xanh khi chưa ai đụng
+vào; lắp lại cổng lên nhánh không thì xanh, 22 quyết định, 28 lệnh kiểm.
