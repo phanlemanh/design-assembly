@@ -4,6 +4,7 @@ title: Design-assembly là lớp meta tạo và giữ design system cho nhiều 
 status: draft
 tier: 1
 links:
+  - wiki/decisions/0023-nine-answers-for-the-meta-layer.md
   - wiki/specs/0001-design-system-for-claude-code.md
   - wiki/decisions/0005-output-tiers-and-boundaries.md
   - wiki/decisions/0006-one-ledger-one-layer-list.md
@@ -112,14 +113,12 @@ phẩm và mọi việc đẩy lên GitHub là việc của chủ kho.
 
 ## Open questions
 
-- Lõi của họ sản phẩm nằm ở kho nào, và registry mã của nó phát bằng gì.
-- Hình dạng nào thắng cho sổ linh kiện: của kit (để kit đọc không cần đổi), hay một hình dạng mới
-  mà kit có bản xuất.
-- Trang kiểu màn và chứng minh màn của Inventory dùng khoá và tiêu đề tiếng Việt; plugin chỉ viết
-  tiếng Anh. Giữ khoá tiếng Việt như một hình dạng được nhận, hay đổi.
-- Thang M0 tới M3 của kit và sáu bậc của design-assembly đo gần cùng một thứ. Gộp thành một, hay để
-  thang của kit đọc bậc của design-assembly.
-- Phần chứng minh màn bằng ảnh theo từng vòng: đề xuất ở đây là thuộc delivery-loop, nhưng nó đọc
-  nhiều sổ design nhất. Chủ kho phân xử.
-- Kho không dùng Makefile thì cổng kiểm gắn vào đâu.
-- Ai giữ phiên bản: một kho dùng plugin bản cũ và lõi của họ bản mới thì bên nào thắng.
+Chín câu từng còn mở đã được chủ kho chốt ngày 2026-11-13: xem
+[0023](../decisions/0023-nine-answers-for-the-meta-layer.md) và mục 15 của tài liệu kiến trúc.
+
+Còn mở:
+
+- Kiến trúc tổng thể chưa được duyệt: chủ kho mới chốt ba điều ở mục Intent và chín câu ở 0023.
+- Với từng lời đáp cụ thể của lõi, xếp vào khoá hay mặc định: chủ kho quyết lúc lõi ra đời.
+- Ba việc ở kho khác chờ chủ kho làm hoặc cho phép: thang của delivery-loop đọc kết quả audit,
+  delivery-loop nhận phần chứng minh màn, và tạo kho cho lõi của họ.

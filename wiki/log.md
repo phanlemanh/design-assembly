@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-13 — Chủ kho duyệt chín lời đáp cho các câu còn mở của kiến trúc lớp meta: hình dạng sổ linh kiện, khoá tiếng Việt, sổ sinh vẫn commit, hai thang không gộp, chứng minh màn thuộc delivery-loop, kho không Makefile, nơi của lõi, khoá ít, kho thắng bằng ghim — [0023](decisions/0023-nine-answers-for-the-meta-layer.md), `docs/architecture/meta-layer.html`.
 - 2026-11-13 — Gom tầm nhìn, kiểm kê và kiến trúc đề xuất của lớp meta thành một tài liệu, sáu sơ đồ nằm ngay trong trang; các tệp sơ đồ rời được gộp vào đó; đề bài 0002 chỉ còn giữ tầm nhìn, tiêu chí, kế hoạch — `docs/architecture/meta-layer.html`, [spec 0002](specs/0002-meta-layer-for-many-repositories.md).
 - 2026-11-13 — Thêm sơ đồ ba lớp lời đáp: kho chọn họ lúc đặt kho, không chọn thì đứng một mình và lấy đề xuất của chuẩn — `docs/architecture/meta-layer.html`, [spec 0002](specs/0002-meta-layer-for-many-repositories.md).
 - 2026-11-13 — Năm sơ đồ cho tầm nhìn lớp meta: nguyên lý gốc, vai của người và Claude Code, ranh giới ba plugin, vòng đời một kho, lộ trình theo chặng — `docs/architecture/meta-layer.html`, [spec 0002](specs/0002-meta-layer-for-many-repositories.md).

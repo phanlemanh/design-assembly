@@ -16,7 +16,7 @@ sửa trang này hoặc xoá nó.
    lát, ba lần chạy thử).
 4. `docs/architecture/meta-layer.html`: tầm nhìn lớp meta chủ kho nêu ngày 2026-11-13 và kiến trúc
    đề xuất, kèm sáu sơ đồ. Chưa duyệt. Đề bài của nó là `wiki/specs/0002-meta-layer-for-many-repositories.md`.
-5. Bản ghi quyết định `wiki/decisions/0005` đến `0021`: mỗi phần đã dựng có một bản, kèm giới hạn.
+5. Bản ghi quyết định `wiki/decisions/0005` đến `0023`: mỗi phần đã dựng có một bản, kèm giới hạn.
 6. `plugins/design-assembly/references/checks.md`: mọi tệp plugin để lại ở một kho, và mỗi loại
    lệnh kiểm.
 
