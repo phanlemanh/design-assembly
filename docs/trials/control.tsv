@@ -1,3 +1,5 @@
 trial	date	arm	gate	rounds	held_red	bookkeeping_red	parts_used	declared_broken	tokens	tool_calls	minutes	note
 1	2026-11-13	with	green	0	0	0	5/6	0/13	225234	46	61	Cùng là lượt dựng màn của lần mười; khai 16 chỗ tự quyết.
 1	2026-11-13	without	green	0	0	0	5/6	0/13	199549	43	64	Lượt cổng đầu hỏng vì máy chủ thử không lên kịp lúc máy tải nặng, chạy lại không sửa gì; khai 24 chỗ tự quyết.
+2	2026-11-13	with	green	0	0	0	4/5	0/13	272403	68	19	Repo mới của sàn với plugin đã áp; không có TypedTable nên tính trên năm. Viết lại màn mẫu theo trang luật.
+2	2026-11-13	without	green	0	0	0	5/5	3/13	218024	54	17	Phạm L4 (hoàn tác thất bại không nói mục ở đâu), L6 (trạng thái trống có liên kết khoác áo nút chính), L9 (xoá giữ hộp thoại, không báo kết quả).

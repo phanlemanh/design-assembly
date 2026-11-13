@@ -681,6 +681,16 @@ hơn trên một repo mà mã chưa mang luật. Chi tiết ở `docs/trials/con
 Nhánh có là lượt dựng màn của lần mười: 11 chỗ phải đoán (chuỗi 12, 12, 13, 11), không dừng hỏi.
 Nó chỉ ra một câu cũ trên trang kiểu màn danh sách sau khi luồng xoá đổi; đã sửa.
 
+### Nhánh đối chứng, lần hai: repo mới của sàn (2026-11-13)
+
+Cùng đề, cùng 13 luật, trên repo mới của sàn với plugin đã áp theo các câu trả lời niêm phong; nhánh
+không bỏ trang luật và cổng. Cả hai qua cổng, cổng của plugin không bắt được gì ở cả hai. **Khác ở
+luật tự khai: nhánh có phạm 0 trên 13, nhánh không phạm 3** (hoàn tác thất bại không nói mục ở đâu,
+trạng thái trống có liên kết khoác áo nút chính, xoá giữ hộp thoại và không báo kết quả). Nhánh có
+tốn hơn khoảng một phần tư token. Một lượt mỗi nhánh nên chưa dựa vào được; cùng chiều với lần đầu:
+trang luật có tác dụng ở nơi mã chưa mang luật, ở đúng các luật mà cổng không giữ. Chi tiết ở
+`docs/trials/control-arm.md`.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.

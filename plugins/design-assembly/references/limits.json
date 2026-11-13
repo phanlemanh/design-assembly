@@ -1485,6 +1485,50 @@
       "note": "After the delete flow changed, the list page still said a failed delete is shown in its dialog while the behaviours page, the rules and the code say a toast.",
       "closed": "2026-11-13",
       "closed_by": "the list page now says what the behaviours page says"
+    },
+    {
+      "id": "toaster-installed-not-mounted",
+      "area": "guide",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-13",
+      "where": ["trials"],
+      "status": "open",
+      "note": "On a fresh repository the guide installs the notification module and the toaster but mounts the toaster nowhere, so every toast a screen raises is never shown and no check notices."
+    },
+    {
+      "id": "fresh-repo-has-no-frame",
+      "area": "guide",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-13",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The rules say moving between screens belongs to the application's frame, but on a fresh repository the guide installs no frame, so the builder of a second screen builds one alone."
+    },
+    {
+      "id": "screen-list-read-as-text",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-13",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The gate reads the list of screens as text, so a state built by a function rather than written out is not seen, and no page says so."
+    },
+    {
+      "id": "guided-reference-deletes-old-way",
+      "area": "guide",
+      "kind": "conflict",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-13",
+      "where": ["trials"],
+      "status": "open",
+      "note": "After the guide, the reference screen on a fresh repository still keeps its dialog open while it deletes, against the rules page it installs, so a builder must pick between the two."
     }
   ]
 }

@@ -139,3 +139,37 @@ chưa mang luật: repo mới của sàn (commit `e56e77c`), với plugin đã �
   (plugin chỉ cài nó khi mô hình có trường khai kiểu cột), nên số phần có sẵn tính trên năm.
 - **Một chỗ hổng của plugin hiện ra lúc dựng:** plugin cài mô-đun báo kết quả và phần vẽ toast
   nhưng không gắn phần vẽ vào ứng dụng, nên toast không hiện. Để nguyên cho cả hai nhánh.
+
+### Kết quả lần hai
+
+Cả hai nhánh qua cổng của chính mình mà không phải sửa vòng nào ở cấp `make check`; lắp cổng của
+plugin lên bài làm thì cả hai 0 trên 28 lệnh kiểm đỏ, không thiếu dòng đăng ký nào.
+
+**Khác nhau ở luật tự khai: nhánh có phạm 0 trên 13, nhánh không phạm 3.** Ba luật nhánh không phạm:
+
+- **L4:** hoàn tác thất bại nói «chưa hoàn tác được» mà không nói mục đang ở đâu;
+- **L6:** trạng thái trống của màn đã lưu trữ có một liên kết khoác áo nút chính, chép lại điều
+  hướng;
+- **L9:** xoá giữ hộp thoại trong lúc chờ, báo lỗi trong hộp thoại, và xoá xong không báo gì. Đây
+  là cách của màn mẫu và của trang hành vi bản sàn; nhánh có thì theo trang luật và viết lại cả
+  màn mẫu.
+
+Phần có sẵn: nhánh có dùng 4 trên 5, nhánh không 5 trên 5. Phần nhánh có không dùng là nhãn giữ bề
+rộng, vì trong luồng xoá mới hộp thoại đóng ngay và không còn nút nào đổi chữ. Số này vì vậy không
+nói nhánh nào tốt hơn.
+
+Chi phí: nhánh có tốn hơn khoảng một phần tư, 272 nghìn so với 218 nghìn token, 68 so với 54 lần
+gọi công cụ; thời gian gần bằng nhau, 19 và 17 phút.
+
+**Đọc kết quả.** Lệch ba luật, nên theo đề không còn là «chưa kết luận», nhưng mới một lượt mỗi
+nhánh. Kết quả cùng chiều với điều lần đầu gợi ý: trang luật có tác dụng ở nơi mã chưa mang luật,
+và tác dụng nằm ở các luật mà cổng không giữ. Cổng của plugin không bắt được điều gì ở cả hai lần.
+Nên chạy thêm một lượt mỗi nhánh trên repo mới trước khi dựa vào hiệu số này.
+
+**Điều hai nhánh cùng gặp,** đã ghi vào sổ giới hạn:
+
+- toast không hiện, vì plugin cài mô-đun báo kết quả mà không gắn phần vẽ vào ứng dụng;
+- repo mới không có khung điều hướng, nên màn thứ hai phải tự dựng cách đi lại; cả hai cùng chọn đổi
+  màn không tải lại trang;
+- lệnh kiểm đọc danh sách màn như văn bản, nên trạng thái phải viết ra từng dòng;
+- màn mẫu sau khi vai dẫn dắt sửa vẫn xoá theo cách cũ, trái với trang luật.
