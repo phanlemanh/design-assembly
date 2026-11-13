@@ -121,7 +121,7 @@ decisions:
   - id: component-manifest
     layer: components
     kind: formula
-    source: "src/components/ui, written out by make design-components"
+    source: "src/components, written out by make design-components"
     check: "tool:tools/design-assembly/check.mjs"
   - id: target-size
     layer: components
@@ -276,3 +276,9 @@ decisions:
     kind: standard
     source: "the repository's own browser test of it"
     check: "e2e:tests/e2e/templates.spec.ts"
+  - id: ledger-shapes
+    layer: governance
+    kind: closed
+    source: "the design-assembly contract, one shape per ledger with its version"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "that each ledger present has its shape and a version this tool reads; what a ledger says is held by the rows about it"

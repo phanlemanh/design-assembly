@@ -309,9 +309,9 @@
       "severity": "medium",
       "plan": "keep",
       "opened": "2026-11-12",
-      "where": ["d0009"],
+      "where": ["d0009", "d0029"],
       "status": "open",
-      "note": "The component register carries no states, props, parts or level, and never reads components outside the library folder."
+      "note": "The component register carries no states and no props, and reads only the library folder and the folder of the repository's own components beside it."
     },
     {
       "id": "target-size-unmeasured-controls",
@@ -961,8 +961,10 @@
       "plan": "fix",
       "opened": "2026-11-13",
       "where": ["trials", "spec"],
-      "status": "open",
-      "note": "The component manifest and the book's component page list exported constants as if they were components."
+      "status": "closed",
+      "note": "The component manifest and the book's component page list exported constants as if they were components.",
+      "closed": "2026-11-14",
+      "closed_by": "a name in capitals throughout is a constant and is no longer listed, held by a plugin test; a constant named like a component is still listed"
     },
     {
       "id": "book-fonts-unnamed",
@@ -1616,6 +1618,75 @@
       "where": ["trials", "d0028"],
       "status": "open",
       "note": "On a fresh repository the plugin installs the shared list loading but the screen the floor ships keeps its own, so a builder sees two ways to load a list."
+    },
+    {
+      "id": "kit-gate-refused-tokens",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-14",
+      "where": ["d0029"],
+      "status": "closed",
+      "note": "The acceptance kit's gate refused the token file the guide wrote, because its colours were in the perceptual notation and the gate reads hexadecimal only.",
+      "closed": "2026-11-14",
+      "closed_by": "colour tokens are written in hexadecimal with the stylesheet's text kept beside them, held by a plugin test that runs the kit's gate when the kit is on the machine"
+    },
+    {
+      "id": "screen-ledger-two-shapes",
+      "area": "checks",
+      "kind": "conflict",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-14",
+      "where": ["d0029"],
+      "status": "open",
+      "note": "The list of screens still has two shapes, code that reaches each state and a data file of screens, so the contract leaves it unsettled."
+    },
+    {
+      "id": "library-names-in-core",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-14",
+      "where": ["d0029"],
+      "status": "open",
+      "note": "Names of libraries and build tools are still written through the plugin's core instead of in adapters, and no test fails when one is added."
+    },
+    {
+      "id": "reference-register-other-shape",
+      "area": "adopt",
+      "kind": "conflict",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-14",
+      "where": ["d0029"],
+      "status": "open",
+      "note": "The reference repository's component register differs from the contract in three ways, a numeric version, no category, and parts written as objects, so the acceptance kit refuses it and moving it is that repository's change."
+    },
+    {
+      "id": "kit-readers-split-on-colour",
+      "area": "checks",
+      "kind": "conflict",
+      "severity": "low",
+      "plan": "hand-off",
+      "repo": "delivery-loop",
+      "opened": "2026-11-14",
+      "where": ["d0029"],
+      "status": "open",
+      "note": "The acceptance kit's coverage measure reads a colour written as the current token standard's object as a token of several parts, while its gate needs hexadecimal, so only the older hexadecimal form works for both."
+    },
+    {
+      "id": "level-from-imports-only",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-14",
+      "where": ["d0029"],
+      "status": "open",
+      "note": "A component's level is computed from how deep its file imports other components, so a large component that imports nothing is an atom and nobody has checked the levels against a designer's view."
     }
   ]
 }

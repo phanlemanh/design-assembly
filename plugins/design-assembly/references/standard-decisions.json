@@ -551,6 +551,13 @@
       "kind": "closed",
       "question": "Does every escape name the layer that should have caught it?",
       "sources": ["component-audit"]
+    },
+    {
+      "id": "ledger-shapes",
+      "layer": "governance",
+      "kind": "closed",
+      "question": "Does every ledger have the one shape every tool that reads it relies on?",
+      "sources": ["design-assembly"]
     }
   ]
 }

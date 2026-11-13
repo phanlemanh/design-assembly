@@ -15,14 +15,23 @@ import path from "node:path";
 import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
+import { newerProblem } from "./contract.mjs";
 import { lineWidth, renderJson } from "./json.mjs";
+import { frontMatter, readPages } from "./screens.mjs";
 
 // The file a repository gets when nothing names another one, and the folder read by default.
 export const REGISTRY = "design/component-registry.json";
 export const COMPONENTS_FOLDER = "src/components/ui";
 // The id of the decision that this file says what the source says.
 export const COMPONENTS_DECISION = "component-manifest";
-const VERSION = "1";
+// The shape of the file: the acceptance kit reads the version as a string.
+const VERSION = "2";
+
+// Where a repository keeps components of its own beside the library's: the folder that holds the
+// library's folder, when the library sits in a folder named for it.
+export function ownFolder(folder) {
+  return path.posix.basename(folder) === "ui" ? path.posix.dirname(folder) : null;
+}
 
 // Every source file of a folder, by path from the repository root.
 export function readFolder(root, folder) {
@@ -235,7 +244,10 @@ function exported(text) {
   for (const direct of text.matchAll(/^export\s+(?:default\s+)?(?:function|const)\s+(\w+)/gm)) {
     names.push(direct[1]);
   }
-  return [...new Set(names)].filter((name) => /^[A-Z]/.test(name));
+  // A name in capitals throughout is a constant, not a component.
+  return [...new Set(names)].filter(
+    (name) => /^[A-Z]/.test(name) && !/^[A-Z][A-Z0-9_]*$/.test(name),
+  );
 }
 
 // The source of one component: from its declaration to the next declaration at the left margin.
@@ -251,15 +263,66 @@ function declaration(text, name) {
 }
 
 // Reads every source file once: the manifest, and the heights the controls declare.
-function survey(files) {
+// The files a file imports among the given ones: `@/` is the source folder, and a relative path
+// is read from the file's own folder.
+function importsAmong(file, text, files) {
+  const found = new Set();
+  for (const match of text.matchAll(/(?:from|import)\s*\(?\s*["']([^"']+)["']/g)) {
+    const spec = match[1];
+    let base;
+    if (spec.startsWith("@/")) base = `src/${spec.slice(2)}`;
+    else if (spec.startsWith(".")) base = path.posix.join(path.posix.dirname(file), spec);
+    else continue;
+    const hit = ["", ".tsx", ".ts", ".jsx", ".js", "/index.tsx", "/index.ts"]
+      .map((end) => `${base}${end}`)
+      .find((candidate) => candidate !== file && candidate in files);
+    if (hit) found.add(hit);
+  }
+  return [...found];
+}
+
+// A file's atomic level, computed and never declared: how deep it imports other components. None
+// is an atom, one step a molecule, two or more an organism. A component a page of a screen kind
+// names as the frame of its screens is a template.
+function levels(files) {
+  const depth = new Map();
+  const visit = (file, seen) => {
+    if (depth.has(file)) return depth.get(file);
+    if (seen.has(file)) return 0;
+    const next = new Set(seen).add(file);
+    const below = importsAmong(file, files[file], files).map((other) => visit(other, next));
+    const value = below.length === 0 ? 0 : 1 + Math.max(...below);
+    depth.set(file, value);
+    return value;
+  };
+  return (file) => ["atom", "molecule", "organism"][Math.min(visit(file, new Set()), 2)];
+}
+
+// The components the pages of screen kinds name as the frame of their screens.
+export function templateNames(pages) {
+  return new Set(
+    Object.values(pages ?? {})
+      .map((text) => frontMatter(text)?.khuon?.ten)
+      .filter((name) => typeof name === "string"),
+  );
+}
+
+function survey(files, { library, pages } = {}) {
+  const level = levels(files);
+  const templates = templateNames(pages);
   const sets = {};
   for (const text of Object.values(files)) Object.assign(sets, declaredSets(text));
   const components = [];
   // For each control with a declared height: the smallest one, and where it is declared.
   const sizes = new Map();
   for (const [file, text] of Object.entries(files).sort(([a], [b]) => (a < b ? -1 : 1))) {
-    for (const name of exported(text)) {
+    const names = exported(text);
+    for (const name of names) {
       const source = declaration(text, name);
+      // The other components of the same file this one is drawn with.
+      const drawnWith = names.filter(
+        (other) => other !== name && new RegExp(`<${other}\\b`).test(source),
+      );
       const axes = {};
       const defaults = {};
       for (const [setName, set] of Object.entries(sets)) {
@@ -302,6 +365,9 @@ function survey(files) {
         name,
         category: "component",
         file,
+        level: templates.has(name) ? "template" : level(file),
+        source: !library || file.startsWith(`${library}/`) ? "library" : "own",
+        ...(drawnWith.length > 0 ? { parts: drawnWith } : {}),
         ...(control ? { control: true } : {}),
         ...(smallest ? { min_height: `${smallest.px}px` } : {}),
         ...(variants.length > 0 ? { variants } : {}),
@@ -316,8 +382,10 @@ function survey(files) {
 // variants are the axes of the variant sets it calls, and the props it types as a closed list of
 // words. Each is written `axis=value`, the form a plan names a variant in. A control is marked,
 // with the smallest height its own classes declare.
-export function readComponents(files) {
-  return survey(files).manifest;
+// `library` is the folder of the component library, so a component outside it is the
+// repository's own; `pages` are the pages of screen kinds, which name the templates.
+export function readComponents(files, options = {}) {
+  return survey(files, options).manifest;
 }
 
 // How the controls measure against a target size in CSS pixels: the ones below it, the ones
@@ -353,7 +421,7 @@ export function targetProblem(files, min, folder) {
 
 // Why the file is not what the source gives, or null. Compared as data. The reason names the
 // first components that differ, so a person can see which side moved.
-export function componentsProblem(text, files, file, folder) {
+export function componentsProblem(text, files, file, folder, options = {}) {
   const again = "run make design-components to write the file again from the source";
   if (text === null || text === undefined) return `${file} is missing: ${again}`;
   let data;
@@ -362,7 +430,9 @@ export function componentsProblem(text, files, file, folder) {
   } catch {
     return `${file} is not valid JSON: ${again}`;
   }
-  const expected = readComponents(files);
+  const newer = newerProblem("components", data);
+  if (newer) return newer;
+  const expected = readComponents(files, options);
   if (JSON.stringify(data) === JSON.stringify(expected)) return null;
   const listed = new Map((data.components ?? []).map((item) => [item.name, JSON.stringify(item)]));
   const found = new Map(expected.components.map((item) => [item.name, JSON.stringify(item)]));
@@ -396,22 +466,32 @@ function main() {
     );
     exit(0);
   }
-  const files = readFolder(root, check.folder);
-  const manifest = readComponents(files);
+  const read = check.own ?? check.folder;
+  const files = readFolder(root, read);
+  const options = {
+    library: check.folder,
+    pages: check.pages ? readPages(root, check.pages) : {},
+  };
+  const manifest = readComponents(files, options);
   const full = path.join(root, check.file);
   const before = existsSync(full) ? readFileSync(full, "utf8") : null;
   const count = `${manifest.components.length} components`;
-  if (componentsProblem(before, files, check.file, check.folder) === null) {
+  const newer = before === null ? null : newerProblem("components", JSON.parse(before));
+  if (newer) {
+    stderr.write(`component manifest: ${newer}\n`);
+    exit(1);
+  }
+  if (componentsProblem(before, files, check.file, read, options) === null) {
     stdout.write(`component manifest: ${check.file} is up to date (${count})\n`);
     return;
   }
   if (!args.includes("--write")) {
-    stderr.write(`component manifest: ${check.file} is not what ${check.folder} gives\n`);
+    stderr.write(`component manifest: ${check.file} is not what ${read} gives\n`);
     exit(1);
   }
   mkdirSync(path.dirname(full), { recursive: true });
   writeFileSync(full, renderJson(manifest, lineWidth(root)));
-  stdout.write(`component manifest: wrote ${check.file} from ${check.folder} (${count})\n`);
+  stdout.write(`component manifest: wrote ${check.file} from ${read} (${count})\n`);
 }
 
 if (argv[1] && realpathSync(argv[1]) === realpathSync(fileURLToPath(import.meta.url))) main();

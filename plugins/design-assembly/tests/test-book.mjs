@@ -413,7 +413,7 @@ test("the components of the book are the component manifest's, and changing it m
   assert.deepEqual(staleParts(page, fewer), ["components"]);
   // Without pictures the families are still named, and the sheet says why nothing is drawn.
   assert.ok(page.includes(WORDS.noPictures));
-  assert.match(page, /<ul class="parts"><li><b>Alert<\/b>/);
+  assert.ok(page.includes(`<ul class="parts"><li><b>${manifest.components[0].name}</b>`));
 });
 
 test("on a repository the guide did not build, the book says only what the repository has", () => {

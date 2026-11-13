@@ -31,7 +31,7 @@ import {
   resolve,
 } from "../templates/tools/design-assembly/styles.mjs";
 import { buildTheme, THRESHOLDS } from "../templates/tools/design-assembly/theme.mjs";
-import { TOKENS } from "../templates/tools/design-assembly/tokens.mjs";
+import { tokenCss, TOKENS } from "../templates/tools/design-assembly/tokens.mjs";
 import { inventory } from "./inventory.mjs";
 import { openStage } from "./stage.mjs";
 
@@ -194,8 +194,8 @@ export function collectFacts(target) {
 
   const colors = Object.entries(tokens.color ?? {}).map(([name, token]) => ({
     name,
-    light: token.$value,
-    dark: token.$extensions?.["design-assembly"]?.dark ?? token.$value,
+    light: tokenCss(token),
+    dark: token.$extensions?.["design-assembly"]?.dark ?? tokenCss(token),
   }));
   const color = (name) => colors.find((item) => item.name === name);
   // The pairs the gate itself checks, so the book can say which ratios are held and which are

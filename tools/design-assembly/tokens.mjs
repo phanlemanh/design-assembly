@@ -7,6 +7,7 @@ import path from "node:path";
 import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
+import { tokenHex } from "./color.mjs";
 import { TYPE_STEPS } from "./scale.mjs";
 import { darkScopes, expand, loadStyles, themeDeclarations } from "./styles.mjs";
 
@@ -44,14 +45,21 @@ export function readTokens(styles) {
       unresolved.push(variable);
       continue;
     }
-    const token = { $type: GROUPS[group], $value: value };
+    // A colour is written in hexadecimal, the one form every reader of the file takes; the CSS
+    // text stays under this tool's own extension, so a reader of the stylesheet's words has them.
+    const color = group === "color" ? tokenHex(value) : null;
+    const token = { $type: GROUPS[group], $value: color ?? value };
+    const own = color && color !== value ? { css: value } : {};
     const other = dark.length === 0 ? value : fold(expand(styles, dark, `var(${variable})`));
-    if (other !== value && !other.includes("var("))
-      token.$extensions = { [OWNER]: { dark: other } };
+    if (other !== value && !other.includes("var(")) own.dark = other;
+    if (Object.keys(own).length > 0) token.$extensions = { [OWNER]: own };
     tokens[group] = { ...tokens[group], [name]: token };
   }
   return { tokens, unresolved };
 }
+
+// A token's value as the stylesheet writes it, whichever form the file keeps it in.
+export const tokenCss = (token) => token?.$extensions?.[OWNER]?.css ?? token?.$value;
 
 export const renderTokens = (tokens) => `${JSON.stringify(tokens, null, 2)}\n`;
 
@@ -80,8 +88,13 @@ export function tokensProblem(text, styles, file, stylesheet) {
   for (const [name, token] of given) {
     const other = listed.get(name);
     if (!other) differs.push(`${name} is not in the file`);
-    else if (other.$value !== token.$value) {
-      differs.push(`${name}: the stylesheet gives ${token.$value}, the file says ${other.$value}`);
+    else if (
+      tokenCss(other) !== tokenCss(token) ||
+      JSON.stringify(other.$value) !== JSON.stringify(token.$value)
+    ) {
+      differs.push(
+        `${name}: the stylesheet gives ${tokenCss(token)}, the file says ${tokenCss(other)}`,
+      );
     } else if (JSON.stringify(other) !== JSON.stringify(token)) {
       differs.push(`${name}: its dark value differs`);
     }

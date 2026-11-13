@@ -26,9 +26,15 @@ import {
   typesProblem,
 } from "../templates/tools/design-assembly/columns.mjs";
 import {
+  LEDGERS,
+  newerLedgers,
+  shapeProblems,
+} from "../templates/tools/design-assembly/contract.mjs";
+import {
   COMPONENTS_DECISION,
   COMPONENTS_FOLDER,
   componentsProblem,
+  ownFolder,
   readComponents,
   readFolder,
   REGISTRY,
@@ -283,29 +289,33 @@ export function componentsFolder(target) {
 // is left alone. `nothing` means the repository has no components to list.
 export function componentsPlan(target, alreadyHeld, pending = {}) {
   const folder = componentsFolder(target);
+  // Components of the repository's own sit beside the library's folder, and are listed too.
+  const own = ownFolder(folder);
+  const read = own ?? folder;
   // `pending` holds files about to be written: a component installed in the same run is listed.
-  const arriving = Object.entries(pending).filter(([file]) => file.startsWith(`${folder}/`));
-  const sources = { ...readFolder(target, folder), ...Object.fromEntries(arriving) };
-  if (Object.keys(sources).length === 0) return { nothing: true };
+  const arriving = Object.entries(pending).filter(([file]) => file.startsWith(`${read}/`));
+  const sources = { ...readFolder(target, read), ...Object.fromEntries(arriving) };
+  if (!Object.keys(sources).some((name) => name.startsWith(`${folder}/`))) return { nothing: true };
+  const options = { library: folder, pages: readPages(target) };
   const file = socket(target, "registry") ?? REGISTRY;
   const full = path.join(target, file);
   const before = existsSync(full) ? readFileSync(full, "utf8") : null;
-  if (before !== null && !alreadyHeld && componentsProblem(before, sources, file, folder)) {
+  if (before !== null && !alreadyHeld && componentsProblem(before, sources, file, read, options)) {
     return {
-      skipped: `${file} is already there and is not what ${folder} gives. It is kept, and no component manifest is written`,
+      skipped: `${file} is already there and is not what ${read} gives. It is kept, and no component manifest is written`,
     };
   }
   return {
     file,
-    content: renderJson(readComponents(sources), lineWidth(target)),
+    content: renderJson(readComponents(sources, options), lineWidth(target)),
     row: {
       id: COMPONENTS_DECISION,
       layer: "components",
       kind: "formula",
-      source: `${folder}, written out by make design-components`,
+      source: `${read}, written out by make design-components`,
       check: TOOL,
     },
-    checks: [{ kind: "components", file, folder }],
+    checks: [{ kind: "components", file, folder, ...(own ? { own } : {}), pages: KINDS_FOLDER }],
   };
 }
 
@@ -1272,6 +1282,44 @@ export function plan(target, blueprint) {
     rows.push({ id, ...item.row });
     checks[id] = item.checks;
   }
+  // Every ledger this run leaves has the one shape the contract gives it. Read as it is about to
+  // be written; the decisions ledger is written below, and checked by the gate from then on.
+  const ledgerFiles = { decisions: FILES.ledger };
+  for (const [kind, ledger] of Object.entries(LEDGERS)) {
+    if (!ledger.file || kind === "decisions") continue;
+    const file = { tokens: tokens.file, components: components.file }[kind] ?? ledger.file;
+    if (file && (file in files || read(file) !== null)) ledgerFiles[kind] = file;
+  }
+  const shapes = Object.entries(ledgerFiles)
+    .filter(([kind]) => kind !== "decisions")
+    .flatMap(([kind, file]) => shapeProblems(kind, files[file] ?? read(file), file));
+  const kindPages = Object.keys(readPages(target)).length > 0;
+  for (const [file, text] of Object.entries(readPages(target))) {
+    shapes.push(...shapeProblems("screen-kinds", text, file));
+  }
+  if (shapes.length === 0) {
+    const item = {
+      what: `${Object.keys(ledgerFiles).length} ledgers${kindPages ? " and the pages of screen kinds" : ""} have the one shape the contract gives them`,
+      row: {
+        layer: "governance",
+        kind: "closed",
+        source: "the design-assembly contract, one shape per ledger with its version",
+        check: TOOL,
+        note: "that each ledger present has its shape and a version this tool reads; what a ledger says is held by the rows about it",
+      },
+      checks: [
+        { kind: "shapes", ledgers: ledgerFiles, ...(kindPages ? { pages: KINDS_FOLDER } : {}) },
+      ],
+    };
+    governance.held["ledger-shapes"] = item;
+    rows.push({ id: "ledger-shapes", ...item.row });
+    checks["ledger-shapes"] = item.checks;
+  } else {
+    governance.failing.push({
+      id: "ledger-shapes",
+      why: `${shapes.slice(0, 3).join("; ")}${shapes.length > 3 ? `; and ${shapes.length - 3} more` : ""}`,
+    });
+  }
   const targets = targetPlan(target, inputs.conformanceLevel);
   if (targets.row) {
     rows.push(targets.row);
@@ -1410,6 +1458,9 @@ function main() {
     stderr.write(`design-assembly: ${message}\n`);
     exit(2);
   };
+  // A ledger of a newer shape than this plugin knows was written by a newer plugin: write nothing.
+  const newer = newerLedgers(target);
+  if (newer.length > 0) stop(`${newer.join("; ")}. Nothing was written`);
   const floor = floorProblem(target);
   if (floor) stop(floor);
   const blueprintPath = path.join(target, BLUEPRINT);

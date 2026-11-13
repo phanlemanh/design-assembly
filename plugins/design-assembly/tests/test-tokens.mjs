@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 import { parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import { loadStyles } from "../templates/tools/design-assembly/styles.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
-import { readTokens, renderTokens } from "../templates/tools/design-assembly/tokens.mjs";
+import { readTokens, renderTokens, tokenCss } from "../templates/tools/design-assembly/tokens.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
@@ -120,7 +120,13 @@ test("tokens are the theme variables of the stylesheet, followed to their values
         // A value that differs in dark mode is kept beside the base one, as written.
         $extensions: { "design-assembly": { dark: "color-mix(in oklch, #0246ff 60%, white)" } },
       },
-      border: { $type: "color", $value: "oklch(0.922 0 0)" },
+      // A colour is written in hexadecimal, which every reader takes; the stylesheet's own text
+      // is kept beside it.
+      border: {
+        $type: "color",
+        $value: "#e5e5e5",
+        $extensions: { "design-assembly": { css: "oklch(0.922 0 0)" } },
+      },
     },
     radius: {
       // A length times a number is folded; any other expression is kept as CSS.
@@ -158,8 +164,13 @@ test("the guide writes the file, in a form the kit's reader and a formatter both
       if (group !== "text") assert.match(styles.css, new RegExp(`--${group}-${name}\\s*:`));
     }
   }
-  // The primary color role is the generated one, with its dark value beside it.
-  assert.match(data.color.primary.$value, /^oklch\(/);
+  // Every colour is hexadecimal: the acceptance kit's gate reads no other form.
+  for (const [name, token] of Object.entries(data.color)) {
+    assert.match(token.$value, /^#[0-9a-f]{6}([0-9a-f]{2})?$/, name);
+  }
+  // The primary color role is the generated one, as the stylesheet writes it, with its dark value
+  // beside it.
+  assert.match(data.color.primary.$extensions["design-assembly"].css, /^oklch\(/);
   assert.match(data.color.primary.$extensions["design-assembly"].dark, /^oklch\(/);
 
   const row = parseLedger(text(dir, "design/decisions.yaml")).find(
@@ -189,7 +200,10 @@ test("the file is held to the stylesheet: an edit on either side turns the gate 
   const written = tokens(dir, "--write");
   assert.equal(written.status, 0, written.stderr);
   assert.match(written.stdout, /wrote design\/tokens\.json from src\/index\.css/);
-  assert.equal(JSON.parse(text(dir, "design/tokens.json")).color.border.$value, "oklch(0.5 0 0)");
+  assert.equal(
+    tokenCss(JSON.parse(text(dir, "design/tokens.json")).color.border),
+    "oklch(0.5 0 0)",
+  );
   assert.equal(check(dir).status, 0, check(dir).stderr);
   assert.match(tokens(dir, "--write").stdout, /is up to date/);
 
@@ -238,7 +252,7 @@ test("adopting writes the file from the values the repository has, changing none
   assert.equal(text(dir, "src/index.css"), css);
   const data = JSON.parse(text(dir, "design/tokens.json"));
   // The floor's own grey primary, not a generated one.
-  assert.equal(data.color.primary.$value, "oklch(0.205 0 0)");
+  assert.equal(tokenCss(data.color.primary), "oklch(0.205 0 0)");
   assert.equal(check(dir).status, 0, check(dir).stderr);
 });
 
@@ -286,6 +300,19 @@ test(
     const raw = grade("raw.html");
     assert.equal(raw.status, 2);
     assert.equal(JSON.parse(raw.stdout).data.overall.raw, 1);
+
+    // The kit's gate loads the file too: it compares colours as hexadecimal, and refuses a file
+    // with none.
+    const gate = run(
+      KIT,
+      "gate",
+      path.join(dir, "clean.html"),
+      "--tokens",
+      path.join(dir, "design/tokens.json"),
+      "--json",
+    );
+    assert.notEqual(JSON.parse(gate.stdout).error?.code, "TOKENS_NOT_READABLE", gate.stdout);
+    assert.equal(JSON.parse(gate.stdout).ok, true, gate.stdout);
   },
 );
 

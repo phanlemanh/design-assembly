@@ -84,6 +84,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 | Sau một thao tác: tiêu điểm, đổi tại chỗ, trống, đi lại    | 0017    | `src/example/ReferenceScreen.tsx`, `src/lib/slow.ts`, `templates/owned/templates.spec.ts.template` |
 | Sáu luật cho điều tác tử dựng màn phải đoán ở lần thử năm  | 0021    | `src/components/held-label.tsx`, `typed-table.tsx`, `design/parts.json`, `ontology/actions.yaml`   |
 | Kiểu màn, cỡ màn được kiểm, thao tác thất bại              | 0016    | `templates/tools/design-assembly/screens.mjs`, `design/patterns/`, `src/lib/notify.ts`             |
+| Hợp đồng: mỗi sổ một hình dạng, cổng giữ hình dạng         | 0029    | `templates/tools/design-assembly/contract.mjs`, `references/contract.md`                           |
 
 Lệnh hay dùng ở kho này: `make design-audit`, `make design-plan`, `make design-apply`,
 `make design-adopt`, `make design-adopt-reference` (xem trước trên kho đối chứng, không bao giờ
@@ -115,6 +116,10 @@ việc nào được duyệt:
   `coverage/design-book/book.html`): lát 0020 chỉ nghiệm thu được bằng lượt đó.
 - **Chủ kho đã đi hết bảng mẫu của foundations** ngày 2026-11-12 và giữ cả ba giá trị đang dùng
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
+- **Chặng 2 «Hợp đồng», lát một đã xong** (2026-11-14, quyết định 0029). Hình dạng của mười sổ được
+  viết một chỗ, và cổng đỏ khi một sổ lệch hình dạng. Sổ mang số phiên bản hình dạng. Sổ token ghi
+  màu bằng hex, vì cổng của kit từng từ chối tệp. Sổ linh kiện thêm cấp, nguồn và các phần. Còn hai
+  lát của chặng 2: gộp hai hình dạng sổ màn, và tách tên thư viện vào bộ chuyển.
 - **Dọn nền 2 đã xong và nghiệm thu đạt** (2026-11-13, quyết định 0028): ba luật hay bị phạm vào cổng,
   toast phải được gắn, plugin cài khung `AppFrame` và phần tải chung `useList`. Ở lần đo nghiệm thu,
   nhánh không có trang luật không còn phạm ba luật đó; ba luật nó còn phạm là luật cổng chưa giữ.

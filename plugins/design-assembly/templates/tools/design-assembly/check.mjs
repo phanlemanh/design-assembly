@@ -9,6 +9,7 @@ import { fileURLToPath } from "node:url";
 import { contrast } from "./color.mjs";
 import { cellProblems, columnsProblem, readDisplays, typesProblem } from "./columns.mjs";
 import { componentsProblem, readFolder, targetProblem } from "./components.mjs";
+import { LEDGERS, shapeProblems } from "./contract.mjs";
 import {
   LAYER_ALIASES,
   LAYERS,
@@ -228,17 +229,50 @@ const KINDS = {
   // The component manifest says what the source says: the components exported, and their variants.
   components: {
     run(state, check) {
-      const files = state.folders?.[check.folder] ?? {};
-      return componentsProblem(state.files?.[check.file], files, check.file, check.folder);
+      const read = check.own ?? check.folder;
+      const files = state.folders?.[read] ?? {};
+      return componentsProblem(state.files?.[check.file], files, check.file, read, {
+        library: check.folder,
+        pages: check.pages ? (state.pages?.[check.pages] ?? {}) : {},
+      });
     },
     // A new source file is a new component: the file on disk no longer matches.
     change(state, check) {
+      const read = check.own ?? check.folder;
       const added = `${check.folder}/changed-copy.tsx`;
       const files = {
-        ...state.folders?.[check.folder],
+        ...state.folders?.[read],
         [added]: "export function ChangedCopy() {}\n",
       };
-      return { ...state, folders: { ...state.folders, [check.folder]: files } };
+      return { ...state, folders: { ...state.folders, [read]: files } };
+    },
+  },
+  // Every ledger of the repository has the one shape the contract gives it, at a version this
+  // tool reads.
+  shapes: {
+    run(state, check) {
+      const problems = Object.entries(check.ledgers ?? {}).flatMap(([kind, file]) =>
+        shapeProblems(kind, state.files?.[file], file),
+      );
+      if (check.pages) {
+        for (const [file, text] of Object.entries(state.pages?.[check.pages] ?? {})) {
+          problems.push(...shapeProblems("screen-kinds", text, file));
+        }
+      }
+      if (problems.length === 0) return null;
+      const more = problems.length > 3 ? `; and ${problems.length - 3} more` : "";
+      return `${problems.slice(0, 3).join("; ")}${more}: see the design-assembly plugin's references/contract.md`;
+    },
+    // The first ledger read says it has a newer shape than this tool knows.
+    change(state, check) {
+      const [, file] = Object.entries(check.ledgers ?? {}).find(
+        ([kind, name]) => state.files?.[name] && name.endsWith(".json") && LEDGERS[kind]?.version,
+      ) ?? [null, null];
+      if (!file)
+        return { ...state, files: { ...state.files, [check.ledgers?.decisions]: "version: 99\n" } };
+      const data = JSON.parse(state.files[file]);
+      const changed = { ...data, version: typeof data.version === "string" ? "99" : 99 };
+      return { ...state, files: { ...state.files, [file]: JSON.stringify(changed) } };
     },
   },
   // Every control declares a height that reaches the target size of the conformance level.
@@ -473,6 +507,11 @@ const KINDS = {
   },
 };
 
+// The source folders a set of checks reads, each once.
+export function checkFolders(checks) {
+  return [...new Set(checks.flatMap((check) => [check.folder, check.own]).filter(Boolean))];
+}
+
 export function readState(root) {
   const read = (file) => {
     const full = path.join(root, file);
@@ -485,13 +524,18 @@ export function readState(root) {
   // Other files a check names, as they are on disk.
   const checks = Object.values(data?.checks ?? {}).flat();
   const named = checks
-    .flatMap((check) => [check.file, check.types, check.registry, check.test, check.blueprint])
+    .flatMap((check) => [
+      check.file,
+      check.types,
+      check.registry,
+      check.test,
+      check.blueprint,
+      ...Object.values(check.ledgers ?? {}),
+    ])
     .filter(Boolean)
     .map((file) => [file, read(file)]);
   // Source folders a check names, file by file.
-  const folders = checks
-    .filter((check) => check.folder)
-    .map((check) => [check.folder, readFolder(root, check.folder)]);
+  const folders = checkFolders(checks).map((folder) => [folder, readFolder(root, folder)]);
   // Folders whose every source file a check reads, plain modules included.
   const sources = checks
     .filter((check) => check.sources)

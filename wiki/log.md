@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-14 — Chặng 2 «Hợp đồng», lát một: hình dạng của mười sổ viết một chỗ và cổng giữ chúng (dòng `ledger-shapes`); sổ mang số phiên bản hình dạng, plugin cũ không ghi đè sổ mới; sổ token ghi màu bằng hex vì cổng của kit từng từ chối tệp; sổ linh kiện hình dạng 2 thêm cấp, nguồn, các phần và đọc cả linh kiện riêng. Sổ màn và bộ chuyển để lát sau — [0029](decisions/0029-the-contract-one-shape-per-ledger.md).
 - 2026-11-13 — Nghiệm thu Dọn nền 2 đạt: trên repo mới, nhánh không có trang luật không còn phạm ba luật vừa vào cổng; ba luật nó còn phạm đều là luật cổng chưa giữ. Nhánh có phạm 0 — [control-arm](../docs/trials/control-arm.md), [0028](decisions/0028-groundwork-two-rules-into-the-gate.md).
 - 2026-11-13 — Dọn nền 2: ba luật hay bị phạm vào cổng (trạng thái trống, liên kết giữa các màn, hộp thoại hỏi trước), cổng đỏ khi toast không được gắn, plugin cài khung `AppFrame` và phần tải chung `useList` — [0028](decisions/0028-groundwork-two-rules-into-the-gate.md).
 - 2026-11-13 — Nhánh đối chứng lần ba trên repo mới: nhánh có phạm 0 trên 13 luật tự khai, nhánh không phạm 6 và đỏ một lệnh kiểm của plugin; gộp với lần hai thì cùng một chiều. Sửa lệnh kiểm kênh thông báo báo nhầm một hàm tên `confirm` — [control-arm](../docs/trials/control-arm.md), `docs/trials/control.tsv`.

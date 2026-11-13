@@ -83,6 +83,37 @@ export function parseColor(text) {
   return { l, c: Number(match[3]), h: match[4].toLowerCase() === "none" ? 0 : Number(match[4]) };
 }
 
+// `#rrggbb` for a colour, its chroma first cut to what the screen shows.
+export function toHex(color) {
+  const encode = (v) => (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055);
+  return `#${oklchToLinear(clipChroma(color))
+    .map((v) => Math.round(Math.min(1, Math.max(0, encode(Math.min(1, Math.max(0, v))))) * 255))
+    .map((v) => v.toString(16).padStart(2, "0"))
+    .join("")}`;
+}
+
+// A colour as a token file writes it for every reader: `#rrggbb`, or `#rrggbbaa` with an alpha.
+// Reads what `parseColor` reads, plus an alpha written `/ 50%` or `/ 0.5`; null for anything
+// else, such as a color-mix().
+export function tokenHex(text) {
+  const value = String(text).trim();
+  const alpha = /^(oklch\([^/)]*?)\s*\/\s*([\d.]+)(%?)\s*\)$/i.exec(value);
+  const color = parseColor(alpha ? `${alpha[1]})` : value);
+  if (!color) return null;
+  const short = /^#([0-9a-f])([0-9a-f])([0-9a-f])$/i.exec(value);
+  if (short)
+    return `#${short[1]}${short[1]}${short[2]}${short[2]}${short[3]}${short[3]}`.toLowerCase();
+  if (/^#[0-9a-f]{6}$/i.test(value)) return value.toLowerCase();
+  const opacity = alpha ? Number(alpha[2]) / (alpha[3] === "%" ? 100 : 1) : 1;
+  const pair =
+    opacity >= 1
+      ? ""
+      : Math.round(opacity * 255)
+          .toString(16)
+          .padStart(2, "0");
+  return `${toHex(color)}${pair}`;
+}
+
 // The colour exactly as CSS will hold it. Lightness and hue are rounded first, then chroma is cut to
 // what the screen shows at those rounded values and rounded down, so rounding never pushes the
 // written colour out of gamut: the browser renders the value the checks computed with.

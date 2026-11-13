@@ -9,8 +9,9 @@ import path from "node:path";
 import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
-import { FILES, runChecks } from "../templates/tools/design-assembly/check.mjs";
+import { checkFolders, FILES, runChecks } from "../templates/tools/design-assembly/check.mjs";
 import { contrast } from "../templates/tools/design-assembly/color.mjs";
+import { newerLedgers } from "../templates/tools/design-assembly/contract.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import {
   LEDGER,
@@ -30,6 +31,7 @@ import {
 } from "../templates/tools/design-assembly/styles.mjs";
 import { THRESHOLDS, withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
 import { COMPONENTS_DECISION, readFolder } from "../templates/tools/design-assembly/components.mjs";
+import { readPages } from "../templates/tools/design-assembly/screens.mjs";
 import { TOKENS_DECISION } from "../templates/tools/design-assembly/tokens.mjs";
 import {
   columnsPlan,
@@ -415,10 +417,19 @@ export function adoption(
           ...columns.files,
         },
         folders: Object.fromEntries(
-          Object.values(candidates)
-            .flatMap((candidate) => candidate.checks)
-            .filter((item) => item.folder)
-            .map((item) => [item.folder, readFolder(root, item.folder)]),
+          checkFolders(Object.values(candidates).flatMap((candidate) => candidate.checks)).map(
+            (folder) => [folder, readFolder(root, folder)],
+          ),
+        ),
+        pages: Object.fromEntries(
+          [
+            ...new Set(
+              Object.values(candidates)
+                .flatMap((candidate) => candidate.checks)
+                .map((item) => item.pages)
+                .filter(Boolean),
+            ),
+          ].map((folder) => [folder, readPages(root, folder)]),
         ),
         theme: {
           checks: Object.fromEntries(
@@ -618,6 +629,12 @@ function main() {
   }
   const root = path.resolve(target);
   const dryRun = args.includes("--dry-run");
+  // A ledger a newer plugin wrote is never written over by this one.
+  const newer = newerLedgers(root);
+  if (newer.length > 0) {
+    stderr.write(`design-assembly: ${newer.join("; ")}. Nothing was written\n`);
+    exit(2);
+  }
   let result;
   try {
     result = adoption(root, {

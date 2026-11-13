@@ -100,7 +100,9 @@
       {
         "kind": "components",
         "file": "design/component-registry.json",
-        "folder": "src/components/ui"
+        "folder": "src/components/ui",
+        "own": "src/components",
+        "pages": "design/patterns"
       }
     ],
     "display-kind": [
@@ -230,6 +232,23 @@
       {
         "kind": "slips",
         "file": "design/escapes.md"
+      }
+    ],
+    "ledger-shapes": [
+      {
+        "kind": "shapes",
+        "ledgers": {
+          "decisions": "design/decisions.yaml",
+          "blueprint": "design/blueprint.json",
+          "tokens": "design/tokens.json",
+          "components": "design/component-registry.json",
+          "column-types": "design/column-types.json",
+          "columns": "design/columns.json",
+          "states": "design/states.json",
+          "screen-sizes": "design/screen-sizes.json",
+          "parts": "design/parts.json"
+        },
+        "pages": "design/patterns"
       }
     ],
     "target-size": [

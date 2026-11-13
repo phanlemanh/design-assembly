@@ -46,7 +46,7 @@ scale, shape). Density, elevation, motion and iconography are not.
 What a repository ends up with is a standardised design system under its own `design/` folder,
 reached tier by tier. The ledger is a format already in use in one of the owner's product
 repositories; artifacts use the paths the acceptance kit already reads. `references/checks.md` describes
-every file.
+every file, and `references/contract.md` the one shape of each ledger that every reader relies on.
 
 The guide generates the primary color roles, so it is for repositories with no brand values of
 their own yet, and it refuses to write over values a repository holds as its own. Those

@@ -24,6 +24,7 @@ import {
   targetProblem,
   targetSizes,
 } from "../templates/tools/design-assembly/components.mjs";
+import { shapeProblems } from "../templates/tools/design-assembly/contract.mjs";
 import { renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
@@ -135,12 +136,15 @@ test("components and variants are read from source: variant sets, typed props, s
   const manifest = readComponents({ "ui/toggle.tsx": TOGGLE, "ui/toggle-group.tsx": GROUP });
   const all = ["variant=default", "variant=outline", "size=default", "size=icon-xs"];
   assert.deepEqual(manifest, {
-    version: "1",
+    version: "2",
     components: [
       {
         name: "ToggleGroup",
         category: "component",
         file: "ui/toggle-group.tsx",
+        // It imports another component's file: one step up from an atom.
+        level: "molecule",
+        source: "library",
         // A prop typed as a closed list of words is a variant axis; a boolean is not.
         variants: ["orientation=horizontal", "orientation=vertical"],
         defaults: { orientation: "horizontal" },
@@ -150,6 +154,8 @@ test("components and variants are read from source: variant sets, typed props, s
         name: "ToggleGroupItem",
         category: "component",
         file: "ui/toggle-group.tsx",
+        level: "molecule",
+        source: "library",
         // It renders a button: a control. Its smallest height is the smallest of the set it calls.
         control: true,
         min_height: "24px",
@@ -161,6 +167,8 @@ test("components and variants are read from source: variant sets, typed props, s
         name: "Toggle",
         category: "component",
         file: "ui/toggle.tsx",
+        level: "atom",
+        source: "library",
         control: true,
         min_height: "24px",
         variants: all,
@@ -216,8 +224,9 @@ test("the guide writes the manifest of the components the repository has", () =>
 test("the manifest is held to the source: a change on either side turns the gate red", () => {
   const dir = floor();
   assert.equal(run(APPLY, "--target", dir).status, 0);
+  // The manifest reads the library's folder and the repository's own components beside it.
   const stale =
-    /component-manifest: design\/component-registry\.json is not what src\/components\/ui gives/;
+    /component-manifest: design\/component-registry\.json is not what src\/components gives/;
 
   // A variant is added in the source and the manifest is not written again.
   edit(dir, "src/components/ui/card.tsx", (source) =>
@@ -230,7 +239,7 @@ test("the manifest is held to the source: a change on either side turns the gate
 
   const written = components(dir, "--write");
   assert.equal(written.status, 0, written.stderr);
-  assert.match(written.stdout, /wrote design\/component-registry\.json from src\/components\/ui/);
+  assert.match(written.stdout, /wrote design\/component-registry\.json from src\/components/);
   assert.match(text(dir, REGISTRY), /"size=lg"/);
   assert.equal(check(dir).status, 0, check(dir).stderr);
   assert.match(components(dir, "--write").stdout, /is up to date/);
@@ -486,4 +495,51 @@ test("no tool installed into a repository declares a name the host's lint may fo
       /\b(const|let|var)\s+module\b/.test(readFileSync(path.join(tools, name), "utf8")),
     );
   assert.deepEqual(found, []);
+});
+
+test("each component says its level, where it comes from, and what of its file it is drawn with", () => {
+  const files = {
+    "src/components/ui/button.tsx":
+      'export function Button() {\n  return <button className="h-9" />;\n}\n',
+    "src/components/ui/dialog.tsx": [
+      'import { Button } from "@/components/ui/button";',
+      "export function DialogOverlay() {\n  return <div />;\n}",
+      "export function DialogContent() {\n  return <DialogOverlay><Button /></DialogOverlay>;\n}",
+      "",
+    ].join("\n"),
+    "src/components/ui/typed-table.tsx": "export function TypedTable() {\n  return <table />;\n}\n",
+    "src/components/item-list.tsx": [
+      'import { DialogContent } from "./ui/dialog";',
+      'export const ITEM_LIST_WORDS = { title: "x" };',
+      "export function ItemList() {\n  return <DialogContent />;\n}",
+      "",
+    ].join("\n"),
+  };
+  const pages = { "design/patterns/list.md": "---\nkhuon:\n  ten: TypedTable\n---\n" };
+  const byName = Object.fromEntries(
+    readComponents(files, { library: "src/components/ui", pages }).components.map((item) => [
+      item.name,
+      item,
+    ]),
+  );
+  // Levels come from how deep a file imports other components; a screen kind's frame is a
+  // template.
+  assert.equal(byName.Button.level, "atom");
+  assert.equal(byName.DialogContent.level, "molecule");
+  assert.equal(byName.ItemList.level, "organism");
+  assert.equal(byName.TypedTable.level, "template");
+  // The library's components and the repository's own.
+  assert.equal(byName.Button.source, "library");
+  assert.equal(byName.ItemList.source, "own");
+  // The parts are the other components of the same file it draws.
+  assert.deepEqual(byName.DialogContent.parts, ["DialogOverlay"]);
+  assert.equal(byName.DialogOverlay.parts, undefined);
+  // A constant in capitals is not a component.
+  assert.equal(byName.ITEM_LIST_WORDS, undefined);
+  for (const item of Object.values(byName)) {
+    assert.deepEqual(
+      shapeProblems("components", JSON.stringify({ version: "2", components: [item] })),
+      [],
+    );
+  }
 });

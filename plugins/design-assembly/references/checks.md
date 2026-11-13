@@ -48,6 +48,14 @@ The guide writes only the rows it holds. They point at `tool:tools/design-assemb
 Adopting adds rows for decisions that have none, and points them at the proof the repository
 already runs. A row that is already there is kept byte for byte, comments included.
 
+## The shape of each ledger
+
+Every ledger above has one shape, stated in `contract.md`, so this plugin, the acceptance kit and
+the agent that builds a screen read it alike. The `ledger-shapes` row holds it: the gate fails when
+a ledger present, or a page of a screen kind, leaves its shape. A ledger that says it has a newer
+shape than the plugin knows is never written over: the guide and adopt stop, and say to update the
+plugin.
+
 ## Generated or adopted
 
 A value reaches the ledger in one of two ways, and never both:
@@ -68,8 +76,10 @@ and a `$value`.
 
 - A token is a theme variable of the stylesheet: `color.primary` is `--color-primary`. A reader
   that turns a token path into a variable name finds a variable that exists.
-- `$value` is the CSS text after every `var()` is followed. A value that differs in dark mode is
-  kept beside it, under `$extensions`.
+- `$value` is the CSS text after every `var()` is followed. A colour is written in hexadecimal,
+  the one form every reader takes, and the stylesheet's own text is kept under `$extensions`. A
+  value that differs in dark mode is kept beside it, under `$extensions` too. The shape of the file
+  is in `contract.md`.
 - Groups today: `color`, `radius`, `text`. Typefaces, the spacing unit, elevation and motion have
   no token yet.
 - The file is derived. Change the stylesheet, then run `make design-tokens`. The `tokens` check
@@ -80,8 +90,11 @@ and a `$value`.
 ## The component manifest
 
 `design/component-registry.json` (or the path the acceptance kit is told to read) lists every
-component the repository's component folder exports: its name, its file, its variants and the
-default of each axis. Look a component up here before reading its source.
+component the repository's component library folder exports, and the components of its own in the
+folder beside it: its name, its file, its variants and the default of each axis, its atomic level,
+whether it comes from the library or is the repository's own, and the other components of its file
+it is drawn with. Look a component up here before reading its source. The shape is in
+`contract.md`.
 
 - A variant is written `axis=value`, such as `size=sm`: the form a plan names it in.
 - Variants are read from two places in the source: variant sets declared with the class-variance
@@ -94,8 +107,10 @@ default of each axis. Look a component up here before reading its source.
   elsewhere, and is not measured.
 - A component with no `variants` has none the reader could see. It is listed, and its variants are
   not checked.
-- States, the list of props, the parts of a component and components outside that folder are not
-  in the manifest yet.
+- The level is computed from how deep a file imports other components: none is an atom, one step a
+  molecule, two or more an organism. A component a page of a screen kind names as its frame is a
+  template.
+- States and the list of props are not in the manifest yet.
 - A registry a person already keeps, and that says something else, is never written over.
 
 ## Target size
