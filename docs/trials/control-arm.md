@@ -212,3 +212,17 @@ Hai lượt cùng một chiều: nhánh có trang luật giữ đủ 13 luật c
 và ba luật bị phạm cả hai lần (L4, L6, L9). Cái giá là khoảng 18 đến 25 phần trăm token.
 Đây là kết quả đầu tiên mà phép so dựa vào được ở mức «cùng chiều qua hai lượt», chưa phải một con
 số chắc. Ở repo đối chứng của lab, nơi mã đã mang luật, hai nhánh bằng nhau.
+
+## Lần bốn: nghiệm thu Dọn nền 2 (dựng 2026-11-13)
+
+Nghiệm thu quyết định 0028, trên repo mới của sàn. Repo gốc là repo gốc của lần hai, áp plugin bản
+có 0028 (commit `742f339`), rồi sửa đúng những gì cổng mới đòi, như cuộc dẫn dắt phải sửa: khung
+`AppFrame` gắn vào ứng dụng (cùng phần vẽ toast), màn mẫu xoá theo cách mới (hộp thoại đóng ngay, nút
+của dòng tự chờ, kết quả báo bằng toast), và bài kiểm của màn mẫu theo đó. Repo gốc xanh: 24 quyết
+định, 30 lệnh kiểm. Hai nhánh không có lịch sử. Cùng đề, cùng 13 luật.
+
+Bài kiểm trình duyệt plugin cài ở lại ở cả hai nhánh như mọi lần, và giờ nó giữ luật hộp thoại hỏi
+trước; nhánh không vì vậy cũng bị cổng của chính nó giữ luật đó.
+
+**Đạt khi:** những luật nhánh không phạm mà cổng giờ giữ thì hiện thành lệnh kiểm đỏ khi lắp cổng lên
+bài làm của nó, và nhánh có vẫn phạm 0.
