@@ -239,11 +239,11 @@
     <div class="frame">
       <header>
         <p class="eyebrow">Tài liệu kiến trúc · bản đề xuất, chưa duyệt · 2026-11-13</p>
-        <h1>Design-assembly: lớp meta tạo và giữ design system cho nhiều kho</h1>
+        <h1>Design-assembly: lớp meta tạo và giữ design system cho nhiều repo</h1>
         <p class="lede">
-          Một kho, một hợp đồng design, một bên ghi. Tài liệu này gom tầm nhìn chủ kho nêu, kết quả
-          kiểm kê ba kho bên cạnh, và kiến trúc máy đề xuất. Chỗ nào chủ kho đã chốt, chỗ nào mới là
-          đề xuất, đều ghi rõ.
+          Một repo, một hợp đồng design, một bên ghi. Tài liệu này gom tầm nhìn chủ repo nêu, kết
+          quả kiểm kê ba repo bên cạnh, và kiến trúc máy đề xuất. Chỗ nào chủ repo đã chốt, chỗ nào
+          mới là đề xuất, đều ghi rõ.
         </p>
       </header>
       <nav aria-label="Mục lục">
@@ -254,14 +254,16 @@
           <li><a href="#tam-nhin">Tầm nhìn và ba điều đã chốt</a></li>
           <li><a href="#nguyen-ly">Nguyên lý gốc: design system là những dòng sổ</a></li>
           <li><a href="#nguyen-tac">Năm nguyên tắc kiến trúc</a></li>
-          <li><a href="#ba-lop">Ba lớp lời đáp, và lựa chọn lúc đặt kho</a></li>
-          <li><a href="#hop-dong">Hợp đồng của kho: bộ sổ</a></li>
+          <li><a href="#ba-lop">Ba lớp lời đáp, và lựa chọn lúc đặt repo</a></li>
+          <li><a href="#hop-dong">Hợp đồng của repo: bộ sổ</a></li>
           <li><a href="#bo-chuyen">Bộ chuyển, và ba mức phục vụ</a></li>
           <li><a href="#nguoi-va-claude">Ai làm gì: người, Claude Code, và phần tất định</a></li>
           <li><a href="#ba-plugin">Ba plugin và ranh giới</a></li>
-          <li><a href="#vong-doi">Vòng đời của một kho</a></li>
+          <li><a href="#vong-doi">Vòng đời của một repo</a></li>
+          <li><a href="#kho-tai-dung">Kho dùng lại và bánh đà tái dùng</a></li>
           <li><a href="#ho-hang">Họ hàng với kho tri thức</a></li>
           <li><a href="#lo-trinh">Lộ trình và tiêu chí đạt</a></li>
+          <li><a href="#do-hieu-qua">Đo hiệu quả</a></li>
           <li><a href="#hom-nay">Số đo hôm nay</a></li>
           <li><a href="#con-mo">Chín câu đã chốt, và điều còn mở</a></li>
           <li><a href="#thuat-ngu">Thuật ngữ</a></li>
@@ -273,7 +275,7 @@
         <ul>
           <li>
             <strong>Design-assembly không phải là một design system.</strong> Nó là lớp tạo ra và
-            giữ design system cho từng kho, dù kho đang trống, đã có thư viện mua, hay đã tự dựng
+            giữ design system cho từng repo, dù repo đang trống, đã có thư viện mua, hay đã tự dựng
             nửa chừng.
           </li>
           <li>
@@ -281,20 +283,20 @@
             vật mang lời đáp đó trong mã, và một lệnh kiểm giữ nó.
           </li>
           <li>
-            <strong>Mỗi kho có một hợp đồng design:</strong> một bộ sổ, mỗi khái niệm một sổ, mỗi sổ
-            một hình dạng.
+            <strong>Mỗi repo có một hợp đồng design:</strong> một bộ sổ, mỗi khái niệm một sổ, mỗi
+            sổ một hình dạng.
           </li>
           <li>
             <strong>Một bên ghi, nhiều bên đọc.</strong> Design-assembly ghi bộ sổ. Repo Standards
             gọi nó. Delivery-loop và Claude Code đọc nó.
           </li>
           <li>
-            <strong>Lời đáp đến từ ba lớp:</strong> phần riêng của kho, lõi chung của họ sản phẩm,
-            và đề xuất của chuẩn. Kho vẫn chỉ có một hệ.
+            <strong>Lời đáp đến từ ba lớp:</strong> phần riêng của repo, lõi chung của họ sản phẩm,
+            và đề xuất của chuẩn. Repo vẫn chỉ có một hệ.
           </li>
           <li>
-            <strong>Luật đi theo, phần ở lại.</strong> Quyết định và lệnh kiểm đi sang mọi kho; mã
-            linh kiện ở lại với thư viện của từng kho.
+            <strong>Luật đi theo, phần ở lại.</strong> Quyết định và lệnh kiểm đi sang mọi repo; mã
+            linh kiện ở lại với thư viện của từng repo.
           </li>
         </ul>
         <div class="scroll">
@@ -307,12 +309,12 @@
             </thead>
             <tbody>
               <tr>
-                <td><strong>Chủ kho đã chốt</strong><br />2026-11-13</td>
+                <td><strong>Chủ repo đã chốt</strong><br />2026-11-13</td>
                 <td>
                   Chung lõi, riêng phần mở rộng. Design-assembly là chủ duy nhất của mọi thứ thuộc
                   design. Công cụ Inventory tự dựng được rút vào plugin, và Inventory chuyển sang
                   dùng. Hồ sơ mở bằng tấm phủ lên danh sách, chừa thanh đầu của khung. Lộ trình được
-                  tạm duyệt. Chín câu từng còn mở của kiến trúc, ở mục 15.
+                  tạm duyệt. Chín câu từng còn mở của kiến trúc, ở mục «Chín câu đã chốt».
                 </td>
               </tr>
               <tr>
@@ -320,14 +322,15 @@
                 <td>
                   Sổ quyết định, bản thiết kế, sổ token, sổ linh kiện, trang kiểu màn, các lệnh
                   kiểm, ba đường audit, dẫn dắt và nhận, bảng mẫu chọn bằng mắt, cuốn sổ bàn giao.
-                  Tất cả mới chạy trọn trên một loại kho: React dựng bằng Vite, trên sàn shadcn.
+                  Tất cả mới chạy trọn trên một loại repo: React dựng bằng Vite, trên sàn shadcn.
                 </td>
               </tr>
               <tr>
                 <td><strong>Mới là đề xuất</strong></td>
                 <td>
-                  Lõi của họ sản phẩm và việc thừa hưởng. Bộ chuyển cho từng loại kho. Đường nhập
-                  kho và sổ nguồn ngoài. Mọi thay đổi ở Repo Standards, delivery-loop và Inventory.
+                  Lõi của họ sản phẩm và việc thừa hưởng. Bộ chuyển cho từng loại repo. Đường nhập
+                  kho và sổ nguồn ngoài. Kho dùng lại nhiều tầng và sáu cơ chế tái dùng. Bộ chỉ số
+                  đo hiệu quả. Mọi thay đổi ở Repo Standards, delivery-loop và Inventory.
                 </td>
               </tr>
             </tbody>
@@ -337,11 +340,11 @@
       <section id="van-de">
         <h2><span>02</span>Vấn đề: cùng một việc, ba nơi, nhiều hình dạng</h2>
 
-        <p>Hôm nay, việc design của một kho nằm ở ba nơi và không nơi nào nắm trọn.</p>
+        <p>Hôm nay, việc design của một repo nằm ở ba nơi và không nơi nào nắm trọn.</p>
         <ul>
           <li>
-            <strong>Repo Standards</strong> đặt sàn lúc kho ra đời, rồi dừng sau màn mẫu đầu tiên.
-            Nó chỉ làm một loại kho và từ chối kho đã có.
+            <strong>Repo Standards</strong> đặt sàn lúc repo ra đời, rồi dừng sau màn mẫu đầu tiên.
+            Nó chỉ làm một loại repo và từ chối repo đã có.
           </li>
           <li>
             <strong>Delivery-loop</strong> (tên cũ: Acceptance Gate Kit) chấm từng tính năng. Nguyên
@@ -349,9 +352,9 @@
             kiểu màn, nhưng không tạo ra chúng.
           </li>
           <li>
-            <strong>Khoảng giữa thì mỗi kho tự dựng bằng tay.</strong> Inventory đã tự viết khoảng
+            <strong>Khoảng giữa thì mỗi repo tự dựng bằng tay.</strong> Inventory đã tự viết khoảng
             hai mươi công cụ: sổ quyết định, sổ khối, sổ màn, danh mục thư viện mua, cổng chứng minh
-            màn. Chúng gắn chặt vào tên riêng và chữ của Inventory, nên kho sau phải làm lại.
+            màn. Chúng gắn chặt vào tên riêng và chữ của Inventory, nên repo sau phải làm lại.
           </li>
         </ul>
         <p>Kiểm kê chỉ đọc ngày 2026-11-13 cho thấy sự phân mảnh ở từng khái niệm:</p>
@@ -431,7 +434,7 @@
                 <td>chưa có</td>
               </tr>
               <tr>
-                <td>Kho đã có sẵn</td>
+                <td>Repo đã có sẵn</td>
                 <td>từ chối với design</td>
                 <td>đọc được, không sinh</td>
                 <td>chính nó</td>
@@ -459,7 +462,7 @@
             với màn.
           </li>
           <li>
-            <strong>Design-assembly hôm nay mới đứng trên một loại kho.</strong> Ở Inventory nó đáp
+            <strong>Design-assembly hôm nay mới đứng trên một loại repo.</strong> Ở Inventory nó đáp
             24 trên 38 câu lõi, và không câu nào do máy của nó giữ.
           </li>
         </ol>
@@ -469,19 +472,19 @@
 
         <blockquote>
           Design-assembly được thiết kế như một lớp meta, là một plugin, để tạo ra design system
-          dùng trên nhiều kho. Inventory hiện làm hệ design bằng tay; design-assembly sinh ra để lấp
-          đúng khoảng trống đó cho mọi kho.<cite>Chủ kho, 2026-11-13</cite>
+          dùng trên nhiều repo. Inventory hiện làm hệ design bằng tay; design-assembly sinh ra để
+          lấp đúng khoảng trống đó cho mọi repo.<cite>Chủ repo, 2026-11-13</cite>
         </blockquote>
-        <p>Khi được hỏi lại, chủ kho chốt ba điều. Cả kiến trúc dưới đây đứng trên ba điều này.</p>
+        <p>Khi được hỏi lại, chủ repo chốt ba điều. Cả kiến trúc dưới đây đứng trên ba điều này.</p>
         <ol>
           <li>
-            <strong>Chung lõi, riêng phần mở rộng.</strong> Các kho cùng họ sản phẩm chia một lõi
-            chung. Mỗi kho thêm phần riêng. Thứ lặp lại ở nhiều kho được nâng lên lõi.
+            <strong>Chung lõi, riêng phần mở rộng.</strong> Các repo cùng họ sản phẩm chia một lõi
+            chung. Mỗi repo thêm phần riêng. Thứ lặp lại ở nhiều repo được nâng lên lõi.
           </li>
           <li>
             <strong>Design-assembly là chủ duy nhất của mọi thứ thuộc design.</strong> Repo
-            Standards chỉ đặt kho và gọi nó. Delivery-loop chỉ đọc sổ của nó. Phần design đang nằm ở
-            hai kho kia dần chuyển về.
+            Standards chỉ đặt repo và gọi nó. Delivery-loop chỉ đọc sổ của nó. Phần design đang nằm
+            ở hai repo kia dần chuyển về.
           </li>
           <li>
             <strong
@@ -493,7 +496,7 @@
         </ol>
         <p>
           Phép thử cho mọi lát làm từ nay:
-          <em>thứ này có chạy được ở một kho không phải kho đối chứng không?</em>
+          <em>thứ này có chạy được ở một repo không phải repo đối chứng không?</em>
         </p>
       </section>
       <section id="nguyen-ly">
@@ -813,7 +816,7 @@
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
               >
-                trong plugin, cho mọi kho
+                trong plugin, cho mọi repo
               </text>
               <rect x="384" y="328" width="176" height="56" rx="6" fill="#f5f5f5" />
               <rect
@@ -845,7 +848,7 @@
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
               >
-                của kho, thừa hưởng lõi họ
+                của repo, thừa hưởng lõi họ
               </text>
               <rect x="584" y="328" width="176" height="56" rx="6" fill="#f5f5f5" />
               <rect
@@ -867,7 +870,7 @@
                 text-anchor="middle"
                 font-weight="600"
               >
-                Mã của kho
+                Mã của repo
               </text>
               <text
                 x="672.0"
@@ -1030,17 +1033,17 @@
               <tr>
                 <td>Lời đáp</td>
                 <td>Người chọn, hoặc máy suy ra từ một chuẩn hay một công thức</td>
-                <td>Bản thiết kế của kho</td>
+                <td>Bản thiết kế của repo</td>
               </tr>
               <tr>
                 <td>Vật mang</td>
                 <td>Giá trị, linh kiện hay màn mang lời đáp đó</td>
-                <td>Mã của kho, thư viện nào cũng được</td>
+                <td>Mã của repo, thư viện nào cũng được</td>
               </tr>
               <tr>
                 <td>Bằng chứng</td>
                 <td>Một lệnh kiểm đỏ được khi mã không còn theo lời đáp</td>
-                <td>Cổng kiểm của kho</td>
+                <td>Cổng kiểm của repo</td>
               </tr>
             </tbody>
           </table>
@@ -1068,12 +1071,12 @@
         <ol>
           <li>
             <strong>Luật đi theo, phần ở lại.</strong> Quyết định và lệnh kiểm không phụ thuộc thư
-            viện, nên đi theo sang mọi kho. Mã linh kiện thuộc thư viện của từng kho, nên ở lại đó.
-            Ở kho đã có thư viện riêng, plugin không cài phần nào: nó ghi luật và trỏ tới thứ của
-            kho đang giữ luật đó.
+            viện, nên đi theo sang mọi repo. Mã linh kiện thuộc thư viện của từng repo, nên ở lại
+            đó. Ở repo đã có thư viện riêng, plugin không cài phần nào: nó ghi luật và trỏ tới thứ
+            của repo đang giữ luật đó.
           </li>
           <li>
-            <strong>Một hợp đồng trong mỗi kho.</strong> Ai cần biết về design của kho thì đọc bộ
+            <strong>Một hợp đồng trong mỗi repo.</strong> Ai cần biết về design của repo thì đọc bộ
             sổ, không đọc mã.
           </li>
           <li>
@@ -1083,7 +1086,7 @@
           <li>
             <strong>Lõi không biết tên thư viện.</strong> Mọi thứ gắn với một nền dựng, một cách
             viết giá trị, một thư viện linh kiện hay một ngôn ngữ nằm trong bộ chuyển. Thêm một loại
-            kho là thêm bộ chuyển, không sửa lõi.
+            repo là thêm bộ chuyển, không sửa lõi.
           </li>
           <li>
             <strong>Xoá nhiều hơn thêm.</strong> Thước đo của lớp meta là số công cụ viết tay và số
@@ -1092,14 +1095,14 @@
         </ol>
       </section>
       <section id="ba-lop">
-        <h2><span>06</span>Ba lớp lời đáp, và lựa chọn lúc đặt kho</h2>
+        <h2><span>06</span>Ba lớp lời đáp, và lựa chọn lúc đặt repo</h2>
         <figure id="hinh-6">
           <div class="scroll">
             <svg
               viewBox="0 40 1000 352"
               xmlns="http://www.w3.org/2000/svg"
               role="img"
-              aria-label="Ba lớp lời đáp: riêng của kho, chung của họ, đề xuất của chuẩn"
+              aria-label="Ba lớp lời đáp: riêng của repo, chung của họ, đề xuất của chuẩn"
             >
               <defs>
                 <marker
@@ -1212,7 +1215,7 @@
                 text-anchor="start"
                 font-weight="600"
               >
-                Phần riêng của kho
+                Phần riêng của repo
               </text>
               <text
                 x="260"
@@ -1222,7 +1225,7 @@
                 font-family="'Geist', sans-serif"
                 text-anchor="start"
               >
-                lời đáp chỉ kho này cần, và ngoại lệ có ghi lý do
+                lời đáp chỉ repo này cần, và ngoại lệ có ghi lý do
               </text>
               <text
                 x="940"
@@ -1232,7 +1235,7 @@
                 font-family="'Geist', sans-serif"
                 text-anchor="end"
               >
-                chủ của kho đó, lúc dẫn dắt
+                chủ của repo đó, lúc dẫn dắt
               </text>
               <rect x="160" y="144" width="800" height="72" fill="rgba(235,108,54,0.08)" />
               <line
@@ -1283,7 +1286,7 @@
                 font-family="'Geist', sans-serif"
                 text-anchor="end"
               >
-                chọn họ lúc đặt kho
+                chọn họ lúc đặt repo
               </text>
               <rect x="160" y="216" width="800" height="72" fill="#ececec" />
               <line
@@ -1354,7 +1357,7 @@
                 text-anchor="start"
                 font-style="italic"
               >
-                Lớp giữa là lựa chọn lúc đặt kho. Không chọn họ nào thì kho bỏ qua lớp này.
+                Lớp giữa là lựa chọn lúc đặt repo. Không chọn họ nào thì repo bỏ qua lớp này.
               </text>
               <line
                 x1="40"
@@ -1393,17 +1396,17 @@
                 font-family="'Geist', sans-serif"
                 text-anchor="start"
               >
-                lớp được chọn lúc đặt kho
+                lớp được chọn lúc đặt repo
               </text>
               <text
-                x="336"
+                x="340"
                 y="376"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
                 text-anchor="start"
               >
-                Kho vẫn chỉ có một bộ sổ; mỗi dòng ghi lời đáp đến từ lớp nào.
+                Repo vẫn chỉ có một bộ sổ; mỗi dòng ghi lời đáp đến từ lớp nào.
               </text>
             </svg>
           </div>
@@ -1411,7 +1414,7 @@
             <span>Hình 6</span> Một câu hỏi tìm lời đáp từ trên xuống và dừng ở lớp đầu tiên có.
           </figcaption>
         </figure>
-        <p>Mỗi kho chỉ có một hệ design. Lời đáp của nó đến từ ba lớp:</p>
+        <p>Mỗi repo chỉ có một hệ design. Lời đáp của nó đến từ ba lớp:</p>
         <div class="scroll">
           <table>
             <thead>
@@ -1424,10 +1427,10 @@
             </thead>
             <tbody>
               <tr>
-                <td>Phần riêng của kho</td>
-                <td>Lời đáp chỉ kho đó cần, và ngoại lệ có lý do</td>
+                <td>Phần riêng của repo</td>
+                <td>Lời đáp chỉ repo đó cần, và ngoại lệ có lý do</td>
                 <td>Kiểu màn «lưới» của Inventory, các kiểu cột, lời văn</td>
-                <td>Chủ của kho đó</td>
+                <td>Chủ của repo đó</td>
               </tr>
               <tr>
                 <td>Lõi của họ sản phẩm</td>
@@ -1446,19 +1449,19 @@
         </div>
         <p>
           Lõi của họ không nằm trong plugin, vì plugin không nêu tên sản phẩm nào. Nó gồm hai thứ:
-          <strong>một hồ sơ lời đáp</strong> mà bản thiết kế của kho khai là thừa hưởng, và
-          <strong>một kho mã</strong> cho các khối đã nâng hạng, cùng kiểu kho mã mà shadcn và ReUI
-          đang dùng.
+          <strong>một hồ sơ lời đáp</strong> mà bản thiết kế của repo khai là thừa hưởng, và
+          <strong>một registry</strong> cho các khối đã nâng hạng, cùng kiểu registry mà shadcn và
+          ReUI đang dùng.
         </p>
-        <h3>Lúc đặt kho</h3>
-        <p>Cuộc dẫn dắt hỏi một câu trước mọi câu khác: «kho này thuộc họ nào?»</p>
+        <h3>Lúc đặt repo</h3>
+        <p>Cuộc dẫn dắt hỏi một câu trước mọi câu khác: «repo này thuộc họ nào?»</p>
         <div class="scroll">
           <table>
             <thead>
               <tr>
                 <th></th>
-                <th>Kho thuộc một họ</th>
-                <th>Kho đứng một mình (mặc định)</th>
+                <th>Repo thuộc một họ</th>
+                <th>Repo đứng một mình (mặc định)</th>
               </tr>
             </thead>
             <tbody>
@@ -1486,14 +1489,14 @@
           </table>
         </div>
         <p>
-          Lựa chọn này không khoá cứng: kho đứng một mình sau này vẫn vào họ được qua đường «nhận»,
+          Lựa chọn này không khoá cứng: repo đứng một mình sau này vẫn vào họ được qua đường «nhận»,
           so từng câu, chỗ nào khác thì ghi thành ngoại lệ có lý do.
         </p>
         <h3>Nâng hạng</h3>
         <p>
-          Một khối đã vào kho ở hai kho cùng họ thì máy đề xuất nâng lên lõi; chủ kho duyệt. Bảng từ
-          vựng của plugin đã có tên ngành cho cấu trúc này: core design system, recipes, snowflakes,
-          graduation.
+          Một khối đã vào kho ở hai repo cùng họ thì máy đề xuất nâng lên lõi; chủ repo duyệt. Bảng
+          từ vựng của plugin đã có tên ngành cho cấu trúc này: core design system, recipes,
+          snowflakes, graduation.
         </p>
         <p class="open">
           Đã chốt: lõi bắt đầu bằng khoá ít. Khoá thứ người dùng cuối nhận ra khi đổi sản phẩm (màu
@@ -1503,9 +1506,9 @@
         </p>
       </section>
       <section id="hop-dong">
-        <h2><span>07</span>Hợp đồng của kho: bộ sổ</h2>
+        <h2><span>07</span>Hợp đồng của repo: bộ sổ</h2>
 
-        <p>Mọi thứ về design của một kho nằm trong một bộ sổ. Mỗi sổ trả lời đúng một câu.</p>
+        <p>Mọi thứ về design của một repo nằm trong một bộ sổ. Mỗi sổ trả lời đúng một câu.</p>
         <div class="scroll">
           <table class="wide">
             <thead>
@@ -1519,7 +1522,7 @@
             <tbody>
               <tr>
                 <td>Quyết định</td>
-                <td>Kho đã quyết gì, cái gì giữ từng điều</td>
+                <td>Repo đã quyết gì, cái gì giữ từng điều</td>
                 <td>Máy; người ở dòng phán đoán</td>
                 <td>Có, một hình dạng</td>
               </tr>
@@ -1592,7 +1595,7 @@
           </li>
           <li>
             <strong>Thứ tạo ra trong vòng đang làm không tự tính là đã ở trong kho.</strong> Nó phải
-            qua thang chọn và qua mắt chủ kho.
+            qua thang chọn và qua mắt chủ repo.
           </li>
         </ul>
       </section>
@@ -1600,7 +1603,7 @@
         <h2><span>08</span>Bộ chuyển, và ba mức phục vụ</h2>
 
         <p>
-          Lõi của plugin chỉ làm việc với bộ sổ. Thứ gì phải biết một loại kho cụ thể thì nằm trong
+          Lõi của plugin chỉ làm việc với bộ sổ. Thứ gì phải biết một loại repo cụ thể thì nằm trong
           bộ chuyển.
         </p>
         <div class="scroll">
@@ -1616,7 +1619,7 @@
             <tbody>
               <tr>
                 <td>Nền dựng</td>
-                <td>Mở một màn của kho trong trình duyệt</td>
+                <td>Mở một màn của repo trong trình duyệt</td>
                 <td>Vite</td>
                 <td>Next.js, và kiểu «lệnh riêng»</td>
               </tr>
@@ -1643,20 +1646,20 @@
         </div>
         <p>
           Phép đo trong trình duyệt không cần bộ chuyển mã nguồn: nó đo qua vai trò, vùng và dấu
-          chung của trang. Để phép đo đi theo được sang kho có thư viện riêng, mỗi phần của kho khai
-          nó đáp luật nào bằng một dấu chung, thay vì tên linh kiện của sàn.
+          chung của trang. Để phép đo đi theo được sang repo có thư viện riêng, mỗi phần của repo
+          khai nó đáp luật nào bằng một dấu chung, thay vì tên linh kiện của sàn.
         </p>
         <h3>Một kiến trúc, ba mức phục vụ</h3>
         <p>
-          Câu «mọi kho rộng tới đâu» giải được cả ba phạm vi, nếu coi chúng là ba mức của cùng một
-          kiến trúc. Mức của một kho do số bộ chuyển nó có quyết định.
+          Câu «mọi repo rộng tới đâu» giải được cả ba phạm vi, nếu coi chúng là ba mức của cùng một
+          kiến trúc. Mức của một repo do số bộ chuyển nó có quyết định.
         </p>
         <div class="scroll">
           <table>
             <thead>
               <tr>
                 <th>Mức</th>
-                <th>Kho</th>
+                <th>Repo</th>
                 <th>Nhận được</th>
                 <th>Giá</th>
               </tr>
@@ -1664,19 +1667,19 @@
             <tbody>
               <tr>
                 <td>Trọn</td>
-                <td>Kho trống trên sàn Repo Standards</td>
+                <td>Repo trống trên sàn Repo Standards</td>
                 <td>Dẫn dắt, cài phần, mọi lệnh kiểm, bảng mẫu, cuốn sổ</td>
                 <td>Đã có</td>
               </tr>
               <tr>
                 <td>Đồng hành</td>
-                <td>Họ kho của chủ kho: React, Tailwind, shadcn hoặc ReUI, Vite hoặc Next</td>
+                <td>Họ repo của chủ repo: React, Tailwind, shadcn hoặc ReUI, Vite hoặc Next</td>
                 <td>Mọi thứ trừ cài phần</td>
                 <td>Bốn bộ chuyển ở bảng trên</td>
               </tr>
               <tr>
                 <td>Chỉ luật</td>
-                <td>Kho web bất kỳ</td>
+                <td>Repo web bất kỳ</td>
                 <td>
                   Audit, sổ quyết định, phép đo trình duyệt; audit nói thẳng câu nào chưa có gì giữ
                 </td>
@@ -1687,7 +1690,7 @@
         </div>
         <p>
           Mức «chỉ luật» không cần tối ưu riêng: nó tự có khi lõi thật sự tách khỏi thư viện. Phần
-          đắt là bộ chuyển mã nguồn cho từng ngôn ngữ khác; chỉ làm khi có một kho thật cần.
+          đắt là bộ chuyển mã nguồn cho từng ngôn ngữ khác; chỉ làm khi có một repo thật cần.
         </p>
       </section>
       <section id="nguoi-va-claude">
@@ -1867,7 +1870,7 @@
                 text-anchor="middle"
                 letter-spacing="0.18em"
               >
-                NGƯỜI (CHỦ KHO)
+                NGƯỜI (CHỦ REPO)
               </text>
               <text
                 x="536"
@@ -2434,7 +2437,7 @@
           </figcaption>
         </figure>
         <p>
-          Có bốn vai. Người là chủ kho. Claude Code xuất hiện ở hai vai khác nhau: lúc dẫn dắt và
+          Có bốn vai. Người là chủ repo. Claude Code xuất hiện ở hai vai khác nhau: lúc dẫn dắt và
           lúc dựng màn. Vai thứ tư là phần tất định: kịch bản tính giá trị và cổng kiểm, cùng đầu
           vào thì ra cùng kết quả.
         </p>
@@ -2454,7 +2457,7 @@
         </ul>
         <p>
           Bốn điều kiện để «chọn bằng mắt» mà vẫn tất định: phương án do kịch bản dựng chứ không do
-          mô hình vẽ; mọi phương án bày ra đều đã qua luật; vẽ trên màn thật của kho; chọn bằng một
+          mô hình vẽ; mọi phương án bày ra đều đã qua luật; vẽ trên màn thật của repo; chọn bằng một
           chữ cái, và chữ cái ứng với đúng giá trị sổ sẽ ghi.
         </p>
       </section>
@@ -2591,7 +2594,7 @@
                 text-anchor="start"
                 letter-spacing="0.18em"
               >
-                KHO SẢN PHẨM
+                REPO SẢN PHẨM
               </text>
               <line
                 x1="232"
@@ -2759,7 +2762,7 @@
                 text-anchor="middle"
                 font-weight="600"
               >
-                Đặt kho
+                Đặt repo
               </text>
               <text
                 x="148.0"
@@ -2919,7 +2922,7 @@
                 text-anchor="middle"
                 font-weight="600"
               >
-                Mã của kho
+                Mã của repo
               </text>
               <text
                 x="148.0"
@@ -2951,7 +2954,7 @@
                 text-anchor="middle"
                 font-weight="600"
               >
-                Hợp đồng design của kho
+                Hợp đồng design của repo
               </text>
               <text
                 x="484.0"
@@ -3096,18 +3099,18 @@
             <tbody>
               <tr>
                 <td><strong>Repo Standards</strong></td>
-                <td>Đặt kho: stack, lint nền, cổng kiểm. Gọi design-assembly cho tầng design.</td>
-                <td>Không hỏi màu, không giữ sổ design. Không đụng kho đã có.</td>
+                <td>Đặt repo: stack, lint nền, cổng kiểm. Gọi design-assembly cho tầng design.</td>
+                <td>Không hỏi màu, không giữ sổ design. Không đụng repo đã có.</td>
               </tr>
               <tr>
                 <td><strong>Design-assembly</strong></td>
                 <td>
-                  Là bên duy nhất ghi bộ sổ design. Dẫn dắt kho mới, nhận kho đã có, nhập khối mới.
-                  Giữ bằng lệnh kiểm; cho xem bằng bảng mẫu và cuốn sổ.
+                  Là bên duy nhất ghi bộ sổ design. Dẫn dắt repo mới, nhận repo đã có, nhập khối
+                  mới. Giữ bằng lệnh kiểm; cho xem bằng bảng mẫu và cuốn sổ.
                 </td>
                 <td>
-                  Không chấm từng tính năng. Không cài mã của sàn vào kho có thư viện riêng. Không
-                  tự sửa hai kho bên cạnh.
+                  Không chấm từng tính năng. Không cài mã của sàn vào repo có thư viện riêng. Không
+                  tự sửa hai repo bên cạnh.
                 </td>
               </tr>
               <tr>
@@ -3123,8 +3126,8 @@
         </div>
         <h3>Những gì chuyển chỗ</h3>
         <p>
-          Design-assembly không tự sửa ba kho kia. Mỗi dòng dưới đây là một thay đổi ở kho khác; chủ
-          kho quyết và cho phép từng cái.
+          Design-assembly không tự sửa ba repo kia. Mỗi dòng dưới đây là một thay đổi ở repo khác;
+          chủ repo quyết và cho phép từng cái.
         </p>
         <div class="scroll">
           <table class="wide">
@@ -3193,14 +3196,14 @@
         </div>
       </section>
       <section id="vong-doi">
-        <h2><span>11</span>Vòng đời của một kho</h2>
+        <h2><span>11</span>Vòng đời của một repo</h2>
         <figure id="hinh-4">
           <div class="scroll">
             <svg
               viewBox="0 24 1000 488"
               xmlns="http://www.w3.org/2000/svg"
               role="img"
-              aria-label="Vòng đời của một kho: ai ra tay ở lúc nào"
+              aria-label="Vòng đời của một repo: ai ra tay ở lúc nào"
             >
               <defs>
                 <marker
@@ -3349,7 +3352,7 @@
                 text-anchor="middle"
                 letter-spacing="0.18em"
               >
-                KHO RA ĐỜI
+                REPO RA ĐỜI
               </text>
               <text
                 x="480"
@@ -3553,7 +3556,7 @@
                 text-anchor="middle"
                 font-weight="600"
               >
-                Đặt kho
+                Đặt repo
               </text>
               <text
                 x="288.0"
@@ -3595,7 +3598,7 @@
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
               >
-                ghi bộ sổ của kho
+                ghi bộ sổ của repo
               </text>
               <rect x="208" y="108" width="160" height="48" rx="6" fill="#f5f5f5" />
               <rect
@@ -3916,23 +3919,23 @@
             </thead>
             <tbody>
               <tr>
-                <td>Kho ra đời</td>
-                <td>Repo Standards đặt kho rồi gọi</td>
+                <td>Repo ra đời</td>
+                <td>Repo Standards đặt repo rồi gọi</td>
                 <td>Dẫn dắt: hỏi, sinh, cài, ghi bộ sổ</td>
               </tr>
               <tr>
-                <td>Kho đã có lần đầu gặp plugin</td>
+                <td>Repo đã có lần đầu gặp plugin</td>
                 <td>Người</td>
                 <td>Audit rồi nhận: ghi bộ sổ quanh cái đang có, không đổi gì</td>
               </tr>
               <tr>
-                <td>Một tính năng cần thứ kho chưa có</td>
+                <td>Một tính năng cần thứ repo chưa có</td>
                 <td>Cổng phạm vi của delivery-loop</td>
                 <td>Nhập kho</td>
               </tr>
               <tr>
                 <td>Mỗi thay đổi</td>
-                <td>Cổng kiểm của kho</td>
+                <td>Cổng kiểm của repo</td>
                 <td>Chạy lệnh kiểm; sinh lại các sổ do máy sinh</td>
               </tr>
               <tr>
@@ -3955,7 +3958,7 @@
           </li>
           <li>
             <strong>Tra nguồn ngoài.</strong> Tìm trong danh mục thư viện đã ghim. Lần đầu của mỗi
-            loại, máy bày hai tới ba ứng viên bằng ảnh để chủ kho chọn.
+            loại, máy bày hai tới ba ứng viên bằng ảnh để chủ repo chọn.
           </li>
           <li>
             <strong>Tạo tay.</strong> Lối cuối. «Trông chưa đẹp» hay «ghép tay nhanh hơn» không phải
@@ -3963,12 +3966,620 @@
           </li>
         </ol>
         <p>
-          Kết quả là một dòng sổ: thứ gì, từ đâu ra, cho nhu cầu gì, chủ kho duyệt ngày nào. Từ đó,
+          Kết quả là một dòng sổ: thứ gì, từ đâu ra, cho nhu cầu gì, chủ repo duyệt ngày nào. Từ đó,
           lần sau gặp cùng nhu cầu là bậc một.
         </p>
       </section>
+      <section id="kho-tai-dung">
+        <h2><span>12</span>Kho dùng lại và bánh đà tái dùng</h2>
+
+        <p class="open">
+          Mục này là đề xuất của máy, ghi vào tài liệu theo lời chủ repo ngày 2026-11-13. Chưa cơ
+          chế nào được dựng, và chưa cơ chế nào được duyệt riêng.
+        </p>
+        <p>
+          Trong design, tái dùng làm công việc nhanh dần theo thời gian. Điều đó chỉ xảy ra khi đủ
+          ba điều kiện:
+        </p>
+        <ol>
+          <li>
+            <strong>Thứ mới được ghi lại ngay lúc nó ra đời.</strong> Không ghi thì không có gì tích
+            luỹ.
+          </li>
+          <li>
+            <strong>Tra lại rẻ hơn làm mới.</strong> Nếu tìm trong kho lâu hơn tự dựng, tác tử sẽ tự
+            dựng.
+          </li>
+          <li><strong>Kho còn đáng tin.</strong> Dùng lại một thứ sai là nhân lỗi ra mọi màn.</li>
+        </ol>
+        <h3>Bốn loại tài sản dùng lại được</h3>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Tài sản</th>
+                <th>Dùng lại nghĩa là</th>
+                <th>Hôm nay</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Lời đáp</td>
+                <td>Câu đã quyết thì không ai hỏi lại</td>
+                <td>Có, trong một repo</td>
+              </tr>
+              <tr>
+                <td>Khuôn màn</td>
+                <td>Màn mới dựng theo màn mẫu của kiểu đó</td>
+                <td>Có: trang kiểu màn và màn mẫu</td>
+              </tr>
+              <tr>
+                <td>Khối và linh kiện</td>
+                <td>Cùng một nhu cầu thì dùng cùng một thứ</td>
+                <td>Mới có sổ linh kiện; chưa có sổ «nhu cầu nào đã có lời giải»</td>
+              </tr>
+              <tr>
+                <td>Mẫu hành vi</td>
+                <td>Một hành vi đi kèm phần mã và bài kiểm của nó</td>
+                <td>Mới nằm trong trang luật và màn mẫu, chưa thành thứ lấy ra dùng được</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Ba kho xếp tầng, cộng nguồn ngoài</h3>
+        <p>
+          «Nhập kho» phải nói rõ là nhập vào kho nào. Có ba kho của mình và một loại nguồn không
+          phải của mình:
+        </p>
+        <div class="scroll">
+          <table class="wide">
+            <thead>
+              <tr>
+                <th>Kho</th>
+                <th>Chứa gì</th>
+                <th>Ai duyệt cho vào</th>
+                <th>Hôm nay</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Kho của repo</strong></td>
+                <td>Khối, khuôn, mẫu hành vi đã được duyệt trong repo đó</td>
+                <td>Chủ của repo, ở cổng phạm vi</td>
+                <td>Inventory có, 11 dòng; repo đối chứng chưa có</td>
+              </tr>
+              <tr>
+                <td><strong>Kho chung của họ sản phẩm</strong></td>
+                <td>Thứ đã chứng minh dùng được ở hai repo trở lên</td>
+                <td>Chủ của họ, lúc nâng hạng</td>
+                <td>Chưa tồn tại</td>
+              </tr>
+              <tr>
+                <td><strong>Bộ khởi đầu trong plugin</strong></td>
+                <td>
+                  Vài phần cho repo mới trên sàn shadcn: bảng có kiểu cột, cột thao tác, tấm hồ sơ
+                </td>
+                <td>Không ai; có sẵn</td>
+                <td>Có</td>
+              </tr>
+              <tr>
+                <td><strong>Nguồn ngoài</strong></td>
+                <td>Thư viện của người khác như ReUI Pro và shadcn, chỉ để chọn từ đó</td>
+                <td>Không phải kho của mình</td>
+                <td>Inventory đã ghim danh mục ReUI</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Đây là cùng kiểu xếp tầng với ba lớp lời đáp ở mục 6: lời đáp và đồ vật đi chung một cơ
+          chế. Ba luật giữ cho nhiều kho không thành rối:
+        </p>
+        <ol>
+          <li>
+            <strong>Nhập kho luôn vào kho của repo nơi nhu cầu xuất hiện.</strong> Không ai nhập
+            thẳng vào kho chung: một thứ mới dùng một lần thì chưa biết có đáng dùng chung không.
+          </li>
+          <li>
+            <strong>Lên kho chung chỉ bằng nâng hạng, có bằng chứng dùng lần hai.</strong> Máy đề
+            xuất khi một thứ đã được dùng ở repo thứ hai; chủ của họ duyệt. Hai repo đã giải cùng
+            một nhu cầu theo hai cách thì lúc nâng hạng chọn một; cách còn lại chuyển theo, hoặc ở
+            lại với ngoại lệ có lý do.
+          </li>
+          <li>
+            <strong>Tra từ gần tới xa:</strong> kho của repo, rồi kho chung, rồi nguồn ngoài, cuối
+            cùng mới tạo tay. Gặp ở tầng nào thì dừng ở tầng đó.
+          </li>
+        </ol>
+        <p>
+          Khi lấy một thứ từ kho chung hay nguồn ngoài về repo: mã được chép vào repo chứ không nối
+          phụ thuộc; dòng sổ của repo ghi nguồn và bản đã lấy; kho chung đổi thì audit báo và repo
+          tự quyết lúc nào nhận; repo sửa khác đi thì ghi ngoại lệ có lý do, hoặc đề xuất sửa ngược
+          lên kho chung. Bộ đọc sổ linh kiện của delivery-loop đã có sẵn trường phạm vi với hai giá
+          trị «riêng» và «chung», nên việc đánh dấu một thứ thuộc kho nào không cần hình dạng sổ
+          mới.
+        </p>
+        <p>
+          Hai tầng chưa thêm, vì chưa có nhu cầu thật: kho theo từng phần trong một repo lớn, và kho
+          chung cho mọi họ sản phẩm.
+        </p>
+        <figure id="hinh-7">
+          <div class="scroll">
+            <svg
+              viewBox="0 40 1040 616"
+              xmlns="http://www.w3.org/2000/svg"
+              role="img"
+              aria-label="Bánh đà tái dùng: mỗi màn để lại thứ gì đó cho màn sau"
+            >
+              <defs>
+                <marker
+                  id="f7-arrow"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#4f5d75" />
+                </marker>
+                <marker
+                  id="f7-arrow-accent"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#eb6c36" />
+                </marker>
+                <marker
+                  id="f7-arrow-ink"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#2d3142" />
+                </marker>
+                <marker
+                  id="f7-arrow-link"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8" />
+                </marker>
+                <marker
+                  id="f7-arrow-soft"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#636b80" />
+                </marker>
+              </defs>
+              <rect x="0" y="0" width="1040" height="1000" fill="#f5f5f5" />
+              <path
+                d="M600 113.726 A240 240 0 0 1 704.969 187.073"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f7-arrow)"
+              />
+              <path
+                d="M743.285 252 A240 240 0 0 1 743.722 426.882"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f7-arrow)"
+              />
+              <path
+                d="M705.731 492 A240 240 0 0 1 601.130 565.871"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f7-arrow)"
+              />
+              <path
+                d="M440 566.274 A240 240 0 0 1 335.031 492.927"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f7-arrow)"
+              />
+              <path
+                d="M296.715 428 A240 240 0 0 1 296.278 253.118"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f7-arrow)"
+              />
+              <path
+                d="M334.269 188 A240 240 0 0 1 438.870 114.129"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f7-arrow)"
+              />
+              <path
+                d="M520 132 V280"
+                fill="none"
+                stroke="#636b80"
+                stroke-width="1"
+                stroke-dasharray="5 4"
+                marker-end="url(#f7-arrow-soft)"
+              />
+              <path
+                d="M672 252 L616 284"
+                fill="none"
+                stroke="#636b80"
+                stroke-width="1"
+                stroke-dasharray="5 4"
+                marker-end="url(#f7-arrow-soft)"
+              />
+              <path
+                d="M672 428 L616 396"
+                fill="none"
+                stroke="#636b80"
+                stroke-width="1"
+                stroke-dasharray="5 4"
+                marker-end="url(#f7-arrow-soft)"
+              />
+              <path
+                d="M520 548 V400"
+                fill="none"
+                stroke="#636b80"
+                stroke-width="1"
+                stroke-dasharray="5 4"
+                marker-end="url(#f7-arrow-soft)"
+              />
+              <path
+                d="M368 428 L424 396"
+                fill="none"
+                stroke="#636b80"
+                stroke-width="1"
+                stroke-dasharray="5 4"
+                marker-end="url(#f7-arrow-soft)"
+              />
+              <path
+                d="M368 252 L424 284"
+                fill="none"
+                stroke="#636b80"
+                stroke-width="1"
+                stroke-dasharray="5 4"
+                marker-end="url(#f7-arrow-soft)"
+              />
+              <rect x="528" y="200" width="64" height="16" rx="4" fill="#f5f5f5" />
+              <text
+                x="560"
+                y="212"
+                fill="#636b80"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.06em"
+              >
+                NHU CẦU
+              </text>
+              <rect x="436" y="464" width="76" height="16" rx="4" fill="#f5f5f5" />
+              <text
+                x="474"
+                y="476"
+                fill="#636b80"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.06em"
+              >
+                LỜI DUYỆT
+              </text>
+              <rect x="440" y="68" width="160" height="64" rx="6" fill="#f5f5f5" />
+              <rect
+                x="440"
+                y="68"
+                width="160"
+                height="64"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="520.0"
+                y="98.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Màn mới
+              </text>
+              <text
+                x="520.0"
+                y="114.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                liệt kê thứ nó cần
+              </text>
+              <rect x="648" y="188" width="160" height="64" rx="6" fill="#f5f5f5" />
+              <rect
+                x="648"
+                y="188"
+                width="160"
+                height="64"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="728.0"
+                y="218.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Tra kho
+              </text>
+              <text
+                x="728.0"
+                y="234.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                có thì dùng lại ngay
+              </text>
+              <rect x="648" y="428" width="160" height="64" rx="6" fill="#f5f5f5" />
+              <rect
+                x="648"
+                y="428"
+                width="160"
+                height="64"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="728.0"
+                y="458.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Chọn hoặc tạo
+              </text>
+              <text
+                x="728.0"
+                y="474.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                chỉ cho thứ chưa có
+              </text>
+              <rect x="440" y="548" width="160" height="64" rx="6" fill="#f5f5f5" />
+              <rect
+                x="440"
+                y="548"
+                width="160"
+                height="64"
+                rx="6"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <text
+                x="520.0"
+                y="578.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Người duyệt
+              </text>
+              <text
+                x="520.0"
+                y="594.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                một lần cho mỗi thứ mới
+              </text>
+              <rect x="232" y="428" width="160" height="64" rx="6" fill="#f5f5f5" />
+              <rect
+                x="232"
+                y="428"
+                width="160"
+                height="64"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="312.0"
+                y="458.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Nhập kho
+              </text>
+              <text
+                x="312.0"
+                y="474.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                thành một dòng sổ
+              </text>
+              <rect x="232" y="188" width="160" height="64" rx="6" fill="#f5f5f5" />
+              <rect
+                x="232"
+                y="188"
+                width="160"
+                height="64"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="312.0"
+                y="218.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Nâng hạng
+              </text>
+              <text
+                x="312.0"
+                y="234.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                dùng lần hai thì lên tầng
+              </text>
+              <rect x="420" y="288" width="200" height="104" rx="8" fill="#2d3142" />
+              <text
+                x="520"
+                y="336"
+                fill="#f5f5f5"
+                font-size="16"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Kho dùng lại
+              </text>
+              <text
+                x="520"
+                y="360"
+                fill="#f5f5f5"
+                fill-opacity="0.8"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                lớn dần sau mỗi màn
+              </text>
+            </svg>
+          </div>
+          <figcaption>
+            <span>Hình 7</span> Mỗi màn mới đi một vòng và để lại thứ gì đó trong kho.
+          </figcaption>
+        </figure>
+        <h3>Sáu cơ chế</h3>
+        <ol>
+          <li>
+            <strong>Kho bốn ngăn.</strong> Mỗi món trong kho ghi nhu cầu nó giải, lời giải, bằng
+            chứng, và nơi đang dùng.
+          </li>
+          <li>
+            <strong>Tra trước, tạo sau, là cổng chứ không phải lời khuyên.</strong> Mỗi vòng dựng
+            màn mở đầu bằng danh sách nhu cầu, và sổ của vòng ghi «đã tra». Có trong kho thì máy đi
+            tiếp, không gọi người.
+          </li>
+          <li>
+            <strong>Nhập ngay lúc tạo.</strong> Thứ mới được duyệt thành một dòng sổ trong chính
+            thay đổi đó.
+          </li>
+          <li><strong>Nâng hạng ba nấc:</strong> của một màn, của repo, của họ sản phẩm.</li>
+          <li>
+            <strong>Tiền lệ đứng trước đề xuất.</strong> Trước khi khuyên, máy tra theo thứ tự: repo
+            này, lõi của họ, các repo khác của cùng chủ, rồi mới tới chuẩn chung.
+          </li>
+          <li>
+            <strong>Uỷ quyền tăng dần theo đồng thuận.</strong> Mỗi loại quyết định có một sổ ghi:
+            máy đề xuất mấy lần, người giữ mấy lần, đổi mấy lần và vì sao. Một loại chuyển từ «hỏi
+            trước» sang «làm rồi báo, người bác được» khi người đã giữ đề xuất nhiều lần liên tiếp
+            bằng mắt. Lần đầu người đổi thì nó quay lại «hỏi trước». Thương hiệu và thứ khó đảo
+            không bao giờ được uỷ quyền.
+          </li>
+        </ol>
+        <h3>Người và máy quyết giống nhau bao nhiêu lần</h3>
+        <p>Đếm từ các bản ghi quyết định của dự án này, tới ngày 2026-11-13:</p>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Cách chủ repo quyết</th>
+                <th>Số quyết định UX/UI</th>
+                <th>Giống đề xuất của máy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Duyệt cả bộ khuyến nghị, bằng lời</td>
+                <td>khoảng 22 luật, qua 7 lần duyệt</td>
+                <td>tất cả</td>
+              </tr>
+              <tr>
+                <td>Nhìn bảng mẫu rồi chọn</td>
+                <td>4</td>
+                <td>3</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <ul>
+          <li>
+            <strong>Duyệt bằng lời là bằng chứng yếu.</strong> «Tất cả» có thể chỉ nghĩa là chưa
+            nhìn. Số đáng tin là số ở dòng chọn bằng mắt, và mẫu mới có 4.
+          </li>
+          <li>
+            <strong>Lần duy nhất khác nhau là lần người có tiền lệ mà máy không tra:</strong> cách
+            mở hồ sơ đang dùng ở Inventory. Cơ chế 5 sửa đúng chỗ này.
+          </li>
+          <li>
+            <strong>«Giống nhau» chưa phải là «đúng».</strong> Hai luật đã duyệt lại do đo đạc sửa:
+            ghim hai cột ở bề rộng 320, và gom thao tác vào trình đơn.
+          </li>
+        </ul>
+        <h3>Đo để biết bánh đà có quay không</h3>
+        <p>
+          Với màn thứ N, đo bốn số: số nhu cầu mới, tỉ lệ trúng kho, số lần gọi người, số lượt tới
+          khi cổng xanh. Bốn số này phải giảm khi N tăng thì tái dùng mới là thật. Hôm nay chưa đo
+          được: repo đối chứng mới có một màn.
+        </p>
+        <p class="open">
+          Còn mở: ngưỡng «nhiều lần liên tiếp» của cơ chế 6. Máy nghiêng về 5 lần, tính riêng từng
+          loại quyết định và chỉ tính những lần người thật sự nhìn. Nên chốt khi đã có dữ liệu của
+          vài chục lần chọn.
+        </p>
+      </section>
       <section id="ho-hang">
-        <h2><span>12</span>Họ hàng với kho tri thức</h2>
+        <h2><span>13</span>Họ hàng với kho tri thức</h2>
 
         <p>
           Design-assembly cùng một khuôn với mẫu LLM Wiki và kho tri thức của delivery-loop: nguồn,
@@ -3987,7 +4598,7 @@
               <tr>
                 <td>Nguồn thô</td>
                 <td>Tài liệu nghiên cứu, bất biến, có băm</td>
-                <td>Mã của kho</td>
+                <td>Mã của repo</td>
               </tr>
               <tr>
                 <td>Trang do máy giữ</td>
@@ -4018,7 +4629,7 @@
           </table>
         </div>
         <p>
-          Hệ của chủ kho vì thế có ba kho cùng khuôn: <strong>tri thức</strong> (đã biết gì, vì
+          Hệ của chủ repo vì thế có ba kho cùng khuôn: <strong>tri thức</strong> (đã biết gì, vì
           sao), <strong>ontology</strong> (nghiệp vụ nghĩa là gì), và <strong>design</strong> (trông
           và hành xử thế nào).
         </p>
@@ -4030,14 +4641,14 @@
         <p>Ba điều mượn từ kho tri thức:</p>
         <ol>
           <li>
-            <strong>Ghim theo băm nội dung</strong> cho việc thừa hưởng lõi của họ: lõi đổi thì kho
+            <strong>Ghim theo băm nội dung</strong> cho việc thừa hưởng lõi của họ: lõi đổi thì repo
             biết.
           </li>
 
           <li>
             <strong>Dòng «đã tra kho và thư viện»</strong> ở cổng phạm vi, chỉ hiện cờ khi thiếu.
           </li>
-          <li><strong>Bật theo kho:</strong> kho chưa khai thì hành vi không đổi một byte.</li>
+          <li><strong>Bật theo repo:</strong> repo chưa khai thì hành vi không đổi một byte.</li>
         </ol>
         <p>
           Một điều đã cân rồi không mượn: sinh sổ lúc đọc thay vì commit. Chỉ mục của kho tri thức
@@ -4049,7 +4660,7 @@
         </p>
       </section>
       <section id="lo-trinh">
-        <h2><span>13</span>Lộ trình và tiêu chí đạt</h2>
+        <h2><span>14</span>Lộ trình và tiêu chí đạt</h2>
         <figure id="hinh-5">
           <div class="scroll">
             <svg
@@ -4285,7 +4896,7 @@
                 text-anchor="start"
                 letter-spacing="0.18em"
               >
-                KHO NÀY
+                REPO NÀY
               </text>
               <text
                 x="40"
@@ -4307,7 +4918,7 @@
                 text-anchor="start"
                 letter-spacing="0.18em"
               >
-                HAI KHO BÊN CẠNH
+                HAI REPO BÊN CẠNH
               </text>
               <text
                 x="40"
@@ -4500,7 +5111,7 @@
                 text-anchor="middle"
                 font-weight="600"
               >
-                Hai kho đổi vai
+                Hai repo đổi vai
               </text>
               <text
                 x="736.0"
@@ -4542,7 +5153,7 @@
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
               >
-                kho thứ hai dùng lại
+                repo thứ 2 dùng lại
               </text>
               <text
                 x="256"
@@ -4632,7 +5243,7 @@
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
               >
-                cho phép ghi vào kho đó
+                cho phép ghi vào repo đó
               </text>
               <text
                 x="736"
@@ -4692,7 +5303,7 @@
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
               >
-                tạo kho cho lõi
+                tạo repo cho lõi
               </text>
               <line
                 x1="40"
@@ -4767,9 +5378,9 @@
           <figcaption><span>Hình 5</span> Năm chặng theo thứ tự; chưa có ngày.</figcaption>
         </figure>
         <p>
-          Chặng 1 gộp ba việc chủ kho đã tạm duyệt: khoá phạm vi, dựng màn thứ hai và khung ứng
-          dụng, chạy thử lần bảy. Từ chặng 3, công việc rời kho này và mỗi bước cần chủ kho cho phép
-          riêng.
+          Chặng 1 gộp ba việc chủ repo đã tạm duyệt: khoá phạm vi, dựng màn thứ hai và khung ứng
+          dụng, chạy thử lần bảy. Từ chặng 3, công việc rời repo này và mỗi bước cần chủ repo cho
+          phép riêng.
         </p>
         <h3>Tầm nhìn đạt khi</h3>
         <ol>
@@ -4785,7 +5396,7 @@
           </li>
           <li>Số công cụ design viết tay của Inventory giảm, đếm được.</li>
           <li>
-            Một kho thứ hai cùng họ thừa hưởng lõi: không hỏi lại câu đã trả lời, và dùng lại ít
+            Một repo thứ hai cùng họ thừa hưởng lõi: không hỏi lại câu đã trả lời, và dùng lại ít
             nhất một khối đã nâng hạng.
           </li>
           <li>
@@ -4798,14 +5409,216 @@
           phòng trưng bày trạng thái; độ sâu «mang sẵn thiết kế tới».
         </p>
       </section>
+      <section id="do-hieu-qua">
+        <h2><span>15</span>Đo hiệu quả</h2>
+
+        <p class="open">
+          Mục này là đề xuất của máy, ghi vào tài liệu theo lời chủ repo ngày 2026-11-13. Bộ chỉ số
+          chưa được duyệt, và phần lớn chưa có lệnh nào tự đếm.
+        </p>
+        <p>
+          Delivery-loop đo một tính năng đi qua nhanh và rẻ tới đâu: số lần người xuất hiện, thời
+          gian từ ký tới gộp, tài nguyên tiêu tốn. Design-assembly đo bao nhiêu điều về design đã
+          được quyết và giữ, để tính năng nào đi qua cũng khỏi phải quyết lại. Chỉ số của
+          design-assembly vì thế đi trước; chỉ số của delivery-loop là kết quả đi sau. Nếu số của
+          delivery-loop không giảm, design-assembly chỉ đang sinh thêm giấy tờ.
+        </p>
+        <h3>Chỉ số chính: số chỗ tác tử phải đoán khi dựng một màn</h3>
+        <p>
+          Mục đích của plugin là «Claude Code dựng màn mà không phải đoán», nên đo thẳng câu đó: ba
+          tác tử độc lập dựng cùng một màn, đếm những quyết định chúng làm khác nhau hoặc tự đoán.
+          Lần thử năm có sáu chỗ phải đoán; lần thử sáu, sau khi thêm sáu luật, còn ba hành vi chưa
+          có luật. Đích là 0.
+        </p>
+        <h3>Sáu chỉ số đỡ</h3>
+        <div class="scroll">
+          <table class="wide">
+            <thead>
+              <tr>
+                <th>Câu hỏi</th>
+                <th>Chỉ số</th>
+                <th>Hôm nay</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Có đúng mục đích không?</td>
+                <td>
+                  <strong>Làm lại vì design, mỗi vòng:</strong> số lượt bị trả về vì thành phần, bố
+                  cục, hành vi, chữ, màu, khả năng truy cập
+                </td>
+                <td>Inventory đã có công cụ đếm theo tầng</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>
+                  <strong>Lượt gọi người tránh được:</strong> câu hỏi về design mà lẽ ra sổ phải trả
+                  lời
+                </td>
+                <td>Chưa đo</td>
+              </tr>
+              <tr>
+                <td>Máy có giữ thật không?</td>
+                <td>
+                  <strong>Tỉ lệ máy giữ, theo từng tầng:</strong> số quyết định có lệnh kiểm đã từng
+                  đỏ, trên tổng
+                </td>
+                <td>Repo đối chứng 15 trên 38 câu lõi; Inventory 0 do plugin giữ</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>
+                  <strong>Lỗi lọt:</strong> lỗi qua được mọi lệnh kiểm, và bao nhiêu lỗi đã thành
+                  lệnh kiểm mới
+                </td>
+                <td>Repo đối chứng có 20 dòng; sổ của Inventory còn trống</td>
+              </tr>
+              <tr>
+                <td>Có thành lớp meta không?</td>
+                <td><strong>Phần máy giữ ở repo không phải repo đối chứng</strong></td>
+                <td>0 trên 24 ở Inventory</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td><strong>Số công cụ viết tay bị thay,</strong> và số hình dạng trùng còn lại</td>
+                <td>Chưa thay công cụ nào</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Một rào chắn, không phải mục tiêu: chi phí dựng một màn không vượt 1,3 lần so với lúc
+          không có plugin. Ngưỡng lấy từ phép đo Repo Standards đã dùng; design-assembly chưa chạy
+          phép đo này lần nào.
+        </p>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Design-assembly làm giảm</th>
+                <th>Thì delivery-loop thấy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Chỗ phải đoán</td>
+                <td>Ít lượt bị trả về, thời gian từ ký tới gộp ngắn lại</td>
+              </tr>
+              <tr>
+                <td>Lượt gọi người tránh được</td>
+                <td>Số lần người xuất hiện giảm</td>
+              </tr>
+              <tr>
+                <td>Làm lại vì design</td>
+                <td>Giờ máy và tài nguyên giảm</td>
+              </tr>
+              <tr>
+                <td>Lỗi lọt</td>
+                <td>Ít vòng sửa sau khi đã gộp</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Ba thứ không đo: số dòng sổ, số lệnh kiểm, số linh kiện (đó là đầu ra); một tỉ lệ máy giữ
+          chung cho cả repo (con số chung che mất tầng hành vi); và đẹp hay xấu (máy không chấm
+          được).
+        </p>
+        <h3>Từ lời hứa, tới thực thi, tới cải thiện</h3>
+        <p>
+          Delivery-loop để lại một sổ chạy cho mỗi tính năng và giữ một sổ giới hạn đã biết.
+          Design-assembly hôm nay chỉ có ảnh chụp tại một thời điểm. Bảy phép đo cần bổ sung:
+        </p>
+        <div class="scroll">
+          <table class="wide">
+            <thead>
+              <tr>
+                <th>Khâu</th>
+                <th>Cần đo thêm</th>
+                <th>Vì sao</th>
+                <th>Hôm nay</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Lời hứa</td>
+                <td>
+                  1. <strong>Độ phủ của từng lệnh kiểm:</strong> nó đã nhìn bao nhiêu màn, trạng
+                  thái, linh kiện trên tổng số
+                </td>
+                <td>Một dòng ghi «máy giữ» có thể chỉ giữ một phần</td>
+                <td>Chỉ có ghi chú bằng lời ở từng dòng sổ</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>
+                  2. <strong>Sổ giới hạn đã biết:</strong> mỗi giới hạn một dòng, có trạng thái sống
+                  hay đã đóng
+                </td>
+                <td>Giới hạn đang nằm rải trong các bản ghi quyết định, không đếm được</td>
+                <td>Chưa có</td>
+              </tr>
+              <tr>
+                <td>Thực thi</td>
+                <td>
+                  3. <strong>Sự kiện design trong sổ chạy của mỗi vòng:</strong> lệnh kiểm nào đỏ,
+                  tác tử đoán gì, hỏi người câu gì, nhập khối nào
+                </td>
+                <td>Nơi duy nhất thấy một dòng sổ có ngăn được lỗi thật không</td>
+                <td>Chưa có</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>
+                  4. <strong>Sức ép lên luật:</strong> số ngoại lệ, và số lần phải sửa hay nới chính
+                  lệnh kiểm, theo thời gian
+                </td>
+                <td>Luật bị xin ngoại lệ nhiều là luật sai, hoặc thiếu một phần để làm đúng</td>
+                <td>Audit đếm ngoại lệ tại một thời điểm, không có xu hướng</td>
+              </tr>
+              <tr>
+                <td>Cải thiện</td>
+                <td>
+                  5. <strong>Vòng đời của một lỗi lọt:</strong> từ lúc ghi, tới lúc thành lệnh kiểm,
+                  tới lúc chứng minh bắt lại được
+                </td>
+                <td>Lỗi lọt chỉ có ích khi nó đóng lại thành lệnh kiểm</td>
+                <td>Sổ có 20 dòng; chưa có bước chứng minh bắt lại</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>6. <strong>Bộ đề thử cố định và chuỗi số theo mốc</strong></td>
+                <td>Sáu lần thử dùng sáu bộ đề khác nhau, nên số không so được với nhau</td>
+                <td>Kết quả nằm trong văn xuôi</td>
+              </tr>
+              <tr>
+                <td></td>
+                <td>7. <strong>Tỉ lệ đề xuất của máy được người giữ</strong></td>
+                <td>Đo chất lượng lời khuyên của cuộc dẫn dắt</td>
+                <td>3 trên 4</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Ba nguyên tắc khi dựng: không dựng sổ chạy thứ hai (ở repo có delivery-loop, sự kiện
+          design ghi vào sổ chạy sẵn có của nó); thứ gì tính lại được từ lịch sử git thì không lưu;
+          chỉ thêm hai tệp mới là sổ giới hạn đã biết và bảng kết quả của bộ đề thử cố định.
+        </p>
+        <p>
+          Thứ tự đề xuất: phép đo 2 và 6 trước lần thử bảy, để từ lần đó số bắt đầu so được; rồi
+          phép đo 1; phép đo 3 sau cùng, vì nó cần sửa ở delivery-loop và chỉ có nghĩa khi Inventory
+          đã dùng plugin thật.
+        </p>
+      </section>
       <section id="hom-nay">
-        <h2><span>14</span>Số đo hôm nay</h2>
+        <h2><span>16</span>Số đo hôm nay</h2>
         <div class="scroll">
           <table>
             <thead>
               <tr>
                 <th></th>
-                <th>Kho đối chứng</th>
+                <th>Repo đối chứng</th>
                 <th>Inventory</th>
               </tr>
             </thead>
@@ -4844,20 +5657,20 @@
           </table>
         </div>
         <p>
-          Kho đối chứng: 23 quyết định do 29 lệnh kiểm giữ, mỗi lệnh đã được thấy đỏ trên một bản bị
-          đổi. Đã chạy thử sáu lần bằng tác tử độc lập trên kho tạm. Các sửa sau lần thử sáu và phần
-          mở hồ sơ chưa được thử lại độc lập.
+          Repo đối chứng: 23 quyết định do 29 lệnh kiểm giữ, mỗi lệnh đã được thấy đỏ trên một bản
+          bị đổi. Đã chạy thử sáu lần bằng tác tử độc lập trên repo tạm. Các sửa sau lần thử sáu và
+          phần mở hồ sơ chưa được thử lại độc lập.
         </p>
         <p>
-          Giới hạn đã biết của chính kiến trúc này: nó chưa được thử trên kho nào ngoài kho đối
+          Giới hạn đã biết của chính kiến trúc này: nó chưa được thử trên repo nào ngoài repo đối
           chứng; lõi của họ chưa tồn tại; và máy không chấm được design có đẹp hay không.
         </p>
       </section>
       <section id="con-mo">
-        <h2><span>15</span>Chín câu đã chốt, và điều còn mở</h2>
+        <h2><span>17</span>Chín câu đã chốt, và điều còn mở</h2>
         <p>
-          Chín câu dưới đây từng là câu còn mở. Máy đề xuất lời đáp kèm lý do; chủ kho duyệt cả chín
-          ngày 2026-11-13 («Duyệt cả chín»). Bản ghi quyết định:
+          Chín câu dưới đây từng là câu còn mở. Máy đề xuất lời đáp kèm lý do; chủ repo duyệt cả
+          chín ngày 2026-11-13 («Duyệt cả chín»). Bản ghi quyết định:
           <code>wiki/decisions/0023-nine-answers-for-the-meta-layer.md</code>.
         </p>
         <div class="scroll">
@@ -4879,7 +5692,7 @@
                 </td>
                 <td>
                   Thử ngày 2026-11-13: bộ kiểm kế hoạch dùng lại của delivery-loop đọc được sổ của
-                  kho đối chứng (57 tên) và từ chối sổ của Inventory ở trường phiên bản. Không phải
+                  repo đối chứng (57 tên) và từ chối sổ của Inventory ở trường phiên bản. Không phải
                   sửa bên đọc, không cần bản xuất thứ hai.
                 </td>
                 <td>Bên đọc siết lại, cấm trường lạ.</td>
@@ -4909,7 +5722,7 @@
                 <td><strong>4. Thang M0 tới M3 và sáu bậc</strong></td>
                 <td>Không gộp. Thang của delivery-loop đọc kết quả audit thay vì tự dò tệp.</td>
                 <td>
-                  Hai thang đo hai thứ: hệ của kho đầy đủ tới đâu, và bên chấm được chặn mạnh tới
+                  Hai thang đo hai thứ: hệ của repo đầy đủ tới đâu, và bên chấm được chặn mạnh tới
                   đâu. Nối như vậy bỏ được một phép đo trùng và yếu hơn.
                 </td>
                 <td>—</td>
@@ -4927,26 +5740,26 @@
                 </td>
               </tr>
               <tr>
-                <td><strong>6. Kho không dùng Makefile</strong></td>
+                <td><strong>6. Repo không dùng Makefile</strong></td>
                 <td>
-                  Plugin phát một lệnh kiểm, khai ở chỗ kho đã có: Makefile, hoặc lệnh kiểm của gói;
-                  và luôn khai với delivery-loop khi kho dùng nó.
+                  Plugin phát một lệnh kiểm, khai ở chỗ repo đã có: Makefile, hoặc lệnh kiểm của
+                  gói; và luôn khai với delivery-loop khi repo dùng nó.
                 </td>
                 <td>
-                  Makefile là quy ước của Repo Standards, không phải của design. Chỉ làm khi gặp kho
-                  thật đầu tiên không có Makefile.
+                  Makefile là quy ước của Repo Standards, không phải của design. Chỉ làm khi gặp
+                  repo thật đầu tiên không có Makefile.
                 </td>
                 <td>—</td>
               </tr>
               <tr>
                 <td><strong>7. Lõi của họ nằm ở đâu, phát bằng gì</strong></td>
                 <td>
-                  Một kho riêng tư nhỏ, mới: một tệp lời đáp chung và các khối đã nâng hạng, phát
-                  theo kiểu kho mã mà Inventory đang dùng để lấy ReUI.
+                  Một repo riêng tư nhỏ, mới: một tệp lời đáp chung và các khối đã nâng hạng, phát
+                  theo kiểu registry mà Inventory đang dùng để lấy ReUI.
                 </td>
                 <td>
                   Plugin không nêu tên sản phẩm. Lõi không nằm trong một sản phẩm, để sản phẩm khác
-                  không phụ thuộc nhịp phát hành của nó. Kiểu kho mã đó chép mã vào kho con, khớp
+                  không phụ thuộc nhịp phát hành của nó. Kiểu registry đó chép mã vào repo con, khớp
                   «phần ở lại».
                 </td>
                 <td>
@@ -4963,17 +5776,17 @@
                 <td>Khoá nhiều thì ngoại lệ tràn ra và sổ ngoại lệ mất nghĩa.</td>
                 <td>
                   Một câu lên «khoá» khi đã có một lần lệch gây hại thật. Áp cho từng câu là quyết
-                  định của chủ kho lúc lõi ra đời.
+                  định của chủ repo lúc lõi ra đời.
                 </td>
               </tr>
               <tr>
                 <td><strong>9. Plugin bản cũ, lõi bản mới</strong></td>
                 <td>
-                  Kho thắng, bằng cách ghim. Lõi đổi thì audit báo, người nhận từng câu. Bộ sổ mang
+                  Repo thắng, bằng cách ghim. Lõi đổi thì audit báo, người nhận từng câu. Bộ sổ mang
                   số phiên bản hình dạng: plugin mới đọc được hình dạng cũ, plugin cũ gặp hình dạng
                   mới thì từ chối ghi.
                 </td>
-                <td>Một sản phẩm không được đỏ cổng vì kho khác vừa đổi.</td>
+                <td>Một sản phẩm không được đỏ cổng vì repo khác vừa đổi.</td>
                 <td>—</td>
               </tr>
             </tbody>
@@ -4982,19 +5795,19 @@
         <h3>Điều còn mở</h3>
         <ul>
           <li>
-            Kiến trúc tổng thể trong tài liệu này vẫn là đề xuất: chủ kho đã chốt ba điều ở mục 3 và
-            chín câu ở trên, chưa duyệt toàn bộ.
+            Kiến trúc tổng thể trong tài liệu này vẫn là đề xuất: chủ repo đã chốt ba điều ở mục 3
+            và chín câu ở trên, chưa duyệt toàn bộ.
           </li>
           <li>
-            Câu 4 và câu 5 cần sửa ở kho của delivery-loop; câu 7 cần chủ kho tạo một kho mới.
+            Câu 4 và câu 5 cần sửa ở repo của delivery-loop; câu 7 cần chủ repo tạo một repo mới.
             Design-assembly không tự làm ba việc đó.
           </li>
           <li>Với từng lời đáp cụ thể của lõi, xếp vào khoá hay mặc định: quyết lúc lõi ra đời.</li>
-          <li>Kho chưa chọn bộ màu riêng cho sơ đồ.</li>
+          <li>Repo chưa chọn bộ màu riêng cho sơ đồ.</li>
         </ul>
       </section>
       <section id="thuat-ngu">
-        <h2><span>16</span>Thuật ngữ</h2>
+        <h2><span>18</span>Thuật ngữ</h2>
         <div class="scroll">
           <table>
             <thead>
@@ -5005,12 +5818,22 @@
             </thead>
             <tbody>
               <tr>
+                <td>Repo</td>
+                <td>Kho mã của một sản phẩm</td>
+              </tr>
+              <tr>
+                <td>Kho</td>
+                <td>
+                  Nơi chứa thứ dùng lại: kho của repo, kho chung của họ sản phẩm, kho tri thức
+                </td>
+              </tr>
+              <tr>
                 <td>Dòng sổ</td>
                 <td>Một quyết định: câu hỏi, lời đáp, vật mang, bằng chứng</td>
               </tr>
               <tr>
                 <td>Bộ sổ, hợp đồng</td>
-                <td>Toàn bộ các sổ về design của một kho; thứ duy nhất các bên đọc</td>
+                <td>Toàn bộ các sổ về design của một repo; thứ duy nhất các bên đọc</td>
               </tr>
               <tr>
                 <td>Chuẩn chung</td>
@@ -5018,15 +5841,15 @@
               </tr>
               <tr>
                 <td>Lõi của họ sản phẩm</td>
-                <td>Lời đáp và khối dùng chung giữa các kho cùng họ</td>
+                <td>Lời đáp và khối dùng chung giữa các repo cùng họ</td>
               </tr>
               <tr>
                 <td>Thừa hưởng</td>
-                <td>Kho lấy một lời đáp từ lõi của họ thay vì tự đáp</td>
+                <td>Repo lấy một lời đáp từ lõi của họ thay vì tự đáp</td>
               </tr>
               <tr>
                 <td>Bộ chuyển</td>
-                <td>Phần của plugin biết một loại kho cụ thể</td>
+                <td>Phần của plugin biết một loại repo cụ thể</td>
               </tr>
               <tr>
                 <td>Luật và phần</td>
@@ -5034,27 +5857,44 @@
               </tr>
               <tr>
                 <td>Dẫn dắt, nhận</td>
-                <td>Hai đường vào: cho kho mới, và cho kho đã có</td>
+                <td>Hai đường vào: cho repo mới, và cho repo đã có</td>
               </tr>
               <tr>
                 <td>Nhập kho</td>
-                <td>Đường đưa một khối hay linh kiện mới vào kho, có người duyệt</td>
+                <td>Đường đưa một khối hay linh kiện mới vào kho của repo, có người duyệt</td>
               </tr>
               <tr>
                 <td>Nâng hạng</td>
-                <td>Đưa một khối từ một kho lên lõi của họ</td>
+                <td>
+                  Đưa một thứ từ kho của một repo lên kho chung của họ, khi nó đã dùng được ở repo
+                  thứ hai
+                </td>
+              </tr>
+              <tr>
+                <td>Nguồn ngoài</td>
+                <td>
+                  Thư viện của người khác, chỉ để chọn từ đó; thứ được chọn thì nhập vào kho của
+                  repo
+                </td>
+              </tr>
+              <tr>
+                <td>Tiền lệ</td>
+                <td>
+                  Lời đáp đã có ở repo này, ở lõi của họ, hay ở repo khác của cùng chủ; máy tra nó
+                  trước khi đề xuất
+                </td>
               </tr>
               <tr>
                 <td>Máy giữ, tự khai, đã ghi</td>
                 <td>
-                  Ba trạng thái của một dòng: plugin chạy lại lệnh kiểm; kho tự trỏ tới bằng chứng
+                  Ba trạng thái của một dòng: plugin chạy lại lệnh kiểm; repo tự trỏ tới bằng chứng
                   của nó; phán đoán của người
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
-        <h3>Nằm ở đâu trong kho</h3>
+        <h3>Nằm ở đâu trong repo</h3>
         <ul>
           <li>
             Đề bài của lớp meta, với tiêu chí và kế hoạch:
@@ -5066,14 +5906,15 @@
           </li>
           <li>Bản ghi quyết định cho từng phần đã dựng: <code>wiki/decisions/</code>.</li>
           <li>
-            Plugin: <code>plugins/design-assembly/</code>. Bộ sổ của kho đối chứng:
+            Plugin: <code>plugins/design-assembly/</code>. Bộ sổ của repo đối chứng:
             <code>design/</code>.
           </li>
         </ul>
       </section>
       <footer>
-        Kiểm kê ba kho bên cạnh làm ngày 2026-11-13, chỉ đọc. Sơ đồ vẽ bằng bộ màu mặc định; kho
-        chưa chọn bộ màu sơ đồ riêng.
+        Kiểm kê ba repo bên cạnh làm ngày 2026-11-13, chỉ đọc. Sơ đồ vẽ bằng bộ màu mặc định; repo
+        chưa chọn bộ màu sơ đồ riêng. Trong tài liệu này, «repo» là kho mã và «kho» là nơi chứa thứ
+        dùng lại.
       </footer>
     </div>
   </body>

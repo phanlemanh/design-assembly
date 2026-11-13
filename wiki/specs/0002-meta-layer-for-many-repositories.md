@@ -51,13 +51,17 @@ Câu thứ tư, «mọi kho rộng tới đâu», chủ kho hỏi lại: có gi�
 Kiến trúc đầy đủ, kèm sáu sơ đồ, nằm ở `docs/architecture/meta-layer.html`: vấn đề phân mảnh đo trên
 ba kho, nguyên lý gốc (dòng sổ quyết định), năm nguyên tắc, ba lớp lời đáp và lựa chọn lúc đặt kho,
 bộ sổ của hợp đồng, bộ chuyển và ba mức phục vụ, vai của người và Claude Code, ranh giới ba plugin
-và những gì chuyển chỗ, vòng đời một kho và đường nhập kho, họ hàng với kho tri thức, và lộ trình.
+và những gì chuyển chỗ, vòng đời một repo và đường nhập kho, kho dùng lại nhiều tầng và bánh đà
+tái dùng, họ hàng với kho tri thức, lộ trình, và cách đo hiệu quả.
 Trang này chỉ giữ tầm nhìn, tiêu chí, kế hoạch và câu còn mở; hai nơi không chép lẫn nhau.
 
 Tóm tắt: một kho có một hợp đồng design, là một bộ sổ mà chỉ design-assembly ghi; Repo Standards
 gọi nó, delivery-loop và tác tử dựng màn đọc nó. Lời đáp của kho đến từ ba lớp: phần riêng của kho,
 lõi chung của họ sản phẩm, đề xuất của chuẩn. Thứ gì gắn với một loại kho cụ thể nằm trong bộ
 chuyển. Luật đi theo sang mọi kho; mã linh kiện ở lại với thư viện của từng kho.
+
+Từ ngày 2026-11-13, tài liệu kiến trúc theo cách gọi của chủ kho: «repo» là kho mã, «kho» là nơi
+chứa thứ dùng lại. Trang này và các trang wiki viết trước đó còn dùng «kho» cho repo.
 
 ## Acceptance criteria
 
@@ -114,7 +118,7 @@ phẩm và mọi việc đẩy lên GitHub là việc của chủ kho.
 ## Open questions
 
 Chín câu từng còn mở đã được chủ kho chốt ngày 2026-11-13: xem
-[0023](../decisions/0023-nine-answers-for-the-meta-layer.md) và mục 15 của tài liệu kiến trúc.
+[0023](../decisions/0023-nine-answers-for-the-meta-layer.md) và mục «Chín câu đã chốt» của tài liệu kiến trúc.
 
 Còn mở:
 

@@ -32,7 +32,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 - [0005 Đầu ra chuẩn hoá theo bậc; ranh giới với hai kho bên cạnh](decisions/0005-output-tiers-and-boundaries.md) — bảng bậc ở `plugins/design-assembly/references/tiers.json`
 - [0020 Cuốn sổ bàn giao: design system được cho xem, vẽ từ chính kho](decisions/0020-handoff-book.md) — kịch bản ở `plugins/design-assembly/scripts/book.mjs`, skill ở `plugins/design-assembly/skills/handoff/`
 - [0021 Sáu luật cho những gì tác tử dựng màn phải đoán ở lần thử năm](decisions/0021-rules-the-builder-guessed.md) — cột thao tác đứng yên, nút giữ bề rộng, phần «linh kiện của kho», hai hành động của `Item`
-- [0023 Chín lời đáp cho các câu còn mở của kiến trúc lớp meta](decisions/0023-nine-answers-for-the-meta-layer.md) — chủ kho duyệt cả chín; bảng đầy đủ ở mục 15 của `docs/architecture/meta-layer.html`
+- [0023 Chín lời đáp cho các câu còn mở của kiến trúc lớp meta](decisions/0023-nine-answers-for-the-meta-layer.md) — chủ kho duyệt cả chín; bảng đầy đủ ở mục «Chín câu đã chốt» của `docs/architecture/meta-layer.html`
 - [0022 Mở một hồ sơ cạnh danh sách: câu lõi cuối, chọn bằng mắt](decisions/0022-record-beside-a-list.md) — linh kiện ở `src/components/record-panel.tsx`, bảng mẫu ở `plugins/design-assembly/scripts/specimen.mjs --section record`
 - [0019 Chọn bằng mắt, giữ bằng máy: bảng mẫu cho tầng foundations](decisions/0019-show-then-ask.md) — kịch bản vẽ ở `plugins/design-assembly/scripts/specimen.mjs`
 - [0018 Hướng nhập giữa các phần, và sổ lỗi lọt](decisions/0018-import-direction-and-slips.md) — bộ đọc ở `plugins/design-assembly/templates/tools/design-assembly/governance.mjs`; sổ ở `design/escapes.md`
