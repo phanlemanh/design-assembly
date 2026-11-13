@@ -115,6 +115,9 @@ việc nào được duyệt:
   `coverage/design-book/book.html`): lát 0020 chỉ nghiệm thu được bằng lượt đó.
 - **Chủ kho đã đi hết bảng mẫu của foundations** ngày 2026-11-12 và giữ cả ba giá trị đang dùng
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
+- **Dọn nền 2 đã xong và nghiệm thu đạt** (2026-11-13, quyết định 0028): ba luật hay bị phạm vào cổng,
+  toast phải được gắn, plugin cài khung `AppFrame` và phần tải chung `useList`. Ở lần đo nghiệm thu,
+  nhánh không có trang luật không còn phạm ba luật đó; ba luật nó còn phạm là luật cổng chưa giữ.
 - **Nhánh đối chứng trên repo mới của sàn, hai lượt** (2026-11-13, `docs/trials/control-arm.md`):
   nhánh có trang luật phạm 0 rồi 0 trên 13 luật tự khai, nhánh không phạm 3 rồi 6; cùng một chiều
   qua hai lượt. Nhánh có tốn hơn 18 đến 25 phần trăm token. Ở repo đối chứng của lab, nơi mã đã

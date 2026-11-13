@@ -226,3 +226,30 @@ trước; nhánh không vì vậy cũng bị cổng của chính nó giữ luậ
 
 **Đạt khi:** những luật nhánh không phạm mà cổng giờ giữ thì hiện thành lệnh kiểm đỏ khi lắp cổng lên
 bài làm của nó, và nhánh có vẫn phạm 0.
+
+### Kết quả lần bốn
+
+Cả hai nhánh qua cổng của chính mình ngay lần chạy đầy đủ đầu tiên, không dừng hỏi lần nào.
+
+| Số                                   | Nhánh có                | Nhánh không             |
+| ------------------------------------ | ----------------------- | ----------------------- |
+| Luật tự khai bị phạm                 | 0 / 13                  | 3 / 13                  |
+| Lệnh kiểm của plugin đỏ khi lắp cổng | 0                       | 0 thật, 2 vì sổ sách    |
+| Phần có sẵn được dùng                | 4 / 5                   | 5 / 5                   |
+| Chi phí                              | 230k token, 49 lần, 16' | 198k token, 44 lần, 15' |
+
+Hai lệnh kiểm đỏ trên bài làm của nhánh không (`state-matrix`, `reference-implementation`) cùng một
+lý do: nó khai trạng thái của màn bằng một hàm dùng chung, nên cổng đọc như văn bản không thấy. Đó
+là sổ sách, không phải hành vi: trang luật nay nói điều này, nhưng nhánh không không có trang luật.
+
+**Ba luật vừa vào cổng thì nhánh không giữ được cả ba** (trạng thái trống, liên kết giữa các màn,
+hộp thoại hỏi trước); ở lần hai và lần ba nó phạm chúng. Hộp thoại hỏi trước bị chính bài kiểm trình
+duyệt của nó giữ; hai luật kia thì nó tự theo, có lẽ vì khung `AppFrame` và màn mẫu mới đã mang sẵn
+chúng trong mã và lời chú thích. Ba luật nó còn phạm đều là luật cổng chưa giữ: L1 (khái niệm mới chỉ
+vào bảng thuật ngữ, không có thực thể hay hành động), L3 (hoàn tác xong lại hiện thêm một toast),
+L4 (hoàn tác thất bại không nói mục đang ở đâu).
+
+**Nghiệm thu: đạt.** Nhánh có vẫn phạm 0. Luật nào cổng mới giữ thì không còn bị phạm, nên không cần
+hiện thành lệnh kiểm đỏ; phần còn bị phạm nằm đúng ở các luật cổng chưa giữ. Bước kế theo cùng cách:
+đưa L3 vào bài kiểm trình duyệt (sau khi bấm hoàn tác, không còn toast nào), và giữ phần khai trạng
+thái bằng lệnh kiểm đọc được hàm, hoặc báo rõ hơn khi không đọc được.

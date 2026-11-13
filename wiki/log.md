@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-13 — Nghiệm thu Dọn nền 2 đạt: trên repo mới, nhánh không có trang luật không còn phạm ba luật vừa vào cổng; ba luật nó còn phạm đều là luật cổng chưa giữ. Nhánh có phạm 0 — [control-arm](../docs/trials/control-arm.md), [0028](decisions/0028-groundwork-two-rules-into-the-gate.md).
 - 2026-11-13 — Dọn nền 2: ba luật hay bị phạm vào cổng (trạng thái trống, liên kết giữa các màn, hộp thoại hỏi trước), cổng đỏ khi toast không được gắn, plugin cài khung `AppFrame` và phần tải chung `useList` — [0028](decisions/0028-groundwork-two-rules-into-the-gate.md).
 - 2026-11-13 — Nhánh đối chứng lần ba trên repo mới: nhánh có phạm 0 trên 13 luật tự khai, nhánh không phạm 6 và đỏ một lệnh kiểm của plugin; gộp với lần hai thì cùng một chiều. Sửa lệnh kiểm kênh thông báo báo nhầm một hàm tên `confirm` — [control-arm](../docs/trials/control-arm.md), `docs/trials/control.tsv`.
 - 2026-11-13 — Nhánh đối chứng lần hai, trên repo mới của sàn: nhánh có trang luật phạm 0 trên 13 luật tự khai, nhánh không phạm 3; cổng của plugin không bắt được gì ở cả hai; nhánh có tốn hơn khoảng một phần tư token. Một lượt mỗi nhánh, chưa dựa vào được — [control-arm](../docs/trials/control-arm.md), `docs/trials/control.tsv`.

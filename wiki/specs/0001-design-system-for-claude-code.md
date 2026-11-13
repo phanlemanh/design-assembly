@@ -700,6 +700,15 @@ và 6, cùng một chiều; nhánh có tốn hơn 18 đến 25 phần trăm toke
 báo nhầm (một hàm tên `confirm` của màn bị tưởng là hộp thoại của trình duyệt); đã sửa. Chi tiết ở
 `docs/trials/control-arm.md`.
 
+### Nghiệm thu Dọn nền 2 (2026-11-13)
+
+Nhánh đối chứng chạy lần bốn trên repo mới của sàn, với plugin bản có quyết định 0028. Nhánh có phạm
+0 trên 13 luật tự khai; nhánh không phạm 3, và **không còn phạm ba luật vừa vào cổng** (trạng thái
+trống, liên kết giữa các màn, hộp thoại hỏi trước), những luật nó phạm ở hai lượt trước. Ba luật nó
+còn phạm đều là luật cổng chưa giữ: khái niệm mới vào mô hình dữ liệu, không hiện toast thứ hai sau
+hoàn tác, và câu hoàn tác thất bại nói mục ở đâu. Nghiệm thu đạt; bước kế theo cùng cách là đưa luật
+toast thứ hai vào bài kiểm trình duyệt. Chi tiết ở `docs/trials/control-arm.md`.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.

@@ -5,3 +5,5 @@ trial	date	arm	gate	rounds	held_red	bookkeeping_red	parts_used	declared_broken	t
 2	2026-11-13	without	green	0	0	0	5/5	3/13	218024	54	17	Phạm L4 (hoàn tác thất bại không nói mục ở đâu), L6 (trạng thái trống có liên kết khoác áo nút chính), L9 (xoá giữ hộp thoại, không báo kết quả).
 3	2026-11-13	with	green	0	0	0	4/5	0/13	236277	50	16	Repo mới của sàn, không lịch sử. Lại viết lại màn mẫu theo trang luật.
 3	2026-11-13	without	green	0	1	0	5/5	6/13	200020	40	17	Đỏ thật: column-align. Lệnh kiểm notification-channel cũng đỏ nhưng báo nhầm một hàm tên confirm, không tính (plugin đã sửa). Một bài kiểm toast chập chờn đỏ ở một trong hai lần chạy lại. Phạm L1, L4, L6, L7, L9, L10.
+4	2026-11-13	with	green	0	0	0	4/5	0/13	229679	49	16	Nghiệm thu 0028. Repo mới của sàn, plugin có ba luật mới trong cổng, khung và phần tải chung.
+4	2026-11-13	without	green	0	0	2	5/5	3/13	Hai lệnh kiểm đỏ chỉ vì khai trạng thái bằng hàm (cổng đọc như văn bản). Giữ được cả ba luật mới vào cổng (L6, L7, L9); phạm L1 (khái niệm chỉ vào bảng thuật ngữ), L3 (toast thứ hai sau hoàn tác), L4 (hoàn tác thất bại không nói mục ở đâu).

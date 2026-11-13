@@ -1572,6 +1572,50 @@
       "where": ["d0028", "trials"],
       "status": "open",
       "note": "The plugin ships the shared loading of a list but not the shared change of a row (move with undo, delete asked first, focus), which every builder in the control runs wrote again by hand."
+    },
+    {
+      "id": "undo-second-toast-unchecked",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-13",
+      "where": ["trials", "d0028"],
+      "status": "open",
+      "note": "That an undo shows no second toast is held by no check, and the builder without the rules page showed one after every undo."
+    },
+    {
+      "id": "concept-in-model-unchecked",
+      "area": "rules",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-13",
+      "where": ["trials", "d0028"],
+      "status": "open",
+      "note": "That a new concept and its actions go into the data model is held by no check; the builder without the rules page added a glossary line only."
+    },
+    {
+      "id": "states-by-function-read-red",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-13",
+      "where": ["trials", "d0028"],
+      "status": "open",
+      "note": "A screen list that builds its states with a shared function turns the states check red as if no state were declared, while every state is there when the app runs."
+    },
+    {
+      "id": "floor-sample-not-on-shared-list",
+      "area": "guide",
+      "kind": "conflict",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-13",
+      "where": ["trials", "d0028"],
+      "status": "open",
+      "note": "On a fresh repository the plugin installs the shared list loading but the screen the floor ships keeps its own, so a builder sees two ways to load a list."
     }
   ]
 }
