@@ -101,6 +101,9 @@ cột: `trial`, `date`, `arm` (`with` hay `without`), `gate`, `rounds`, `held_re
   ghi «chưa kết luận» và chạy lại, không diễn giải.
 - Phiên điều phối biết bài nào của nhánh nào khi chấm phần luật tự khai.
 - Một đề, một kiểu màn, một repo. Kết quả không nói gì về repo không phải repo đối chứng.
+- Bản sao của nhánh không vẫn mang lịch sử git, trong đó có các trang đã bỏ. Ở lần hai, tác tử nhánh
+  không thấy tên các tệp đó qua lịch sử và báo rằng không mở nội dung. Lần sau nên dựng nhánh không
+  từ một bản không có lịch sử.
 
 ## Lần đầu (2026-11-13)
 
