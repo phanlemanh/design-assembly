@@ -1299,9 +1299,11 @@
       "severity": "high",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials", "spec"],
-      "status": "open",
-      "note": "At 320px the row's actions button, held to the width of its longer label, leaves the widest scrolling column a few pixels short beside the margins of the reference screen, so a builder shortens the words or the page's margins to pass."
+      "where": ["d0026", "spec", "trials"],
+      "status": "closed",
+      "note": "At 320px the row's actions button, held to the width of its longer label, leaves the widest scrolling column a few pixels short beside the margins of the reference screen, so a builder shortens the words or the page's margins to pass.",
+      "closed": "2026-11-13",
+      "closed_by": "the button shows only an ellipsis, 28px at every width, and says what it is doing in its spoken name (decision 0026); tried at 320 and 1440"
     },
     {
       "id": "forbids-model-change-unclear",

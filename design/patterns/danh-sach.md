@@ -45,7 +45,7 @@ làm ngay mà thất bại thì dòng còn nguyên và toast báo (thao tác h�
 trong hộp thoại). Dòng cuối cùng rời đi thì tiêu điểm vào nút của trạng thái
 trống. Chi tiết ở `design/behaviors.md`, «Sau một thao tác».
 
-Một dòng có một nút; từ hai thao tác thì gom sau một nút «Thao tác» của dòng, ở mọi bề rộng, mở ra danh sách các nút, thao tác đảo được
+Một dòng có một nút; từ hai thao tác thì gom sau một nút «⋯» của dòng, ở mọi bề rộng, mở ra danh sách các nút, thao tác đảo được
 đứng trước, xoá đứng cuối. Mỗi dòng chờ phần của nó: các dòng khác vẫn dùng được. Nút đang chờ
 giữ nguyên bề rộng. Bảng rộng hơn chỗ thì cuộn ngang: cột thao tác luôn đứng yên, cột tên đứng
 yên từ bề rộng 640. Chi

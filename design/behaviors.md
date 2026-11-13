@@ -57,7 +57,7 @@ Thất bại thì báo ở nơi người dùng vừa làm, và không bao giờ 
 ## Sau một thao tác
 
 - **Tiêu điểm không bao giờ rơi vào khoảng không.** Phần tử vừa dùng mà rời khỏi trang thì tiêu
-  điểm chuyển đi: sang cùng nút ở dòng kế (nút «Thao tác» nếu các thao tác gom sau nó), hết dòng kế thì dòng trước; danh sách không còn dòng
+  điểm chuyển đi: sang cùng nút ở dòng kế (nút «⋯» nếu các thao tác gom sau nó), hết dòng kế thì dòng trước; danh sách không còn dòng
   nào thì vào nút của trạng thái đang hiện thay bảng; không có nút thì vào tiêu đề màn. Bài kiểm
   trình duyệt đỏ khi sau một thao tác không còn gì giữ tiêu điểm.
 - **Đang chờ trả lời:** nút vừa bấm bị khoá nhưng vẫn giữ tiêu điểm (`disabled` kèm
@@ -77,11 +77,13 @@ Thất bại thì báo ở nơi người dùng vừa làm, và không bao giờ 
 
 ## Thao tác trên dòng
 
-- **Một nút trên một dòng.** Từ hai thao tác trở lên thì gom sau một nút «Thao tác» của dòng, ở
+- **Một nút trên một dòng.** Từ hai thao tác trở lên thì gom sau một nút «⋯» của dòng, ở
   mọi bề rộng: ở 320px hai nút chữ không vừa cạnh dữ liệu, và một luật cho mọi bề rộng giữ một
   đường tới mỗi trạng thái. Bấm nút đó thì mở ra danh sách các thao tác, mỗi thao tác vẫn là một nút (kiểu «mở rộng», không dùng vai
   trò trình đơn của ARIA), nên bài kiểm trình duyệt bấm tới được và khai được mọi trạng thái phía
-  sau. Thao tác đảo được đứng trước, xoá đứng cuối.
+  sau. Thao tác đảo được đứng trước, xoá đứng cuối. Nút chỉ có dấu «⋯», không có chữ, nên chiếm
+  cùng một chỗ nhỏ ở mọi bề rộng; trình đọc màn hình đọc tên của nó, nói nút thuộc dòng nào. Trong
+  lúc thao tác chờ, từ giây thứ nhất, dấu «⋯» thành một vòng xoay và tên đọc nói đang làm gì.
 - **Mỗi dòng chờ phần của nó.** Một dòng đang chờ trả lời thì các dòng khác vẫn dùng được.
 - **Bảng rộng hơn chỗ: cột thao tác luôn đứng yên.** Bảng cuộn ngang bên trong nó; cột thao tác
   (`TableActionsHead`, `TableActions` trong `src/components/ui/table-actions.tsx`) ở yên nên nút của một dòng luôn trong khung nhìn. Cột tên

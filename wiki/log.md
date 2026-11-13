@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-13 — Nút giữ các thao tác của dòng đổi từ chữ «Thao tác» thành dấu «⋯» theo lựa chọn của chủ repo: rộng 28px ở mọi bề rộng, tên đọc nói dòng nào và đang làm gì; ở 320 cột thao tác còn chừa khoảng 20px — [0026](decisions/0026-one-button-per-row-and-model-review-after.md), `src/components/ui/row-actions.tsx`.
 - 2026-11-13 — Chạy thử lần tám: dựng màn vẫn đoán 12 chỗ nhưng không còn hỏi, ba chỗ đoán quanh danh sách thao tác đã mất. Sửa tên đọc của nút «Thao tác» lúc chờ, lệnh kiểm đọc nhầm dấu nháy trong chú thích, câu sai về khoảng cách của cuốn sổ, và lời hứa sai của trang tầng patterns; sổ giới hạn thêm 14 dòng mở — [spec 0001](specs/0001-design-system-for-claude-code.md), `docs/trials/results.tsv`.
 - 2026-11-13 — Plugin cài thêm `RowActions`: một nút «Thao tác» mở ra danh sách các thao tác của dòng, nổi dưới nút nên không làm cột rộng ra, mỗi lúc một danh sách, bấm xong thì tiêu điểm về nút — [0026](decisions/0026-one-button-per-row-and-model-review-after.md), `src/components/ui/row-actions.tsx`.
 - 2026-11-13 — Sửa hai chỗ luật chọi nhau của lần thử bảy theo lựa chọn của chủ repo: từ hai thao tác trên một dòng thì gom sau một nút ở mọi bề rộng; tác tử thêm khái niệm mới vào mô hình dữ liệu trong cùng thay đổi để người duyệt trước khi gộp — [0026](decisions/0026-one-button-per-row-and-model-review-after.md).

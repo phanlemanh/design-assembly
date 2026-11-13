@@ -3,23 +3,22 @@
 // width: one action shows as a button, two or more go behind this one (design/behaviors.md,
 // actions on a row).
 //
-// The list floats below the button, against its right edge, above the rows under it: it never
-// widens the column that stays in place. One list is open at a time: pressing anywhere else
-// closes it. Pressing one of its actions closes it and gives focus back to the row's button, so
-// focus never falls on nothing; while that action waits, the row's button is held and keeps focus,
-// and from one second on it says it is working, in its words and in its name.
+// The button shows "⋯" and nothing else, so it takes the same small room at every width and never
+// squeezes the columns that scroll; a screen reader hears its name, which says which row it acts
+// on. The list floats below the button, against its right edge, above the rows under it: it never
+// widens the column that stays in place. One list is open at a time: pressing anywhere else closes
+// it. Pressing one of its actions closes it and gives focus back to the row's button, so focus
+// never falls on nothing; while that action waits, the row's button is held and keeps focus, and
+// from one second on it turns into a turning circle and is named for what it is doing.
 // It is a popover of buttons, not an ARIA menu, so every action stays a button the browser test
 // can press.
 import { Popover } from "@base-ui/react/popover";
+import { EllipsisIcon, LoaderCircleIcon } from "lucide-react";
 import * as React from "react";
 
 import { Button } from "@/components/ui/button";
 
-// The words a person sees are the start of the name a screen reader says (WCAG 2.5.3), while the
-// row waits as much as before: `name` begins with the label, and `busyName` with the words the
-// label shows while it waits.
 function RowActions({
-  label,
   name,
   pending = false,
   busy = false,
@@ -27,14 +26,11 @@ function RowActions({
   children,
   ref,
 }: {
-  /** What the row's button shows: a `HeldLabel`, so that from one second of waiting on it says
-   * it is working and keeps its width. */
-  label: React.ReactNode;
-  /** What a screen reader says for the button and its list: the label and which row. */
+  /** What a screen reader says for the button and its list: which row they act on. */
   name: string;
   /** While a row's action waits the button is held: it keeps focus and does not open. */
   pending?: boolean | undefined;
-  /** Whether the label says it is working; the button is then named `busyName`. */
+  /** From one second of waiting on, the button shows that it is working and is named `busyName`. */
   busy?: boolean | undefined;
   busyName?: string | undefined;
   /** The actions, as buttons: those that can be taken back first, a delete last. */
@@ -60,9 +56,15 @@ function RowActions({
       <Popover.Trigger
         ref={setTrigger}
         aria-label={busy && busyName ? busyName : name}
-        render={<Button variant="outline" size="sm" disabled={pending} focusableWhenDisabled />}
+        render={
+          <Button variant="outline" size="icon-sm" disabled={pending} focusableWhenDisabled />
+        }
       >
-        {label}
+        {busy ? (
+          <LoaderCircleIcon aria-hidden="true" className="motion-safe:animate-spin" />
+        ) : (
+          <EllipsisIcon aria-hidden="true" />
+        )}
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner side="bottom" align="end" sideOffset={4} className="z-50">

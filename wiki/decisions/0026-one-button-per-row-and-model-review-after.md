@@ -68,5 +68,13 @@ Lần thử bảy tìm ra hai chỗ mà luật tự chọi nhau.
   hộp thoại của sàn đã dùng, không cài gói mới. Bài kiểm riêng ở `tests/row-actions.test.tsx`. Đã
   thử trên một bản sao tạm có màn mẫu dùng phần này với hai thao tác: cả 75 lượt kiểm trình duyệt
   qua, kể cả các trạng thái xoá đi qua nút «Thao tác» và tiêu điểm sau khi xoá.
+- **Nút là «⋯», không phải chữ «Thao tác»** (chủ repo chọn ngày 2026-11-13, «Đổi thành «⋯»»,
+  sau lần thử tám). Với chữ, nút giữ bề rộng của chữ dài hơn trong hai chữ (thường và lúc chờ)
+  nên ở 320 cột đứng yên lấn chỗ cột cuộn: lần tám tác tử dựng màn phải thu lề cả ba màn mới qua.
+  Giờ nút chỉ có dấu «⋯», rộng 28px ở mọi bề rộng; trình đọc màn hình đọc tên nói nút thuộc dòng
+  nào. Từ giây chờ thứ nhất, dấu «⋯» thành vòng xoay và tên đọc nói đang làm gì. Giá: người dùng
+  thấy dấu ba chấm thay vì chữ. Đo trên bản sao tạm có màn mẫu dùng nút này với hai thao tác: ở
+  320 cột thao tác rộng 72px, còn chừa khoảng 20px trước khi chạm ngưỡng; cả 75 lượt kiểm trình
+  duyệt qua.
 - Không lệnh kiểm nào đếm số nút trên một dòng. Phép kiểm ở bề rộng 320 bắt được hai nút chữ trên
   dữ liệu mẫu, nhưng chỉ trên dữ liệu mẫu (dòng `320-check-sample-data-only`).

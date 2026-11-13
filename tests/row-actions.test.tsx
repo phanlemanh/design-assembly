@@ -11,7 +11,6 @@ import { RowActions } from "../src/components/ui/row-actions.tsx";
 function Row(props: { row: string; pending?: boolean; busy?: boolean; onDone?: () => void }) {
   return (
     <RowActions
-      label={props.busy ? "Working" : "Actions"}
       name={`Actions for ${props.row}`}
       pending={props.pending}
       busy={props.busy}
@@ -78,9 +77,14 @@ it("one list is open at a time", async () => {
   );
 });
 
-it("while it says it is working, a screen reader hears the words a person sees", () => {
-  render(<Row row="first" pending busy />);
+it("shows no words of its own, so it takes the same small room at every width", () => {
+  render(<Row row="first" />);
+  expect(screen.getByRole("button", { name: "Actions for first" })).toHaveTextContent(/^$/);
+});
+
+it("while it is working, it shows so and a screen reader hears what it is doing", () => {
+  const { container } = render(<Row row="first" pending busy />);
   const button = screen.getByRole("button", { name: "Working on first" });
-  expect(button).toHaveTextContent(/^Working/);
   expect(button).toHaveAttribute("aria-disabled", "true");
+  expect(container.querySelector(".motion-safe\\:animate-spin")).toBeInTheDocument();
 });
