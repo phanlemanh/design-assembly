@@ -878,7 +878,7 @@ export function rulesPage(checks, has) {
         ? "The first column of a typed table stays in place too from 640px up. On a phone it scrolls with the data, so every column can still be read."
         : "The first column stays in place too only where that leaves room to read the columns between."),
     rows &&
-      "A row shows at most two actions as buttons. Three or more go behind one button on the row that opens them as a list of buttons: a disclosure, not an ARIA menu, so every action stays a button the browser test can press and every state behind it can be listed. The actions that can be taken back come first, a delete comes last.",
+      "A row shows one action as a button. Two or more go behind one button on the row, at every width, that opens them as a list of buttons: two text buttons do not fit beside the data at 320px, and one rule for every width keeps one way to reach each state. It is a disclosure, not an ARIA menu, so every action stays a button the browser test can press and every state behind it can be listed. The actions that can be taken back come first, a delete comes last.",
     rows &&
       "Each row waits on its own: while one row's action waits, the other rows can still be used.",
     rows &&
@@ -936,7 +936,7 @@ export function rulesPage(checks, has) {
     pages &&
       "While an action done at once waits for its answer, the control that started it is held and keeps focus. A control that is removed, or disabled in a way that drops it from the keyboard, loses focus. From one second on, the control says it is working.",
     pages &&
-      "When a control leaves the page (its row is removed, its dialog closes on a deleted item, its state is replaced), move focus: to the same action on the row after it, else on the row before, else to the button of the state shown in place of the table, else to the screen's top heading.",
+      "When a control leaves the page (its row is removed, its dialog closes on a deleted item, its state is replaced), move focus: to the same control on the row after it (the button that opens a row's actions, where they are behind one), else on the row before, else to the button of the state shown in place of the table, else to the screen's top heading.",
     pages &&
       "Wherever focus is sent, it shows: a heading or any element given `tabIndex={-1}` to receive focus gets the same visible ring as a control.",
     pages &&
@@ -963,7 +963,7 @@ export function rulesPage(checks, has) {
   ]);
   section("No check holds these: a person reviews them", [
     has("ontology/glossary.md") &&
-      "A screen that needs a concept or an action the data model does not name adds it to `ontology/` first, in the same change. An agent that may not change the data model stops and asks: it never names the concept in a screen alone.",
+      "A screen that needs a concept or an action the data model does not name adds it to `ontology/` first, in the same change, and says in the change's description that the data model changed and a person reviews it before it merges. Only where the repository forbids an agent to change the data model does the agent stop and ask. It never names the concept in a screen alone.",
     "A row of `design/decisions.yaml` is for a rule a second screen must follow. A choice that only one screen makes stays in that screen.",
     held("page-layouts") &&
       "One item changing never sends the whole list back to its loading state: the row stays until the answer, then the list changes in place.",

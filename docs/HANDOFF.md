@@ -117,9 +117,8 @@ việc nào được duyệt:
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
 - **Lần chạy thử bảy đã xong** (2026-11-13, kết quả ở cuối spec 0001, số ở
   `docs/trials/results.tsv`). Lần đầu theo đề chuẩn: dựng màn phải đoán 12 chỗ, là điểm đầu của
-  chuỗi. Điều sai rõ đã sửa; điều chưa sửa nằm trong sổ giới hạn, nặng nhất là luật hai nút trên
-  một dòng chọi phép kiểm ở bề rộng 320, và hai trang nói ngược nhau về ai được sửa mô hình dữ
-  liệu. Các sửa đổi sau lần này chưa được thử lại.
+  chuỗi. Điều sai rõ đã sửa; hai chỗ luật chọi nhau đã được chủ repo chọn cách sửa (quyết định
+  0026); điều còn lại nằm trong sổ giới hạn. Các sửa đổi sau lần này chưa được thử lại.
 - **Khung điều hướng đã dựng** cùng màn thứ hai ngày 2026-11-13 (quyết định 0025). Phép đo tấm hồ
   sơ chừa thanh đầu giờ chạy trên thanh đầu thật.
 - **Đo token** theo giao thức của Repo Standards: đề bài hẹn làm khi cuộc dẫn dắt tới bậc

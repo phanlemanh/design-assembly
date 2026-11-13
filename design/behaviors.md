@@ -57,7 +57,7 @@ Thất bại thì báo ở nơi người dùng vừa làm, và không bao giờ 
 ## Sau một thao tác
 
 - **Tiêu điểm không bao giờ rơi vào khoảng không.** Phần tử vừa dùng mà rời khỏi trang thì tiêu
-  điểm chuyển đi: sang cùng nút ở dòng kế, hết dòng kế thì dòng trước; danh sách không còn dòng
+  điểm chuyển đi: sang cùng nút ở dòng kế (nút «Thao tác» nếu các thao tác gom sau nó), hết dòng kế thì dòng trước; danh sách không còn dòng
   nào thì vào nút của trạng thái đang hiện thay bảng; không có nút thì vào tiêu đề màn. Bài kiểm
   trình duyệt đỏ khi sau một thao tác không còn gì giữ tiêu điểm.
 - **Đang chờ trả lời:** nút vừa bấm bị khoá nhưng vẫn giữ tiêu điểm (`disabled` kèm
@@ -77,8 +77,9 @@ Thất bại thì báo ở nơi người dùng vừa làm, và không bao giờ 
 
 ## Thao tác trên dòng
 
-- **Tối đa hai nút trên một dòng.** Từ ba thao tác trở lên thì gom sau một nút của dòng; bấm nút
-  đó thì mở ra danh sách các thao tác, mỗi thao tác vẫn là một nút (kiểu «mở rộng», không dùng vai
+- **Một nút trên một dòng.** Từ hai thao tác trở lên thì gom sau một nút «Thao tác» của dòng, ở
+  mọi bề rộng: ở 320px hai nút chữ không vừa cạnh dữ liệu, và một luật cho mọi bề rộng giữ một
+  đường tới mỗi trạng thái. Bấm nút đó thì mở ra danh sách các thao tác, mỗi thao tác vẫn là một nút (kiểu «mở rộng», không dùng vai
   trò trình đơn của ARIA), nên bài kiểm trình duyệt bấm tới được và khai được mọi trạng thái phía
   sau. Thao tác đảo được đứng trước, xoá đứng cuối.
 - **Mỗi dòng chờ phần của nó.** Một dòng đang chờ trả lời thì các dòng khác vẫn dùng được.
@@ -133,8 +134,9 @@ accessibility tự động. Bề rộng hẹp nhất là 320.
   và dữ liệu xuống phần nền; phần vẽ dùng chung thành linh kiện của kho, ở phần `shared` nằm giữa
   các màn và thư viện linh kiện. Phần vẽ của riêng một màn ở lại trong màn đó.
 - **Khái niệm mới đi qua mô hình dữ liệu.** Màn cần một khái niệm hay một hành động mà mô hình
-  dữ liệu chưa có thì thêm vào `ontology/` trước, trong cùng thay đổi. Tác tử không được sửa mô
-  hình thì dừng lại và hỏi, không tự đặt tên khái niệm trong màn.
+  dữ liệu chưa có thì thêm vào `ontology/` trước, trong cùng thay đổi, và ghi rõ trong mô tả thay
+  đổi rằng mô hình đã đổi, chờ người duyệt trước khi gộp. Chỉ khi repo cấm tác tử sửa mô hình thì
+  tác tử mới dừng lại hỏi. Không bao giờ tự đặt tên khái niệm trong màn mà mô hình không có.
 - **Sổ quyết định chỉ cho luật dùng chung.** Một dòng của `design/decisions.yaml` là luật mà màn
   thứ hai cũng phải theo. Lựa chọn của riêng một màn ở lại trong màn đó.
 - **Lỗi lọt.** Gặp một lỗi mà mọi lệnh kiểm đều cho qua thì ghi một dòng vào `design/escapes.md`

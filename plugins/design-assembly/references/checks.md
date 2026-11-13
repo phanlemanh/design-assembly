@@ -191,8 +191,8 @@ every page; the others are a person's review, and the rules page says so.
 
 - **Focus never falls on nothing** (`focus-after-action`). A control that leaves the page takes
   focus with it, and the browser hands focus to the document: a person at the keyboard is then
-  nowhere. Focus moves to the same action on the row after the one that left, else on the row
-  before, else to the button of the state shown in place of the table, else to the screen's top
+  nowhere. Focus moves to the same control on the row after the one that left (the button that
+  opens a row's actions, where they are behind one), else on the row before, else to the button of the state shown in place of the table, else to the screen's top
   heading. A control that waits for an answer is held in a way that keeps focus. A button of a
   toast gives focus back to where the person was. The browser test checks, for every state that
   follows an action, that something has focus once the page has settled. It does not check that
@@ -229,8 +229,8 @@ every page; the others are a person's review, and the rules page says so.
   written before this was asked keeps `patterns` planned: the guide then applies the proposal for
   the product type, `beside` for an application and `in-place` for a content site, and the row
   says a person has not confirmed it.
-- **The actions of a row.** At most two show as buttons; three or more go behind one button on the
-  row that opens them as a list of buttons (a disclosure, not an ARIA menu: the browser tests,
+- **The actions of a row.** One shows as a button; two or more go behind one button on the row, at
+  every width (two text buttons do not fit beside the data at 320px), that opens them as a list of buttons (a disclosure, not an ARIA menu: the browser tests,
   the floor's and this plugin's, reach a state by pressing a button), the ones that can be taken back first and a delete last. Each row waits on its own. A
   button that says it is working keeps its width: the guide installs `HeldLabel` beside the
   component library with the browser test, and the rules page names it. No check reads these: a

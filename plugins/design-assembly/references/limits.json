@@ -1095,9 +1095,11 @@
       "severity": "high",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials", "spec"],
-      "status": "open",
-      "note": "The rules page allows two actions on a row as buttons, but at 320px two buttons make the column that stays in place too wide for the check that keeps room for the widest scrolling column."
+      "where": ["trials", "spec", "d0026"],
+      "status": "closed",
+      "note": "The rules page allows two actions on a row as buttons, but at 320px two buttons make the column that stays in place too wide for the check that keeps room for the widest scrolling column.",
+      "closed": "2026-11-13",
+      "closed_by": "the rules allow one action as a button and put two or more behind one button at every width (decision 0026)"
     },
     {
       "id": "focus-target-behind-disclosure",
@@ -1106,9 +1108,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials", "spec"],
-      "status": "open",
-      "note": "The rule that focus moves to the same action on the next row says nothing for actions kept behind a disclosure, where that action is not on the page."
+      "where": ["trials", "spec", "d0026"],
+      "status": "closed",
+      "note": "The rule that focus moves to the same action on the next row says nothing for actions kept behind a disclosure, where that action is not on the page.",
+      "closed": "2026-11-13",
+      "closed_by": "focus goes to the same control on the next row, the button that opens its actions where they are behind one (decision 0026)"
     },
     {
       "id": "data-model-ask-or-edit-unclear",
@@ -1117,9 +1121,11 @@
       "severity": "high",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials", "spec"],
-      "status": "open",
-      "note": "The rules page tells an agent that may not change the data model to stop and ask, while the repository's own guide lets any change edit the model for later review, so the screen agent changed the model without asking."
+      "where": ["trials", "spec", "d0026"],
+      "status": "closed",
+      "note": "The rules page tells an agent that may not change the data model to stop and ask, while the repository's own guide lets any change edit the model for later review, so the screen agent changed the model without asking.",
+      "closed": "2026-11-13",
+      "closed_by": "an agent adds the concept in the same change for a person to review before it merges, and stops only where the repository forbids it (decision 0026)"
     },
     {
       "id": "ontology-skill-promises-more",
@@ -1132,6 +1138,17 @@
       "status": "open",
       "note": "The repository's skill for changing the data model says regeneration also writes an API contract and a tool list and that the compiler names unbuilt actions, and none of that happens in a repository of this stack.",
       "repo": "repo-standards"
+    },
+    {
+      "id": "row-actions-disclosure-unbuilt",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-13",
+      "where": ["d0026", "trials"],
+      "status": "open",
+      "note": "The plugin installs no part for the button that holds a row's actions and the list it opens, so a builder still decides where the list shows, whether rows open one at a time, and whether it closes after an action."
     }
   ]
 }
