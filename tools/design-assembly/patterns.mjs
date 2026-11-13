@@ -175,8 +175,12 @@ export function channelsProblem(files, skip = []) {
       if ([...text.matchAll(direct)].length > 0) doors.push(file);
       continue;
     }
-    for (const call of text.matchAll(/(?<![\w.])(?:window\.)?(alert|confirm|prompt)\s*\(/g)) {
-      found.push(`${file}: opens the browser's own ${call[1]} dialog`);
+    for (const call of text.matchAll(/(?<![\w.])(window\.)?(alert|confirm|prompt)\s*\(/g)) {
+      // A screen's own function of that name is not the browser's dialog: only `window.` or a
+      // name the file does not declare reaches it.
+      const own = new RegExp(`\\b(function|const|let|var)\\s+${call[2]}\\b`).test(text);
+      if (!call[1] && own) continue;
+      found.push(`${file}: opens the browser's own ${call[2]} dialog`);
     }
     for (const use of text.matchAll(direct)) {
       found.push(`${file}: calls the toast library ${use[1]} itself`);

@@ -1529,6 +1529,19 @@
       "where": ["trials"],
       "status": "open",
       "note": "After the guide, the reference screen on a fresh repository still keeps its dialog open while it deletes, against the rules page it installs, so a builder must pick between the two."
+    },
+    {
+      "id": "channel-check-own-confirm",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-13",
+      "where": ["trials"],
+      "status": "closed",
+      "note": "The channel check took a screen's own function named confirm for the browser's dialog and turned the gate red for nothing.",
+      "closed": "2026-11-13",
+      "closed_by": "a name the file declares itself is not the browser's dialog unless called through window, held by a plugin test seen red without it"
     }
   ]
 }

@@ -115,9 +115,10 @@ việc nào được duyệt:
   `coverage/design-book/book.html`): lát 0020 chỉ nghiệm thu được bằng lượt đó.
 - **Chủ kho đã đi hết bảng mẫu của foundations** ngày 2026-11-12 và giữ cả ba giá trị đang dùng
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
-- **Nhánh đối chứng lần hai, trên repo mới của sàn** (2026-11-13): nhánh có trang luật phạm 0 trên
-  13 luật tự khai, nhánh không phạm 3; cổng của plugin không bắt được gì ở cả hai. Một lượt mỗi
-  nhánh, nên chạy thêm trước khi dựa vào.
+- **Nhánh đối chứng trên repo mới của sàn, hai lượt** (2026-11-13, `docs/trials/control-arm.md`):
+  nhánh có trang luật phạm 0 rồi 0 trên 13 luật tự khai, nhánh không phạm 3 rồi 6; cùng một chiều
+  qua hai lượt. Nhánh có tốn hơn 18 đến 25 phần trăm token. Ở repo đối chứng của lab, nơi mã đã
+  mang luật, hai nhánh bằng nhau.
 - **Nhánh đối chứng đã chạy lần đầu** (2026-11-13, `docs/trials/control-arm.md`): cùng đề dựng
   màn, có và không có trang luật cùng cổng của plugin. Bằng nhau ở mọi số, chưa kết luận: ở repo
   này mã nguồn đã mang sẵn các luật. Nhánh có tính là lượt dựng màn của lần mười, 11 chỗ phải đoán.

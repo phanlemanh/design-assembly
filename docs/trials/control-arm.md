@@ -183,3 +183,32 @@ Cùng repo gốc với lần hai (commit `f957067` của bản sao), cùng đề
 một điều: mỗi nhánh là một repo **không có lịch sử**, chỉ một commit mở đầu, nên các trang đã bỏ
 không còn nằm đâu trong bản sao. Hiệu chỉnh đạt: nhánh không và nhánh có đều xanh khi chưa ai đụng
 vào; lắp lại cổng lên nhánh không thì xanh, 22 quyết định, 28 lệnh kiểm.
+
+### Kết quả lần ba
+
+Cả hai nhánh qua cổng của chính mình, không phải sửa vòng nào ở cấp `make check`. Ở nhánh không,
+một bài kiểm của chính tác tử (toast hiện chậm một nhịp) đỏ ở một trong hai lần phiên điều phối
+chạy lại, rồi xanh: bài chập chờn, không tính là cổng đỏ.
+
+- **Lắp cổng của plugin lên bài làm:** nhánh có 0 trên 28 đỏ; nhánh không **1** đỏ thật
+  (`column-align`: tự đặt canh phải lên ô bảng). Lệnh kiểm `notification-channel` cũng đỏ trên
+  nhánh không, nhưng là báo nhầm: nó tưởng một hàm tên `confirm` của màn là hộp thoại của trình
+  duyệt. Không tính; plugin đã sửa lệnh kiểm đó, kèm bài kiểm.
+- **Luật tự khai:** nhánh có phạm 0 trên 13; nhánh không phạm **6**: L1 (không ghi khái niệm mới
+  vào mô hình dữ liệu), L4 (hoàn tác thất bại không nói mục ở đâu), L6 (liên kết khoác áo nút ở
+  trạng thái trống), L7 (liên kết sang màn khác ngay cạnh tiêu đề), L9 (xoá giữ hộp thoại), L10
+  (tiêu điểm không về dòng vừa quay lại).
+- **Phần có sẵn:** 4 trên 5 và 5 trên 5, cùng lý do như lần hai.
+- **Chi phí:** 236 nghìn so với 200 nghìn token, 50 so với 40 lần gọi công cụ, 16 và 17 phút.
+
+### Gộp hai lần trên repo mới
+
+| Lần | Luật tự khai bị phạm (có / không) | Lệnh kiểm đỏ khi lắp cổng (có / không) | Token (có / không) |
+| --- | --------------------------------- | -------------------------------------- | ------------------ |
+| 2   | 0 / 3                             | 0 / 0                                  | 272k / 218k        |
+| 3   | 0 / 6                             | 0 / 1                                  | 236k / 200k        |
+
+Hai lượt cùng một chiều: nhánh có trang luật giữ đủ 13 luật cả hai lần; nhánh không phạm 3 rồi 6,
+và ba luật bị phạm cả hai lần (L4, L6, L9). Cái giá là khoảng 18 đến 25 phần trăm token.
+Đây là kết quả đầu tiên mà phép so dựa vào được ở mức «cùng chiều qua hai lượt», chưa phải một con
+số chắc. Ở repo đối chứng của lab, nơi mã đã mang luật, hai nhánh bằng nhau.

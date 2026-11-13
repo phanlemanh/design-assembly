@@ -256,6 +256,9 @@ test("a screen that opens a browser dialog or calls a toast library itself is fo
     "src/c.tsx": "export const C = () => <button onClick={() => alert(text)} />;\n",
     // A function of the screen's own that asks, and the toast component itself, are fine.
     "src/d.tsx": "export const D = () => <button onClick={() => confirmDelete(item)} />;\n",
+    // Nor is a function the screen names `confirm` itself (found by the control arm, trial run 3).
+    "src/e.tsx":
+      "async function confirm() { await remove(); }\nexport const E = () => <Dialog onConfirm={confirm} />;\n",
     "src/components/ui/sonner.tsx":
       'import { Toaster } from "sonner";\nexport const T = () => <Toaster />;\n',
   };
@@ -263,7 +266,7 @@ test("a screen that opens a browser dialog or calls a toast library itself is fo
   assert.match(found, /src\/a\.tsx: opens the browser's own confirm dialog/);
   assert.match(found, /src\/b\.tsx: calls the toast library sonner itself/);
   assert.match(found, /src\/c\.tsx: opens the browser's own alert dialog/);
-  assert.doesNotMatch(found, /src\/d\.tsx|components\/ui/);
+  assert.doesNotMatch(found, /src\/d\.tsx|src\/e\.tsx|components\/ui/);
   assert.equal(channelsProblem({ "src/pages/List.tsx": SCREEN }, skip), null);
 });
 

@@ -691,6 +691,15 @@ tốn hơn khoảng một phần tư token. Một lượt mỗi nhánh nên chư
 trang luật có tác dụng ở nơi mã chưa mang luật, ở đúng các luật mà cổng không giữ. Chi tiết ở
 `docs/trials/control-arm.md`.
 
+### Nhánh đối chứng, lần ba: repo mới của sàn, lượt thứ hai (2026-11-13)
+
+Cùng đề, cùng 13 luật, cùng repo gốc với lần hai, mỗi nhánh không có lịch sử commit. Nhánh có phạm 0
+trên 13 luật tự khai, nhánh không phạm 6; lắp cổng của plugin lên bài làm thì nhánh không có một
+lệnh kiểm đỏ thật (tự canh lề ô bảng). Gộp hai lượt trên repo mới: nhánh có 0 và 0, nhánh không 3
+và 6, cùng một chiều; nhánh có tốn hơn 18 đến 25 phần trăm token. Lượt này cũng tìm ra một lệnh kiểm
+báo nhầm (một hàm tên `confirm` của màn bị tưởng là hộp thoại của trình duyệt); đã sửa. Chi tiết ở
+`docs/trials/control-arm.md`.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.
