@@ -27,3 +27,8 @@ Mỗi dòng là một luật mà trang luật của plugin nói ra nhưng **khô
 Ngoài bảng: các dòng đăng ký mà chỉ tác tử đọc trang luật mới biết phải thêm (màn mới trong trang
 kiểu màn, khai trạng thái theo sổ trạng thái) **không** là luật ở đây. Phiên điều phối thêm hộ trước
 khi lắp cổng, và lệnh kiểm nào đỏ chỉ vì thiếu chúng thì ghi vào `bookkeeping_red`.
+
+## Lần hai: repo mới của sàn
+
+Chốt ngày 2026-11-13, trước lần chạy thứ hai. Lần hai dùng **đúng 13 luật ở trên, không đổi chữ
+nào**: luật nào cũng chạm tới đề trên repo mới của sàn như trên repo đối chứng.

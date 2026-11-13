@@ -120,3 +120,22 @@ rất ít ở repo này; nó sẽ có nghĩa hơn ở một repo mà mã chưa m
 
 Điều duy nhất khác thấy được: số chỗ tự khai là đoán, 16 ở nhánh có và 24 ở nhánh không. Đề đã nói
 trước số này không dùng để so hai nhánh.
+
+## Lần hai: repo mới của sàn (dựng 2026-11-13)
+
+Lần đầu cho thấy mã của repo đối chứng đã mang sẵn các luật, nên lần hai chạy trên một repo mà mã
+chưa mang luật: repo mới của sàn (commit `e56e77c`), với plugin đã áp như một người dùng thật áp.
+
+- **Repo gốc:** repo mới của sàn, chồng lên bài làm của vai dẫn dắt lần chín (các câu trả lời niêm
+  phong, cùng các sửa của nó trên màn mẫu để qua bài kiểm trình duyệt mà plugin cài), rồi áp plugin
+  ở bản hiện tại. Khai thêm gói toast trong `package.json` của bản sao (gói đã có trong thư viện
+  chép sang, không tải gì), để plugin cài được mô-đun báo kết quả mà đề dùng. Repo gốc xanh: 22
+  quyết định, 28 lệnh kiểm.
+- **Nhánh có:** repo gốc như nó là.
+- **Nhánh không:** repo gốc bỏ đúng danh sách ở trên, `design/behaviors.md` là bản của sàn, và bỏ
+  dòng nhật ký wiki mà cuộc dẫn dắt viết (dòng đó trỏ tới các trang đã bỏ).
+- **Điều khác lần đầu:** repo chỉ có một màn và không có khung điều hướng; mô hình dữ liệu chưa có
+  thực thể nào; không có phần dùng chung nào ngoài các phần plugin cài. Phần `TypedTable` không có
+  (plugin chỉ cài nó khi mô hình có trường khai kiểu cột), nên số phần có sẵn tính trên năm.
+- **Một chỗ hổng của plugin hiện ra lúc dựng:** plugin cài mô-đun báo kết quả và phần vẽ toast
+  nhưng không gắn phần vẽ vào ứng dụng, nên toast không hiện. Để nguyên cho cả hai nhánh.
