@@ -26,6 +26,9 @@ sources:
 Bản nháp, máy viết ngày 2026-11-13 theo tầm nhìn chủ kho nêu cùng ngày. Chủ kho chưa duyệt bản
 này. Ba câu trả lời của chủ kho được ghi nguyên ở mục Intent; mọi thứ còn lại là đề xuất của máy.
 
+Năm sơ đồ đi kèm, vẽ ngày 2026-11-13, nằm ở `docs/diagrams/meta-layer/`: nguyên lý gốc, vai của
+người và Claude Code, ranh giới ba plugin, vòng đời một kho, và lộ trình theo chặng.
+
 ## Intent
 
 **Tầm nhìn, lời chủ kho (2026-11-13).** Design-assembly được thiết kế như một lớp meta, là một
