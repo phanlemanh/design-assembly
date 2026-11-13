@@ -115,6 +115,9 @@ việc nào được duyệt:
   `coverage/design-book/book.html`): lát 0020 chỉ nghiệm thu được bằng lượt đó.
 - **Chủ kho đã đi hết bảng mẫu của foundations** ngày 2026-11-12 và giữ cả ba giá trị đang dùng
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
+- **Nhánh đối chứng đã chạy lần đầu** (2026-11-13, `docs/trials/control-arm.md`): cùng đề dựng
+  màn, có và không có trang luật cùng cổng của plugin. Bằng nhau ở mọi số, chưa kết luận: ở repo
+  này mã nguồn đã mang sẵn các luật. Nhánh có tính là lượt dựng màn của lần mười, 11 chỗ phải đoán.
 - **Lần chạy thử chín đã xong** (2026-11-13, kết quả ở cuối spec 0001, số ở
   `docs/trials/results.tsv`). Dựng màn đoán 13 chỗ, chuỗi 12, 12, 13: các chỗ đoán cũ đã mất nhưng
   chỗ mới hiện ra. Bốn chỗ đoán lớn nhất nó để lại đã sửa ngay sau (quyết định 0027): hộp thoại hỏi trước

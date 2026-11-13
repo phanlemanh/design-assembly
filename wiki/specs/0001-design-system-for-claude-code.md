@@ -666,6 +666,21 @@ thành phần đổi:
 - **Phần còn lại đã có dòng trong sổ giới hạn,** nặng nhất là chép hay rút phần chung giữa các màn
   danh sách và tiêu điểm khi một dòng quay lại.
 
+### Nhánh đối chứng, lần đầu (2026-11-13)
+
+Cùng đề dựng màn, hai nhánh chạy song song từ cùng một commit: một nhánh có trang luật và cổng của
+plugin, một nhánh không có hai thứ đó (giữ mã nguồn, bài kiểm và sàn; trang hành vi lấy bản của
+sàn). Chấm bằng kết quả, theo danh sách 13 luật chốt trước khi chạy (`docs/trials/control-rules.md`).
+
+**Chưa kết luận: hai nhánh bằng nhau ở mọi số.** Cả hai qua cổng mà không sửa vòng nào; lắp cổng
+của plugin lên bài làm thì cả hai 0 trên 29 lệnh kiểm đỏ; cả hai dùng 5 trên 6 phần có sẵn; cả hai
+giữ đủ 13 luật. Hai bài làm gần như cùng một kiến trúc, vì cả hai chép màn mẫu và các phần dùng
+chung đã có. Ở repo này mã nguồn đã mang sẵn các luật, nên phép so đo được rất ít; nó sẽ có nghĩa
+hơn trên một repo mà mã chưa mang luật. Chi tiết ở `docs/trials/control-arm.md`.
+
+Nhánh có là lượt dựng màn của lần mười: 11 chỗ phải đoán (chuỗi 12, 12, 13, 11), không dừng hỏi.
+Nó chỉ ra một câu cũ trên trang kiểu màn danh sách sau khi luồng xoá đổi; đã sửa.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.

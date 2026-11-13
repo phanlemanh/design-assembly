@@ -1472,6 +1472,19 @@
       "where": ["trials", "spec"],
       "status": "open",
       "note": "The layer page offers a modular scale for when a brand needs a stronger voice, while the first ratio it draws is flatter than the floor's standard scale."
+    },
+    {
+      "id": "list-page-stale-after-delete-change",
+      "area": "reference-app",
+      "kind": "conflict",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-13",
+      "where": ["trials", "d0027"],
+      "status": "closed",
+      "note": "After the delete flow changed, the list page still said a failed delete is shown in its dialog while the behaviours page, the rules and the code say a toast.",
+      "closed": "2026-11-13",
+      "closed_by": "the list page now says what the behaviours page says"
     }
   ]
 }

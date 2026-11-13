@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-13 — Chạy nhánh đối chứng lần đầu: cùng đề dựng màn, có và không có trang luật cùng cổng của plugin. Hai nhánh bằng nhau ở mọi số, nên chưa kết luận; ở repo này mã nguồn đã mang sẵn các luật. Nhánh có tính là lượt dựng màn của lần mười (11 chỗ phải đoán) — [control-arm](../docs/trials/control-arm.md), `docs/trials/control.tsv`.
 - 2026-11-13 — Sửa bốn chỗ đoán lớn nhất sau lần chín: hộp thoại hỏi trước đóng ngay và dòng tự chờ, các màn danh sách dùng chung phần tải, khung đổi màn không tải lại trang, và luật tiêu điểm khi một dòng quay lại; sổ giới hạn đóng năm dòng — [0027](decisions/0027-row-waits-alone-and-list-screens-share.md).
 - 2026-11-13 — Soạn nhánh đối chứng cho vai dựng màn: cùng đề, trên bản sao đã bỏ trang luật và cổng của plugin, chấm bằng kết quả thay cho số chỗ tự khai. Ý lấy từ kho Modern Web Guidance của Google. Đã thử công thức dựng bản sao (khởi đầu xanh) và bước chấm (23 quyết định, 29 lệnh kiểm, xanh); chưa chạy tác tử, chưa được duyệt — [control-arm](../docs/trials/control-arm.md).
 - 2026-11-13 — Chạy thử lần chín: dựng màn đoán 13 chỗ (chuỗi 12, 12, 13), không hỏi lần nào; các chỗ đoán của lần tám đã mất, chỗ mới hiện ra. Nút «⋯» giờ tự đếm một giây cho từng dòng, sau khi hai tác tử cùng tự viết phần đó; sổ giới hạn thêm 8 dòng mở. Sửa luôn hai con số sai của lần tám (13 dòng mở, không phải 14) — [spec 0001](specs/0001-design-system-for-claude-code.md), `docs/trials/results.tsv`.

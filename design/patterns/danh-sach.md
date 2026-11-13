@@ -41,9 +41,9 @@ Cạnh tiêu đề là chỗ của việc chính của màn, khi màn có. Liên
 
 Một dòng thay đổi thì danh sách đổi tại chỗ, không tải lại cả danh sách. Dòng ở yên với nút bị
 khoá tới khi có trả lời; thành công thì dòng rời đi và tiêu điểm sang cùng nút ở dòng kế; thao tác
-làm ngay mà thất bại thì dòng còn nguyên và toast báo (thao tác hỏi trước, như xoá, thì báo ngay
-trong hộp thoại). Dòng cuối cùng rời đi thì tiêu điểm vào nút của trạng thái
-trống. Chi tiết ở `design/behaviors.md`, «Sau một thao tác».
+làm ngay mà thất bại thì dòng còn nguyên và toast báo. Thao tác hỏi trước, như xoá, cũng vậy: hộp
+thoại đóng ngay khi người xác nhận, dòng tự chờ, và kết quả báo bằng toast. Dòng cuối cùng rời đi
+thì tiêu điểm vào nút của trạng thái trống. Chi tiết ở `design/behaviors.md`, «Sau một thao tác».
 
 Một dòng có một nút; từ hai thao tác thì gom sau một nút «⋯» của dòng, ở mọi bề rộng, mở ra danh sách các nút, thao tác đảo được
 đứng trước, xoá đứng cuối. Mỗi dòng chờ phần của nó: các dòng khác vẫn dùng được. Nút đang chờ

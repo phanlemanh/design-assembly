@@ -19,7 +19,7 @@ dẫn dắt và đường nhận chưa hỏng.
 
 Vai dựng màn có thêm một **nhánh đối chứng**: cùng đề, trên bản sao đã bỏ trang luật và cổng của
 plugin. Nó trả lời câu chuỗi số này không trả lời được, là plugin có tác dụng hay không. Cách dựng
-và cách chấm ở [`control-arm.md`](control-arm.md); chưa chạy lần nào.
+và cách chấm ở [`control-arm.md`](control-arm.md); đã chạy một lần, chưa kết luận.
 
 ## Hai loại đề
 

@@ -1,6 +1,7 @@
 # Nhánh đối chứng của vai dựng màn
 
-Soạn ngày 2026-11-13. **Chưa chạy lần nào, chưa được chủ repo duyệt.** Mỗi lần chạy tốn token, nên
+Soạn ngày 2026-11-13. Chủ repo cho chạy cùng ngày («Nhắn sang phiên đó, tôi cho phép chạy»), và
+đã chạy một lần; kết quả ở `control.tsv` và ở mục «Lần đầu» dưới đây. Mỗi lần chạy tốn token, nên
 hỏi chủ repo trước.
 
 ## Câu hỏi nó trả lời
@@ -100,3 +101,22 @@ cột: `trial`, `date`, `arm` (`with` hay `without`), `gate`, `rounds`, `held_re
   ghi «chưa kết luận» và chạy lại, không diễn giải.
 - Phiên điều phối biết bài nào của nhánh nào khi chấm phần luật tự khai.
 - Một đề, một kiểu màn, một repo. Kết quả không nói gì về repo không phải repo đối chứng.
+
+## Lần đầu (2026-11-13)
+
+Hai nhánh cùng dựng từ commit `40c6376`, chạy song song. Hiệu chỉnh đạt cả hai điều: nhánh không
+xanh khi chưa ai đụng vào; lắp lại cổng lên nó thì xanh, 23 quyết định, 29 lệnh kiểm.
+
+**Chưa kết luận: hai nhánh bằng nhau ở mọi số.** Cả hai qua cổng của chính mình mà không phải sửa
+vòng nào; lắp cổng của plugin lên bài làm thì cả hai 0 trên 29 lệnh kiểm đỏ, không thiếu dòng đăng
+ký nào; cả hai dùng 5 trên 6 phần có sẵn; cả hai giữ cả 13 luật của `control-rules.md`. Chi phí gần
+nhau: 225 nghìn và 200 nghìn token, 46 và 43 lần gọi công cụ, 61 và 64 phút.
+
+Hai bài làm gần như cùng một kiến trúc: cùng một móc dùng chung cho việc đổi dòng, cùng một phần vẽ
+nút «⋯» bọc quanh `RowActions`, cùng luồng hoàn tác và tiêu điểm. Cả hai đều chép cách làm của màn
+mẫu và các phần dùng chung đã có. Đọc thử, chưa kết luận: **ở repo đối chứng hiện nay, mã nguồn đã
+mang sẵn các luật**, nên bỏ trang luật và cổng đi không đổi bài làm. Phép so này vì vậy đo được
+rất ít ở repo này; nó sẽ có nghĩa hơn ở một repo mà mã chưa mang luật, như repo mới của sàn.
+
+Điều duy nhất khác thấy được: số chỗ tự khai là đoán, 16 ở nhánh có và 24 ở nhánh không. Đề đã nói
+trước số này không dùng để so hai nhánh.
