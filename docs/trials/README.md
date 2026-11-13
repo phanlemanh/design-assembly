@@ -17,6 +17,10 @@ chạy **đề chuẩn** cố định trong `briefs/`, và kết quả ghi vào 
 Vai dựng màn đo đúng mục đích của plugin, nên nó là vai quan trọng nhất. Hai vai kia đo rằng cuộc
 dẫn dắt và đường nhận chưa hỏng.
 
+Vai dựng màn có thêm một **nhánh đối chứng**: cùng đề, trên bản sao đã bỏ trang luật và cổng của
+plugin. Nó trả lời câu chuỗi số này không trả lời được, là plugin có tác dụng hay không. Cách dựng
+và cách chấm ở [`control-arm.md`](control-arm.md); chưa chạy lần nào.
+
 ## Hai loại đề
 
 - **Đề chuẩn** nằm trong `briefs/`, không đổi giữa các lần. Nó cho chuỗi số so được với nhau. Sửa
@@ -37,8 +41,10 @@ bài làm sẵn, và con số mất nghĩa. Repo đối chứng cần màn thứ
 - Repo trước khi có plugin: clone repo này rồi checkout `e56e77c`, nối `node_modules` bằng liên kết.
 - Repo đối chứng bên ngoài: clone, rồi chỉ chép riêng `node_modules/tailwindcss/theme.css`;
   **không** nối `node_modules` của repo đó.
-- Bản sao cho vai dựng màn: xoá `plugins/`, `wiki/`, `docs/`. Tác tử chỉ được đọc `AGENTS.md`,
-  `CLAUDE.md`, `.claude/rules/`, `design/`, `src/`, `tests/`.
+- Bản sao cho vai dựng màn: clone, rồi checkout thưa bỏ `plugins/`, `docs/`, `wiki/decisions/`,
+  `wiki/specs/`, `tests/plugin-*` và `mk/plugin.mk` (hai thứ sau đọc `plugins/`, thiếu thì bản sao
+  khởi đầu đỏ). Gỡ khỏi `wiki/index.md` và `wiki/log.md` các dòng trỏ tới trang đã bỏ, rồi commit
+  trong bản sao. Làm như vậy từ lần bảy.
 - Không sửa plugin trong lúc tác tử còn đọc nó.
 - Ba tác tử chạy song song dùng chung cổng kiểm trình duyệt: mỗi lệnh `make check` bọc trong một
   khoá bằng thư mục (`mkdir` trước, `rmdir` sau).
