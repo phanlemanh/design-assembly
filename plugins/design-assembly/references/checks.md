@@ -303,8 +303,9 @@ the parts, how the words are written, when to use the kind and when not.
   imports matches the globs of one page. Each page names the kind as its file does, a main task
   and its files.
 - **`reference-implementation`.** The file each page names is the file of a listed screen, of
-  that kind, and that screen declares every required state. A sample that is not a screen of the
-  product cannot be the reference.
+  that kind, and that screen declares every required state. A screen the floor shipped as its
+  sample counts while it is the only one; once the product has a screen of that kind, name one of
+  the product's.
 - **`primary-task`.** Recorded once the pages name it, as a person's call that nobody has
   confirmed. The order of the parts and what the words say are a person's rows to add.
 

@@ -78,7 +78,7 @@
   "pathsQuestion": "Người dùng đi từ trạng thái này sang trạng thái kia thế nào",
   "pathsLede": "Mọi trạng thái của một màn, nối với nhau bằng thao tác dẫn tới nó. Đọc từ chính danh sách trạng thái của kho, vẽ từ chính màn của kho.",
   "whenData": "khi dữ liệu trả lời",
-  "noPaths": "Đường đi được vẽ từ chính các màn: không có trình duyệt thì không có gì để vẽ.",
+  "noPaths": "Đường đi được vẽ từ chính các màn, và ở đây không vẽ được màn nào: ghi chú ở trang linh kiện nói vì sao.",
   "afterAction": "Sau một thao tác",
   "componentsTitle": "Linh kiện",
   "componentsQuestion": "Màn được dựng từ những mảnh nào, và mỗi mảnh có những dạng nào",
@@ -86,5 +86,7 @@
   "atLeast": "cao ít nhất",
   "notAlone": "không vẽ được, cần một linh kiện khác bao quanh",
   "partsTitle": "Các phần",
-  "partsLede": "Những phần này chỉ dùng được bên trong một linh kiện khác. Chúng hiện ở nơi được dùng, trên các màn."
+  "partsLede": "Những phần này chỉ dùng được bên trong một linh kiện khác. Chúng hiện ở nơi được dùng, trên các màn.",
+  "noPicturesScreens": "Không vẽ được hình ở đây: cuốn sổ đọc danh sách màn từ `src/screens.ts`, còn repo này giữ danh sách đó ở chỗ khác.",
+  "noPicturesStopped": "Không vẽ được hình ở đây: việc vẽ dừng giữa chừng."
 }

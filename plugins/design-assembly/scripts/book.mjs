@@ -123,7 +123,7 @@ export const WORDS = {
   whenData: "when the data answers",
   afterAction: "After an action",
   noPaths:
-    "The paths are drawn from the screens themselves: without a browser there is nothing to draw.",
+    "The paths are drawn from the screens themselves, and none could be drawn here: the note on the components sheet says why.",
   statesTitle: "States",
   statesQuestion: "What every screen shows, in every state",
   statesLede:
@@ -147,7 +147,12 @@ export const WORDS = {
   staysTrueText:
     "This book is drawn from the repository each time. It keeps a list of every value it shows; when the repository changes, checking the book against it says so.",
   commands: "For the person who builds",
+  // Why no picture could be drawn, one sentence for each reason the drawing can stop: a book
+  // that blamed the browser for every one of them told a repository with a browser it had none.
   noPictures: "No picture could be drawn here: the repository has no browser to draw with.",
+  noPicturesScreens:
+    "No picture could be drawn here: the book reads the list of screens from `src/screens.ts`, and this repository keeps it elsewhere.",
+  noPicturesStopped: "No picture could be drawn here: the drawing stopped before it finished.",
 };
 
 const escape = (text) =>
@@ -955,13 +960,19 @@ function closing(w, audience) {
 }
 
 // The book as one page that needs nothing else: its pictures are inside it.
-export function renderBook(facts, { audience = "client", words = {}, drawn = null } = {}) {
+export function renderBook(
+  facts,
+  { audience = "client", words = {}, drawn = null, unable = null } = {},
+) {
   const w = {
     ...WORDS,
     ...words,
     tierStates: { ...WORDS.tierStates, ...words.tierStates },
     questions: { ...WORDS.questions, ...words.questions },
   };
+  // `unable` is why nothing was drawn, when nothing was: the sheets then say that reason.
+  w.noPictures =
+    { screens: w.noPicturesScreens, stopped: w.noPicturesStopped }[unable] ?? w.noPictures;
   const color = (name, mode = "light") =>
     facts.colors.find((item) => item.name === name)?.[mode] ?? null;
   const radius = facts.radius.find((step) => step.step === "lg")?.size ?? "0.5rem";
@@ -1144,8 +1155,11 @@ export function staleParts(html, facts) {
 // Draws every state of every screen at the narrowest and the widest of the widths, the way a
 // person reaches it. Returns the pictures as data, and how each state was reached.
 async function drawStates(target, facts) {
+  if (!existsSync(path.join(target, REGISTRY))) {
+    return { problem: `there is no ${REGISTRY} to read the screens from`, why: "screens" };
+  }
   const stage = await openStage(target, { modules: { [HARNESS]: HARNESS_CODE } });
-  if (stage.problem) return { problem: stage.problem };
+  if (stage.problem) return { problem: stage.problem, why: "browser" };
   const images = {};
   const how = {};
   let components;
@@ -1187,7 +1201,7 @@ async function drawStates(target, facts) {
     }
   } catch (error) {
     await stage.close();
-    return { problem: `drawing stopped: ${error.message.split("\n")[0]}` };
+    return { problem: `drawing stopped: ${error.message.split("\n")[0]}`, why: "stopped" };
   }
   // The components are drawn apart: when they fail, the pictures of the states are kept. The
   // development server may load the page again while it prepares a package for the first time, so
@@ -1297,7 +1311,15 @@ async function main() {
   const out = value("--out") ?? OUT;
   mkdirSync(path.resolve(target, out), { recursive: true });
   const file = path.resolve(target, out, "book.html");
-  writeFileSync(file, renderBook(facts, { audience, words, drawn: drawn.problem ? null : drawn }));
+  writeFileSync(
+    file,
+    renderBook(facts, {
+      audience,
+      words,
+      drawn: drawn.problem ? null : drawn,
+      unable: drawn.problem ? drawn.why : null,
+    }),
+  );
   stdout.write(`book: ${file}\n`);
   stdout.write(
     `for: ${audience}. ${facts.coverage.answered} of ${facts.coverage.core} core decisions answered; ${facts.unconfirmed.length} recorded and not confirmed; ${facts.open.length} open\n`,

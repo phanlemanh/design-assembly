@@ -452,3 +452,28 @@ test("a note is printed only for a pair the colour sheet draws", () => {
   assert.ok(!notes.some((line) => line.includes("warning")));
   assert.ok(notes.some((line) => line.includes("muted-foreground on muted")));
 });
+
+test("when nothing could be drawn, the book says the reason, not always the browser", () => {
+  const facts = collectFacts(guided());
+  for (const [unable, word] of [
+    ["screens", WORDS.noPicturesScreens],
+    ["stopped", WORDS.noPicturesStopped],
+    ["browser", WORDS.noPictures],
+  ]) {
+    const page = renderBook(facts, { unable });
+    assert.ok(page.includes(word), unable);
+    // A repository with a browser is never told it has none.
+    if (unable !== "browser") assert.ok(!page.includes(WORDS.noPictures), unable);
+  }
+});
+
+test("a repository that keeps its screens elsewhere is told so, not that it lacks a browser", () => {
+  const dir = guided();
+  rmSync(path.join(dir, "src/screens.ts"));
+  const drawn = run(BOOK, "--target", dir);
+  assert.equal(drawn.status, 0, drawn.stderr);
+  assert.match(drawn.stdout, /note: no picture was drawn: there is no src\/screens\.ts/);
+  const page = readFileSync(path.join(dir, "coverage/design-book/book.html"), "utf8");
+  assert.ok(page.includes(WORDS.noPicturesScreens));
+  assert.ok(!page.includes(WORDS.noPictures));
+});

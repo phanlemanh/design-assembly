@@ -36,7 +36,8 @@ const STANDARD = reference("standard-decisions.json");
 // stronger report than it is.
 const LIMITS = reference("limits.json").limits;
 
-const LIMITS_FILE = "plugins/design-assembly/references/limits.json";
+// Named from the plugin's own folder: installed elsewhere, the plugin has no `plugins/` around it.
+const LIMITS_FILE = "references/limits.json of this plugin";
 const SKIP_DIRS = new Set(["node_modules", "dist", "coverage", "test-results", "generated"]);
 // Code the repository did not write: a vendor's components are not the repository's decisions.
 const VENDOR = /(^|\/)components\/(ui|reui)\//;

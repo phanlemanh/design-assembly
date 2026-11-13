@@ -490,6 +490,67 @@ giữ cách bày đúng bản thiết kế, phép đo trong bài kiểm trình d
 lõi. Cùng ngày chủ kho chọn B, phủ lên danh sách, và đặt điều kiện tấm hồ sơ chừa thanh đầu của
 khung ứng dụng. Chi tiết và giới hạn ở [0022](../decisions/0022-record-beside-a-list.md).
 
+### Chạy thử lần bảy (2026-11-13)
+
+Lần đầu chạy theo bộ đề cố định của `docs/trials/`: ba vai chạy đề chuẩn, cộng một đề dò cho khung
+ứng dụng và màn thứ hai vừa dựng (`docs/trials/probes/07-third-screen.md`). Bốn tác tử chạy song
+song trên bốn bản sao, dùng chung cổng kiểm trình duyệt qua một khoá. Mọi con số dưới đây phiên
+điều phối đã chạy lại trên chính bản sao của tác tử.
+
+**Điều đứng vững.**
+
+- **Dẫn dắt:** đi trọn từ repo trống tới 36/38 câu lõi, cổng xanh. Lời thường được đổi đúng thành
+  giá trị: «lam, đậm và nghiêm hơn» thành một màu lam sẫm, «chữ to nhỏ khác nhau rõ hơn» thành
+  thang minor-third, «mềm hơn một nấc» thành bo 12px.
+- **Đề dò:** dựng màn thứ ba (các mục đang chờ) mà không phải đụng danh sách màn hay khung; ba
+  phần vẽ dùng chung được dùng lại nguyên. Cổng xanh, 81 bài kiểm thường và 99 bài kiểm trình
+  duyệt.
+- **Dựng màn:** đạt cổng xanh và dựng được màn các mục đã cất.
+
+**Điều sai, đã sửa.**
+
+- Một tệp plugin cài vào repo nhận đặt tên biến bị lint của Next.js cấm, nên làm đỏ lint của repo
+  đó.
+- Lệnh linh kiện báo lỗi khi không có việc gì để làm.
+- Audit chỉ tới một đường dẫn chỉ có trong phòng lab này.
+- Cuốn sổ đổ lỗi cho trình duyệt khi lý do thật là repo để màn ở chỗ khác.
+- Có ba màn thì ở bề rộng 320, mọi tên trên thanh đầu bị bẻ đôi giữa chữ, mà không lệnh kiểm nào
+  thấy. Vai dò và vai dựng màn cùng gặp lỗi này. Giờ tên không bẻ, danh sách màn xuống hàng khi
+  chật, và `tests/e2e/frame.spec.ts` đo từng tên.
+- Hai trang của plugin nói ngược nhau về màn của sàn có làm màn chuẩn được không.
+- Chú thích ghi hồ sơ «mở cạnh danh sách» trong khi chủ repo đã chọn «phủ lên»; trang thực thể
+  thiếu màn quá hạn.
+
+Mỗi sửa có bài kiểm hoặc dòng đã đóng trong sổ giới hạn.
+
+**Điều tìm ra, chưa sửa** (đã vào sổ giới hạn: 18 dòng mở mới, cùng 6 dòng mở rồi đóng ngay cho các sửa ở trên):
+
+- **Luật tự mâu thuẫn ở bề rộng hẹp.** Trang luật cho mỗi dòng hai nút, nhưng ở 320 hai nút làm
+  phép kiểm cột thao tác đỏ. Tác tử dựng màn phải hỏi; người dùng giả chọn gom cả hai sau một nút.
+- **Ai được sửa mô hình dữ liệu.** Trang luật bảo tác tử «không được sửa mô hình» thì dừng lại
+  hỏi; `AGENTS.md` cho mọi thay đổi sửa mô hình rồi người duyệt sau. Lần sáu tác tử dừng lại hỏi,
+  lần này nó tự sửa. Câu trả lời niêm phong vì thế không được dùng.
+- **Chép hay rút phần chung.** Luật «hai màn dùng chung thì chuyển xuống» và câu của trang kiểu
+  màn «khác nhau chỉ ở tiêu đề, dữ liệu, lời trạng thái trống» kéo hai hướng. Cả vai dò lẫn vai
+  dựng màn đều chép khoảng một trăm dòng tải, thử lại và lọc.
+- **Cuốn sổ ghi vào chính repo nó đọc** khi đường ra là đường tương đối, dù đường nhận hứa không
+  đổi gì.
+- **Hồ sơ không được hỏi.** Khi chưa màn nào mở hồ sơ, cuộc dẫn dắt ghi «cạnh danh sách» là đề
+  xuất mà không hỏi người.
+- **Repo mới của sàn đỏ ngay.** Bài kiểm trình duyệt mà cuộc dẫn dắt cài làm repo mới của sàn đỏ:
+  màn có sẵn đánh rơi tiêu điểm khi xoá và để cột thao tác ra ngoài cửa sổ ở 320. Việc này thuộc
+  Repo Standards.
+- **Các lỗi nhỏ hơn của cuốn sổ và đường nhận:** màu gốc trống, phông không nêu tên, hằng số bị kể
+  là linh kiện, câu về bề rộng gây hiểu lầm.
+
+**Con số.**
+
+- **Dựng màn:** phải tự quyết 12 chỗ. Tác tử khai 19; phiên điều phối bỏ 7 chỗ mà một trang hay màn
+  mẫu đã chỉ hướng.
+- **Không so được với lần sáu.** Lần sáu là 3, nhưng đề khác, nên số 12 là điểm đầu của chuỗi chứ
+  không phải bước lùi.
+- Chuỗi đầy đủ ở `docs/trials/results.tsv`.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.

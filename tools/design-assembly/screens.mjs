@@ -201,11 +201,12 @@ export function screenFiles(registryText, sources) {
   const starts = [...text.matchAll(/\bpath:\s*["']([^"']+)["']/g)];
   return readScreens(text).map((screen, index) => {
     const slice = text.slice(starts[index].index, starts[index + 1]?.index ?? text.length);
-    const module = /\bimport\(\s*["']([^"']+)["']\s*\)/.exec(slice)?.[1];
-    if (!module) return { ...screen, file: null };
-    const base = module.startsWith("@/")
-      ? `src/${module.slice(2)}`
-      : path.posix.join("src", module);
+    // Not named `module`: a host's lint may forbid that name, and this file lives in the host.
+    const imported = /\bimport\(\s*["']([^"']+)["']\s*\)/.exec(slice)?.[1];
+    if (!imported) return { ...screen, file: null };
+    const base = imported.startsWith("@/")
+      ? `src/${imported.slice(2)}`
+      : path.posix.join("src", imported);
     const tries = [base, `${base}.tsx`, `${base}.jsx`, `${base}/index.tsx`, `${base}/index.jsx`];
     return { ...screen, file: tries.find((file) => file in sources) ?? null };
   });

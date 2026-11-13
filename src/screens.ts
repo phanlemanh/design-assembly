@@ -48,7 +48,7 @@ export const SCREENS: Screen[] = [
         steps: confirmDelete,
         shows: LABELS.deleteFailed(LABELS.sampleFirstName),
       },
-      // A record opens beside the list, as the person chose (design/blueprint.json).
+      // A record opens over the list, as the person chose (design/blueprint.json).
       {
         name: "record-open",
         steps: [{ press: LABELS.sampleFirstName }],

@@ -388,11 +388,13 @@ function main() {
   const themeFile = path.join(root, "design/theme.json");
   const theme = existsSync(themeFile) ? JSON.parse(readFileSync(themeFile, "utf8")) : null;
   const check = theme?.checks?.[COMPONENTS_DECISION]?.[0];
+  // Nothing to manage is not a failure: a repository with a registry of its own runs this
+  // command too, and it must not turn its gate red.
   if (!check) {
-    stderr.write(
+    stdout.write(
       "design-assembly: this tool manages no component manifest here: the repository has no components to list, or keeps a registry of its own\n",
     );
-    exit(1);
+    exit(0);
   }
   const files = readFolder(root, check.folder);
   const manifest = readComponents(files);

@@ -1,6 +1,6 @@
 # Chạy thử bằng tác tử độc lập
 
-Đã chạy sáu lần tới ngày 2026-11-13, lần nào cũng tìm ra lỗi mà bài kiểm trên kho giả không thấy.
+Đã chạy bảy lần tới ngày 2026-11-13, lần nào cũng tìm ra lỗi mà bài kiểm trên kho giả không thấy.
 Tốn token, nên hỏi chủ repo trước mỗi lần.
 
 Sáu lần đầu mỗi lần một đề khác nhau, nên các con số không so được với nhau. Từ lần bảy, mỗi vai
@@ -22,7 +22,8 @@ dẫn dắt và đường nhận chưa hỏng.
 - **Đề chuẩn** nằm trong `briefs/`, không đổi giữa các lần. Nó cho chuỗi số so được với nhau. Sửa
   một đề chuẩn là cắt chuỗi: ghi ngày sửa vào `results.tsv` và không so hai bên của vết cắt.
 - **Đề dò** viết mới mỗi lần, nhắm vào đúng phần vừa dựng từ lần trước. Nó tìm lỗi mới. Đề dò
-  không vào `results.tsv`; điều nó tìm ra thì vào sổ lỗi lọt hoặc sổ giới hạn.
+  không vào `results.tsv`; điều nó tìm ra thì vào sổ lỗi lọt hoặc sổ giới hạn. Đề dò đã chạy được
+  giữ trong `probes/`, tên tệp mở đầu bằng số lần chạy.
 
 Một lần chạy thử đầy đủ gồm ba vai chạy đề chuẩn, cộng một đề dò cho phần mới nhất.
 
@@ -49,6 +50,11 @@ nó hỏi; tác tử không bao giờ được đường dẫn tới thư mục 
 
 Câu trả lời viết bằng lời thường của người, không bằng chữ cái hay giá trị. Đó là một phần của
 phép đo: cuộc dẫn dắt phải tự đổi lời thành giá trị trên bảng mẫu.
+
+Tác tử hỏi một câu chưa có tệp thì phiên điều phối trả lời theo giọng các câu đã có, rồi ghi câu
+đó thành tệp mới ngay sau lần chạy. Lần bảy thêm theo cách này cả bốn câu của vai nhận, ba câu
+cuối của vai dẫn dắt và câu thứ hai của vai dựng màn; từ lần tám, chúng là câu niêm phong như các
+câu kia.
 
 ## Ghi kết quả
 

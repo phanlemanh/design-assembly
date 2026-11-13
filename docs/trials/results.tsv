@@ -14,3 +14,6 @@ trial	date	role	brief	coverage	gate	guesses	asks	escapes	note
 6	2026-11-12	guide	ad-hoc	35/38	green
 6	2026-11-12	adopt	ad-hoc
 6	2026-11-12	screen	ad-hoc			3			Đề mới nhắm vào sáu luật của quyết định 0021.
+7	2026-11-13	guide	standard	36/38	green		7	2	Tác tử khai 20 chỗ tự quyết; chưa đếm lại theo luật đếm của vai dựng màn.
+7	2026-11-13	adopt	standard	29/38	red		2		Đỏ ở lint vì một tệp của plugin; hai lượt hỏi, năm câu.
+7	2026-11-13	screen	standard		green	12	1	1	Điểm đầu của chuỗi đề chuẩn; tác tử khai 19, bỏ 7 chỗ đã có trang chỉ hướng.

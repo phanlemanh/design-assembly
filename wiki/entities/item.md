@@ -30,7 +30,9 @@ Hai hành động, khai trong `ontology/actions.yaml`, chỉ vai `user` được
 ## Where in the code
 
 - Kho dữ liệu mẫu: `src/example/data.ts`. Kiểu ở đó do sàn viết tay và giữ ngày ở dạng `Date`.
-- Màn hiển thị: `src/example/ReferenceScreen.tsx`.
+- Màn hiển thị: `src/example/ReferenceScreen.tsx` (mọi mục) và `src/example/OverdueScreen.tsx`
+  (mục quá hạn). Phần vẽ hai màn dùng chung nằm ở `src/components/item-table.tsx`,
+  `src/components/item-record.tsx` và `src/components/notice.tsx`.
 - Hai hành động: `createItem` và `deleteItem` trong `src/example/data.ts`; kiểu của chúng sinh
   vào `src/generated/ontology.ts`.
 - Kiểu cột của từng trường, sinh từ mô hình: `design/columns.json`.

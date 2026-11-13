@@ -3,7 +3,15 @@
 // is on this machine, that its plan check accepts the names and variants and rejects wrong ones.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { env, execPath } from "node:process";
@@ -453,3 +461,29 @@ test(
     assert.equal(token.status, 2);
   },
 );
+
+test("a repository this tool keeps no manifest for can run the command, and its gate stays green", () => {
+  const dir = folder({
+    "src/index.css": withoutBlock(own("src/index.css")),
+    Makefile: own("Makefile"),
+    "design/blueprint.json": blueprint(),
+  });
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  const said = components(dir);
+  // Nothing to manage is not a failure: the rules page of such a repository may still name the
+  // command, and a red exit would turn a routine step into a broken gate.
+  assert.equal(said.status, 0, said.stderr);
+  assert.match(said.stdout, /manages no component manifest here/);
+});
+
+test("no tool installed into a repository declares a name the host's lint may forbid", () => {
+  // Next.js forbids assigning to a variable named `module`; these files live in the host and are
+  // linted with its rules, so a name like that turns the host's lint red.
+  const tools = path.join(PLUGIN, "templates/tools/design-assembly");
+  const found = readdirSync(tools)
+    .filter((name) => name.endsWith(".mjs"))
+    .filter((name) =>
+      /\b(const|let|var)\s+module\b/.test(readFileSync(path.join(tools, name), "utf8")),
+    );
+  assert.deepEqual(found, []);
+});

@@ -5,7 +5,9 @@ import { LABELS } from "@/lib/labels";
 import { notifyClear } from "@/lib/notify";
 import { pick, SCREENS } from "@/screens";
 
-const LINK = "rounded-md px-2 py-1";
+// A name in the header never breaks inside itself: when the names do not fit on one line, the list
+// of screens moves below the application's name, then wraps between names.
+const LINK = "rounded-md px-2 py-1 whitespace-nowrap";
 const HERE = `${LINK} font-medium text-foreground underline underline-offset-4`;
 const ELSEWHERE = `${LINK} text-muted-foreground hover:text-foreground`;
 
@@ -25,10 +27,10 @@ export function App() {
       <header className="sticky top-0 border-b bg-background">
         <nav
           aria-label={LABELS.navLabel}
-          className="mx-auto flex max-w-5xl items-center gap-4 p-3 text-sm"
+          className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-1 p-3 text-sm"
         >
-          <span className="font-semibold">{LABELS.appName}</span>
-          <ul className="flex items-center gap-1">
+          <span className="font-semibold whitespace-nowrap">{LABELS.appName}</span>
+          <ul className="flex flex-wrap items-center gap-1">
             {SCREENS.map((screen) => (
               <li key={screen.path}>
                 <a
