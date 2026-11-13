@@ -13,10 +13,15 @@ export type Step = { fill: string; text: string } | { press: string };
 export type State = { name: string; scenario?: string; steps?: Step[]; shows: string };
 export type Screen = {
   path: string;
+  // What the frame's navigation calls this screen, and what its top heading says.
+  title: string;
   load: () => Promise<ComponentType>;
   states: [State, ...State[]];
 };
 
+// The one overdue item of the sample data, and the filter that matches nothing.
+const openThird: Step[] = [{ press: LABELS.sampleThirdName }];
+const filterNothing: Step[] = [{ fill: LABELS.filter, text: "zzz" }];
 // What a user does to delete the first item: ask, then confirm.
 const askDelete: Step[] = [{ press: LABELS.deleteItem(LABELS.sampleFirstName) }];
 const confirmDelete: Step[] = [...askDelete, { press: LABELS.deleteAction }];
@@ -27,17 +32,14 @@ const undoAdd: Step[] = [...addFirst, { press: LABELS.undo }];
 export const SCREENS: Screen[] = [
   {
     path: "/",
+    title: LABELS.screenTitle,
     load: () => import("@/example/ReferenceScreen").then((m) => m.ReferenceScreen),
     states: [
       { name: "ready", shows: LABELS.sampleFirstName },
       { name: "loading", scenario: "slow", shows: LABELS.loading },
       { name: "error", scenario: "fail", shows: LABELS.errorTitle },
       { name: "empty", scenario: "empty", shows: LABELS.emptyTitle },
-      {
-        name: "no-results",
-        steps: [{ fill: LABELS.filter, text: "zzz" }],
-        shows: LABELS.noResultsTitle,
-      },
+      { name: "no-results", steps: filterNothing, shows: LABELS.noResultsTitle },
       { name: "confirm-delete", steps: askDelete, shows: LABELS.deleteDetail },
       { name: "saving", scenario: "slow-delete", steps: confirmDelete, shows: LABELS.saving },
       {
@@ -62,6 +64,19 @@ export const SCREENS: Screen[] = [
         steps: undoAdd,
         shows: LABELS.undoFailed(LABELS.sampleNewName),
       },
+    ],
+  },
+  {
+    path: "/overdue",
+    title: LABELS.overdueTitle,
+    load: () => import("@/example/OverdueScreen").then((m) => m.OverdueScreen),
+    states: [
+      { name: "ready", shows: LABELS.sampleThirdName },
+      { name: "loading", scenario: "slow", shows: LABELS.loading },
+      { name: "error", scenario: "fail", shows: LABELS.errorTitle },
+      { name: "empty", scenario: "empty", shows: LABELS.overdueEmptyTitle },
+      { name: "no-results", steps: filterNothing, shows: LABELS.noResultsTitle },
+      { name: "record-open", steps: openThird, shows: LABELS.close },
     ],
   },
 ];

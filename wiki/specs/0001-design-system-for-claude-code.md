@@ -474,6 +474,14 @@ Câu báo của phép kiểm cột ghim không còn bảo «ghim ít cột hơn�
   luật «không cài gói». Hai tệp này của Repo Standards.
 - Các sửa đổi sau lần thử này chưa được tác tử độc lập thử.
 
+### Khung ứng dụng và màn thứ hai (quyết định 0025, 2026-11-13)
+
+Ba luật đã viết mà chưa có gì chứng minh giờ có bản dựng thật: điều hướng thuộc khung ứng dụng,
+tấm hồ sơ chừa thanh đầu của khung, và phần vẽ hai màn dùng chung thành linh kiện của repo. Khung
+ở `src/App.tsx` đọc danh sách màn làm nguồn duy nhất; màn thứ hai là danh sách mục quá hạn; ba
+phần vẽ chuyển xuống `src/components/`. Phép đo thanh đầu đã chạy trên thanh đầu thật và đã thấy
+đỏ khi tấm che nó. Chi tiết và giới hạn ở [0025](../decisions/0025-app-frame-and-a-second-screen.md).
+
 ### Câu lõi cuối: mở một hồ sơ cạnh danh sách (2026-11-13)
 
 Chủ kho chọn dựng câu này bằng mắt («Dựng hồ sơ»). Đã dựng: ba cách bày trong một linh kiện của

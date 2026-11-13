@@ -110,7 +110,10 @@ Thất bại thì báo ở nơi người dùng vừa làm, và không bao giờ 
 
 Điều hướng thuộc về khung ứng dụng: một vùng, cùng chỗ và cùng thứ tự ở mọi màn, có đánh dấu màn
 đang mở. Màn không tự đặt liên kết sang màn khác cạnh tiêu đề; chỗ đó dành cho việc chính của
-màn. Kho này mới có một màn nên chưa có khung điều hướng; dựng nó cùng lúc với màn thứ hai.
+màn. Khung đã dựng cùng màn thứ hai, ở `src/App.tsx`: một thanh đầu dính ở mép trên, trong đó là một
+vùng điều hướng liệt kê mọi màn của `src/screens.ts` theo đúng thứ tự nó ghi. Màn đang mở mang
+dấu `aria-current` và một gạch chân, chứ không chỉ khác màu. Bấm sang màn khác thì toast của màn
+vừa rời bị xoá.
 
 ## Kiểu màn
 

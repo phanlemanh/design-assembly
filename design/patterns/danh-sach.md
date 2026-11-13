@@ -58,6 +58,13 @@ Tên của mục trên dòng là nút mở hồ sơ của nó. Hồ sơ mở the
 tấm hay trang hồ sơ riêng. Màn mẫu khai trạng thái `record-open` để bài kiểm trình duyệt đo nó ở
 mọi bề rộng.
 
+## Hai màn cùng kiểu
+
+Màn danh sách thứ hai vẽ bảng bằng `ItemTable` và các trạng thái bằng `Notice`
+(`src/components/`), đúng phần vẽ mà màn mẫu dùng, nên người dùng đọc hai danh sách như một thứ.
+Khác nhau chỉ ở tiêu đề, dữ liệu, lời của trạng thái trống, và việc trên dòng. Màn không lấy được
+mục về thì trạng thái trống không có nút.
+
 ## Trạng thái trống
 
 Nói vì sao trống và mục tới đây bằng cách nào. Màn thêm được mục thì có nút thêm mục đầu tiên.

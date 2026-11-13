@@ -42,6 +42,15 @@ export function listItems(): Promise<Item[]> {
   return respond(() => [...items]);
 }
 
+// The overdue screen asks the server for its own slice: a screen that filtered the whole list
+// itself could not tell "nothing is overdue" from "there is nothing at all".
+export function listOverdueItems(): Promise<Item[]> {
+  const test = testAnswer<Item[]>({ slow: "never", fail: "fail", empty: [] });
+  if (test) return test;
+
+  return respond(() => items.filter((item) => item.status === "overdue"));
+}
+
 export function deleteItem(id: number): Promise<void> {
   const test = testAnswer<void>({
     "slow-delete": "never",

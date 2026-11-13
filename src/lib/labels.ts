@@ -1,6 +1,12 @@
 // Every word the screens show. Translate here; the tests compare against this file.
 export const LABELS = {
-  screenTitle: "Màn mẫu",
+  appName: "Ứng dụng mẫu",
+  navLabel: "Điều hướng chính",
+  screenTitle: "Mọi mục",
+  overdueTitle: "Quá hạn",
+  overdueTableName: "Danh sách mục quá hạn",
+  overdueEmptyTitle: "Chưa có mục nào quá hạn",
+  overdueEmptyDetail: "Một mục hiện ở đây khi qua ngày của nó mà chưa xong.",
   loading: "Đang tải",
   errorTitle: "Không tải được trang này",
   errorDetail: "Kiểm tra kết nối rồi thử lại.",

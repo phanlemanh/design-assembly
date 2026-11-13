@@ -254,7 +254,7 @@
       "opened": "2026-11-13",
       "where": ["d0022", "handoff"],
       "status": "open",
-      "note": "The measurement that keeps a record sheet clear of the frame's header has never run on a real screen, because no repository here has a frame yet."
+      "note": "While the sheet is open the frame header is reachable by mouse but by keyboard and screen reader only once it closes, and its position is measured when the sheet opens and never again if the window changes size."
     },
     {
       "id": "nav-frame-unbuilt",
@@ -264,8 +264,10 @@
       "plan": "fix",
       "opened": "2026-11-12",
       "where": ["d0017", "d0022", "handoff"],
-      "status": "open",
-      "note": "The rule for moving between screens has no reference implementation, so it is unproven in code."
+      "status": "closed",
+      "note": "The rule for moving between screens has no reference implementation, so it is unproven in code.",
+      "closed": "2026-11-13",
+      "closed_by": "the frame in src/App.tsx, built together with the second screen of the list kind"
     },
     {
       "id": "theme-block-unread",

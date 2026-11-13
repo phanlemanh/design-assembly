@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-13 — Chặng 1, việc thứ hai: khung ứng dụng và màn thứ hai. Luật điều hướng có bản dựng thật, phép đo «tấm hồ sơ chừa thanh đầu» chạy trên thanh đầu thật và đã thấy đỏ, ba phần vẽ dùng chung xuống `src/components/` — [0025](decisions/0025-app-frame-and-a-second-screen.md).
 - 2026-11-13 — Chặng 1, việc đầu: khoá phạm vi. Gom 74 giới hạn rải trong văn xuôi thành một sổ máy đọc được, xếp mỗi cái vào ba ngăn fix/keep/hand-off, cho audit nói ra chỗ mình mù, và dựng bộ đề thử cố định để số của lần bảy trở đi so được với nhau — [0024](decisions/0024-scope-locked-limits-and-trial-briefs.md), `plugins/design-assembly/references/limits.json`, `docs/trials/`.
 - 2026-11-13 — Tài liệu kiến trúc: sửa cách gọi theo chủ kho («repo» là kho mã, «kho» là nơi chứa thứ dùng lại), kể cả chữ trong sơ đồ; thêm mục kho dùng lại nhiều tầng và bánh đà tái dùng (sơ đồ thứ bảy), và mục đo hiệu quả. Hai mục mới là đề xuất của máy, chưa duyệt — `docs/architecture/meta-layer.html`.
 - 2026-11-13 — Chủ kho duyệt chín lời đáp cho các câu còn mở của kiến trúc lớp meta: hình dạng sổ linh kiện, khoá tiếng Việt, sổ sinh vẫn commit, hai thang không gộp, chứng minh màn thuộc delivery-loop, kho không Makefile, nơi của lõi, khoá ít, kho thắng bằng ghim — [0023](decisions/0023-nine-answers-for-the-meta-layer.md), `docs/architecture/meta-layer.html`.

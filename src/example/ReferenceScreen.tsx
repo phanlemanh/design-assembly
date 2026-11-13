@@ -1,8 +1,10 @@
-import { useEffect, useRef, useState, type ComponentProps, type ReactNode, type Ref } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { Alert, AlertAction, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { HeldLabel } from "@/components/held-label";
+import { ItemRecord } from "@/components/item-record";
+import { ItemTable } from "@/components/item-table";
+import { Notice } from "@/components/notice";
 import { WithRecord } from "@/components/record-panel";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,80 +16,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Empty,
-  EmptyContent,
-  EmptyDescription,
-  EmptyHeader,
-  EmptyTitle,
-} from "@/components/ui/empty";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TableBody, TableHeader } from "@/components/ui/table";
-import {
-  TypedCell,
-  TypedHead,
-  TypedRow,
-  TypedTable,
-  type TypedColumn,
-} from "@/components/ui/typed-table";
-import { TableActions, TableActionsHead } from "@/components/ui/table-actions";
-import { createItem, deleteItem, listItems, type Item, type Status } from "@/example/data";
-import { formatDate, formatMoney } from "@/lib/format";
+import { createItem, deleteItem, listItems, type Item } from "@/example/data";
 import { LABELS } from "@/lib/labels";
 import { useOpenRecord } from "@/lib/open-record";
 import { notifyDone, notifyFailed } from "@/lib/notify";
 import { useSlow } from "@/lib/slow";
-
-type Variant = ComponentProps<typeof Badge>["variant"];
-// Each status keeps its own look. Never give two statuses the same variant to pass a check.
-const STATUS: Record<Status, { label: string; variant: Variant }> = {
-  active: { label: LABELS.statusActive, variant: "default" },
-  pending: { label: LABELS.statusPending, variant: "outline" },
-  overdue: { label: LABELS.statusOverdue, variant: "destructive" },
-};
-
-// The data columns: a field of the data model and its header. The column type of the field decides
-// alignment and width, so a screen writes neither. The last column holds actions, not data.
-const COLUMNS: readonly TypedColumn[] = [
-  { field: "Item.name", header: LABELS.columnName },
-  { field: "Item.status", header: LABELS.columnStatus },
-  { field: "Item.date", header: LABELS.columnDate },
-  { field: "Item.total", header: LABELS.columnTotal },
-];
-
-// One state in place of the table. `pending` holds the button while its action waits for an
-// answer: it keeps focus, so a person at the keyboard is still somewhere when the answer comes.
-function Notice({
-  title,
-  detail,
-  action,
-  onAction,
-  actionRef,
-  pending = false,
-}: {
-  title: string;
-  detail: string;
-  action: ReactNode;
-  onAction: () => void;
-  actionRef: Ref<HTMLButtonElement>;
-  pending?: boolean;
-}) {
-  return (
-    <Empty>
-      <EmptyHeader>
-        <EmptyTitle>{title}</EmptyTitle>
-        <EmptyDescription>{detail}</EmptyDescription>
-      </EmptyHeader>
-      <EmptyContent>
-        <Button ref={actionRef} disabled={pending} focusableWhenDisabled onClick={onAction}>
-          {action}
-        </Button>
-      </EmptyContent>
-    </Empty>
-  );
-}
 
 function ConfirmDelete(props: {
   open: boolean;
@@ -134,22 +70,6 @@ function ConfirmDelete(props: {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  );
-}
-
-// One item's fields, as the record that opens beside the list shows them.
-function ItemRecord({ item }: { item: Item }) {
-  return (
-    <dl className="grid grid-cols-2 gap-x-4 gap-y-2">
-      <dt className="text-muted-foreground">{LABELS.columnStatus}</dt>
-      <dd>
-        <Badge variant={STATUS[item.status].variant}>{STATUS[item.status].label}</Badge>
-      </dd>
-      <dt className="text-muted-foreground">{LABELS.columnDate}</dt>
-      <dd>{formatDate(item.date)}</dd>
-      <dt className="text-muted-foreground">{LABELS.columnTotal}</dt>
-      <dd>{formatMoney(item.total)}</dd>
-    </dl>
   );
 }
 
@@ -305,11 +225,6 @@ export function ReferenceScreen() {
 
   const opened = (items ?? []).find((item) => String(item.id) === record.id) ?? null;
 
-  // The name column is text: it is fitted to the names being shown.
-  const columns = COLUMNS.map((column) =>
-    column.field === "Item.name" ? { ...column, values: shown.map((item) => item.name) } : column,
-  );
-
   let body: ReactNode;
   if (failed) {
     body = (
@@ -356,51 +271,28 @@ export function ReferenceScreen() {
     );
   } else {
     body = (
-      <TypedTable aria-label={LABELS.tableName} columns={columns}>
-        <TableHeader>
-          <TypedRow>
-            {columns.map((column) => (
-              <TypedHead key={column.field} {...column} />
-            ))}
-            <TableActionsHead>{LABELS.columnActions}</TableActionsHead>
-          </TypedRow>
-        </TableHeader>
-        <TableBody>
-          {shown.map((item) => (
-            <TypedRow key={item.id}>
-              <TypedCell field="Item.name">
-                <Button
-                  variant="link"
-                  size="sm"
-                  className="-ml-2"
-                  onClick={(event) => record.open(String(item.id), event.currentTarget)}
-                >
-                  {item.name}
-                </Button>
-              </TypedCell>
-              <TypedCell field="Item.status">
-                <Badge variant={STATUS[item.status].variant}>{STATUS[item.status].label}</Badge>
-              </TypedCell>
-              <TypedCell field="Item.date">{formatDate(item.date)}</TypedCell>
-              <TypedCell field="Item.total">{formatMoney(item.total)}</TypedCell>
-              <TableActions>
-                <Button
-                  ref={(button) => {
-                    if (button) rowActions.current.set(item.id, button);
-                    else rowActions.current.delete(item.id);
-                  }}
-                  variant="outline"
-                  size="sm"
-                  aria-label={LABELS.deleteItem(item.name)}
-                  onClick={() => askDelete(item)}
-                >
-                  {LABELS.deleteAction}
-                </Button>
-              </TableActions>
-            </TypedRow>
-          ))}
-        </TableBody>
-      </TypedTable>
+      <ItemTable
+        label={LABELS.tableName}
+        items={shown}
+        onOpen={(item, from) => record.open(String(item.id), from)}
+        actions={{
+          header: LABELS.columnActions,
+          cell: (item) => (
+            <Button
+              ref={(button) => {
+                if (button) rowActions.current.set(item.id, button);
+                else rowActions.current.delete(item.id);
+              }}
+              variant="outline"
+              size="sm"
+              aria-label={LABELS.deleteItem(item.name)}
+              onClick={() => askDelete(item)}
+            >
+              {LABELS.deleteAction}
+            </Button>
+          ),
+        }}
+      />
     );
   }
 

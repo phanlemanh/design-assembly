@@ -48,8 +48,8 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 
 - Nhánh `main`, cây làm việc sạch. **Chưa có remote, chưa đẩy đi đâu**: kho chỉ nằm trên máy
   này. Mọi thứ đều đã commit. Cập nhật lần cuối 2026-11-13, sau quyết định 0022.
-- `make check` xanh: lint, typecheck, 76 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (23 quyết định, 29 lệnh kiểm), bộ rào của sàn, 48 lượt kiểm trình duyệt, 209 bài kiểm của plugin.
+- `make check` xanh: lint, typecheck, 86 bài kiểm của kho, ontology, lệnh kiểm design-assembly
+  (23 quyết định, 29 lệnh kiểm), bộ rào của sàn, 72 lượt kiểm trình duyệt, 213 bài kiểm của plugin.
 - Kho này đáp **38/38 quyết định lõi**: 15 máy giữ, 17 tự khai, 6 đã ghi. Câu cuối, mở hồ sơ
   cạnh danh sách: chủ kho chọn B (phủ lên danh sách, chừa thanh đầu của khung) ngày 2026-11-13. Sổ có 48 dòng. Ngày 2026-11-12 chủ kho
   xác nhận cả sáu câu «đã ghi»; riêng lời văn thì chủ kho xác nhận cách viết, chưa đọc từng chữ.
@@ -117,8 +117,8 @@ việc nào được duyệt:
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
 - **Lần chạy thử sáu đã xong** (2026-11-12, kết quả ở cuối spec 0001). Điều sai rõ đã sửa; các
   sửa đổi đó chưa được thử lại. Điều nó để ngỏ nằm ở mục «Điều còn nguyên» của lần thử sáu.
-- **Khung điều hướng** chưa dựng: luật có rồi, chờ màn thứ hai. Khi dựng, thanh đầu là vùng
-  banner của trang; tấm hồ sơ tự chừa nó, và bài kiểm trình duyệt bắt đầu đo điều đó.
+- **Khung điều hướng đã dựng** cùng màn thứ hai ngày 2026-11-13 (quyết định 0025). Phép đo tấm hồ
+  sơ chừa thanh đầu giờ chạy trên thanh đầu thật.
 - **Đo token** theo giao thức của Repo Standards: đề bài hẹn làm khi cuộc dẫn dắt tới bậc
   templates. Tốn tiền API, cần chủ kho cho phép riêng.
 - **Gặp lỗi lọt thì ghi `design/escapes.md` trước khi sửa.** Phiên nào cũng phải làm; không máy
