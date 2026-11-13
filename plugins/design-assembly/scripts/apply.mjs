@@ -47,9 +47,12 @@ import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.m
 import {
   channelsProblem,
   CORE_STATES,
+  emptyStateProblem,
   errorCopyProblem,
   RECORD_LINE,
   REGISTRY as SCREENS,
+  screenLinksProblem,
+  screenPaths,
   STATES_FILE,
   statesProblem,
   withRecordLayout,
@@ -387,6 +390,9 @@ const ROW_PARTS = {
   "table-actions.test.tsx.template": () => "tests/table-actions.test.tsx",
   "row-actions.tsx.template": (folder) => `${folder}/row-actions.tsx`,
   "row-actions.test.tsx.template": () => "tests/row-actions.test.tsx",
+  // What every list screen shares: loading, trying again, filtering, one row changing in place.
+  "list.ts.template": (folder) => `${path.posix.dirname(path.posix.dirname(folder))}/lib/list.ts`,
+  "list.test.tsx.template": () => "tests/list.test.tsx",
   "held-label.tsx.template": (folder) => `${path.posix.dirname(folder)}/held-label.tsx`,
   "held-label.test.tsx.template": () => "tests/held-label.test.tsx",
 };
@@ -567,6 +573,34 @@ export function patternsPlan(target, { starter, code = false }) {
       },
       checks: [{ kind: "channels", folder: "src", sources: "src", skip }],
     });
+    propose("empty-state-actions", emptyStateProblem(readSources(target, "src"), skip), {
+      what: "no empty state dresses a link as a button",
+      row: {
+        layer: "patterns",
+        kind: "closed",
+        source: "an empty state offers a button only where the person can fill the list there",
+        check: TOOL,
+        note: "that no empty state dresses a link as a button; whether it says why it is empty and how items arrive is a person's review",
+      },
+      checks: [{ kind: "empty-state", sources: "src", skip }],
+    });
+    if (registry !== null) {
+      propose(
+        "navigation-in-frame",
+        screenLinksProblem(readSources(target, "src"), screenPaths(registry), skip),
+        {
+          what: "no screen links to another screen: moving between screens is the frame's",
+          row: {
+            layer: "templates",
+            kind: "closed",
+            source: "the application's frame, the same place and order on every screen",
+            check: TOOL,
+            note: "that no file below the frame links to a listed screen by its path; that the frame shows every screen in order is for the repository's own tests",
+          },
+          checks: [{ kind: "screen-links", sources: "src", registry: SCREENS, skip }],
+        },
+      );
+    }
   }
   // The toast and the one module screens tell results through: installed where the toast library
   // is already a dependency and the floor's components are, and never written over.
@@ -574,9 +608,13 @@ export function patternsPlan(target, { starter, code = false }) {
   if (code && folder === COMPONENTS_FOLDER) {
     const uses = JSON.parse(read("package.json") ?? "{}").dependencies ?? {};
     if ("sonner" in uses) {
+      // The frame comes with them: it draws the toaster once, and clears a screen's toasts when a
+      // person moves on.
       const owned = {
         "sonner.tsx.template": `${folder}/sonner.tsx`,
         "notify.ts.template": "src/lib/notify.ts",
+        "app-frame.tsx.template": `${path.posix.dirname(folder)}/app-frame.tsx`,
+        "app-frame.test.tsx.template": "tests/frame.test.tsx",
       };
       for (const [name, file] of Object.entries(owned)) {
         if (read(file) === null) {
@@ -599,6 +637,7 @@ const PAGE_PROOFS = {
   "wcag-aa": { layer: "templates", kind: "standard" },
   "focus-after-action": { layer: "patterns", kind: "standard" },
   "row-actions-in-view": { layer: "patterns", kind: "standard" },
+  "asked-action-closes": { layer: "patterns", kind: "standard" },
 };
 // Where the floor lists every state of every screen for its browser checks.
 const ROUTES = "tests/e2e/routes.ts";
@@ -928,7 +967,7 @@ export function rulesPage(checks, has) {
       "A failure where the dialog or form is still open is shown in it, not in a toast. What the person typed is kept.",
     held("notification-channel") &&
       notify &&
-      "An action on a row that asks first closes its dialog as soon as the person confirms: the row's own control waits for the answer, so the other rows can still be used. From there it is an action done at once: done, it is told through `notifyDone`; failed, through `notifyFailed`, whose button tries again without asking again.",
+      "An action on a row that asks first closes its dialog as soon as the person confirms: the row's own control waits for the answer, so the other rows can still be used. From there it is an action done at once: done, it is told through `notifyDone`; failed, through `notifyFailed`, whose button tries again without asking again. The browser test fails when the dialog is still open after the person answered.",
     held("notification-channel") &&
       notify &&
       "Anything a toast's button does can also be done from the screen itself: the toast is never the only way.",
@@ -962,6 +1001,14 @@ export function rulesPage(checks, has) {
       "A new screen is listed in `src/screens.ts`, and its file is one the page of its kind names. A screen of a new kind needs its page first: that is a person's decision.",
     held("test-screen-sizes") &&
       "Every state of every screen is checked in a browser at the widths of `design/screen-sizes.json`: one main region, one top heading, no sideways scroll, the accessibility checks. A screen with an action done at once lists a state for that action failing.",
+    held("state-matrix") &&
+      "The gate reads `src/screens.ts` as written: list each screen and each of its states in full there, never built by a function or spread from another list, or the gate does not see them.",
+    held("navigation-in-frame") &&
+      (has("src/components/app-frame.tsx")
+        ? "Moving between screens is the frame's. Once there is more than one screen, `src/App.tsx` draws `AppFrame` (`src/components/app-frame.tsx`) with the list of screens, each given a `title` from the repository's words: it moves between them without loading the page again, marks the open one, leaves a screen's toasts behind and draws the toaster once. A screen never links to another screen: the gate fails when one does."
+        : "Moving between screens is the frame's: one navigation in the application's frame, the same place and order on every screen. A screen never links to another screen: the gate fails when one does."),
+    held("empty-state-actions") &&
+      "An empty state offers a button only where the person can fill the list from this screen; otherwise at most one link inside its words. A link dressed as a button fails the gate.",
   ]);
   section("The system itself", [
     held("tier-direction") &&
@@ -980,7 +1027,7 @@ export function rulesPage(checks, has) {
     held("page-layouts") &&
       "An undo puts the thing back where it was and shows no second toast: the screen shows the result. A failed undo says where the thing is now.",
     held("page-layouts") &&
-      "An empty state says why it is empty and how items get there. It has a button only when the person can fill it from this screen; otherwise at most one link inside its text. Never a link dressed as a primary button, and never a copy of the navigation.",
+      "An empty state says why it is empty and how items get there, and never copies the navigation.",
     held("page-layouts") &&
       "A screen does not link to other screens from beside its heading: moving between screens belongs to the application's frame, in the same place and order on every screen. The place beside the heading is for the screen's main action.",
   ]);

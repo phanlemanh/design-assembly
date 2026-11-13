@@ -13,6 +13,9 @@ import { fileURLToPath } from "node:url";
 import { parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import {
   channelsProblem,
+  emptyStateProblem,
+  screenLinksProblem,
+  screenPaths,
   CORE_STATES,
   errorCopyProblem,
   readScreens,
@@ -299,6 +302,18 @@ test("the channel rule is held, and the toast is installed only where its librar
   // The toast component is listed in the manifest written by the same run.
   assert.match(text(withToast, "design/component-registry.json"), /"name": "Toaster"/);
   assert.equal(check(withToast).status, 0, check(withToast).stderr);
+  // A screen that tells a result through it needs the toaster drawn somewhere, once.
+  edit(withToast, "src/pages/List.tsx", (s) =>
+    s.replace("<h1>", "<h1 onClick={() => notifyDone(LABELS.title)}>"),
+  );
+  const unseen = check(withToast);
+  assert.equal(unseen.status, 1);
+  assert.match(unseen.stderr, /notification-channel: .*the toaster is drawn nowhere/);
+  writeFileSync(
+    path.join(withToast, "src/App.tsx"),
+    'import { Toaster } from "@/components/ui/sonner";\nexport const App = () => <Toaster />;\n',
+  );
+  assert.equal(check(withToast).status, 0, check(withToast).stderr);
   // Once there, the module is the repository's own.
   edit(withToast, "src/lib/notify.ts", (s) => `// ours now\n${s}`);
   assert.equal(run(APPLY, "--target", withToast).status, 0);
@@ -386,4 +401,41 @@ test("one module may call the toast library; a second one is found, whatever it 
   );
   // A function of the repository's own that happens to be called confirm is not a browser dialog.
   assert.equal(channelsProblem({ "src/lib/ask.ts": "export const ok = confirm(1);\n" }), null);
+});
+
+test("an empty state that dresses a link as a button is found; a button or a plain link is not", () => {
+  const skip = ["src/components/ui/"];
+  const found = emptyStateProblem(
+    {
+      "src/a.tsx":
+        'export const A = () => <Empty><EmptyContent><a href="/" className={buttonVariants({ variant: "outline" })}>{w}</a></EmptyContent></Empty>;\n',
+      "src/b.tsx": "export const B = () => <Empty><Button onClick={add}>{w}</Button></Empty>;\n",
+      "src/c.tsx": 'export const C = () => <Empty><p>{w} <a href="/help">{w}</a></p></Empty>;\n',
+      // Outside an empty state, a link may look like a button (the floor's own pages say so).
+      "src/d.tsx": 'export const D = () => <a href="/x" className={buttonVariants()}>{w}</a>;\n',
+    },
+    skip,
+  );
+  assert.match(found, /src\/a\.tsx: an empty state dresses a link as a button/);
+  assert.doesNotMatch(found, /src\/[bcd]\.tsx/);
+});
+
+test("a screen that links to another screen is found; the frame, and other links, are not", () => {
+  const paths = screenPaths(registry(["/", ["ready"]], ["/aside", ["ready"]]));
+  assert.deepEqual(paths, ["/", "/aside"]);
+  const found = screenLinksProblem(
+    {
+      "src/example/A.tsx": 'export const A = () => <h1>{t}</h1><a href="/aside">{w}</a>;\n',
+      "src/example/B.tsx": 'export const B = () => <a href={"/?scenario=x"}>{w}</a>;\n',
+      "src/example/C.tsx": 'export const C = () => <a href="https://example.com">{w}</a>;\n',
+      // The frame lists the screens itself, and a shared part draws them from a list.
+      "src/App.tsx": 'export const App = () => <a href="/aside">{w}</a>;\n',
+      "src/components/app-frame.tsx": "export const F = () => <a href={screen.path}>{w}</a>;\n",
+    },
+    paths,
+    ["src/components/ui/"],
+  );
+  assert.match(found, /src\/example\/A\.tsx: links to the screen \/aside itself/);
+  assert.match(found, /src\/example\/B\.tsx: links to the screen \/\?scenario=x itself/);
+  assert.doesNotMatch(found, /C\.tsx|App\.tsx|app-frame/);
 });

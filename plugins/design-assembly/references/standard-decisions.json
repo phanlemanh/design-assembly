@@ -349,6 +349,27 @@
       "sources": ["design-assembly"]
     },
     {
+      "id": "empty-state-actions",
+      "layer": "patterns",
+      "kind": "closed",
+      "question": "What may an empty state offer a person: a button, a link, or nothing?",
+      "sources": ["design-assembly"]
+    },
+    {
+      "id": "navigation-in-frame",
+      "layer": "templates",
+      "kind": "closed",
+      "question": "Where does a person move between screens?",
+      "sources": ["design-assembly"]
+    },
+    {
+      "id": "asked-action-closes",
+      "layer": "patterns",
+      "kind": "standard",
+      "question": "Once a person answers the dialog an action on a row asked, what waits for the result?",
+      "sources": ["design-assembly"]
+    },
+    {
       "id": "focus-after-action",
       "layer": "patterns",
       "kind": "standard",

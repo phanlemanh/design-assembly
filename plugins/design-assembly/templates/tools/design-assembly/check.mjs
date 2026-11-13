@@ -22,8 +22,11 @@ import {
 import { toPx, toRatio, TYPE_STEPS } from "./scale.mjs";
 import {
   channelsProblem,
+  emptyStateProblem,
   errorCopyProblem,
   RECORD_LINE,
+  screenLinksProblem,
+  screenPaths,
   statesProblem,
   withRecordLayout,
   wordsProblem,
@@ -330,6 +333,33 @@ const KINDS = {
           }
         : state.sources;
       return { ...state, sources, folders: { ...state.folders, [check.folder]: files } };
+    },
+  },
+  // No empty state dresses a link as a button.
+  "empty-state": {
+    run(state, check) {
+      return emptyStateProblem(state.sources?.[check.sources] ?? {}, check.skip);
+    },
+    change(state, check) {
+      const added = `${check.sources}/changed-copy.tsx`;
+      const source =
+        'export const ChangedCopy = () => <Empty><a href="/" className={buttonVariants()}>{word}</a></Empty>;\n';
+      const files = { ...state.sources?.[check.sources], [added]: source };
+      return { ...state, sources: { ...state.sources, [check.sources]: files } };
+    },
+  },
+  // No screen links to another screen: moving between them is the frame's.
+  "screen-links": {
+    run(state, check) {
+      const paths = screenPaths(state.files?.[check.registry]);
+      return screenLinksProblem(state.sources?.[check.sources] ?? {}, paths, check.skip);
+    },
+    change(state, check) {
+      const to = screenPaths(state.files?.[check.registry])[0] ?? "/";
+      const added = `${check.sources}/example/changed-copy.tsx`;
+      const source = `export const ChangedCopy = () => <a href="${to}">{word}</a>;\n`;
+      const files = { ...state.sources?.[check.sources], [added]: source };
+      return { ...state, sources: { ...state.sources, [check.sources]: files } };
     },
   },
   // Every error message a screen shows says what happened and what to do next.

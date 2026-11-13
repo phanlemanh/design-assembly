@@ -46,7 +46,7 @@ it.
 - The result of an action is told through `notifyDone` in `src/lib/notify.ts`; pass it the undo when the action can be taken back.
 - An action done at once that fails is told through `notifyFailed` in the same module: what was not done, what to do next, and a button that tries again. Never drop a failure, and never tell a failed undo as done.
 - A failure where the dialog or form is still open is shown in it, not in a toast. What the person typed is kept.
-- An action on a row that asks first closes its dialog as soon as the person confirms: the row's own control waits for the answer, so the other rows can still be used. From there it is an action done at once: done, it is told through `notifyDone`; failed, through `notifyFailed`, whose button tries again without asking again.
+- An action on a row that asks first closes its dialog as soon as the person confirms: the row's own control waits for the answer, so the other rows can still be used. From there it is an action done at once: done, it is told through `notifyDone`; failed, through `notifyFailed`, whose button tries again without asking again. The browser test fails when the dialog is still open after the person answered.
 - Anything a toast's button does can also be done from the screen itself: the toast is never the only way.
 - When a person leaves a screen its toasts go with it: whatever moves between screens calls `notifyClear` of the same module.
 - Never call a toast library from a screen, and never `alert`, `confirm` or `prompt`. One module calls the toast library; a second one, whatever its name, fails the gate.
@@ -66,6 +66,9 @@ it.
 - Every screen is of one kind. A kind has a page under `design/patterns`: read it before building a screen of that kind, and build it like the reference screen the page names.
 - A new screen is listed in `src/screens.ts`, and its file is one the page of its kind names. A screen of a new kind needs its page first: that is a person's decision.
 - Every state of every screen is checked in a browser at the widths of `design/screen-sizes.json`: one main region, one top heading, no sideways scroll, the accessibility checks. A screen with an action done at once lists a state for that action failing.
+- The gate reads `src/screens.ts` as written: list each screen and each of its states in full there, never built by a function or spread from another list, or the gate does not see them.
+- Moving between screens is the frame's. Once there is more than one screen, `src/App.tsx` draws `AppFrame` (`src/components/app-frame.tsx`) with the list of screens, each given a `title` from the repository's words: it moves between them without loading the page again, marks the open one, leaves a screen's toasts behind and draws the toaster once. A screen never links to another screen: the gate fails when one does.
+- An empty state offers a button only where the person can fill the list from this screen; otherwise at most one link inside its words. A link dressed as a button fails the gate.
 
 ## The system itself
 
@@ -79,7 +82,7 @@ it.
 - A row of `design/decisions.yaml` is for a rule a second screen must follow. A choice that only one screen makes stays in that screen.
 - One item changing never sends the whole list back to its loading state: the row stays until the answer, then the list changes in place.
 - An undo puts the thing back where it was and shows no second toast: the screen shows the result. A failed undo says where the thing is now.
-- An empty state says why it is empty and how items get there. It has a button only when the person can fill it from this screen; otherwise at most one link inside its text. Never a link dressed as a primary button, and never a copy of the navigation.
+- An empty state says why it is empty and how items get there, and never copies the navigation.
 - A screen does not link to other screens from beside its heading: moving between screens belongs to the application's frame, in the same place and order on every screen. The place beside the heading is for the screen's main action.
 
 ## Controls

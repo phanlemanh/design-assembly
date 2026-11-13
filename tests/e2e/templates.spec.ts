@@ -1,5 +1,5 @@
 // decision:one-main-one-h1 decision:no-sideways-scroll decision:wcag-aa decision:focus-after-action
-// decision:row-actions-in-view
+// decision:row-actions-in-view decision:asked-action-closes
 // Every state of every screen, at every width of design/screen-sizes.json: one main region and one
 // top heading, no sideways scroll, and the automated accessibility checks. The widths are a
 // person's list; the narrowest is the reflow width of WCAG 2.2.
@@ -19,11 +19,25 @@ for (const route of ROUTES) {
     test(`page ${route.title} at ${width}px`, async ({ page }) => {
       await page.setViewportSize({ width, height: 800 });
       await page.goto(route.url);
-      // Reach the state the way a person does, then wait until it is on the page.
+      // Reach the state the way a person does, then wait until it is on the page. Where each
+      // pressed control sat is kept: on a row (its table body, or the list a row's button opens),
+      // in a dialog that asks, in a dialog that is a form, or elsewhere on the page.
+      const places: string[] = [];
       for (const step of route.steps) {
-        if ("press" in step)
-          await page.getByRole("button", { name: step.press, exact: true }).click();
-        else await page.getByLabel(step.fill, { exact: true }).fill(step.text);
+        if ("press" in step) {
+          const control = page.getByRole("button", { name: step.press, exact: true });
+          places.push(
+            await control.evaluate((button) => {
+              const dialog = button.closest("[data-slot=dialog-content], [role=alertdialog]");
+              if (dialog) return dialog.querySelector("input, textarea, select") ? "form" : "asks";
+              return button.closest("tbody, [data-row-actions]") ? "row" : "page";
+            }),
+          );
+          await control.click();
+        } else {
+          places.push("field");
+          await page.getByLabel(step.fill, { exact: true }).fill(step.text);
+        }
       }
       await page.waitForFunction((text) => document.body.textContent?.includes(text), route.shows);
       // An open dialog hides the page behind it from assistive tech; the structure is still there.
@@ -151,6 +165,15 @@ for (const route of ROUTES) {
           wrong,
           `record-panel: at ${width}px the record that opened ${seen.layout} the list is wrong: ${wrong.join("; ")}. Open it with WithRecord, never with a panel of the screen's own`,
         ).toEqual([]);
+      }
+      // An action on a row that asks first closes its dialog once the person answers: the row
+      // waits for the answer on its own, so the other rows can still be used, and a failure is
+      // told the way any action done at once tells it.
+      if (places.at(-1) === "asks" && places.at(-2) === "row") {
+        await expect(
+          page.locator("[data-slot=dialog-content], [role=alertdialog]"),
+          "asked-action-closes: the dialog that asked about a row is still open after the person answered. Close it at once and let the row's own button wait; tell the result in a toast",
+        ).toHaveCount(0);
       }
       // Looked at last, once the page has settled: a control that left must not take focus with it.
       if (route.steps.some((step) => "press" in step)) {

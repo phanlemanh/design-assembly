@@ -19,6 +19,8 @@ Chủ kho chọn B trên bảng mẫu ngày 2026-11-13: hồ sơ phủ lên danh
 
 - `state-matrix`: closed, checked by this plugin's tool
 - `notification-channel`: closed, checked by this plugin's tool
+- `empty-state-actions`: closed, checked by this plugin's tool
 - `record-panel`: closed, checked by this plugin's tool
 - `focus-after-action`: standard, checked by this plugin's tool
 - `row-actions-in-view`: standard, checked by this plugin's tool
+- `asked-action-closes`: standard, checked by this plugin's tool

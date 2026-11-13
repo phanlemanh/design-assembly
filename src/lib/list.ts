@@ -1,5 +1,5 @@
-// What every screen of the list kind does the same way, so it is written once
-// (design/patterns/danh-sach.md): load the items, try again after a failure, filter by name, and
+// What every screen of the list kind does the same way, so it is written once (the page of the list
+// kind under design/patterns): load the items, try again after a failure, filter by name, and
 // change one item in place without sending the whole list back to loading. Each screen gives only
 // where its items come from, as a function of the data source that stays the same while it is
 // shown.

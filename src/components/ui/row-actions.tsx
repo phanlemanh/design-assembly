@@ -81,6 +81,8 @@ function RowActions({
       <Popover.Portal>
         <Popover.Positioner side="bottom" align="end" sideOffset={4} className="z-50">
           <Popover.Popup
+            // The browser test knows a row's actions by this, wherever the list is drawn.
+            data-row-actions=""
             aria-label={name}
             onClick={afterAction}
             className="flex flex-col gap-1 rounded-lg border bg-popover p-1 text-popover-foreground shadow-md *:w-full *:justify-start"

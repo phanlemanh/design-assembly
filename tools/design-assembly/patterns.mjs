@@ -191,6 +191,33 @@ export function channelsProblem(files, skip = []) {
       `${doors.join(" and ")} each call a toast library: a result is told through one module`,
     );
   }
+  // A module that tells results through toasts shows nothing until the toaster is drawn
+  // somewhere: once, in the application's frame.
+  const tells =
+    doors.length > 0 &&
+    Object.entries(files).some(
+      ([file, text]) => !doors.includes(file) && /\bnotify(Done|Failed)\s*\(/.test(text),
+    );
+  // Drawn by the app itself, or by a component of the repository's own that something draws.
+  const drawers = Object.entries(files).filter(
+    ([file, text]) =>
+      !skip.some((prefix) => file.startsWith(prefix)) && /<Toaster[\s/>]/.test(text),
+  );
+  const drawn = drawers.some(([file, text]) => {
+    if (/^src\/[^/]+$/.test(file)) return true;
+    const names = [...text.matchAll(/export\s+(?:function|const)\s+([A-Z]\w*)/g)].map(
+      (found) => found[1],
+    );
+    return Object.entries(files).some(
+      ([other, source]) =>
+        other !== file && names.some((name) => new RegExp(`<${name}[\\s/>]`).test(source)),
+    );
+  });
+  if (tells && !drawn) {
+    found.push(
+      "results are told through toasts, but the toaster is drawn nowhere: draw it once, in the application's frame",
+    );
+  }
   if (found.length === 0) return null;
   return `${found.slice(0, 5).join("; ")}: a screen tells a person through the repository's channels`;
 }
@@ -204,4 +231,56 @@ export const RECORD_LINE = /^export const RECORD_LAYOUT: RecordLayout = "([\w-]+
 export function withRecordLayout(source, layout) {
   if (!RECORD_LINE.test(source)) return null;
   return source.replace(RECORD_LINE, `export const RECORD_LAYOUT: RecordLayout = "${layout}";`);
+}
+
+// The `<a ...>` tags of a source, each with the text of its opening tag.
+function anchors(text) {
+  return [...text.matchAll(/<a(?=[\s>])/g)].map((tag) => ({
+    at: tag.index,
+    attributes: openingTag(text, tag.index + 2),
+  }));
+}
+
+// An empty state never dresses a link as a button: it offers a button only where a person can fill
+// the list from that screen, and at most a link inside its words (design/behaviors.md, empty
+// state). Found where a link inside an `<Empty>` takes the classes of a button.
+export function emptyStateProblem(files, skip = []) {
+  const found = [];
+  for (const [file, text] of Object.entries(files)) {
+    if (skip.some((prefix) => file.startsWith(prefix)) || !/\.[jt]sx$/.test(file)) continue;
+    for (const empty of text.matchAll(/<Empty(?=[\s>])/g)) {
+      const end = text.indexOf("</Empty>", empty.index);
+      const inside = text.slice(empty.index, end === -1 ? text.length : end);
+      if (anchors(inside).some((link) => /\bbuttonVariants\s*\(/.test(link.attributes))) {
+        found.push(`${file}: an empty state dresses a link as a button`);
+      }
+    }
+  }
+  if (found.length === 0) return null;
+  return `${found.slice(0, 5).join("; ")}: an empty state offers a button only where the person can fill the list here, and never a link dressed as one`;
+}
+
+// The paths of the screens the registry lists.
+export function screenPaths(registryText) {
+  return readScreens(registryText ?? "").map((screen) => screen.path);
+}
+
+// Moving between screens belongs to the application's frame, the same place and order on every
+// screen (design/behaviors.md, moving between screens). Found where a file below the frame links
+// to a listed screen by its path: the frame is the files right under `src/`, which list the
+// screens themselves.
+export function screenLinksProblem(files, paths, skip = []) {
+  const found = [];
+  for (const [file, text] of Object.entries(files)) {
+    if (skip.some((prefix) => file.startsWith(prefix)) || !/\.[jt]sx$/.test(file)) continue;
+    if (/^src\/[^/]+$/.test(file)) continue;
+    for (const link of anchors(text)) {
+      const href = /\bhref=(?:\{\s*)?(["'`])([^"'`]*)\1/.exec(link.attributes)?.[2];
+      if (href !== undefined && paths.includes(href.split(/[?#]/)[0] || "/")) {
+        found.push(`${file}: links to the screen ${href} itself`);
+      }
+    }
+  }
+  if (found.length === 0) return null;
+  return `${found.slice(0, 5).join("; ")}: moving between screens belongs to the application's frame, not to a screen`;
 }

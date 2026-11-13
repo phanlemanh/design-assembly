@@ -329,6 +329,8 @@ test("with the browser test come the parts it asks for, before the data model ty
     "tests/table-actions.test.tsx",
     "src/components/ui/row-actions.tsx",
     "tests/row-actions.test.tsx",
+    "src/lib/list.ts",
+    "tests/list.test.tsx",
     "src/components/held-label.tsx",
     "tests/held-label.test.tsx",
   ];

@@ -123,7 +123,8 @@ màn. Khung đã dựng cùng màn thứ hai, ở `src/App.tsx`: một thanh đ�
 vùng điều hướng liệt kê mọi màn của `src/screens.ts` theo đúng thứ tự nó ghi. Màn đang mở mang
 dấu `aria-current` và một gạch chân, chứ không chỉ khác màu. Bấm sang màn khác thì toast của màn
 vừa rời bị xoá. Khung đổi màn mà không tải lại trang, nên điều người dùng vừa làm ở màn này vẫn
-còn khi sang màn kia.
+còn khi sang màn kia. Khung là phần dùng chung `AppFrame` (`src/components/app-frame.tsx`) mà plugin
+cài; nó cũng gắn phần vẽ toast, một lần. Màn nào tự đặt liên kết sang màn khác thì cổng đỏ.
 
 ## Kiểu màn
 

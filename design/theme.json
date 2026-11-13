@@ -172,6 +172,21 @@
         "skip": ["src/components/ui/", "src/generated/"]
       }
     ],
+    "empty-state-actions": [
+      {
+        "kind": "empty-state",
+        "sources": "src",
+        "skip": ["src/components/ui/", "src/generated/"]
+      }
+    ],
+    "navigation-in-frame": [
+      {
+        "kind": "screen-links",
+        "sources": "src",
+        "registry": "src/screens.ts",
+        "skip": ["src/components/ui/", "src/generated/"]
+      }
+    ],
     "page-layouts": [
       {
         "kind": "screen-kinds",

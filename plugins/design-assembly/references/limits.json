@@ -1493,9 +1493,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials"],
-      "status": "open",
-      "note": "On a fresh repository the guide installs the notification module and the toaster but mounts the toaster nowhere, so every toast a screen raises is never shown and no check notices."
+      "where": ["d0028", "trials"],
+      "status": "closed",
+      "note": "On a fresh repository the guide installs the notification module and the toaster but mounts the toaster nowhere, so every toast a screen raises is never shown and no check notices.",
+      "closed": "2026-11-13",
+      "closed_by": "the plugin installs a frame that draws the toaster, and the channel check fails when results are told through toasts but no toaster is drawn (decision 0028)"
     },
     {
       "id": "fresh-repo-has-no-frame",
@@ -1504,9 +1506,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials"],
-      "status": "open",
-      "note": "The rules say moving between screens belongs to the application's frame, but on a fresh repository the guide installs no frame, so the builder of a second screen builds one alone."
+      "where": ["d0028", "trials"],
+      "status": "closed",
+      "note": "The rules say moving between screens belongs to the application's frame, but on a fresh repository the guide installs no frame, so the builder of a second screen builds one alone.",
+      "closed": "2026-11-13",
+      "closed_by": "the plugin installs AppFrame with the toast, and the rules page says to draw it from the app once there is a second screen (decision 0028)"
     },
     {
       "id": "screen-list-read-as-text",
@@ -1515,9 +1519,11 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials"],
-      "status": "open",
-      "note": "The gate reads the list of screens as text, so a state built by a function rather than written out is not seen, and no page says so."
+      "where": ["d0028", "trials"],
+      "status": "closed",
+      "note": "The gate reads the list of screens as text, so a state built by a function rather than written out is not seen, and no page says so.",
+      "closed": "2026-11-13",
+      "closed_by": "the rules page says the gate reads the list of screens as written, and to write each screen and state out (decision 0028)"
     },
     {
       "id": "guided-reference-deletes-old-way",
@@ -1526,9 +1532,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials"],
-      "status": "open",
-      "note": "After the guide, the reference screen on a fresh repository still keeps its dialog open while it deletes, against the rules page it installs, so a builder must pick between the two."
+      "where": ["d0028", "trials"],
+      "status": "closed",
+      "note": "After the guide, the reference screen on a fresh repository still keeps its dialog open while it deletes, against the rules page it installs, so a builder must pick between the two.",
+      "closed": "2026-11-13",
+      "closed_by": "the browser test now fails while an asked row action keeps its dialog open, so the guide cannot leave the reference screen that way (decision 0028)"
     },
     {
       "id": "channel-check-own-confirm",
@@ -1542,6 +1550,28 @@
       "note": "The channel check took a screen's own function named confirm for the browser's dialog and turned the gate red for nothing.",
       "closed": "2026-11-13",
       "closed_by": "a name the file declares itself is not the browser's dialog unless called through window, held by a plugin test seen red without it"
+    },
+    {
+      "id": "installed-test-not-updated",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-13",
+      "where": ["d0028"],
+      "status": "open",
+      "note": "The browser test the plugin installs is never written over, so a repository set up before a new rule joins it keeps the old test and the rule's row is never claimed there."
+    },
+    {
+      "id": "row-change-logic-not-shipped",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-13",
+      "where": ["d0028", "trials"],
+      "status": "open",
+      "note": "The plugin ships the shared loading of a list but not the shared change of a row (move with undo, delete asked first, focus), which every builder in the control runs wrote again by hand."
     }
   ]
 }

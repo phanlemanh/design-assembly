@@ -259,3 +259,20 @@ decisions:
     source: "design/blueprint.json, list-detail layout: over"
     check: "tool:tools/design-assembly/check.mjs"
     note: "that the record panel opens a record as the blueprint decides; the browser test of every page measures the arrangement at every width, and a screen that opens a record with a panel of its own is not caught"
+  - id: empty-state-actions
+    layer: patterns
+    kind: closed
+    source: "an empty state offers a button only where the person can fill the list there"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "that no empty state dresses a link as a button; whether it says why it is empty and how items arrive is a person's review"
+  - id: navigation-in-frame
+    layer: templates
+    kind: closed
+    source: "the application's frame, the same place and order on every screen"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "that no file below the frame links to a listed screen by its path; that the frame shows every screen in order is for the repository's own tests"
+  - id: asked-action-closes
+    layer: patterns
+    kind: standard
+    source: "the repository's own browser test of it"
+    check: "e2e:tests/e2e/templates.spec.ts"
