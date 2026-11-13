@@ -379,11 +379,14 @@ const OWNED = {
   "typed-table.test.tsx.template": () => "tests/typed-table.test.tsx",
 };
 // Code the browser test of every page asks for, installed with it where the floor's table is: the
-// column of a row's actions that stays in view, and a button's label that keeps its width while
-// its action waits. Neither needs a typed field, so a repository has them before its first one.
+// column of a row's actions that stays in view, the one button that holds two or more of them,
+// and a button's label that keeps its width while its action waits. None needs a typed field, so
+// a repository has them before its first one.
 const ROW_PARTS = {
   "table-actions.tsx.template": (folder) => `${folder}/table-actions.tsx`,
   "table-actions.test.tsx.template": () => "tests/table-actions.test.tsx",
+  "row-actions.tsx.template": (folder) => `${folder}/row-actions.tsx`,
+  "row-actions.test.tsx.template": () => "tests/row-actions.test.tsx",
   "held-label.tsx.template": (folder) => `${path.posix.dirname(folder)}/held-label.tsx`,
   "held-label.test.tsx.template": () => "tests/held-label.test.tsx",
 };
@@ -878,7 +881,9 @@ export function rulesPage(checks, has) {
         ? "The first column of a typed table stays in place too from 640px up. On a phone it scrolls with the data, so every column can still be read."
         : "The first column stays in place too only where that leaves room to read the columns between."),
     rows &&
-      "A row shows one action as a button. Two or more go behind one button on the row, at every width, that opens them as a list of buttons: two text buttons do not fit beside the data at 320px, and one rule for every width keeps one way to reach each state. It is a disclosure, not an ARIA menu, so every action stays a button the browser test can press and every state behind it can be listed. The actions that can be taken back come first, a delete comes last.",
+      (has("src/components/ui/row-actions.tsx")
+        ? "A row shows one action as a button. Two or more go behind one button on the row, at every width: `RowActions` (`src/components/ui/row-actions.tsx`), given the row's name for a screen reader and the actions as buttons, those that can be taken back first and a delete last. Two text buttons do not fit beside the data at 320px, and one rule for every width keeps one way to reach each state. Its list floats below the button and never widens the column; one is open at a time; pressing an action closes it and gives focus back to the row's button, which you hold with `pending` while the action waits. A state behind it is reached by pressing the row's button, then the action. Never build a list of a row's actions of a screen's own."
+        : "A row shows one action as a button. Two or more go behind one button on the row, at every width, that opens them as a list of buttons: two text buttons do not fit beside the data at 320px, and one rule for every width keeps one way to reach each state. It is a disclosure, not an ARIA menu, so every action stays a button the browser test can press and every state behind it can be listed. The actions that can be taken back come first, a delete comes last."),
     rows &&
       "Each row waits on its own: while one row's action waits, the other rows can still be used.",
     rows &&

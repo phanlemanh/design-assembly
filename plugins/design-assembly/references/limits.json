@@ -1147,8 +1147,10 @@
       "plan": "fix",
       "opened": "2026-11-13",
       "where": ["d0026", "trials"],
-      "status": "open",
-      "note": "The plugin installs no part for the button that holds a row's actions and the list it opens, so a builder still decides where the list shows, whether rows open one at a time, and whether it closes after an action."
+      "status": "closed",
+      "note": "The plugin installs no part for the button that holds a row's actions and the list it opens, so a builder still decides where the list shows, whether rows open one at a time, and whether it closes after an action.",
+      "closed": "2026-11-13",
+      "closed_by": "the plugin installs RowActions with the column of a row's actions, held by its own tests and tried in a browser at 320 and 1440"
     }
   ]
 }

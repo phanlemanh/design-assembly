@@ -327,6 +327,8 @@ test("with the browser test come the parts it asks for, before the data model ty
   const parts = [
     "src/components/ui/table-actions.tsx",
     "tests/table-actions.test.tsx",
+    "src/components/ui/row-actions.tsx",
+    "tests/row-actions.test.tsx",
     "src/components/held-label.tsx",
     "tests/held-label.test.tsx",
   ];
@@ -343,6 +345,7 @@ test("with the browser test come the parts it asks for, before the data model ty
   const rules = text(dir, ".claude/rules/design-assembly.md");
   assert.match(rules, /`TableActionsHead` and `TableActions`/);
   assert.match(rules, /`HeldLabel`/);
+  assert.match(rules, /`RowActions`/);
   // They are the repository's from then on: an edit is kept.
   edit(dir, parts[0], (s) => `${s}// kept\n`);
   assert.equal(run(APPLY, "--target", dir).status, 0);

@@ -60,8 +60,13 @@ Lần thử bảy tìm ra hai chỗ mà luật tự chọi nhau.
   (mô hình dữ liệu, hai nút ở 320) vẫn giữ, phòng khi tác tử vẫn hỏi.
 - Sổ giới hạn đóng ba dòng: `two-row-actions-overflow-narrow`, `focus-target-behind-disclosure`,
   `data-model-ask-or-edit-unclear`.
-- Còn mở: plugin chưa cài sẵn một linh kiện cho nút «Thao tác» và danh sách mở ra. Lần bảy, tác tử
-  phải tự đoán ba chỗ quanh nó: danh sách hiện ở đâu, các dòng mở riêng hay chung, và có tự đóng
-  sau một thao tác không. Đã ghi thành một dòng mở của sổ giới hạn.
+- Phần dựng sẵn cho nút «Thao tác» đã có, cùng ngày: `RowActions`, cài cùng cột thao tác ở
+  `src/components/ui/row-actions.tsx`. Ba chỗ mà lần bảy tác tử phải đoán giờ do phần này quyết, máy
+  đề xuất và chờ chủ repo bác: danh sách nổi ngay dưới nút, sát mép phải, phủ lên các dòng bên dưới
+  nên không làm cột rộng ra; mỗi lúc chỉ một danh sách mở; bấm một thao tác thì danh sách đóng và
+  tiêu điểm về nút của dòng, nút đó được giữ trong lúc thao tác chờ. Phần này dùng thư viện mà
+  hộp thoại của sàn đã dùng, không cài gói mới. Bài kiểm riêng ở `tests/row-actions.test.tsx`. Đã
+  thử trên một bản sao tạm có màn mẫu dùng phần này với hai thao tác: cả 75 lượt kiểm trình duyệt
+  qua, kể cả các trạng thái xoá đi qua nút «Thao tác» và tiêu điểm sau khi xoá.
 - Không lệnh kiểm nào đếm số nút trên một dòng. Phép kiểm ở bề rộng 320 bắt được hai nút chữ trên
   dữ liệu mẫu, nhưng chỉ trên dữ liệu mẫu (dòng `320-check-sample-data-only`).

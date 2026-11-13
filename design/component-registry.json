@@ -206,6 +206,11 @@
       "file": "src/components/ui/label.tsx"
     },
     {
+      "name": "RowActions",
+      "category": "component",
+      "file": "src/components/ui/row-actions.tsx"
+    },
+    {
       "name": "Select",
       "category": "component",
       "file": "src/components/ui/select.tsx"

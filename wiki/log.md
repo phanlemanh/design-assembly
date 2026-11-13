@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-13 — Plugin cài thêm `RowActions`: một nút «Thao tác» mở ra danh sách các thao tác của dòng, nổi dưới nút nên không làm cột rộng ra, mỗi lúc một danh sách, bấm xong thì tiêu điểm về nút — [0026](decisions/0026-one-button-per-row-and-model-review-after.md), `src/components/ui/row-actions.tsx`.
 - 2026-11-13 — Sửa hai chỗ luật chọi nhau của lần thử bảy theo lựa chọn của chủ repo: từ hai thao tác trên một dòng thì gom sau một nút ở mọi bề rộng; tác tử thêm khái niệm mới vào mô hình dữ liệu trong cùng thay đổi để người duyệt trước khi gộp — [0026](decisions/0026-one-button-per-row-and-model-review-after.md).
 - 2026-11-13 — Chặng 1, việc thứ ba: chạy thử lần bảy theo bộ đề cố định, ba vai cộng một đề dò. Sửa bốn lỗi plugin mà vai nhận tìm ra, sửa lỗi bẻ tên trên thanh đầu khi có màn thứ ba (thêm `tests/e2e/frame.spec.ts`), sổ giới hạn thêm 18 dòng mở và 6 dòng đóng; số đầu của chuỗi dựng màn là 12 chỗ phải đoán — [spec 0001](specs/0001-design-system-for-claude-code.md), `docs/trials/results.tsv`, `plugins/design-assembly/references/limits.json`.
 - 2026-11-13 — Chặng 1, việc thứ hai: khung ứng dụng và màn thứ hai. Luật điều hướng có bản dựng thật, phép đo «tấm hồ sơ chừa thanh đầu» chạy trên thanh đầu thật và đã thấy đỏ, ba phần vẽ dùng chung xuống `src/components/` — [0025](decisions/0025-app-frame-and-a-second-screen.md).
