@@ -154,7 +154,7 @@ export const WORDS = {
   // that blamed the browser for every one of them told a repository with a browser it had none.
   noPictures: "No picture could be drawn here: the repository has no browser to draw with.",
   noPicturesScreens:
-    "No picture could be drawn here: the book reads the list of screens from `src/screens.ts`, and this repository keeps it elsewhere.",
+    "No picture could be drawn in this book: it draws screens and components inside the repository's own app, starting from its list of screens in `src/screens.ts`, and this repository keeps that list elsewhere.",
   noPicturesStopped: "No picture could be drawn here: the drawing stopped before it finished.",
 };
 

@@ -1,19 +1,18 @@
 // Two or more actions on a row go behind one button that opens them as a list of buttons
 // (design/behaviors.md, actions on a row). This holds how that button behaves; the browser test
 // holds that it stays in view and that focus never falls on nothing.
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { useState } from "react";
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 
 import { Button } from "../src/components/ui/button.tsx";
 import { RowActions } from "../src/components/ui/row-actions.tsx";
 
-function Row(props: { row: string; pending?: boolean; busy?: boolean; onDone?: () => void }) {
+function Row(props: { row: string; pending?: boolean; onDone?: () => void }) {
   return (
     <RowActions
       name={`Actions for ${props.row}`}
       pending={props.pending}
-      busy={props.busy}
       busyName={`Working on ${props.row}`}
     >
       <Button onClick={props.onDone}>Put aside</Button>
@@ -82,9 +81,18 @@ it("shows no words of its own, so it takes the same small room at every width", 
   expect(screen.getByRole("button", { name: "Actions for first" })).toHaveTextContent(/^$/);
 });
 
-it("while it is working, it shows so and a screen reader hears what it is doing", () => {
-  const { container } = render(<Row row="first" pending busy />);
-  const button = screen.getByRole("button", { name: "Working on first" });
-  expect(button).toHaveAttribute("aria-disabled", "true");
-  expect(container.querySelector(".motion-safe\\:animate-spin")).toBeInTheDocument();
+it("from one second of waiting on, it shows it is working and a screen reader hears what", () => {
+  vi.useFakeTimers();
+  try {
+    const { container } = render(<Row row="first" pending />);
+    const spinning = () => container.querySelector(".motion-safe\\:animate-spin");
+    expect(screen.getByRole("button", { name: "Actions for first" })).toBeInTheDocument();
+    expect(spinning()).not.toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(1000));
+    const button = screen.getByRole("button", { name: "Working on first" });
+    expect(button).toHaveAttribute("aria-disabled", "true");
+    expect(spinning()).toBeInTheDocument();
+  } finally {
+    vi.useRealTimers();
+  }
 });

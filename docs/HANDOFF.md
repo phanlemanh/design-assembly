@@ -115,9 +115,11 @@ việc nào được duyệt:
   `coverage/design-book/book.html`): lát 0020 chỉ nghiệm thu được bằng lượt đó.
 - **Chủ kho đã đi hết bảng mẫu của foundations** ngày 2026-11-12 và giữ cả ba giá trị đang dùng
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
-- **Lần chạy thử tám đã xong** (2026-11-13, kết quả ở cuối spec 0001, số ở
-  `docs/trials/results.tsv`). Dựng màn đoán 12 chỗ như lần bảy, nhưng không còn dừng hỏi; điều
-  nặng nhất còn mở là nút «Thao tác» chật ở bề rộng 320. Các sửa đổi sau lần này chưa được thử lại.
+- **Lần chạy thử chín đã xong** (2026-11-13, kết quả ở cuối spec 0001, số ở
+  `docs/trials/results.tsv`). Dựng màn đoán 13 chỗ, chuỗi 12, 12, 13: các chỗ đoán cũ đã mất nhưng
+  chỗ mới hiện ra. Điều nặng nhất còn mở: dữ liệu mẫu quên mọi thứ khi đổi màn, hộp thoại chờ giữ mọi
+  dòng khác, và chép hay rút phần chung giữa các màn danh sách. Các sửa đổi sau lần này chưa được
+  thử lại.
 - **Khung điều hướng đã dựng** cùng màn thứ hai ngày 2026-11-13 (quyết định 0025). Phép đo tấm hồ
   sơ chừa thanh đầu giờ chạy trên thanh đầu thật.
 - **Đo token** theo giao thức của Repo Standards: đề bài hẹn làm khi cuộc dẫn dắt tới bậc

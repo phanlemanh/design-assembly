@@ -1,6 +1,6 @@
 # Chạy thử bằng tác tử độc lập
 
-Đã chạy tám lần tới ngày 2026-11-13, lần nào cũng tìm ra lỗi mà bài kiểm trên kho giả không thấy.
+Đã chạy chín lần tới ngày 2026-11-13, lần nào cũng tìm ra lỗi mà bài kiểm trên kho giả không thấy.
 Tốn token, nên hỏi chủ repo trước mỗi lần.
 
 Sáu lần đầu mỗi lần một đề khác nhau, nên các con số không so được với nhau. Từ lần bảy, mỗi vai

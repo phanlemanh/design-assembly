@@ -20,3 +20,6 @@ trial	date	role	brief	coverage	gate	guesses	asks	escapes	note
 8	2026-11-13	guide	standard	36/38	green		9	1	Chạy lại sau khi bản sao đầu bị mất cùng phiên; hỏi thêm một lượt về màu so với lần bảy.
 8	2026-11-13	adopt	standard	29/38	green		2		Bảy lệnh kiểm phải giữ đều xanh; cuốn sổ được bảo ghi ra ngoài repo.
 8	2026-11-13	screen	standard		green	12	0	0	Không dừng hỏi về mô hình dữ liệu, đúng luật 0026; tác tử khai 19, bỏ 7 chỗ đã có trang chỉ hướng.
+9	2026-11-13	guide	standard	36/38	green		8	1	Cùng các giá trị như hai lần trước; không hỏi lại màu thêm một lượt.
+9	2026-11-13	adopt	standard	29/38	green		1		Một lượt, bốn câu; không hỏi riêng dòng mới hiện ở lần xem trước thứ hai.
+9	2026-11-13	screen	standard		green	13	0	1	Tác tử khai 19, bỏ 6; ba chỗ đoán của lần tám đã mất, bốn chỗ mới hiện ra.

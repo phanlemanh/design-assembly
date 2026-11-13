@@ -574,15 +574,15 @@ bản sao của tác tử, trừ cổng kiểm của đề dò: bản sao đó m
 **Điều sai, đã sửa.**
 
 - **Nút «Thao tác» đọc tên cũ trong lúc nói «đang làm».** Cả vai dựng màn lẫn đề dò đều gặp: làm
-  đúng lời ghi của phần đó thì phép kiểm accessibility đỏ. Giờ phần đó nhận chữ lúc chờ và tên đọc
-  lúc chờ, tên bắt đầu bằng đúng chữ người thấy.
+  đúng lời ghi của phần đó thì phép kiểm accessibility đỏ. Phần đó nhận thêm một tên đọc riêng cho
+  lúc chờ. Sau đó chủ repo chọn đổi nút thành «⋯» (xem 0026), nên nút không còn chữ để lệch với tên.
 - **Lệnh kiểm đọc nhầm dấu nháy trong lời chú thích** của danh sách màn, rồi báo cả màn không khai
   trạng thái nào. Giờ nó bỏ lời chú thích trước khi đọc.
 - **Cuốn sổ nói mọi khoảng cách trên màn là một trong bảy nấc nó vẽ.** Giờ nó nói đó chỉ là ví dụ.
 - **Trang của tầng patterns hứa cài sẵn luật «hỏi trước hay cho hoàn tác»**, trong khi không có gì
   cài nó. Giờ trang nói luật này chỉ được giữ bằng bài kiểm của chính repo.
 
-**Điều tìm ra, chưa sửa** (sổ giới hạn thêm 14 dòng mở, cùng 4 dòng mở rồi đóng ngay):
+**Điều tìm ra, chưa sửa** (sổ giới hạn thêm 13 dòng mở, cùng 4 dòng mở rồi đóng ngay):
 
 - **Nút «Thao tác» vẫn chật ở 320.** Nút giữ bề rộng của chữ dài hơn trong hai chữ, nên cột đứng
   yên lấn chỗ của cột cuộn. Tác tử dựng màn phải thu lề màn trên điện thoại cho cả ba màn mới qua.
@@ -607,6 +607,64 @@ hướng), bằng lần bảy, không dừng hỏi lần nào (lần bảy là 1
   chờ, tên đọc lúc chờ, và cách gỡ khi nút chật ở 320. Hai chỗ đầu đã được bản sửa ở trên trả lời.
 - **Chín chỗ còn lại phần lớn đã có dòng trong sổ giới hạn,** nặng nhất là chép hay rút phần chung
   giữa các màn danh sách.
+
+### Chạy thử lần chín (2026-11-13)
+
+Lần thứ ba theo bộ đề cố định, sau khi nút giữ các thao tác của dòng đổi thành «⋯». Đề dò bảo thêm
+hai thao tác lên màn quá hạn: đánh dấu đã trả (mục rời danh sách, hoàn tác thì quay lại) và gửi lời
+nhắc (chờ vài giây, không hoàn tác được) (`docs/trials/probes/09-paid-and-reminder.md`). Mọi con
+số dưới đây phiên điều phối đã chạy lại trên bản sao của tác tử.
+
+**Điều đứng vững.**
+
+- **Dẫn dắt:** 36/38 câu lõi, cổng xanh, cùng các giá trị như hai lần trước. Hỏi 8 lượt (lần tám 9),
+  không hỏi lại màu thêm một lượt.
+- **Nhận:** 29/38, cả bảy lệnh kiểm phải giữ đều xanh; sổ của nhóm chỉ được thêm dòng. Cuốn sổ không
+  còn nói sai về khoảng cách.
+- **Dựng màn:** cổng xanh, 107 bài kiểm thường và 135 lượt kiểm trình duyệt. Không dừng hỏi lần nào.
+  Không còn chỗ đoán nào về chữ hay tên đọc của nút lúc chờ, cũng không phải thu lề ở 320: nút «⋯»
+  vừa ngay.
+- **Đề dò:** cổng xanh, 99 bài kiểm thường và 107 lượt kiểm trình duyệt, cả 14 trạng thái mới đo ở
+  mọi bề rộng; không gặp lỗi nào lọt qua.
+
+**Điều sai, đã sửa.**
+
+- **Nút «⋯» để việc đếm một giây cho màn.** Vai dựng màn và đề dò, chạy độc lập, cùng tự viết một
+  phần bọc gần như giống hệt để mỗi dòng có đồng hồ riêng. Giờ chính nút tự đếm từ lúc được giữ.
+- **Cuốn sổ nói lý do không vẽ được hình bằng chuyện danh sách màn ngay trên trang linh kiện.** Giờ
+  câu đó nói cho cả cuốn sổ.
+
+**Điều tìm ra, chưa sửa** (sổ giới hạn thêm 8 dòng mở, cùng 2 dòng mở rồi đóng ngay):
+
+- **Dữ liệu mẫu quên mọi thứ khi đổi màn,** vì khung tải lại cả trang; không phép kiểm nào mở hai màn
+  trong một lượt. Vai dựng màn phải tự giữ dữ liệu mẫu qua các màn.
+- **Hộp thoại hỏi trước giữ mọi dòng khác trong lúc chờ,** ngược với luật mỗi dòng chờ phần của nó.
+- **Một trạng thái chỉ nghe được, không thấy chữ** (nút đang làm) không khai được cho bài kiểm trình
+  duyệt; cả hai tác tử phải giữ nó bằng bài kiểm thường.
+- **Các lỗi nhỏ hơn:**
+  - Bài kiểm trạng thái của repo chỉ chờ một giây.
+  - Repo bảo dùng kiểu sinh ra nhưng màn dùng kiểu viết tay.
+  - Đường nhận ghi câu trả lời của người mà không ghi ai, khi nào, và thêm dòng trùng chủ đề với dòng
+    của nhóm.
+  - Trang tầng foundations gọi một thang chữ là «mạnh hơn» trong khi nó phẳng hơn.
+- **Vẫn còn từ trước:**
+  - Cuộc dẫn dắt ghi cách mở hồ sơ là đề xuất mà không hỏi.
+  - Màn có sẵn của sàn đỏ ngay khi cài bài kiểm trình duyệt.
+  - Màn mẫu báo «Đang xoá» ngay chứ không đợi một giây.
+  - Chưa có luật cho tiêu điểm khi hoàn tác làm một dòng quay lại: cả hai tác tử đều phải đoán.
+
+**Con số.** Dựng màn phải tự quyết **13** chỗ: tác tử khai 19, phiên điều phối bỏ 6 chỗ đã có trang
+hoặc màn mẫu chỉ hướng. Chuỗi là 12, 12, 13. Đếm theo cùng luật, nên con số không giảm, nhưng
+thành phần đổi:
+
+- **Ba chỗ của lần tám đã mất** nhờ các sửa: chữ lúc chờ, tên đọc lúc chờ, và nút chật ở 320.
+- **Bốn chỗ mới hiện ra,** vì tác tử đi sâu hơn vào chỗ trước đó bị chặn:
+  - giữ dữ liệu mẫu qua các màn;
+  - đồng hồ cho từng dòng (đã sửa ngay lần này);
+  - thứ tự danh sách đã cất;
+  - tên «Mọi mục» không còn đúng nghĩa đen.
+- **Phần còn lại đã có dòng trong sổ giới hạn,** nặng nhất là chép hay rút phần chung giữa các màn
+  danh sách và tiêu điểm khi một dòng quay lại.
 
 ## Domain impact
 

@@ -88,6 +88,6 @@
   "notAlone": "không vẽ được, cần một linh kiện khác bao quanh",
   "partsTitle": "Các phần",
   "partsLede": "Những phần này chỉ dùng được bên trong một linh kiện khác. Chúng hiện ở nơi được dùng, trên các màn.",
-  "noPicturesScreens": "Không vẽ được hình ở đây: cuốn sổ đọc danh sách màn từ `src/screens.ts`, còn repo này giữ danh sách đó ở chỗ khác.",
+  "noPicturesScreens": "Cuốn sổ này không vẽ được hình nào: nó vẽ màn và linh kiện bên trong chính ứng dụng của repo, bắt đầu từ danh sách màn ở `src/screens.ts`, còn repo này giữ danh sách đó ở chỗ khác.",
   "noPicturesStopped": "Không vẽ được hình ở đây: việc vẽ dừng giữa chừng."
 }
