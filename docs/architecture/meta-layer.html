@@ -1,0 +1,4961 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Design-assembly: kiến trúc lớp meta</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Lora:ital,wght@0,400;1,400&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --paper: #f5f5f5;
+        --ink: #2d3142;
+        --muted: #4f5d75;
+        --rule: rgba(45, 49, 66, 0.12);
+        --accent: #eb6c36;
+        --accent-text: #ba4513;
+        --sans: "Geist", system-ui, sans-serif;
+        --serif: "Instrument Serif", "Lora", serif;
+        --mono: "Geist Mono", ui-monospace, monospace;
+      }
+      body {
+        font-family: var(--sans);
+        background: var(--paper);
+        color: var(--ink);
+        line-height: 1.6;
+        padding: 3rem 1.5rem 5rem;
+      }
+      .frame {
+        max-width: 1120px;
+        margin: 0 auto;
+      }
+      .eyebrow {
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      h1 {
+        font-family: var(--serif);
+        font-weight: 400;
+        font-size: clamp(2rem, 3vw + 1rem, 3rem);
+        line-height: 1.1;
+        letter-spacing: -0.02em;
+        margin: 0.75rem 0 1rem;
+        max-width: 22ch;
+      }
+      .lede {
+        font-size: 1.125rem;
+        color: var(--muted);
+        max-width: 46rem;
+      }
+      nav {
+        margin: 2.5rem 0 1rem;
+        padding: 1.25rem 1.5rem;
+        background: #ffffff;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+      }
+      nav ol {
+        columns: 2;
+        column-gap: 3rem;
+        padding-left: 1.5rem;
+        margin-top: 0.75rem;
+      }
+      nav li {
+        margin: 0.2rem 0;
+        break-inside: avoid;
+      }
+      a {
+        color: var(--ink);
+        text-decoration-color: var(--rule);
+        text-underline-offset: 3px;
+      }
+      a:hover {
+        text-decoration-color: var(--accent);
+      }
+      section {
+        margin-top: 4rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--rule);
+      }
+      h2 {
+        font-family: var(--serif);
+        font-weight: 400;
+        font-size: 2rem;
+        line-height: 1.15;
+        letter-spacing: -0.01em;
+        margin-bottom: 1.25rem;
+      }
+      h2 span {
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.18em;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 0.5rem;
+      }
+      h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin: 2rem 0 0.5rem;
+      }
+      p,
+      ul,
+      ol,
+      blockquote {
+        max-width: 46rem;
+        margin-bottom: 1rem;
+      }
+      ul,
+      ol {
+        padding-left: 1.5rem;
+      }
+      li {
+        margin: 0.35rem 0;
+      }
+      strong {
+        font-weight: 600;
+      }
+      code {
+        font-family: var(--mono);
+        font-size: 0.85em;
+      }
+      blockquote {
+        font-family: var(--serif);
+        font-size: 1.375rem;
+        line-height: 1.4;
+        padding-left: 1.25rem;
+        border-left: 2px solid var(--accent);
+      }
+      blockquote cite {
+        display: block;
+        margin-top: 0.75rem;
+        font-family: var(--mono);
+        font-style: normal;
+        font-size: 0.7rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .open {
+        padding: 0.875rem 1rem;
+        background: #ffffff;
+        border: 1px solid var(--rule);
+        border-radius: 6px;
+        color: var(--muted);
+      }
+      .scroll {
+        overflow-x: auto;
+      }
+      figure {
+        margin: 1.5rem 0 2rem;
+      }
+      figure svg {
+        width: 100%;
+        min-width: 860px;
+        display: block;
+      }
+      figcaption {
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--muted);
+      }
+      figcaption span {
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        margin-right: 0.5rem;
+      }
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        max-width: 46rem;
+        margin: 1rem 0 1.5rem;
+        background: #ffffff;
+        border: 1px solid var(--rule);
+        font-size: 0.9rem;
+      }
+      table.wide {
+        max-width: none;
+        min-width: 760px;
+      }
+      th {
+        font-family: var(--mono);
+        font-size: 0.66rem;
+        font-weight: 500;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        text-align: left;
+        padding: 0.625rem 0.875rem;
+        border-bottom: 1px solid var(--rule);
+      }
+      td {
+        padding: 0.625rem 0.875rem;
+        border-bottom: 1px solid var(--rule);
+        vertical-align: top;
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      footer {
+        margin-top: 4rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--rule);
+        font-family: var(--mono);
+        font-size: 0.7rem;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+      @media (max-width: 700px) {
+        nav ol {
+          columns: 1;
+        }
+      }
+      @media print {
+        body {
+          padding: 0;
+        }
+        section {
+          break-inside: avoid-page;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <header>
+        <p class="eyebrow">Tài liệu kiến trúc · bản đề xuất, chưa duyệt · 2026-11-13</p>
+        <h1>Design-assembly: lớp meta tạo và giữ design system cho nhiều kho</h1>
+        <p class="lede">
+          Một kho, một hợp đồng design, một bên ghi. Tài liệu này gom tầm nhìn chủ kho nêu, kết quả
+          kiểm kê ba kho bên cạnh, và kiến trúc máy đề xuất. Chỗ nào chủ kho đã chốt, chỗ nào mới là
+          đề xuất, đều ghi rõ.
+        </p>
+      </header>
+      <nav aria-label="Mục lục">
+        <p class="eyebrow">Mục lục</p>
+        <ol>
+          <li><a href="#tom-tat">Tóm tắt</a></li>
+          <li><a href="#van-de">Vấn đề: cùng một việc, ba nơi, nhiều hình dạng</a></li>
+          <li><a href="#tam-nhin">Tầm nhìn và ba điều đã chốt</a></li>
+          <li><a href="#nguyen-ly">Nguyên lý gốc: design system là những dòng sổ</a></li>
+          <li><a href="#nguyen-tac">Năm nguyên tắc kiến trúc</a></li>
+          <li><a href="#ba-lop">Ba lớp lời đáp, và lựa chọn lúc đặt kho</a></li>
+          <li><a href="#hop-dong">Hợp đồng của kho: bộ sổ</a></li>
+          <li><a href="#bo-chuyen">Bộ chuyển, và ba mức phục vụ</a></li>
+          <li><a href="#nguoi-va-claude">Ai làm gì: người, Claude Code, và phần tất định</a></li>
+          <li><a href="#ba-plugin">Ba plugin và ranh giới</a></li>
+          <li><a href="#vong-doi">Vòng đời của một kho</a></li>
+          <li><a href="#ho-hang">Họ hàng với kho tri thức</a></li>
+          <li><a href="#lo-trinh">Lộ trình và tiêu chí đạt</a></li>
+          <li><a href="#hom-nay">Số đo hôm nay</a></li>
+          <li><a href="#con-mo">Câu còn mở</a></li>
+          <li><a href="#thuat-ngu">Thuật ngữ</a></li>
+        </ol>
+      </nav>
+      <section id="tom-tat">
+        <h2><span>01</span>Tóm tắt</h2>
+
+        <ul>
+          <li>
+            <strong>Design-assembly không phải là một design system.</strong> Nó là lớp tạo ra và
+            giữ design system cho từng kho, dù kho đang trống, đã có thư viện mua, hay đã tự dựng
+            nửa chừng.
+          </li>
+          <li>
+            <strong>Đơn vị nhỏ nhất là một dòng sổ quyết định:</strong> một câu hỏi, một lời đáp,
+            vật mang lời đáp đó trong mã, và một lệnh kiểm giữ nó.
+          </li>
+          <li>
+            <strong>Mỗi kho có một hợp đồng design:</strong> một bộ sổ, mỗi khái niệm một sổ, mỗi sổ
+            một hình dạng.
+          </li>
+          <li>
+            <strong>Một bên ghi, nhiều bên đọc.</strong> Design-assembly ghi bộ sổ. Repo Standards
+            gọi nó. Delivery-loop và Claude Code đọc nó.
+          </li>
+          <li>
+            <strong>Lời đáp đến từ ba lớp:</strong> phần riêng của kho, lõi chung của họ sản phẩm,
+            và đề xuất của chuẩn. Kho vẫn chỉ có một hệ.
+          </li>
+          <li>
+            <strong>Luật đi theo, phần ở lại.</strong> Quyết định và lệnh kiểm đi sang mọi kho; mã
+            linh kiện ở lại với thư viện của từng kho.
+          </li>
+        </ul>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Mức chắc chắn</th>
+                <th>Gồm những gì</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Chủ kho đã chốt</strong><br />2026-11-13</td>
+                <td>
+                  Chung lõi, riêng phần mở rộng. Design-assembly là chủ duy nhất của mọi thứ thuộc
+                  design. Công cụ Inventory tự dựng được rút vào plugin, và Inventory chuyển sang
+                  dùng. Hồ sơ mở bằng tấm phủ lên danh sách, chừa thanh đầu của khung. Lộ trình được
+                  tạm duyệt.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Đã có và đang chạy</strong></td>
+                <td>
+                  Sổ quyết định, bản thiết kế, sổ token, sổ linh kiện, trang kiểu màn, các lệnh
+                  kiểm, ba đường audit, dẫn dắt và nhận, bảng mẫu chọn bằng mắt, cuốn sổ bàn giao.
+                  Tất cả mới chạy trọn trên một loại kho: React dựng bằng Vite, trên sàn shadcn.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Mới là đề xuất</strong></td>
+                <td>
+                  Lõi của họ sản phẩm và việc thừa hưởng. Bộ chuyển cho từng loại kho. Đường nhập
+                  kho và sổ nguồn ngoài. Mọi thay đổi ở Repo Standards, delivery-loop và Inventory.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section id="van-de">
+        <h2><span>02</span>Vấn đề: cùng một việc, ba nơi, nhiều hình dạng</h2>
+
+        <p>Hôm nay, việc design của một kho nằm ở ba nơi và không nơi nào nắm trọn.</p>
+        <ul>
+          <li>
+            <strong>Repo Standards</strong> đặt sàn lúc kho ra đời, rồi dừng sau màn mẫu đầu tiên.
+            Nó chỉ làm một loại kho và từ chối kho đã có.
+          </li>
+          <li>
+            <strong>Delivery-loop</strong> (tên cũ: Acceptance Gate Kit) chấm từng tính năng. Nguyên
+            tắc của nó là «kho giữ giá trị, kit giữ cơ chế»: nó đọc sổ token, sổ linh kiện và trang
+            kiểu màn, nhưng không tạo ra chúng.
+          </li>
+          <li>
+            <strong>Khoảng giữa thì mỗi kho tự dựng bằng tay.</strong> Inventory đã tự viết khoảng
+            hai mươi công cụ: sổ quyết định, sổ khối, sổ màn, danh mục thư viện mua, cổng chứng minh
+            màn. Chúng gắn chặt vào tên riêng và chữ của Inventory, nên kho sau phải làm lại.
+          </li>
+        </ul>
+        <p>Kiểm kê chỉ đọc ngày 2026-11-13 cho thấy sự phân mảnh ở từng khái niệm:</p>
+        <div class="scroll">
+          <table class="wide">
+            <thead>
+              <tr>
+                <th>Khái niệm</th>
+                <th>Repo Standards</th>
+                <th>Delivery-loop</th>
+                <th>Inventory tự dựng</th>
+                <th>Design-assembly</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Sổ quyết định, tỉ lệ máy giữ</td>
+                <td>không</td>
+                <td>không</td>
+                <td>có</td>
+                <td>có, cùng định dạng</td>
+              </tr>
+              <tr>
+                <td>Giá trị gốc: màu, chữ, bo góc</td>
+                <td>hỏi màu thương hiệu</td>
+                <td>chỉ đọc</td>
+                <td>tự viết</td>
+                <td>hỏi bằng mắt, sinh, giữ</td>
+              </tr>
+              <tr>
+                <td>Sổ token</td>
+                <td>nói rõ là không làm</td>
+                <td>đọc; tự ghi là thiếu bộ sinh</td>
+                <td>chưa có</td>
+                <td>sinh từ stylesheet</td>
+              </tr>
+              <tr>
+                <td>Sổ linh kiện</td>
+                <td>nói rõ là không làm</td>
+                <td>đọc, hình dạng thứ nhất</td>
+                <td>tự sinh, hình dạng thứ hai</td>
+                <td>tự sinh, hình dạng thứ ba</td>
+              </tr>
+              <tr>
+                <td>Sổ màn và trạng thái</td>
+                <td>một hình dạng</td>
+                <td>không</td>
+                <td>hình dạng khác</td>
+                <td>đọc bản của sàn</td>
+              </tr>
+              <tr>
+                <td>Trang kiểu màn</td>
+                <td>không</td>
+                <td>đọc, tự sinh được</td>
+                <td>viết tay, cùng định dạng</td>
+                <td>đọc, cùng định dạng</td>
+              </tr>
+              <tr>
+                <td>Luật lint giao diện</td>
+                <td>khối lint của sàn</td>
+                <td>bộ dò riêng</td>
+                <td>12 luật tự viết</td>
+                <td>dựa vào sàn</td>
+              </tr>
+              <tr>
+                <td>Kho khối, thang dùng lại</td>
+                <td>không</td>
+                <td>đang lên kế hoạch</td>
+                <td>có</td>
+                <td>chưa có</td>
+              </tr>
+              <tr>
+                <td>Danh mục thư viện mua</td>
+                <td>ghim bản shadcn</td>
+                <td>không</td>
+                <td>có, riêng cho ReUI</td>
+                <td>chưa có</td>
+              </tr>
+              <tr>
+                <td>Kho đã có sẵn</td>
+                <td>từ chối với design</td>
+                <td>đọc được, không sinh</td>
+                <td>chính nó</td>
+                <td>có đường «nhận»</td>
+              </tr>
+              <tr>
+                <td>Chọn bằng mắt, cuốn sổ</td>
+                <td>không</td>
+                <td>bản bấm được ở từng tính năng</td>
+                <td>ảnh ứng viên ở cổng</td>
+                <td>có, mới chỉ trên Vite</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Ba điều rút ra:</p>
+        <ol>
+          <li>
+            <strong>Sáu khái niệm tồn tại ở hai tới ba hình dạng.</strong> Riêng Inventory có ba bộ
+            đọc cho cùng một sổ màn.
+          </li>
+          <li>
+            <strong>Khoảng giữa không ai nhận.</strong> Chính tài liệu của delivery-loop ghi là nó
+            thiếu bộ sinh sổ token, thiếu bộ sinh sổ linh kiện, và thiếu thứ chặn được lệch giữa màn
+            với màn.
+          </li>
+          <li>
+            <strong>Design-assembly hôm nay mới đứng trên một loại kho.</strong> Ở Inventory nó đáp
+            24 trên 38 câu lõi, và không câu nào do máy của nó giữ.
+          </li>
+        </ol>
+      </section>
+      <section id="tam-nhin">
+        <h2><span>03</span>Tầm nhìn và ba điều đã chốt</h2>
+
+        <blockquote>
+          Design-assembly được thiết kế như một lớp meta, là một plugin, để tạo ra design system
+          dùng trên nhiều kho. Inventory hiện làm hệ design bằng tay; design-assembly sinh ra để lấp
+          đúng khoảng trống đó cho mọi kho.<cite>Chủ kho, 2026-11-13</cite>
+        </blockquote>
+        <p>Khi được hỏi lại, chủ kho chốt ba điều. Cả kiến trúc dưới đây đứng trên ba điều này.</p>
+        <ol>
+          <li>
+            <strong>Chung lõi, riêng phần mở rộng.</strong> Các kho cùng họ sản phẩm chia một lõi
+            chung. Mỗi kho thêm phần riêng. Thứ lặp lại ở nhiều kho được nâng lên lõi.
+          </li>
+          <li>
+            <strong>Design-assembly là chủ duy nhất của mọi thứ thuộc design.</strong> Repo
+            Standards chỉ đặt kho và gọi nó. Delivery-loop chỉ đọc sổ của nó. Phần design đang nằm ở
+            hai kho kia dần chuyển về.
+          </li>
+          <li>
+            <strong
+              >Công cụ Inventory tự dựng được rút vào plugin, và Inventory chuyển sang dùng
+              plugin.</strong
+            >
+            Inventory là nơi lấy bài học và là khách hàng đầu tiên.
+          </li>
+        </ol>
+        <p>
+          Phép thử cho mọi lát làm từ nay:
+          <em>thứ này có chạy được ở một kho không phải kho đối chứng không?</em>
+        </p>
+      </section>
+      <section id="nguyen-ly">
+        <h2><span>04</span>Nguyên lý gốc: design system là những dòng sổ</h2>
+        <figure id="hinh-1">
+          <div class="scroll">
+            <svg
+              viewBox="0 48 1000 456"
+              xmlns="http://www.w3.org/2000/svg"
+              role="img"
+              aria-label="Một design system, chia tới phần nhỏ nhất, là những dòng sổ"
+            >
+              <defs>
+                <marker
+                  id="f1-arrow"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#4f5d75" />
+                </marker>
+                <marker
+                  id="f1-arrow-accent"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#eb6c36" />
+                </marker>
+                <marker
+                  id="f1-arrow-ink"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#2d3142" />
+                </marker>
+                <marker
+                  id="f1-arrow-link"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8" />
+                </marker>
+              </defs>
+              <rect x="0" y="0" width="1000" height="1000" fill="#f5f5f5" />
+              <text
+                x="40"
+                y="108"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                GỐC
+              </text>
+              <text
+                x="40"
+                y="236"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                BỐN PHẦN
+              </text>
+              <text
+                x="40"
+                y="360"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                NẰM Ở ĐÂU
+              </text>
+              <path
+                d="M 572 132 V 168 M 272 168 H 872"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-width="1"
+              />
+              <path
+                d="M 272 168 V 200 M 272 264 V 328"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-width="1"
+              />
+              <path
+                d="M 472 168 V 200 M 472 264 V 328"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-width="1"
+              />
+              <path
+                d="M 672 168 V 200 M 672 264 V 328"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-width="1"
+              />
+              <path
+                d="M 872 168 V 200 M 872 264 V 328"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-width="1"
+              />
+              <rect x="452" y="76" width="240" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="452"
+                y="76"
+                width="240"
+                height="56"
+                rx="6"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <rect
+                x="460"
+                y="84"
+                width="72"
+                height="16"
+                rx="2"
+                fill="none"
+                stroke="rgba(235,108,54,0.50)"
+                stroke-width="0.8"
+              />
+              <text
+                x="496.0"
+                y="96"
+                fill="#ba4513"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.08em"
+              >
+                NGUYÊN TỬ
+              </text>
+              <text
+                x="572.0"
+                y="118"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Dòng sổ quyết định
+              </text>
+              <rect x="184" y="200" width="176" height="64" rx="6" fill="#f5f5f5" />
+              <rect
+                x="184"
+                y="200"
+                width="176"
+                height="64"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="272.0"
+                y="230.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Câu hỏi
+              </text>
+              <text
+                x="272.0"
+                y="246.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                điều phải quyết
+              </text>
+              <rect x="384" y="200" width="176" height="64" rx="6" fill="#f5f5f5" />
+              <rect
+                x="384"
+                y="200"
+                width="176"
+                height="64"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="472.0"
+                y="230.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Lời đáp
+              </text>
+              <text
+                x="472.0"
+                y="246.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                người chọn hoặc máy suy ra
+              </text>
+              <rect x="584" y="200" width="176" height="64" rx="6" fill="#f5f5f5" />
+              <rect
+                x="584"
+                y="200"
+                width="176"
+                height="64"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="672.0"
+                y="230.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Vật mang
+              </text>
+              <text
+                x="672.0"
+                y="246.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                giá trị, linh kiện, màn
+              </text>
+              <rect x="784" y="200" width="176" height="64" rx="6" fill="#f5f5f5" />
+              <rect
+                x="784"
+                y="200"
+                width="176"
+                height="64"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="872.0"
+                y="230.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Bằng chứng
+              </text>
+              <text
+                x="872.0"
+                y="246.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                lệnh kiểm đỏ được khi sai
+              </text>
+              <rect x="184" y="328" width="176" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="184"
+                y="328"
+                width="176"
+                height="56"
+                rx="6"
+                fill="rgba(45,49,66,0.05)"
+                stroke="#4f5d75"
+                stroke-width="1"
+              />
+              <text
+                x="272.0"
+                y="354.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Chuẩn chung
+              </text>
+              <text
+                x="272.0"
+                y="370.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                trong plugin, cho mọi kho
+              </text>
+              <rect x="384" y="328" width="176" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="384"
+                y="328"
+                width="176"
+                height="56"
+                rx="6"
+                fill="rgba(45,49,66,0.05)"
+                stroke="#4f5d75"
+                stroke-width="1"
+              />
+              <text
+                x="472.0"
+                y="354.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Bản thiết kế
+              </text>
+              <text
+                x="472.0"
+                y="370.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                của kho, thừa hưởng lõi họ
+              </text>
+              <rect x="584" y="328" width="176" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="584"
+                y="328"
+                width="176"
+                height="56"
+                rx="6"
+                fill="rgba(45,49,66,0.05)"
+                stroke="#4f5d75"
+                stroke-width="1"
+              />
+              <text
+                x="672.0"
+                y="354.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Mã của kho
+              </text>
+              <text
+                x="672.0"
+                y="370.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                thư viện nào cũng được
+              </text>
+              <rect x="784" y="328" width="176" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="784"
+                y="328"
+                width="176"
+                height="56"
+                rx="6"
+                fill="rgba(45,49,66,0.05)"
+                stroke="#4f5d75"
+                stroke-width="1"
+              />
+              <text
+                x="872.0"
+                y="354.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Cổng kiểm
+              </text>
+              <text
+                x="872.0"
+                y="370.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                chạy ở mỗi thay đổi
+              </text>
+              <text
+                x="572"
+                y="428"
+                fill="#ba4513"
+                font-size="14"
+                font-family="'Instrument Serif', 'Lora', serif"
+                text-anchor="middle"
+                font-style="italic"
+              >
+                Sổ token, sổ linh kiện, trang luật, cuốn sổ: đều là góc nhìn sinh ra từ các dòng
+                này.
+              </text>
+              <line
+                x1="40"
+                y1="456"
+                x2="960"
+                y2="456"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <text
+                x="40"
+                y="480"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                CHÚ GIẢI
+              </text>
+              <rect
+                x="136"
+                y="468"
+                width="24"
+                height="16"
+                rx="4"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <text
+                x="168"
+                y="480"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                nguyên tử của hệ
+              </text>
+              <rect
+                x="284"
+                y="468"
+                width="24"
+                height="16"
+                rx="4"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="316"
+                y="480"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                phần không chia nhỏ được nữa
+              </text>
+              <rect
+                x="500"
+                y="468"
+                width="24"
+                height="16"
+                rx="4"
+                fill="rgba(45,49,66,0.05)"
+                stroke="#4f5d75"
+                stroke-width="1"
+              />
+              <text
+                x="532"
+                y="480"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                nơi giữ phần đó
+              </text>
+            </svg>
+          </div>
+          <figcaption>
+            <span>Hình 1</span> Một dòng sổ quyết định và bốn phần không chia nhỏ được nữa.
+          </figcaption>
+        </figure>
+        <p>
+          Chia tới phần nhỏ nhất, một design system là một tập những quyết định giữ được bằng máy.
+          Mỗi quyết định có bốn phần:
+        </p>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Phần</th>
+                <th>Là gì</th>
+                <th>Nằm ở đâu</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Câu hỏi</td>
+                <td>Điều phải quyết: «cột số canh bên nào?», «hồ sơ mở thế nào?»</td>
+                <td>Chuẩn chung, trong plugin</td>
+              </tr>
+              <tr>
+                <td>Lời đáp</td>
+                <td>Người chọn, hoặc máy suy ra từ một chuẩn hay một công thức</td>
+                <td>Bản thiết kế của kho</td>
+              </tr>
+              <tr>
+                <td>Vật mang</td>
+                <td>Giá trị, linh kiện hay màn mang lời đáp đó</td>
+                <td>Mã của kho, thư viện nào cũng được</td>
+              </tr>
+              <tr>
+                <td>Bằng chứng</td>
+                <td>Một lệnh kiểm đỏ được khi mã không còn theo lời đáp</td>
+                <td>Cổng kiểm của kho</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Thiếu một trong bốn phần thì đó chưa phải là quyết định, mới là ý định. Hai hệ quả:</p>
+        <ul>
+          <li>
+            <strong>Chỉ dòng sổ mới là lời đáp.</strong> Điều máy tự suy ra khi đọc mã không được
+            tính, cho tới khi có một dòng ghi nó.
+          </li>
+          <li>
+            <strong>Mọi thứ khác là góc nhìn sinh ra từ các dòng này:</strong> sổ token, sổ linh
+            kiện, trang luật cho tác tử, cuốn sổ bàn giao. Chúng không bao giờ được sửa tay.
+          </li>
+        </ul>
+        <p>
+          Có những câu máy không giữ được: màu thương hiệu có đúng tính cách không, lời văn có hay
+          không, màn có đẹp không. Các câu đó vẫn có dòng sổ, ghi là phán đoán của người, và không
+          được tính vào tỉ lệ máy giữ.
+        </p>
+      </section>
+      <section id="nguyen-tac">
+        <h2><span>05</span>Năm nguyên tắc kiến trúc</h2>
+
+        <ol>
+          <li>
+            <strong>Luật đi theo, phần ở lại.</strong> Quyết định và lệnh kiểm không phụ thuộc thư
+            viện, nên đi theo sang mọi kho. Mã linh kiện thuộc thư viện của từng kho, nên ở lại đó.
+            Ở kho đã có thư viện riêng, plugin không cài phần nào: nó ghi luật và trỏ tới thứ của
+            kho đang giữ luật đó.
+          </li>
+          <li>
+            <strong>Một hợp đồng trong mỗi kho.</strong> Ai cần biết về design của kho thì đọc bộ
+            sổ, không đọc mã.
+          </li>
+          <li>
+            <strong>Một chủ, nhiều người đọc.</strong> Chỉ design-assembly ghi bộ sổ, cùng với người
+            ở những dòng là quyết định của người.
+          </li>
+          <li>
+            <strong>Lõi không biết tên thư viện.</strong> Mọi thứ gắn với một nền dựng, một cách
+            viết giá trị, một thư viện linh kiện hay một ngôn ngữ nằm trong bộ chuyển. Thêm một loại
+            kho là thêm bộ chuyển, không sửa lõi.
+          </li>
+          <li>
+            <strong>Xoá nhiều hơn thêm.</strong> Thước đo của lớp meta là số công cụ viết tay và số
+            hình dạng trùng nó làm biến mất.
+          </li>
+        </ol>
+      </section>
+      <section id="ba-lop">
+        <h2><span>06</span>Ba lớp lời đáp, và lựa chọn lúc đặt kho</h2>
+        <figure id="hinh-6">
+          <div class="scroll">
+            <svg
+              viewBox="0 40 1000 352"
+              xmlns="http://www.w3.org/2000/svg"
+              role="img"
+              aria-label="Ba lớp lời đáp: riêng của kho, chung của họ, đề xuất của chuẩn"
+            >
+              <defs>
+                <marker
+                  id="f6-arrow"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#4f5d75" />
+                </marker>
+                <marker
+                  id="f6-arrow-accent"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#eb6c36" />
+                </marker>
+                <marker
+                  id="f6-arrow-ink"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#2d3142" />
+                </marker>
+                <marker
+                  id="f6-arrow-link"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8" />
+                </marker>
+              </defs>
+              <rect x="0" y="0" width="1000" height="1000" fill="#f5f5f5" />
+              <text
+                x="40"
+                y="68"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                HỎI TRƯỚC
+              </text>
+              <line
+                x1="80"
+                y1="84"
+                x2="80"
+                y2="276"
+                stroke="rgba(45,49,66,0.30)"
+                stroke-width="1"
+              />
+              <polygon points="76,276 84,276 80,284" fill="#4f5d75" />
+              <text
+                x="40"
+                y="308"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                HỎI SAU CÙNG
+              </text>
+              <line
+                x1="160"
+                y1="72"
+                x2="960"
+                y2="72"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="1"
+              />
+              <rect x="160" y="72" width="800" height="72" fill="#ffffff" />
+              <line
+                x1="160"
+                y1="144"
+                x2="960"
+                y2="144"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="1"
+              />
+              <text
+                x="180"
+                y="112"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.14em"
+              >
+                LỚP 3
+              </text>
+              <text
+                x="260"
+                y="104"
+                fill="#2d3142"
+                font-size="16"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+                font-weight="600"
+              >
+                Phần riêng của kho
+              </text>
+              <text
+                x="260"
+                y="124"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                lời đáp chỉ kho này cần, và ngoại lệ có ghi lý do
+              </text>
+              <text
+                x="940"
+                y="112"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="end"
+              >
+                chủ của kho đó, lúc dẫn dắt
+              </text>
+              <rect x="160" y="144" width="800" height="72" fill="rgba(235,108,54,0.08)" />
+              <line
+                x1="160"
+                y1="216"
+                x2="960"
+                y2="216"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="1"
+              />
+              <text
+                x="180"
+                y="184"
+                fill="#ba4513"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.14em"
+              >
+                LỚP 2
+              </text>
+              <text
+                x="260"
+                y="176"
+                fill="#2d3142"
+                font-size="16"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+                font-weight="600"
+              >
+                Lõi của họ sản phẩm
+              </text>
+              <text
+                x="260"
+                y="196"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                lời đáp dùng chung cả họ: màu, cách mở hồ sơ, khối đã nâng hạng
+              </text>
+              <text
+                x="940"
+                y="184"
+                fill="#ba4513"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="end"
+              >
+                chọn họ lúc đặt kho
+              </text>
+              <rect x="160" y="216" width="800" height="72" fill="#ececec" />
+              <line
+                x1="160"
+                y1="288"
+                x2="960"
+                y2="288"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="1"
+              />
+              <text
+                x="180"
+                y="256"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.14em"
+              >
+                LỚP 1
+              </text>
+              <text
+                x="260"
+                y="248"
+                fill="#2d3142"
+                font-size="16"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+                font-weight="600"
+              >
+                Chuẩn chung
+              </text>
+              <text
+                x="260"
+                y="268"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                mọi câu hỏi, kèm lời đáp đề xuất theo loại sản phẩm
+              </text>
+              <text
+                x="940"
+                y="256"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="end"
+              >
+                có sẵn trong plugin
+              </text>
+              <rect
+                x="160"
+                y="144"
+                width="800"
+                height="72"
+                fill="none"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <text
+                x="260"
+                y="324"
+                fill="#ba4513"
+                font-size="14"
+                font-family="'Instrument Serif', 'Lora', serif"
+                text-anchor="start"
+                font-style="italic"
+              >
+                Lớp giữa là lựa chọn lúc đặt kho. Không chọn họ nào thì kho bỏ qua lớp này.
+              </text>
+              <line
+                x1="40"
+                y1="352"
+                x2="960"
+                y2="352"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <text
+                x="40"
+                y="376"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                CHÚ GIẢI
+              </text>
+              <rect
+                x="136"
+                y="364"
+                width="24"
+                height="16"
+                rx="4"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <text
+                x="168"
+                y="376"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                lớp được chọn lúc đặt kho
+              </text>
+              <text
+                x="336"
+                y="376"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                Kho vẫn chỉ có một bộ sổ; mỗi dòng ghi lời đáp đến từ lớp nào.
+              </text>
+            </svg>
+          </div>
+          <figcaption>
+            <span>Hình 6</span> Một câu hỏi tìm lời đáp từ trên xuống và dừng ở lớp đầu tiên có.
+          </figcaption>
+        </figure>
+        <p>Mỗi kho chỉ có một hệ design. Lời đáp của nó đến từ ba lớp:</p>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Lớp</th>
+                <th>Chứa gì</th>
+                <th>Ví dụ</th>
+                <th>Ai đặt</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Phần riêng của kho</td>
+                <td>Lời đáp chỉ kho đó cần, và ngoại lệ có lý do</td>
+                <td>Kiểu màn «lưới» của Inventory, các kiểu cột, lời văn</td>
+                <td>Chủ của kho đó</td>
+              </tr>
+              <tr>
+                <td>Lõi của họ sản phẩm</td>
+                <td>Lời đáp dùng chung cả họ, và các khối đã nâng hạng</td>
+                <td>Màu thương hiệu; hồ sơ phủ lên danh sách</td>
+                <td>Chủ của họ sản phẩm, một lần</td>
+              </tr>
+              <tr>
+                <td>Chuẩn chung</td>
+                <td>Mọi câu hỏi, kèm lời đáp đề xuất theo loại sản phẩm</td>
+                <td>«Công cụ làm việc thì đề xuất hồ sơ mở cạnh danh sách»</td>
+                <td>Có sẵn trong plugin</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Lõi của họ không nằm trong plugin, vì plugin không nêu tên sản phẩm nào. Nó gồm hai thứ:
+          <strong>một hồ sơ lời đáp</strong> mà bản thiết kế của kho khai là thừa hưởng, và
+          <strong>một kho mã</strong> cho các khối đã nâng hạng, cùng kiểu kho mã mà shadcn và ReUI
+          đang dùng.
+        </p>
+        <h3>Lúc đặt kho</h3>
+        <p>Cuộc dẫn dắt hỏi một câu trước mọi câu khác: «kho này thuộc họ nào?»</p>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Kho thuộc một họ</th>
+                <th>Kho đứng một mình (mặc định)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Câu họ đã khoá</td>
+                <td>Không hỏi lại; sổ ghi «thừa hưởng»</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>Câu họ để mặc định</td>
+                <td>Điền sẵn, đổi được; sổ ghi là đã đổi</td>
+                <td>—</td>
+              </tr>
+              <tr>
+                <td>Câu phải nhìn</td>
+                <td>Hỏi nếu họ chưa đáp</td>
+                <td>Người chọn trên bảng mẫu</td>
+              </tr>
+              <tr>
+                <td>Câu giao cho máy</td>
+                <td>Lấy của họ, rồi của chuẩn</td>
+                <td>Lấy đề xuất của chuẩn; sổ ghi «máy đề xuất, chưa ai xác nhận»</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Lựa chọn này không khoá cứng: kho đứng một mình sau này vẫn vào họ được qua đường «nhận»,
+          so từng câu, chỗ nào khác thì ghi thành ngoại lệ có lý do.
+        </p>
+        <h3>Nâng hạng</h3>
+        <p>
+          Một khối đã vào kho ở hai kho cùng họ thì máy đề xuất nâng lên lõi; chủ kho duyệt. Bảng từ
+          vựng của plugin đã có tên ngành cho cấu trúc này: core design system, recipes, snowflakes,
+          graduation.
+        </p>
+        <p class="open">
+          Còn mở: với mỗi lời đáp ở lõi, kho con được khoá, được đổi, hay câu đó không thuộc lõi.
+          Đây là phán đoán về thương hiệu, chủ kho quyết khi tới chặng đó.
+        </p>
+      </section>
+      <section id="hop-dong">
+        <h2><span>07</span>Hợp đồng của kho: bộ sổ</h2>
+
+        <p>Mọi thứ về design của một kho nằm trong một bộ sổ. Mỗi sổ trả lời đúng một câu.</p>
+        <div class="scroll">
+          <table class="wide">
+            <thead>
+              <tr>
+                <th>Sổ</th>
+                <th>Trả lời câu gì</th>
+                <th>Ai viết</th>
+                <th>Hôm nay</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Quyết định</td>
+                <td>Kho đã quyết gì, cái gì giữ từng điều</td>
+                <td>Máy; người ở dòng phán đoán</td>
+                <td>Có, một hình dạng</td>
+              </tr>
+              <tr>
+                <td>Bản thiết kế</td>
+                <td>Người đã trả lời gì, thừa hưởng từ đâu</td>
+                <td>Người, qua cuộc dẫn dắt</td>
+                <td>Có; chưa có «thừa hưởng»</td>
+              </tr>
+              <tr>
+                <td>Token</td>
+                <td>Giá trị nào tồn tại</td>
+                <td>Máy, sinh từ stylesheet</td>
+                <td>Có</td>
+              </tr>
+              <tr>
+                <td>Linh kiện</td>
+                <td>Linh kiện và khối nào tồn tại, từ nguồn nào</td>
+                <td>Máy, sinh từ mã</td>
+                <td>Ba hình dạng, cần gộp</td>
+              </tr>
+              <tr>
+                <td>Nhập kho</td>
+                <td>Nhu cầu nào đã có lời giải, ai duyệt, từ đâu ra</td>
+                <td>Người duyệt từng dòng</td>
+                <td>Chỉ Inventory có</td>
+              </tr>
+              <tr>
+                <td>Nguồn ngoài</td>
+                <td>Chọn từ thư viện nào, theo thứ tự nào, ghim bản nào</td>
+                <td>Người chọn, máy ghim</td>
+                <td>Chỉ Inventory có</td>
+              </tr>
+              <tr>
+                <td>Màn</td>
+                <td>Màn nào tồn tại, thuộc kiểu nào, có trạng thái nào</td>
+                <td>Người dựng màn</td>
+                <td>Hai hình dạng, cần gộp</td>
+              </tr>
+              <tr>
+                <td>Kiểu màn</td>
+                <td>Mỗi kiểu màn dựng như thế nào</td>
+                <td>Người</td>
+                <td>Có, một hình dạng</td>
+              </tr>
+              <tr>
+                <td>Lời</td>
+                <td>Từ nào không được đổi, chữ lấy từ đâu</td>
+                <td>Người</td>
+                <td>Có</td>
+              </tr>
+              <tr>
+                <td>Lỗi lọt</td>
+                <td>Cái gì đã lọt qua mọi lệnh kiểm</td>
+                <td>Người và tác tử</td>
+                <td>Có</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Sổ linh kiện và sổ nhập kho được giữ riêng: một bên do máy sinh từ mã, một bên là dòng
+          người duyệt. Hai luật của sổ nhập kho lấy nguyên từ quyết định «chọn trước, tạo sau» của
+          Inventory:
+        </p>
+        <ul>
+          <li>
+            <strong>Một nhu cầu, một lời giải.</strong> Thứ trong kho chưa đủ thì mở rộng chính nó,
+            không đặt thêm thứ thứ hai bên cạnh.
+          </li>
+          <li>
+            <strong>Thứ tạo ra trong vòng đang làm không tự tính là đã ở trong kho.</strong> Nó phải
+            qua thang chọn và qua mắt chủ kho.
+          </li>
+        </ul>
+      </section>
+      <section id="bo-chuyen">
+        <h2><span>08</span>Bộ chuyển, và ba mức phục vụ</h2>
+
+        <p>
+          Lõi của plugin chỉ làm việc với bộ sổ. Thứ gì phải biết một loại kho cụ thể thì nằm trong
+          bộ chuyển.
+        </p>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Loại bộ chuyển</th>
+                <th>Việc của nó</th>
+                <th>Có hôm nay</th>
+                <th>Cần cho Inventory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Nền dựng</td>
+                <td>Mở một màn của kho trong trình duyệt</td>
+                <td>Vite</td>
+                <td>Next.js, và kiểu «lệnh riêng»</td>
+              </tr>
+              <tr>
+                <td>Giá trị</td>
+                <td>Đọc và ghi giá trị thiết kế</td>
+                <td>Biến CSS của Tailwind 4</td>
+                <td>Cùng loại; thêm màu pha</td>
+              </tr>
+              <tr>
+                <td>Nguồn linh kiện</td>
+                <td>Biết thư mục nào là của nhà cung cấp, danh mục nào để chọn</td>
+                <td>Thư mục của sàn shadcn</td>
+                <td>ReUI, và kho khối riêng</td>
+              </tr>
+              <tr>
+                <td>Mã nguồn</td>
+                <td>Đọc màn và linh kiện để kiểm chữ, trạng thái, điều khiển thô</td>
+                <td>React</td>
+                <td>Cùng loại</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Phép đo trong trình duyệt không cần bộ chuyển mã nguồn: nó đo qua vai trò, vùng và dấu
+          chung của trang. Để phép đo đi theo được sang kho có thư viện riêng, mỗi phần của kho khai
+          nó đáp luật nào bằng một dấu chung, thay vì tên linh kiện của sàn.
+        </p>
+        <h3>Một kiến trúc, ba mức phục vụ</h3>
+        <p>
+          Câu «mọi kho rộng tới đâu» giải được cả ba phạm vi, nếu coi chúng là ba mức của cùng một
+          kiến trúc. Mức của một kho do số bộ chuyển nó có quyết định.
+        </p>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Mức</th>
+                <th>Kho</th>
+                <th>Nhận được</th>
+                <th>Giá</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Trọn</td>
+                <td>Kho trống trên sàn Repo Standards</td>
+                <td>Dẫn dắt, cài phần, mọi lệnh kiểm, bảng mẫu, cuốn sổ</td>
+                <td>Đã có</td>
+              </tr>
+              <tr>
+                <td>Đồng hành</td>
+                <td>Họ kho của chủ kho: React, Tailwind, shadcn hoặc ReUI, Vite hoặc Next</td>
+                <td>Mọi thứ trừ cài phần</td>
+                <td>Bốn bộ chuyển ở bảng trên</td>
+              </tr>
+              <tr>
+                <td>Chỉ luật</td>
+                <td>Kho web bất kỳ</td>
+                <td>
+                  Audit, sổ quyết định, phép đo trình duyệt; audit nói thẳng câu nào chưa có gì giữ
+                </td>
+                <td>Gần như không</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Mức «chỉ luật» không cần tối ưu riêng: nó tự có khi lõi thật sự tách khỏi thư viện. Phần
+          đắt là bộ chuyển mã nguồn cho từng ngôn ngữ khác; chỉ làm khi có một kho thật cần.
+        </p>
+      </section>
+      <section id="nguoi-va-claude">
+        <h2><span>09</span>Ai làm gì: người, Claude Code, và phần tất định</h2>
+        <figure id="hinh-2">
+          <div class="scroll">
+            <svg
+              viewBox="0 48 1000 500"
+              xmlns="http://www.w3.org/2000/svg"
+              role="img"
+              aria-label="Người quyết ở chỗ phải nhìn; Claude làm; kịch bản giữ"
+            >
+              <defs>
+                <marker
+                  id="f2-arrow"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#4f5d75" />
+                </marker>
+                <marker
+                  id="f2-arrow-accent"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#eb6c36" />
+                </marker>
+                <marker
+                  id="f2-arrow-ink"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#2d3142" />
+                </marker>
+                <marker
+                  id="f2-arrow-link"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8" />
+                </marker>
+              </defs>
+              <rect x="0" y="0" width="1000" height="1000" fill="#f5f5f5" />
+              <line
+                x1="32"
+                y1="76"
+                x2="976"
+                y2="76"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="0.8"
+              />
+              <line
+                x1="32"
+                y1="108"
+                x2="976"
+                y2="108"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <line
+                x1="32"
+                y1="156"
+                x2="976"
+                y2="156"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <line
+                x1="32"
+                y1="204"
+                x2="976"
+                y2="204"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <line
+                x1="32"
+                y1="252"
+                x2="976"
+                y2="252"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <line
+                x1="32"
+                y1="300"
+                x2="976"
+                y2="300"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <line
+                x1="32"
+                y1="348"
+                x2="976"
+                y2="348"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <line
+                x1="32"
+                y1="396"
+                x2="976"
+                y2="396"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <line
+                x1="32"
+                y1="444"
+                x2="976"
+                y2="444"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <line
+                x1="272"
+                y1="76"
+                x2="272"
+                y2="444"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <line
+                x1="448"
+                y1="76"
+                x2="448"
+                y2="444"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <line
+                x1="624"
+                y1="76"
+                x2="624"
+                y2="444"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <line
+                x1="800"
+                y1="76"
+                x2="800"
+                y2="444"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <text
+                x="32"
+                y="96"
+                fill="#636b80"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                VIỆC
+              </text>
+              <text
+                x="360"
+                y="96"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.18em"
+              >
+                NGƯỜI (CHỦ KHO)
+              </text>
+              <text
+                x="536"
+                y="96"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.18em"
+              >
+                CLAUDE DẪN DẮT
+              </text>
+              <text
+                x="712"
+                y="96"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.18em"
+              >
+                CLAUDE DỰNG MÀN
+              </text>
+              <text
+                x="888"
+                y="96"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.18em"
+              >
+                KỊCH BẢN VÀ CỔNG
+              </text>
+              <text
+                x="32"
+                y="136"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                Chọn bằng mắt: màu, chữ, cách bày
+              </text>
+              <rect
+                x="348"
+                y="124"
+                width="24"
+                height="16"
+                rx="4"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <text
+                x="360"
+                y="136"
+                fill="#ba4513"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                A
+              </text>
+              <rect
+                x="524"
+                y="124"
+                width="24"
+                height="16"
+                rx="4"
+                fill="none"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="536"
+                y="136"
+                fill="#2d3142"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                R
+              </text>
+              <rect
+                x="876"
+                y="124"
+                width="24"
+                height="16"
+                rx="4"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-opacity="0.55"
+                stroke-width="1"
+              />
+              <text
+                x="888"
+                y="136"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                C
+              </text>
+              <text
+                x="32"
+                y="184"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                Suy ra các giá trị còn lại
+              </text>
+              <text
+                x="360"
+                y="184"
+                fill="#636b80"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                I
+              </text>
+              <rect
+                x="524"
+                y="172"
+                width="24"
+                height="16"
+                rx="4"
+                fill="none"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="536"
+                y="184"
+                fill="#2d3142"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                R
+              </text>
+              <rect x="876" y="172" width="24" height="16" rx="4" fill="#2d3142" />
+              <text
+                x="888"
+                y="184"
+                fill="#f5f5f5"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                A
+              </text>
+              <text
+                x="32"
+                y="232"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                Ghi sổ, sinh các sổ dẫn xuất
+              </text>
+              <text
+                x="360"
+                y="232"
+                fill="#636b80"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                I
+              </text>
+              <rect
+                x="524"
+                y="220"
+                width="24"
+                height="16"
+                rx="4"
+                fill="none"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="536"
+                y="232"
+                fill="#2d3142"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                R
+              </text>
+              <rect x="876" y="220" width="24" height="16" rx="4" fill="#2d3142" />
+              <text
+                x="888"
+                y="232"
+                fill="#f5f5f5"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                A
+              </text>
+              <text
+                x="32"
+                y="280"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                Dựng một màn theo luật
+              </text>
+              <text
+                x="360"
+                y="280"
+                fill="#636b80"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                I
+              </text>
+              <rect x="700" y="268" width="24" height="16" rx="4" fill="#2d3142" />
+              <text
+                x="712"
+                y="280"
+                fill="#f5f5f5"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                A
+              </text>
+              <rect
+                x="876"
+                y="268"
+                width="24"
+                height="16"
+                rx="4"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-opacity="0.55"
+                stroke-width="1"
+              />
+              <text
+                x="888"
+                y="280"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                C
+              </text>
+              <text
+                x="32"
+                y="328"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                Đưa khối mới vào kho
+              </text>
+              <rect x="348" y="316" width="24" height="16" rx="4" fill="#2d3142" />
+              <text
+                x="360"
+                y="328"
+                fill="#f5f5f5"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                A
+              </text>
+              <rect
+                x="700"
+                y="316"
+                width="24"
+                height="16"
+                rx="4"
+                fill="none"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="712"
+                y="328"
+                fill="#2d3142"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                R
+              </text>
+              <rect
+                x="876"
+                y="316"
+                width="24"
+                height="16"
+                rx="4"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-opacity="0.55"
+                stroke-width="1"
+              />
+              <text
+                x="888"
+                y="328"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                C
+              </text>
+              <text
+                x="32"
+                y="376"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                Kiểm mỗi thay đổi
+              </text>
+              <rect
+                x="700"
+                y="364"
+                width="24"
+                height="16"
+                rx="4"
+                fill="none"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="712"
+                y="376"
+                fill="#2d3142"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                R
+              </text>
+              <rect x="876" y="364" width="24" height="16" rx="4" fill="#2d3142" />
+              <text
+                x="888"
+                y="376"
+                fill="#f5f5f5"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                A
+              </text>
+              <text
+                x="32"
+                y="424"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                Đổi mô hình dữ liệu, cho ngoại lệ
+              </text>
+              <rect x="348" y="412" width="24" height="16" rx="4" fill="#2d3142" />
+              <text
+                x="360"
+                y="424"
+                fill="#f5f5f5"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                A
+              </text>
+              <rect
+                x="700"
+                y="412"
+                width="24"
+                height="16"
+                rx="4"
+                fill="none"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="712"
+                y="424"
+                fill="#2d3142"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                R
+              </text>
+              <line x1="360" y1="452" x2="360" y2="472" stroke="#eb6c36" stroke-width="1.4" />
+              <text
+                x="372"
+                y="476"
+                fill="#ba4513"
+                font-size="14"
+                font-family="'Instrument Serif', 'Lora', serif"
+                text-anchor="start"
+                font-style="italic"
+              >
+                Người chỉ bị gọi khi phải nhìn, hoặc phải chịu trách nhiệm.
+              </text>
+              <line
+                x1="32"
+                y1="500"
+                x2="976"
+                y2="500"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <text
+                x="32"
+                y="524"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                CHÚ GIẢI
+              </text>
+              <rect x="128" y="512" width="24" height="16" rx="4" fill="#2d3142" />
+              <text
+                x="140"
+                y="524"
+                fill="#f5f5f5"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                A
+              </text>
+              <text
+                x="160"
+                y="524"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                quyết và chịu trách nhiệm
+              </text>
+              <rect
+                x="332"
+                y="512"
+                width="24"
+                height="16"
+                rx="4"
+                fill="none"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="344"
+                y="524"
+                fill="#2d3142"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                R
+              </text>
+              <text
+                x="364"
+                y="524"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                làm
+              </text>
+              <rect
+                x="412"
+                y="512"
+                width="24"
+                height="16"
+                rx="4"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-opacity="0.55"
+                stroke-width="1"
+              />
+              <text
+                x="424"
+                y="524"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                C
+              </text>
+              <text
+                x="444"
+                y="524"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                được hỏi, được đọc
+              </text>
+              <text
+                x="588"
+                y="524"
+                fill="#636b80"
+                font-size="10"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                I
+              </text>
+              <text
+                x="608"
+                y="524"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                được báo
+              </text>
+            </svg>
+          </div>
+          <figcaption>
+            <span>Hình 2</span> Mỗi việc có đúng một bên chịu trách nhiệm cuối.
+          </figcaption>
+        </figure>
+        <p>
+          Có bốn vai. Người là chủ kho. Claude Code xuất hiện ở hai vai khác nhau: lúc dẫn dắt và
+          lúc dựng màn. Vai thứ tư là phần tất định: kịch bản tính giá trị và cổng kiểm, cùng đầu
+          vào thì ra cùng kết quả.
+        </p>
+        <ul>
+          <li>
+            <strong>Người quyết ở chỗ phải nhìn, hoặc phải chịu trách nhiệm:</strong> chọn bằng mắt;
+            đưa khối mới vào kho; đổi mô hình dữ liệu hoặc cho ngoại lệ.
+          </li>
+          <li>
+            <strong>Claude làm, không quyết thay:</strong> bày phương án, chạy kịch bản, dựng màn
+            theo trang luật, sửa tới khi cổng xanh. Gặp điều cần người thì dừng lại hỏi.
+          </li>
+          <li>
+            <strong>Kịch bản giữ:</strong> giá trị suy ra, các sổ dẫn xuất, và phán quyết đỏ hay
+            xanh của mỗi thay đổi.
+          </li>
+        </ul>
+        <p>
+          Bốn điều kiện để «chọn bằng mắt» mà vẫn tất định: phương án do kịch bản dựng chứ không do
+          mô hình vẽ; mọi phương án bày ra đều đã qua luật; vẽ trên màn thật của kho; chọn bằng một
+          chữ cái, và chữ cái ứng với đúng giá trị sổ sẽ ghi.
+        </p>
+      </section>
+      <section id="ba-plugin">
+        <h2><span>10</span>Ba plugin và ranh giới</h2>
+        <figure id="hinh-3">
+          <div class="scroll">
+            <svg
+              viewBox="0 48 1000 480"
+              xmlns="http://www.w3.org/2000/svg"
+              role="img"
+              aria-label="Ba plugin, một hợp đồng: một bên ghi, hai bên gọi và đọc"
+            >
+              <defs>
+                <marker
+                  id="f3-arrow"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#4f5d75" />
+                </marker>
+                <marker
+                  id="f3-arrow-accent"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#eb6c36" />
+                </marker>
+                <marker
+                  id="f3-arrow-ink"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#2d3142" />
+                </marker>
+                <marker
+                  id="f3-arrow-link"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8" />
+                </marker>
+              </defs>
+              <rect x="0" y="0" width="1000" height="1000" fill="#f5f5f5" />
+              <rect
+                x="40"
+                y="72"
+                width="216"
+                height="128"
+                rx="8"
+                fill="rgba(45,49,66,0.02)"
+                stroke="rgba(45,49,66,0.20)"
+                stroke-width="0.8"
+              />
+              <text
+                x="56"
+                y="96"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                REPO STANDARDS
+              </text>
+              <rect
+                x="288"
+                y="72"
+                width="392"
+                height="128"
+                rx="8"
+                fill="rgba(45,49,66,0.02)"
+                stroke="rgba(45,49,66,0.20)"
+                stroke-width="0.8"
+              />
+              <text
+                x="304"
+                y="96"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                DESIGN-ASSEMBLY
+              </text>
+              <rect
+                x="712"
+                y="72"
+                width="248"
+                height="232"
+                rx="8"
+                fill="rgba(45,49,66,0.02)"
+                stroke="rgba(45,49,66,0.20)"
+                stroke-width="0.8"
+              />
+              <text
+                x="728"
+                y="96"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                DELIVERY-LOOP
+              </text>
+              <line
+                x1="40"
+                y1="336"
+                x2="960"
+                y2="336"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="0.8"
+              />
+              <text
+                x="40"
+                y="360"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                KHO SẢN PHẨM
+              </text>
+              <line
+                x1="232"
+                y1="140"
+                x2="304"
+                y2="140"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f3-arrow)"
+              />
+              <line
+                x1="752"
+                y1="140"
+                x2="664"
+                y2="140"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f3-arrow)"
+              />
+              <line
+                x1="388"
+                y1="168"
+                x2="388"
+                y2="384"
+                stroke="#2d3142"
+                stroke-width="1.6"
+                marker-end="url(#f3-arrow-ink)"
+              />
+              <line
+                x1="580"
+                y1="168"
+                x2="580"
+                y2="384"
+                stroke="#2d3142"
+                stroke-width="1.6"
+                marker-end="url(#f3-arrow-ink)"
+              />
+              <line
+                x1="148"
+                y1="168"
+                x2="148"
+                y2="384"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f3-arrow)"
+              />
+              <path
+                d="M 836 272 V 408 Q 836 416 828 416 H 664"
+                fill="none"
+                stroke="#2e5aa8"
+                stroke-width="1"
+                stroke-dasharray="4,3"
+                marker-end="url(#f3-arrow-link)"
+              />
+              <line
+                x1="304"
+                y1="416"
+                x2="232"
+                y2="416"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f3-arrow)"
+              />
+              <rect x="252.0" y="116" width="32" height="16" rx="2" fill="#f5f5f5" />
+              <text
+                x="268"
+                y="128"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.06em"
+              >
+                GỌI
+              </text>
+              <rect x="688.0" y="116" width="40" height="16" rx="2" fill="#f5f5f5" />
+              <text
+                x="708"
+                y="128"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.06em"
+              >
+                KHỞI
+              </text>
+              <rect x="396" y="248" width="32" height="16" rx="2" fill="#f5f5f5" />
+              <text
+                x="412.0"
+                y="260"
+                fill="#2d3142"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.06em"
+              >
+                GHI
+              </text>
+              <rect x="588" y="248" width="100" height="16" rx="2" fill="#f5f5f5" />
+              <text
+                x="638.0"
+                y="260"
+                fill="#2d3142"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.06em"
+              >
+                GHI DÒNG NHẬP
+              </text>
+              <rect x="156" y="248" width="60" height="16" rx="2" fill="#f5f5f5" />
+              <text
+                x="186.0"
+                y="260"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.06em"
+              >
+                ĐẶT SÀN
+              </text>
+              <rect x="722.0" y="392" width="60" height="16" rx="2" fill="#f5f5f5" />
+              <text
+                x="752"
+                y="404"
+                fill="#2e5aa8"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.06em"
+              >
+                CHỈ ĐỌC
+              </text>
+              <rect x="252.0" y="392" width="32" height="16" rx="2" fill="#f5f5f5" />
+              <text
+                x="268"
+                y="404"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.06em"
+              >
+                GIỮ
+              </text>
+              <rect x="64" y="112" width="168" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="64"
+                y="112"
+                width="168"
+                height="56"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="148.0"
+                y="138.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Đặt kho
+              </text>
+              <text
+                x="148.0"
+                y="154.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                stack, lint nền, cổng kiểm
+              </text>
+              <rect x="304" y="112" width="168" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="304"
+                y="112"
+                width="168"
+                height="56"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="388.0"
+                y="138.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Tạo và giữ hệ design
+              </text>
+              <text
+                x="388.0"
+                y="154.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                dẫn dắt · nhận · kiểm
+              </text>
+              <rect x="496" y="112" width="168" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="496"
+                y="112"
+                width="168"
+                height="56"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="580.0"
+                y="138.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Nhập kho
+              </text>
+              <text
+                x="580.0"
+                y="154.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                khối và linh kiện mới
+              </text>
+              <rect x="752" y="112" width="168" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="752"
+                y="112"
+                width="168"
+                height="56"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="836.0"
+                y="138.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Cổng phạm vi
+              </text>
+              <text
+                x="836.0"
+                y="154.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                người duyệt ở đây
+              </text>
+              <rect x="752" y="216" width="168" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="752"
+                y="216"
+                width="168"
+                height="56"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="836.0"
+                y="242.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Chấm tính năng
+              </text>
+              <text
+                x="836.0"
+                y="258.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                cổng bằng chứng
+              </text>
+              <rect x="64" y="384" width="168" height="64" rx="6" fill="#f5f5f5" />
+              <rect
+                x="64"
+                y="384"
+                width="168"
+                height="64"
+                rx="6"
+                fill="rgba(45,49,66,0.05)"
+                stroke="#4f5d75"
+                stroke-width="1"
+              />
+              <text
+                x="148.0"
+                y="414.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Mã của kho
+              </text>
+              <text
+                x="148.0"
+                y="430.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                màn, linh kiện, giá trị
+              </text>
+              <rect x="304" y="384" width="360" height="64" rx="6" fill="#f5f5f5" />
+              <rect
+                x="304"
+                y="384"
+                width="360"
+                height="64"
+                rx="6"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <text
+                x="484.0"
+                y="414.0"
+                fill="#2d3142"
+                font-size="12"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Hợp đồng design của kho
+              </text>
+              <text
+                x="484.0"
+                y="430.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                một bộ sổ, mỗi sổ một hình dạng
+              </text>
+              <line
+                x1="40"
+                y1="480"
+                x2="960"
+                y2="480"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <text
+                x="40"
+                y="504"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                CHÚ GIẢI
+              </text>
+              <rect
+                x="136"
+                y="492"
+                width="24"
+                height="16"
+                rx="4"
+                fill="rgba(45,49,66,0.02)"
+                stroke="rgba(45,49,66,0.20)"
+                stroke-width="0.8"
+              />
+              <text
+                x="168"
+                y="504"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                một plugin
+              </text>
+              <rect
+                x="252"
+                y="492"
+                width="24"
+                height="16"
+                rx="4"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <text
+                x="284"
+                y="504"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                một chủ ghi, nhiều bên đọc
+              </text>
+              <line
+                x1="456"
+                y1="500"
+                x2="480"
+                y2="500"
+                stroke="#2d3142"
+                stroke-width="1.6"
+                marker-end="url(#f3-arrow-ink)"
+              />
+              <text
+                x="488"
+                y="504"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                ghi
+              </text>
+              <line
+                x1="532"
+                y1="500"
+                x2="556"
+                y2="500"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f3-arrow)"
+              />
+              <text
+                x="564"
+                y="504"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                gọi, khởi, giữ
+              </text>
+              <line
+                x1="672"
+                y1="500"
+                x2="696"
+                y2="500"
+                stroke="#2e5aa8"
+                stroke-width="1"
+                stroke-dasharray="4,3"
+                marker-end="url(#f3-arrow-link)"
+              />
+              <text
+                x="704"
+                y="504"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                chỉ đọc
+              </text>
+            </svg>
+          </div>
+          <figcaption><span>Hình 3</span> Một bên ghi hợp đồng; hai bên kia gọi và đọc.</figcaption>
+        </figure>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Plugin</th>
+                <th>Làm</th>
+                <th>Không làm</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Repo Standards</strong></td>
+                <td>Đặt kho: stack, lint nền, cổng kiểm. Gọi design-assembly cho tầng design.</td>
+                <td>Không hỏi màu, không giữ sổ design. Không đụng kho đã có.</td>
+              </tr>
+              <tr>
+                <td><strong>Design-assembly</strong></td>
+                <td>
+                  Là bên duy nhất ghi bộ sổ design. Dẫn dắt kho mới, nhận kho đã có, nhập khối mới.
+                  Giữ bằng lệnh kiểm; cho xem bằng bảng mẫu và cuốn sổ.
+                </td>
+                <td>
+                  Không chấm từng tính năng. Không cài mã của sàn vào kho có thư viện riêng. Không
+                  tự sửa hai kho bên cạnh.
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Delivery-loop</strong></td>
+                <td>
+                  Cổng phạm vi và cổng bằng chứng: nơi người bấm duyệt. Chấm từng tính năng theo bộ
+                  sổ. Khởi việc nhập kho khi một tính năng thiếu khối.
+                </td>
+                <td>Không sinh, không suy ra thứ gì về design: chỉ đọc.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Những gì chuyển chỗ</h3>
+        <p>
+          Design-assembly không tự sửa ba kho kia. Mỗi dòng dưới đây là một thay đổi ở kho khác; chủ
+          kho quyết và cho phép từng cái.
+        </p>
+        <div class="scroll">
+          <table class="wide">
+            <thead>
+              <tr>
+                <th>Từ</th>
+                <th>Thứ</th>
+                <th>Đề xuất</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Repo Standards</td>
+                <td>Sàn design: bài kiểm sàn, bộ rào, màn mẫu, trang hành vi, trang luật</td>
+                <td>
+                  Thành «bộ chuyển sàn» của design-assembly; Repo Standards chỉ còn một lời gọi
+                </td>
+              </tr>
+              <tr>
+                <td>Repo Standards</td>
+                <td>Câu hỏi màu thương hiệu và loại bề mặt</td>
+                <td>Bỏ: đã trùng với cuộc dẫn dắt</td>
+              </tr>
+              <tr>
+                <td>Delivery-loop</td>
+                <td>Bộ sinh trang kiểu màn; thang M0 tới M3</td>
+                <td>Bộ sinh chuyển về; thang đọc kết quả audit thay vì tự đo</td>
+              </tr>
+              <tr>
+                <td>Delivery-loop</td>
+                <td>Kế hoạch bày ba cách chọn khối và tự ghi danh mục</td>
+                <td>Dùng đường nhập kho của design-assembly</td>
+              </tr>
+              <tr>
+                <td>Inventory</td>
+                <td>Sổ quyết định, sổ linh kiện, kiểu hiển thị của trường</td>
+                <td>Đã có bản tương đương; gộp hình dạng rồi bỏ bản viết tay</td>
+              </tr>
+              <tr>
+                <td>Inventory</td>
+                <td>Danh mục ReUI, sổ khối, thang dùng lại</td>
+                <td>Tổng quát hoá thành sổ nguồn ngoài và sổ nhập kho</td>
+              </tr>
+              <tr>
+                <td>Inventory</td>
+                <td>Bộ bài kiểm trình duyệt sinh từ sổ màn, kèm ca phá</td>
+                <td>Gộp với bài kiểm trang của design-assembly</td>
+              </tr>
+              <tr>
+                <td>Inventory</td>
+                <td>12 luật lint tự viết</td>
+                <td>Thành gói lint của bộ chuyển React; luật riêng của Inventory thì ở lại</td>
+              </tr>
+              <tr>
+                <td>Inventory</td>
+                <td>Ma trận vai × màn, bộ nút theo vai</td>
+                <td>Không phải design system: thuộc delivery-loop</td>
+              </tr>
+              <tr>
+                <td>Inventory</td>
+                <td>Chứng minh một màn bằng ảnh theo từng vòng</td>
+                <td>Thuộc delivery-loop; nó đọc bộ sổ</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+      <section id="vong-doi">
+        <h2><span>11</span>Vòng đời của một kho</h2>
+        <figure id="hinh-4">
+          <div class="scroll">
+            <svg
+              viewBox="0 24 1000 488"
+              xmlns="http://www.w3.org/2000/svg"
+              role="img"
+              aria-label="Vòng đời của một kho: ai ra tay ở lúc nào"
+            >
+              <defs>
+                <marker
+                  id="f4-arrow"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#4f5d75" />
+                </marker>
+                <marker
+                  id="f4-arrow-accent"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#eb6c36" />
+                </marker>
+                <marker
+                  id="f4-arrow-ink"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#2d3142" />
+                </marker>
+                <marker
+                  id="f4-arrow-link"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8" />
+                </marker>
+              </defs>
+              <rect x="0" y="0" width="1000" height="1000" fill="#f5f5f5" />
+              <text
+                x="40"
+                y="52"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                THỜI GIAN
+              </text>
+              <line
+                x1="192"
+                y1="48"
+                x2="960"
+                y2="48"
+                stroke="#4f5d75"
+                stroke-width="1"
+                marker-end="url(#f4-arrow)"
+              />
+              <line
+                x1="40"
+                y1="88"
+                x2="960"
+                y2="88"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="1"
+              />
+              <line
+                x1="40"
+                y1="176"
+                x2="960"
+                y2="176"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="1"
+              />
+              <line
+                x1="40"
+                y1="264"
+                x2="960"
+                y2="264"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="1"
+              />
+              <line
+                x1="40"
+                y1="352"
+                x2="960"
+                y2="352"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="1"
+              />
+              <line
+                x1="40"
+                y1="440"
+                x2="960"
+                y2="440"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="1"
+              />
+              <line
+                x1="192"
+                y1="88"
+                x2="192"
+                y2="440"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="1"
+              />
+              <line
+                x1="384"
+                y1="60"
+                x2="384"
+                y2="440"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="0.8"
+                stroke-dasharray="4,4"
+              />
+              <line
+                x1="576"
+                y1="60"
+                x2="576"
+                y2="440"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="0.8"
+                stroke-dasharray="4,4"
+              />
+              <line
+                x1="768"
+                y1="60"
+                x2="768"
+                y2="440"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="0.8"
+                stroke-dasharray="4,4"
+              />
+              <text
+                x="288"
+                y="76"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.18em"
+              >
+                KHO RA ĐỜI
+              </text>
+              <text
+                x="480"
+                y="76"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.18em"
+              >
+                MỖI TÍNH NĂNG
+              </text>
+              <text
+                x="672"
+                y="76"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.18em"
+              >
+                MỖI THAY ĐỔI
+              </text>
+              <text
+                x="864"
+                y="76"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.18em"
+              >
+                ĐỊNH KỲ
+              </text>
+              <text
+                x="40"
+                y="136"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                NGƯỜI
+              </text>
+              <text
+                x="40"
+                y="224"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                DESIGN-ASSEMBLY
+              </text>
+              <text
+                x="40"
+                y="312"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                DELIVERY-LOOP
+              </text>
+              <text
+                x="40"
+                y="400"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                REPO STANDARDS
+              </text>
+              <line
+                x1="288"
+                y1="372"
+                x2="288"
+                y2="244"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f4-arrow)"
+              />
+              <line
+                x1="288"
+                y1="196"
+                x2="288"
+                y2="156"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f4-arrow)"
+              />
+              <line
+                x1="480"
+                y1="284"
+                x2="480"
+                y2="244"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f4-arrow)"
+              />
+              <line
+                x1="480"
+                y1="196"
+                x2="480"
+                y2="156"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f4-arrow)"
+              />
+              <line
+                x1="672"
+                y1="244"
+                x2="672"
+                y2="284"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f4-arrow)"
+              />
+              <rect x="296" y="300" width="32" height="16" rx="2" fill="#f5f5f5" />
+              <text
+                x="312.0"
+                y="312"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.06em"
+              >
+                GỌI
+              </text>
+              <rect x="296" y="168" width="68" height="16" rx="2" fill="#f5f5f5" />
+              <text
+                x="330.0"
+                y="180"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.06em"
+              >
+                BẢNG MẪU
+              </text>
+              <rect x="488" y="256" width="80" height="16" rx="2" fill="#f5f5f5" />
+              <text
+                x="528.0"
+                y="268"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.06em"
+              >
+                THIẾU KHỐI
+              </text>
+              <rect x="488" y="168" width="68" height="16" rx="2" fill="#f5f5f5" />
+              <text
+                x="522.0"
+                y="180"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.06em"
+              >
+                ỨNG VIÊN
+              </text>
+              <rect x="680" y="256" width="40" height="16" rx="2" fill="#f5f5f5" />
+              <text
+                x="700.0"
+                y="268"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.06em"
+              >
+                XANH
+              </text>
+              <rect x="208" y="372" width="160" height="48" rx="6" fill="#f5f5f5" />
+              <rect
+                x="208"
+                y="372"
+                width="160"
+                height="48"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="288.0"
+                y="394.0"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Đặt kho
+              </text>
+              <text
+                x="288.0"
+                y="410.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                stack, cổng kiểm
+              </text>
+              <rect x="208" y="196" width="160" height="48" rx="6" fill="#f5f5f5" />
+              <rect
+                x="208"
+                y="196"
+                width="160"
+                height="48"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="288.0"
+                y="218.0"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Dẫn dắt hoặc nhận
+              </text>
+              <text
+                x="288.0"
+                y="234.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                ghi bộ sổ của kho
+              </text>
+              <rect x="208" y="108" width="160" height="48" rx="6" fill="#f5f5f5" />
+              <rect
+                x="208"
+                y="108"
+                width="160"
+                height="48"
+                rx="6"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <text
+                x="288.0"
+                y="130.0"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Chọn bằng mắt
+              </text>
+              <text
+                x="288.0"
+                y="146.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                màu, chữ, cách bày
+              </text>
+              <rect x="400" y="284" width="160" height="48" rx="6" fill="#f5f5f5" />
+              <rect
+                x="400"
+                y="284"
+                width="160"
+                height="48"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="480.0"
+                y="306.0"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Cổng phạm vi
+              </text>
+              <text
+                x="480.0"
+                y="322.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                tính năng cần gì
+              </text>
+              <rect x="400" y="196" width="160" height="48" rx="6" fill="#f5f5f5" />
+              <rect
+                x="400"
+                y="196"
+                width="160"
+                height="48"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="480.0"
+                y="218.0"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Nhập kho
+              </text>
+              <text
+                x="480.0"
+                y="234.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                tra kho, bày ứng viên
+              </text>
+              <rect x="400" y="108" width="160" height="48" rx="6" fill="#f5f5f5" />
+              <rect
+                x="400"
+                y="108"
+                width="160"
+                height="48"
+                rx="6"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <text
+                x="480.0"
+                y="130.0"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Duyệt khối mới
+              </text>
+              <text
+                x="480.0"
+                y="146.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                thành một dòng sổ
+              </text>
+              <rect x="592" y="196" width="160" height="48" rx="6" fill="#f5f5f5" />
+              <rect
+                x="592"
+                y="196"
+                width="160"
+                height="48"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="672.0"
+                y="218.0"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Cổng kiểm
+              </text>
+              <text
+                x="672.0"
+                y="234.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                đỏ thì sửa trước
+              </text>
+              <rect x="592" y="284" width="160" height="48" rx="6" fill="#f5f5f5" />
+              <rect
+                x="592"
+                y="284"
+                width="160"
+                height="48"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="672.0"
+                y="306.0"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Chấm bằng chứng
+              </text>
+              <text
+                x="672.0"
+                y="322.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                từng tính năng
+              </text>
+              <rect x="784" y="196" width="160" height="48" rx="6" fill="#f5f5f5" />
+              <rect
+                x="784"
+                y="196"
+                width="160"
+                height="48"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="864.0"
+                y="218.0"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Audit và cuốn sổ
+              </text>
+              <text
+                x="864.0"
+                y="234.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                đề xuất nâng hạng
+              </text>
+              <line
+                x1="40"
+                y1="468"
+                x2="960"
+                y2="468"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <text
+                x="40"
+                y="492"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                CHÚ GIẢI
+              </text>
+              <rect
+                x="136"
+                y="480"
+                width="24"
+                height="16"
+                rx="4"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <text
+                x="168"
+                y="492"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                lúc người được gọi
+              </text>
+              <rect
+                x="296"
+                y="480"
+                width="24"
+                height="16"
+                rx="4"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="328"
+                y="492"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                bước của một plugin
+              </text>
+              <line
+                x1="460"
+                y1="488"
+                x2="484"
+                y2="488"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f4-arrow)"
+              />
+              <text
+                x="492"
+                y="492"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                bàn giao
+              </text>
+            </svg>
+          </div>
+          <figcaption>
+            <span>Hình 4</span> Bốn nhịp lặp lại; người chỉ được gọi ở hai chỗ.
+          </figcaption>
+        </figure>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Nhịp</th>
+                <th>Ai khởi</th>
+                <th>Design-assembly làm</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Kho ra đời</td>
+                <td>Repo Standards đặt kho rồi gọi</td>
+                <td>Dẫn dắt: hỏi, sinh, cài, ghi bộ sổ</td>
+              </tr>
+              <tr>
+                <td>Kho đã có lần đầu gặp plugin</td>
+                <td>Người</td>
+                <td>Audit rồi nhận: ghi bộ sổ quanh cái đang có, không đổi gì</td>
+              </tr>
+              <tr>
+                <td>Một tính năng cần thứ kho chưa có</td>
+                <td>Cổng phạm vi của delivery-loop</td>
+                <td>Nhập kho</td>
+              </tr>
+              <tr>
+                <td>Mỗi thay đổi</td>
+                <td>Cổng kiểm của kho</td>
+                <td>Chạy lệnh kiểm; sinh lại các sổ do máy sinh</td>
+              </tr>
+              <tr>
+                <td>Định kỳ, và trước khi bàn giao</td>
+                <td>Người</td>
+                <td>Audit, cuốn sổ, đề xuất nâng hạng</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Đường nhập kho</h3>
+        <p>
+          Việc tạo khối và linh kiện diễn ra liên tục. Nó đi qua một đường riêng, theo thang ba bậc
+          và chỉ xuống bậc khi bậc trên không đáp ứng:
+        </p>
+        <ol>
+          <li>
+            <strong>Tra kho.</strong> Nhu cầu này đã có lời giải trong sổ nhập kho chưa. Có thì dùng
+            lại; máy tự làm, không gọi người.
+          </li>
+          <li>
+            <strong>Tra nguồn ngoài.</strong> Tìm trong danh mục thư viện đã ghim. Lần đầu của mỗi
+            loại, máy bày hai tới ba ứng viên bằng ảnh để chủ kho chọn.
+          </li>
+          <li>
+            <strong>Tạo tay.</strong> Lối cuối. «Trông chưa đẹp» hay «ghép tay nhanh hơn» không phải
+            lý do xuống bậc.
+          </li>
+        </ol>
+        <p>
+          Kết quả là một dòng sổ: thứ gì, từ đâu ra, cho nhu cầu gì, chủ kho duyệt ngày nào. Từ đó,
+          lần sau gặp cùng nhu cầu là bậc một.
+        </p>
+      </section>
+      <section id="ho-hang">
+        <h2><span>12</span>Họ hàng với kho tri thức</h2>
+
+        <p>
+          Design-assembly cùng một khuôn với mẫu LLM Wiki và kho tri thức của delivery-loop: nguồn,
+          các trang do máy giữ, luật cho tác tử; nạp vào, tra ra, soát lỗi.
+        </p>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Mẫu LLM Wiki</th>
+                <th>Kho tri thức</th>
+                <th>Design-assembly</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Nguồn thô</td>
+                <td>Tài liệu nghiên cứu, bất biến, có băm</td>
+                <td>Mã của kho</td>
+              </tr>
+              <tr>
+                <td>Trang do máy giữ</td>
+                <td>Trang tóm, trỏ về nguồn</td>
+                <td>Bộ sổ</td>
+              </tr>
+              <tr>
+                <td>Luật cho tác tử</td>
+                <td>Tệp luật của kho tri thức</td>
+                <td>Chuẩn chung và trang luật dựng màn</td>
+              </tr>
+              <tr>
+                <td>Nạp vào</td>
+                <td>Lệnh ghi</td>
+                <td>Dẫn dắt, nhận, nhập kho</td>
+              </tr>
+              <tr>
+                <td>Tra ra</td>
+                <td>Tra trước khi mở một vòng</td>
+                <td>Tra sổ trước khi dựng</td>
+              </tr>
+              <tr>
+                <td>Soát lỗi</td>
+                <td>Sáu lỗi cấu trúc</td>
+                <td>Cổng kiểm và audit</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Hệ của chủ kho vì thế có ba kho cùng khuôn: <strong>tri thức</strong> (đã biết gì, vì
+          sao), <strong>ontology</strong> (nghiệp vụ nghĩa là gì), và <strong>design</strong> (trông
+          và hành xử thế nào).
+        </p>
+        <p>
+          Ba chỗ khác khiến chúng không gộp được: kho tri thức mô tả còn sổ design ràng buộc; ở kho
+          tri thức nguồn là sự thật, ở design quyết định là sự thật và mã phải theo; và design có
+          những câu phải nhìn mới trả lời được.
+        </p>
+        <p>Bốn điều nên mượn từ kho tri thức:</p>
+        <ol>
+          <li>
+            <strong>Ghim theo băm nội dung</strong> cho việc thừa hưởng lõi của họ: lõi đổi thì kho
+            biết.
+          </li>
+          <li>
+            <strong>Sổ do máy sinh thì sinh lúc đọc</strong>, để nhiều nhánh không cùng sinh lại một
+            tệp. Cần cân với việc delivery-loop đang đọc hai sổ đó từ tệp.
+          </li>
+          <li>
+            <strong>Dòng «đã tra kho và thư viện»</strong> ở cổng phạm vi, chỉ hiện cờ khi thiếu.
+          </li>
+          <li><strong>Bật theo kho:</strong> kho chưa khai thì hành vi không đổi một byte.</li>
+        </ol>
+        <p>
+          Một mối nối đáng làm: trường «nguồn» của một dòng sổ quyết định trỏ tới một trang tri
+          thức. «Phải thế nào» nằm ở sổ design; «vì sao» nằm ở kho tri thức.
+        </p>
+      </section>
+      <section id="lo-trinh">
+        <h2><span>13</span>Lộ trình và tiêu chí đạt</h2>
+        <figure id="hinh-5">
+          <div class="scroll">
+            <svg
+              viewBox="0 24 1000 568"
+              xmlns="http://www.w3.org/2000/svg"
+              role="img"
+              aria-label="Lộ trình: năm chặng, mỗi chặng một nơi"
+            >
+              <defs>
+                <marker
+                  id="f5-arrow"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#4f5d75" />
+                </marker>
+                <marker
+                  id="f5-arrow-accent"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#eb6c36" />
+                </marker>
+                <marker
+                  id="f5-arrow-ink"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#2d3142" />
+                </marker>
+                <marker
+                  id="f5-arrow-link"
+                  markerWidth="8"
+                  markerHeight="6"
+                  refX="7"
+                  refY="3"
+                  orient="auto"
+                >
+                  <polygon points="0 0, 8 3, 0 6" fill="#2e5aa8" />
+                </marker>
+              </defs>
+              <rect x="0" y="0" width="1000" height="1000" fill="#f5f5f5" />
+              <text
+                x="40"
+                y="52"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                THỨ TỰ
+              </text>
+              <line
+                x1="176"
+                y1="48"
+                x2="976"
+                y2="48"
+                stroke="#4f5d75"
+                stroke-width="1"
+                marker-end="url(#f5-arrow)"
+              />
+              <line
+                x1="40"
+                y1="88"
+                x2="976"
+                y2="88"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="1"
+              />
+              <line
+                x1="40"
+                y1="168"
+                x2="976"
+                y2="168"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="1"
+              />
+              <line
+                x1="40"
+                y1="248"
+                x2="976"
+                y2="248"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="1"
+              />
+              <line
+                x1="40"
+                y1="328"
+                x2="976"
+                y2="328"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="1"
+              />
+              <line
+                x1="40"
+                y1="408"
+                x2="976"
+                y2="408"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="1"
+              />
+              <line
+                x1="40"
+                y1="472"
+                x2="976"
+                y2="472"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="1"
+              />
+              <line
+                x1="40"
+                y1="520"
+                x2="976"
+                y2="520"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="1"
+              />
+              <line
+                x1="176"
+                y1="88"
+                x2="176"
+                y2="520"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="1"
+              />
+              <line
+                x1="336"
+                y1="60"
+                x2="336"
+                y2="520"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="0.8"
+                stroke-dasharray="4,4"
+              />
+              <line
+                x1="496"
+                y1="60"
+                x2="496"
+                y2="520"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="0.8"
+                stroke-dasharray="4,4"
+              />
+              <line
+                x1="656"
+                y1="60"
+                x2="656"
+                y2="520"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="0.8"
+                stroke-dasharray="4,4"
+              />
+              <line
+                x1="816"
+                y1="60"
+                x2="816"
+                y2="520"
+                stroke="rgba(45,49,66,0.22)"
+                stroke-width="0.8"
+                stroke-dasharray="4,4"
+              />
+              <text
+                x="256"
+                y="76"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.18em"
+              >
+                CHẶNG 1
+              </text>
+              <text
+                x="416"
+                y="76"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.18em"
+              >
+                CHẶNG 2
+              </text>
+              <text
+                x="576"
+                y="76"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.18em"
+              >
+                CHẶNG 3
+              </text>
+              <text
+                x="736"
+                y="76"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.18em"
+              >
+                CHẶNG 4
+              </text>
+              <text
+                x="896"
+                y="76"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.18em"
+              >
+                CHẶNG 5
+              </text>
+              <text
+                x="40"
+                y="132"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                KHO NÀY
+              </text>
+              <text
+                x="40"
+                y="212"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                INVENTORY
+              </text>
+              <text
+                x="40"
+                y="292"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                HAI KHO BÊN CẠNH
+              </text>
+              <text
+                x="40"
+                y="372"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                LÕI CỦA HỌ
+              </text>
+              <text
+                x="40"
+                y="444"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                XONG KHI
+              </text>
+              <text
+                x="40"
+                y="500"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                CẦN ANH
+              </text>
+              <line
+                x1="320"
+                y1="128"
+                x2="352"
+                y2="128"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f5-arrow)"
+              />
+              <path
+                d="M 480 128 H 568 Q 576 128 576 136 V 180"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f5-arrow)"
+              />
+              <path
+                d="M 640 208 H 728 Q 736 208 736 216 V 260"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f5-arrow)"
+              />
+              <path
+                d="M 800 288 H 888 Q 896 288 896 296 V 340"
+                fill="none"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f5-arrow)"
+              />
+              <line x1="256" y1="160" x2="256" y2="184" stroke="#eb6c36" stroke-width="1.4" />
+              <text
+                x="256"
+                y="204"
+                fill="#ba4513"
+                font-size="14"
+                font-family="'Instrument Serif', 'Lora', serif"
+                text-anchor="middle"
+                font-style="italic"
+              >
+                bắt đầu từ đây
+              </text>
+              <rect x="192" y="100" width="128" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="192"
+                y="100"
+                width="128"
+                height="56"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="256.0"
+                y="126.0"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Dọn nền
+              </text>
+              <text
+                x="256.0"
+                y="142.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                thử lại lần bảy
+              </text>
+              <rect x="352" y="100" width="128" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="352"
+                y="100"
+                width="128"
+                height="56"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="416.0"
+                y="126.0"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Hợp đồng
+              </text>
+              <text
+                x="416.0"
+                y="142.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                mỗi sổ một hình dạng
+              </text>
+              <rect x="512" y="180" width="128" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="512"
+                y="180"
+                width="128"
+                height="56"
+                rx="6"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <text
+                x="576.0"
+                y="206.0"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Vào Inventory
+              </text>
+              <text
+                x="576.0"
+                y="222.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                rút dần công cụ tay
+              </text>
+              <rect x="672" y="260" width="128" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="672"
+                y="260"
+                width="128"
+                height="56"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="736.0"
+                y="286.0"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Hai kho đổi vai
+              </text>
+              <text
+                x="736.0"
+                y="302.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                gọi và chỉ đọc
+              </text>
+              <rect x="832" y="340" width="128" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="832"
+                y="340"
+                width="128"
+                height="56"
+                rx="6"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
+              />
+              <text
+                x="896.0"
+                y="366.0"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Lõi của họ
+              </text>
+              <text
+                x="896.0"
+                y="382.0"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                kho thứ hai dùng lại
+              </text>
+              <text
+                x="256"
+                y="436"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                lần thử bảy không còn
+              </text>
+              <text
+                x="256"
+                y="452"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                lỗi rõ nào
+              </text>
+              <text
+                x="256"
+                y="500"
+                fill="#2d3142"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                duyệt từng bước
+              </text>
+              <text
+                x="416"
+                y="436"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                sổ nào cũng một hình,
+              </text>
+              <text
+                x="416"
+                y="452"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                ba bên đều đọc được
+              </text>
+              <text
+                x="416"
+                y="500"
+                fill="#2d3142"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                phân xử hình dạng sổ
+              </text>
+              <text
+                x="576"
+                y="436"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                máy giữ được câu lõi,
+              </text>
+              <text
+                x="576"
+                y="452"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                bớt dần công cụ viết tay
+              </text>
+              <text
+                x="576"
+                y="500"
+                fill="#2d3142"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                cho phép ghi vào kho đó
+              </text>
+              <text
+                x="736"
+                y="436"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                Repo Standards gọi,
+              </text>
+              <text
+                x="736"
+                y="452"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                delivery-loop chỉ đọc
+              </text>
+              <text
+                x="736"
+                y="500"
+                fill="#2d3142"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                sửa, hoặc cho phép sửa
+              </text>
+              <text
+                x="896"
+                y="436"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                không hỏi lại câu cũ,
+              </text>
+              <text
+                x="896"
+                y="452"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                dùng lại khối đã nâng hạng
+              </text>
+              <text
+                x="896"
+                y="500"
+                fill="#2d3142"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                tạo kho cho lõi
+              </text>
+              <line
+                x1="40"
+                y1="548"
+                x2="976"
+                y2="548"
+                stroke="rgba(45,49,66,0.12)"
+                stroke-width="0.8"
+              />
+              <text
+                x="40"
+                y="572"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                CHÚ GIẢI
+              </text>
+              <rect
+                x="136"
+                y="560"
+                width="24"
+                height="16"
+                rx="4"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <text
+                x="168"
+                y="572"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                chặng nặng nhất: buộc lõi tách khỏi sàn
+              </text>
+              <line
+                x1="412"
+                y1="568"
+                x2="436"
+                y2="568"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f5-arrow)"
+              />
+              <text
+                x="444"
+                y="572"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                xong chặng trước mới sang chặng sau
+              </text>
+              <text
+                x="664"
+                y="572"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="start"
+              >
+                Chưa có ngày: đây là thứ tự.
+              </text>
+            </svg>
+          </div>
+          <figcaption><span>Hình 5</span> Năm chặng theo thứ tự; chưa có ngày.</figcaption>
+        </figure>
+        <p>
+          Chặng 1 gộp ba việc chủ kho đã tạm duyệt: khoá phạm vi, dựng màn thứ hai và khung ứng
+          dụng, chạy thử lần bảy. Từ chặng 3, công việc rời kho này và mỗi bước cần chủ kho cho phép
+          riêng.
+        </p>
+        <h3>Tầm nhìn đạt khi</h3>
+        <ol>
+          <li>Mỗi sổ của hợp đồng có đúng một hình dạng, và cả ba bên đọc được hình dạng đó.</li>
+          <li>
+            Ở Inventory, không cài phần nào của sàn, số câu lõi do máy giữ và chạy lại lớn hơn 0 và
+            tăng qua từng lát. Hôm nay là 0 trên 24.
+          </li>
+          <li>Bảng mẫu và cuốn sổ vẽ được trên Inventory.</li>
+          <li>
+            Một khối mới vào Inventory qua đường nhập kho của plugin, không dùng công cụ viết tay
+            nào.
+          </li>
+          <li>Số công cụ design viết tay của Inventory giảm, đếm được.</li>
+          <li>
+            Một kho thứ hai cùng họ thừa hưởng lõi: không hỏi lại câu đã trả lời, và dùng lại ít
+            nhất một khối đã nâng hạng.
+          </li>
+          <li>
+            Lõi không chứa tên thư viện hay nền dựng nào ngoài bộ chuyển, và có bài kiểm cho điều
+            đó.
+          </li>
+        </ol>
+        <p>
+          Ngoài phạm vi, để sau bản đầu: mật độ, đổ bóng, chuyển động, bộ biểu tượng; xuất slide;
+          phòng trưng bày trạng thái; độ sâu «mang sẵn thiết kế tới».
+        </p>
+      </section>
+      <section id="hom-nay">
+        <h2><span>14</span>Số đo hôm nay</h2>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th></th>
+                <th>Kho đối chứng</th>
+                <th>Inventory</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Câu lõi có lời đáp</td>
+                <td>38 trên 38</td>
+                <td>24 trên 38</td>
+              </tr>
+              <tr>
+                <td>Trong đó máy của plugin giữ và chạy lại</td>
+                <td>15</td>
+                <td>0</td>
+              </tr>
+              <tr>
+                <td>Tự khai, chưa chạy lại</td>
+                <td>17</td>
+                <td>21</td>
+              </tr>
+              <tr>
+                <td>Phán đoán của người, đã ghi</td>
+                <td>6</td>
+                <td>3</td>
+              </tr>
+              <tr>
+                <td>Nền</td>
+                <td>React, Vite, sàn shadcn</td>
+                <td>React, Next.js, ReUI Pro và kho khối riêng</td>
+              </tr>
+              <tr>
+                <td>Plugin đã làm gì</td>
+                <td>Dẫn dắt trọn, cài phần, mọi lệnh kiểm</td>
+                <td>Mới audit và xem trước bước nhận; chưa ghi gì</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Kho đối chứng: 23 quyết định do 29 lệnh kiểm giữ, mỗi lệnh đã được thấy đỏ trên một bản bị
+          đổi. Đã chạy thử sáu lần bằng tác tử độc lập trên kho tạm. Các sửa sau lần thử sáu và phần
+          mở hồ sơ chưa được thử lại độc lập.
+        </p>
+        <p>
+          Giới hạn đã biết của chính kiến trúc này: nó chưa được thử trên kho nào ngoài kho đối
+          chứng; lõi của họ chưa tồn tại; và máy không chấm được design có đẹp hay không.
+        </p>
+      </section>
+      <section id="con-mo">
+        <h2><span>15</span>Câu còn mở</h2>
+
+        <ol>
+          <li>Lõi của họ sản phẩm nằm ở kho nào, và kho mã của nó phát bằng gì.</li>
+          <li>
+            Hình dạng nào thắng cho sổ linh kiện: của delivery-loop, hay một hình dạng mới có bản
+            xuất cho nó.
+          </li>
+          <li>Với mỗi lời đáp ở lõi: khoá, mặc định, hay không thuộc lõi.</li>
+          <li>
+            Trang kiểu màn và chứng minh màn của Inventory dùng khoá và tiêu đề tiếng Việt, còn
+            plugin chỉ viết tiếng Anh. Giữ như một hình dạng được nhận, hay đổi.
+          </li>
+          <li>
+            Thang M0 tới M3 của delivery-loop và sáu bậc của design-assembly đo gần cùng một thứ.
+            Gộp, hay để thang kia đọc bậc này.
+          </li>
+          <li>Phần chứng minh màn bằng ảnh theo từng vòng thuộc bên nào.</li>
+          <li>Kho không dùng Makefile thì cổng kiểm gắn vào đâu.</li>
+          <li>Kho dùng plugin bản cũ và lõi của họ bản mới thì bên nào thắng.</li>
+          <li>Sổ do máy sinh: commit như hôm nay, hay sinh lúc đọc.</li>
+        </ol>
+      </section>
+      <section id="thuat-ngu">
+        <h2><span>16</span>Thuật ngữ</h2>
+        <div class="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Từ</th>
+                <th>Nghĩa ở tài liệu này</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Dòng sổ</td>
+                <td>Một quyết định: câu hỏi, lời đáp, vật mang, bằng chứng</td>
+              </tr>
+              <tr>
+                <td>Bộ sổ, hợp đồng</td>
+                <td>Toàn bộ các sổ về design của một kho; thứ duy nhất các bên đọc</td>
+              </tr>
+              <tr>
+                <td>Chuẩn chung</td>
+                <td>Danh mục câu hỏi, hình dạng sổ, lệnh kiểm trung lập; nằm trong plugin</td>
+              </tr>
+              <tr>
+                <td>Lõi của họ sản phẩm</td>
+                <td>Lời đáp và khối dùng chung giữa các kho cùng họ</td>
+              </tr>
+              <tr>
+                <td>Thừa hưởng</td>
+                <td>Kho lấy một lời đáp từ lõi của họ thay vì tự đáp</td>
+              </tr>
+              <tr>
+                <td>Bộ chuyển</td>
+                <td>Phần của plugin biết một loại kho cụ thể</td>
+              </tr>
+              <tr>
+                <td>Luật và phần</td>
+                <td>Luật: quyết định và lệnh kiểm. Phần: mã linh kiện</td>
+              </tr>
+              <tr>
+                <td>Dẫn dắt, nhận</td>
+                <td>Hai đường vào: cho kho mới, và cho kho đã có</td>
+              </tr>
+              <tr>
+                <td>Nhập kho</td>
+                <td>Đường đưa một khối hay linh kiện mới vào kho, có người duyệt</td>
+              </tr>
+              <tr>
+                <td>Nâng hạng</td>
+                <td>Đưa một khối từ một kho lên lõi của họ</td>
+              </tr>
+              <tr>
+                <td>Máy giữ, tự khai, đã ghi</td>
+                <td>
+                  Ba trạng thái của một dòng: plugin chạy lại lệnh kiểm; kho tự trỏ tới bằng chứng
+                  của nó; phán đoán của người
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Nằm ở đâu trong kho</h3>
+        <ul>
+          <li>
+            Đề bài của lớp meta, với tiêu chí và kế hoạch:
+            <code>wiki/specs/0002-meta-layer-for-many-repositories.md</code>.
+          </li>
+          <li>
+            Đề bài của plugin và kết quả sáu lần thử:
+            <code>wiki/specs/0001-design-system-for-claude-code.md</code>.
+          </li>
+          <li>Bản ghi quyết định cho từng phần đã dựng: <code>wiki/decisions/</code>.</li>
+          <li>
+            Plugin: <code>plugins/design-assembly/</code>. Bộ sổ của kho đối chứng:
+            <code>design/</code>.
+          </li>
+        </ul>
+      </section>
+      <footer>
+        Kiểm kê ba kho bên cạnh làm ngày 2026-11-13, chỉ đọc. Sơ đồ vẽ bằng bộ màu mặc định; kho
+        chưa chọn bộ màu sơ đồ riêng.
+      </footer>
+    </div>
+  </body>
+</html>

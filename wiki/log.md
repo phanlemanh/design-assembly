@@ -7,8 +7,9 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
-- 2026-11-13 — Thêm sơ đồ ba lớp lời đáp: kho chọn họ lúc đặt kho, không chọn thì đứng một mình và lấy đề xuất của chuẩn — `docs/diagrams/meta-layer/06-three-layers.html`, [spec 0002](specs/0002-meta-layer-for-many-repositories.md).
-- 2026-11-13 — Năm sơ đồ cho tầm nhìn lớp meta: nguyên lý gốc, vai của người và Claude Code, ranh giới ba plugin, vòng đời một kho, lộ trình theo chặng — `docs/diagrams/meta-layer/`, [spec 0002](specs/0002-meta-layer-for-many-repositories.md).
+- 2026-11-13 — Gom tầm nhìn, kiểm kê và kiến trúc đề xuất của lớp meta thành một tài liệu, sáu sơ đồ nằm ngay trong trang; các tệp sơ đồ rời được gộp vào đó; đề bài 0002 chỉ còn giữ tầm nhìn, tiêu chí, kế hoạch — `docs/architecture/meta-layer.html`, [spec 0002](specs/0002-meta-layer-for-many-repositories.md).
+- 2026-11-13 — Thêm sơ đồ ba lớp lời đáp: kho chọn họ lúc đặt kho, không chọn thì đứng một mình và lấy đề xuất của chuẩn — `docs/architecture/meta-layer.html`, [spec 0002](specs/0002-meta-layer-for-many-repositories.md).
+- 2026-11-13 — Năm sơ đồ cho tầm nhìn lớp meta: nguyên lý gốc, vai của người và Claude Code, ranh giới ba plugin, vòng đời một kho, lộ trình theo chặng — `docs/architecture/meta-layer.html`, [spec 0002](specs/0002-meta-layer-for-many-repositories.md).
 - 2026-11-13 — Chủ kho nêu tầm nhìn: design-assembly là lớp meta tạo và giữ design system cho nhiều kho; máy kiểm kê ba kho bên cạnh (chỉ đọc) và viết bản nháp kiến trúc, chờ duyệt — [spec 0002](specs/0002-meta-layer-for-many-repositories.md).
 - 2026-11-13 — Chủ kho chọn B, hồ sơ phủ lên danh sách, như ở sản phẩm Inventory; tấm hồ sơ bắt đầu dưới thanh đầu của khung ứng dụng và bài kiểm trình duyệt đỏ khi nó che thanh đầu — [0022](decisions/0022-record-beside-a-list.md).
 - 2026-11-13 — Câu lõi cuối «mở một hồ sơ cạnh danh sách»: ba cách bày trên bảng mẫu vẽ từ màn thật, linh kiện `WithRecord` giữ hồ sơ trên địa chỉ và trả tiêu điểm, lệnh kiểm của cổng giữ cách bày đúng bản thiết kế; áp đề xuất «cạnh danh sách», chờ chủ kho chọn; sửa sổ linh kiện thiếu phần hướng dẫn vừa cài — [0022](decisions/0022-record-beside-a-list.md), `design/escapes.md`.

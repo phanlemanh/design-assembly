@@ -14,8 +14,10 @@ sửa trang này hoặc xoá nó.
 2. `AGENTS.md` và `CLAUDE.md` ở gốc kho: lệnh, luật, ngôn ngữ.
 3. `wiki/index.md`, rồi `wiki/specs/0001-design-system-for-claude-code.md` (đề bài và kết quả từng
    lát, ba lần chạy thử).
-4. Bản ghi quyết định `wiki/decisions/0005` đến `0021`: mỗi phần đã dựng có một bản, kèm giới hạn.
-5. `plugins/design-assembly/references/checks.md`: mọi tệp plugin để lại ở một kho, và mỗi loại
+4. `docs/architecture/meta-layer.html`: tầm nhìn lớp meta chủ kho nêu ngày 2026-11-13 và kiến trúc
+   đề xuất, kèm sáu sơ đồ. Chưa duyệt. Đề bài của nó là `wiki/specs/0002-meta-layer-for-many-repositories.md`.
+5. Bản ghi quyết định `wiki/decisions/0005` đến `0021`: mỗi phần đã dựng có một bản, kèm giới hạn.
+6. `plugins/design-assembly/references/checks.md`: mọi tệp plugin để lại ở một kho, và mỗi loại
    lệnh kiểm.
 
 Ghi nhớ của máy (nếu phiên mới chạy trên cùng máy, cùng người dùng hệ điều hành thì tự nạp):
