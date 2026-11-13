@@ -32,7 +32,11 @@ const reference = (name) =>
   JSON.parse(readFileSync(path.join(HERE, "../references", name), "utf8"));
 const TIERS = reference("tiers.json").tiers;
 const STANDARD = reference("standard-decisions.json");
+// What this plugin is known not to hold. A report that does not say where it is blind reads as a
+// stronger report than it is.
+const LIMITS = reference("limits.json").limits;
 
+const LIMITS_FILE = "plugins/design-assembly/references/limits.json";
 const SKIP_DIRS = new Set(["node_modules", "dist", "coverage", "test-results", "generated"]);
 // Code the repository did not write: a vendor's components are not the repository's decisions.
 const VENDOR = /(^|\/)components\/(ui|reui)\//;
@@ -407,6 +411,13 @@ export function inventory(root) {
     tiers,
     departures: departures(root),
     slips: slips(root),
+    limits: {
+      open: LIMITS.filter((limit) => limit.status === "open").length,
+      high: LIMITS.filter((limit) => limit.status === "open" && limit.severity === "high").map(
+        (limit) => limit.id,
+      ),
+      closed: LIMITS.filter((limit) => limit.status === "closed").length,
+    },
   };
 }
 
@@ -508,6 +519,14 @@ export function report(result, { all = false } = {}) {
       result.slips.count === 0
         ? `${SLIPS_FILE}: no line yet. An empty record is not proof that nothing slipped`
         : `${SLIPS_FILE}: ${result.slips.count} line(s)${result.slips.latest ? `, the latest on ${result.slips.latest}` : ""}`,
+    );
+  }
+  // The plugin's own blind spots, so nothing above reads as more than it is.
+  const l = result.limits;
+  lines.push(`this plugin's known limits: ${l.open} open, ${l.closed} closed, in ${LIMITS_FILE}`);
+  if (l.high.length > 0) {
+    lines.push(
+      `  ${l.high.length} of the open ones can leave a check green while what it holds is broken: ${l.high.join(", ")}`,
     );
   }
   lines.push("", "tiers:");

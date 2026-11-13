@@ -310,3 +310,14 @@ test("tiers, layers and standard decisions are one consistent set, named with vo
     assert.ok(core.length > 0, `${entry.id} has no core decision`);
   }
 });
+
+test("every report says where this plugin is blind, and names the limits that can hide a fault", () => {
+  const printed = report(inventory(empty()));
+  const ledger = reference("limits.json").limits;
+  const open = ledger.filter((limit) => limit.status === "open");
+  const high = open.filter((limit) => limit.severity === "high");
+  assert.match(printed, new RegExp(`this plugin's known limits: ${open.length} open`));
+  // A limit that can leave a check green while the thing it holds is broken is named, not counted:
+  // the reader of a green gate has to be able to look it up.
+  for (const limit of high) assert.ok(printed.includes(limit.id), limit.id);
+});

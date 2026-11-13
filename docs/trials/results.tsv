@@ -1,0 +1,16 @@
+trial	date	role	brief	coverage	gate	guesses	asks	escapes	note
+1	2026-11-11	guide	ad-hoc		green				Hai tác tử, mỗi tác tử một bản sao; lát đầu.
+2	2026-11-12	guide	ad-hoc		green				Luật «chỉ dòng sổ mới là lời đáp» ra đời từ lần này.
+2	2026-11-12	adopt	ad-hoc						Xem trước trên bản sao kho đối chứng bên ngoài.
+3	2026-11-12	guide	ad-hoc		green
+3	2026-11-12	adopt	ad-hoc
+3	2026-11-12	screen	ad-hoc						Lần đầu có vai dựng màn.
+4	2026-11-12	guide	ad-hoc	34/38	green
+4	2026-11-12	adopt	ad-hoc
+4	2026-11-12	screen	ad-hoc						Đề: thêm thao tác «Lưu trữ» có hoàn tác và một màn danh sách mới.
+5	2026-11-12	guide	ad-hoc	35/38	green				Trả lời bằng lời thường, chọn trên bảng mẫu.
+5	2026-11-12	adopt	ad-hoc
+5	2026-11-12	screen	ad-hoc			6			Đề của lần bốn, chạy lại để so trước và sau.
+6	2026-11-12	guide	ad-hoc	35/38	green
+6	2026-11-12	adopt	ad-hoc
+6	2026-11-12	screen	ad-hoc			3			Đề mới nhắm vào sáu luật của quyết định 0021.

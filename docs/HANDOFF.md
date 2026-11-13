@@ -18,7 +18,9 @@ sửa trang này hoặc xoá nó.
    đề xuất, kèm bảy sơ đồ. Chưa duyệt. Tài liệu đó gọi kho mã là «repo» và nơi chứa thứ dùng lại là
    «kho», theo cách gọi của chủ kho; các trang viết trước ngày 2026-11-13 còn dùng «kho» cho repo. Đề bài của nó là `wiki/specs/0002-meta-layer-for-many-repositories.md`.
 5. Bản ghi quyết định `wiki/decisions/0005` đến `0023`: mỗi phần đã dựng có một bản, kèm giới hạn.
-6. `plugins/design-assembly/references/checks.md`: mọi tệp plugin để lại ở một kho, và mỗi loại
+6. `plugins/design-assembly/references/limits.json`: mọi giới hạn đã biết của plugin, mỗi cái một
+   dòng, xếp vào ba ngăn (quyết định 0024). Đọc trước khi tin một dòng sổ nào là «máy giữ».
+7. `plugins/design-assembly/references/checks.md`: mọi tệp plugin để lại ở một kho, và mỗi loại
    lệnh kiểm.
 
 Ghi nhớ của máy (nếu phiên mới chạy trên cùng máy, cùng người dùng hệ điều hành thì tự nạp):
@@ -194,6 +196,9 @@ Giới hạn đã biết của plugin (chi tiết ở từng bản ghi):
 - Kho này chưa khai gì với kit nghiệm thu, nên bậc M của kit chưa đổi.
 
 ## Cách chạy thử bằng tác tử độc lập
+
+Từ lần bảy, bộ đề và chuỗi số nằm ở `docs/trials/`; trang này giữ các bẫy đã gặp. Đọc
+`docs/trials/README.md` trước khi dựng bản sao.
 
 Đã làm năm lần, lần nào cũng tìm ra lỗi mà bài kiểm trên kho giả không thấy. Tốn token, nên hỏi chủ
 kho trước.
