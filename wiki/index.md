@@ -20,6 +20,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 
 ## Specs
 
+- [0002 Design-assembly là lớp meta tạo và giữ design system cho nhiều kho](specs/0002-meta-layer-for-many-repositories.md) — bản nháp, chờ chủ kho duyệt: tầm nhìn, bốn tầng, bộ sổ của hợp đồng, bộ chuyển, ba mức phục vụ
 - [0001 Plugin dẫn người dùng dựng design system cho Claude Code](specs/0001-design-system-for-claude-code.md) — đề bài đã duyệt; lát đầu đã dựng, kết quả theo từng tiêu chí ở cuối mục tiêu chí
 
 ## Decisions
