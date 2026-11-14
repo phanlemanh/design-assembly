@@ -53,6 +53,24 @@ their own yet, and it refuses to write over values a repository holds as its own
 repositories adopt instead. Adopting reads a stylesheet across its relative imports and through
 `var()`; a colour written as a mix is reported as not read, and gets no check.
 
+## Adapters
+
+The core works with the ledgers. Whatever must know one kind of repository lives in an adapter,
+under `templates/tools/design-assembly/adapters/`: one per library or build tool, each saying its
+kind and the names it owns.
+
+| Kind         | Does                                                                            | Today      |
+| ------------ | ------------------------------------------------------------------------------- | ---------- |
+| `build`      | Opens a screen of the repository in a browser                                   | Vite       |
+| `browser`    | Drives the browser the repository tests its pages with                          | Playwright |
+| `values`     | Reads and writes the design values                                              | Tailwind 4 |
+| `components` | Knows the component library's folder, and how a component declares its variants | shadcn     |
+| `source`     | Reads screens and components to check words, states and controls                | React      |
+
+`tests/test-adapters.mjs` fails when the core code names a library or build tool an adapter owns.
+A new kind of repository needs its own adapters, not changes to the core. Beyond names, the core
+still reads one stack's ways of writing in places: `references/limits.json` lists them.
+
 ## Vocabulary
 
 Every name the guide shows to a person comes from `references/vocabulary.json`: industry terms, each

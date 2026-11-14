@@ -6,6 +6,7 @@ import {
   existsSync,
   mkdirSync,
   readdirSync,
+  statSync,
   readFileSync,
   realpathSync,
   writeFileSync,
@@ -25,6 +26,8 @@ import {
   TYPES_FILE,
   typesProblem,
 } from "../templates/tools/design-assembly/columns.mjs";
+import { adapter as browser } from "../templates/tools/design-assembly/adapters/playwright.mjs";
+import { adapter as library } from "../templates/tools/design-assembly/adapters/shadcn.mjs";
 import {
   LEDGERS,
   newerLedgers,
@@ -285,13 +288,11 @@ export function tokensFile(target) {
 // The folder that holds the repository's components: where its component settings say, else the
 // usual place.
 export function componentsFolder(target) {
-  const settings = path.join(target, "components.json");
-  const alias = existsSync(settings)
-    ? JSON.parse(readFileSync(settings, "utf8")).aliases?.ui
+  const settings = path.join(target, library.settingsFile);
+  const named = existsSync(settings)
+    ? library.folderIn(JSON.parse(readFileSync(settings, "utf8")))
     : null;
-  return typeof alias === "string" && alias.startsWith("@/")
-    ? `src/${alias.slice(2)}`
-    : COMPONENTS_FOLDER;
+  return named ?? COMPONENTS_FOLDER;
 }
 
 // The component manifest for the source as it is, with its ledger row and its check; or why it
@@ -665,11 +666,11 @@ export function patternsPlan(target, { starter, code = false }) {
   const notes = [];
   if (code && folder === COMPONENTS_FOLDER) {
     const uses = JSON.parse(read("package.json") ?? "{}").dependencies ?? {};
-    if ("sonner" in uses) {
+    if (library.toast.package in uses) {
       // The frame comes with them: it draws the toaster once, and clears a screen's toasts when a
       // person moves on.
       const owned = {
-        "sonner.tsx.template": `${folder}/sonner.tsx`,
+        [library.toast.template]: `${folder}/${library.toast.file}`,
         "notify.ts.template": "src/lib/notify.ts",
         "app-frame.tsx.template": `${path.posix.dirname(folder)}/app-frame.tsx`,
         "app-frame.test.tsx.template": "tests/frame.test.tsx",
@@ -681,7 +682,7 @@ export function patternsPlan(target, { starter, code = false }) {
       }
     } else {
       notes.push(
-        "no toast is installed. The channel rule is held all the same. To tell results in a toast, add the sonner package and run the guide again: it installs the toast and the module screens tell results through",
+        `no toast is installed. The channel rule is held all the same. To tell results in a toast, add the ${library.toast.package} package and run the guide again: it installs the toast and the module screens tell results through`,
       );
     }
   }
@@ -799,7 +800,7 @@ export function templatesPlan(target, { starter, code = false, pending = {}, lay
   // The widths and the browser test: where the floor's browser checks already run.
   const uses = JSON.parse(read("package.json") ?? "{}");
   const installed = { ...uses.dependencies, ...uses.devDependencies };
-  if (read(ROUTES) !== null && "@axe-core/playwright" in installed) {
+  if (read(ROUTES) !== null && browser.accessibilityPackage in installed) {
     let sizes = read(SIZES_FILE);
     if (sizes === null && starter) {
       sizes = renderJson({ version: 1, widths: STARTER_WIDTHS }, lineWidth(target));
@@ -1122,11 +1123,15 @@ export function rulesPage(checks, has) {
 export function vendored() {
   const files = {};
   const templates = path.join(PLUGIN, "templates");
-  for (const folder of ["tools/design-assembly", "mk"]) {
+  const copy = (folder) => {
     for (const name of readdirSync(path.join(templates, folder)).sort()) {
-      files[`${folder}/${name}`] = readFileSync(path.join(templates, folder, name), "utf8");
+      const full = path.join(templates, folder, name);
+      if (statSync(full).isDirectory()) copy(`${folder}/${name}`);
+      else files[`${folder}/${name}`] = readFileSync(full, "utf8");
     }
-  }
+  };
+  // The tool's adapters sit in a folder of their own beside it.
+  for (const folder of ["tools/design-assembly", "mk"]) copy(folder);
   return files;
 }
 

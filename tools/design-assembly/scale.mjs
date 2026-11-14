@@ -61,7 +61,7 @@ export function modularScale(ratioName) {
   });
 }
 
-// The declarations for a modular scale, the way Tailwind's own theme writes a line height.
+// The declarations for a modular scale, the way the framework's own theme writes a line height.
 export function typeDeclarations(scale) {
   return scale.flatMap(({ step, size, lineHeight }) => [
     `--text-${step}: ${rem(size)};`,

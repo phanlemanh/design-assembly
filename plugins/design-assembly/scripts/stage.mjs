@@ -1,9 +1,13 @@
 // A place to draw a repository's own screens: its development server and a browser, both taken
 // from the repository's own packages. Used by the scripts that show instead of describe.
-import { readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+
+import { ADAPTERS } from "../templates/tools/design-assembly/adapters/index.mjs";
+
+// The adapters a stage is drawn with: one of each kind it needs.
+const of = (kind) => ADAPTERS.find((adapter) => adapter.kind === kind);
+export const stageAdapters = { build: of("build"), browser: of("browser"), source: of("source") };
 
 // Opens the stage, or says why the repository has nothing to draw with. `load` reads a module of
 // the repository the way its own build would, so a list written in its source language can be
@@ -14,22 +18,6 @@ import { pathToFileURL } from "node:url";
 // source and the file, and returns the new source or null.
 export async function openStage(target, { modules = {}, transform = null } = {}) {
   const require = createRequire(path.join(target, "package.json"));
-  let chromium;
-  let createServer;
-  try {
-    ({ chromium } = require("@playwright/test"));
-    const vite = path.dirname(require.resolve("vite/package.json"));
-    const entry = JSON.parse(readFileSync(path.join(vite, "package.json"), "utf8")).exports?.["."];
-    const file =
-      typeof entry === "string"
-        ? entry
-        : (entry?.import?.default ?? entry?.import ?? entry?.default);
-    ({ createServer } = await import(pathToFileURL(path.join(vite, file)).href));
-  } catch (error) {
-    return {
-      problem: `the repository has no browser to draw with (${error.message.split("\n")[0]})`,
-    };
-  }
   let server;
   let browser;
   const close = async () => {
@@ -37,30 +25,16 @@ export async function openStage(target, { modules = {}, transform = null } = {})
     await server?.close();
   };
   try {
-    server = await createServer({
-      root: target,
-      logLevel: "silent",
-      server: { host: "127.0.0.1", port: 5290, strictPort: false },
-      plugins: [
-        {
-          name: "design-assembly-stage",
-          enforce: "pre",
-          transform: (code, id) => (transform ? transform(code, id) : null),
-          resolveId: (id) => (id in modules ? id : null),
-          load: (id) => (id in modules ? modules[id] : null),
-        },
-      ],
-    });
-    await server.listen();
-    browser = await chromium.launch();
+    server = await stageAdapters.build.serve(require, target, { modules, transform });
+    browser = await stageAdapters.browser.launch(require);
   } catch (error) {
     await close();
-    return { problem: `the stage could not open: ${error.message.split("\n")[0]}` };
+    const missing = /Cannot find (module|package)/.test(error.message);
+    return {
+      problem: missing
+        ? `the repository has no browser to draw with (${error.message.split("\n")[0]})`
+        : `the stage could not open: ${error.message.split("\n")[0]}`,
+    };
   }
-  return {
-    origin: server.resolvedUrls.local[0].replace(/\/$/, ""),
-    browser,
-    load: (module) => server.ssrLoadModule(module),
-    close,
-  };
+  return { origin: server.origin, browser, load: server.load, close };
 }

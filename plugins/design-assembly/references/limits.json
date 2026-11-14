@@ -1654,9 +1654,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-14",
-      "where": ["d0029"],
-      "status": "open",
-      "note": "Names of libraries and build tools are still written through the plugin's core instead of in adapters, and no test fails when one is added."
+      "where": ["d0029", "d0031"],
+      "status": "closed",
+      "note": "Names of libraries and build tools are still written through the plugin's core instead of in adapters, and no test fails when one is added.",
+      "closed": "2026-11-14",
+      "closed_by": "five adapters own every library and build-tool name, and a plugin test fails when the core code names one"
     },
     {
       "id": "reference-register-other-shape",
@@ -1724,6 +1726,39 @@
       "where": ["d0030"],
       "status": "open",
       "note": "A screen is written in two places, the ledger and the code that reaches its states, and only the repository's own test, which this plugin's gate never runs, holds that their titles and states agree."
+    },
+    {
+      "id": "stack-couplings-beyond-names",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-14",
+      "where": ["d0031"],
+      "status": "open",
+      "note": "Beyond names, the core still reads one stack's ways of writing in about twenty places, such as source files of one extension, the framework's theme block, the floor's list of screens and stylesheet, and the component library's alert and button names, so a repository written another way gets those checks wrong or not at all."
+    },
+    {
+      "id": "docs-name-libraries",
+      "area": "rules",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-14",
+      "where": ["d0031"],
+      "status": "open",
+      "note": "The plugin's pages, skills and reference data still name libraries, and the test that keeps names out of the core reads code only."
+    },
+    {
+      "id": "owned-templates-beside-core",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-14",
+      "where": ["d0031"],
+      "status": "open",
+      "note": "The code the guide installs for a repository to own is written for one library and one framework, yet it sits in a folder of the core rather than with the adapters it belongs to."
     }
   ]
 }

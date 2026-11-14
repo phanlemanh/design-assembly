@@ -3,19 +3,21 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
+import { adapter as components } from "./adapters/shadcn.mjs";
+import { adapter as values } from "./adapters/tailwind.mjs";
 import { parseColor } from "./color.mjs";
 import { readVariable } from "./theme.mjs";
 
 export const DEFAULT_STYLESHEET = "src/index.css";
-const FRAMEWORK_THEME = "node_modules/tailwindcss/theme.css";
+const FRAMEWORK_THEME = values.frameworkTheme;
 
 const read = (root, file) =>
   existsSync(path.join(root, file)) ? readFileSync(path.join(root, file), "utf8") : null;
 
 // Where the repository says its stylesheet is, or null.
 export function findStylesheet(root) {
-  const config = read(root, "components.json");
-  const declared = config ? JSON.parse(config).tailwind?.css : null;
+  const config = read(root, components.settingsFile);
+  const declared = config ? components.stylesheetIn(JSON.parse(config)) : null;
   if (declared && read(root, declared) !== null) return declared;
   return read(root, DEFAULT_STYLESHEET) === null ? null : DEFAULT_STYLESHEET;
 }

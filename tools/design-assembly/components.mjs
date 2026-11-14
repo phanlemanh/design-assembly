@@ -15,13 +15,14 @@ import path from "node:path";
 import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
+import { adapter as library } from "./adapters/shadcn.mjs";
 import { newerProblem } from "./contract.mjs";
 import { lineWidth, renderJson } from "./json.mjs";
 import { frontMatter, readPages } from "./screens.mjs";
 
 // The file a repository gets when nothing names another one, and the folder read by default.
 export const REGISTRY = "design/component-registry.json";
-export const COMPONENTS_FOLDER = "src/components/ui";
+export const COMPONENTS_FOLDER = library.folder;
 // The id of the decision that this file says what the source says.
 export const COMPONENTS_DECISION = "component-manifest";
 // The shape of the file: the acceptance kit reads the version as a string.
@@ -198,10 +199,10 @@ function rendered(source, text) {
   };
 }
 
-// Variant axes declared with the class-variance helper: `const name = cva(base, { variants })`.
+// Variant axes declared with the library's helper for variant sets, as its adapter reads them.
 function declaredSets(text) {
   const sets = {};
-  for (const match of text.matchAll(/\bconst\s+(\w+)\s*=\s*cva\(/g)) {
+  for (const match of text.matchAll(library.variantSet)) {
     const open = match.index + match[0].length - 1;
     const call = text.slice(open, closing(text, open) + 1);
     // The options are the object after the base classes: the first brace outside a string.

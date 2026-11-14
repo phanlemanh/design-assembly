@@ -11,6 +11,7 @@ links:
   - wiki/decisions/0007-adopt-existing-values.md
   - wiki/decisions/0029-the-contract-one-shape-per-ledger.md
   - wiki/decisions/0030-one-ledger-of-screens.md
+  - wiki/decisions/0031-adapters-hold-library-names.md
   - wiki/decisions/0022-record-beside-a-list.md
 sources:
   - "chủ kho, 2026-11-13: tầm nhìn và ba câu trả lời làm rõ"
@@ -96,7 +97,9 @@ khung, thử lần bảy) giữ nguyên và đi trước.
 1. **Hợp đồng.** Viết hình dạng của từng sổ thành tài liệu. Phân xử ba hình dạng sổ linh kiện và hai
    hình dạng sổ màn. Tách mọi tên thư viện trong plugin vào bộ chuyển.
    Lát một xong ngày 2026-11-14 (0029): mười sổ có một hình dạng, sổ linh kiện đã phân xử, cổng giữ
-   hình dạng, sổ mang số phiên bản. Lát hai xong cùng ngày (0030): một sổ màn. Còn bộ chuyển.
+   hình dạng, sổ mang số phiên bản. Lát hai xong cùng ngày (0030): một sổ màn. Lát ba (0031): tên thư viện về
+   bộ chuyển. Chặng xong ngày 2026-11-14; cách viết riêng của một loại repo còn trong lõi, ghi ở sổ
+   giới hạn.
 2. **Đồng hành với Inventory.** Bộ chuyển Next.js cho bảng mẫu và cuốn sổ; phép đo trình duyệt qua
    dấu chung; nhận thật trên một nhánh riêng. Rồi rút từng công cụ của Inventory theo bảng «Những gì
    chuyển chỗ», bắt đầu từ sổ nguồn ngoài và sổ nhập kho.

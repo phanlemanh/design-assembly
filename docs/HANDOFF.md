@@ -86,6 +86,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 | Kiểu màn, cỡ màn được kiểm, thao tác thất bại              | 0016    | `templates/tools/design-assembly/screens.mjs`, `design/patterns/`, `src/lib/notify.ts`             |
 | Hợp đồng: mỗi sổ một hình dạng, cổng giữ hình dạng         | 0029    | `templates/tools/design-assembly/contract.mjs`, `references/contract.md`                           |
 | Một sổ màn, mã chỉ giữ cách tới từng trạng thái            | 0030    | `design/screens.yaml`, `templates/tools/design-assembly/screen-ledger.mjs`                         |
+| Năm bộ chuyển giữ tên thư viện                             | 0031    | `templates/tools/design-assembly/adapters/`                                                        |
 
 Lệnh hay dùng ở kho này: `make design-audit`, `make design-plan`, `make design-apply`,
 `make design-adopt`, `make design-adopt-reference` (xem trước trên kho đối chứng, không bao giờ
@@ -120,8 +121,9 @@ việc nào được duyệt:
 - **Chặng 2 «Hợp đồng», lát một đã xong** (2026-11-14, quyết định 0029). Hình dạng của mười sổ được
   viết một chỗ, và cổng đỏ khi một sổ lệch hình dạng. Sổ mang số phiên bản hình dạng. Sổ token ghi
   màu bằng hex, vì cổng của kit từng từ chối tệp. Sổ linh kiện thêm cấp, nguồn và các phần. Lát hai
-  (0030): một sổ màn `design/screens.yaml`; thêm màn thì ghi ở cả sổ lẫn mã. Còn một lát của chặng 2:
-  tách tên thư viện vào bộ chuyển.
+  (0030): một sổ màn `design/screens.yaml`; thêm màn thì ghi ở cả sổ lẫn mã. Lát ba (0031): năm bộ
+  chuyển giữ tên thư viện, mã lõi không nêu tên nào. **Chặng 2 xong**; kế là chặng 3, làm trên
+  Inventory, mỗi bước cần chủ kho cho phép riêng.
 - **Dọn nền 2 đã xong và nghiệm thu đạt** (2026-11-13, quyết định 0028): ba luật hay bị phạm vào cổng,
   toast phải được gắn, plugin cài khung `AppFrame` và phần tải chung `useList`. Ở lần đo nghiệm thu,
   nhánh không có trang luật không còn phạm ba luật đó; ba luật nó còn phạm là luật cổng chưa giữ.

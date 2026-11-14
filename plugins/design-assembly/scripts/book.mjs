@@ -33,7 +33,7 @@ import {
 import { buildTheme, THRESHOLDS } from "../templates/tools/design-assembly/theme.mjs";
 import { tokenCss, TOKENS } from "../templates/tools/design-assembly/tokens.mjs";
 import { inventory } from "./inventory.mjs";
-import { openStage } from "./stage.mjs";
+import { openStage, stageAdapters } from "./stage.mjs";
 
 export const OUT = "coverage/design-book";
 // A repository's own words for the book, in the language its documents are written in.
@@ -607,15 +607,10 @@ function forClient(markdown) {
 // repository. It loads a component from the repository's own source and draws it once per option,
 // each in its own root, so one that cannot stand alone fails by itself.
 const HARNESS = "/@design-assembly/harness.js";
-const HARNESS_CODE = `
-import React from "react";
-import { createRoot } from "react-dom/client";
-class Catch extends React.Component {
-  constructor(props) { super(props); this.state = { failed: false }; }
-  static getDerivedStateFromError() { return { failed: true }; }
-  componentDidCatch() {}
-  render() { return this.state.failed ? null : this.props.children; }
-}
+// The source adapter draws a component and the build adapter loads one; the rest of the page is
+// the same for every repository.
+const { build, source } = stageAdapters;
+const HARNESS_CODE = `${source.harness(build.importExpression("address"))}
 const frames = () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
 window.__designAssembly = {
   async draw(items) {
@@ -626,7 +621,7 @@ window.__designAssembly = {
     const report = {};
     for (const item of items) {
       let module = null;
-      try { module = await import(/* @vite-ignore */ "/" + item.file); } catch { module = null; }
+      try { module = await load("/" + item.file); } catch { module = null; }
       const Component = module ? module[item.name] : null;
       const block = document.createElement("div");
       block.dataset.daItem = item.id;
@@ -649,12 +644,11 @@ window.__designAssembly = {
           line.append(box);
           const attempt = async (text) => {
             if (!Component) return false;
-            const root = createRoot(slot);
-            root.render(React.createElement(Catch, null, React.createElement(Component, cell.props, text)));
+            const unmount = mount(slot, Component, cell.props, text);
             await frames();
             const size = slot.getBoundingClientRect();
             const shown = slot.childElementCount > 0 && size.width > 0 && size.height > 0;
-            if (!shown) root.unmount();
+            if (!shown) unmount();
             return shown;
           };
           // With its text first; an element that takes none, such as a field, without.

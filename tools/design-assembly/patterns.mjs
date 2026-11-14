@@ -1,5 +1,6 @@
 // What every screen must have, read from source: the states a view of data goes through, that a
 // screen takes its words from one place, and that an error message has both of its parts.
+import { adapter as source } from "./adapters/react.mjs";
 import { closing, openingTag } from "./components.mjs";
 import { builtScreens, readScreenLedger, SCREEN_LEDGER } from "./screen-ledger.mjs";
 
@@ -169,7 +170,7 @@ export function errorCopyProblem(files, skip = []) {
 
 // Libraries that show a toast. A screen does not call one itself: it goes through the
 // repository's one module for telling a person what an action did.
-export const TOAST_MODULES = ["sonner", "react-hot-toast", "react-toastify"];
+export const TOAST_MODULES = source.toastModules;
 
 // Places where a screen tells a person something outside the repository's channels: a dialog of
 // the browser itself, or a toast library called directly.

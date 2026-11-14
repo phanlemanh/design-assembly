@@ -3,6 +3,7 @@
 // tier the repository has reached. Read-only. Works on any repository, with or without the design
 // floor. The same repository state always gives the same report.
 // Usage: node inventory.mjs --target DIR [--json] [--all]
+import { adapter as values } from "../templates/tools/design-assembly/adapters/tailwind.mjs";
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 import { argv, exit, stderr, stdout } from "node:process";
@@ -162,7 +163,7 @@ function fromRepository(decision, facts) {
   if (usage) {
     const decided = usage.variable
       ? facts.declared.some((d) => d.name === usage.variable && d.scope === ":root")
-      : facts.tailwind;
+      : facts.framework;
     if (!decided) return { state: "undecided", by: null };
   }
   const proof = facts.proofs.find((item) => item.id === decision.id);
@@ -311,7 +312,8 @@ export function inventory(root) {
   const rows = readLedger(root) ?? [];
   const facts = {
     declared: declarations(root, sheets),
-    tailwind: sheets.some((file) => /@import\s+["']tailwindcss["']/.test(read(root, file) ?? "")),
+    // The stylesheet is built on the framework its values adapter knows.
+    framework: sheets.some((file) => values.importsFramework.test(read(root, file) ?? "")),
     eslint: ["eslint.config.js", "eslint.config.mjs", "eslint.config.ts"]
       .map((file) => read(root, file) ?? "")
       .join("\n"),
