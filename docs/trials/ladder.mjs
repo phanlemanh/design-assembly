@@ -5,12 +5,14 @@
 // The three answers of step two are assumptions made to measure, not the owner's words.
 import { spawnSync } from "node:child_process";
 import {
+  appendFileSync,
   cpSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -33,11 +35,19 @@ const git = (cwd, ...args) => spawnSync("git", ["-C", cwd, ...args], { encoding:
 
 const copy = mkdtempSync(path.join(tmpdir(), "design-assembly-ladder-"));
 if (spawnSync("git", ["clone", "-q", reference, copy]).status !== 0) exit(1);
-// The framework's theme is the one file of its packages the stylesheet reader needs.
-const theme = "node_modules/tailwindcss/theme.css";
-if (existsSync(path.join(reference, theme))) {
-  mkdirSync(path.dirname(path.join(copy, theme)), { recursive: true });
-  cpSync(path.join(reference, theme), path.join(copy, theme));
+// The copy reads the packages of the reference repository through a link: its lint is one of
+// them, and the plugin re-runs it. Nothing here writes to them. The link is kept out of the copy's
+// index, so the kit reads the same files as before.
+if (existsSync(path.join(reference, "node_modules"))) {
+  symlinkSync(path.join(reference, "node_modules"), path.join(copy, "node_modules"));
+  appendFileSync(path.join(copy, ".git/info/exclude"), "\nnode_modules\n");
+} else {
+  // Without them, the framework's theme is the one file the stylesheet reader needs.
+  const theme = "node_modules/tailwindcss/theme.css";
+  if (existsSync(path.join(reference, theme))) {
+    mkdirSync(path.dirname(path.join(copy, theme)), { recursive: true });
+    cpSync(path.join(reference, theme), path.join(copy, theme));
+  }
 }
 
 function measure() {
@@ -110,7 +120,11 @@ try {
   }
 } finally {
   if (argv.includes("--keep")) stdout.write(`\nthe copy is kept at ${copy}\n`);
-  else rmSync(copy, { recursive: true, force: true });
+  else {
+    // The link goes first, alone, so that removing the copy never reaches the packages it links to.
+    rmSync(path.join(copy, "node_modules"), { force: true });
+    rmSync(copy, { recursive: true, force: true });
+  }
 }
 // The reference repository must be as it was.
 stdout.write(

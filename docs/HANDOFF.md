@@ -49,13 +49,14 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 
 - Nhánh `main`, cây làm việc sạch, mọi thứ đã commit. Kho có trên GitHub từ 2026-11-14, **riêng
   tư**: `phanlemanh/design-assembly`, remote `origin`. Chủ kho bảo tạo và đẩy một lần («Tạo github
-  và push»). Cập nhật lần cuối 2026-11-14, sau quyết định 0032.
+  và push»). Cập nhật lần cuối 2026-11-14, sau quyết định 0033.
 - `make check` xanh: lint, typecheck, 102 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (27 quyết định, 33 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 238 bài kiểm của plugin.
-- Kho này đáp 39/39 quyết định lõi: 16 máy giữ, 17 tự khai, 6 đã ghi. 11 sổ đúng hình dạng hợp
+  (37 quyết định, 43 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 242 bài kiểm của plugin.
+- Kho này đáp 39/39 quyết định lõi: 26 máy giữ, 7 tự khai, 6 đã ghi. 11 sổ đúng hình dạng hợp
   đồng.
 - **Lộ trình năm chặng:** 1 «Dọn nền» và 2 «Hợp đồng» đã xong. Chặng 3 «Vào Inventory» đã cắt lại
-  thành lát mỏng (0032); lát đầu mới chạy trên bản sao. Chặng 4 «Hai repo đổi vai» và 5 «Lõi của
+  thành lát mỏng (0032); lát đầu (bước 1, 2) đã làm trên nhánh riêng của Inventory, lát hai (0033)
+  chạy lại lint của repo. Chặng 4 «Hai repo đổi vai» và 5 «Lõi của
   họ» chưa bắt đầu.
 - **Inventory chỉ bị đụng trên một nhánh riêng, chưa đẩy.** Chủ kho cho phép ngày 2026-11-14 làm
   bước 1 và 2 trên nhánh riêng. Cả hai đã commit ở nhánh `chore/adopt-design-assembly`, trong thư
@@ -63,7 +64,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
   Inventory vẫn ở `main`. Phép đo vẫn chạy trên bản sao bỏ đi bằng `make design-ladder`.
 - Số đo chính hôm nay: số chỗ tác tử phải đoán khi dựng một màn là 12, 12, 13, 11 (đứng yên); luật
   bị phạm có so với không có trang luật là 0 so với 3, 6, 3. Ở Inventory, trên bản sao: sổ đúng
-  hình dạng 2/4 lên 5/5, quyết định máy giữ 0 lên 9, kit từ M1 lên M2.
+  hình dạng 2/4 lên 5/5, câu lõi máy giữ 0 lên 11, quyết định máy giữ 0 lên 18, kit từ M1 lên M2.
 
 ## Đã dựng gì, theo thứ tự
 
@@ -89,6 +90,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 | Hợp đồng: mỗi sổ một hình dạng, cổng giữ hình dạng         | 0029    | `templates/tools/design-assembly/contract.mjs`, `references/contract.md`                           |
 | Một sổ màn, mã chỉ giữ cách tới từng trạng thái            | 0030    | `design/screens.yaml`, `templates/tools/design-assembly/screen-ledger.mjs`                         |
 | Năm bộ chuyển giữ tên thư viện                             | 0031    | `templates/tools/design-assembly/adapters/`                                                        |
+| Chạy lại lint của repo trên đoạn mã phạm quyết định        | 0033    | `templates/tools/design-assembly/probes.mjs`, `lint.mjs`, `adapters/eslint.mjs`                    |
 
 Lệnh hay dùng ở kho này: `make design-audit`, `make design-plan`, `make design-apply`,
 `make design-adopt`, `make design-adopt-reference` (xem trước trên kho đối chứng, không bao giờ
@@ -123,8 +125,9 @@ bằng lời không theo sang phiên khác. Bước 3, việc đẩy và việc 
 
 1. Bước 1 và 2 đã xong trên nhánh riêng của Inventory. Gộp nhánh đó là việc của chủ kho: nó đụng
    vùng Inventory xếp vào loại phải có người giữ mã ký.
-2. Lát hai: plugin chạy lại được bằng chứng của chính repo (lint, bài kiểm có thẻ). Hôm nay 21 câu
-   lõi của Inventory ghi «tự khai» vì plugin không chạy lại chúng, nên số «máy giữ» ở đó thấp.
+2. Lát hai đã xong (0033) cho phần lint. Còn lại: chạy «nhận» lại trên nhánh riêng của Inventory
+   để thêm chín phép kiểm lint ở đó (cần chủ kho cho phép); bài kiểm và công cụ của repo chưa được
+   chạy lại; hướng nhập chưa có đoạn mã phạm.
 3. Lát ba: bộ đọc linh kiện ghi danh sách thuộc tính, biết thư mục khuôn và thư viện mua thứ hai.
    Xong mới thay được công cụ sổ linh kiện của Inventory, và mới khai được sổ với kit để lên M2.
 4. Sau cùng: bộ chuyển Next.js cho bảng mẫu và cuốn sổ; sổ nguồn ngoài và sổ nhập kho.
@@ -134,6 +137,11 @@ bằng lời không theo sang phiên khác. Bước 3, việc đẩy và việc 
 
 Các lát đã xong, mới nhất trước:
 
+- **Chặng 3, lát hai** (2026-11-14, 0033). Plugin chạy lại lint của chính repo trên đoạn mã phạm
+  từng quyết định, trong cổng; bộ chuyển thứ sáu giữ tên công cụ lint. Inventory, bản sao: câu lõi
+  máy giữ 2 lên 11.
+- **Chặng 3, lát đầu, bước 1 và 2 trên nhánh riêng của Inventory** (2026-11-14). Chủ kho đáp ba
+  câu: ứng dụng, AA, giữ màu thương hiệu đang dùng.
 - **Review sau chặng 2 và lát đầu của chặng 3 trên bản sao** (2026-11-14, 0032). Plugin đọc được
   màu pha trong oklch, audit đếm sổ đúng hình dạng, «nhận» giữ hình dạng sổ.
 - **Chặng 2 «Hợp đồng»** (2026-11-14, 0029 đến 0031). Hình dạng 11 sổ viết một chỗ và cổng giữ
@@ -191,6 +199,8 @@ chủ kho ở kho đó.
 
 Cần Repo Standards:
 
+- Luật «tên lớp viết nguyên» của sàn chỉ đọc tên lớp đặt trên linh kiện: tên lớp ghép trên thẻ
+  thường lọt qua (0033). Dòng sổ đó ở kho này vẫn là «tự khai».
 - Ba bài kiểm trình duyệt của sàn (một vùng chính, không cuộn ngang, accessibility) không mang thẻ
   `decision:<id>`. Sổ giờ trỏ tới bài kiểm của plugin thay cho chúng, nên ở kho này accessibility
   được kiểm hai lần. Khi sàn gắn thẻ thì bỏ được một bên.

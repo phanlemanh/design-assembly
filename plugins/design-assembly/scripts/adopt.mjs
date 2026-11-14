@@ -9,7 +9,12 @@ import path from "node:path";
 import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
-import { checkFolders, FILES, runChecks } from "../templates/tools/design-assembly/check.mjs";
+import {
+  checkFolders,
+  FILES,
+  lintResults,
+  runChecks,
+} from "../templates/tools/design-assembly/check.mjs";
 import { contrast } from "../templates/tools/design-assembly/color.mjs";
 import {
   differences,
@@ -18,6 +23,13 @@ import {
   shapeProblems,
 } from "../templates/tools/design-assembly/contract.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
+import { whereRulesApply } from "../templates/tools/design-assembly/lint.mjs";
+import {
+  PROBED,
+  probeCandidates,
+  probeComponent,
+  ruleOf,
+} from "../templates/tools/design-assembly/probes.mjs";
 import {
   LEDGER,
   mergeLedger,
@@ -265,6 +277,8 @@ export function adoption(
     pointed: [],
     holdable: [],
     kept: [],
+    rerun: [],
+    loose: [],
     person: [],
     in_ledger: have.size,
     files: {},
@@ -552,6 +566,10 @@ export function adoption(
     else add(proof.id, { kind: proof.kind, source: proof.source, check: proof.check }, "claimed");
   }
 
+  // Rows a lint rule holds, of the repository's or added just now. The tool lints texts that break
+  // the decision, and holds the row when the lint rejects every one; the row is not rewritten.
+  rerunLint(root, [...existing, ...result.rows], theme, checks, result);
+
   if (result.rows.length > 0 || result.pointed.length > 0) {
     // Only the ledger's own keys are written: how a row is held is for the report.
     const merged = result.rows.length > 0 ? mergeLedger(ledgerText, result.rows) : ledgerText;
@@ -591,6 +609,64 @@ export function adoption(
     );
   }
   return result;
+}
+
+// The decisions whose probe draws a component of the library, when the repository has one.
+const ON_COMPONENT = ["no-restyled-component", "whole-class-names"];
+
+// For each row that points at a lint rule and whose decision this tool can probe: where the rule
+// applies, then the lint on the probes. A row whose every probe is rejected, and whose check was
+// seen failing with the rejecting rules off, gains the tool's check; any other is said with why.
+function rerunLint(root, rows, theme, checks, result) {
+  const open = rows.filter(
+    (row) =>
+      ruleOf(row.check) &&
+      PROBED.includes(String(row.id)) &&
+      !theme?.checks?.[row.id] &&
+      !checks[row.id],
+  );
+  if (open.length === 0) return;
+  const rules = [...new Set(open.map((row) => ruleOf(row.check)))];
+  const found = whereRulesApply(root, rules, probeCandidates(root));
+  if (found.error) {
+    for (const row of open) result.loose.push({ id: String(row.id), why: found.error });
+    return;
+  }
+  const component = probeComponent(root);
+  const trial = {};
+  for (const row of open) {
+    const rule = ruleOf(row.check);
+    const at = found.at[rule];
+    if (!at) {
+      result.loose.push({
+        id: String(row.id),
+        why: `${rule} is an error on no screen file under src, so no probe can be linted`,
+      });
+      continue;
+    }
+    const drawn = ON_COMPONENT.includes(String(row.id)) && component ? { component } : {};
+    trial[row.id] = [{ kind: "lint", rule, at, ...drawn }];
+  }
+  const lint = lintResults(root, trial, rows);
+  for (const outcome of runChecks({ root, ledger: rows, theme: { checks: trial }, lint })) {
+    const row = open.find((item) => String(item.id) === outcome.id);
+    const [check] = trial[outcome.id];
+    if (!outcome.held) {
+      result.loose.push({
+        id: outcome.id,
+        why: outcome.problem ?? "the check could not be made to fail, so it would prove nothing",
+      });
+      continue;
+    }
+    checks[outcome.id] = trial[outcome.id];
+    const by = lint[`${outcome.id}:${check.rule}`].turnedOff;
+    const named = by.includes(check.rule) ? "" : `; the rule the row names rejects none of them`;
+    result.rerun.push({
+      id: outcome.id,
+      check: row.check,
+      what: `every probe is rejected, by ${by.join(", ")}${named}`,
+    });
+  }
 }
 
 const HOW = {
@@ -639,6 +715,16 @@ export function report(result) {
     "rows of yours with no check, that could have one (pass --hold with their names):",
     result.holdable,
     proof,
+  );
+  section(
+    "rows of yours a lint rule holds, now re-run by this tool on texts that break them:",
+    result.rerun,
+    proof,
+  );
+  section(
+    "rows of yours a lint rule is said to hold, that its re-run does not show, so they stay claimed:",
+    result.loose,
+    reason,
   );
   section("would fail today, so nothing was added:", result.failing, reason);
   section("cannot be read here:", result.unreadable, reason);

@@ -15,7 +15,7 @@ import path from "node:path";
 import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
-import { FILES } from "../templates/tools/design-assembly/check.mjs";
+import { FILES, heldHere } from "../templates/tools/design-assembly/check.mjs";
 import { contrast, formatOklch, parseColor } from "../templates/tools/design-assembly/color.mjs";
 import {
   BASES,
@@ -1393,8 +1393,9 @@ export function plan(target, blueprint) {
   }
   // A check this tool already holds is never dropped because its rule is broken today: the row
   // stays, so the check stays, and the gate fails with the real reason.
+  // A lint rule this tool re-runs is kept the same way, for as long as the row points at it.
   const pointed = parseLedger(read(FILES.ledger) ?? "")
-    .filter((row) => row.check === TOOL)
+    .filter((row) => heldHere(row, prior))
     .map((row) => row.id);
   const kept = Object.keys(prior).filter((id) => !(id in checks) && pointed.includes(id));
   for (const id of kept) checks[id] = prior[id];

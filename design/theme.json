@@ -1,5 +1,6 @@
 {
   "version": 1,
+  "stylesheet": "src/index.css",
   "inputs": {
     "sourceColor": "#0246ff",
     "conformanceLevel": "AA",
@@ -269,6 +270,80 @@
         "kind": "target-size",
         "folder": "src/components/ui",
         "min": 24
+      }
+    ],
+    "color-role": [
+      {
+        "kind": "lint",
+        "rule": "shadcn/no-raw-colors",
+        "at": "src/App.tsx"
+      }
+    ],
+    "type-scale": [
+      {
+        "kind": "lint",
+        "rule": "shadcn/no-arbitrary-values",
+        "at": "src/App.tsx"
+      }
+    ],
+    "spacing": [
+      {
+        "kind": "lint",
+        "rule": "shadcn/no-arbitrary-values",
+        "at": "src/App.tsx"
+      }
+    ],
+    "radius": [
+      {
+        "kind": "lint",
+        "rule": "shadcn/no-arbitrary-values",
+        "at": "src/App.tsx"
+      }
+    ],
+    "no-restyled-component": [
+      {
+        "kind": "lint",
+        "rule": "shadcn/no-restyle",
+        "at": "src/App.tsx",
+        "component": {
+          "name": "Button",
+          "from": "@/components/ui/button"
+        }
+      }
+    ],
+    "no-inline-style": [
+      {
+        "kind": "lint",
+        "rule": "shadcn/no-inline-styles",
+        "at": "src/App.tsx"
+      }
+    ],
+    "raw-controls": [
+      {
+        "kind": "lint",
+        "rule": "no-restricted-syntax",
+        "at": "src/App.tsx"
+      }
+    ],
+    "raw-table": [
+      {
+        "kind": "lint",
+        "rule": "no-restricted-syntax",
+        "at": "src/App.tsx"
+      }
+    ],
+    "format-number-date": [
+      {
+        "kind": "lint",
+        "rule": "no-restricted-syntax",
+        "at": "src/App.tsx"
+      }
+    ],
+    "color-palette": [
+      {
+        "kind": "lint",
+        "rule": "shadcn/no-raw-colors",
+        "at": "src/App.tsx"
       }
     ]
   }

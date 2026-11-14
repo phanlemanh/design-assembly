@@ -1806,9 +1806,55 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-14",
-      "where": ["d0032", "trials"],
+      "where": ["d0032", "trials", "d0033"],
+      "status": "closed",
+      "note": "In an adopted repository most core decisions are held by the repository's own lint rules and tests, which this plugin never runs again, so the count of decisions it holds stays low however well the repository is held.",
+      "closed": "2026-11-14",
+      "closed_by": "the tool re-runs a repository's own lint rules on texts that break each decision, in the gate, seen failing with the rejecting rules off; tests and tools of the repository are the open row tests-and-tools-not-rerun"
+    },
+    {
+      "opened": "2026-11-14",
+      "where": ["d0033"],
       "status": "open",
-      "note": "In an adopted repository most core decisions are held by the repository's own lint rules and tests, which this plugin never runs again, so the count of decisions it holds stays low however well the repository is held."
+      "id": "tests-and-tools-not-rerun",
+      "area": "audit",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "note": "A row held by one of the repository's own tests or tools is still claimed and never run again here, so the count of decisions this plugin holds stays below what the repository holds."
+    },
+    {
+      "opened": "2026-11-14",
+      "where": ["d0033"],
+      "status": "open",
+      "id": "probes-known-forms-only",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "note": "A lint rule is held when it rejects every text this plugin knows breaks the decision; a breach written another way may still pass the rule."
+    },
+    {
+      "opened": "2026-11-14",
+      "where": ["d0033"],
+      "status": "open",
+      "id": "probe-one-screen-file",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "note": "The texts are linted as one screen file of the repository, where the rule the row names is an error; a rule switched off in another folder is not seen."
+    },
+    {
+      "opened": "2026-11-14",
+      "where": ["d0033"],
+      "status": "open",
+      "id": "import-direction-not-probed",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "note": "No text breaks the direction of imports, since what breaks it depends on how each repository splits its parts, so a lint rule said to hold it is not run again."
     }
   ]
 }

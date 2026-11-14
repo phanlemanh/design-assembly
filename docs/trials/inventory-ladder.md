@@ -33,6 +33,31 @@ Chủ repo cho phép ngày 2026-11-14: làm bước 1 và 2 trên một nhánh r
 - Độ tất định do công cụ của Inventory đo: 42/59 thành 43/63, tỉ lệ 71% xuống 68%. Ba lời người là
   dòng không có lệnh kiểm, nên tăng mẫu số. Đó là cách đếm đúng, không phải lùi.
 
+## Lát hai: plugin chạy lại lint của repo, đo ngày 2026-11-14
+
+Theo quyết định [0033](../../wiki/decisions/0033-re-run-the-repository-lint.md). Bản sao ở
+`1226ec5`. Từ lát này bản sao đọc gói của Inventory qua một đường nối, vì lint của Inventory là một
+trong các gói đó. Lệnh gỡ đường nối trước khi xoá bản sao.
+
+| Nấc                              | Mốc đầu    | 1. Chạy «nhận» | 2. Ba lời đáp, số phiên bản | 3. Plugin giữ sổ linh kiện, khai với kit |
+| -------------------------------- | ---------- | -------------- | --------------------------- | ---------------------------------------- |
+| Sổ đúng hình dạng                | 2 trên 4   | 3 trên 5       | 4 trên 5                    | 5 trên 5                                 |
+| Câu lõi có lời đáp               | 24 trên 39 | 25 trên 39     | 29 trên 39                  | 29 trên 39                               |
+| Câu lõi máy của plugin giữ       | 0          | 10 (trước: 1)  | 11 (trước: 2)               | 11 (trước: 2)                            |
+| Quyết định máy giữ, cả ngoài lõi | 0          | 15 (trước: 6)  | 16 (trước: 7)               | 18 (trước: 9)                            |
+| Bậc trong thang của kit          | M1         | M1             | M1                          | M2                                       |
+
+- Chín câu lõi lên «máy giữ»: màu là vai trò, bảng màu, thang chữ, thang khoảng cách, bo góc, điều
+  khiển thô, bảng thô, đổi diện mạo linh kiện, style viết thẳng.
+- Hai câu lint của Inventory **để lọt** đoạn mã phạm, nên vẫn «tự khai»:
+  - tên lớp viết nguyên: lọt tên lớp ghép bằng dấu cộng, trên thẻ thường và trên linh kiện;
+  - ngoại lệ lint phải có lý do: lọt ngoại lệ cho luật không thuộc bộ luật riêng của Inventory, và
+    ngoại lệ tắt mọi luật cho cả tệp.
+- Hướng nhập giữa các phần chưa có đoạn mã phạm. Tám câu do bài kiểm và một câu do công cụ của
+  Inventory vẫn chưa được chạy lại.
+- Nhánh riêng của Inventory chưa chạy lại «nhận» với plugin mới. Làm vậy sẽ thêm chín phép kiểm lint
+  vào dữ liệu công cụ ở đó; cần chủ repo cho phép.
+
 ## Lát đầu, đo ngày 2026-11-14
 
 Bản sao lấy ở commit `786cadf` của Inventory (2026-11-14). Bốn bước, mỗi bước một bản sao riêng,
