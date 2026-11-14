@@ -118,6 +118,11 @@ việc nào được duyệt:
   `coverage/design-book/book.html`): lát 0020 chỉ nghiệm thu được bằng lượt đó.
 - **Chủ kho đã đi hết bảng mẫu của foundations** ngày 2026-11-12 và giữ cả ba giá trị đang dùng
   (màu gốc `#0246ff`, thang chữ chuẩn, bo góc của sàn). Tầng foundations giờ ghi là người quyết.
+- **Review sau chặng 2, và lát đầu của chặng 3 trên bản sao Inventory** (2026-11-14, quyết định
+  0032). Chặng 3 cắt thành lát mỏng, đo bằng thang bốn nấc ở `docs/trials/inventory-ladder.md`.
+  Trên bản sao: sổ đúng hình dạng 2/4 lên 5/5, quyết định máy giữ 0 lên 9, kit từ M1 lên M2.
+  **Repo thật của Inventory chưa bị đụng tới**; lên nhánh thật cần chủ kho cho phép. Việc chờ chủ
+  kho xem gom ở `docs/review-queue.md`.
 - **Chặng 2 «Hợp đồng», lát một đã xong** (2026-11-14, quyết định 0029). Hình dạng của mười sổ được
   viết một chỗ, và cổng đỏ khi một sổ lệch hình dạng. Sổ mang số phiên bản hình dạng. Sổ token ghi
   màu bằng hex, vì cổng của kit từng từ chối tệp. Sổ linh kiện thêm cấp, nguồn và các phần. Lát hai

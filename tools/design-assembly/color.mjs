@@ -69,10 +69,63 @@ export function formatOklch(color) {
   return `oklch(${round(color.l, 3)} ${round(color.c, 3)} ${round(color.h, 2)})`;
 }
 
-// Reads `oklch(L C H)`, `#rrggbb` or `#rgb`. A hue written `none` is read as 0: it only appears
-// with zero chroma. Returns null for anything else, such as a value with alpha or a color-mix().
+// Splits the arguments of a function at the commas that are not inside brackets.
+function splitArguments(text) {
+  const parts = [];
+  let depth = 0;
+  let from = 0;
+  for (let i = 0; i < text.length; i += 1) {
+    if (text[i] === "(") depth += 1;
+    else if (text[i] === ")") depth -= 1;
+    else if (text[i] === "," && depth === 0) {
+      parts.push(text.slice(from, i));
+      from = i + 1;
+    }
+  }
+  return [...parts, text.slice(from)].map((part) => part.trim());
+}
+
+// `color-mix(in oklch, A 60%, B)` as the colour the browser computes: each colour's share of
+// lightness and chroma, and the hue along the shorter arc. A colour with no chroma has no hue of
+// its own and takes the other's. Null for another colour space, or a colour that cannot be read.
+function mixed(value) {
+  const call = /^color-mix\(\s*in\s+oklch\s*,(.*)\)$/is.exec(value);
+  if (!call) return null;
+  const sides = splitArguments(call[1]).map((side) => {
+    const share = /\s+([\d.]+)%$/.exec(side);
+    return {
+      color: parseColor(share ? side.slice(0, share.index) : side),
+      share: share ? Number(share[1]) / 100 : null,
+    };
+  });
+  if (sides.length !== 2 || sides.some((side) => side.color === null)) return null;
+  const [a, b] = sides;
+  if (a.share === null && b.share === null) a.share = b.share = 0.5;
+  else if (a.share === null) a.share = 1 - b.share;
+  else if (b.share === null) b.share = 1 - a.share;
+  // Shares that add up to less than the whole leave the mix partly transparent: not read.
+  const total = a.share + b.share;
+  if (total < 0.9999) return null;
+  const [wa, wb] = [a.share / total, b.share / total];
+  const grey = (color) => color.c < 1e-4;
+  const ha = grey(a.color) ? b.color.h : a.color.h;
+  const hb = grey(b.color) ? a.color.h : b.color.h;
+  const turn = ((hb - ha + 540) % 360) - 180;
+  return {
+    l: a.color.l * wa + b.color.l * wb,
+    c: a.color.c * wa + b.color.c * wb,
+    h: (ha + turn * wb + 360) % 360,
+  };
+}
+
+// Reads `oklch(L C H)`, `#rrggbb`, `#rgb`, `white`, `black`, and a mix of two such colours in
+// oklch. A hue written `none` is read as 0: it only appears with zero chroma. Returns null for
+// anything else, such as a value with alpha or a mix in another colour space.
 export function parseColor(text) {
   const value = text.trim();
+  if (/^white$/i.test(value)) return { l: 1, c: 0, h: 0 };
+  if (/^black$/i.test(value)) return { l: 0, c: 0, h: 0 };
+  if (/^color-mix\(/i.test(value)) return mixed(value);
   const short = /^#([0-9a-f])([0-9a-f])([0-9a-f])$/i.exec(value);
   if (short)
     return hexToOklch(`#${short[1]}${short[1]}${short[2]}${short[2]}${short[3]}${short[3]}`);
@@ -83,11 +136,12 @@ export function parseColor(text) {
   return { l, c: Number(match[3]), h: match[4].toLowerCase() === "none" ? 0 : Number(match[4]) };
 }
 
-// `#rrggbb` for a colour, its chroma first cut to what the screen shows.
+// `#rrggbb` for a colour as a browser paints it: a colour the screen cannot show has each channel
+// cut to the range, which is what a browser does with it.
 export function toHex(color) {
   const encode = (v) => (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055);
-  return `#${oklchToLinear(clipChroma(color))
-    .map((v) => Math.round(Math.min(1, Math.max(0, encode(Math.min(1, Math.max(0, v))))) * 255))
+  return `#${oklchToLinear(color)
+    .map((v) => Math.round(encode(Math.min(1, Math.max(0, v))) * 255))
     .map((v) => v.toString(16).padStart(2, "0"))
     .join("")}`;
 }

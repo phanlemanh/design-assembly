@@ -257,9 +257,14 @@ const KINDS = {
   // tool reads.
   shapes: {
     run(state, check) {
-      const problems = Object.entries(check.ledgers ?? {}).flatMap(([kind, file]) =>
-        shapeProblems(kind, state.files?.[file], file),
-      );
+      // Every ledger of the contract the repository has, at the path the check names for it or
+      // at its usual one: a ledger added after this check was installed is held too.
+      const problems = Object.entries(LEDGERS)
+        .filter(([, ledger]) => ledger.file)
+        .flatMap(([kind, ledger]) => {
+          const file = check.ledgers?.[kind] ?? ledger.file;
+          return shapeProblems(kind, state.files?.[file], file);
+        });
       if (check.pages) {
         for (const [file, text] of Object.entries(state.pages?.[check.pages] ?? {})) {
           problems.push(...shapeProblems("screen-kinds", text, file));
@@ -269,16 +274,20 @@ const KINDS = {
       const more = problems.length > 3 ? `; and ${problems.length - 3} more` : "";
       return `${problems.slice(0, 3).join("; ")}${more}: see the design-assembly plugin's references/contract.md`;
     },
-    // The first ledger read says it has a newer shape than this tool knows.
+    // The first ledger read says it has a newer shape than this tool knows; where none carries a
+    // version yet, the decisions ledger does.
     change(state, check) {
-      const [, file] = Object.entries(check.ledgers ?? {}).find(
-        ([kind, name]) => state.files?.[name] && name.endsWith(".json") && LEDGERS[kind]?.version,
-      ) ?? [null, null];
-      if (!file)
-        return { ...state, files: { ...state.files, [check.ledgers?.decisions]: "version: 99\n" } };
-      const data = JSON.parse(state.files[file]);
+      const versioned = Object.entries(LEDGERS)
+        .filter(([, ledger]) => ledger.file?.endsWith(".json") && ledger.version)
+        .map(([kind, ledger]) => check.ledgers?.[kind] ?? ledger.file)
+        .find((name) => state.files?.[name]);
+      if (!versioned) {
+        const ledger = check.ledgers?.decisions ?? LEDGERS.decisions.file;
+        return { ...state, files: { ...state.files, [ledger]: "version: 99\n" } };
+      }
+      const data = JSON.parse(state.files[versioned]);
       const changed = { ...data, version: typeof data.version === "string" ? "99" : 99 };
-      return { ...state, files: { ...state.files, [file]: JSON.stringify(changed) } };
+      return { ...state, files: { ...state.files, [versioned]: JSON.stringify(changed) } };
     },
   },
   // Every control declares a height that reaches the target size of the conformance level.
@@ -576,7 +585,11 @@ export function readState(root) {
   const stylesheet = data?.stylesheet ?? findStylesheet(root) ?? DEFAULT_STYLESHEET;
   // Other files a check names, as they are on disk.
   const checks = Object.values(data?.checks ?? {}).flat();
-  const named = checks
+  // Every ledger of the contract is read where it usually is, whether or not a check names it.
+  const usual = Object.values(LEDGERS)
+    .map((ledger) => ledger.file)
+    .filter(Boolean);
+  const named = [...checks, { ledgers: usual }]
     .flatMap((check) => [
       check.file,
       check.types,

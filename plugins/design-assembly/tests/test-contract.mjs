@@ -254,3 +254,60 @@ test(
     assert.equal(JSON.parse(gate.stdout).ok, true, gate.stdout);
   },
 );
+
+const ADOPT = path.join(PLUGIN, "scripts/adopt.mjs");
+const AUDIT = path.join(PLUGIN, "scripts/inventory.mjs");
+const own = (file) => readFileSync(path.join(ROOT, file), "utf8");
+
+// A repository with values of its own and no ledger yet, as adopting meets one.
+const existing = (extra = {}) =>
+  folder({
+    "src/index.css": own("src/index.css"),
+    Makefile: own("Makefile"),
+    "components.json": own("components.json"),
+    "src/components/ui/button.tsx": own("src/components/ui/button.tsx"),
+    ...extra,
+  });
+
+test("the audit counts the ledgers that have their shape, and names how the others differ", () => {
+  const here = run(AUDIT, "--target", ROOT);
+  assert.match(here.stdout, /^contract: (\d+) of \1 ledger file\(s\) have the one shape/m);
+  const dir = existing({
+    "design/screens.yaml":
+      "screens:\n  - id: a\n    route: /\n    title: null\n    family: null\n    status: built\n",
+  });
+  const there = run(AUDIT, "--target", dir);
+  assert.match(there.stdout, /^contract: 0 of 1 ledger file\(s\) have the one shape/m);
+  assert.match(there.stdout, /design\/screens\.yaml differs: \.version is missing/);
+});
+
+test("adopting holds the shapes of the ledgers it leaves, and says why when one differs", () => {
+  const dir = existing();
+  const adopted = run(ADOPT, "--target", dir);
+  assert.equal(adopted.status, 0, adopted.stderr);
+  assert.match(adopted.stdout, /ledger-shapes: \d+ ledger\(s\) have the one shape/);
+  const gate = run(path.join(dir, "tools/design-assembly/check.mjs"), "--target", dir);
+  assert.equal(gate.status, 0, gate.stderr);
+  const state = readState(dir);
+  assert.ok(runChecks(state).find((result) => result.id === "ledger-shapes")?.held);
+  // A ledger added after adopting is held too: one that leaves its shape turns the gate red, and
+  // the gate says which file and how.
+  writeFileSync(path.join(dir, "design/screens.yaml"), "version: 1\nscreens:\n  - id: a\n");
+  const later = run(path.join(dir, "tools/design-assembly/check.mjs"), "--target", dir);
+  assert.equal(later.status, 1);
+  assert.match(
+    later.stderr,
+    /ledger-shapes: design\/screens\.yaml\.screens\[0\]\.route is missing/,
+  );
+
+  // A repository whose ledger differs today gets no row, and the difference is said.
+  const other = existing({ "design/screens.yaml": "screens:\n  - id: a\n    route: /\n" });
+  const refused = run(ADOPT, "--target", other);
+  assert.equal(refused.status, 0, refused.stderr);
+  assert.match(refused.stdout, /ledger-shapes: design\/screens\.yaml: \.version is missing/);
+  assert.ok(
+    !/^\s+- id: ledger-shapes$/m.test(
+      readFileSync(path.join(other, "design/decisions.yaml"), "utf8"),
+    ),
+  );
+});

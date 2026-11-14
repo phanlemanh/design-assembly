@@ -83,7 +83,8 @@ const BRAND = {
   "src/styles/dark.css": [
     ":root.dark {",
     "  --background: var(--color-neutral-950);",
-    "  --primary: color-mix(in oklch, var(--brand-blue) 60%, white);",
+    // A mix in a colour space the reader does not compute: still a colour it cannot read.
+    "  --primary: color-mix(in srgb, var(--brand-blue) 60%, white);",
     "  --primary-foreground: var(--color-neutral-950);",
     "}",
     "",
@@ -105,7 +106,7 @@ const edit = (dir, file, change) => {
 test("colours are read as stylesheets write them: short hex, percent lightness, a missing hue", () => {
   assert.deepEqual(parseColor("#fff"), parseColor("#ffffff"));
   assert.deepEqual(parseColor("oklch(14.5% 0 none)"), { l: 0.145, c: 0, h: 0 });
-  assert.equal(parseColor("color-mix(in oklch, #0246ff 60%, white)"), null);
+  assert.equal(parseColor("color-mix(in srgb, #0246ff 60%, white)"), null);
 });
 
 test("a value is followed through imports and var() to the framework's theme", () => {
@@ -172,7 +173,8 @@ test("on the floor: rows for the proofs it has, checks around its values, nothin
   ]);
   const checked = check(dir);
   assert.equal(checked.status, 0, checked.stderr);
-  assert.match(checked.stdout, /6 decisions held by \d+ checks, each seen failing/);
+  // The six values and checks around them, and the shapes of the ledgers adopting leaves.
+  assert.match(checked.stdout, /7 decisions held by \d+ checks, each seen failing/);
 
   // Adopting leaves the page of rules too, written from what it now holds.
   const page = text(dir, ".claude/rules/design-assembly.md");

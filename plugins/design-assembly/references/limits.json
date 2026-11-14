@@ -186,9 +186,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-12",
-      "where": ["d0007", "handoff"],
-      "status": "open",
-      "note": "A colour written as a blend of two others is never read, so the dark mode of a repository that writes them has no check at all."
+      "where": ["d0007", "handoff", "d0032"],
+      "status": "closed",
+      "note": "A colour written as a blend of two others is never read, so the dark mode of a repository that writes them has no check at all.",
+      "closed": "2026-11-14",
+      "closed_by": "a mix of two colours in the perceptual space is computed as a browser paints it, held by a plugin test of six mixes read back from a browser; a mix in another colour space is still not read"
     },
     {
       "id": "adopt-silent-on-four-subjects",
@@ -208,9 +210,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-12",
-      "where": ["d0007"],
+      "where": ["d0007", "d0032"],
       "status": "open",
-      "note": "Adopt has never been run for real in any repository but this one; elsewhere it has only ever been previewed."
+      "note": "Adopt has been run for real only in this repository and on scratch copies of the reference repository; a real repository other than this one has never been changed by it."
     },
     {
       "id": "audit-web-css-vars-only",
@@ -1215,9 +1217,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials", "spec"],
-      "status": "open",
-      "note": "A colour written as a mix of other colours cannot be read, so its contrast has no check, which leaves an adopted repository's dark mode unheld."
+      "where": ["trials", "spec", "d0032"],
+      "status": "closed",
+      "note": "A colour written as a mix of other colours cannot be read, so its contrast has no check, which leaves an adopted repository's dark mode unheld.",
+      "closed": "2026-11-14",
+      "closed_by": "a mix of two colours in the perceptual space is computed as a browser paints it, held by a plugin test of six mixes read back from a browser; a mix in another colour space is still not read"
     },
     {
       "id": "adopt-layer-names-differ",
@@ -1759,6 +1763,50 @@
       "where": ["d0031"],
       "status": "open",
       "note": "The code the guide installs for a repository to own is written for one library and one framework, yet it sits in a folder of the core rather than with the adapters it belongs to."
+    },
+    {
+      "id": "mix-other-spaces-unread",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-14",
+      "where": ["d0032"],
+      "status": "open",
+      "note": "A colour mixed in a colour space other than the perceptual one, or with shares that leave it partly transparent, is still not read, so its contrast has no check."
+    },
+    {
+      "id": "second-library-folder-own",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-14",
+      "where": ["d0032", "trials"],
+      "status": "open",
+      "note": "The components adapter knows one folder for the component library, so a second bought library kept in a folder of its own is listed as the repository's own components."
+    },
+    {
+      "id": "register-takeover-not-equal",
+      "area": "adopt",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-14",
+      "where": ["d0032", "trials"],
+      "status": "open",
+      "note": "On a copy of the reference repository this plugin's register reader gave the same levels and nearly the same variants as that repository's own tool, but no list of props and one template where it has ten, so the tool cannot be retired yet."
+    },
+    {
+      "id": "shapes-row-claims-not-rerun",
+      "area": "audit",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-14",
+      "where": ["d0032", "trials"],
+      "status": "open",
+      "note": "In an adopted repository most core decisions are held by the repository's own lint rules and tests, which this plugin never runs again, so the count of decisions it holds stays low however well the repository is held."
     }
   ]
 }

@@ -12,6 +12,7 @@ links:
   - wiki/decisions/0029-the-contract-one-shape-per-ledger.md
   - wiki/decisions/0030-one-ledger-of-screens.md
   - wiki/decisions/0031-adapters-hold-library-names.md
+  - wiki/decisions/0032-review-after-stage-two-and-stage-three-recut.md
   - wiki/decisions/0022-record-beside-a-list.md
 sources:
   - "chủ kho, 2026-11-13: tầm nhìn và ba câu trả lời làm rõ"
@@ -100,9 +101,14 @@ khung, thử lần bảy) giữ nguyên và đi trước.
    hình dạng, sổ mang số phiên bản. Lát hai xong cùng ngày (0030): một sổ màn. Lát ba (0031): tên thư viện về
    bộ chuyển. Chặng xong ngày 2026-11-14; cách viết riêng của một loại repo còn trong lõi, ghi ở sổ
    giới hạn.
-2. **Đồng hành với Inventory.** Bộ chuyển Next.js cho bảng mẫu và cuốn sổ; phép đo trình duyệt qua
-   dấu chung; nhận thật trên một nhánh riêng. Rồi rút từng công cụ của Inventory theo bảng «Những gì
-   chuyển chỗ», bắt đầu từ sổ nguồn ngoài và sổ nhập kho.
+2. **Đồng hành với Inventory.** Cắt lại ngày 2026-11-14 (0032) thành lát mỏng, mỗi lát làm một
+   nấc của thang bốn nấc nhúc nhích (`docs/trials/inventory-ladder.md`):
+   - lát đầu, không cần bộ chuyển mới: «nhận» sinh sổ token; các sổ về hình dạng chung; khai sổ
+     token và sổ linh kiện với kit. Đã chạy trên bản sao; lên nhánh thật cần chủ kho cho phép.
+   - rồi: plugin chạy lại được bằng chứng của chính repo; bộ đọc linh kiện ghi thuộc tính và biết
+     thư viện mua thứ hai, để thay công cụ sổ linh kiện của Inventory.
+   - sau cùng: bộ chuyển Next.js cho bảng mẫu và cuốn sổ; phép đo trình duyệt qua dấu chung; rút
+     tiếp các công cụ theo bảng «Những gì chuyển chỗ», tới sổ nguồn ngoài và sổ nhập kho.
 3. **Hai kho bên cạnh chuyển sang gọi và đọc.** Repo Standards gọi design-assembly cho tầng design;
    delivery-loop đọc bộ sổ và dùng cơ chế nhập kho ở cổng phạm vi.
 4. **Lõi của họ sản phẩm.** Hồ sơ quyết định dùng chung và registry khối nâng hạng; chứng minh trên

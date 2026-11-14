@@ -11,7 +11,12 @@ import { fileURLToPath } from "node:url";
 
 import { checkFolders, FILES, runChecks } from "../templates/tools/design-assembly/check.mjs";
 import { contrast } from "../templates/tools/design-assembly/color.mjs";
-import { newerLedgers } from "../templates/tools/design-assembly/contract.mjs";
+import {
+  differences,
+  LEDGERS,
+  newerLedgers,
+  shapeProblems,
+} from "../templates/tools/design-assembly/contract.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import {
   LEDGER,
@@ -31,7 +36,7 @@ import {
 } from "../templates/tools/design-assembly/styles.mjs";
 import { THRESHOLDS, withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
 import { COMPONENTS_DECISION, readFolder } from "../templates/tools/design-assembly/components.mjs";
-import { readPages } from "../templates/tools/design-assembly/screens.mjs";
+import { KINDS_FOLDER, readPages } from "../templates/tools/design-assembly/screens.mjs";
 import { TOKENS_DECISION } from "../templates/tools/design-assembly/tokens.mjs";
 import {
   columnsPlan,
@@ -377,6 +382,45 @@ export function adoption(
     }
     for (const item of patterns.failing) if (open(item.id)) result.failing.push(item);
     const artifacts = { [TOKENS_DECISION]: tokens, [COMPONENTS_DECISION]: components };
+    // Every ledger the repository has, or gets in this run, has the one shape of the contract:
+    // held from here on. A ledger that differs gets no row, and the differences are said.
+    if (open("ledger-shapes")) {
+      const planned = { tokens: tokens.file, components: components.file };
+      const pending = Object.fromEntries(
+        Object.values(artifacts)
+          .filter((artifact) => artifact.file)
+          .map((artifact) => [artifact.file, artifact.content]),
+      );
+      const ledgers = {};
+      const wrong = [];
+      for (const [kind, ledger] of Object.entries(LEDGERS)) {
+        if (!ledger.file) continue;
+        const file = planned[kind] ?? ledger.file;
+        const text = pending[file] ?? read(root, file);
+        if (text === null || text === undefined) continue;
+        ledgers[kind] = file;
+        const differs = differences(shapeProblems(kind, text, file), file);
+        if (differs.length > 0) wrong.push(`${file}: ${differs.slice(0, 3).join("; ")}`);
+      }
+      const pages = readPages(root);
+      for (const [file, text] of Object.entries(pages)) {
+        const differs = differences(shapeProblems("screen-kinds", text, file), file);
+        if (differs.length > 0) wrong.push(`${file}: ${differs.slice(0, 3).join("; ")}`);
+      }
+      if (wrong.length > 0) result.failing.push({ id: "ledger-shapes", why: wrong.join(". ") });
+      else if (Object.keys(ledgers).length > 0) {
+        const withPages = Object.keys(pages).length > 0;
+        candidates["ledger-shapes"] = {
+          what: `${Object.keys(ledgers).length} ledger(s)${withPages ? " and the pages of screen kinds" : ""} have the one shape the contract gives them`,
+          row: {
+            kind: "closed",
+            source: "the design-assembly contract, one shape per ledger with its version",
+            note: "that each ledger present has its shape and a version this tool reads; what a ledger says is held by the rows about it",
+          },
+          checks: [{ kind: "shapes", ledgers, ...(withPages ? { pages: KINDS_FOLDER } : {}) }],
+        };
+      }
+    }
     const gate = gateProblem(root);
     const ids = Object.keys(candidates);
     if (gate && ids.length > 0) {
@@ -410,7 +454,12 @@ export function adoption(
           ...Object.fromEntries(
             Object.values(candidates)
               .flatMap((candidate) => candidate.checks)
-              .flatMap((item) => [item.file, item.types, item.registry])
+              .flatMap((item) => [
+                item.file,
+                item.types,
+                item.registry,
+                ...Object.values(item.ledgers ?? {}),
+              ])
               .filter((file) => file && existsSync(path.join(root, file)))
               .map((file) => [file, read(root, file)]),
           ),

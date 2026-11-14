@@ -4,7 +4,7 @@
 //
 // A shape is checked as data. Its `version` says which shape a file has: a reader of shape N reads
 // every file of shape N or older, and a writer that finds a newer shape writes nothing.
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { parseLedger } from "./ledger.mjs";
@@ -367,4 +367,45 @@ export function shapeProblems(kind, textOfFile, file = LEDGERS[kind]?.file) {
   const newer = newerProblem(kind, data);
   if (newer) return [newer];
   return objectProblems(data, ledger.root, ledger.open, file);
+}
+
+// Files in the folder of screen kinds that are not a kind of screen.
+const NOT_A_KIND = ["README.md", "lech-lot.md"];
+
+// The ledgers a repository has, each with its file and what is wrong with its shape. A ledger kept
+// as one page per item gives one entry per page.
+export function presentLedgers(root) {
+  const found = [];
+  for (const [kind, ledger] of Object.entries(LEDGERS)) {
+    const files = [];
+    if (ledger.folder) {
+      const full = path.join(root, ledger.folder);
+      if (existsSync(full)) {
+        for (const name of readdirSync(full).sort()) {
+          if (name.endsWith(".md") && !NOT_A_KIND.includes(name)) {
+            files.push(`${ledger.folder}/${name}`);
+          }
+        }
+      }
+    } else if (existsSync(path.join(root, ledger.file))) files.push(ledger.file);
+    for (const file of files) {
+      const text = readFileSync(path.join(root, file), "utf8");
+      found.push({ kind, file, problems: shapeProblems(kind, text, file) });
+    }
+  }
+  return found;
+}
+
+// The ways a file differs from its shape, each named once however many entries have it.
+export function differences(problems, file) {
+  return [
+    ...new Set(
+      problems.map((line) =>
+        line
+          .replace(file, "")
+          .replace(/\[\d+\]/g, "[]")
+          .trim(),
+      ),
+    ),
+  ];
 }

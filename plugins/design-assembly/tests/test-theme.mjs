@@ -7,6 +7,7 @@ import {
   inGamut,
   luminance,
   parseColor,
+  tokenHex,
 } from "../templates/tools/design-assembly/color.mjs";
 import {
   applyBlock,
@@ -110,4 +111,28 @@ test("the block can be taken out again, leaving the stylesheet as it was", () =>
   assert.equal(readBlock(FLOOR), null);
   assert.equal(withoutBlock(applied), FLOOR);
   assert.throws(() => buildTheme({ sourceColor: "#0246ff", conformanceLevel: "A" }, FLOOR));
+});
+
+test("a mix of two colours in oklch is the colour a browser paints", () => {
+  // What a browser painted for each mix, read back from a canvas on 2026-11-14.
+  const painted = {
+    "color-mix(in oklch, #0246ff 60%, white)": "#6a9cff",
+    "color-mix(in oklch, #ff0000, #0000ff)": "#ba00c2",
+    "color-mix(in oklch, #15803d 30%, #f59e0b)": "#bd9a00",
+    "color-mix(in oklch, oklch(0.7 0.1 30) 40%, oklch(0.5 0.2 350))": "#c4486c",
+    // A mix inside a mix.
+    "color-mix(in oklch, color-mix(in oklch, #0246ff 60%, white) 50%, black)": "#243966",
+  };
+  for (const [mix, hex] of Object.entries(painted)) assert.equal(tokenHex(mix), hex, mix);
+  // One step of one channel apart from the browser's #eaf2ff: rounding, not another colour.
+  assert.equal(tokenHex("color-mix(in oklch, #0246ff 8%, white)"), "#ebf2ff");
+  // White has no hue of its own: the mix keeps the other colour's.
+  const tint = parseColor("color-mix(in oklch, #0246ff 60%, white)");
+  assert.ok(Math.abs(tint.h - hexToOklch("#0246ff").h) < 0.01);
+  // Another colour space, and shares that leave the mix partly transparent, are not read.
+  assert.equal(parseColor("color-mix(in srgb, red, blue)"), null);
+  assert.equal(parseColor("color-mix(in oklch, #ff0000 25%, #00ff00 25%)"), null);
+  // So a dark primary written as a mix has a contrast that can be measured.
+  const dark = parseColor("color-mix(in oklch, #0246ff 60%, white)");
+  assert.ok(contrast(dark, parseColor("oklch(0.145 0 0)")) > 4.5);
 });

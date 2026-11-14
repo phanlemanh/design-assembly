@@ -3,6 +3,7 @@
 // tier the repository has reached. Read-only. Works on any repository, with or without the design
 // floor. The same repository state always gives the same report.
 // Usage: node inventory.mjs --target DIR [--json] [--all]
+import { differences, presentLedgers } from "../templates/tools/design-assembly/contract.mjs";
 import { adapter as values } from "../templates/tools/design-assembly/adapters/tailwind.mjs";
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
@@ -410,6 +411,12 @@ export function inventory(root) {
             own_decisions: rows.filter((r) => !standardIds.has(r.id)).map((r) => r.id),
             old_layer_names: oldLayerNames(rows),
           },
+    // The ledgers the repository has, and how each differs from the contract's one shape.
+    contract: presentLedgers(root).map(({ kind, file, problems }) => ({
+      kind,
+      file,
+      differs: differences(problems, file),
+    })),
     sockets: facts.sockets,
     tiers,
     departures: departures(root),
@@ -511,6 +518,16 @@ export function report(result, { all = false } = {}) {
     if (l.old_layer_names.length > 0)
       lines.push(`  ${l.old_layer_names.length} row(s) use an older layer name`);
   } else lines.push("ledger design/decisions.yaml: none");
+  const shaped = result.contract.filter((item) => item.differs.length === 0);
+  if (result.contract.length > 0) {
+    lines.push(
+      `contract: ${shaped.length} of ${result.contract.length} ledger file(s) have the one shape every reader relies on`,
+    );
+    for (const item of result.contract.filter((entry) => entry.differs.length > 0)) {
+      const more = item.differs.length > 3 ? `; and ${item.differs.length - 3} more` : "";
+      lines.push(`  ${item.file} differs: ${item.differs.slice(0, 3).join("; ")}${more}`);
+    }
+  }
   const d = result.departures;
   if (d.lint + d.excused + d.left > 0) {
     lines.push(
