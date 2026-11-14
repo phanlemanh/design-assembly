@@ -4,10 +4,28 @@ Theo quyết định [0032](../../wiki/decisions/0032-review-after-stage-two-and
 Bốn nấc đo việc plugin có thành lớp meta hay không, trên một repo không phải repo đối chứng. Mỗi
 lát của chặng 3 phải làm ít nhất một nấc nhúc nhích.
 
-Mọi số dưới đây đo trên **bản sao** của Inventory trong thư mục tạm. Repo thật chưa bị đụng tới.
+Số ở mục «Lát đầu» đo trên **bản sao** của Inventory trong thư mục tạm. Mục «Trên nhánh riêng của
+Inventory» ghi phần đã làm thật, theo lời cho phép của chủ repo.
 
 Đo lại bằng `make design-ladder`: lệnh dựng một bản sao bỏ đi, chạy bốn bước, in bảng, rồi xoá bản
 sao. Nó không bao giờ ghi vào Inventory, và dòng cuối của nó nói Inventory có bị đổi không.
+
+## Trên nhánh riêng của Inventory
+
+Chủ repo cho phép ngày 2026-11-14: làm bước 1 và 2 trên một nhánh riêng, không đẩy lên GitHub.
+
+- Nhánh `chore/adopt-design-assembly`, tách từ `main` ở `1226ec5`, đặt trong thư mục làm việc
+  riêng `.claude/worktrees/adopt-design-assembly` của Inventory. Bản chính của Inventory vẫn ở
+  `main`, không đổi.
+- Trước khi làm, đo lại trên bản sao ở `1226ec5`: cả bốn bước ra đúng số như lần đo ở `786cadf`.
+- **Bước 1 đã làm**, hai commit trên nhánh. Cổng của Inventory xanh trước và sau. Số bài kiểm giữ
+  nguyên (1696), cảnh báo lint giữ nguyên. Độ tất định do công cụ của chính Inventory đo lên từ
+  36/53 thành 42/59.
+- Bước 1 đụng tới thư mục công cụ, tệp make và thư mục cấu hình tác tử của Inventory. Theo luật tự
+  chủ của Inventory đó là loại thay đổi cao nhất: người giữ mã phải ký trước khi gộp.
+- **Bước 2 chưa làm**: cần ba lời đáp của chủ repo. Bản xem trước với ba giả định thêm bốn dòng:
+  tương phản của màu chính (máy giữ, bốn cặp sáng và tối) và ba dòng ghi lời người. Thêm dòng số
+  phiên bản vào sổ màn thì sổ màn đúng hình dạng; sổ linh kiện vẫn lệch cho tới bước 3.
 
 ## Lát đầu, đo ngày 2026-11-14
 

@@ -57,8 +57,10 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 - **Lộ trình năm chặng:** 1 «Dọn nền» và 2 «Hợp đồng» đã xong. Chặng 3 «Vào Inventory» đã cắt lại
   thành lát mỏng (0032); lát đầu mới chạy trên bản sao. Chặng 4 «Hai repo đổi vai» và 5 «Lõi của
   họ» chưa bắt đầu.
-- **Kho Inventory thật chưa bị đụng tới.** Mọi phép đo ở đó chạy trên bản sao bỏ đi:
-  `make design-ladder` dựng bản sao, chạy bốn bước, in thang đo, rồi xoá bản sao.
+- **Inventory chỉ bị đụng trên một nhánh riêng, chưa đẩy.** Chủ kho cho phép ngày 2026-11-14 làm
+  bước 1 và 2 trên nhánh riêng. Bước 1 đã commit ở nhánh `chore/adopt-design-assembly`, trong thư
+  mục làm việc `~/dev/onehub-inventory/.claude/worktrees/adopt-design-assembly`. Bản chính của
+  Inventory vẫn ở `main`. Phép đo vẫn chạy trên bản sao bỏ đi bằng `make design-ladder`.
 - Số đo chính hôm nay: số chỗ tác tử phải đoán khi dựng một màn là 12, 12, 13, 11 (đứng yên); luật
   bị phạm có so với không có trang luật là 0 so với 3, 6, 3. Ở Inventory, trên bản sao: sổ đúng
   hình dạng 2/4 lên 5/5, quyết định máy giữ 0 lên 9, kit từ M1 lên M2.
@@ -110,21 +112,20 @@ Khuôn mẫu về nhịp dẫn dắt: `~/dev/repo-standards/plugins/repo-setup/s
 
 ## Việc kế
 
-**Đang chờ chủ kho trả lời, chưa có quyền nào được cho:**
+**Đang chờ chủ kho trả lời:**
 
-1. Cho phép làm bước 1 và 2 của lát đầu trên **một nhánh riêng** của Inventory, không đẩy lên
-   GitHub. Bước 1 chạy «nhận» (thêm sổ token, sáu dòng máy giữ, thư mục công cụ của plugin). Bước 2
-   cần ba lời đáp của chủ kho; máy mới _giả định_ để đo: loại sản phẩm là ứng dụng, mức
-   accessibility AA, ghi nhận màu thương hiệu đang dùng. Bước 2 cũng thêm một dòng số phiên bản vào
-   sổ màn của Inventory.
+1. Ba lời đáp cho bước 2 của lát đầu. Máy mới _giả định_: loại sản phẩm là ứng dụng, mức
+   accessibility AA, ghi nhận màu thương hiệu đang dùng (`#0246ff`). Có lời đáp thì chạy «nhận» với
+   ba lời đó và thêm dòng số phiên bản vào sổ màn, trên cùng nhánh riêng.
 2. 25 dòng ở `docs/review-queue.md`.
 
-Phiên mới **hỏi lại** câu 1 trước khi đụng vào Inventory, dù phiên cũ đã hỏi.
+Quyền đã cho ngày 2026-11-14, bằng lời, trong một phiên: bước 1 và 2 trên nhánh riêng của Inventory,
+không đẩy. Phiên mới **hỏi lại** trước khi đụng vào Inventory, vì quyền bằng lời không theo sang
+phiên khác. Bước 3, việc đẩy và việc gộp nhánh chưa được cho.
 
 **Kế tiếp, theo thứ tự máy đề xuất** (0032 và `docs/trials/inventory-ladder.md`):
 
-1. Lát đầu trên nhánh thật của Inventory, sau khi có quyền. Chạy `make design-ladder` trước để
-   biết Inventory có đổi gì từ lần đo trước.
+1. Bước 2 trên nhánh riêng của Inventory, khi có ba lời đáp. Bước 1 đã xong ở đó.
 2. Lát hai: plugin chạy lại được bằng chứng của chính repo (lint, bài kiểm có thẻ). Hôm nay 21 câu
    lõi của Inventory ghi «tự khai» vì plugin không chạy lại chúng, nên số «máy giữ» ở đó thấp.
 3. Lát ba: bộ đọc linh kiện ghi danh sách thuộc tính, biết thư mục khuôn và thư viện mua thứ hai.
