@@ -1907,6 +1907,19 @@
       "where": ["handoff"],
       "status": "open",
       "note": "Adopting copies the tool into a repository only when it adds a check, so a fix to the plugin's tool never reaches a repository that adopted it before, and that repository keeps running the old code with nothing to say so."
+    },
+    {
+      "id": "barrel-re-export-listed-twice",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0036"],
+      "status": "closed",
+      "note": "A component a barrel file re-exports from another file was listed twice in the component register: once at the file that defines it, with its props, and once with none at the barrel, so an agent looking it up got two answers.",
+      "closed": "2026-11-15",
+      "closed_by": "the reader lists a component only at the file that defines it, skipping lists exported from another file, export-all lines and names the file imports and exports again; held by a plugin test with a barrel file, seen failing on the old reader"
     }
   ]
 }
