@@ -17,7 +17,8 @@ sources:
 
 ## Status
 
-Accepted. Chủ repo cho làm lát hai ngày 2026-11-14 («Làm lát hai»). Cách làm dưới đây là máy chọn,
+Accepted; mục 5 được thay bởi [0035](0035-the-named-rule-holds-the-row.md) ngày 2026-11-15. Chủ repo
+cho làm lát hai ngày 2026-11-14 («Làm lát hai»). Cách làm dưới đây là máy chọn,
 chờ chủ repo bác. Lát này chỉ đổi plugin và kho này; Inventory không bị đụng thêm.
 
 ## Context
@@ -47,8 +48,8 @@ tắt, bị thu hẹp, hay chưa bao giờ bắt đúng điều dòng sổ nói.
    nhận; dòng sổ của repo giữ nguyên, vẫn trỏ tới luật của repo. Từ đó cổng của repo đỏ khi luật bị
    tắt hay thôi chặn một đoạn. Đường «dựng mới» giữ các phép kiểm này khi chạy lại.
 5. **Không qua thì không giấu.** Luật để lọt một đoạn thì dòng sổ vẫn là «tự khai», và «nhận» nói
-   rõ đoạn nào lọt. Luật chặn được nhưng không phải luật dòng sổ nêu tên thì vẫn tính là giữ, kèm
-   một câu nói vậy.
+   rõ đoạn nào lọt. (Thay bởi 0035: luật chặn được nhưng không phải luật dòng sổ nêu tên thì không
+   còn tính là giữ.)
 6. **Bộ chuyển thứ sáu, loại lint**, giữ tên công cụ lint: nơi để tệp cấu hình, cách dòng sổ trỏ tới
    một luật, cách viết dòng ngoại lệ, cách chạy lint của repo. Lõi không còn nêu tên công cụ lint
    ở đâu. Plugin không mang lint theo: nó chạy bản repo đã cài, trong một tiến trình riêng.

@@ -615,8 +615,8 @@ export function adoption(
 const ON_COMPONENT = ["no-restyled-component", "whole-class-names"];
 
 // For each row that points at a lint rule and whose decision this tool can probe: where the rule
-// applies, then the lint on the probes. A row whose every probe is rejected, and whose check was
-// seen failing with the rejecting rules off, gains the tool's check; any other is said with why.
+// applies, then the lint on the probes. A row whose every probe is rejected by that rule, and whose
+// check was seen failing with that rule off, gains the tool's check; any other is said with why.
 function rerunLint(root, rows, theme, checks, result) {
   const open = rows.filter(
     (row) =>
@@ -659,12 +659,10 @@ function rerunLint(root, rows, theme, checks, result) {
       continue;
     }
     checks[outcome.id] = trial[outcome.id];
-    const by = lint[`${outcome.id}:${check.rule}`].turnedOff;
-    const named = by.includes(check.rule) ? "" : `; the rule the row names rejects none of them`;
     result.rerun.push({
       id: outcome.id,
       check: row.check,
-      what: `every probe is rejected, by ${by.join(", ")}${named}`,
+      what: `every probe is rejected, by ${check.rule}`,
     });
   }
 }

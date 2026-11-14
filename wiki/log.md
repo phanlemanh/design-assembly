@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-15 — Lệnh kiểm lint chỉ tính «giữ» khi chính luật dòng sổ nêu tên chặn mọi đoạn mã phạm, và bản bị đổi chỉ tắt luật đó; «màu là vai trò» của kho này về lại «tự khai» (37 xuống 36). Lỗi do lượt chấm 1 của hồ sơ nghiệm thu ở Inventory tìm ra — [0035](decisions/0035-the-named-rule-holds-the-row.md), [phanlemanh/onehub-inventory#58](https://github.com/phanlemanh/onehub-inventory/pull/58).
 - 2026-11-14 — Hồ sơ nghiệm thu cho PR #58 của Inventory dựng theo vòng của kit: Cổng Phạm vi và Cổng 1.5 đã duyệt; mọi tên của vòng ở Inventory đổi sang tiếng Anh theo AGENTS.md của nó (hồ sơ `adopt-design-assembly`) — [phanlemanh/onehub-inventory#58](https://github.com/phanlemanh/onehub-inventory/pull/58).
 - 2026-11-14 — Nói lại: tách phần khai với kit không gỡ được cổng trước khi gộp của PR #58; cổng đòi hồ sơ nghiệm thu có chữ ký người cho mọi PR đổi đường dẫn T3. Main của Inventory gộp lần hai vào nhánh, cổng của Inventory xanh — [phanlemanh/onehub-inventory#58](https://github.com/phanlemanh/onehub-inventory/pull/58).
 - 2026-11-14 — Cổng trước khi gộp của kit chặn PR #58 của Inventory; theo lời chủ kho, hai dòng khai với kit tách sang PR nháp #59, gộp sau — [phanlemanh/onehub-inventory#59](https://github.com/phanlemanh/onehub-inventory/pull/59).

@@ -51,7 +51,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
   tư**: `phanlemanh/design-assembly`, remote `origin`. Chủ kho bảo tạo và đẩy một lần («Tạo github
   và push»). Cập nhật lần cuối 2026-11-14, sau quyết định 0034.
 - `make check` xanh: lint, typecheck, 102 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (37 quyết định, 43 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 247 bài kiểm của plugin.
+  (36 quyết định, 42 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 249 bài kiểm của plugin.
 - Kho này đáp 39/39 quyết định lõi: 26 máy giữ, 7 tự khai, 6 đã ghi. 11 sổ đúng hình dạng hợp
   đồng.
 - **Lộ trình năm chặng:** 1 «Dọn nền» và 2 «Hợp đồng» đã xong. Chặng 3 «Vào Inventory» đã cắt lại

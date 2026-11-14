@@ -1841,6 +1841,19 @@
       "note": "A lint rule is held when it rejects every text this plugin knows breaks the decision; a breach written another way may still pass the rule."
     },
     {
+      "opened": "2026-11-15",
+      "where": ["d0033", "d0035"],
+      "status": "closed",
+      "id": "lint-held-by-another-rule",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "high",
+      "plan": "fix",
+      "note": "A lint check passed when any rule rejected the texts that break the decision, and its changed copy turned off every rule that did, so the rule the row names could be switched off with the gate still green.",
+      "closed": "2026-11-15",
+      "closed_by": "the check counts a text as rejected only when the rule the row names rejects it, and its changed copy turns off that rule alone; held by a plugin test where another rule rejects every text"
+    },
+    {
       "opened": "2026-11-14",
       "where": ["d0033"],
       "status": "open",
