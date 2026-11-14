@@ -59,7 +59,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
   chạy lại lint của repo, lát ba (0034) đưa bộ đọc linh kiện ngang công cụ của Inventory. Chặng 4 «Hai repo đổi vai» và 5 «Lõi của
   họ» chưa bắt đầu.
 - **Inventory chỉ bị đụng trên một nhánh riêng, chưa đẩy.** Chủ kho cho phép ngày 2026-11-14 làm
-  bước 1, 2 và lát hai trên nhánh riêng. Cả ba đã commit ở nhánh `chore/adopt-design-assembly`, trong thư
+  bước 1, 2, lát hai và bước 3 trên nhánh riêng. Tất cả đã commit ở nhánh `chore/adopt-design-assembly`, trong thư
   mục làm việc `~/dev/onehub-inventory/.claude/worktrees/adopt-design-assembly`. Bản chính của
   Inventory vẫn ở `main`. Phép đo vẫn chạy trên bản sao bỏ đi bằng `make design-ladder`.
 - Số đo chính hôm nay: số chỗ tác tử phải đoán khi dựng một màn là 12, 12, 13, 11 (đứng yên); luật
@@ -119,8 +119,8 @@ Khuôn mẫu về nhịp dẫn dắt: `~/dev/repo-standards/plugins/repo-setup/s
 
 Chủ kho đã đáp ba câu của Inventory ngày 2026-11-14: ứng dụng, mức AA, giữ màu thương hiệu
 `#0246ff`. Quyền đã cho ngày đó, bằng lời, trong một phiên: bước 1 và 2 trên nhánh riêng của
-Inventory, không đẩy; rồi chạy lại «nhận» ở đó với plugin của lát hai. Cả ba đã xong. Phiên mới **hỏi lại** trước khi đụng vào Inventory, vì quyền
-bằng lời không theo sang phiên khác. Bước 3, việc đẩy và việc gộp nhánh chưa được cho.
+Inventory, không đẩy; rồi chạy lại «nhận» ở đó với plugin của lát hai; rồi bước 3. Tất cả đã xong. Phiên mới **hỏi lại** trước khi đụng vào Inventory, vì quyền
+bằng lời không theo sang phiên khác. Việc đẩy và việc gộp nhánh chưa được cho.
 
 **Kế tiếp, theo thứ tự máy đề xuất** (0032 và `docs/trials/inventory-ladder.md`):
 
@@ -129,9 +129,9 @@ bằng lời không theo sang phiên khác. Bước 3, việc đẩy và việc 
 2. Lát hai đã xong (0033) cho phần lint, cả trên nhánh riêng của Inventory (chủ kho cho phép
    2026-11-14). Còn lại: bài kiểm và công cụ của repo chưa được chạy lại; hướng nhập chưa có đoạn
    mã phạm.
-3. Lát ba đã xong (0034): bộ đọc linh kiện ngang công cụ của Inventory trên bản sao. Thay công cụ
-   đó là bước 3 của lát đầu, làm ở Inventory, cần chủ kho cho phép: đổi skill dựng màn, bài kiểm sổ
-   và lệnh sinh lại của Inventory sang hình dạng sổ theo hợp đồng, rồi khai sổ với kit để lên M2.
+3. Lát ba đã xong (0034), và bước 3 của lát đầu đã làm trên nhánh riêng của Inventory (chủ kho cho
+   phép 2026-11-14): plugin ghi sổ linh kiện ở đó, công cụ cũ bị bỏ, hai sổ khai với kit. Nhánh có
+   năm commit, chưa đẩy, chưa gộp; gộp là việc của chủ kho.
 4. Sau cùng: bộ chuyển Next.js cho bảng mẫu và cuốn sổ; sổ nguồn ngoài và sổ nhập kho.
 
 **Đừng làm, trừ khi chủ kho bảo:** thêm luật bằng lời ở kho này; chạy thêm lượt thử bằng tác tử

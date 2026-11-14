@@ -49,8 +49,15 @@ lát hai; thứ đổi là sổ plugin ghi ở bước 3.
 - Số biến thể lát đầu đếm theo cách khác (có cả lỗi đọc chú thích), nên hai cột không so thẳng
   được với nhau.
 - 64 tên chỉ công cụ của Inventory có: 34 hằng số, 30 kiểu dữ liệu. Không phải linh kiện.
-- Còn vướng: hình dạng sổ. Skill dựng màn, bài kiểm sổ và lệnh sinh lại của Inventory đọc sổ theo
-  tệp; phải đổi theo trước khi bỏ công cụ cũ. Đó là bước 3, cần chủ repo cho phép.
+- **Bước 3 đã làm trên nhánh riêng của Inventory**, chủ repo cho phép ngày 2026-11-14, một commit:
+  plugin ghi sổ linh kiện; lệnh sinh lại, cổng, bài kiểm sổ, skill dựng màn và dòng sổ «cấp linh
+  kiện» đọc sổ mới; công cụ cũ của Inventory bị bỏ; sổ token và sổ linh kiện khai với kit. Bản ghi
+  quyết định 0032 của Inventory.
+- Cổng của Inventory xanh, 1697 bài kiểm (thêm một), cổng chứng minh màn đọc sổ mới không lỗi. Độ
+  tất định do công cụ của Inventory đo: 43/63 thành 45/65.
+- Thang trên nhánh khớp bước 3 trên bản sao: sổ đúng hình dạng 5 trên 5, câu lõi máy giữ 11,
+  quyết định máy giữ 18. Bậc của kit chưa đọc thẳng trên nhánh (lệnh đọc bị chặn trong phiên); trên
+  bản sao với cùng thay đổi, kit ra M2.
 
 ## Lát hai: plugin chạy lại lint của repo, đo ngày 2026-11-14
 
