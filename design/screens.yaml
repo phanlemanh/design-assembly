@@ -20,6 +20,12 @@ screens:
     title: screenTitle
     family: danh-sach
     status: built
+    shows:
+      - Item
+    entry: listItems
+    actions:
+      - createItem
+      - deleteItem
     states:
       - ready
       - loading
@@ -38,6 +44,10 @@ screens:
     title: overdueTitle
     family: danh-sach
     status: built
+    shows:
+      - Item
+    entry: listItems
+    actions: []
     states:
       - ready
       - loading

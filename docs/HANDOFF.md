@@ -51,7 +51,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
   tư**: `phanlemanh/design-assembly`, remote `origin`. Chủ kho bảo tạo và đẩy một lần («Tạo github
   và push»). Cập nhật lần cuối 2026-11-14, sau quyết định 0034.
 - `make check` xanh: lint, typecheck, 102 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (37 quyết định, 43 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 274 bài kiểm của plugin (đường dẫn tới Inventory và kit phải tính được từ thư mục đang chạy, không thì vài bài bị bỏ qua).
+  (38 quyết định, 44 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 274 bài kiểm của plugin (đường dẫn tới Inventory và kit phải tính được từ thư mục đang chạy, không thì vài bài bị bỏ qua).
 - Kho này đáp 39/39 quyết định lõi: 26 máy giữ, 7 tự khai, 6 đã ghi. 11 sổ đúng hình dạng hợp
   đồng.
 - **Lộ trình năm chặng:** 1 «Dọn nền» và 2 «Hợp đồng» đã xong. Chặng 3 «Vào Inventory» đã cắt lại
@@ -155,9 +155,8 @@ Các lát đã xong, mới nhất trước:
 - **Sổ màn nối mô hình nghiệp vụ** (2026-11-15, đề bài 0003, quyết định 0035), phần của repo này
   trong bảng vai × màn × nút theo ranh giới ba kho. Sổ màn khai màn hiện gì, mở bằng thao tác nào,
   có nút nào; cổng đỏ khi thao tác không màn nào chào ra cho vai được làm, màn hiện thứ vai không được
-  xem, hay nút không ai bấm được. Ở nhánh `claude/so-man-noi-mo-hinh-95de70`, chưa đẩy. Repo này chưa
-  khai hai màn mẫu: cần thêm hành động xem `listItems` vào mô hình, chờ duyệt riêng; bản vá soạn sẵn,
-  ghi ở 0035. Inventory, chỉ đọc: 7 đỏ nguyên trạng, 17 với lớp phủ
+  xem, hay nút không ai bấm được. Ở nhánh `claude/so-man-noi-mo-hinh-95de70`, chưa đẩy. Hai màn mẫu
+  đã khai; mô hình thêm hành động xem `listItems`, chủ kho duyệt riêng. Inventory, chỉ đọc: 7 đỏ nguyên trạng, 17 với lớp phủ
   «màn hiện gì» của máy.
 
 - **Chặng 3, lát ba** (2026-11-14, 0034). Sổ linh kiện ghi thuộc tính, khuôn theo thư mục, mọi thư

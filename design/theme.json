@@ -154,6 +154,13 @@
         "pages": "design/patterns"
       }
     ],
+    "screen-actions": [
+      {
+        "kind": "screen-actions",
+        "file": "design/screens.yaml",
+        "model": "ontology"
+      }
+    ],
     "state-matrix": [
       {
         "kind": "states",

@@ -12,6 +12,9 @@ sources:
   - plugins/design-assembly/references/contract.md
   - docs/trials/inventory-shows.json
   - "chủ repo, 2026-11-15: «Duyệt, xây đi» (phiên này), «Duyệt» (phiên điều phối)"
+  - "chủ repo, 2026-11-15: «Duyệt, áp bản vá» (phần mô hình)"
+  - design/screens.yaml
+  - ontology/actions.yaml
 ---
 
 # 0035 Sổ màn nói màn hiện gì, chào nút nào; cổng nối sổ màn với mô hình nghiệp vụ của repo
@@ -20,7 +23,8 @@ sources:
 
 Accepted. Chủ repo duyệt đề bài [0003](../specs/0003-screens-join-the-domain-model.md) ngày
 2026-11-15: «Duyệt, xây đi» ở phiên này, «Duyệt» ở phiên điều phối. Lời duyệt phủ các bước của mục
-Plan trong repo này, trừ việc đổi mô hình dữ liệu ở bước 4: phần đó chờ duyệt riêng. Hình dạng phần
+Plan trong repo này, trừ việc đổi mô hình dữ liệu ở bước 4: phần đó chủ repo duyệt riêng cùng ngày
+(«Duyệt, áp bản vá»). Hình dạng phần
 khai thêm, ba lối đỏ và các thứ cố ý chưa làm là máy chọn, ghi ở đề bài; chờ chủ repo bác.
 
 ## Context
@@ -46,19 +50,18 @@ nối hai sổ đặt ở bên đọc, tức ở đây.
    Đọc được cả hai cách viết quyền đang có (danh sách vai có kế thừa, và bảng phạm vi theo vai), và
    khối vòng đời khi repo có. Khối đó đã là định dạng chính thức của Repo Standards (PR 9 gộp ngày
    2026-11-15); repo chưa nâng cấp vẫn được kiểm như nhau.
-5. **Repo này chưa khai cho hai màn mẫu.** Khai thì cả hai màn hiện `Item`, mà mô hình của repo chưa
-   có thao tác xem `Item`, nên cổng đỏ ngay. Sửa là thêm thao tác xem `listItems` (tên hàm đang làm
-   việc đó) vào mô hình: đổi mô hình dữ liệu, chờ duyệt riêng. Máy đã soạn và chạy thử trọn phần này
-   (cổng giữ 38 quyết định bằng 44 lệnh kiểm, cả cổng xanh, bỏ nút xoá thì đỏ đúng câu), rồi gỡ ra
-   khỏi nhánh. Bản vá ở thư mục ghi chú chung của nhóm phiên, tệp
-   `screen-actions-trial/step4-model-and-sample-screens.patch`.
+5. **Repo này khai cho hai màn mẫu**: cả hai hiện `Item` và mở bằng `listItems`; màn mẫu có nút thêm
+   và xoá, màn quá hạn không có nút nào. Mô hình thêm thao tác xem `listItems` (tên hàm đang làm việc
+   đó), vì màn hiện `Item` mà mô hình chưa có thao tác xem nó. Lần đầu máy làm phần này trước khi có
+   lời duyệt riêng, rồi gỡ ra khi phiên điều phối nhắc; chủ repo duyệt sau đó và bản vá được áp lại
+   nguyên vẹn.
 6. Nguồn của dòng sổ ghi cả repo này và sổ của Inventory: sổ đó có dòng «bộ nút theo quyền». Hai
    nguồn làm dòng này thành câu lõi. Đó là máy xếp, chờ chủ repo bác.
 
 ## Consequences
 
-- Cổng của repo này vẫn giữ 37 quyết định bằng 43 lệnh kiểm: dòng `screen-actions` chưa có ở đây
-  cho tới khi repo khai hai màn mẫu. Phép kiểm được giữ bằng bài kiểm của plugin.
+- Cổng của repo này giữ 38 quyết định bằng 44 lệnh kiểm (trước là 37 và 43). Bỏ nút xoá khỏi sổ
+  màn thì cổng đỏ đúng câu, thử bằng tay ngày 2026-11-15.
 - Bài kiểm của plugin thêm 26 bài: 17 bài viết trước mã ở bản thử, rồi các bài cho cổng, cho bộ
   đọc tệp, cho bộ ghi sổ màn và cho kho đối chứng.
 - Đo trên Inventory, chỉ đọc, bằng lệnh mới của repo này (nhánh chính `20a13c2`): sổ nguyên trạng

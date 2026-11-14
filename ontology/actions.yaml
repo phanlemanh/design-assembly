@@ -1,5 +1,13 @@
 # What can be done to the domain, and by whom. Each action names the function that does it today.
 actions:
+  - name: listItems
+    description: A person sees the sample items of the list; the overdue screen shows the same items, filtered.
+    entity: Item
+    kind: query
+    output: Item[]
+    roles: [user]
+    agent: forbidden
+    idempotent: true
   - name: createItem
     description: A person adds a sample item to the list. It is done at once and taken back by deleteItem.
     entity: Item

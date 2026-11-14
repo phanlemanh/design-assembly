@@ -26,6 +26,9 @@ export interface ActionContext {
   actor: string;
 }
 
+export interface ListItemsInput {
+}
+
 export interface CreateItemInput {
 }
 
@@ -35,6 +38,8 @@ export interface DeleteItemInput {
 
 /** Implement these in src/actions/ — one function per ontology action. */
 export interface ActionHandlers {
+  /** A person sees the sample items of the list; the overdue screen shows the same items, filtered. */
+  listItems(input: ListItemsInput, ctx: ActionContext): Promise<Item[]>;
   /** A person adds a sample item to the list. It is done at once and taken back by deleteItem. */
   createItem(input: CreateItemInput, ctx: ActionContext): Promise<Item>;
   /** A person deletes an item from the list, after confirming. It cannot be taken back. */
@@ -54,6 +59,21 @@ export interface ActionSpec {
 }
 
 export const ACTIONS: readonly ActionSpec[] = [
+  {
+    name: "listItems",
+    description: "A person sees the sample items of the list; the overdue screen shows the same items, filtered.",
+    entity: "Item",
+    kind: "query",
+    roles: ["user"],
+    agent: "forbidden",
+    idempotent: true,
+    output: "Item[]",
+    inputSchema: {
+      type: "object",
+      properties: {},
+      additionalProperties: false,
+    },
+  },
   {
     name: "createItem",
     description: "A person adds a sample item to the list. It is done at once and taken back by deleteItem.",

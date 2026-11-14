@@ -288,3 +288,9 @@ decisions:
     source: "design/screens.yaml, every screen with its kind and states"
     check: "tool:tools/design-assembly/check.mjs"
     note: "that the ledger has its shape and lists the screens the code lists, each family a kind with a page; that each screen's title and states are the code's is held by the repository's own test, tests/screens-ledger.test.ts"
+  - id: screen-actions
+    layer: templates
+    kind: closed
+    source: "design/screens.yaml, what each screen shows, opens with and offers, against ontology/"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "reads the ledger and the model as written: where a button sits, and that a role without the right does not see it while the screen runs, are not checked here"
