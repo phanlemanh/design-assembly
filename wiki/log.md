@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-14 — Cổng trước khi gộp của kit chặn PR #58 của Inventory; theo lời chủ kho, hai dòng khai với kit tách sang PR nháp #59, gộp sau — [phanlemanh/onehub-inventory#59](https://github.com/phanlemanh/onehub-inventory/pull/59).
 - 2026-11-14 — Quét mã trên PR của Inventory bắt hai chỗ thoát ký tự thiếu dấu gạch chéo ngược trong công cụ của plugin; một hàm thoát đủ dùng ở bốn chỗ, kèm bài kiểm, đã sang nhánh Inventory. Lộ ra: «nhận» không chép lại công cụ khi plugin sửa lỗi; ghi ở sổ giới hạn — [phanlemanh/onehub-inventory#58](https://github.com/phanlemanh/onehub-inventory/pull/58).
 - 2026-11-14 — Nhánh Inventory đẩy lên và mở PR theo lời chủ kho; gộp main vào nhánh để gỡ xung đột ở sổ linh kiện, sổ ghi lại từ mã đã gộp, cổng của Inventory xanh — [phanlemanh/onehub-inventory#58](https://github.com/phanlemanh/onehub-inventory/pull/58).
 - 2026-11-14 — Bước 3 của lát đầu trên nhánh riêng của Inventory, theo lời cho phép của chủ kho: plugin ghi sổ linh kiện ở đó, công cụ cũ của Inventory bị bỏ, sổ token và sổ linh kiện khai với kit; cổng của Inventory xanh, sổ đúng hình dạng 5/5, quyết định máy giữ 18. Chưa đẩy, chưa gộp — [thang đo](../docs/trials/inventory-ladder.md).
