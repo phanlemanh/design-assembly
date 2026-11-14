@@ -20,7 +20,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 
 ## Specs
 
-- [0003 Sổ màn nói màn hiện gì, chào nút nào cho vai nào; phép kiểm nối sổ màn với mô hình nghiệp vụ](specs/0003-screens-join-the-domain-model.md) — chờ chủ kho duyệt; bản thử và số đo trên Inventory ở mục Test plan
+- [0003 Sổ màn nói màn hiện gì, chào nút nào cho vai nào; phép kiểm nối sổ màn với mô hình nghiệp vụ](specs/0003-screens-join-the-domain-model.md) — chủ kho duyệt; đã dựng trừ phần đổi mô hình, chờ duyệt riêng (0035); số đo trên Inventory ở mục Test plan
 - [0002 Design-assembly là lớp meta tạo và giữ design system cho nhiều kho](specs/0002-meta-layer-for-many-repositories.md) — bản nháp, chờ chủ kho duyệt: tầm nhìn, tiêu chí, kế hoạch; kiến trúc đầy đủ kèm sơ đồ ở `docs/architecture/meta-layer.html`
 - [0001 Plugin dẫn người dùng dựng design system cho Claude Code](specs/0001-design-system-for-claude-code.md) — đề bài đã duyệt; lát đầu đã dựng, kết quả theo từng tiêu chí ở cuối mục tiêu chí
 
@@ -42,6 +42,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 - [0031 Hợp đồng, lát ba: tên thư viện về bộ chuyển, lõi không nêu tên nào](decisions/0031-adapters-hold-library-names.md) — bộ chuyển ở `plugins/design-assembly/templates/tools/design-assembly/adapters/`
 - [0032 Review sau chặng 2, và cắt lại chặng 3 thành lát mỏng trên Inventory](decisions/0032-review-after-stage-two-and-stage-three-recut.md) — số đo ở `docs/trials/inventory-ladder.md`, việc chờ xem ở `docs/review-queue.md`
 - [0033 Chặng 3, lát hai: plugin chạy lại lint của chính repo trên đoạn mã phạm quyết định](decisions/0033-re-run-the-repository-lint.md) — đoạn mã phạm ở `plugins/design-assembly/templates/tools/design-assembly/probes.mjs`
+- [0035 Sổ màn nói màn hiện gì, chào nút nào; cổng nối sổ màn với mô hình nghiệp vụ](decisions/0035-screens-join-the-domain-model.md) — phép kiểm ở `plugins/design-assembly/templates/tools/design-assembly/screen-actions.mjs`, đo lại bằng `make design-screen-actions-reference`
 - [0034 Chặng 3, lát ba: bộ đọc linh kiện ngang công cụ của Inventory](decisions/0034-component-reader-equal-to-the-reference-tool.md) — phép so ở `make design-ladder`
 - [0024 Khoá phạm vi: sổ giới hạn, ba ngăn, và bộ đề thử cố định](decisions/0024-scope-locked-limits-and-trial-briefs.md) — sổ ở `plugins/design-assembly/references/limits.json`, bộ đề ở `docs/trials/`
 - [0023 Chín lời đáp cho các câu còn mở của kiến trúc lớp meta](decisions/0023-nine-answers-for-the-meta-layer.md) — chủ kho duyệt cả chín; bảng đầy đủ ở mục «Chín câu đã chốt» của `docs/architecture/meta-layer.html`

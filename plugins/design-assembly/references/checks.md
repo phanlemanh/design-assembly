@@ -335,6 +335,33 @@ the parts, how the words are written, when to use the kind and when not.
 
 The scripts never write a page: what a kind is for is decided with the person.
 
+## What a screen shows, and which buttons it offers to whom
+
+A screen of `design/screens.yaml` may say what it shows (`shows`, entities of the repository's
+`ontology/`), the action a role must hold to open it (`entry`, null for every role) and the
+actions it has buttons for (`actions`). Who sees a button is worked out, never declared: the roles
+that open the screen and may run its action. Once a screen says any of this and the repository
+declares actions, the row `screen-actions` is held by the tool. It fails:
+
+- where an action of `ontology/actions.yaml` is offered on no screen to a role that may run it. A
+  query action counts as offered where its entity is shown, also through an entity that lives by
+  it (`lifecycle: { via: … }`). An action that has no screen is listed under `no_screen`, as
+  `{ later: <where> }` or `{ never: <reason>, decided_by: <the person> }`;
+- where a screen shows an entity to a role that opens it and holds no query action of that
+  entity. An entity with no query action at all fails unless its file says `lifecycle.query`
+  `later`; `never` fails too, since the screen shows it;
+- where a button is one no role that opens its screen may run.
+
+What the model plans `later`, an action only a planned screen offers, and a button whose action
+the model marks `status: planned` are listed on every run, without failing. The model's
+`lifecycle:` block is read when present, and a repository without one is checked the same way.
+Every name comes from the repository being checked: the plugin keeps no vocabulary of its own. A
+repository that already spells these keys its own way names them under `keys`.
+
+Not checked here: where a button sits on the screen; that a role without the right does not see it
+while the screen runs; which attributes an update changes; the difference between a right over
+one's own records and over every record.
+
 ## Screen sizes and the page checks
 
 `design/screen-sizes.json` lists the widths, in CSS pixels, that every page is checked at. The

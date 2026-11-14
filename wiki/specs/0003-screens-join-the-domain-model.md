@@ -1,15 +1,16 @@
 ---
 type: spec
 title: Sổ màn nói màn hiện gì và chào nút nào cho vai nào, và một phép kiểm nối sổ màn với mô hình nghiệp vụ
-status: needs-approval
+status: approved
 tier: 1
 links:
+  - wiki/decisions/0035-screens-join-the-domain-model.md
   - wiki/decisions/0005-output-tiers-and-boundaries.md
   - wiki/decisions/0030-one-ledger-of-screens.md
   - wiki/specs/0002-meta-layer-for-many-repositories.md
 sources:
   - repo-standards/docs/ranh-gioi-ba-kho.md
-  - repo-standards/docs/superpowers/specs/2026-11-14-entity-lifecycle-design.md (nhánh feat/entity-lifecycle, chưa gộp)
+  - repo-standards/docs/superpowers/specs/2026-11-14-entity-lifecycle-design.md (gộp vào nhánh chính của Repo Standards ngày 2026-11-15, PR 9)
   - onehub-inventory/.acceptance-runs/dieu-phoi-nen/trinh/ra-soat-crud/bao-cao.md
   - onehub-inventory/design/screens.yaml
   - onehub-inventory/tools/coverage_matrix/buttons.py
@@ -18,10 +19,12 @@ sources:
 
 # 0003 Sổ màn nói màn hiện gì, chào nút nào cho vai nào; phép kiểm nối sổ màn với mô hình nghiệp vụ
 
-Máy viết ngày 2026-11-15, theo việc phiên điều phối giao. **Chủ kho chưa duyệt.** Mọi lựa chọn dưới
-đây là đề xuất của máy. Bản thử nằm ngoài kho, ở thư mục ghi chú chung của nhóm phiên
-(`side-session-notes/local_b2cb8d3d-…/screen-actions-trial/`), vì đề bài 0002 nói máy chỉ tự xây
-trong kho sau khi chủ kho duyệt từng bước.
+Máy viết ngày 2026-11-15, theo việc phiên điều phối giao. Chủ kho duyệt cùng ngày: «Duyệt, xây
+đi» ở phiên này, «Duyệt» ở phiên điều phối. Lời duyệt phủ các bước của mục Plan trừ phần đổi mô hình
+dữ liệu ở bước 4, cần duyệt riêng. Các lựa chọn dưới đây vẫn là máy chọn, chờ chủ kho bác. Bản thử đầu tiên nằm ngoài kho, ở thư
+mục ghi chú chung của nhóm phiên, vì đề bài 0002 nói máy chỉ tự xây trong kho sau khi chủ kho duyệt
+từng bước. Đã xây bước 1, 2, 3 và 5 của mục Plan: xem [0035](../decisions/0035-screens-join-the-domain-model.md). Số đo
+chạy lại được bằng `make design-screen-actions-reference`.
 
 ## Intent
 
@@ -50,8 +53,9 @@ kiểm nối hai sổ đặt ở kho này.
    - (c) một nút trên màn mà không vai nào mở được màn được bấm.
 2. Thao tác mà mô hình ghi `later`, `never` hay `via` thì không đòi nút. `later` hiện mỗi lần chạy,
    như một món nợ, kèm các màn đang hiện thực thể đó.
-3. Chạy được trên repo chưa có khối `lifecycle:` (định dạng ấy còn trên nhánh chưa gộp của Repo
-   Standards). Repo chưa có sổ thao tác, hay sổ màn chưa khai gì trong ba điều trên, thì phép kiểm
+3. Chạy được cả trên repo chưa có khối `lifecycle:`. Khối ấy là định dạng chính thức của Repo
+   Standards từ ngày 2026-11-15 (PR 9 đã gộp), nhưng repo dựng trước đó, như Inventory, chưa nâng
+   cấp. Repo chưa có sổ thao tác, hay sổ màn chưa khai gì trong ba điều trên, thì phép kiểm
    im.
 4. Không bê từ điển nghiệp vụ về kho này: tên thực thể, thao tác và vai đọc từ repo đang được kiểm.
 5. Ra được bảng «màn × vai: mở được không, thấy gì, có nút nào», tính từ sổ màn và mô hình.
@@ -61,8 +65,8 @@ kiểm nối hai sổ đặt ở kho này.
 
 Không đổi mô hình dữ liệu của kho này lúc viết đề bài. Khi xây vào cổng của kho này: màn mẫu hiện
 `Item` mà mô hình chưa có thao tác xem `Item`, nên phép kiểm sẽ đỏ ở (b). Sửa chỗ đó là đổi
-`ontology/` (thêm thao tác xem, hoặc khối `lifecycle:` khi Repo Standards gộp), qua `/ontology-add`,
-cần người duyệt. Phép kiểm cuối nhánh của Repo Standards cũng đỏ đúng chỗ ấy (thiếu xem và sửa
+`ontology/` (thêm thao tác xem, hoặc một dòng trong khối `lifecycle:`), qua `/ontology-add`,
+cần người duyệt. Phép kiểm vòng đời của Repo Standards cũng đỏ đúng chỗ ấy (thiếu xem và sửa
 `Item`).
 
 ## Plan
@@ -126,7 +130,9 @@ nút thì là nợ, giống chữ «dự kiến» của bảng vai × màn × n�
 2. Hợp đồng sổ màn ghi thêm sáu khoá; cổng giữ hình dạng của chúng.
 3. Một dòng mới trong sổ quyết định chuẩn, giữ bằng lệnh kiểm này trong cổng; một lệnh chỉ đọc chạy
    được trên repo khác (như `make design-adopt-reference`).
-4. Kho này khai ba điều cho hai màn mẫu; phần mô hình đi qua `/ontology-add`, chờ người duyệt.
+4. Kho này khai ba điều cho hai màn mẫu; phần mô hình đi qua `/ontology-add`. **Chưa làm, chờ duyệt
+   riêng**: lời duyệt đề bài không phủ việc đổi mô hình dữ liệu (phiên điều phối nhắc ngày
+   2026-11-15). Bản vá đã soạn sẵn, ghi ở quyết định 0035.
 5. Đo lại trên Inventory bằng lệnh mới, chỉ đọc.
 
 ## Test plan

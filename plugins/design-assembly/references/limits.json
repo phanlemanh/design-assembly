@@ -1894,6 +1894,85 @@
       "where": ["handoff"],
       "status": "open",
       "note": "Adopting copies the tool into a repository only when it adds a check, so a fix to the plugin's tool never reaches a repository that adopted it before, and that repository keeps running the old code with nothing to say so."
+    },
+    {
+      "id": "screen-actions-placement-unchecked",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0035"],
+      "status": "open",
+      "note": "The join of the ledger of screens with the domain model checks which screen offers each action, not where on the screen its button sits."
+    },
+    {
+      "id": "screen-actions-runtime-hiding-unchecked",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0035"],
+      "status": "open",
+      "note": "That a role without the right does not see a button is worked out from the ledger and the model, and no browser test yet opens each screen as each role to see it so."
+    },
+    {
+      "id": "screen-actions-attribute-edits",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "hand-off",
+      "opened": "2026-11-15",
+      "where": ["d0035"],
+      "status": "open",
+      "note": "An attribute that no screen lets anyone change is not found, because the domain model does not say which attributes an update action changes.",
+      "repo": "repo-standards"
+    },
+    {
+      "id": "screen-actions-scope-ignored",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-15",
+      "where": ["d0035"],
+      "status": "open",
+      "note": "The join treats an action a role may run on its own records and one it may run on every record as the same right."
+    },
+    {
+      "id": "screen-actions-region-by-role",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0035"],
+      "status": "open",
+      "note": "The ledger cannot say that a part of a screen shows only to the roles that may view it, so a screen that hides such a part from other roles still fails as showing it to them."
+    },
+    {
+      "id": "screen-actions-query-anywhere-shown",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-15",
+      "where": ["d0035"],
+      "status": "open",
+      "note": "A query action counts as offered on every screen that shows its entity, so two query actions of one entity are not told apart."
+    },
+    {
+      "id": "screen-actions-one-read-many-entities",
+      "area": "checks",
+      "kind": "conflict",
+      "severity": "medium",
+      "plan": "hand-off",
+      "opened": "2026-11-15",
+      "where": ["d0035"],
+      "status": "open",
+      "note": "A domain model whose one read action covers several entities names only one of them, so every screen that shows the others fails as showing a record nobody may view.",
+      "repo": "repo-standards"
     }
   ]
 }

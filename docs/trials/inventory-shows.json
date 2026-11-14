@@ -1,0 +1,15 @@
+{
+  "about": "Machine-written, for measurement only, never written into the product repository. What each screen shows, read from the RS2 review of 2026-11-14, part 1 (the things people see on each screen). Today and sign-in show no record of the model.",
+  "khung": { "nut": ["editView", "removeView"], "hien": ["SavedView"] },
+  "screens": {
+    "inventory": {
+      "hien": ["Listing", "ListingOwner", "Unit", "Complex", "Subdivision", "Building"]
+    },
+    "sent": { "hien": ["ShareLink"] },
+    "contacts": { "hien": ["Contact"] },
+    "tuy-chinh-san": {
+      "hien": ["CompanyLabel", "CustomField", "CompanyValueAlias", "PendingUnit", "ImportTemplate"]
+    },
+    "members": { "hien": ["Member"] }
+  }
+}

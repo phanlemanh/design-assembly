@@ -560,6 +560,13 @@
       "sources": ["design-assembly", "reference-ledger"]
     },
     {
+      "id": "screen-actions",
+      "layer": "templates",
+      "kind": "closed",
+      "question": "Is every action of the domain model offered on a screen to every role that may run it, and does no screen show a record or a button to a role without the right?",
+      "sources": ["design-assembly", "reference-ledger"]
+    },
+    {
       "id": "ledger-shapes",
       "layer": "governance",
       "kind": "closed",

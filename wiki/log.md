@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-15 — Dựng đề bài 0003: sổ màn khai màn hiện gì, mở bằng gì, nút nào; cổng nối sổ màn với mô hình của repo đang được kiểm (dòng sổ `screen-actions` trong plugin); repo này chưa khai hai màn mẫu vì phần đổi mô hình chờ duyệt riêng; Inventory đo lại chỉ đọc: 7 và 17 đỏ — [0035](decisions/0035-screens-join-the-domain-model.md).
 - 2026-11-15 — Đề bài chờ duyệt: sổ màn nói màn hiện gì, chào nút nào cho vai nào, và một phép kiểm nối sổ màn với mô hình nghiệp vụ của repo đang được kiểm. Bản thử ngoài kho xanh 17 bài; trên Inventory, chỉ đọc: 7 đỏ nguyên trạng, 17 đỏ khi có lớp phủ «màn hiện gì» của máy — [spec 0003](specs/0003-screens-join-the-domain-model.md).
 - 2026-11-14 — Hồ sơ nghiệm thu cho PR #58 của Inventory dựng theo vòng của kit: Cổng Phạm vi và Cổng 1.5 đã duyệt; mọi tên của vòng ở Inventory đổi sang tiếng Anh theo AGENTS.md của nó (hồ sơ `adopt-design-assembly`) — [phanlemanh/onehub-inventory#58](https://github.com/phanlemanh/onehub-inventory/pull/58).
 - 2026-11-14 — Nói lại: tách phần khai với kit không gỡ được cổng trước khi gộp của PR #58; cổng đòi hồ sơ nghiệm thu có chữ ký người cho mọi PR đổi đường dẫn T3. Main của Inventory gộp lần hai vào nhánh, cổng của Inventory xanh — [phanlemanh/onehub-inventory#58](https://github.com/phanlemanh/onehub-inventory/pull/58).
