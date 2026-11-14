@@ -50,4 +50,4 @@ Ba hành động, khai trong `ontology/actions.yaml`, chỉ vai `user` được 
 - 2026-11-12 — Chủ kho xem riêng phần mô hình này và giữ hai hành động cùng vai `user` («Giữ»).
 - 2026-11-15 — Khai hành động xem `listItems`: sổ màn nói hai màn mẫu hiện `Item`, và phép kiểm nối
   sổ màn với mô hình đòi một hành động xem cho mỗi thứ màn hiện (đề bài 0003).
-- 2026-11-15 — Chủ kho xem riêng phần mô hình này và duyệt («Duyệt, áp bản vá»).
+- 2026-11-15 — Chủ kho xem riêng phần mô hình này và duyệt: «Duyệt, áp bản vá» ở phiên này, «Duyệt» ở phiên điều phối.

@@ -21,7 +21,7 @@ sources:
 
 Máy viết ngày 2026-11-15, theo việc phiên điều phối giao. Chủ kho duyệt cùng ngày: «Duyệt, xây
 đi» ở phiên này, «Duyệt» ở phiên điều phối. Lời duyệt phủ các bước của mục Plan trừ phần đổi mô hình
-dữ liệu ở bước 4; phần đó chủ kho duyệt riêng cùng ngày («Duyệt, áp bản vá»). Các lựa chọn dưới đây vẫn là máy chọn, chờ chủ kho bác. Bản thử đầu tiên nằm ngoài kho, ở thư
+dữ liệu ở bước 4; phần đó chủ kho duyệt riêng cùng ngày («Duyệt, áp bản vá» ở phiên này, «Duyệt» ở phiên điều phối). Các lựa chọn dưới đây vẫn là máy chọn, chờ chủ kho bác. Bản thử đầu tiên nằm ngoài kho, ở thư
 mục ghi chú chung của nhóm phiên, vì đề bài 0002 nói máy chỉ tự xây trong kho sau khi chủ kho duyệt
 từng bước. Đã xây cả năm bước của mục Plan: xem [0035](../decisions/0035-screens-join-the-domain-model.md). Số đo
 chạy lại được bằng `make design-screen-actions-reference`.
@@ -131,7 +131,7 @@ nút thì là nợ, giống chữ «dự kiến» của bảng vai × màn × n�
 3. Một dòng mới trong sổ quyết định chuẩn, giữ bằng lệnh kiểm này trong cổng; một lệnh chỉ đọc chạy
    được trên repo khác (như `make design-adopt-reference`).
 4. Kho này khai ba điều cho hai màn mẫu; phần mô hình đi qua `/ontology-add`. Chủ kho duyệt riêng
-   ngày 2026-11-15 («Duyệt, áp bản vá»).
+   ngày 2026-11-15 («Duyệt, áp bản vá» ở phiên này, «Duyệt» ở phiên điều phối).
 5. Đo lại trên Inventory bằng lệnh mới, chỉ đọc.
 
 ## Test plan

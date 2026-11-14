@@ -12,7 +12,7 @@ sources:
   - plugins/design-assembly/references/contract.md
   - docs/trials/inventory-shows.json
   - "chủ repo, 2026-11-15: «Duyệt, xây đi» (phiên này), «Duyệt» (phiên điều phối)"
-  - "chủ repo, 2026-11-15: «Duyệt, áp bản vá» (phần mô hình)"
+  - "chủ repo, 2026-11-15: «Duyệt, áp bản vá» (phần mô hình, phiên này), «Duyệt» (phiên điều phối)"
   - design/screens.yaml
   - ontology/actions.yaml
 ---
@@ -24,7 +24,7 @@ sources:
 Accepted. Chủ repo duyệt đề bài [0003](../specs/0003-screens-join-the-domain-model.md) ngày
 2026-11-15: «Duyệt, xây đi» ở phiên này, «Duyệt» ở phiên điều phối. Lời duyệt phủ các bước của mục
 Plan trong repo này, trừ việc đổi mô hình dữ liệu ở bước 4: phần đó chủ repo duyệt riêng cùng ngày
-(«Duyệt, áp bản vá»). Hình dạng phần
+(«Duyệt, áp bản vá» ở phiên này, «Duyệt» ở phiên điều phối). Hình dạng phần
 khai thêm, ba lối đỏ và các thứ cố ý chưa làm là máy chọn, ghi ở đề bài; chờ chủ repo bác.
 
 ## Context
