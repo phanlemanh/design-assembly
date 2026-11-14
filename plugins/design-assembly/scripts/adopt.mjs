@@ -32,6 +32,7 @@ import {
 } from "../templates/tools/design-assembly/probes.mjs";
 import {
   LEDGER,
+  literally,
   mergeLedger,
   parseLedger,
   pointRow,
@@ -88,8 +89,7 @@ const RECORDABLE = ["source-color"];
 const read = (root, file) =>
   existsSync(path.join(root, file)) ? readFileSync(path.join(root, file), "utf8") : null;
 const layerOf = (id) => STANDARD.find((decision) => decision.id === id).layer;
-const declares = (css, name) =>
-  new RegExp(`(^|[\\s;{])${name.replace(/[-]/g, "\\-")}\\s*:`, "m").test(css);
+const declares = (css, name) => new RegExp(`(^|[\\s;{])${literally(name)}\\s*:`, "m").test(css);
 
 // The contrast ratio of each pair in each mode, as the stylesheet stands. A pair that cannot be
 // read says why instead of a ratio.
