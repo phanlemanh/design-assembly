@@ -64,10 +64,10 @@ lát hai; thứ đổi là sổ plugin ghi ở bước 3.
     gộp vào nhánh, plugin ghi lại sổ từ mã đã gộp.
   - Cổng xanh trên cây đã gộp: 1755 bài kiểm, plugin giữ 18 quyết định. PR gộp được, chờ người
     giữ mã duyệt.
-  - Cổng trước khi gộp của kit chặn PR vừa đổi đường dẫn T3 vừa đụng `_acceptance/`. Hai dòng
-    khai với kit tách sang
+  - Cổng trước khi gộp của kit chặn PR. Hai dòng khai với kit tách sang
     [phanlemanh/onehub-inventory#59](https://github.com/phanlemanh/onehub-inventory/pull/59), gộp
-    sau #58; bậc M2 chờ PR đó.
+    sau #58; bậc M2 chờ PR đó. Việc tách không gỡ được cổng: cổng đòi một hồ sơ nghiệm thu có
+    chữ ký người cho mọi PR đổi đường dẫn T3.
 
 ## Lát hai: plugin chạy lại lint của repo, đo ngày 2026-11-14
 

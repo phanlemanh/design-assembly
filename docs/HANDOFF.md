@@ -133,10 +133,11 @@ chủ kho, người giữ mã ký theo luật tự chủ của Inventory.
    mã phạm.
 3. Lát ba đã xong (0034), và bước 3 của lát đầu đã làm trên nhánh riêng của Inventory (chủ kho cho
    phép 2026-11-14): plugin ghi sổ linh kiện ở đó, công cụ cũ bị bỏ, hai sổ khai với kit. Nhánh có
-   đã đẩy; PR #58 gộp được, chờ chủ kho duyệt. Cổng trước khi gộp của kit chặn PR vừa đổi đường
-   dẫn T3 vừa đụng `_acceptance/` mà không kèm hồ sơ: theo lời chủ kho, hai dòng khai với kit tách
-   sang PR nháp [phanlemanh/onehub-inventory#59](https://github.com/phanlemanh/onehub-inventory/pull/59),
-   đặt nền trên nhánh của #58, gộp sau #58. Bậc M2 chờ #59.
+   đã đẩy, hai lần gộp main để gỡ xung đột. Hai dòng khai với kit tách sang PR nháp
+   [phanlemanh/onehub-inventory#59](https://github.com/phanlemanh/onehub-inventory/pull/59), đặt nền
+   trên nhánh của #58; bậc M2 chờ #59. **Cổng trước khi gộp của kit vẫn đỏ ở #58**: mọi PR đổi đường
+   dẫn T3 phải kèm hồ sơ `_acceptance/<slug>/` có chữ ký người. Việc tách không gỡ được cổng; máy đã
+   đoán sai lý do, và đã ghi lại.
 4. Sau cùng: bộ chuyển Next.js cho bảng mẫu và cuốn sổ; sổ nguồn ngoài và sổ nhập kho.
 
 **Đừng làm, trừ khi chủ kho bảo:** thêm luật bằng lời ở kho này; chạy thêm lượt thử bằng tác tử
