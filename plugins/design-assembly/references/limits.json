@@ -1883,6 +1883,17 @@
       "severity": "low",
       "plan": "keep",
       "note": "Props are read from the object a component's first parameter takes apart; a component that takes its props whole lists none, and a prop is never read from a type declared elsewhere."
+    },
+    {
+      "id": "adopt-does-not-refresh-tool",
+      "area": "adopt",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-14",
+      "where": ["handoff"],
+      "status": "open",
+      "note": "Adopting copies the tool into a repository only when it adds a check, so a fix to the plugin's tool never reaches a repository that adopted it before, and that repository keeps running the old code with nothing to say so."
     }
   ]
 }
