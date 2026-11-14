@@ -1,0 +1,44 @@
+# The ledger of screens: every screen of the application, as data every tool reads.
+#   id      a stable key for the screen
+#   route   the path the application opens it at
+#   title   the key of its title among the repository's words, or null
+#   family  the `nhom` of the page of its kind under design/patterns, or null
+#   status  built (the screen exists) | planned (declared ahead, not built yet)
+#   states  the names of the states it shows, as the code that reaches them names them
+# The code that reaches each state is the screen list of the application. Keep this file in
+# block style.
+version: 1
+statuses:
+  - built
+  - planned
+screens:
+  - id: reference
+    route: /
+    title: screenTitle
+    family: danh-sach
+    status: built
+    states:
+      - ready
+      - loading
+      - error
+      - empty
+      - no-results
+      - confirm-delete
+      - saving
+      - delete-failed
+      - record-open
+      - adding
+      - add-failed
+      - undo-failed
+  - id: overdue
+    route: /overdue
+    title: overdueTitle
+    family: danh-sach
+    status: built
+    states:
+      - ready
+      - loading
+      - error
+      - empty
+      - no-results
+      - record-open

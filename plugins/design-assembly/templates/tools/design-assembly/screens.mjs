@@ -4,7 +4,9 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-import { CORE_STATES, readScreens } from "./patterns.mjs";
+import { CORE_STATES, listedScreens, readScreens, REGISTRY } from "./patterns.mjs";
+import { builtScreens, readScreenLedger, SCREEN_LEDGER } from "./screen-ledger.mjs";
+import { readYaml } from "./yaml.mjs";
 
 // One page per kind of screen. The folder and the front matter are the ones the acceptance kit
 // reads, so a repository keeps one page for both tools; the keys are in the kit's own language.
@@ -42,94 +44,11 @@ export function readPages(root, folder = KINDS_FOLDER) {
   return found;
 }
 
-const scalar = (text) => {
-  const value = text.trim();
-  const quoted = /^(["'])(.*)\1$/.exec(value);
-  return quoted ? quoted[2] : value.replace(/\s+#.*$/, "");
-};
-
-// Splits `a, "b, c", {d: e}` at the commas that are not inside quotes or brackets.
-function splitFlow(text) {
-  const parts = [];
-  let depth = 0;
-  let quote = null;
-  let from = 0;
-  for (let i = 0; i < text.length; i += 1) {
-    const c = text[i];
-    if (quote) quote = c === quote ? null : quote;
-    else if (c === '"' || c === "'") quote = c;
-    else if (c === "[" || c === "{") depth += 1;
-    else if (c === "]" || c === "}") depth -= 1;
-    else if (c === "," && depth === 0) {
-      parts.push(text.slice(from, i));
-      from = i + 1;
-    }
-  }
-  parts.push(text.slice(from));
-  return parts.map((part) => part.trim()).filter((part) => part !== "");
-}
-
-function flow(text) {
-  const value = text.trim();
-  if (value.startsWith("[") && value.endsWith("]")) return splitFlow(value.slice(1, -1)).map(flow);
-  if (value.startsWith("{") && value.endsWith("}")) {
-    return Object.fromEntries(
-      splitFlow(value.slice(1, -1)).map((pair) => {
-        const at = pair.indexOf(":");
-        return [pair.slice(0, at).trim(), flow(pair.slice(at + 1))];
-      }),
-    );
-  }
-  return scalar(value);
-}
-
-// The lines of a block that sit deeper than `indent`, as a value: a list, a map or nothing.
-function block(lines, indent) {
-  const inner = [];
-  // A list may sit at the indent of its own key.
-  const inside = (line) =>
-    line.trim() === "" ||
-    line.search(/\S/) > indent ||
-    (line.search(/\S/) === indent && /^\s*-(\s|$)/.test(line));
-  while (lines.length > 0 && inside(lines[0])) inner.push(lines.shift());
-  const own = inner.filter((line) => line.trim() !== "" && !line.trim().startsWith("#"));
-  if (own.length === 0) return "";
-  const depth = own[0].search(/\S/);
-  if (own[0].trim().startsWith("- ") || own[0].trim() === "-") {
-    const items = [];
-    while (own.length > 0) {
-      const first = own.shift();
-      const rest = first.slice(depth + 1).replace(/^ /, "");
-      const body = [];
-      while (own.length > 0 && own[0].search(/\S/) > depth) body.push(own.shift());
-      const field = /^([\w-]+):(\s|$)/.test(rest);
-      // `- key: value` opens a map whose other keys follow, indented under it.
-      if (field) items.push(map([" ".repeat(depth + 2) + rest, ...body]));
-      else items.push(body.length > 0 ? block(body, depth) : flow(rest));
-    }
-    return items;
-  }
-  return map(own);
-}
-
-function map(lines) {
-  const found = {};
-  const rest = [...lines];
-  while (rest.length > 0) {
-    const line = rest.shift();
-    if (line.trim() === "" || line.trim().startsWith("#")) continue;
-    const field = /^(\s*)([\w-]+):\s*(.*)$/.exec(line);
-    if (!field) continue;
-    found[field[2]] = field[3].trim() === "" ? block(rest, field[1].length) : flow(field[3]);
-  }
-  return found;
-}
-
 // The front matter of a page as data, or null when the page has none. Reads the block style and
 // the one-line style of YAML that such pages use; nothing here depends on a YAML library.
 export function frontMatter(text) {
   const found = /^---\r?\n([\s\S]*?)\r?\n---(\r?\n|$)/.exec(text ?? "");
-  return found ? map(found[1].split(/\r?\n/)) : null;
+  return found ? readYaml(found[1]) : null;
 }
 
 const list = (value) => (Array.isArray(value) ? value : value ? [value] : []);
@@ -194,13 +113,16 @@ export function ofAKind(pages) {
   return (file) => kinds.some((kind) => belongs(kind, file));
 }
 
-// Each screen of the registry with the source file that draws it: the module its `load` imports.
+// Each screen with the source file that draws it: the module its `load` imports in the code that
+// lists the screens. Its path and states come from the ledger of screens where there is one.
 // `sources` are the source files there are, by path; the file is null when none can be told.
-export function screenFiles(registryText, sources) {
+export function screenFiles(registryText, sources, ledgerText = null) {
   const text = registryText ?? "";
   const starts = [...text.matchAll(/\bpath:\s*["']([^"']+)["']/g)];
-  return readScreens(text).map((screen, index) => {
-    const slice = text.slice(starts[index].index, starts[index + 1]?.index ?? text.length);
+  return listedScreens(text, ledgerText).map((screen) => {
+    const at = starts.findIndex((start) => start[1] === screen.path);
+    if (at === -1) return { ...screen, file: null };
+    const slice = text.slice(starts[at].index, starts[at + 1]?.index ?? text.length);
     // Not named `module`: a host's lint may forbid that name, and this file lives in the host.
     const imported = /\bimport\(\s*["']([^"']+)["']\s*\)/.exec(slice)?.[1];
     if (!imported) return { ...screen, file: null };
@@ -213,7 +135,13 @@ export function screenFiles(registryText, sources) {
 }
 
 // Why the screens are not each of one described kind, or null.
-export function kindsProblem(pages, registryText, sources, folder = KINDS_FOLDER) {
+export function kindsProblem(
+  pages,
+  registryText,
+  sources,
+  folder = KINDS_FOLDER,
+  ledgerText = null,
+) {
   const kinds = readKinds(pages);
   if (kinds.length === 0) return `no page under ${folder} describes a kind of screen`;
   const found = [];
@@ -233,7 +161,7 @@ export function kindsProblem(pages, registryText, sources, folder = KINDS_FOLDER
       found.push(`${kind.file} names the kind ${kind.kind}, not ${kind.name} as its file does`);
     }
   }
-  const screens = screenFiles(registryText, sources);
+  const screens = screenFiles(registryText, sources, ledgerText);
   if (screens.length === 0) found.push("no screen is listed, so no screen is measured");
   for (const screen of screens) {
     if (screen.file === null) {
@@ -254,7 +182,7 @@ export function kindsProblem(pages, registryText, sources, folder = KINDS_FOLDER
 
 // Why a kind's reference screen cannot stand as one, or null. It is a real screen of the registry,
 // of that kind, and it declares every state a view of data has.
-export function referenceProblem(pages, registryText, statesText, sources) {
+export function referenceProblem(pages, registryText, statesText, sources, ledgerText = null) {
   const kinds = readKinds(pages);
   if (kinds.length === 0) return "no kind of screen is described, so no reference is measured";
   let table;
@@ -264,7 +192,7 @@ export function referenceProblem(pages, registryText, statesText, sources) {
     table = {};
   }
   const required = table.required ?? CORE_STATES;
-  const screens = screenFiles(registryText, sources);
+  const screens = screenFiles(registryText, sources, ledgerText);
   const found = [];
   for (const kind of kinds) {
     if (!kind.reference) {
@@ -317,4 +245,73 @@ export function sizesProblem(sizesText, testText, file = SIZES_FILE, test = PAGE
     return `${test} reads ${file} and does not go through its widths, so pages are not checked at them`;
   }
   return null;
+}
+
+// Why the ledger of screens and the code that lists them do not agree, or null: the same screens
+// at the same paths, no id or path twice, and every family the page of a kind.
+export function screenLedgerProblem(ledgerText, registryText, pages, ledgerFile = SCREEN_LEDGER) {
+  if (ledgerText === null || ledgerText === undefined) return `${ledgerFile} is missing`;
+  const ledger = readScreenLedger(ledgerText);
+  const found = [];
+  const twice = (values) => values.filter((value, index) => values.indexOf(value) !== index);
+  for (const id of new Set(twice(ledger.screens.map((screen) => screen.id)))) {
+    found.push(`${ledgerFile} lists the id ${id} twice`);
+  }
+  for (const route of new Set(twice(ledger.screens.map((screen) => screen.route)))) {
+    found.push(`${ledgerFile} lists the route ${route} twice`);
+  }
+  const listed = builtScreens(ledger).map((screen) => screen.path);
+  const coded = readScreens(registryText ?? "").map((screen) => screen.path);
+  for (const route of coded.filter((item) => !listed.includes(item))) {
+    found.push(`${route} is a screen of ${REGISTRY} and not a built screen of ${ledgerFile}`);
+  }
+  for (const route of listed.filter((item) => !coded.includes(item))) {
+    found.push(`${route} is a built screen of ${ledgerFile} and not a screen of ${REGISTRY}`);
+  }
+  const kinds = readKinds(pages ?? {}).map((kind) => kind.kind);
+  const families = ledger.families ? Object.keys(ledger.families) : null;
+  for (const screen of ledger.screens) {
+    const family = screen.family ?? null;
+    if (family === null) continue;
+    if (families && !families.includes(family)) {
+      found.push(`${screen.id}: the family ${family} is not one of the ledger's families`);
+    } else if (kinds.length > 0 && !kinds.includes(family)) {
+      found.push(`${screen.id}: the family ${family} is the kind of no page under ${KINDS_FOLDER}`);
+    }
+  }
+  return found.length > 0 ? found.slice(0, 5).join("; ") : null;
+}
+
+// A first ledger of screens, read from the code that lists them: what the guide writes once, for
+// a person to keep from then on. A title is the key of the words it takes; the family is the kind
+// whose page covers the screen's file. States built by a function cannot be read here: such a
+// screen gets none, and the repository's own test names what is missing.
+export function ledgerFromCode(registryText, pages, sources) {
+  const text = registryText ?? "";
+  const kinds = readKinds(pages ?? {});
+  const starts = [...text.matchAll(/\bpath:\s*["']([^"']+)["']/g)];
+  const taken = new Set();
+  const screens = screenFiles(text, sources ?? {}).map((screen, index) => {
+    const slice = text.slice(starts[index].index, starts[index + 1]?.index ?? text.length);
+    const key = /\btitle:\s*[A-Z_]+\.(\w+)/.exec(slice)?.[1];
+    const literal = /\btitle:\s*["']([^"']+)["']/.exec(slice)?.[1];
+    const stem = screen.file ? path.posix.basename(screen.file).replace(/\.[jt]sx?$/, "") : "";
+    const named = stem
+      .replace(/Screen$/, "")
+      .replace(/([a-z0-9])([A-Z])/g, "$1-$2")
+      .toLowerCase();
+    let id = named || screen.path.replace(/^\/|\/$/g, "").replace(/\//g, "-") || "home";
+    while (taken.has(id)) id = `${id}-2`;
+    taken.add(id);
+    const kind = screen.file ? kinds.find((item) => belongs(item, screen.file)) : null;
+    return {
+      id,
+      route: screen.path,
+      title: key ?? literal ?? null,
+      family: kind?.kind ?? null,
+      status: "built",
+      states: screen.states,
+    };
+  });
+  return { screens };
 }

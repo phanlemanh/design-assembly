@@ -8,6 +8,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { parseLedger } from "./ledger.mjs";
+import { readScreenLedger } from "./screen-ledger.mjs";
 import { frontMatter } from "./screens.mjs";
 
 // A field: its type, whether it must be there, the values it may take, and what it holds.
@@ -154,6 +155,37 @@ export const LEDGERS = {
       parts: required(list({ type: "object", fields: { name: required(text) }, open: true })),
     },
   },
+  screens: {
+    file: "design/screens.yaml",
+    question: "which screens exist, of which kind, with which states",
+    writer: "a person or an agent, with each new screen",
+    version: 1,
+    format: "yaml-screens",
+    root: {
+      version: required({ type: "number|string" }),
+      families: { type: "object", open: true },
+      audiences: list(text),
+      statuses: list(text),
+      screens: required(
+        list({
+          type: "object",
+          fields: {
+            id: required(text),
+            route: required({ ...text, pattern: "^/" }),
+            title: required({ type: "string|null" }),
+            family: required({ type: "string|null" }),
+            audience: text,
+            status: required({ ...text, values: ["built", "planned"] }),
+            states: list(text),
+          },
+          // A repository may keep keys of its own on a screen, such as who may open it.
+          open: true,
+        }),
+      ),
+    },
+    // And keys of its own beside the screens.
+    open: true,
+  },
   "screen-kinds": {
     folder: "design/patterns",
     question: "how a screen of each kind is built",
@@ -185,8 +217,6 @@ export const LEDGERS = {
 
 // Ledgers the contract names whose one shape is not settled yet, and why.
 export const UNSETTLED = {
-  screens:
-    "the list of screens has two shapes: code that reaches each state, and a data file of screens",
   intake: "which need got which block, and who approved it: one repository keeps one so far",
   sources: "which outside libraries blocks come from, in what order, at which pin: likewise",
 };
@@ -314,7 +344,10 @@ export function shapeProblems(kind, textOfFile, file = LEDGERS[kind]?.file) {
     );
   }
   let data;
-  if (ledger.format === "yaml-ledger") {
+  if (ledger.format === "yaml-screens") {
+    const { screens, ...rest } = readScreenLedger(textOfFile);
+    data = { ...rest, ...(/^screens:/m.test(textOfFile) ? { screens } : {}) };
+  } else if (ledger.format === "yaml-ledger") {
     const version = /^version:\s*(\S+)\s*$/m.exec(textOfFile)?.[1];
     data = {
       ...(version === undefined

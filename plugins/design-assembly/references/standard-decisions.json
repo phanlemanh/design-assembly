@@ -553,6 +553,13 @@
       "sources": ["component-audit"]
     },
     {
+      "id": "screen-ledger",
+      "layer": "templates",
+      "kind": "closed",
+      "question": "Does one ledger list every screen, with its kind and its states, as the code has them?",
+      "sources": ["design-assembly", "reference-ledger"]
+    },
+    {
       "id": "ledger-shapes",
       "layer": "governance",
       "kind": "closed",

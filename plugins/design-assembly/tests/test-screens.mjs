@@ -302,7 +302,8 @@ test("the guide installs the layer, and each rule goes red when it is broken", (
     "page-layouts": (dir) =>
       edit(dir, "src/screens.ts", (s) => s.replace("@/pages/List", "@/forms/Edit")),
     "reference-implementation": (dir) =>
-      edit(dir, "src/screens.ts", (s) => s.replace('{ name: "empty", shows: LABELS.title }, ', "")),
+      // The states a screen has are read from the ledger of screens the guide wrote.
+      edit(dir, "design/screens.yaml", (s) => s.replace("      - empty\n", "")),
     "test-screen-sizes": (dir) => edit(dir, SIZES_FILE, (s) => s.replace("320", "390")),
   };
   for (const [id, change] of Object.entries(breaks)) {

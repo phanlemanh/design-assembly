@@ -282,3 +282,9 @@ decisions:
     source: "the design-assembly contract, one shape per ledger with its version"
     check: "tool:tools/design-assembly/check.mjs"
     note: "that each ledger present has its shape and a version this tool reads; what a ledger says is held by the rows about it"
+  - id: screen-ledger
+    layer: templates
+    kind: closed
+    source: "design/screens.yaml, every screen with its kind and states"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "that the ledger has its shape and lists the screens the code lists, each family a kind with a page; that each screen's title and states are the code's is held by the repository's own test, tests/screens-ledger.test.ts"

@@ -19,18 +19,19 @@ a screen kind, must have its shape.
 
 ## The ledgers
 
-| Ledger         | File                             | Question                                                         | Writer                                 | Shape |
-| -------------- | -------------------------------- | ---------------------------------------------------------------- | -------------------------------------- | ----- |
-| `decisions`    | `design/decisions.yaml`          | What the repository decided, and what holds each decision        | People, and the guide for its own rows | 1     |
-| `blueprint`    | `design/blueprint.json`          | What the person answered, layer by layer                         | The person, through the guide          | 1     |
-| `tokens`       | `design/tokens.json`             | Which values exist                                               | `make design-tokens`                   | none  |
-| `components`   | `design/component-registry.json` | Which components exist, where, and of what                       | `make design-components`               | 2     |
-| `column-types` | `design/column-types.json`       | Which column types the repository has                            | A person                               | 1     |
-| `columns`      | `design/columns.json`            | How each column type is aligned and sized, and each field's type | `make design-columns`                  | 1     |
-| `states`       | `design/states.json`             | Which states every screen declares, and which are excused        | A person                               | 1     |
-| `screen-sizes` | `design/screen-sizes.json`       | The widths every page is checked at                              | A person                               | 1     |
-| `parts`        | `design/parts.json`              | The parts of the code from the top down                          | A person                               | 1     |
-| `screen-kinds` | `design/patterns/<kind>.md`      | How a screen of each kind is built                               | A person                               | none  |
+| Ledger         | File                             | Question                                                         | Writer                                     | Shape |
+| -------------- | -------------------------------- | ---------------------------------------------------------------- | ------------------------------------------ | ----- |
+| `decisions`    | `design/decisions.yaml`          | What the repository decided, and what holds each decision        | People, and the guide for its own rows     | 1     |
+| `blueprint`    | `design/blueprint.json`          | What the person answered, layer by layer                         | The person, through the guide              | 1     |
+| `tokens`       | `design/tokens.json`             | Which values exist                                               | `make design-tokens`                       | none  |
+| `components`   | `design/component-registry.json` | Which components exist, where, and of what                       | `make design-components`                   | 2     |
+| `column-types` | `design/column-types.json`       | Which column types the repository has                            | A person                                   | 1     |
+| `columns`      | `design/columns.json`            | How each column type is aligned and sized, and each field's type | `make design-columns`                      | 1     |
+| `states`       | `design/states.json`             | Which states every screen declares, and which are excused        | A person                                   | 1     |
+| `screen-sizes` | `design/screen-sizes.json`       | The widths every page is checked at                              | A person                                   | 1     |
+| `parts`        | `design/parts.json`              | The parts of the code from the top down                          | A person                                   | 1     |
+| `screens`      | `design/screens.yaml`            | Which screens exist, of which kind, with which states            | A person or an agent, with each new screen | 1     |
+| `screen-kinds` | `design/patterns/<kind>.md`      | How a screen of each kind is built                               | A person                                   | none  |
 
 ### decisions
 
@@ -80,6 +81,21 @@ No other key. A file of shape 1 had no `level`, `source` or `parts`, and still r
 `version`, `required` (a list of state names) and `exempt`. `screen-sizes`: `version` and `widths`
 (numbers). `parts`: `version` and `parts`, each with a `name`. What each holds is in `checks.md`.
 
+### screens
+
+Block-style YAML: `version`, then `screens`, a list. A screen has `id`, `route` (written from `/`),
+`title` (the key of its title among the repository's words, or null), `family` (the `nhom` of the
+page of its kind, or null), `status` (`built` or `planned`), and may have `audience` and `states`,
+the names of the states it shows. Beside the screens the file may name `families`, `audiences` and
+`statuses`. A repository may keep keys of its own, on a screen or beside the screens, such as who
+may open it: they are its extension, and are read without complaint.
+
+The ledger says what there is; the code that lists the screens says how each state is reached. The
+gate holds that both list the same built screens, that no id or route is listed twice, and that
+each family is the kind of a page; the screen checks read the states from the ledger. The
+repository's own test, installed once, reads both while the code runs and holds that each screen's
+title and states are the code's, so states built by a function are read too.
+
 ### screen-kinds
 
 One page per kind of screen, with the front matter the acceptance kit defines. Eight keys are
@@ -91,9 +107,7 @@ which this plugin reads and does not rename.
 
 ## Not settled yet
 
-Three ledgers have no one shape yet:
+Two ledgers have no one shape yet:
 
-- `screens`: which screens exist, of which kind, with which states. Today it has two shapes: code
-  that reaches each state, and a data file of screens.
 - `intake`: which need got which block, and who approved it. One repository keeps one so far.
 - `sources`: which outside libraries blocks come from, in what order, at which pin. Likewise.

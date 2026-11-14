@@ -1,6 +1,7 @@
 // What every screen must have, read from source: the states a view of data goes through, that a
 // screen takes its words from one place, and that an error message has both of its parts.
 import { closing, openingTag } from "./components.mjs";
+import { builtScreens, readScreenLedger, SCREEN_LEDGER } from "./screen-ledger.mjs";
 
 // The file a person owns: the states every screen must declare, and the screens excused from them.
 export const STATES_FILE = "design/states.json";
@@ -55,8 +56,17 @@ export function readScreens(source) {
   return found;
 }
 
+// The screens there are, each with its path and the names of its states: from the ledger of
+// screens where the repository keeps one, else read from the code that lists them.
+export function listedScreens(registryText, ledgerText) {
+  if (ledgerText !== null && ledgerText !== undefined) {
+    return builtScreens(readScreenLedger(ledgerText)).map(({ path, states }) => ({ path, states }));
+  }
+  return readScreens(registryText ?? "");
+}
+
 // Why the screens do not declare the states they must, or null.
-export function statesProblem(statesText, registryText, file = STATES_FILE) {
+export function statesProblem(statesText, registryText, file = STATES_FILE, ledgerText = null) {
   if (statesText === null || statesText === undefined) return `${file} is missing`;
   let table;
   try {
@@ -74,8 +84,9 @@ export function statesProblem(statesText, registryText, file = STATES_FILE) {
   if (unexplained.length > 0) {
     return `${file}: ${unexplained.map(([path]) => path).join(", ")} is excused without a reason`;
   }
-  const screens = readScreens(registryText ?? "");
-  if (screens.length === 0) return `no screen is listed in ${REGISTRY}, so no state is measured`;
+  const screens = listedScreens(registryText, ledgerText);
+  const where = ledgerText === null || ledgerText === undefined ? REGISTRY : SCREEN_LEDGER;
+  if (screens.length === 0) return `no screen is listed in ${where}, so no state is measured`;
   const found = [];
   for (const screen of screens.filter((item) => !(item.path in exempt))) {
     const missing = required.filter((state) => !screen.states.includes(state));
@@ -260,9 +271,9 @@ export function emptyStateProblem(files, skip = []) {
   return `${found.slice(0, 5).join("; ")}: an empty state offers a button only where the person can fill the list here, and never a link dressed as one`;
 }
 
-// The paths of the screens the registry lists.
-export function screenPaths(registryText) {
-  return readScreens(registryText ?? "").map((screen) => screen.path);
+// The paths of the screens there are.
+export function screenPaths(registryText, ledgerText = null) {
+  return listedScreens(registryText, ledgerText).map((screen) => screen.path);
 }
 
 // Moving between screens belongs to the application's frame, the same place and order on every

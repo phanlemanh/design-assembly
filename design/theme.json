@@ -145,11 +145,20 @@
         "rule": "density"
       }
     ],
+    "screen-ledger": [
+      {
+        "kind": "screen-ledger",
+        "file": "design/screens.yaml",
+        "registry": "src/screens.ts",
+        "pages": "design/patterns"
+      }
+    ],
     "state-matrix": [
       {
         "kind": "states",
         "file": "design/states.json",
-        "registry": "src/screens.ts"
+        "registry": "src/screens.ts",
+        "ledger": "design/screens.yaml"
       }
     ],
     "labels": [
@@ -186,7 +195,8 @@
         "kind": "screen-links",
         "sources": "src",
         "registry": "src/screens.ts",
-        "skip": ["src/components/ui/", "src/generated/"]
+        "skip": ["src/components/ui/", "src/generated/"],
+        "ledger": "design/screens.yaml"
       }
     ],
     "page-layouts": [
@@ -194,7 +204,8 @@
         "kind": "screen-kinds",
         "pages": "design/patterns",
         "registry": "src/screens.ts",
-        "folder": "src"
+        "folder": "src",
+        "ledger": "design/screens.yaml"
       }
     ],
     "reference-implementation": [
@@ -203,7 +214,8 @@
         "pages": "design/patterns",
         "registry": "src/screens.ts",
         "file": "design/states.json",
-        "folder": "src"
+        "folder": "src",
+        "ledger": "design/screens.yaml"
       }
     ],
     "test-screen-sizes": [
@@ -246,7 +258,8 @@
           "columns": "design/columns.json",
           "states": "design/states.json",
           "screen-sizes": "design/screen-sizes.json",
-          "parts": "design/parts.json"
+          "parts": "design/parts.json",
+          "screens": "design/screens.yaml"
         },
         "pages": "design/patterns"
       }

@@ -68,14 +68,23 @@ import { mergeLedger, parseLedger, TOOL } from "../templates/tools/design-assemb
 import {
   KINDS_FOLDER,
   kindsProblem,
+  ledgerFromCode,
   PAGES_TEST,
   readKinds,
   readPages,
   referenceProblem,
+  screenLedgerProblem,
   SIZES_FILE,
   sizesProblem,
   STARTER_WIDTHS,
 } from "../templates/tools/design-assembly/screens.mjs";
+import {
+  renderScreenLedger,
+  SCREEN_LEDGER,
+} from "../templates/tools/design-assembly/screen-ledger.mjs";
+
+// The repository's own test that the ledger of screens and the code agree while the code runs.
+const LEDGER_TEST = "tests/screens-ledger.test.ts";
 import { SPACING_UNIT_PX, TYPE_VARIABLES } from "../templates/tools/design-assembly/scale.mjs";
 import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
 import {
@@ -526,13 +535,50 @@ export function patternsPlan(target, { starter, code = false }) {
   };
 
   const registry = read(SCREENS);
+  // The ledger of screens: written once from the code that lists them, then a person's.
+  let ledgerText = read(SCREEN_LEDGER);
+  if (registry !== null && ledgerText === null && starter) {
+    ledgerText = renderScreenLedger(ledgerFromCode(registry, readPages(target), sources));
+    files[SCREEN_LEDGER] = ledgerText;
+  }
+  const withLedger = ledgerText === null ? {} : { ledger: SCREEN_LEDGER };
+  if (registry !== null && ledgerText !== null) {
+    const shape = shapeProblems("screens", ledgerText, SCREEN_LEDGER);
+    propose(
+      "screen-ledger",
+      shape.length > 0
+        ? shape.slice(0, 3).join("; ")
+        : screenLedgerProblem(ledgerText, registry, readPages(target)),
+      {
+        what: `${SCREEN_LEDGER} lists the screens ${SCREENS} lists, each of a described kind`,
+        row: {
+          layer: "templates",
+          kind: "closed",
+          source: `${SCREEN_LEDGER}, every screen with its kind and states`,
+          check: TOOL,
+          note: `that the ledger has its shape and lists the screens the code lists, each family a kind with a page; that each screen's title and states are the code's is held by the repository's own test, ${LEDGER_TEST}`,
+        },
+        checks: [
+          { kind: "screen-ledger", file: SCREEN_LEDGER, registry: SCREENS, pages: KINDS_FOLDER },
+        ],
+      },
+    );
+    // The test that reads the ledger and the code while the code runs: installed once, then the
+    // repository's own.
+    if (code && read(LEDGER_TEST) === null && read("src/lib/labels.ts") !== null) {
+      files[LEDGER_TEST] = readFileSync(
+        path.join(PLUGIN, "templates/owned/screens-ledger.test.ts.template"),
+        "utf8",
+      );
+    }
+  }
   let statesText = read(STATES_FILE);
   if (registry !== null && statesText === null && starter) {
     statesText = renderJson({ version: 1, required: CORE_STATES, exempt: {} }, lineWidth(target));
     files[STATES_FILE] = statesText;
   }
   if (registry !== null && statesText !== null) {
-    propose("state-matrix", statesProblem(statesText, registry), {
+    propose("state-matrix", statesProblem(statesText, registry, STATES_FILE, ledgerText), {
       what: `every screen of ${SCREENS} declares the states of ${STATES_FILE}`,
       row: {
         layer: "patterns",
@@ -541,7 +587,7 @@ export function patternsPlan(target, { starter, code = false }) {
         check: TOOL,
         note: "that every screen declares the required states; that each one can be reached, and what it shows, is for the repository's own browser tests",
       },
-      checks: [{ kind: "states", file: STATES_FILE, registry: SCREENS }],
+      checks: [{ kind: "states", file: STATES_FILE, registry: SCREENS, ...withLedger }],
     });
   }
   if (Object.keys(sources).some((file) => !skip.some((prefix) => file.startsWith(prefix)))) {
@@ -597,7 +643,7 @@ export function patternsPlan(target, { starter, code = false }) {
     if (registry !== null) {
       propose(
         "navigation-in-frame",
-        screenLinksProblem(readSources(target, "src"), screenPaths(registry), skip),
+        screenLinksProblem(readSources(target, "src"), screenPaths(registry, ledgerText), skip),
         {
           what: "no screen links to another screen: moving between screens is the frame's",
           row: {
@@ -607,7 +653,9 @@ export function patternsPlan(target, { starter, code = false }) {
             check: TOOL,
             note: "that no file below the frame links to a listed screen by its path; that the frame shows every screen in order is for the repository's own tests",
           },
-          checks: [{ kind: "screen-links", sources: "src", registry: SCREENS, skip }],
+          checks: [
+            { kind: "screen-links", sources: "src", registry: SCREENS, skip, ...withLedger },
+          ],
         },
       );
     }
@@ -686,8 +734,10 @@ export function templatesPlan(target, { starter, code = false, pending = {}, lay
   const registry = read(SCREENS);
   const pages = readPages(target);
   const sources = readFolder(target, "src");
+  const ledgerText = read(SCREEN_LEDGER);
+  const withLedger = ledgerText === null ? {} : { ledger: SCREEN_LEDGER };
   if (registry !== null && Object.keys(pages).length > 0) {
-    propose("page-layouts", kindsProblem(pages, registry, sources), {
+    propose("page-layouts", kindsProblem(pages, registry, sources, KINDS_FOLDER, ledgerText), {
       what: `every screen of ${SCREENS} is of one kind, and each kind has its page under ${KINDS_FOLDER}`,
       row: {
         layer: "templates",
@@ -696,12 +746,20 @@ export function templatesPlan(target, { starter, code = false, pending = {}, lay
         check: TOOL,
         note: "that every screen is of exactly one kind, and that the kind's page names its main task; what the page says is a person's review",
       },
-      checks: [{ kind: "screen-kinds", pages: KINDS_FOLDER, registry: SCREENS, folder: "src" }],
+      checks: [
+        {
+          kind: "screen-kinds",
+          pages: KINDS_FOLDER,
+          registry: SCREENS,
+          folder: "src",
+          ...withLedger,
+        },
+      ],
     });
     if ("page-layouts" in held) {
       propose(
         "reference-implementation",
-        referenceProblem(pages, registry, read(STATES_FILE), sources),
+        referenceProblem(pages, registry, read(STATES_FILE), sources, ledgerText),
         {
           what: "each kind of screen names a real screen as its reference, with every required state",
           row: {
@@ -718,6 +776,7 @@ export function templatesPlan(target, { starter, code = false, pending = {}, lay
               registry: SCREENS,
               file: STATES_FILE,
               folder: "src",
+              ...withLedger,
             },
           ],
         },
@@ -1011,8 +1070,10 @@ export function rulesPage(checks, has) {
       "A new screen is listed in `src/screens.ts`, and its file is one the page of its kind names. A screen of a new kind needs its page first: that is a person's decision.",
     held("test-screen-sizes") &&
       "Every state of every screen is checked in a browser at the widths of `design/screen-sizes.json`: one main region, one top heading, no sideways scroll, the accessibility checks. A screen with an action done at once lists a state for that action failing.",
-    held("state-matrix") &&
-      "The gate reads `src/screens.ts` as written: list each screen and each of its states in full there, never built by a function or spread from another list, or the gate does not see them.",
+    held("screen-ledger")
+      ? "A screen is listed twice: in `src/screens.ts`, how each of its states is reached, and in `design/screens.yaml`, the ledger every tool reads: its `id`, `route`, `title` (the key of its title among the repository's words), `family` (the `nhom` of the page of its kind), `status` and the names of its `states`, in the code's order. Add both in the same change. The gate fails when the two list different screens, and `tests/screens-ledger.test.ts` when a title or the states differ. States in `src/screens.ts` may be built by a function: the checks read them from the ledger."
+      : held("state-matrix") &&
+        "The gate reads `src/screens.ts` as written: list each screen and each of its states in full there, never built by a function or spread from another list, or the gate does not see them.",
     held("navigation-in-frame") &&
       (has("src/components/app-frame.tsx")
         ? "Moving between screens is the frame's. Once there is more than one screen, `src/App.tsx` draws `AppFrame` (`src/components/app-frame.tsx`) with the list of screens, each given a `title` from the repository's words: it moves between them without loading the page again, marks the open one, leaves a screen's toasts behind and draws the toaster once. A screen never links to another screen: the gate fails when one does."

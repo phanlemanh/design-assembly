@@ -33,7 +33,13 @@ import {
   wordsProblem,
 } from "./patterns.mjs";
 import { againstDirection, importsProblem, readSources, slipsProblem } from "./governance.mjs";
-import { kindsProblem, readPages, referenceProblem, sizesProblem } from "./screens.mjs";
+import {
+  kindsProblem,
+  readPages,
+  referenceProblem,
+  screenLedgerProblem,
+  sizesProblem,
+} from "./screens.mjs";
 import { DEFAULT_STYLESHEET, findStylesheet, loadStyles, resolve } from "./styles.mjs";
 import { buildTheme, readBlock, renderBlock, withoutBlock } from "./theme.mjs";
 import { tokensProblem } from "./tokens.mjs";
@@ -326,14 +332,48 @@ const KINDS = {
   // Every screen of the registry declares the states every view of data has.
   states: {
     run(state, check) {
-      return statesProblem(state.files?.[check.file], state.files?.[check.registry], check.file);
+      const ledger = check.ledger ? (state.files?.[check.ledger] ?? "") : null;
+      return statesProblem(
+        state.files?.[check.file],
+        state.files?.[check.registry],
+        check.file,
+        ledger,
+      );
     },
     // One more screen, with only its ready state.
     change(state, check) {
+      if (check.ledger) {
+        const added =
+          "  - id: changed-copy\n    route: /changed-copy\n    title: null\n    family: null\n    status: built\n    states:\n      - ready\n";
+        const ledger = `${state.files?.[check.ledger] ?? "screens:\n"}${added}`;
+        return { ...state, files: { ...state.files, [check.ledger]: ledger } };
+      }
       const added =
         '\nexport const CHANGED = [{ path: "/changed-copy", states: [{ name: "ready" }] }];\n';
       const registry = `${state.files?.[check.registry] ?? ""}${added}`;
       return { ...state, files: { ...state.files, [check.registry]: registry } };
+    },
+  },
+  // The ledger of screens has its shape and lists the screens the code lists, each of a kind.
+  "screen-ledger": {
+    run(state, check) {
+      const text = state.files?.[check.file];
+      const shape =
+        text === null || text === undefined ? [] : shapeProblems("screens", text, check.file);
+      if (shape.length > 0) return shape.slice(0, 3).join("; ");
+      return screenLedgerProblem(
+        text,
+        state.files?.[check.registry],
+        check.pages ? (state.pages?.[check.pages] ?? {}) : {},
+        check.file,
+      );
+    },
+    // The last screen leaves the ledger and stays in the code.
+    change(state, check) {
+      const text = state.files?.[check.file] ?? "";
+      const last = text.lastIndexOf("\n  - id:");
+      const cut = last === -1 ? "screens:\n" : `${text.slice(0, last)}\n`;
+      return { ...state, files: { ...state.files, [check.file]: cut } };
     },
   },
   // No screen writes its own words.
@@ -385,11 +425,12 @@ const KINDS = {
   // No screen links to another screen: moving between them is the frame's.
   "screen-links": {
     run(state, check) {
-      const paths = screenPaths(state.files?.[check.registry]);
+      const paths = screenPaths(state.files?.[check.registry], state.files?.[check.ledger] ?? null);
       return screenLinksProblem(state.sources?.[check.sources] ?? {}, paths, check.skip);
     },
     change(state, check) {
-      const to = screenPaths(state.files?.[check.registry])[0] ?? "/";
+      const to =
+        screenPaths(state.files?.[check.registry], state.files?.[check.ledger] ?? null)[0] ?? "/";
       const added = `${check.sources}/example/changed-copy.tsx`;
       const source = `export const ChangedCopy = () => <a href="${to}">{word}</a>;\n`;
       const files = { ...state.sources?.[check.sources], [added]: source };
@@ -414,7 +455,13 @@ const KINDS = {
     run(state, check) {
       const pages = state.pages?.[check.pages] ?? {};
       const sources = state.folders?.[check.folder] ?? {};
-      return kindsProblem(pages, state.files?.[check.registry], sources, check.pages);
+      return kindsProblem(
+        pages,
+        state.files?.[check.registry],
+        sources,
+        check.pages,
+        state.files?.[check.ledger] ?? null,
+      );
     },
     // No page at all: every screen is left without a kind.
     change(state, check) {
@@ -427,7 +474,13 @@ const KINDS = {
       const pages = state.pages?.[check.pages] ?? {};
       const sources = state.folders?.[check.folder] ?? {};
       const registry = state.files?.[check.registry];
-      return referenceProblem(pages, registry, state.files?.[check.file], sources);
+      return referenceProblem(
+        pages,
+        registry,
+        state.files?.[check.file],
+        sources,
+        state.files?.[check.ledger] ?? null,
+      );
     },
     // One more required state, which no screen declares.
     change(state, check) {
@@ -530,6 +583,7 @@ export function readState(root) {
       check.registry,
       check.test,
       check.blueprint,
+      check.ledger,
       ...Object.values(check.ledgers ?? {}),
     ])
     .filter(Boolean)

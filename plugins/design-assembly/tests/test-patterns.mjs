@@ -193,7 +193,8 @@ test("an error message has both parts: what happened, and what to do next", () =
 test("the guide installs the three rules, and each goes red when it is broken", () => {
   const breaks = {
     "state-matrix": (dir) =>
-      edit(dir, "src/screens.ts", (s) => s.replace('{ name: "empty", shows: LABELS.title }, ', "")),
+      // The states a screen has are read from the ledger of screens the guide wrote.
+      edit(dir, "design/screens.yaml", (s) => s.replace("      - empty\n", "")),
     labels: (dir) =>
       edit(dir, "src/pages/List.tsx", (s) => s.replace("{LABELS.many}", "Nhiều mục")),
     "error-copy": (dir) =>

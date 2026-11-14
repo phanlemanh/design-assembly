@@ -1604,9 +1604,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials", "d0028"],
-      "status": "open",
-      "note": "A screen list that builds its states with a shared function turns the states check red as if no state were declared, while every state is there when the app runs."
+      "where": ["trials", "d0028", "d0030"],
+      "status": "closed",
+      "note": "A screen list that builds its states with a shared function turns the states check red as if no state were declared, while every state is there when the app runs.",
+      "closed": "2026-11-14",
+      "closed_by": "the screen checks read the states from the ledger of screens, and the repository's own test reads the code while it runs, held by a plugin test of a list built by a function"
     },
     {
       "id": "floor-sample-not-on-shared-list",
@@ -1639,9 +1641,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-14",
-      "where": ["d0029"],
-      "status": "open",
-      "note": "The list of screens still has two shapes, code that reaches each state and a data file of screens, so the contract leaves it unsettled."
+      "where": ["d0029", "d0030"],
+      "status": "closed",
+      "note": "The list of screens still has two shapes, code that reaches each state and a data file of screens, so the contract leaves it unsettled.",
+      "closed": "2026-11-14",
+      "closed_by": "one ledger of screens with its shape in the contract, the code keeping only how each state is reached"
     },
     {
       "id": "library-names-in-core",
@@ -1687,6 +1691,39 @@
       "where": ["d0029"],
       "status": "open",
       "note": "A component's level is computed from how deep its file imports other components, so a large component that imports nothing is an atom and nobody has checked the levels against a designer's view."
+    },
+    {
+      "id": "screen-ledger-agreement-floor-only",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-14",
+      "where": ["d0030"],
+      "status": "open",
+      "note": "The gate holds the ledger of screens to the code only through the floor's list of screens, so a repository that routes another way gets every built screen named as missing from its code."
+    },
+    {
+      "id": "reference-screen-ledger-differs",
+      "area": "adopt",
+      "kind": "conflict",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-14",
+      "where": ["d0030"],
+      "status": "open",
+      "note": "The reference repository's ledger of screens has no version and names its family by a key that differs from the name of its page of that kind, so moving it to the contract is that repository's change."
+    },
+    {
+      "id": "screen-listed-twice",
+      "area": "rules",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-14",
+      "where": ["d0030"],
+      "status": "open",
+      "note": "A screen is written in two places, the ledger and the code that reaches its states, and only the repository's own test, which this plugin's gate never runs, holds that their titles and states agree."
     }
   ]
 }
