@@ -58,7 +58,8 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
   thành lát mỏng (0032); lát đầu (bước 1, 2) đã làm trên nhánh riêng của Inventory, lát hai (0033)
   chạy lại lint của repo, lát ba (0034) đưa bộ đọc linh kiện ngang công cụ của Inventory. Chặng 4 «Hai repo đổi vai» và 5 «Lõi của
   họ» chưa bắt đầu.
-- **Inventory chỉ bị đụng trên một nhánh riêng, chưa đẩy.** Chủ kho cho phép ngày 2026-11-14 làm
+- **Inventory chỉ bị đụng trên một nhánh riêng, đã đẩy và mở PR, chưa gộp:**
+  [phanlemanh/onehub-inventory#58](https://github.com/phanlemanh/onehub-inventory/pull/58). Chủ kho cho phép ngày 2026-11-14 làm
   bước 1, 2, lát hai và bước 3 trên nhánh riêng. Tất cả đã commit ở nhánh `chore/adopt-design-assembly`, trong thư
   mục làm việc `~/dev/onehub-inventory/.claude/worktrees/adopt-design-assembly`. Bản chính của
   Inventory vẫn ở `main`. Phép đo vẫn chạy trên bản sao bỏ đi bằng `make design-ladder`.
@@ -120,7 +121,8 @@ Khuôn mẫu về nhịp dẫn dắt: `~/dev/repo-standards/plugins/repo-setup/s
 Chủ kho đã đáp ba câu của Inventory ngày 2026-11-14: ứng dụng, mức AA, giữ màu thương hiệu
 `#0246ff`. Quyền đã cho ngày đó, bằng lời, trong một phiên: bước 1 và 2 trên nhánh riêng của
 Inventory, không đẩy; rồi chạy lại «nhận» ở đó với plugin của lát hai; rồi bước 3. Tất cả đã xong. Phiên mới **hỏi lại** trước khi đụng vào Inventory, vì quyền
-bằng lời không theo sang phiên khác. Việc đẩy và việc gộp nhánh chưa được cho.
+bằng lời không theo sang phiên khác. Chủ kho bảo đẩy nhánh và mở PR («Đẩy và mở PR»); việc gộp là của
+chủ kho, người giữ mã ký theo luật tự chủ của Inventory.
 
 **Kế tiếp, theo thứ tự máy đề xuất** (0032 và `docs/trials/inventory-ladder.md`):
 
@@ -131,7 +133,8 @@ bằng lời không theo sang phiên khác. Việc đẩy và việc gộp nhán
    mã phạm.
 3. Lát ba đã xong (0034), và bước 3 của lát đầu đã làm trên nhánh riêng của Inventory (chủ kho cho
    phép 2026-11-14): plugin ghi sổ linh kiện ở đó, công cụ cũ bị bỏ, hai sổ khai với kit. Nhánh có
-   năm commit, chưa đẩy, chưa gộp; gộp là việc của chủ kho.
+   sáu commit (thêm một lần gộp main để gỡ xung đột ở sổ linh kiện), đã đẩy, PR #58 gộp được,
+   chờ chủ kho duyệt.
 4. Sau cùng: bộ chuyển Next.js cho bảng mẫu và cuốn sổ; sổ nguồn ngoài và sổ nhập kho.
 
 **Đừng làm, trừ khi chủ kho bảo:** thêm luật bằng lời ở kho này; chạy thêm lượt thử bằng tác tử

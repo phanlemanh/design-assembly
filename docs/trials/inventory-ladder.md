@@ -58,6 +58,12 @@ lát hai; thứ đổi là sổ plugin ghi ở bước 3.
 - Thang trên nhánh khớp bước 3 trên bản sao: sổ đúng hình dạng 5 trên 5, câu lõi máy giữ 11,
   quyết định máy giữ 18. Bậc của kit chưa đọc thẳng trên nhánh (lệnh đọc bị chặn trong phiên); trên
   bản sao với cùng thay đổi, kit ra M2.
+- Chủ repo bảo đẩy và mở PR:
+  [phanlemanh/onehub-inventory#58](https://github.com/phanlemanh/onehub-inventory/pull/58).
+  - Main của Inventory đã tiến lên sau khi tách nhánh, và chỉ sổ linh kiện xung đột. Main được
+    gộp vào nhánh, plugin ghi lại sổ từ mã đã gộp.
+  - Cổng xanh trên cây đã gộp: 1755 bài kiểm, plugin giữ 18 quyết định. PR gộp được, chờ người
+    giữ mã duyệt.
 
 ## Lát hai: plugin chạy lại lint của repo, đo ngày 2026-11-14
 
