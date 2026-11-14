@@ -700,3 +700,63 @@ test("a component that calls another file's variant set with values of its own h
   assert.deepEqual(byName.PageState.props, ["title"]);
   assert.deepEqual(byName.Button.variants, ["variant=default", "variant=outline"]);
 });
+
+test("a component re-exported through a barrel file is listed once, at the file that defines it", () => {
+  const dir = folder({
+    "src/components/reui/filters/filters-chip.tsx": [
+      "export function FilterChip({ label, onRemove }: Props) {",
+      "  return <span>{label}</span>;",
+      "}",
+      "",
+    ].join("\n"),
+    "src/components/reui/filters/filters-builder.tsx": [
+      "export function FiltersBuilder({ fields, onAdd }: Props) {",
+      "  return <div>{fields.length}</div>;",
+      "}",
+      "",
+    ].join("\n"),
+    "src/components/reui/filters/filters-date.tsx": [
+      "export const FilterDate = ({ value }: Props) => <time>{value}</time>;",
+      "",
+    ].join("\n"),
+    "src/components/reui/filters/filters-dnd.tsx": [
+      "export function FilterHandle({ grip }: Props) {",
+      "  return <i>{grip}</i>;",
+      "}",
+      "",
+    ].join("\n"),
+    // The barrel defines one component of its own and hands on the others: a list read from
+    // another file, all of another file, and a name it imports and then exports.
+    "src/components/reui/filters/filters.tsx": [
+      'import { FilterHandle } from "@/components/reui/filters/filters-dnd";',
+      "export function Filters({ query }: Props) {",
+      "  return <div>{query}</div>;",
+      "}",
+      "export {",
+      "  // The chip a custom row draws.",
+      "  FilterChip,",
+      '} from "@/components/reui/filters/filters-chip";',
+      'export { FiltersBuilder as Builder, FiltersBuilder } from "./filters-builder";',
+      'export * from "./filters-date";',
+      "export { FilterHandle };",
+      "",
+    ].join("\n"),
+  });
+  const { components } = readComponents(readFolder(dir, "src/components/reui"), {
+    library: "src/components/ui",
+  });
+  const where = components.map((item) => `${item.name} ${item.file}`).sort();
+  assert.deepEqual(where, [
+    "FilterChip src/components/reui/filters/filters-chip.tsx",
+    "FilterDate src/components/reui/filters/filters-date.tsx",
+    "FilterHandle src/components/reui/filters/filters-dnd.tsx",
+    "Filters src/components/reui/filters/filters.tsx",
+    "FiltersBuilder src/components/reui/filters/filters-builder.tsx",
+  ]);
+  const byName = Object.fromEntries(components.map((item) => [item.name, item]));
+  assert.deepEqual(byName.FilterChip.props, ["label", "onRemove"]);
+  assert.deepEqual(byName.FiltersBuilder.props, ["fields", "onAdd"]);
+  assert.deepEqual(byName.FilterDate.props, ["value"]);
+  assert.deepEqual(byName.FilterHandle.props, ["grip"]);
+  assert.deepEqual(byName.Filters.props, ["query"]);
+});
