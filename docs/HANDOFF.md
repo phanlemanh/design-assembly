@@ -59,7 +59,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
   chạy lại lint của repo. Chặng 4 «Hai repo đổi vai» và 5 «Lõi của
   họ» chưa bắt đầu.
 - **Inventory chỉ bị đụng trên một nhánh riêng, chưa đẩy.** Chủ kho cho phép ngày 2026-11-14 làm
-  bước 1 và 2 trên nhánh riêng. Cả hai đã commit ở nhánh `chore/adopt-design-assembly`, trong thư
+  bước 1, 2 và lát hai trên nhánh riêng. Cả ba đã commit ở nhánh `chore/adopt-design-assembly`, trong thư
   mục làm việc `~/dev/onehub-inventory/.claude/worktrees/adopt-design-assembly`. Bản chính của
   Inventory vẫn ở `main`. Phép đo vẫn chạy trên bản sao bỏ đi bằng `make design-ladder`.
 - Số đo chính hôm nay: số chỗ tác tử phải đoán khi dựng một màn là 12, 12, 13, 11 (đứng yên); luật
@@ -118,16 +118,16 @@ Khuôn mẫu về nhịp dẫn dắt: `~/dev/repo-standards/plugins/repo-setup/s
 
 Chủ kho đã đáp ba câu của Inventory ngày 2026-11-14: ứng dụng, mức AA, giữ màu thương hiệu
 `#0246ff`. Quyền đã cho ngày đó, bằng lời, trong một phiên: bước 1 và 2 trên nhánh riêng của
-Inventory, không đẩy; cả hai đã xong. Phiên mới **hỏi lại** trước khi đụng vào Inventory, vì quyền
+Inventory, không đẩy; rồi chạy lại «nhận» ở đó với plugin của lát hai. Cả ba đã xong. Phiên mới **hỏi lại** trước khi đụng vào Inventory, vì quyền
 bằng lời không theo sang phiên khác. Bước 3, việc đẩy và việc gộp nhánh chưa được cho.
 
 **Kế tiếp, theo thứ tự máy đề xuất** (0032 và `docs/trials/inventory-ladder.md`):
 
 1. Bước 1 và 2 đã xong trên nhánh riêng của Inventory. Gộp nhánh đó là việc của chủ kho: nó đụng
    vùng Inventory xếp vào loại phải có người giữ mã ký.
-2. Lát hai đã xong (0033) cho phần lint. Còn lại: chạy «nhận» lại trên nhánh riêng của Inventory
-   để thêm chín phép kiểm lint ở đó (cần chủ kho cho phép); bài kiểm và công cụ của repo chưa được
-   chạy lại; hướng nhập chưa có đoạn mã phạm.
+2. Lát hai đã xong (0033) cho phần lint, cả trên nhánh riêng của Inventory (chủ kho cho phép
+   2026-11-14). Còn lại: bài kiểm và công cụ của repo chưa được chạy lại; hướng nhập chưa có đoạn
+   mã phạm.
 3. Lát ba: bộ đọc linh kiện ghi danh sách thuộc tính, biết thư mục khuôn và thư viện mua thứ hai.
    Xong mới thay được công cụ sổ linh kiện của Inventory, và mới khai được sổ với kit để lên M2.
 4. Sau cùng: bộ chuyển Next.js cho bảng mẫu và cuốn sổ; sổ nguồn ngoài và sổ nhập kho.

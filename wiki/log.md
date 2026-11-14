@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-14 — Lát hai vào nhánh riêng của Inventory, theo lời cho phép của chủ kho: chín phép kiểm lint thêm vào dữ liệu công cụ ở đó, dòng sổ không đổi; cổng của Inventory xanh, câu lõi máy giữ 11 như trên bản sao. Chưa đẩy, chưa gộp — [thang đo](../docs/trials/inventory-ladder.md).
 - 2026-11-14 — Chặng 3, lát hai: plugin chạy lại lint của chính repo trên đoạn mã phạm từng quyết định, trong cổng, và thấy nó đỏ khi tắt luật đã chặn; bộ chuyển thứ sáu giữ tên công cụ lint. Trên bản sao Inventory câu lõi máy giữ 2 lên 11; ở kho này quyết định máy giữ 27 lên 37. Tìm ra hai câu lint của Inventory và một câu của sàn để lọt đoạn mã phạm — [0033](decisions/0033-re-run-the-repository-lint.md), [thang đo](../docs/trials/inventory-ladder.md).
 - 2026-11-14 — Lát đầu của chặng 3, bước 2, trên nhánh riêng của Inventory: chủ kho giữ ba giả định (ứng dụng, AA, màu thương hiệu đang dùng); tương phản của màu chính thành máy giữ, sổ màn mang số phiên bản; thang trên nhánh khớp số đo trên bản sao. Chưa đẩy, chưa gộp — [thang đo](../docs/trials/inventory-ladder.md).
 - 2026-11-14 — Lát đầu của chặng 3 vào Inventory thật, bước 1, theo lời cho phép của chủ kho: «nhận» chạy trên nhánh riêng `chore/adopt-design-assembly` của Inventory, chưa đẩy; cổng của Inventory xanh trước và sau, độ tất định của nó 36/53 lên 42/59. Bước 2 chờ ba lời đáp — [thang đo](../docs/trials/inventory-ladder.md), [bàn giao](../docs/HANDOFF.md).

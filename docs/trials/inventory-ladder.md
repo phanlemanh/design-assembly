@@ -55,8 +55,11 @@ trong các gói đó. Lệnh gỡ đường nối trước khi xoá bản sao.
     ngoại lệ tắt mọi luật cho cả tệp.
 - Hướng nhập giữa các phần chưa có đoạn mã phạm. Tám câu do bài kiểm và một câu do công cụ của
   Inventory vẫn chưa được chạy lại.
-- Nhánh riêng của Inventory chưa chạy lại «nhận» với plugin mới. Làm vậy sẽ thêm chín phép kiểm lint
-  vào dữ liệu công cụ ở đó; cần chủ repo cho phép.
+- **Đã làm trên nhánh riêng của Inventory**, chủ repo cho phép ngày 2026-11-14: «nhận» chạy lại với
+  plugin mới, thêm chín phép kiểm lint, dòng sổ không đổi; một commit. Cổng của Inventory xanh,
+  1696 bài kiểm. Thang trên nhánh khớp bản sao: câu lõi máy giữ 11, quyết định máy giữ 16. Độ tất
+  định do công cụ của Inventory đo vẫn 43/63, vì công cụ đó vốn đếm các dòng này là tự động; điều
+  đổi là plugin giờ chạy lại chúng.
 
 ## Lát đầu, đo ngày 2026-11-14
 
