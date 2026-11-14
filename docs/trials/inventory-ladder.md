@@ -6,6 +6,9 @@ lát của chặng 3 phải làm ít nhất một nấc nhúc nhích.
 
 Mọi số dưới đây đo trên **bản sao** của Inventory trong thư mục tạm. Repo thật chưa bị đụng tới.
 
+Đo lại bằng `make design-ladder`: lệnh dựng một bản sao bỏ đi, chạy bốn bước, in bảng, rồi xoá bản
+sao. Nó không bao giờ ghi vào Inventory, và dòng cuối của nó nói Inventory có bị đổi không.
+
 ## Lát đầu, đo ngày 2026-11-14
 
 Bản sao lấy ở commit `786cadf` của Inventory (2026-11-14). Bốn bước, mỗi bước một bản sao riêng,

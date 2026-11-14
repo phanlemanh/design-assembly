@@ -8,7 +8,7 @@ REFERENCE_LEDGER ?= ../onehub-inventory
 # plugin writes is given to the kit's own reader; when it is not, that test is skipped too.
 ACCEPTANCE_KIT ?= ../delivery-loop
 
-.PHONY: plugin-test design-specimen design-book design-apply design-plan design-audit design-adopt design-adopt-plan design-adopt-reference
+.PHONY: design-ladder plugin-test design-specimen design-book design-apply design-plan design-audit design-adopt design-adopt-plan design-adopt-reference
 
 design-audit: ## Audit this repository: each standard decision's state, and the tier it has reached
 	@node plugins/design-assembly/scripts/inventory.mjs --target .
@@ -47,3 +47,6 @@ design-adopt: ## Add those rows and checks. Changes no stylesheet, lint rule, te
 
 design-adopt-reference: ## Preview adopting on the reference repository. Never writes there
 	@node plugins/design-assembly/scripts/adopt.mjs --target $(REFERENCE_LEDGER) --dry-run $(ADOPT_ARGS)
+
+design-ladder: ## Measure the four-rung ladder on a throwaway copy of the reference repository. Never writes there
+	@node docs/trials/ladder.mjs --reference $(REFERENCE_LEDGER) --kit $(ACCEPTANCE_KIT)

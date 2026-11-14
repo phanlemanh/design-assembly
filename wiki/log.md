@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-14 — Bàn giao viết lại cho lần đổi tài khoản thứ hai; phép đo thang bốn nấc trên bản sao Inventory thành một lệnh, `make design-ladder` — [bàn giao](../docs/HANDOFF.md), `docs/trials/ladder.mjs`.
 - 2026-11-14 — Review sau chặng 2 và cắt lại chặng 3 thành lát mỏng; lát đầu chạy trên bản sao Inventory: sổ đúng hình dạng 2/4 lên 5/5, quyết định máy giữ 0 lên 9, kit từ M1 lên M2. Plugin: đọc được màu pha trong oklch (đối chiếu với trình duyệt), audit đếm sổ đúng hình dạng, «nhận» giữ hình dạng sổ. Việc chờ chủ repo xem gom ở `docs/review-queue.md` — [0032](decisions/0032-review-after-stage-two-and-stage-three-recut.md), [thang đo](../docs/trials/inventory-ladder.md).
 - 2026-11-14 — Chặng 2, lát ba (cuối): năm bộ chuyển (nền dựng, trình duyệt, giá trị, nguồn linh kiện, mã nguồn) giữ mọi tên thư viện; mã lõi không còn tên nào và bài kiểm của plugin đỏ khi có. Cách viết riêng của một loại repo vẫn còn trong lõi ở khoảng 20 chỗ, ghi ở sổ giới hạn — [0031](decisions/0031-adapters-hold-library-names.md).
 - 2026-11-14 — Chặng 2, lát hai: một sổ màn `design/screens.yaml` theo hình dạng của Inventory, thêm trạng thái; các lệnh kiểm về màn đọc trạng thái từ sổ, nên trạng thái khai bằng hàm không còn bị đọc là thiếu; cổng ràng sổ với mã (dòng `screen-ledger`), bài kiểm của repo ràng tiêu đề và trạng thái lúc mã chạy — [0030](decisions/0030-one-ledger-of-screens.md).
