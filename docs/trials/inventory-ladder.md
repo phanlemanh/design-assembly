@@ -23,9 +23,15 @@ Chủ repo cho phép ngày 2026-11-14: làm bước 1 và 2 trên một nhánh r
   36/53 thành 42/59.
 - Bước 1 đụng tới thư mục công cụ, tệp make và thư mục cấu hình tác tử của Inventory. Theo luật tự
   chủ của Inventory đó là loại thay đổi cao nhất: người giữ mã phải ký trước khi gộp.
-- **Bước 2 chưa làm**: cần ba lời đáp của chủ repo. Bản xem trước với ba giả định thêm bốn dòng:
-  tương phản của màu chính (máy giữ, bốn cặp sáng và tối) và ba dòng ghi lời người. Thêm dòng số
-  phiên bản vào sổ màn thì sổ màn đúng hình dạng; sổ linh kiện vẫn lệch cho tới bước 3.
+- **Bước 2 đã làm**, một commit trên nhánh. Chủ repo giữ cả ba giả định: ứng dụng, mức AA, màu
+  thương hiệu đang dùng (`#0246ff`). Thêm bốn dòng: tương phản của màu chính (máy giữ, bốn cặp sáng
+  và tối) và ba dòng ghi lời người. Sổ màn mang số phiên bản; công cụ đọc sổ màn của Inventory vẫn
+  chạy. Cổng của Inventory xanh, 1696 bài kiểm.
+- Thang trên nhánh sau bước 2, khớp số đo trên bản sao: sổ đúng hình dạng 4 trên 5 (sổ linh kiện
+  vẫn lệch cho tới bước 3), câu lõi có lời đáp 29 trên 39, câu lõi máy giữ 2, quyết định máy giữ 7,
+  kit vẫn M1.
+- Độ tất định do công cụ của Inventory đo: 42/59 thành 43/63, tỉ lệ 71% xuống 68%. Ba lời người là
+  dòng không có lệnh kiểm, nên tăng mẫu số. Đó là cách đếm đúng, không phải lùi.
 
 ## Lát đầu, đo ngày 2026-11-14
 

@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-14 — Lát đầu của chặng 3, bước 2, trên nhánh riêng của Inventory: chủ kho giữ ba giả định (ứng dụng, AA, màu thương hiệu đang dùng); tương phản của màu chính thành máy giữ, sổ màn mang số phiên bản; thang trên nhánh khớp số đo trên bản sao. Chưa đẩy, chưa gộp — [thang đo](../docs/trials/inventory-ladder.md).
 - 2026-11-14 — Lát đầu của chặng 3 vào Inventory thật, bước 1, theo lời cho phép của chủ kho: «nhận» chạy trên nhánh riêng `chore/adopt-design-assembly` của Inventory, chưa đẩy; cổng của Inventory xanh trước và sau, độ tất định của nó 36/53 lên 42/59. Bước 2 chờ ba lời đáp — [thang đo](../docs/trials/inventory-ladder.md), [bàn giao](../docs/HANDOFF.md).
 - 2026-11-14 — Lượt CI đầu tiên xanh; nó lộ ra dòng đếm bài kiểm của plugin báo 0 trên bản Node của CI. Sửa: nêu rõ định dạng in, cổng đỏ khi đếm được 0 — `mk/plugin.mk`, `design/escapes.md`.
 - 2026-11-14 — Kho lên GitHub lần đầu, riêng tư, theo lời chủ kho; ràng buộc «không đẩy» đổi thành «đẩy chỉ khi chủ kho bảo» — [bàn giao](../docs/HANDOFF.md).

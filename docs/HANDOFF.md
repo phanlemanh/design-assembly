@@ -58,7 +58,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
   thành lát mỏng (0032); lát đầu mới chạy trên bản sao. Chặng 4 «Hai repo đổi vai» và 5 «Lõi của
   họ» chưa bắt đầu.
 - **Inventory chỉ bị đụng trên một nhánh riêng, chưa đẩy.** Chủ kho cho phép ngày 2026-11-14 làm
-  bước 1 và 2 trên nhánh riêng. Bước 1 đã commit ở nhánh `chore/adopt-design-assembly`, trong thư
+  bước 1 và 2 trên nhánh riêng. Cả hai đã commit ở nhánh `chore/adopt-design-assembly`, trong thư
   mục làm việc `~/dev/onehub-inventory/.claude/worktrees/adopt-design-assembly`. Bản chính của
   Inventory vẫn ở `main`. Phép đo vẫn chạy trên bản sao bỏ đi bằng `make design-ladder`.
 - Số đo chính hôm nay: số chỗ tác tử phải đoán khi dựng một màn là 12, 12, 13, 11 (đứng yên); luật
@@ -112,20 +112,17 @@ Khuôn mẫu về nhịp dẫn dắt: `~/dev/repo-standards/plugins/repo-setup/s
 
 ## Việc kế
 
-**Đang chờ chủ kho trả lời:**
+**Đang chờ chủ kho trả lời:** 25 dòng ở `docs/review-queue.md`.
 
-1. Ba lời đáp cho bước 2 của lát đầu. Máy mới _giả định_: loại sản phẩm là ứng dụng, mức
-   accessibility AA, ghi nhận màu thương hiệu đang dùng (`#0246ff`). Có lời đáp thì chạy «nhận» với
-   ba lời đó và thêm dòng số phiên bản vào sổ màn, trên cùng nhánh riêng.
-2. 25 dòng ở `docs/review-queue.md`.
-
-Quyền đã cho ngày 2026-11-14, bằng lời, trong một phiên: bước 1 và 2 trên nhánh riêng của Inventory,
-không đẩy. Phiên mới **hỏi lại** trước khi đụng vào Inventory, vì quyền bằng lời không theo sang
-phiên khác. Bước 3, việc đẩy và việc gộp nhánh chưa được cho.
+Chủ kho đã đáp ba câu của Inventory ngày 2026-11-14: ứng dụng, mức AA, giữ màu thương hiệu
+`#0246ff`. Quyền đã cho ngày đó, bằng lời, trong một phiên: bước 1 và 2 trên nhánh riêng của
+Inventory, không đẩy; cả hai đã xong. Phiên mới **hỏi lại** trước khi đụng vào Inventory, vì quyền
+bằng lời không theo sang phiên khác. Bước 3, việc đẩy và việc gộp nhánh chưa được cho.
 
 **Kế tiếp, theo thứ tự máy đề xuất** (0032 và `docs/trials/inventory-ladder.md`):
 
-1. Bước 2 trên nhánh riêng của Inventory, khi có ba lời đáp. Bước 1 đã xong ở đó.
+1. Bước 1 và 2 đã xong trên nhánh riêng của Inventory. Gộp nhánh đó là việc của chủ kho: nó đụng
+   vùng Inventory xếp vào loại phải có người giữ mã ký.
 2. Lát hai: plugin chạy lại được bằng chứng của chính repo (lint, bài kiểm có thẻ). Hôm nay 21 câu
    lõi của Inventory ghi «tự khai» vì plugin không chạy lại chúng, nên số «máy giữ» ở đó thấp.
 3. Lát ba: bộ đọc linh kiện ghi danh sách thuộc tính, biết thư mục khuôn và thư viện mua thứ hai.
