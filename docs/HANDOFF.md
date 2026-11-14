@@ -14,7 +14,7 @@ thư mục tạm của phiên cũ, và **không thừa hưởng quyền nào ch�
 2. `AGENTS.md` và `CLAUDE.md` ở gốc kho: lệnh, luật, ngôn ngữ.
 3. `wiki/decisions/0032-review-after-stage-two-and-stage-three-recut.md`: bản review và việc cắt lại
    chặng 3. Rồi `docs/trials/inventory-ladder.md`: thang bốn nấc và số đo của lát đầu.
-4. `docs/review-queue.md`: 26 dòng đang chờ chủ kho xem. Đừng tự coi dòng nào là đã duyệt.
+4. `docs/review-queue.md`: 25 dòng đang chờ chủ kho xem. Đừng tự coi dòng nào là đã duyệt.
 5. `wiki/specs/0002-meta-layer-for-many-repositories.md`: tầm nhìn, bảy tiêu chí, kế hoạch.
    Kiến trúc đầy đủ ở `docs/architecture/meta-layer.html` (chưa duyệt toàn bộ). Tài liệu đó gọi kho
    mã là «repo» và nơi chứa thứ dùng lại là «kho»; trang viết trước 2026-11-13 còn dùng «kho» cho
@@ -47,8 +47,9 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 
 ## Trạng thái lúc bàn giao
 
-- Nhánh `main`, cây làm việc sạch, mọi thứ đã commit. **Chưa có remote, chưa đẩy đi đâu**: kho chỉ
-  nằm trên máy này. Cập nhật lần cuối 2026-11-14, sau quyết định 0032.
+- Nhánh `main`, cây làm việc sạch, mọi thứ đã commit. Kho có trên GitHub từ 2026-11-14, **riêng
+  tư**: `phanlemanh/design-assembly`, remote `origin`. Chủ kho bảo tạo và đẩy một lần («Tạo github
+  và push»). Cập nhật lần cuối 2026-11-14, sau quyết định 0032.
 - `make check` xanh: lint, typecheck, 102 bài kiểm của kho, ontology, lệnh kiểm design-assembly
   (27 quyết định, 33 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 238 bài kiểm của plugin.
 - Kho này đáp 39/39 quyết định lõi: 16 máy giữ, 17 tự khai, 6 đã ghi. 11 sổ đúng hình dạng hợp
@@ -116,7 +117,7 @@ Khuôn mẫu về nhịp dẫn dắt: `~/dev/repo-standards/plugins/repo-setup/s
    cần ba lời đáp của chủ kho; máy mới _giả định_ để đo: loại sản phẩm là ứng dụng, mức
    accessibility AA, ghi nhận màu thương hiệu đang dùng. Bước 2 cũng thêm một dòng số phiên bản vào
    sổ màn của Inventory.
-2. 26 dòng ở `docs/review-queue.md`.
+2. 25 dòng ở `docs/review-queue.md`.
 
 Phiên mới **hỏi lại** câu 1 trước khi đụng vào Inventory, dù phiên cũ đã hỏi.
 
@@ -167,7 +168,9 @@ API); lệnh kiểm tương phản cho nút khi rê chuột; adopt nhận trang 
 
 ## Ràng buộc cứng
 
-- **Không đẩy, không tạo kho trên GitHub.** Việc đó chủ kho tự làm.
+- **Đẩy lên GitHub chỉ khi chủ kho bảo.** Kho này đã có remote riêng tư từ 2026-11-14 vì chủ kho
+  bảo tạo và đẩy lần đó. Lần đẩy sau vẫn cần chủ kho bảo. Không đổi kho sang công khai, không tạo
+  kho nào khác; ba kho bên cạnh không bao giờ được đẩy từ đây.
 - **Không sửa ba kho bên cạnh**: `~/dev/repo-standards`, `~/dev/delivery-loop` (kit nghiệm thu,
   nhánh `chuyen-nha`), `~/dev/onehub-inventory` (kho đối chứng). Chỉ đọc, hoặc xem trước không ghi.
   Muốn thử trên chúng thì clone vào thư mục tạm.
@@ -183,7 +186,7 @@ API); lệnh kiểm tương phản cho nút khi rê chuột; adopt nhận trang 
 
 ## Điều còn mở
 
-Cần chủ kho quyết: mọi câu đã gom vào `docs/review-queue.md`, 26 dòng, mỗi dòng trả lời bằng một
+Cần chủ kho quyết: mọi câu đã gom vào `docs/review-queue.md`, 25 dòng, mỗi dòng trả lời bằng một
 chạm. Hình dạng sổ linh kiện đã được phân xử (0023 câu 1, dựng ở 0029). Riêng ở kho đối chứng: bảy
 dòng sổ đã có bài kiểm mà dòng chưa trỏ tới; `adopt --hold` gắn được, làm hay không là việc của
 chủ kho ở kho đó.

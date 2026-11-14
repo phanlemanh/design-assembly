@@ -46,8 +46,7 @@ Máy không tự đánh dấu dòng nào là đã duyệt.
 
 ## D. Việc chỉ chủ repo làm được
 
-| #   | Việc                                                                             |
-| --- | -------------------------------------------------------------------------------- |
-| D1  | Đẩy repo này lên một nơi thứ hai. Hôm nay toàn bộ 70 commit chỉ nằm trên một máy |
-| D2  | Cho phép từng bước ở Inventory, delivery-loop và Repo Standards                  |
-| D3  | Cho phép chạy phép đo token chính thức (tốn tiền API)                            |
+| #   | Việc                                                            |
+| --- | --------------------------------------------------------------- |
+| D2  | Cho phép từng bước ở Inventory, delivery-loop và Repo Standards |
+| D3  | Cho phép chạy phép đo token chính thức (tốn tiền API)           |
