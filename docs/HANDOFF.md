@@ -128,7 +128,7 @@ chủ kho, người giữ mã ký theo luật tự chủ của Inventory.
 
 1. Bước 1 và 2 đã xong trên nhánh riêng của Inventory. Gộp nhánh đó là việc của chủ kho: nó đụng
    vùng Inventory xếp vào loại phải có người giữ mã ký.
-2. Lát hai đã xong (0033) cho phần lint, cả trên nhánh riêng của Inventory (chủ kho cho phép
+2. Lát hai đã xong (0033, mục 5 thay bởi 0035) cho phần lint, cả trên nhánh riêng của Inventory (chủ kho cho phép
    2026-11-14). Còn lại: bài kiểm và công cụ của repo chưa được chạy lại; hướng nhập chưa có đoạn
    mã phạm.
 3. Lát ba đã xong (0034), và bước 3 của lát đầu đã làm trên nhánh riêng của Inventory (chủ kho cho
@@ -139,9 +139,13 @@ chủ kho, người giữ mã ký theo luật tự chủ của Inventory.
    dẫn T3 phải kèm hồ sơ `_acceptance/<slug>/` có chữ ký người. Việc tách không gỡ được cổng; máy đã
    đoán sai lý do, và đã ghi lại. Chủ kho cho dựng hồ sơ: `_acceptance/adopt-design-assembly/` trên
    nhánh của #58, chạy theo vòng `/feature-loop:feature-loop adopt-design-assembly`. Cổng Phạm vi và
-   Cổng 1.5 đã duyệt (2026-11-14); việc kế là S3 (viết bảy phép đo trong `rang/` theo kế hoạch
-   `docs/superpowers/plans/2026-11-14-adopt-design-assembly.md` của Inventory), rồi lượt chấm, rồi
-   Cổng Bằng chứng chờ chủ kho ký.
+   Cổng 1.5 đã duyệt (2026-11-14); S3 xong; lượt chấm 1 trả REJECT vì lệnh kiểm lint tính «giữ» khi
+   luật khác chặn thay luật dòng sổ nêu tên. Chủ kho chọn siết (2026-11-15, «Siết, sửa AC-2»): plugin
+   sửa ([0035](../wiki/decisions/0035-the-named-rule-holds-the-row.md)), «khoảng cách» của Inventory
+   về lại «tự khai», AC-2 thành 17 quyết định và tám luật, thêm phép đo tắt riêng luật nêu tên.
+   **Hợp đồng về lại nháp, chờ chủ kho duyệt lại Cổng Phạm vi**; sau đó là Cổng 1.5 cho một việc
+   thêm vào kế hoạch (đã làm), lượt chấm 2, rồi Cổng Bằng chứng chờ chủ kho ký. Bảy commit của nhánh
+   sau `11477d7` chưa đẩy.
    **Tên tệp ở Inventory là tiếng Anh** theo AGENTS.md của nó, dù phần lớn tên có sẵn ở đó là tiếng
    Việt; chủ kho chỉ ra ngày 2026-11-14 và mọi tên của vòng này đã đổi sang tiếng Anh.
 4. Sau cùng: bộ chuyển Next.js cho bảng mẫu và cuốn sổ; sổ nguồn ngoài và sổ nhập kho.
