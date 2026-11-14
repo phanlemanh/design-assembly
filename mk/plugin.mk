@@ -15,8 +15,11 @@ design-audit: ## Audit this repository: each standard decision's state, and the 
 
 plugin-test: ## Run the plugin's own tests: the colour maths, the ledger, and the whole guide on a throwaway repository
 	@mkdir -p coverage
-	@DESIGN_ASSEMBLY_REFERENCE_LEDGER=$(REFERENCE_LEDGER) DESIGN_ASSEMBLY_KIT=$(ACCEPTANCE_KIT) node --test "plugins/design-assembly/tests/*.mjs" > coverage/plugin-test.log 2>&1 || (cat coverage/plugin-test.log; exit 1)
+	@DESIGN_ASSEMBLY_REFERENCE_LEDGER=$(REFERENCE_LEDGER) DESIGN_ASSEMBLY_KIT=$(ACCEPTANCE_KIT) node --test --test-reporter=spec "plugins/design-assembly/tests/*.mjs" > coverage/plugin-test.log 2>&1 || (cat coverage/plugin-test.log; exit 1)
 	@echo "plugin tests: $$(grep -c '^✔' coverage/plugin-test.log) passed, $$(grep -c '^﹣' coverage/plugin-test.log) skipped"
+	@# The reporter is named, so the count reads the same on every version of the runtime. A run
+	@# that counts no passing test proves nothing, and fails.
+	@grep -q '^✔' coverage/plugin-test.log || (echo "plugin tests: no passing test was counted, so this run proves nothing"; exit 1)
 
 # Extra flags for the sheet, such as SPECIMEN_ARGS="--section color --color #aa3300".
 SPECIMEN_ARGS ?=

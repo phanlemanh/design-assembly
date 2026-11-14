@@ -653,8 +653,10 @@
       "plan": "keep",
       "opened": "2026-11-11",
       "where": ["d0002", "handoff"],
-      "status": "open",
-      "note": "There is a continuous-integration file but no remote, so every check has only ever run on one machine."
+      "status": "closed",
+      "note": "There is a continuous-integration file but no remote, so every check has only ever run on one machine.",
+      "closed": "2026-11-14",
+      "closed_by": "the repository has a remote and its first continuous-integration run passed the whole gate; the tests that need the two neighbouring repositories are skipped there"
     },
     {
       "id": "token-measurement-never-run",
