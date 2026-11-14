@@ -143,9 +143,11 @@ chủ kho, người giữ mã ký theo luật tự chủ của Inventory.
    luật khác chặn thay luật dòng sổ nêu tên. Chủ kho chọn siết (2026-11-15, «Siết, sửa AC-2»): plugin
    sửa ([0035](../wiki/decisions/0035-the-named-rule-holds-the-row.md)), «khoảng cách» của Inventory
    về lại «tự khai», AC-2 thành 17 quyết định và tám luật, thêm phép đo tắt riêng luật nêu tên.
-   **Hợp đồng về lại nháp, chờ chủ kho duyệt lại Cổng Phạm vi**; sau đó là Cổng 1.5 cho một việc
-   thêm vào kế hoạch (đã làm), lượt chấm 2, rồi Cổng Bằng chứng chờ chủ kho ký. Bảy commit của nhánh
-   sau `11477d7` chưa đẩy.
+   Chủ kho duyệt lại Cổng Phạm vi và Cổng 1.5; lượt chấm 2 đạt mọi phép kiểm máy; **chủ kho đã ký Cổng
+   Bằng chứng ngày 2026-11-15**, lưới trước khi gộp của kit sạch. 13 mục ngoài hợp đồng ghi vào hạn chế
+   đã biết, 2 chấp nhận không sửa, 1 mở hợp đồng mới (sổ linh kiện ghi trùng linh kiện xuất lại qua tệp
+   gom, sửa ở plugin). **Các commit của nhánh sau `11477d7` chưa đẩy**; đẩy cần lời chủ kho, rồi việc
+   gộp #58 là của chủ kho; #59 gộp sau.
    **Tên tệp ở Inventory là tiếng Anh** theo AGENTS.md của nó, dù phần lớn tên có sẵn ở đó là tiếng
    Việt; chủ kho chỉ ra ngày 2026-11-14 và mọi tên của vòng này đã đổi sang tiếng Anh.
 4. Sau cùng: bộ chuyển Next.js cho bảng mẫu và cuốn sổ; sổ nguồn ngoài và sổ nhập kho.
