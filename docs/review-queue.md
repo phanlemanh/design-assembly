@@ -33,6 +33,7 @@ Máy không tự đánh dấu dòng nào là đã duyệt.
 | B3  | Đổi chỉ số chính sang «luật bị phạm, có so với không có trang luật»; số chỗ đoán thành số phụ | Giữ đề xuất                                         |
 | B4  | Thang bốn nấc ở Inventory: sổ đúng hình dạng, câu lõi máy giữ, công cụ được thay, bậc của kit | Giữ đề xuất                                         |
 | B5  | Ngừng thêm luật bằng lời ở repo này; chỉ sửa 14 giới hạn nguy hiểm khi Inventory đụng tới     | Giữ đề xuất                                         |
+| B6  | Đề bài 0003: sổ màn khai màn hiện gì, và phép kiểm nối sổ màn với mô hình nghiệp vụ           | Duyệt để xây vào plugin                             |
 
 ## C. Câu còn mở từ trước
 
