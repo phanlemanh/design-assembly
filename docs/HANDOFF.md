@@ -49,14 +49,14 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 
 - Nhánh `main`, cây làm việc sạch, mọi thứ đã commit. Kho có trên GitHub từ 2026-11-14, **riêng
   tư**: `phanlemanh/design-assembly`, remote `origin`. Chủ kho bảo tạo và đẩy một lần («Tạo github
-  và push»). Cập nhật lần cuối 2026-11-14, sau quyết định 0033.
+  và push»). Cập nhật lần cuối 2026-11-14, sau quyết định 0034.
 - `make check` xanh: lint, typecheck, 102 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (37 quyết định, 43 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 242 bài kiểm của plugin.
+  (37 quyết định, 43 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 247 bài kiểm của plugin.
 - Kho này đáp 39/39 quyết định lõi: 26 máy giữ, 7 tự khai, 6 đã ghi. 11 sổ đúng hình dạng hợp
   đồng.
 - **Lộ trình năm chặng:** 1 «Dọn nền» và 2 «Hợp đồng» đã xong. Chặng 3 «Vào Inventory» đã cắt lại
   thành lát mỏng (0032); lát đầu (bước 1, 2) đã làm trên nhánh riêng của Inventory, lát hai (0033)
-  chạy lại lint của repo. Chặng 4 «Hai repo đổi vai» và 5 «Lõi của
+  chạy lại lint của repo, lát ba (0034) đưa bộ đọc linh kiện ngang công cụ của Inventory. Chặng 4 «Hai repo đổi vai» và 5 «Lõi của
   họ» chưa bắt đầu.
 - **Inventory chỉ bị đụng trên một nhánh riêng, chưa đẩy.** Chủ kho cho phép ngày 2026-11-14 làm
   bước 1, 2 và lát hai trên nhánh riêng. Cả ba đã commit ở nhánh `chore/adopt-design-assembly`, trong thư
@@ -68,29 +68,30 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 
 ## Đã dựng gì, theo thứ tự
 
-| Phần                                                       | Bản ghi | Tệp chính                                                                                          |
-| ---------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------- |
-| Bậc deliverable, ranh giới với hai kho bên cạnh, audit     | 0005    | `references/tiers.json`, `scripts/inventory.mjs`                                                   |
-| Sổ chuẩn, bảy tầng, danh mục 66 quyết định (38 lõi)        | 0006    | `templates/tools/design-assembly/ledger.mjs`, `references/standard-decisions.json`                 |
-| Adopt: nhận giá trị kho đã có                              | 0007    | `scripts/adopt.mjs`, `references/known-proofs.json`                                                |
-| Tệp design tokens sinh từ stylesheet                       | 0008    | `templates/tools/design-assembly/tokens.mjs`                                                       |
-| Sổ linh kiện sinh từ mã nguồn                              | 0009    | `templates/tools/design-assembly/components.mjs`                                                   |
-| Chỉ dòng sổ mới là lời đáp; audit in bước kế               | 0010    | `scripts/inventory.mjs`, `scripts/proofs.mjs`                                                      |
-| Cỡ vùng bấm đo từ mã nguồn                                 | 0011    | `components.mjs`                                                                                   |
-| Bảng dữ liệu: kiểu cột quyết định canh lề, bề rộng, mật độ | 0012    | `templates/tools/design-assembly/columns.mjs`, `src/components/ui/typed-table.tsx`                 |
-| Trạng thái, chữ, câu báo lỗi                               | 0013    | `templates/tools/design-assembly/patterns.mjs`                                                     |
-| Kênh thông báo, hoàn tác, bài kiểm gắn thẻ làm bằng chứng  | 0014    | `src/lib/notify.ts`, `scripts/proofs.mjs`                                                          |
-| Trang luật cho tác tử; dòng sổ chưa có lệnh kiểm           | 0015    | `.claude/rules/design-assembly.md`, cờ `--hold` của adopt                                          |
-| Skill bàn giao và cuốn sổ design system                    | 0020    | `scripts/book.mjs`, `scripts/stage.mjs`, `skills/handoff/`, `references/book.md`                   |
-| Bảng mẫu thị giác cho tầng foundations                     | 0019    | `scripts/specimen.mjs`, `references/source-colors.json`                                            |
-| Hướng nhập giữa các phần, sổ lỗi lọt                       | 0018    | `templates/tools/design-assembly/governance.mjs`, `design/parts.json`, `design/escapes.md`         |
-| Sau một thao tác: tiêu điểm, đổi tại chỗ, trống, đi lại    | 0017    | `src/example/ReferenceScreen.tsx`, `src/lib/slow.ts`, `templates/owned/templates.spec.ts.template` |
-| Sáu luật cho điều tác tử dựng màn phải đoán ở lần thử năm  | 0021    | `src/components/held-label.tsx`, `typed-table.tsx`, `design/parts.json`, `ontology/actions.yaml`   |
-| Kiểu màn, cỡ màn được kiểm, thao tác thất bại              | 0016    | `templates/tools/design-assembly/screens.mjs`, `design/patterns/`, `src/lib/notify.ts`             |
-| Hợp đồng: mỗi sổ một hình dạng, cổng giữ hình dạng         | 0029    | `templates/tools/design-assembly/contract.mjs`, `references/contract.md`                           |
-| Một sổ màn, mã chỉ giữ cách tới từng trạng thái            | 0030    | `design/screens.yaml`, `templates/tools/design-assembly/screen-ledger.mjs`                         |
-| Năm bộ chuyển giữ tên thư viện                             | 0031    | `templates/tools/design-assembly/adapters/`                                                        |
-| Chạy lại lint của repo trên đoạn mã phạm quyết định        | 0033    | `templates/tools/design-assembly/probes.mjs`, `lint.mjs`, `adapters/eslint.mjs`                    |
+| Phần                                                           | Bản ghi | Tệp chính                                                                                          |
+| -------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------- |
+| Bậc deliverable, ranh giới với hai kho bên cạnh, audit         | 0005    | `references/tiers.json`, `scripts/inventory.mjs`                                                   |
+| Sổ chuẩn, bảy tầng, danh mục 66 quyết định (38 lõi)            | 0006    | `templates/tools/design-assembly/ledger.mjs`, `references/standard-decisions.json`                 |
+| Adopt: nhận giá trị kho đã có                                  | 0007    | `scripts/adopt.mjs`, `references/known-proofs.json`                                                |
+| Tệp design tokens sinh từ stylesheet                           | 0008    | `templates/tools/design-assembly/tokens.mjs`                                                       |
+| Sổ linh kiện sinh từ mã nguồn                                  | 0009    | `templates/tools/design-assembly/components.mjs`                                                   |
+| Chỉ dòng sổ mới là lời đáp; audit in bước kế                   | 0010    | `scripts/inventory.mjs`, `scripts/proofs.mjs`                                                      |
+| Cỡ vùng bấm đo từ mã nguồn                                     | 0011    | `components.mjs`                                                                                   |
+| Bảng dữ liệu: kiểu cột quyết định canh lề, bề rộng, mật độ     | 0012    | `templates/tools/design-assembly/columns.mjs`, `src/components/ui/typed-table.tsx`                 |
+| Trạng thái, chữ, câu báo lỗi                                   | 0013    | `templates/tools/design-assembly/patterns.mjs`                                                     |
+| Kênh thông báo, hoàn tác, bài kiểm gắn thẻ làm bằng chứng      | 0014    | `src/lib/notify.ts`, `scripts/proofs.mjs`                                                          |
+| Trang luật cho tác tử; dòng sổ chưa có lệnh kiểm               | 0015    | `.claude/rules/design-assembly.md`, cờ `--hold` của adopt                                          |
+| Skill bàn giao và cuốn sổ design system                        | 0020    | `scripts/book.mjs`, `scripts/stage.mjs`, `skills/handoff/`, `references/book.md`                   |
+| Bảng mẫu thị giác cho tầng foundations                         | 0019    | `scripts/specimen.mjs`, `references/source-colors.json`                                            |
+| Hướng nhập giữa các phần, sổ lỗi lọt                           | 0018    | `templates/tools/design-assembly/governance.mjs`, `design/parts.json`, `design/escapes.md`         |
+| Sau một thao tác: tiêu điểm, đổi tại chỗ, trống, đi lại        | 0017    | `src/example/ReferenceScreen.tsx`, `src/lib/slow.ts`, `templates/owned/templates.spec.ts.template` |
+| Sáu luật cho điều tác tử dựng màn phải đoán ở lần thử năm      | 0021    | `src/components/held-label.tsx`, `typed-table.tsx`, `design/parts.json`, `ontology/actions.yaml`   |
+| Kiểu màn, cỡ màn được kiểm, thao tác thất bại                  | 0016    | `templates/tools/design-assembly/screens.mjs`, `design/patterns/`, `src/lib/notify.ts`             |
+| Hợp đồng: mỗi sổ một hình dạng, cổng giữ hình dạng             | 0029    | `templates/tools/design-assembly/contract.mjs`, `references/contract.md`                           |
+| Một sổ màn, mã chỉ giữ cách tới từng trạng thái                | 0030    | `design/screens.yaml`, `templates/tools/design-assembly/screen-ledger.mjs`                         |
+| Năm bộ chuyển giữ tên thư viện                                 | 0031    | `templates/tools/design-assembly/adapters/`                                                        |
+| Bộ đọc linh kiện: thuộc tính, khuôn theo thư mục, mọi thư viện | 0034    | `templates/tools/design-assembly/components.mjs`, `adapters/shadcn.mjs`                            |
+| Chạy lại lint của repo trên đoạn mã phạm quyết định            | 0033    | `templates/tools/design-assembly/probes.mjs`, `lint.mjs`, `adapters/eslint.mjs`                    |
 
 Lệnh hay dùng ở kho này: `make design-audit`, `make design-plan`, `make design-apply`,
 `make design-adopt`, `make design-adopt-reference` (xem trước trên kho đối chứng, không bao giờ
@@ -128,8 +129,9 @@ bằng lời không theo sang phiên khác. Bước 3, việc đẩy và việc 
 2. Lát hai đã xong (0033) cho phần lint, cả trên nhánh riêng của Inventory (chủ kho cho phép
    2026-11-14). Còn lại: bài kiểm và công cụ của repo chưa được chạy lại; hướng nhập chưa có đoạn
    mã phạm.
-3. Lát ba: bộ đọc linh kiện ghi danh sách thuộc tính, biết thư mục khuôn và thư viện mua thứ hai.
-   Xong mới thay được công cụ sổ linh kiện của Inventory, và mới khai được sổ với kit để lên M2.
+3. Lát ba đã xong (0034): bộ đọc linh kiện ngang công cụ của Inventory trên bản sao. Thay công cụ
+   đó là bước 3 của lát đầu, làm ở Inventory, cần chủ kho cho phép: đổi skill dựng màn, bài kiểm sổ
+   và lệnh sinh lại của Inventory sang hình dạng sổ theo hợp đồng, rồi khai sổ với kit để lên M2.
 4. Sau cùng: bộ chuyển Next.js cho bảng mẫu và cuốn sổ; sổ nguồn ngoài và sổ nhập kho.
 
 **Đừng làm, trừ khi chủ kho bảo:** thêm luật bằng lời ở kho này; chạy thêm lượt thử bằng tác tử
@@ -137,6 +139,8 @@ bằng lời không theo sang phiên khác. Bước 3, việc đẩy và việc 
 
 Các lát đã xong, mới nhất trước:
 
+- **Chặng 3, lát ba** (2026-11-14, 0034). Sổ linh kiện ghi thuộc tính, khuôn theo thư mục, mọi thư
+  viện; bộ đọc bỏ qua chú thích. Trên bản sao Inventory: thuộc tính giống 268/270.
 - **Chặng 3, lát hai** (2026-11-14, 0033). Plugin chạy lại lint của chính repo trên đoạn mã phạm
   từng quyết định, trong cổng; bộ chuyển thứ sáu giữ tên công cụ lint. Inventory, bản sao: câu lõi
   máy giữ 2 lên 11.

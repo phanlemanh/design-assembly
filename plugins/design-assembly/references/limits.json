@@ -311,9 +311,11 @@
       "severity": "medium",
       "plan": "keep",
       "opened": "2026-11-12",
-      "where": ["d0009", "d0029"],
-      "status": "open",
-      "note": "The component register carries no states and no props, and reads only the library folder and the folder of the repository's own components beside it."
+      "where": ["d0009", "d0029", "d0034"],
+      "status": "closed",
+      "note": "The component register carries no states and no props, and reads only the library folder and the folder of the repository's own components beside it.",
+      "closed": "2026-11-14",
+      "closed_by": "the register carries each component's props and reads every library's folder; the states it still does not carry are the open row register-carries-no-states"
     },
     {
       "id": "target-size-unmeasured-controls",
@@ -1784,9 +1786,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-14",
-      "where": ["d0032", "trials"],
-      "status": "open",
-      "note": "The components adapter knows one folder for the component library, so a second bought library kept in a folder of its own is listed as the repository's own components."
+      "where": ["d0032", "trials", "d0034"],
+      "status": "closed",
+      "note": "The components adapter knows one folder for the component library, so a second bought library kept in a folder of its own is listed as the repository's own components.",
+      "closed": "2026-11-14",
+      "closed_by": "the folder of every registry the component library's settings name is read as a library folder when it is there"
     },
     {
       "id": "register-takeover-not-equal",
@@ -1795,9 +1799,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-14",
-      "where": ["d0032", "trials"],
-      "status": "open",
-      "note": "On a copy of the reference repository this plugin's register reader gave the same levels and nearly the same variants as that repository's own tool, but no list of props and one template where it has ten, so the tool cannot be retired yet."
+      "where": ["d0032", "trials", "d0034"],
+      "status": "closed",
+      "note": "On a copy of the reference repository this plugin's register reader gave the same levels and nearly the same variants as that repository's own tool, but no list of props and one template where it has ten, so the tool cannot be retired yet.",
+      "closed": "2026-11-14",
+      "closed_by": "on a copy of the reference repository the register reader now gives the same props for 268 of 270 components, the same template files, the same level for 269 and the same variants for 262, the others being props typed as a list of words that it lists as variants as well; retiring that repository's tool now waits on moving its register to the contract's shape, the open row reference-register-other-shape"
     },
     {
       "id": "shapes-row-claims-not-rerun",
@@ -1855,6 +1861,28 @@
       "severity": "low",
       "plan": "fix",
       "note": "No text breaks the direction of imports, since what breaks it depends on how each repository splits its parts, so a lint rule said to hold it is not run again."
+    },
+    {
+      "opened": "2026-11-14",
+      "where": ["d0034"],
+      "status": "open",
+      "id": "register-carries-no-states",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "note": "The component register says which props and variants a component takes, not which states it shows, so an agent learns those from the pages of screen kinds and the behaviour page."
+    },
+    {
+      "opened": "2026-11-14",
+      "where": ["d0034"],
+      "status": "open",
+      "id": "props-from-signature-only",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "note": "Props are read from the object a component's first parameter takes apart; a component that takes its props whole lists none, and a prop is never read from a type declared elsewhere."
     }
   ]
 }

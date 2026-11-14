@@ -6,7 +6,8 @@
       "category": "component",
       "file": "src/components/app-frame.tsx",
       "level": "molecule",
-      "source": "own"
+      "source": "own",
+      "props": ["appName", "navLabel", "screens"]
     },
     {
       "name": "HeldLabel",
@@ -20,28 +21,32 @@
       "category": "component",
       "file": "src/components/item-list.tsx",
       "level": "organism",
-      "source": "own"
+      "source": "own",
+      "props": ["list", "label", "empty", "onOpen", "actions", "noResultsRef"]
     },
     {
       "name": "ItemRecord",
       "category": "component",
       "file": "src/components/item-record.tsx",
       "level": "molecule",
-      "source": "own"
+      "source": "own",
+      "props": ["item"]
     },
     {
       "name": "ItemTable",
       "category": "component",
       "file": "src/components/item-table.tsx",
       "level": "organism",
-      "source": "own"
+      "source": "own",
+      "props": ["label", "items", "onOpen", "actions"]
     },
     {
       "name": "Notice",
       "category": "component",
       "file": "src/components/notice.tsx",
       "level": "molecule",
-      "source": "own"
+      "source": "own",
+      "props": ["title", "detail", "action", "onAction", "actionRef", "pending"]
     },
     {
       "name": "WithRecord",
@@ -88,6 +93,7 @@
       "file": "src/components/ui/badge.tsx",
       "level": "atom",
       "source": "library",
+      "props": ["render"],
       "variants": [
         "variant=default",
         "variant=secondary",
@@ -135,6 +141,7 @@
       "file": "src/components/ui/card.tsx",
       "level": "atom",
       "source": "library",
+      "props": ["size"],
       "variants": ["size=default", "size=sm"],
       "defaults": {
         "size": "default"
@@ -203,7 +210,8 @@
       "file": "src/components/ui/dialog.tsx",
       "level": "molecule",
       "source": "library",
-      "parts": ["DialogOverlay", "DialogPortal"]
+      "parts": ["DialogOverlay", "DialogPortal"],
+      "props": ["showCloseButton"]
     },
     {
       "name": "DialogDescription",
@@ -217,7 +225,8 @@
       "category": "component",
       "file": "src/components/ui/dialog.tsx",
       "level": "molecule",
-      "source": "library"
+      "source": "library",
+      "props": ["showCloseButton"]
     },
     {
       "name": "DialogHeader",
@@ -307,6 +316,7 @@
       "file": "src/components/ui/input.tsx",
       "level": "atom",
       "source": "library",
+      "props": ["type"],
       "control": true,
       "min_height": "32px"
     },
@@ -322,7 +332,8 @@
       "category": "component",
       "file": "src/components/ui/row-actions.tsx",
       "level": "molecule",
-      "source": "library"
+      "source": "library",
+      "props": ["name", "pending", "busyName", "ref"]
     },
     {
       "name": "Select",
@@ -337,7 +348,8 @@
       "file": "src/components/ui/select.tsx",
       "level": "atom",
       "source": "library",
-      "parts": ["SelectScrollDownButton", "SelectScrollUpButton"]
+      "parts": ["SelectScrollDownButton", "SelectScrollUpButton"],
+      "props": ["side", "sideOffset", "align", "alignOffset", "alignItemWithTrigger"]
     },
     {
       "name": "SelectGroup",
@@ -388,6 +400,7 @@
       "file": "src/components/ui/select.tsx",
       "level": "atom",
       "source": "library",
+      "props": ["size"],
       "control": true,
       "min_height": "28px",
       "variants": ["size=sm", "size=default"],
@@ -435,7 +448,8 @@
       "category": "component",
       "file": "src/components/ui/table.tsx",
       "level": "atom",
-      "source": "library"
+      "source": "library",
+      "props": ["aria-label"]
     },
     {
       "name": "TableHeader",
@@ -491,7 +505,8 @@
       "category": "component",
       "file": "src/components/ui/typed-table.tsx",
       "level": "template",
-      "source": "library"
+      "source": "library",
+      "props": ["columns"]
     },
     {
       "name": "TypedRow",
@@ -505,14 +520,16 @@
       "category": "component",
       "file": "src/components/ui/typed-table.tsx",
       "level": "molecule",
-      "source": "library"
+      "source": "library",
+      "props": ["field", "header", "values", "style"]
     },
     {
       "name": "TypedCell",
       "category": "component",
       "file": "src/components/ui/typed-table.tsx",
       "level": "molecule",
-      "source": "library"
+      "source": "library",
+      "props": ["field"]
     }
   ]
 }

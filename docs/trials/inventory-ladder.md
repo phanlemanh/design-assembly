@@ -33,6 +33,25 @@ Chủ repo cho phép ngày 2026-11-14: làm bước 1 và 2 trên một nhánh r
 - Độ tất định do công cụ của Inventory đo: 42/59 thành 43/63, tỉ lệ 71% xuống 68%. Ba lời người là
   dòng không có lệnh kiểm, nên tăng mẫu số. Đó là cách đếm đúng, không phải lùi.
 
+## Lát ba: bộ đọc linh kiện so với công cụ của Inventory, đo ngày 2026-11-14
+
+Theo quyết định [0034](../../wiki/decisions/0034-component-reader-equal-to-the-reference-tool.md).
+`make design-ladder` in phép so sau bảng, trên bản sao ở `1226ec5`. Thang bốn nấc không đổi so với
+lát hai; thứ đổi là sổ plugin ghi ở bước 3.
+
+| So theo tên, 270 linh kiện có ở cả hai | Lát đầu       | Lát ba                                |
+| -------------------------------------- | ------------- | ------------------------------------- |
+| Danh sách thuộc tính                   | không có      | giống 268                             |
+| Biến thể                               | giống 264 chỗ | giống 262; 8 chỗ plugin ghi thêm      |
+| Tệp khuôn                              | 1 so với 10   | 10 như nhau, plugin thêm `DataRegion` |
+| Thư viện mua thứ hai                   | «của riêng»   | thư viện                              |
+
+- Số biến thể lát đầu đếm theo cách khác (có cả lỗi đọc chú thích), nên hai cột không so thẳng
+  được với nhau.
+- 64 tên chỉ công cụ của Inventory có: 34 hằng số, 30 kiểu dữ liệu. Không phải linh kiện.
+- Còn vướng: hình dạng sổ. Skill dựng màn, bài kiểm sổ và lệnh sinh lại của Inventory đọc sổ theo
+  tệp; phải đổi theo trước khi bỏ công cụ cũ. Đó là bước 3, cần chủ repo cho phép.
+
 ## Lát hai: plugin chạy lại lint của repo, đo ngày 2026-11-14
 
 Theo quyết định [0033](../../wiki/decisions/0033-re-run-the-repository-lint.md). Bản sao ở

@@ -37,6 +37,7 @@ import {
   COMPONENTS_DECISION,
   COMPONENTS_FOLDER,
   componentsProblem,
+  libraryFolders,
   ownFolder,
   readComponents,
   readFolder,
@@ -306,7 +307,9 @@ export function componentsPlan(target, alreadyHeld, pending = {}) {
   const arriving = Object.entries(pending).filter(([file]) => file.startsWith(`${read}/`));
   const sources = { ...readFolder(target, read), ...Object.fromEntries(arriving) };
   if (!Object.keys(sources).some((name) => name.startsWith(`${folder}/`))) return { nothing: true };
-  const options = { library: folder, pages: readPages(target) };
+  // Another library's folder, installed from a second registry, is a library too.
+  const others = libraryFolders(target).filter((item) => item !== folder);
+  const options = { library: [folder, ...others], pages: readPages(target) };
   const file = socket(target, "registry") ?? REGISTRY;
   const full = path.join(target, file);
   const before = existsSync(full) ? readFileSync(full, "utf8") : null;
@@ -325,7 +328,16 @@ export function componentsPlan(target, alreadyHeld, pending = {}) {
       source: `${read}, written out by make design-components`,
       check: TOOL,
     },
-    checks: [{ kind: "components", file, folder, ...(own ? { own } : {}), pages: KINDS_FOLDER }],
+    checks: [
+      {
+        kind: "components",
+        file,
+        folder,
+        ...(others.length > 0 ? { libraries: others } : {}),
+        ...(own ? { own } : {}),
+        pages: KINDS_FOLDER,
+      },
+    ],
   };
 }
 
