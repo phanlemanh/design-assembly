@@ -137,7 +137,13 @@ chủ kho, người giữ mã ký theo luật tự chủ của Inventory.
    [phanlemanh/onehub-inventory#59](https://github.com/phanlemanh/onehub-inventory/pull/59), đặt nền
    trên nhánh của #58; bậc M2 chờ #59. **Cổng trước khi gộp của kit vẫn đỏ ở #58**: mọi PR đổi đường
    dẫn T3 phải kèm hồ sơ `_acceptance/<slug>/` có chữ ký người. Việc tách không gỡ được cổng; máy đã
-   đoán sai lý do, và đã ghi lại.
+   đoán sai lý do, và đã ghi lại. Chủ kho cho dựng hồ sơ: `_acceptance/adopt-design-assembly/` trên
+   nhánh của #58, chạy theo vòng `/feature-loop:feature-loop adopt-design-assembly`. Cổng Phạm vi và
+   Cổng 1.5 đã duyệt (2026-11-14); việc kế là S3 (viết bảy phép đo trong `rang/` theo kế hoạch
+   `docs/superpowers/plans/2026-11-14-adopt-design-assembly.md` của Inventory), rồi lượt chấm, rồi
+   Cổng Bằng chứng chờ chủ kho ký.
+   **Tên tệp ở Inventory là tiếng Anh** theo AGENTS.md của nó, dù phần lớn tên có sẵn ở đó là tiếng
+   Việt; chủ kho chỉ ra ngày 2026-11-14 và mọi tên của vòng này đã đổi sang tiếng Anh.
 4. Sau cùng: bộ chuyển Next.js cho bảng mẫu và cuốn sổ; sổ nguồn ngoài và sổ nhập kho.
 
 **Đừng làm, trừ khi chủ kho bảo:** thêm luật bằng lời ở kho này; chạy thêm lượt thử bằng tác tử
