@@ -21,6 +21,10 @@ sources:
   - docs/architecture/meta-layer.html
   - docs/trials/README.md
   - "chủ repo, 2026-11-15: «Dựa vào hành vi và jtbd của người dùng phân tích và đề xuất các tập lệnh»; «kiểm kê kho, các thành phần trong kho»; «Viết bộ lệnh này thành đề bài để tôi duyệt, làm rõ input/output»"
+  - "chủ repo, 2026-11-15: «người dùng kỳ vọng như làm việc với một studio chuyên nghiệp nhưng với hoạt động của một engineer, output nên là những chuẩn mực của một design consultant/studio chuyên nghiệp»; «Bổ sung vào 0004»"
+  - plugins/design-assembly/references/book.md
+  - plugins/design-assembly/references/layers.json
+  - repo-standards/docs/ranh-gioi-ba-kho.md
 ---
 
 # 0004 Bộ lệnh của design-assembly, theo việc người dùng cần xong
@@ -52,14 +56,38 @@ nhận bản mới của plugin, đưa một khối mới vào, đổi hay bỏ 
 Tài liệu kiến trúc nêu ba điều kiện để tái dùng làm việc nhanh dần: thứ mới được ghi ngay lúc ra
 đời, tra lại rẻ hơn làm mới, kho còn đáng tin. Bốn lệnh hôm nay không phủ điều kiện nào trọn vẹn.
 
-### Mười hai lệnh, bốn nhóm
+### Chuẩn của một studio, cách làm của một kỹ sư
+
+Lời chủ repo ngày 2026-11-15: repo thuộc hệ design, nên người dùng kỳ vọng như làm việc với một
+studio chuyên nghiệp, nhưng với cách hoạt động của một kỹ sư; đầu ra phải theo chuẩn mực của một
+studio hay nhà tư vấn thiết kế chuyên nghiệp.
+
+Hôm nay plugin làm việc đúng kiểu kỹ sư, nhưng bàn giao như một công cụ: `audit` in dòng chữ ra
+terminal, lời khuyên chỉ có giá trị mà không có lý lẽ, và chỉ `handoff` cho ra một tài liệu trình
+được cho người khác.
+
+| Giai đoạn của một studio | Studio giao gì                                                  | Plugin hôm nay                                           | Còn thiếu                                  |
+| ------------------------ | --------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------ |
+| Khám phá                 | Hiểu sản phẩm, người dùng, thị trường; chốt nguyên tắc thiết kế | Hỏi loại sản phẩm và mức truy cập                        | Nguyên tắc thiết kế, tham chiếu, giọng nói |
+| Rà soát                  | Báo cáo có tóm tắt cho người quyết, phát hiện xếp mức kèm ảnh   | `audit` in dòng chữ                                      | Một bản báo cáo                            |
+| Hướng đi                 | Hai, ba hướng trọn vẹn trên màn thật, mỗi hướng kèm lý lẽ       | Bảng mẫu cho chọn từng thứ rời bằng một chữ cái          | Hướng đi trọn vẹn, và lý lẽ                |
+| Hệ thống                 | Nền, linh kiện, mẫu tương tác, nội dung, khuôn, quản trị        | Dựng ba trên bảy tầng: bối cảnh, nền, mẫu tương tác      | Bốn tầng còn lại                           |
+| Hướng dẫn dùng           | Ví dụ nên và không nên cho từng thứ                             | Trang luật cho tác tử; cuốn sổ tám tờ, ba tờ chưa ai xem | Ví dụ đúng và sai bằng hình                |
+| Soát thiết kế            | Soát màn đã dựng, ảnh có chú thích đánh số                      | Cổng kiểm báo đỏ hay xanh bằng chữ                       | Cả bước này                                |
+| Bàn giao và quản trị     | Cuốn hướng dẫn, ghi chú phát hành, chính sách thay đổi          | Cuốn sổ                                                  | Ghi chú phát hành, chính sách cho nghỉ     |
+| Khả năng truy cập        | Báo cáo tuân thủ                                                | Kiểm tương phản và cỡ vùng bấm                           | Bản báo cáo                                |
+
+Phần kỹ sư phải giữ: mọi tài liệu sinh từ dữ kiện trong sổ, nên chạy lại cho cùng kết quả; hình là
+bằng chứng, không phải trang trí; máy không chấm «đẹp», và tài liệu nói thẳng điều đó.
+
+### Mười ba lệnh, bốn nhóm
 
 | Nhóm  | Lệnh                                   | Trả lời câu                          |
 | ----- | -------------------------------------- | ------------------------------------ |
 | Biết  | `status`, `audit`, `inventory`, `find` | Đang có gì, ở đâu, còn đúng không    |
 | Quyết | `new`, `decide`                        | Chủ repo chọn gì                     |
 | Đổi   | `adopt`, `upgrade`, `intake`, `change` | Thứ gì vào, lên đời, đổi, hay ra     |
-| Giao  | `brief`, `handoff`                     | Người hay tác tử kế tiếp cần biết gì |
+| Giao  | `brief`, `review`, `handoff`           | Người hay tác tử kế tiếp cần biết gì |
 
 Lệnh máy chạy trong cổng của repo (kiểm, sinh lại sổ token, sổ linh kiện, bảng kiểu cột) giữ nguyên
 là lệnh `make` của repo. Người không gõ chúng, nên chúng không thuộc bộ này.
@@ -70,8 +98,8 @@ là lệnh `make` của repo. Người không gõ chúng, nên chúng không thu
   repo đích.
 - **Hai kiểu gọi.** Đối thoại: người gõ lệnh của plugin, lệnh hỏi và bày. Không người: gọi script
   với `--json`, câu trả lời đưa vào bằng `--answers FILE`; để plugin khác gọi được.
-- **Lệnh chỉ đọc không đổi gì.** `status`, `audit`, `inventory`, `find`, `brief`: sau khi chạy, cây
-  của repo giống từng byte.
+- **Lệnh chỉ đọc không đổi gì.** `status`, `audit`, `inventory`, `find`, `brief`, `review`: sau khi
+  chạy, cây của repo giống từng byte.
 - **Lệnh ghi xem trước được.** `new`, `decide`, `adopt`, `upgrade`, `intake`, `change`, `handoff`
   có `--dry-run`, in đúng danh sách tệp sẽ ghi và điều sẽ đổi trong từng sổ.
 - **Mã thoát.** 0: xong, không còn gì. 1: xong, và có việc cho người hoặc có chỗ cần sửa. 2: gọi sai,
@@ -79,15 +107,37 @@ là lệnh `make` của repo. Người không gõ chúng, nên chúng không thu
 - **Tất định.** Cùng một repo cho cùng một kết quả. Không lệnh nào gọi mô hình để ra kết quả.
 - **Quyết định là của người.** Không lệnh nào tự ghi một lời đáp như thể người đã chọn. Điều máy đọc
   ra từ repo là đề xuất, cho tới khi người xác nhận qua `decide`.
+- **Mỗi lệnh có một sản phẩm bàn giao.** Ngoài phần in ra màn hình và `--json`, lệnh dựng được một tài
+  liệu với `--out DIR` và `--format html|pdf`. Tài liệu chỉ ghi vào `--out`; không có `--out` thì
+  không tệp nào được ghi.
+- **Lý lẽ đi kèm khuyến nghị.** Mỗi khuyến nghị nêu nó dựa vào đâu: một nguyên tắc thiết kế chủ repo
+  đã chốt, một chuẩn của ngành, hoặc một số đo trên chính repo.
+
+### Khung chung của mọi tài liệu
+
+Mọi sản phẩm bàn giao dùng một khung, để người đọc tài liệu thứ hai không phải học lại:
+
+1. **Bìa:** tên tài liệu, repo, ngày, bản của plugin, phạm vi đã xét.
+2. **Một trang cho người quyết:** kết luận, ba điều đáng chú ý nhất, điều cần họ quyết.
+3. **Phát hiện,** xếp theo mức nặng; mỗi phát hiện kèm bằng chứng, bằng hình ở nơi vẽ được.
+4. **Khuyến nghị,** mỗi điều kèm lý lẽ và việc phải làm.
+5. **Việc kế,** theo thứ tự, kèm lệnh để làm.
+6. **Tài liệu này không thấy gì:** những chỗ plugin mù trong phạm vi đã xét. Cuốn sổ đã có mục này;
+   mọi tài liệu đều giữ.
+
+Tài liệu dựng từ đúng các dữ kiện của `--json`, nên hai lần dựng trên cùng một repo cho cùng dữ
+kiện. Hình không giống nhau từng điểm ảnh giữa các máy; chỉ dữ kiện đi kèm hình là tất định.
 
 ### Đầu vào và đầu ra của từng lệnh
 
-Mỗi lệnh ghi theo cùng sáu dòng. «Máy nhận» là các khoá của kết quả `--json`.
+Mỗi lệnh ghi theo cùng bảy dòng. «Bàn giao» là tài liệu lệnh dựng được, theo khung chung. «Máy nhận»
+là các khoá của kết quả `--json`.
 
 #### Nhóm Biết
 
 **`status`** — mới. Chủ repo gọi bất cứ lúc nào.
 
+- Bàn giao: Báo cáo tình hình, một trang.
 - Đầu vào: `--target`, `--json`.
 - Đọc: mọi sổ của hợp đồng, dấu bản công cụ của repo, bản plugin đang cài.
 - Người nhận: một màn hình. Repo ở nấc nào; mỗi nhịp một dòng; danh sách việc chờ chủ repo, mỗi việc
@@ -99,6 +149,7 @@ Mỗi lệnh ghi theo cùng sáu dòng. «Máy nhận» là các khoá của k�
 
 **`audit`** — có hôm nay. Thêm: mã thoát theo hợp đồng chung.
 
+- Bàn giao: Báo cáo rà soát thiết kế, có một chương về tuân thủ khả năng truy cập, in riêng được (`--only accessibility`).
 - Đầu vào: `--target`, `--all` (kê mọi quyết định lõi), `--json`.
 - Đọc: sổ quyết định, stylesheet, mã màn và linh kiện, cấu hình lint, bài kiểm có gắn tên quyết định.
 - Người nhận: từng quyết định chuẩn ở trạng thái nào (máy giữ, tự khai, đã ghi, không giữ, bị vòng
@@ -109,6 +160,7 @@ Mỗi lệnh ghi theo cùng sáu dòng. «Máy nhận» là các khoá của k�
 
 **`inventory`** — mới. Kiểm kê kho. Chủ repo gọi định kỳ và trước khi bàn giao.
 
+- Bàn giao: Bảng kiểm kê giao diện: hình từng thứ xếp theo nhóm, chỉ rõ chỗ trùng.
 - Đầu vào: `--target`; `--store repo|starter|external|all`; `--kind answers|screen-kinds|components|behaviours`;
   `--strict`; `--json`.
 - Đọc: sổ linh kiện, sổ màn, trang kiểu màn, sổ nhập kho, sổ nguồn ngoài, mã màn (để biết thứ nào
@@ -123,6 +175,7 @@ Mỗi lệnh ghi theo cùng sáu dòng. «Máy nhận» là các khoá của k�
 
 **`find`** — mới. Tra kho. Tác tử gọi trước khi dựng; cũng là bậc một của `intake`.
 
+- Bàn giao: Thẻ linh kiện: một thứ, cách dùng, nơi đang dùng.
 - Đầu vào: `--target`; một tên, hoặc một nhu cầu viết bằng chữ; `--kind`; `--limit N`; `--json`.
 - Đọc: từ gần tới xa, gặp ở tầng nào dừng ở tầng đó: kho của repo, bộ khởi đầu của plugin, nguồn
   ngoài đã ghim.
@@ -137,18 +190,23 @@ Mỗi lệnh ghi theo cùng sáu dòng. «Máy nhận» là các khoá của k�
 
 **`new`** — có hôm nay. Dẫn dắt một repo chưa có giá trị thiết kế riêng.
 
+- Bàn giao: Bản định hướng thiết kế: nguyên tắc đã chốt, các hướng đi đã trình, hướng được chọn và lý lẽ.
 - Đầu vào: `--target`; lời đáp qua đối thoại, hoặc `design/blueprint.json` đã duyệt; `--dry-run`;
   `--replace`.
 - Đọc: stylesheet và màn của repo; danh sách quyết định chuẩn; các danh sách lựa chọn đóng.
-- Người nhận: từng tầng một khuyến nghị; bảng mẫu vẽ trên chính màn của repo để chọn bằng mắt; bản
-  xem trước giá trị và tệp sẽ đổi.
-- Máy nhận: `blueprint` (từng tầng: đã quyết gì, ai quyết), `files[]` sẽ ghi.
+- Người nhận: trước hết là ba tới năm nguyên tắc thiết kế để chốt. Rồi hai, ba hướng đi trọn vẹn vẽ
+  trên chính màn của repo, cả sáng và tối; mỗi hướng gồm màu, chữ và hình khối đi cùng nhau, kèm lý
+  lẽ trỏ về nguyên tắc. Sau khi chọn hướng mới tinh chỉnh từng thứ. Cuối cùng là bản xem trước giá
+  trị và tệp sẽ đổi.
+- Máy nhận: `principles[]`, `directions[]` (tên, giá trị, lý lẽ), `blueprint` (từng tầng: đã quyết gì,
+  ai quyết), `files[]` sẽ ghi.
 - Ghi: giá trị vào stylesheet; dòng sổ quyết định; dữ liệu lệnh kiểm; sổ token; sổ linh kiện; trang
   luật cho tác tử; bước trong cổng của repo. Từ chối ghi đè giá trị repo đã có, trừ khi có `--replace`.
 - Mã thoát: 0; 1 khi còn tầng chưa quyết; 2 khi bản thiết kế chưa được duyệt mà gọi ghi.
 
 **`decide`** — mới. Gom mọi câu đang chờ chủ repo thành một tờ, trả lời một lần.
 
+- Bàn giao: Tờ trình quyết định.
 - Đầu vào: `--target`; `--only ID[,ID]`; lời đáp qua đối thoại, hoặc `--answers FILE` (mỗi dòng: mã
   câu, rồi «giữ», «bác», hay một giá trị); `--dry-run`.
 - Đọc: dòng sổ đã ghi mà chưa ai xác nhận; ứng viên `intake` chờ chọn; đề xuất của `change` và
@@ -164,6 +222,7 @@ Mỗi lệnh ghi theo cùng sáu dòng. «Máy nhận» là các khoá của k�
 
 **`adopt`** — có hôm nay. Nhận quanh cái repo đang có.
 
+- Bàn giao: Biên bản nhận: điều đã nhận, điều chỉ khai được, điều còn chờ.
 - Đầu vào: `--target`; `--dry-run`; `--conformance-level AA|AAA`; `--product-type`; `--record ID`;
   `--hold`.
 - Đọc: stylesheet qua các tệp nó nhập; cấu hình lint; công cụ và bài kiểm repo đã có; sổ quyết định
@@ -177,6 +236,7 @@ Mỗi lệnh ghi theo cùng sáu dòng. «Máy nhận» là các khoá của k�
 
 **`upgrade`** — mới. Đưa bản mới của plugin vào repo đã nhận. Chiều ngược, `--remove`, gỡ plugin.
 
+- Bàn giao: Ghi chú phát hành: bản mới đổi gì ở repo này.
 - Đầu vào: `--target`; `--dry-run`; `--remove`.
 - Đọc: dấu bản công cụ của repo (số bản và mã cây git của thư mục công cụ); thư mục công cụ của bản
   plugin đang cài; các sổ do máy sinh.
@@ -192,6 +252,7 @@ Mỗi lệnh ghi theo cùng sáu dòng. «Máy nhận» là các khoá của k�
 
 **`intake`** — mới. Nhập kho: một nhu cầu mới thành một dòng sổ.
 
+- Bàn giao: Tờ đề xuất ứng viên, có hình từng ứng viên.
 - Đầu vào: `--target`; nhu cầu viết bằng chữ; `--kind block|component|screen|behaviour`; `--choose N`;
   `--dry-run`.
 - Đọc: kết quả của `find` qua mọi tầng; danh mục nguồn ngoài đã ghim.
@@ -206,6 +267,7 @@ Mỗi lệnh ghi theo cùng sáu dòng. «Máy nhận» là các khoá của k�
 
 **`change`** — mới. Đổi, cho nghỉ, hoặc gộp một thứ trong kho; kể cả đổi một quyết định đã chốt.
 
+- Bàn giao: Tờ đề xuất thay đổi, kèm tác động.
 - Đầu vào: `--target`; tên một thứ hoặc mã một quyết định; một trong `--to GIÁ-TRỊ`, `--retire`,
   `--merge-into TÊN`, `--migrate` (đưa giá trị viết vòng qua hệ về đúng giá trị của hệ); `--dry-run`.
 - Đọc: sổ linh kiện, sổ màn, sổ quyết định, mã màn dùng thứ đó.
@@ -220,6 +282,7 @@ Mỗi lệnh ghi theo cùng sáu dòng. «Máy nhận» là các khoá của k�
 
 **`brief`** — mới. Mọi điều tác tử cần để dựng một màn, trong một lần đọc.
 
+- Bàn giao: Phiếu giao việc dựng màn.
 - Đầu vào: `--target`; mã một màn trong sổ màn, hoặc tên một màn sắp dựng kèm kiểu màn; `--json`.
 - Đọc: sổ màn, trang kiểu màn và màn mẫu của nó, sổ linh kiện, bảng trạng thái, trang luật, phần nối
   với mô hình nghiệp vụ.
@@ -230,13 +293,30 @@ Mỗi lệnh ghi theo cùng sáu dòng. «Máy nhận» là các khoá của k�
 - Ghi: không.
 - Mã thoát: 0; 1 khi màn không thuộc kiểu nào đã khai.
 
+**`review`** — mới. Soát một màn đã dựng, bằng hình. Đi cặp với `brief`: `brief` trước khi dựng,
+`review` sau khi dựng.
+
+- Bàn giao: Biên bản soát thiết kế: ảnh màn có chú thích đánh số, mỗi số một phát hiện.
+- Đầu vào: `--target`; mã một màn trong sổ màn; `--states` (soát cả các trạng thái của màn); `--json`;
+  `--out DIR`.
+- Đọc: màn đang chạy, qua nền dựng và trình duyệt của repo; sổ màn, trang kiểu màn, trang luật,
+  nguyên tắc thiết kế.
+- Người nhận: ảnh màn ở từng bề rộng đã khai, sáng và tối; phát hiện xếp theo mức nặng, mỗi phát hiện
+  nêu luật hay nguyên tắc bị lệch và cách sửa; điều lệnh không đo được thì ghi là «cần mắt người».
+- Máy nhận: `screen`, `shots[]`, `findings[]` (số chú thích, mức, luật hoặc nguyên tắc, vị trí, cách
+  sửa), `unjudged[]`.
+- Ghi: không ghi vào repo; tài liệu và ảnh chỉ vào `--out`.
+- Mã thoát: 0; 1 khi có phát hiện; 2 khi repo không có nền dựng nào plugin vẽ được.
+
 **`handoff`** — có hôm nay. Cuốn sổ bàn giao.
 
+- Bàn giao: Cuốn hướng dẫn hệ thiết kế.
 - Đầu vào: `--target`; `--audience client|builder`; `--format html|pdf|png`; `--words FILE`;
   `--out DIR`; `--facts`.
 - Đọc: mọi sổ; màn của repo, vẽ bằng chính nền dựng của repo.
-- Người nhận: một cuốn sổ: màu theo vai kèm tỉ lệ tương phản, thang chữ, bo góc, khoảng cách, linh
-  kiện và biến thể, từng kiểu màn.
+- Người nhận: một cuốn sổ: nguyên tắc thiết kế, màu theo vai kèm tỉ lệ tương phản, thang chữ, bo góc,
+  khoảng cách, linh kiện và biến thể, từng kiểu màn; với mỗi luật có hình, một ví dụ nên và một ví dụ
+  không nên.
 - Máy nhận: với `--facts`, mọi dữ kiện cuốn sổ dùng, không vẽ.
 - Ghi: chỉ vào `--out`. Hôm nay một đường dẫn tương đối bị đọc theo repo đích, nên cuốn sổ rơi vào
   trong repo; lỗi này phải sửa cùng lệnh.
@@ -244,9 +324,9 @@ Mỗi lệnh ghi theo cùng sáu dòng. «Máy nhận» là các khoá của k�
 
 ## Acceptance criteria
 
-1. Mười hai lệnh tồn tại. Mỗi lệnh gọi được ở cả hai kiểu, và kiểu không người trả đúng các khoá ghi
+1. Mười ba lệnh tồn tại. Mỗi lệnh gọi được ở cả hai kiểu, và kiểu không người trả đúng các khoá ghi
    ở mục trên.
-2. Năm lệnh chỉ đọc để cây của repo giống từng byte sau khi chạy.
+2. Sáu lệnh chỉ đọc để cây của repo giống từng byte sau khi chạy.
 3. Mỗi lệnh ghi, khi chạy với `--dry-run`, in đúng danh sách tệp mà lần chạy thật sẽ ghi.
 4. Chạy hai lần trên cùng một repo cho cùng một kết quả, với mọi lệnh chỉ đọc.
 5. `inventory` báo đủ sáu loại phát hiện trên một repo thử có cài sẵn mỗi loại một chỗ, và không báo
@@ -261,6 +341,15 @@ Mỗi lệnh ghi theo cùng sáu dòng. «Máy nhận» là các khoá của k�
 11. Mã thoát của mọi lệnh theo hợp đồng chung.
 12. Không lệnh nào nêu tên thư viện hay nền dựng ngoài thư mục bộ chuyển, và không nêu tên repo sản
     phẩm nào.
+13. Tài liệu của mọi lệnh có đủ sáu phần của khung chung, theo đúng thứ tự.
+14. Không khuyến nghị nào trong một tài liệu thiếu lý lẽ: mỗi khuyến nghị trỏ tới một nguyên tắc, một
+    chuẩn, hoặc một số đo.
+15. `new` trình ít nhất hai hướng đi trọn vẹn trên màn của repo, cả sáng và tối, trước khi hỏi từng
+    giá trị.
+16. `review`: số chú thích trên ảnh bằng số phát hiện trong biên bản, và mỗi phát hiện nêu một luật
+    hay một nguyên tắc.
+17. Dựng một tài liệu hai lần trên cùng một repo cho cùng dữ kiện; phần hình không tính.
+18. Mỗi tài liệu có mục «không thấy gì», và mục ấy kê đúng các giới hạn đang mở thuộc phạm vi của nó.
 
 ## Domain impact
 
@@ -270,7 +359,11 @@ Không đổi mô hình dữ liệu của kho này. Hợp đồng sổ thêm:
 - dấu bản công cụ của repo: số bản và mã cây git của thư mục công cụ;
 - khoá «ai xác nhận, ngày nào» trên dòng sổ quyết định, để `decide` và `status` đọc cùng một chỗ.
 
-Bảng từ vựng thêm tên ngành cho: kiểm kê kho, nhập kho, nguồn ngoài, cho nghỉ, lên đời.
+- nguyên tắc thiết kế của repo: các dòng «lời người» ở tầng bối cảnh của sổ quyết định;
+- khoá «dựa vào đâu» trên một khuyến nghị: mã một nguyên tắc, tên một chuẩn, hoặc một số đo.
+
+Bảng từ vựng thêm tên ngành cho: kiểm kê kho, nhập kho, nguồn ngoài, cho nghỉ, lên đời, nguyên tắc
+thiết kế, hướng đi, soát thiết kế, báo cáo tuân thủ, ghi chú phát hành.
 
 ## Plan
 
@@ -280,24 +373,33 @@ bảng từ vựng và mục trong tài liệu các lệnh kiểm.
 | Đợt của 0039 | Lệnh                                                                  |
 | ------------ | --------------------------------------------------------------------- |
 | 0            | `status`; hợp đồng chung áp cho bốn lệnh đang có (`--json`, mã thoát) |
+| 0            | Khung chung của tài liệu, áp trước cho `status` và `audit`            |
 | 0            | `decide`, dùng ngay cho 26 dòng đang chờ                              |
 | 1            | `upgrade`                                                             |
 | 3            | `find`, rồi `intake`                                                  |
 | ngay sau 3   | `inventory`, rồi `change`                                             |
-| 5            | `brief`                                                               |
+| 2 tới 3      | Nguyên tắc thiết kế và lý lẽ trong `new`; rồi các hướng đi trọn vẹn   |
+| 5            | `brief`, rồi `review`                                                 |
 
-`handoff` và `new` chỉ đổi phần hợp đồng chung; nền dựng thứ hai cho chúng thuộc đợt 4 của 0039.
+`handoff` thêm ví dụ nên và không nên khi các lệnh trên đã có lý lẽ để trỏ tới. Mọi thứ vẽ bằng hình
+(hướng đi, `inventory` có hình, `review`, `handoff`) hôm nay chỉ vẽ được trên một nền dựng; nền dựng
+thứ hai thuộc đợt 4 của 0039.
 
 ## Test plan
 
 - Mỗi lệnh có bài kiểm trên một repo bỏ đi dựng trong thư mục tạm, như các bài kiểm hiện có của
   `adopt` và `apply`.
-- Bài kiểm «cây không đổi» cho năm lệnh chỉ đọc: so băm của cây trước và sau.
+- Bài kiểm «cây không đổi» cho sáu lệnh chỉ đọc: so băm của cây trước và sau.
 - Bài kiểm «xem trước bằng làm thật»: danh sách tệp của `--dry-run` bằng danh sách tệp đổi sau lần
   chạy thật.
 - `inventory`: repo thử có sáu chỗ cài sẵn; mỗi phát hiện có cặp hai chiều, thấy khi có và không thấy
   khi gỡ.
 - `upgrade`: repo thử nhận bằng bản công cụ cũ lấy từ lịch sử git của kho này.
+- Bài kiểm khung tài liệu: mọi tài liệu có đủ sáu phần, và không khuyến nghị nào thiếu lý lẽ.
+- `review`: repo thử có một màn cố ý phạm ba luật; biên bản phải có đúng ba phát hiện, mỗi phát hiện
+  một số chú thích; gỡ một chỗ phạm thì còn hai.
+- Vẻ đẹp của tài liệu không có bài kiểm: chủ repo xem từng mẫu tài liệu một lần trước khi mẫu ấy được
+  coi là xong.
 - Sau mỗi đợt, một lượt thử độc lập cho lệnh vừa dựng; lượt thử tốn token nên cần chủ repo cho chạy.
 
 ## Autonomy tier
@@ -317,6 +419,14 @@ Mỗi câu kèm lối máy khuyên.
   cầu đã ghi ở sổ nhập kho, để kết quả tất định; không gọi mô hình.
 - **`upgrade` khi lên đời sẽ làm cổng đỏ hay làm sổ mất mục.** Khuyên: dừng, nói rõ, và chỉ ghi khi
   người bảo.
-- **Mười hai lệnh có nhiều quá không.** Khuyên: giữ. `status` và `audit` trả lời hai câu khác nhau
+- **`review` có lấn sang việc của kit nghiệm thu không.** Trang ranh giới ba kho giao việc chấm từng
+  vòng cho kit, và ghi design-assembly «không chấm từng vòng». Khuyên: `review` chỉ đo một màn so với
+  luật đứng yên của repo và không kết luận tính năng đạt hay không; kit gọi nó như một dụng cụ đo và
+  tự ra phán quyết của vòng.
+- **Nguyên tắc thiết kế ghi ở đâu.** Khuyên: là dòng «lời người» ở tầng bối cảnh của sổ quyết định,
+  không mở sổ mới.
+- **Tài liệu ở dạng nào.** Khuyên: một tệp HTML tự chứa, và PDF dựng từ nó; không phụ thuộc công cụ
+  thiết kế nào.
+- **Mười ba lệnh có nhiều quá không.** Khuyên: giữ. `status` và `audit` trả lời hai câu khác nhau
   («tôi cần làm gì» và «repo đạt gì»); gộp lại thì cả hai đều dài.
 - **Ngưỡng thời gian cho `find`.** Chưa có số đo; đặt sau khi dựng, từ lần đo đầu trên repo đối chứng.
