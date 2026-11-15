@@ -197,7 +197,7 @@ const REFERENCE = env.DESIGN_ASSEMBLY_REFERENCE_LEDGER
 const noReference = !REFERENCE || !existsSync(path.join(REFERENCE, "design/screens.yaml"));
 
 test(
-  "the reference repository's ledger of screens reads, and where it differs the reader says how",
+  "the reference repository's ledger of screens reads, with its own keys and the one shape",
   {
     skip:
       noReference &&
@@ -207,10 +207,8 @@ test(
     const text = readFileSync(path.join(REFERENCE, "design/screens.yaml"), "utf8");
     const ledger = readScreenLedger(text);
     assert.ok(builtScreens(ledger).length > 0);
-    // Its own keys on a screen are its extension, and read without complaint; only the version
-    // the contract asks for is missing.
-    assert.deepEqual(shapeProblems("screens", text, "screens.yaml"), [
-      "screens.yaml.version is missing",
-    ]);
+    // Its own keys on a screen are its extension, and read without complaint; since it adopted
+    // this plugin it carries the version the contract asks for.
+    assert.deepEqual(shapeProblems("screens", text, "screens.yaml"), []);
   },
 );
