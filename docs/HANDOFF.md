@@ -54,10 +54,13 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
   (37 quyết định, 43 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 276 bài kiểm của plugin (đường dẫn tới Inventory và kit phải tính được từ thư mục đang chạy, không thì vài bài bị bỏ qua).
 - Kho này đáp 39/39 quyết định lõi: 26 máy giữ, 7 tự khai, 6 đã ghi. 11 sổ đúng hình dạng hợp
   đồng.
-- **Lộ trình năm chặng:** 1 «Dọn nền» và 2 «Hợp đồng» đã xong. Chặng 3 «Vào Inventory» đã cắt lại
-  thành lát mỏng (0032); lát đầu (bước 1, 2) đã làm trên nhánh riêng của Inventory, lát hai (0033)
-  chạy lại lint của repo, lát ba (0034) đưa bộ đọc linh kiện ngang công cụ của Inventory. Chặng 4 «Hai repo đổi vai» và 5 «Lõi của
-  họ» chưa bắt đầu.
+- **Kế hoạch, viết lại ngày 2026-11-15 (0039, chờ chủ kho duyệt):** xếp theo năm nhịp của vòng đời
+  một repo và ba mức phục vụ, tám đợt, ở mục Plan của `wiki/specs/0002-meta-layer-for-many-repositories.md`.
+  Đã xong: hợp đồng (0029 đến 0031), ba lát trên Inventory (0032 đến 0036, đã gộp ở đó qua PR 58, 59,
+  67), sổ màn nối với mô hình nghiệp vụ (0037). Chưa bắt đầu: plugin cài được và lên đời được, đo trên
+  repo ngoài họ, nhịp nhập kho, bộ chuyển thứ hai, hai kho bên cạnh gọi và đọc, lõi của họ. Lộ trình
+  năm chặng cũ («Dọn nền», «Hợp đồng», «Vào Inventory», «Hai repo đổi vai», «Lõi của họ») còn ở tài
+  liệu kiến trúc, chưa sửa.
 - **Inventory chỉ bị đụng trên một nhánh riêng, đã đẩy và mở PR, chưa gộp:**
   [phanlemanh/onehub-inventory#58](https://github.com/phanlemanh/onehub-inventory/pull/58). Chủ kho cho phép ngày 2026-11-14 làm
   bước 1, 2, lát hai và bước 3 trên nhánh riêng. Tất cả đã commit ở nhánh `chore/adopt-design-assembly`, trong thư
@@ -117,7 +120,8 @@ Khuôn mẫu về nhịp dẫn dắt: `~/dev/repo-standards/plugins/repo-setup/s
 
 ## Việc kế
 
-**Đang chờ chủ kho trả lời:** 25 dòng ở `docs/review-queue.md`.
+**Đang chờ chủ kho trả lời:** 26 dòng A, B, C ở `docs/review-queue.md`, trong đó B6 là bản kế hoạch
+viết lại ngày 2026-11-15 (0039) và C7 là chữ của bốn tiêu chí nêu tên Inventory.
 
 Chủ kho đã đáp ba câu của Inventory ngày 2026-11-14: ứng dụng, mức AA, giữ màu thương hiệu
 `#0246ff`. Quyền đã cho ngày đó, bằng lời, trong một phiên: bước 1 và 2 trên nhánh riêng của
@@ -125,7 +129,11 @@ Inventory, không đẩy; rồi chạy lại «nhận» ở đó với plugin c�
 bằng lời không theo sang phiên khác. Chủ kho bảo đẩy nhánh và mở PR («Đẩy và mở PR»); việc gộp là của
 chủ kho, người giữ mã ký theo luật tự chủ của Inventory.
 
-**Kế tiếp, theo thứ tự máy đề xuất** (0032 và `docs/trials/inventory-ladder.md`):
+**Kế tiếp, theo bản kế hoạch viết lại (0039):** đợt 0 là sửa lệnh đo thang cho chạy trên repo đã
+nhận, và soạn một tờ quyết định cho hàng chờ; đợt 1 là cài plugin qua marketplace và lệnh «nhận lại».
+Chi tiết và điều kiện «xong khi» của từng đợt ở mục Plan của đề bài 0002.
+
+**Thứ tự cũ của chặng 3, giữ làm lịch sử** (0032 và `docs/trials/inventory-ladder.md`):
 
 1. Bước 1 và 2 đã xong trên nhánh riêng của Inventory. Gộp nhánh đó là việc của chủ kho: nó đụng
    vùng Inventory xếp vào loại phải có người giữ mã ký.
