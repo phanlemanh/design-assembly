@@ -2102,9 +2102,66 @@
       "severity": "medium",
       "plan": "keep",
       "opened": "2026-11-15",
-      "where": ["d0041"],
+      "where": ["d0041", "d0044"],
+      "status": "closed",
+      "note": "Status ends with 0 when nothing waits on a person even while a check fails or source goes around a decision; it names the audit as the next command, and only the repository's gate fails on them.",
+      "closed": "2026-11-15",
+      "closed_by": "status ends with 1 whenever its next step is the audit, that is when a check fails or source goes around a decision, as the common contract of commands asks; held by the contract test of the commands on a repository whose source goes around the spacing scale"
+    },
+    {
+      "id": "new-json-without-principles",
+      "area": "guide",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0044", "spec"],
       "status": "open",
-      "note": "Status ends with 0 when nothing waits on a person even while a check fails or source goes around a decision; it names the audit as the next command, and only the repository's gate fails on them."
+      "note": "The specification lists the design principles among the keys the guide gives a machine, and the guide does not ask for principles yet, so the key is left out and a caller that counts on the specification finds nothing there."
+    },
+    {
+      "id": "new-json-without-directions",
+      "area": "guide",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0044", "spec"],
+      "status": "open",
+      "note": "The specification lists the whole directions shown to the person among the keys the guide gives a machine, and the guide still asks value by value, so the key is left out and a caller that counts on the specification finds nothing there."
+    },
+    {
+      "id": "new-preview-lists-no-files-before-layers-are-decided",
+      "area": "guide",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-15",
+      "where": ["d0044"],
+      "status": "open",
+      "note": "A preview of the guide gives no list of files while the blueprint is missing or a built layer is not decided, because the files depend on those answers, so the result for a machine has no files key there and ends with 1."
+    },
+    {
+      "id": "handoff-ends-with-1-where-specification-says-2",
+      "area": "book",
+      "kind": "conflict",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0044", "spec"],
+      "status": "open",
+      "note": "The specification ends the handoff with 2 on a repository that has no build this plugin can draw, while the command still writes the book without pictures and ends with 1, because refusing to write it would change what the command does and that is the owner's call."
+    },
+    {
+      "id": "handoff-preview-does-not-name-png-sheets",
+      "area": "book",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0044"],
+      "status": "open",
+      "note": "A preview of the handoff names the page and the file to print, and not the pictures a png book writes one per sheet, because the sheets are counted only once the book is drawn in a browser."
     }
   ]
 }

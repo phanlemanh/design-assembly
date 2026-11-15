@@ -2,12 +2,16 @@
 // around the values the stylesheet holds today. It never changes the stylesheet, the lint
 // configuration, the tests or a row that is already in the ledger, and it adds a check only when
 // that check passes on the repository as it is and was seen failing on a changed copy.
-// Usage: node adopt.mjs --target DIR [--dry-run] [--conformance-level AA|AAA]
-//                       [--product-type TYPE] [--record ID[,ID]] [--hold ID[,ID]]
-import { existsSync, readFileSync, realpathSync } from "node:fs";
+// Usage: node adopt.mjs [--target DIR] [--dry-run] [--conformance-level AA|AAA]
+//                       [--product-type TYPE] [--record ID[,ID]] [--hold ID[,ID]] [--json]
+// Exit: 0 done; 1 something still needs a person's answer; 2 a wrong call, or a repository that
+// cannot be read.
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { argv, exit, stderr, stdout } from "node:process";
+import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
+
+import { finish, readCall, Refusal, refuse, start } from "./command.mjs";
 
 import {
   checkFolders,
@@ -62,6 +66,7 @@ import {
   tokensPlan,
   vendored,
   writeFiles,
+  writtenFiles,
 } from "./apply.mjs";
 import { findProofs } from "./proofs.mjs";
 
@@ -732,9 +737,11 @@ export function report(result) {
   return lines;
 }
 
-const USAGE = `usage: node adopt.mjs --target DIR [--dry-run] [--conformance-level AA|AAA]
+const USAGE = `usage: node adopt.mjs [--target DIR] [--dry-run] [--conformance-level AA|AAA]
                       [--product-type ${PRODUCT_TYPES.join("|")}] [--record ID[,ID]]
+                      [--hold ID[,ID]] [--json]
 
+  --target             The repository to adopt. The folder this is run from when not given.
   --dry-run            Show what would be added. Nothing is written.
   --conformance-level  The level the product commits to, as a person stated it. Writes that row
                        and lets the contrast of the color roles be checked against it.
@@ -743,55 +750,66 @@ const USAGE = `usage: node adopt.mjs --target DIR [--dry-run] [--conformance-lev
                        has said which. One line is added to each row; nothing else in it changes.
   --record             Write a row for a person's call the script can only see, once the person
                        has confirmed it. Takes: ${RECORDABLE.join(", ")}.
+  --json               One JSON document: the rows added and how each is held, what the lint
+                       re-run shows, what needs a person, and the files written or that would be.
 
   Adds rows to design/decisions.yaml and, where a value can be checked, this plugin's tool and
   its gate step. Changes no stylesheet, no lint configuration, no test and no existing row.
+
+  Ends with 0 when done, 1 when something still needs a person's answer, 2 on a wrong call or
+  a repository that cannot be read.
 `;
 
-function main() {
-  const args = argv.slice(2);
-  if (args.includes("--help") || args.includes("-h")) {
-    stdout.write(USAGE);
-    exit(0);
-  }
-  const value = (flag) => (args.includes(flag) ? args[args.indexOf(flag) + 1] : undefined);
-  const target = value("--target");
-  if (!target || !existsSync(path.resolve(target))) {
-    stderr.write(USAGE);
-    exit(2);
-  }
-  const root = path.resolve(target);
-  const dryRun = args.includes("--dry-run");
+const FLAGS = {
+  "--dry-run": "switch",
+  "--conformance-level": "value",
+  "--product-type": "value",
+  "--record": "value",
+  "--hold": "value",
+};
+
+function main(args) {
+  const call = readCall(args, FLAGS);
+  if (call.problem) return refuse(call.problem, USAGE);
+  if (call.help) return void stdout.write(USAGE);
+  const root = call.target;
+  const dryRun = call.flags["--dry-run"] === true;
+  const list = (flag) => (call.flags[flag] ?? "").split(",").filter(Boolean);
   // A ledger a newer plugin wrote is never written over by this one.
   const newer = newerLedgers(root);
-  if (newer.length > 0) {
-    stderr.write(`design-assembly: ${newer.join("; ")}. Nothing was written\n`);
-    exit(2);
-  }
+  if (newer.length > 0) throw new Refusal(`${newer.join("; ")}. Nothing was written`);
   let result;
   try {
     result = adoption(root, {
-      conformanceLevel: value("--conformance-level") ?? null,
-      productType: value("--product-type") ?? null,
-      record: (value("--record") ?? "").split(",").filter(Boolean),
-      hold: (value("--hold") ?? "").split(",").filter(Boolean),
+      conformanceLevel: call.flags["--conformance-level"] ?? null,
+      productType: call.flags["--product-type"] ?? null,
+      record: list("--record"),
+      hold: list("--hold"),
     });
   } catch (error) {
-    stderr.write(`design-assembly: ${error.message}\n`);
-    exit(2);
+    throw new Refusal(error.message);
   }
-  for (const line of report(result)) stdout.write(`${line}\n`);
-  stdout.write("\nfiles:\n");
+  const lines = [...report(result), "", "files:"];
   const written = writeFiles(root, result.files, dryRun);
-  for (const line of written) stdout.write(`  ${line}\n`);
-  if (written.length === 0) stdout.write("  nothing to write\n");
-  if (dryRun) stdout.write("preview only: nothing was written\n");
+  for (const line of written) lines.push(`  ${line}`);
+  if (written.length === 0) lines.push("  nothing to write");
+  if (dryRun) lines.push("preview only: nothing was written");
   else {
     const changed = written.filter((line) => !line.startsWith("unchanged")).length;
-    stdout.write(
-      `done: ${result.rows.length} row(s) added to the ledger, ${result.pointed.length} given a check, ${changed} file(s) written\n`,
+    lines.push(
+      `done: ${result.rows.length} row(s) added to the ledger, ${result.pointed.length} given a check, ${changed} file(s) written`,
     );
   }
+  // A machine gets what the report is written from; the files as a list, never their content.
+  const facts = Object.fromEntries(
+    Object.entries(result).filter(([key]) => !["files", "files_read"].includes(key)),
+  );
+  return finish({
+    json: call.json,
+    result: { dry_run: dryRun, ...facts, files: writtenFiles(written) },
+    text: `${lines.join("\n")}\n`,
+    work: result.person.length > 0,
+  });
 }
 
-if (argv[1] && realpathSync(argv[1]) === realpathSync(fileURLToPath(import.meta.url))) main();
+await start(import.meta.url, main);

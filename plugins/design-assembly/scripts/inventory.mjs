@@ -2,13 +2,15 @@
 // whether it is undecided, bypassed, decided but not held, claimed, held or recorded; then which
 // tier the repository has reached. Read-only. Works on any repository, with or without the design
 // floor. The same repository state always gives the same report.
-// Usage: node inventory.mjs --target DIR [--json] [--all]
+// Usage: node inventory.mjs [--target DIR] [--json] [--all]
+// Exit: 0 done; 1 a decision is not held, failing or gone around; 2 a wrong call, or a repository
+// that cannot be read.
 import { differences, presentLedgers } from "../templates/tools/design-assembly/contract.mjs";
 import { adapterOf } from "../templates/tools/design-assembly/adapters/index.mjs";
 import { adapter as values } from "../templates/tools/design-assembly/adapters/tailwind.mjs";
-import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-import { argv, exit, stderr, stdout } from "node:process";
+import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { heldHere, readState, runChecks } from "../templates/tools/design-assembly/check.mjs";
@@ -28,6 +30,7 @@ import {
 } from "../templates/tools/design-assembly/governance.mjs";
 import { readKinds, readPages } from "../templates/tools/design-assembly/screens.mjs";
 import { readBlock } from "../templates/tools/design-assembly/theme.mjs";
+import { finish, readCall, refuse, start } from "./command.mjs";
 import { findProofs } from "./proofs.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -310,6 +313,35 @@ function departures(root) {
   return { lint, unexplained, excused, left };
 }
 
+// The highest tier with every tier below it in place, and the first one that is not.
+function tierOf(tiers) {
+  const open = tiers.findIndex((tier) => !["reached", "claimed"].includes(tier.state));
+  const top = open === -1 ? tiers.at(-1) : tiers[open - 1];
+  return {
+    id: top?.id ?? null,
+    state: top?.state ?? "none",
+    next: open === -1 ? null : tiers[open].id,
+  };
+}
+
+// What the next tier still lacks: each of its core decisions that is not answered, with its
+// state, and each artifact that is not there.
+function missingOf(tiers, decisions, next) {
+  const tier = tiers.find((item) => item.id === next);
+  if (!tier) return [];
+  const open = decisions.filter((d) => d.tier === tier.id && d.core && !ANSWERED.includes(d.state));
+  return [
+    ...open.map((d) => ({ tier: tier.id, decision: d.id, state: d.state })),
+    ...tier.needs
+      .filter((item) => item.missing === undefined && !item.ok)
+      .map((item) => ({ tier: tier.id, artifact: item.what })),
+  ];
+}
+
+// The states that leave work behind: a row with no check, a check that fails, and source that goes
+// around a decision. The audit ends with 1 on any of them.
+export const BROKEN = ["not-held", "failing", "bypassed"];
+
 // The record of what slipped past the checks: how many lines, and the date of the latest.
 function slips(root) {
   const text = read(root, SLIPS_FILE);
@@ -398,6 +430,8 @@ export function inventory(root) {
   const core = facts.decisions.filter((d) => d.core);
   const count = (list, name) => list.filter((d) => d.state === name).length;
   const standardIds = new Set(STANDARD.decisions.map((d) => d.id));
+  const tier = tierOf(tiers);
+  const open = LIMITS.filter((limit) => limit.status === "open");
   return {
     stylesheets: sheets,
     source_files: sources.length,
@@ -442,16 +476,19 @@ export function inventory(root) {
       differs: differences(problems, file),
     })),
     sockets: facts.sockets,
+    // The tier reached, as one answer, and what the next one lacks; then every tier in full.
+    tier,
+    missing: missingOf(tiers, facts.decisions, tier.next),
     tiers,
     departures: departures(root),
     slips: slips(root),
     limits: {
-      open: LIMITS.filter((limit) => limit.status === "open").length,
-      high: LIMITS.filter((limit) => limit.status === "open" && limit.severity === "high").map(
-        (limit) => limit.id,
-      ),
+      open: open.length,
+      high: open.filter((limit) => limit.severity === "high").map((limit) => limit.id),
       closed: LIMITS.filter((limit) => limit.status === "closed").length,
     },
+    // Where this plugin is blind: every open row of its limits ledger, in the ledger's own words.
+    blind: open.map(({ id, area, severity, note }) => ({ id, area, severity, note })),
   };
 }
 
@@ -589,24 +626,19 @@ export function report(result, { all = false } = {}) {
   return `${lines.join("\n")}\n`;
 }
 
-function main() {
-  const args = argv.slice(2);
-  const at = args.indexOf("--target");
-  if (at === -1 || !args[at + 1]) {
-    stderr.write("usage: node inventory.mjs --target DIR [--json] [--all]\n");
-    exit(2);
-  }
-  const root = path.resolve(args[at + 1]);
-  if (!existsSync(root)) {
-    stderr.write(`design-assembly: ${root} does not exist\n`);
-    exit(2);
-  }
-  const result = inventory(root);
-  stdout.write(
-    args.includes("--json")
-      ? `${JSON.stringify(result, null, 2)}\n`
-      : report(result, { all: args.includes("--all") }),
-  );
+const CALL = "usage: node inventory.mjs [--target DIR] [--json] [--all]\n";
+
+function main(args) {
+  const call = readCall(args, { "--all": "switch" });
+  if (call.problem) return refuse(call.problem, CALL);
+  if (call.help) return void stdout.write(CALL);
+  const result = inventory(call.target);
+  return finish({
+    json: call.json,
+    result,
+    text: report(result, { all: call.flags["--all"] === true }),
+    work: result.decisions.some((decision) => BROKEN.includes(decision.state)),
+  });
 }
 
-if (argv[1] && realpathSync(argv[1]) === realpathSync(fileURLToPath(import.meta.url))) main();
+await start(import.meta.url, main);

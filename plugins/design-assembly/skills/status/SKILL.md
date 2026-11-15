@@ -19,8 +19,9 @@ folder it is run from. Add `--json` for the data; another plugin calls it that w
 
 It ends with:
 
-- `0`: nothing waits.
-- `1`: something waits on a person, or the tool differs. Not an error.
+- `0`: nothing waits, and nothing is left to fix.
+- `1`: something waits on a person, the tool differs, or a decision is failing or bypassed. Not
+  an error.
 - `2`: a wrong call, or a repository that cannot be read. The reason is on the error stream, and
   nothing is printed as an answer. Repeat the reason; do not guess a status.
 
@@ -61,8 +62,8 @@ It ends with:
   somewhere else (a review list in prose, a pull request, a conversation) is not counted.
   "Nothing in the ledgers" is not "nothing waits".
 - A decision that is failing or bypassed does not wait on the owner's answer: status names the
-  audit as the next command, and ends with `0` if nothing else waits. Run the audit for the
-  places.
+  audit as the next command, and ends with `1`, because something is left to fix. Run the audit
+  for the places.
 
 ## 4. With `--json`
 

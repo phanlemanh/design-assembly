@@ -113,7 +113,7 @@ test(
     const dir = repository();
     const before = readFileSync(path.join(dir, "design/decisions.yaml"), "utf8");
     const adopted = run(ADOPT, "--target", dir);
-    assert.equal(adopted.status, 0, adopted.stderr);
+    assert.equal(adopted.status, 1, adopted.stderr);
     assert.match(
       adopted.stdout,
       /now re-run by this tool[^\n]*\n {2}raw-table: every probe is rejected, by no-restricted-syntax/,
@@ -168,7 +168,7 @@ test(
       ),
     );
     const adopted = run(ADOPT, "--target", dir, "--dry-run");
-    assert.equal(adopted.status, 0, adopted.stderr);
+    assert.equal(adopted.status, 1, adopted.stderr);
     assert.match(
       adopted.stdout,
       /raw-table: the repository's lint lets through `<table \/>`: no-restricted-imports does not reject it/,
@@ -196,7 +196,7 @@ test(
     const dir = repository();
     rmSync(path.join(dir, "node_modules"));
     const adopted = run(ADOPT, "--target", dir, "--dry-run");
-    assert.equal(adopted.status, 0, adopted.stderr);
+    assert.equal(adopted.status, 1, adopted.stderr);
     assert.match(adopted.stdout, /raw-table: the repository has no lint installed/);
   },
 );

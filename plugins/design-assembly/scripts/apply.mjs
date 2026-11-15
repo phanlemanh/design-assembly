@@ -1,20 +1,16 @@
 // Writes what the guide decided into a repository. Adds and updates only its own files, its own
 // block in src/index.css and its own rows of the ledger. Running it again with the same blueprint
 // changes nothing.
-// Usage: node apply.mjs --target DIR [--dry-run] [--replace]
-import {
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  statSync,
-  readFileSync,
-  realpathSync,
-  writeFileSync,
-} from "node:fs";
+// Usage: node apply.mjs [--target DIR] [--dry-run] [--replace] [--json]
+// Exit: 0 done; 1 a built layer is not decided yet, or the preview shows a write that would be
+// refused; 2 a wrong call, a blueprint that cannot be written from, or a repository that cannot
+// be read.
+import { existsSync, mkdirSync, readdirSync, statSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { argv, exit, stderr, stdout } from "node:process";
+import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
+import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { FILES, heldHere } from "../templates/tools/design-assembly/check.mjs";
 import { contrast, formatOklch, parseColor } from "../templates/tools/design-assembly/color.mjs";
 import {
@@ -1490,6 +1486,14 @@ export function writeFiles(target, files, dryRun) {
   });
 }
 
+// The lines of writeFiles as a machine reads them: only the files written, or that would be.
+export function writtenFiles(lines) {
+  return lines
+    .map((line) => [line.slice(0, 9).trim(), line.slice(10)])
+    .filter(([change]) => change !== "unchanged")
+    .map(([change, file]) => fileChange(file, change));
+}
+
 // A JSON file is the same when it holds the same data: the repository's formatter may lay it out
 // differently, and rewriting it after every format would make the guide fight the formatter.
 export function sameContent(file, before, after) {
@@ -1502,8 +1506,9 @@ export function sameContent(file, before, after) {
   }
 }
 
-const USAGE = `usage: node apply.mjs --target DIR [--dry-run] [--replace]
+const USAGE = `usage: node apply.mjs [--target DIR] [--dry-run] [--replace] [--json]
 
+  --target   The repository to write into. The folder this is run from when not given.
   --dry-run  Preview without writing: the primary color role for light and dark, the contrast
              ratio each reaches, the type scale, the corner radius, and the files that would
              change. Works before approval, as soon as context and foundations are decided.
@@ -1512,6 +1517,11 @@ const USAGE = `usage: node apply.mjs --target DIR [--dry-run] [--replace]
   --replace  Generate even where the repository holds values of its own: a primary color role
              with its own hue, or values taken in by the adopt script. Without it the guide
              refuses to write over them.
+  --json     One JSON document: the blueprint layer by layer, and the files written or that
+             would be.
+
+  Ends with 0 when done, 1 when a built layer is not decided yet or the preview shows a write
+  that would be refused, 2 on a wrong call or a blueprint that cannot be written from.
 `;
 
 // What the person needs to see to approve the foundations: one line per mode, with the numbers.
@@ -1550,23 +1560,44 @@ export function themeSummary(theme) {
   return lines;
 }
 
-function main() {
-  const args = argv.slice(2);
-  if (args.includes("--help") || args.includes("-h")) {
-    stdout.write(USAGE);
-    exit(0);
-  }
-  const at = args.indexOf("--target");
-  if (at === -1 || !args[at + 1]) {
-    stderr.write(USAGE);
-    exit(2);
-  }
-  const target = path.resolve(args[at + 1]);
-  const dryRun = args.includes("--dry-run");
-  const stop = (message) => {
-    stderr.write(`design-assembly: ${message}\n`);
-    exit(2);
+// The blueprint as a machine reads it: for each layer, what was decided and who decided it.
+function blueprintFacts(blueprint) {
+  return {
+    status: blueprint.status ?? null,
+    layers: LAYERS.map((layer) => {
+      const entry = blueprint.layers?.[layer.id] ?? {};
+      const decided = entry.status === "decided";
+      return {
+        id: layer.id,
+        built: layer.built,
+        status: entry.status ?? null,
+        ...(decided ? { choice: entry.choice ?? {}, source: entry.source ?? null } : {}),
+        ...(decided && entry.confirmed ? { confirmed: entry.confirmed } : {}),
+      };
+    }),
   };
+}
+
+function main(args) {
+  const call = readCall(args, { "--dry-run": "switch", "--replace": "switch" });
+  if (call.problem) return refuse(call.problem, USAGE);
+  if (call.help) return void stdout.write(USAGE);
+  const { target } = call;
+  const dryRun = call.flags["--dry-run"] === true;
+  const stop = (message) => {
+    throw new Refusal(message);
+  };
+  // What a person reads, line by line; a machine gets `result` instead. Nothing is printed before
+  // the call is known to end well, so a refusal never follows half an answer.
+  const lines = [];
+  const say = (line) => lines.push(line);
+  const end = (result, work) =>
+    finish({
+      json: call.json,
+      result: { dry_run: dryRun, ...result },
+      text: `${lines.join("\n")}\n`,
+      work,
+    });
   // A ledger of a newer shape than this plugin knows was written by a newer plugin: write nothing.
   const newer = newerLedgers(target);
   if (newer.length > 0) stop(`${newer.join("; ")}. Nothing was written`);
@@ -1574,10 +1605,11 @@ function main() {
   if (floor) stop(floor);
   const blueprintPath = path.join(target, BLUEPRINT);
   if (!existsSync(blueprintPath) && dryRun) {
-    stdout.write(
-      `the floor is in place. ${BLUEPRINT} is not there yet: write it, in the shape the guide's first step gives, then run this again.\n`,
+    say(
+      `the floor is in place. ${BLUEPRINT} is not there yet: write it, in the shape the guide's first step gives, then run this again.`,
     );
-    exit(0);
+    // No layer is decided yet: that is work for a person.
+    return end({ blueprint: null }, true);
   }
   if (!existsSync(blueprintPath)) {
     stop(
@@ -1591,24 +1623,31 @@ function main() {
     stop(`${BLUEPRINT} cannot be ${what}:\n  ${problems.join("\n  ")}`);
   }
 
-  const own = args.includes("--replace") ? null : ownValuesProblem(target);
+  const own = call.flags["--replace"] === true ? null : ownValuesProblem(target);
   if (own && !dryRun) {
     stop(
       `${own}.\n  Keep them: run the adopt script instead.\n  Replace them: run this again with --replace.`,
     );
   }
+  const facts = {
+    blueprint: blueprintFacts(blueprint),
+    // The preview of a write this command would refuse: said to a machine as it is to a person.
+    ...(own ? { refused: own } : {}),
+  };
+  // A built layer that is not decided is work for a person, whatever else was written.
+  const undecided = LAYERS.filter((l) => l.built && blueprint.layers[l.id].status !== "decided");
 
   const css = readFileSync(path.join(target, FILES.css), "utf8");
   const foundations = themeInputs(blueprint);
   const theme = buildTheme(foundations.inputs, css);
-  for (const line of themeSummary(theme)) stdout.write(`${line}\n`);
+  for (const line of themeSummary(theme)) say(line);
   if (own) {
-    stdout.write(`note: ${own}. Writing will be refused: adopt the values, or pass --replace.\n`);
+    say(`note: ${own}. Writing will be refused: adopt the values, or pass --replace.`);
   }
   if (foundations.defaulted.length > 0) {
-    stdout.write(
+    say(
       `note: foundations was decided before ${foundations.defaulted.join(", ")} could be chosen; ` +
-        "the floor's values are kept. Run the guide again to choose them.\n",
+        "the floor's values are kept. Run the guide again to choose them.",
     );
   }
 
@@ -1619,10 +1658,8 @@ function main() {
       !(LATER_LAYERS.includes(l.id) && blueprint.layers[l.id].status === "planned"),
   );
   if (pending.length > 0) {
-    stdout.write(
-      `files: shown once these layers are decided: ${pending.map((l) => l.title).join(", ")}\n`,
-    );
-    return;
+    say(`files: shown once these layers are decided: ${pending.map((l) => l.title).join(", ")}`);
+    return end(facts, true);
   }
   const { files, tokens, components, targets, columns, patterns, templates, governance, kept } =
     plan(target, blueprint);
@@ -1630,60 +1667,60 @@ function main() {
     kept.includes(id)
       ? "Its check stays, and the gate fails until that changes"
       : "No check is added until that changes";
-  for (const [id, item] of Object.entries(patterns.held)) stdout.write(`${id}: ${item.what}\n`);
+  for (const [id, item] of Object.entries(patterns.held)) say(`${id}: ${item.what}`);
   for (const item of patterns.failing) {
-    stdout.write(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.\n`);
+    say(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.`);
   }
-  for (const note of patterns.notes) stdout.write(`hint: ${note}.\n`);
-  for (const [id, item] of Object.entries(templates.held)) stdout.write(`${id}: ${item.what}\n`);
+  for (const note of patterns.notes) say(`hint: ${note}.`);
+  for (const [id, item] of Object.entries(templates.held)) say(`${id}: ${item.what}`);
   if (templates.recordPanel) {
     const opening = recordLayout(blueprint);
     const whose = opening.confirmed ? "as the person chose" : "proposed, until a person chooses";
-    stdout.write(`record-panel: a record opens ${opening.layout}, ${whose}\n`);
+    say(`record-panel: a record opens ${opening.layout}, ${whose}`);
   }
   for (const row of templates.rows) {
     const how = row.check ? `proved by ${row.check}` : "recorded, for a person to confirm";
-    stdout.write(`${row.id}: ${how}\n`);
+    say(`${row.id}: ${how}`);
   }
   for (const item of templates.failing) {
-    stdout.write(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.\n`);
+    say(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.`);
   }
-  for (const note of templates.notes) stdout.write(`hint: ${note}.\n`);
-  for (const [id, item] of Object.entries(governance.held)) stdout.write(`${id}: ${item.what}\n`);
+  for (const note of templates.notes) say(`hint: ${note}.`);
+  for (const [id, item] of Object.entries(governance.held)) say(`${id}: ${item.what}`);
   for (const item of governance.failing) {
-    stdout.write(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.\n`);
+    say(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.`);
   }
   if (columns.problem) {
-    stdout.write(
-      `note: column types: ${columns.problem}. No check is added until the table is right.\n`,
-    );
+    say(`note: column types: ${columns.problem}. No check is added until the table is right.`);
   } else {
-    stdout.write(
-      `column types: ${columns.fields} field(s) of the data model name a column type; alignment, width and density come from it\n`,
+    say(
+      `column types: ${columns.fields} field(s) of the data model name a column type; alignment, width and density come from it`,
     );
     if (columns.fields === 0) {
-      stdout.write(
-        "hint: no field names a column type yet. The three table rules are held all the same. Give a field of the data model a `display` key and run the guide again: it then holds display-kind and installs the typed table parts.\n",
+      say(
+        "hint: no field names a column type yet. The three table rules are held all the same. Give a field of the data model a `display` key and run the guide again: it then holds display-kind and installs the typed table parts.",
       );
     }
     for (const item of columns.failing) {
-      stdout.write(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.\n`);
+      say(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.`);
     }
   }
-  if (targets.what) stdout.write(`target size: ${targets.what}\n`);
+  if (targets.what) say(`target size: ${targets.what}`);
   else if (targets.below?.length > 0) {
-    stdout.write(
-      `note: target size: ${targets.below.join("; ")} are below the ${targets.min}px the conformance level asks. No check is added: the components change first, or the level does.\n`,
+    say(
+      `note: target size: ${targets.below.join("; ")} are below the ${targets.min}px the conformance level asks. No check is added: the components change first, or the level does.`,
     );
   }
   for (const artifact of [tokens, components]) {
-    if (artifact.skipped) stdout.write(`note: ${artifact.skipped}.\n`);
+    if (artifact.skipped) say(`note: ${artifact.skipped}.`);
   }
   for (const variable of tokens.unresolved ?? []) {
-    stdout.write(`note: ${variable} points nowhere, so it is not in the design tokens file.\n`);
+    say(`note: ${variable} points nowhere, so it is not in the design tokens file.`);
   }
-  for (const line of writeFiles(target, files, dryRun)) stdout.write(`${line}\n`);
-  if (dryRun) stdout.write("preview only: nothing was written\n");
+  const written = writeFiles(target, files, dryRun);
+  for (const line of written) say(line);
+  if (dryRun) say("preview only: nothing was written");
+  return end({ ...facts, files: writtenFiles(written) }, undecided.length > 0 || Boolean(own));
 }
 
-if (argv[1] && realpathSync(argv[1]) === realpathSync(fileURLToPath(import.meta.url))) main();
+await start(import.meta.url, main);

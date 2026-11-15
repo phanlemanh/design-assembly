@@ -3,25 +3,18 @@
 // whether the repository's copy of the tool is the installed plugin's, and the command to run next.
 // Read-only: it writes nothing, anywhere. The same repository always gives the same answer.
 // Usage: node status.mjs [--target DIR] [--json]
-// Exit: 0 nothing waits; 1 something waits on a person, or the tool differs; 2 a wrong call, or a
-// repository that cannot be read.
+// Exit: 0 nothing waits; 1 something waits on a person, the tool differs, or a decision is failing
+// or gone around; 2 a wrong call, or a repository that cannot be read.
 import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
-import {
-  existsSync,
-  lstatSync,
-  readdirSync,
-  readFileSync,
-  readlinkSync,
-  realpathSync,
-  statSync,
-} from "node:fs";
+import { existsSync, lstatSync, readdirSync, readFileSync, readlinkSync, statSync } from "node:fs";
 import path from "node:path";
-import process, { argv, cwd, stderr, stdout } from "node:process";
+import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { SLIPS_FILE } from "../templates/tools/design-assembly/governance.mjs";
 import { readLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
+import { finish, readCall, refuse, start } from "./command.mjs";
 import { inventory, PERSON_CALLS, UNCONFIRMED } from "./inventory.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -41,6 +34,8 @@ export const STAMP = "design/tool-stamp.json";
 // How many waiting answers a person is shown in full. The rest are named, and --json has them all.
 const SHOWN = 5;
 const MEASURED = "a measurement on this repository: ";
+// The command that lists the places where a check fails or source goes around a decision.
+const AUDIT = "/design-assembly:audit";
 
 const hashOf = (type, body) =>
   createHash("sha1").update(`${type} ${body.length}\0`).update(body).digest();
@@ -126,17 +121,6 @@ function toolOf(root) {
       ? recorded !== null
       : copy !== installed.tree || (recorded?.tree ?? copy) !== copy;
   return { recorded, installed, copy, differs, says };
-}
-
-// The highest tier with every tier below it in place, and the first one that is not.
-function tierOf(tiers) {
-  const open = tiers.findIndex((tier) => !["reached", "claimed"].includes(tier.state));
-  const top = open === -1 ? tiers.at(-1) : tiers[open - 1];
-  return {
-    id: top?.id ?? null,
-    state: top?.state ?? "none",
-    next: open === -1 ? null : tiers[open].id,
-  };
 }
 
 const standardBasis = (decision) =>
@@ -270,7 +254,7 @@ function nextOf(audit, waiting, broken) {
   const next = [];
   if (broken.length > 0) {
     next.push({
-      command: "/design-assembly:audit",
+      command: AUDIT,
       why: `${broken.length} decision(s) failing or bypassed (${broken
         .slice(0, SHOWN)
         .map((decision) => decision.id)
@@ -299,7 +283,7 @@ export function status(root) {
   const broken = audit.decisions.filter((d) => ["failing", "bypassed"].includes(d.state));
   const waiting = waitingOf(audit, rows);
   return {
-    tier: tierOf(audit.tiers),
+    tier: audit.tier,
     // Core decisions only, as the audit counts them. Two numbers: a claim was not run again here.
     held: audit.coverage.held,
     claimed: audit.coverage.claimed,
@@ -365,36 +349,19 @@ export function report(result) {
 
 const USAGE = "usage: node status.mjs [--target DIR] [--json]\n";
 
-function main() {
-  const args = argv.slice(2);
-  let target = null;
-  let asJson = false;
-  for (let index = 0; index < args.length; index += 1) {
-    if (args[index] === "--json") asJson = true;
-    else if (args[index] === "--target" && args[index + 1] && !args[index + 1].startsWith("--")) {
-      target = args[(index += 1)];
-    } else {
-      stderr.write(USAGE);
-      process.exitCode = 2;
-      return;
-    }
-  }
-  const root = path.resolve(target ?? cwd());
-  if (!existsSync(root) || !statSync(root).isDirectory()) {
-    stderr.write(`design-assembly: ${root} is not a folder\n`);
-    process.exitCode = 2;
-    return;
-  }
-  let result;
-  try {
-    result = status(root);
-  } catch (error) {
-    stderr.write(`design-assembly: this repository cannot be read: ${error.message}\n`);
-    process.exitCode = 2;
-    return;
-  }
-  stdout.write(asJson ? `${JSON.stringify(result, null, 2)}\n` : report(result));
-  process.exitCode = result.waiting.length > 0 || result.tool.differs ? 1 : 0;
+// Something is left when an answer waits on a person, when the tool differs, or when a check
+// fails or source goes around a decision: `next` then starts with the audit.
+export const leavesWork = (result) =>
+  result.waiting.length > 0 ||
+  result.tool.differs ||
+  result.next.some((step) => step.command === AUDIT);
+
+function main(args) {
+  const call = readCall(args);
+  if (call.problem) return refuse(call.problem, USAGE);
+  if (call.help) return void stdout.write(USAGE);
+  const result = status(call.target);
+  return finish({ json: call.json, result, text: report(result), work: leavesWork(result) });
 }
 
-if (argv[1] && realpathSync(argv[1]) === realpathSync(fileURLToPath(import.meta.url))) main();
+await start(import.meta.url, main);
