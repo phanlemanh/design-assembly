@@ -1922,6 +1922,19 @@
       "closed_by": "the reader lists a component only at the file that defines it, skipping lists exported from another file, export-all lines and names the file imports and exports again; held by a plugin test with a barrel file, seen failing on the old reader"
     },
     {
+      "id": "handed-on-parts-dropped",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0036", "d0038"],
+      "status": "closed",
+      "note": "After a component was listed only at the file that defines it, the components a barrel file imports and exports again were no longer counted as parts of the components drawn in that file, so the register stopped saying what two filter components are drawn with.",
+      "closed": "2026-11-15",
+      "closed_by": "the parts of a component are looked up among the components its file defines and those it imports and exports again, in either form of export list; held by a plugin test with both forms, seen failing on the reader before"
+    },
+    {
       "id": "screen-actions-placement-unchecked",
       "area": "checks",
       "kind": "partial-check",

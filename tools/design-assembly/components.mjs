@@ -321,6 +321,21 @@ function exported(text) {
   );
 }
 
+// Components a file imports and exports again, in a list of its own or one read from the file that
+// defines them: listed at the files that define them, but drawn here under the names the file
+// imported them by.
+function handedOn(text) {
+  const names = [];
+  const imported = importedNames(text);
+  for (const list of text.matchAll(/^export\s*\{([^}]*)\}/gm)) {
+    for (const item of list[1].split(",")) {
+      const [local] = item.trim().split(/\s+as\s+/);
+      if (local && imported.has(local) && /^[A-Z]/.test(local)) names.push(local);
+    }
+  }
+  return [...new Set(names)];
+}
+
 // The source of one component: from its declaration to the next declaration at the left margin.
 function declaration(text, name) {
   const start = new RegExp(
@@ -432,10 +447,13 @@ function survey(given, { library, pages } = {}) {
   for (const [file, text] of Object.entries(files).sort(([a], [b]) => (a < b ? -1 : 1))) {
     const sets = { ...elsewhere, ...setsOf[file] };
     const names = exported(text);
+    // What a component of this file can be drawn with: the file's own components, then the ones it
+    // hands on from other files.
+    const drawable = [...names, ...handedOn(text).filter((name) => !names.includes(name))];
     for (const name of names) {
       const source = declaration(text, name);
-      // The other components of the same file this one is drawn with.
-      const drawnWith = names.filter(
+      // The other components of the file this one is drawn with.
+      const drawnWith = drawable.filter(
         (other) => other !== name && new RegExp(`<${other}\\b`).test(source),
       );
       const signature = source.slice(

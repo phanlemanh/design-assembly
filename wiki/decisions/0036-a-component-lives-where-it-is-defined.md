@@ -15,7 +15,8 @@ sources:
 
 ## Status
 
-Accepted. Máy chọn quy tắc này ngày 2026-11-15, chờ chủ repo bác. Chỉ đổi plugin và kho này;
+Accepted; ý thứ hai của Consequences được thay bởi [0038](0038-a-component-is-drawn-with-what-its-file-hands-on.md)
+ngày 2026-11-15. Máy chọn quy tắc này ngày 2026-11-15, chờ chủ repo bác. Chỉ đổi plugin và kho này;
 Inventory chưa bị đụng, chép công cụ sang đó là một bước riêng chủ repo duyệt.
 
 ## Context
@@ -48,7 +49,8 @@ Câu hỏi thật: một linh kiện được xuất ở hai nơi thì sổ ghi 
   dòng rỗng ở tệp gom. Không tên nào mất; mỗi tên còn một dòng.
 - Hai linh kiện của chính tệp gom, `Filters` và `FiltersRow`, bớt mục «phần» trỏ sang linh kiện của
   tệp khác (`FiltersAdvanced`, `FilterChip`, `FiltersBuilder`). «Phần» là linh kiện cùng tệp; các tên
-  ấy lọt vào chỉ vì cùng lỗi trên.
+  ấy lọt vào chỉ vì cùng lỗi trên. (Thay bởi 0038: chúng là linh kiện tệp gom chuyển tiếp, và lại được
+  ghi vào «phần».)
 - **Kho này:** sổ linh kiện không đổi dòng nào, vì kho không có tệp gom.
 - **Sổ giới hạn:** mở và đóng dòng `barrel-re-export-listed-twice` cùng lần sửa.
 - Inventory vẫn chạy bản công cụ cũ cho tới khi được chép sang (dòng `adopt-does-not-refresh-tool`

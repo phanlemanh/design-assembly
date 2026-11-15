@@ -760,3 +760,59 @@ test("a component re-exported through a barrel file is listed once, at the file 
   assert.deepEqual(byName.FilterHandle.props, ["grip"]);
   assert.deepEqual(byName.Filters.props, ["query"]);
 });
+
+test("a component is drawn with the components its file hands on, as well as its own", () => {
+  const dir = folder({
+    "src/components/reui/filters/filters-chip.tsx": [
+      "export function FilterChip({ label }: Props) {",
+      "  return <span>{label}</span>;",
+      "}",
+      "",
+    ].join("\n"),
+    "src/components/reui/filters/filters-advanced.tsx": [
+      "export function FiltersAdvanced({ rules }: Props) {",
+      "  return <div>{rules.length}</div>;",
+      "}",
+      "",
+    ].join("\n"),
+    "src/components/ui/button.tsx": [
+      "export function Button({ children }: Props) {",
+      "  return <button>{children}</button>;",
+      "}",
+      "",
+    ].join("\n"),
+    // The barrel imports two components of other files, draws them, and hands them on, one in an
+    // export list of its own and one in a list read from the defining file; it also draws a
+    // component it imports and does not hand on.
+    "src/components/reui/filters/filters.tsx": [
+      'import { FiltersAdvanced } from "@/components/reui/filters/filters-advanced";',
+      'import { FilterChip } from "@/components/reui/filters/filters-chip";',
+      'import { Button } from "@/components/ui/button";',
+      "export function Filters({ query }: Props) {",
+      "  return <div>{query}<FiltersAdvanced rules={[]} /><FiltersRow /></div>;",
+      "}",
+      "export function FiltersRow({ rules }: Props) {",
+      '  return <div><FilterChip label="a" /><Button>add</Button></div>;',
+      "}",
+      "export { FilterChip };",
+      'export { FiltersAdvanced } from "@/components/reui/filters/filters-advanced";',
+      "",
+    ].join("\n"),
+  });
+  const { components } = readComponents(readFolder(dir, "src/components/reui"), {
+    library: "src/components/ui",
+  });
+  const byName = Object.fromEntries(components.map((item) => [item.name, item]));
+  // Each still listed once, at the file that defines it.
+  assert.deepEqual(components.map((item) => item.name).sort(), [
+    "FilterChip",
+    "Filters",
+    "FiltersAdvanced",
+    "FiltersRow",
+  ]);
+  assert.equal(byName.FilterChip.file, "src/components/reui/filters/filters-chip.tsx");
+  // What each is drawn with: its file's own components and the ones its file hands on, not a
+  // component it merely imports.
+  assert.deepEqual(byName.Filters.parts, ["FiltersRow", "FiltersAdvanced"]);
+  assert.deepEqual(byName.FiltersRow.parts, ["FilterChip"]);
+});
