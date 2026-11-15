@@ -10,13 +10,19 @@ ACCEPTANCE_KIT ?= ../delivery-loop
 # How the reference repository spells the keys of its ledger of screens that join it with its model.
 REFERENCE_SCREEN_KEYS ?= entry=vao,actions=nut,frame=khung
 
-.PHONY: design-status design-ladder design-screen-actions-reference plugin-test design-specimen design-book design-apply design-plan design-audit design-adopt design-adopt-plan design-adopt-reference
+.PHONY: design-decide design-status design-ladder design-screen-actions-reference plugin-test design-specimen design-book design-apply design-plan design-audit design-adopt design-adopt-plan design-adopt-reference
 
 design-audit: ## Audit this repository: each standard decision's state, and the tier it has reached
 	@node plugins/design-assembly/scripts/inventory.mjs --target .
 
 design-status: ## Say what waits on the owner here, the tier reached, and the command to run next. Ends with 1 when something waits
 	@node plugins/design-assembly/scripts/status.mjs --target .
+
+# Extra flags for the sheet, such as DECIDE_ARGS="--answers answers.txt --dry-run" or DECIDE_ARGS="--only A1,C7".
+DECIDE_ARGS ?=
+
+design-decide: ## Print every question that waits on the owner here as one sheet; with answers, write them. Ends with 1 while questions wait
+	@node plugins/design-assembly/scripts/decide.mjs --target . $(DECIDE_ARGS)
 
 plugin-test: ## Run the plugin's own tests: the colour maths, the ledger, and the whole guide on a throwaway repository
 	@mkdir -p coverage

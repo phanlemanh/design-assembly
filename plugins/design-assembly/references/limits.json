@@ -5,6 +5,7 @@
     "adopt": "The skill that records what a repository already has, without changing it.",
     "audit": "The read-only report on how far a repository has got.",
     "status": "The read-only report on what waits on the owner and what to run next.",
+    "decide": "The sheet of every question that waits on the owner, and the answers written back.",
     "checks": "The gate tool and the browser test it installs.",
     "rules": "The page a screen-building agent reads before it starts.",
     "specimen": "The sheet that draws the options on the repository's own screen.",
@@ -2105,6 +2106,127 @@
       "where": ["d0041"],
       "status": "open",
       "note": "Status ends with 0 when nothing waits on a person even while a check fails or source goes around a decision; it names the audit as the next command, and only the repository's gate fails on them."
+    },
+    {
+      "id": "decide-intake-candidates-not-read",
+      "area": "decide",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0043"],
+      "status": "open",
+      "note": "Decide does not read candidates that wait to be chosen for a new block, because the command that takes a block in is not built, so nothing of that kind reaches the sheet."
+    },
+    {
+      "id": "decide-change-proposals-not-read",
+      "area": "decide",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0043"],
+      "status": "open",
+      "note": "Decide does not read a proposed change or retirement that needs a person, because the command that changes what a repository has is not built, so nothing of that kind reaches the sheet."
+    },
+    {
+      "id": "decide-upgrade-proposals-not-read",
+      "area": "decide",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0043"],
+      "status": "open",
+      "note": "Decide does not read what a newer version of the plugin would ask a person before it is taken in, because the command that upgrades a repository is not built, so nothing of that kind reaches the sheet."
+    },
+    {
+      "id": "decide-exceptions-not-read",
+      "area": "decide",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0043"],
+      "status": "open",
+      "note": "Decide does not read a departure that asks to be made an exception, and writes none into the record of departures on purpose, so an exception is still granted outside the sheet and without a name or a date."
+    },
+    {
+      "id": "decide-answer-kept-in-the-note",
+      "area": "decide",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0043"],
+      "status": "open",
+      "note": "Who answered a row of the ledger and when is written into the wording of its note, because the ledger has no key for it, so a note edited by hand can lose the name or read as an answer nobody gave."
+    },
+    {
+      "id": "decide-guide-rewrites-an-answered-row",
+      "area": "decide",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0043"],
+      "status": "open",
+      "note": "The guide writes again the rows it derives from the blueprint, so on its next run a kept answer loses the name and the date from its row, and a refusal or another answer is replaced by the note of a proposal and comes back as a question."
+    },
+    {
+      "id": "decide-records-a-refusal-and-changes-nothing",
+      "area": "decide",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0043"],
+      "status": "open",
+      "note": "A refusal or another answer is recorded where the question lives and nothing else changes, so the repository keeps the refused value and the audit still counts the row until someone changes it by hand or through the guide."
+    },
+    {
+      "id": "decide-cannot-tell-who-wrote-the-answers",
+      "area": "decide",
+      "kind": "unproven",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0043"],
+      "status": "open",
+      "note": "Decide cannot tell whether a person wrote the answers file it is given, so an agent that writes the file itself records answers under a person's name, and only the rule in the skill stands against it."
+    },
+    {
+      "id": "decide-does-not-record-a-call-without-a-row",
+      "area": "decide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0043"],
+      "status": "open",
+      "note": "Decide lists a call only a person can make that the ledger has no row for, and cannot record its answer, so the sheet is not answered in one go while such a call waits."
+    },
+    {
+      "id": "decide-hard-to-undo-by-layer-or-by-word",
+      "area": "decide",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0043"],
+      "status": "open",
+      "note": "A row of the ledger is marked hard to undo by its layer alone, and a row of the waiting list only when the list says so, so a question can be costly to reverse and carry no mark."
+    },
+    {
+      "id": "decide-no-specimen-and-no-document",
+      "area": "decide",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0043"],
+      "status": "open",
+      "note": "Decide draws no specimen for a question of taste and builds no document to hand over, so a visual question is answered from words and the sheet exists only on the screen and as data."
     }
   ]
 }

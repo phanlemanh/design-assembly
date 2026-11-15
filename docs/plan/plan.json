@@ -55,8 +55,9 @@
         {
           "id": "0.7",
           "what": "Lệnh decide; chủ repo trả lời các dòng đang chờ",
-          "state": "todo",
-          "command": "decide"
+          "state": "doing",
+          "command": "decide",
+          "ref": "lệnh đã dựng (quyết định 0043); 25 câu của hàng chờ còn chờ lời đáp của chủ repo"
         }
       ],
       "done_when": [
