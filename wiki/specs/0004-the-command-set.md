@@ -33,8 +33,11 @@ sources:
 Máy viết ngày 2026-11-15 theo lời chủ repo cùng ngày. Chủ repo duyệt cùng ngày («Duyệt đề bài»). Lệnh
 mới đầu tiên, `status`, đã dựng cùng ngày
 ([0041](../decisions/0041-status-reads-ledger-rows-and-compares-the-tool-by-content.md)); tài liệu
-bàn giao của nó (`--out`) và mười hai lệnh còn lại thì chưa. Đề bài này chốt lệnh nào tồn tại, nó
-nhận gì và trả gì.
+bàn giao của nó (`--out`) và mười hai lệnh còn lại thì chưa. Hợp đồng chung, phần kết quả máy đọc
+được và mã thoát, đã áp cho năm lệnh đang có
+([0044](../decisions/0044-one-contract-for-the-commands-that-exist.md)); hai chỗ còn lệch đề bài nằm
+ở sổ giới hạn: `new` chưa trả nguyên tắc và hướng đi, `handoff` kết thúc 1 chứ không phải 2 khi
+không vẽ được. Đề bài này chốt lệnh nào tồn tại, nó nhận gì và trả gì.
 
 ## Intent
 

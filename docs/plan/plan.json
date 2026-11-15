@@ -45,7 +45,8 @@
         {
           "id": "0.5",
           "what": "Hợp đồng chung cho bốn lệnh đang có: kết quả máy đọc được và mã thoát",
-          "state": "todo"
+          "state": "done",
+          "ref": "quyết định 0044, nhánh feat/common-contract-for-commands"
         },
         {
           "id": "0.6",
