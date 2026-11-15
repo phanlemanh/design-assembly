@@ -10,8 +10,19 @@ import { commitProblems, planProblems, position, trailers } from "./plan.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const real = () => JSON.parse(readFileSync(path.join(ROOT, "docs/plan/plan.json"), "utf8"));
-const copy = (change) => {
+// The plan of record as it stood on the day it was approved: stage 0 open, nothing started. The
+// rules are tested from there, so they keep holding as the real plan moves on.
+const fresh = () => {
   const plan = real();
+  plan.stages.forEach((stage, index) => {
+    stage.state = index === 0 ? "current" : "next";
+    delete stage.closed;
+    for (const item of stage.items) item.state = "todo";
+  });
+  return plan;
+};
+const copy = (change) => {
+  const plan = fresh();
   change(plan);
   return plan;
 };
