@@ -26,14 +26,13 @@ Máy không tự đánh dấu dòng nào là đã duyệt.
 
 ## B. Điều chưa bao giờ được duyệt
 
-| #   | Điều cần duyệt                                                                                | Máy khuyến nghị                                                                 |
-| --- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| B1  | Kiến trúc tổng thể của lớp meta (tài liệu kiến trúc). Mới chốt ba điều và chín câu            | Duyệt sau lát đầu trên Inventory, khi đã có số thật                             |
-| B2  | Bộ chỉ số đo hiệu quả                                                                         | Duyệt cùng B3 và B4                                                             |
-| B3  | Đổi chỉ số chính sang «luật bị phạm, có so với không có trang luật»; số chỗ đoán thành số phụ | Giữ đề xuất                                                                     |
-| B4  | Thang bốn nấc ở Inventory: sổ đúng hình dạng, câu lõi máy giữ, công cụ được thay, bậc của kit | Giữ đề xuất                                                                     |
-| B5  | Ngừng thêm luật bằng lời ở repo này; chỉ sửa 14 giới hạn nguy hiểm khi Inventory đụng tới     | Giữ đề xuất                                                                     |
-| B6  | Kế hoạch của đề bài 0002 viết lại theo nhịp của vòng đời và mức phục vụ, tám đợt (0039)       | Duyệt: Inventory thành một repo kiểm chứng, «cài được và lên đời được» đi trước |
+| #   | Điều cần duyệt                                                                                | Máy khuyến nghị                                     |
+| --- | --------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| B1  | Kiến trúc tổng thể của lớp meta (tài liệu kiến trúc). Mới chốt ba điều và chín câu            | Duyệt sau lát đầu trên Inventory, khi đã có số thật |
+| B2  | Bộ chỉ số đo hiệu quả                                                                         | Duyệt cùng B3 và B4                                 |
+| B3  | Đổi chỉ số chính sang «luật bị phạm, có so với không có trang luật»; số chỗ đoán thành số phụ | Giữ đề xuất                                         |
+| B4  | Thang bốn nấc ở Inventory: sổ đúng hình dạng, câu lõi máy giữ, công cụ được thay, bậc của kit | Giữ đề xuất                                         |
+| B5  | Ngừng thêm luật bằng lời ở repo này; chỉ sửa 14 giới hạn nguy hiểm khi Inventory đụng tới     | Giữ đề xuất                                         |
 
 ## C. Câu còn mở từ trước
 
