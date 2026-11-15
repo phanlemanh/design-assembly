@@ -184,7 +184,7 @@ const REFERENCE = env.DESIGN_ASSEMBLY_REFERENCE_LEDGER
 const noReference = !REFERENCE || !existsSync(path.join(REFERENCE, "design/decisions.yaml"));
 
 test(
-  "the reference repository's ledgers read, and where a shape differs the reader says how",
+  "the reference repository's ledgers all have the one shape",
   { skip: noReference && "set DESIGN_ASSEMBLY_REFERENCE_LEDGER to a repository with a ledger" },
   () => {
     const found = Object.fromEntries(
@@ -193,28 +193,17 @@ test(
         shapeProblems(kind, readFileSync(path.join(REFERENCE, file), "utf8"), file),
       ]),
     );
-    // Its decisions ledger and its pages of screen kinds have the one shape already.
-    assert.deepEqual(found["design/decisions.yaml"], []);
-    const pages = Object.keys(found).filter((file) => file.startsWith("design/patterns/"));
-    assert.ok(pages.length > 0);
-    for (const file of pages) assert.deepEqual(found[file], [], file);
-    // Its component register is read to the end, and each way it differs is named once: what
-    // moving it to the one shape takes.
-    const registry = found["design/component-registry.json"];
-    if (registry) {
-      const ways = new Set(
-        registry.map((line) =>
-          line.replace("design/component-registry.json", "").replace(/\[\d+\]/g, "[]"),
-        ),
-      );
-      for (const way of [
-        ".version is number, the contract says string",
-        ".components[].category is missing",
-        ".components[].parts[] is object, the contract says string",
-      ]) {
-        assert.ok(ways.has(way), [...ways].join("\n"));
-      }
+    // Since it adopted this plugin, its component register and its ledger of screens have the one
+    // shape too, as its decisions ledger and its pages of screen kinds had already.
+    for (const file of [
+      "design/decisions.yaml",
+      "design/component-registry.json",
+      "design/screens.yaml",
+    ]) {
+      assert.ok(file in found, file);
     }
+    assert.ok(Object.keys(found).some((file) => file.startsWith("design/patterns/")));
+    for (const [file, problems] of Object.entries(found)) assert.deepEqual(problems, [], file);
   },
 );
 
