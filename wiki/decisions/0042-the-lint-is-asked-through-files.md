@@ -11,7 +11,7 @@ sources:
   - "chủ repo, 2026-11-15: cổng đỏ một lần ngay sau khi gộp ba PR, xanh khi chạy lại; mở phiên riêng để sửa"
 ---
 
-# 0041 Lint của repo được hỏi qua tệp, có giới hạn thời gian, và báo lỗi bằng chính lời của lỗi
+# 0042 Lint của repo được hỏi qua tệp, có giới hạn thời gian, và báo lỗi bằng chính lời của lỗi
 
 ## Status
 
