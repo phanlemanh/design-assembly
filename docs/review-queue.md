@@ -34,6 +34,7 @@ Máy không tự đánh dấu dòng nào là đã duyệt.
 | B4  | Thang bốn nấc ở Inventory: sổ đúng hình dạng, câu lõi máy giữ, công cụ được thay, bậc của kit | Giữ đề xuất                                                                     |
 | B5  | Ngừng thêm luật bằng lời ở repo này; chỉ sửa 14 giới hạn nguy hiểm khi Inventory đụng tới     | Giữ đề xuất                                                                     |
 | B6  | Kế hoạch của đề bài 0002 viết lại theo nhịp của vòng đời và mức phục vụ, tám đợt (0039)       | Duyệt: Inventory thành một repo kiểm chứng, «cài được và lên đời được» đi trước |
+| B7  | Bộ mười hai lệnh của plugin, với đầu vào và đầu ra từng lệnh (đề bài 0004)                    | Duyệt: thêm tám lệnh cho việc hằng ngày, giữ bốn lệnh đang có                   |
 
 ## C. Câu còn mở từ trước
 

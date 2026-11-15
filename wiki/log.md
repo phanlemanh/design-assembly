@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-15 — Đề bài cho bộ lệnh của plugin: mười hai lệnh trong bốn nhóm (biết, quyết, đổi, giao), mỗi lệnh ghi rõ đầu vào, đầu ra cho người và cho máy, tệp nó ghi và mã thoát; tám lệnh mới, trong đó kiểm kê kho và tra kho. Chờ chủ repo duyệt — [spec 0004](specs/0004-the-command-set.md).
 - 2026-11-15 — Kế hoạch của đề bài 0002 viết lại theo nhịp của vòng đời và mức phục vụ, tám đợt; Inventory thành một repo kiểm chứng. Kiểm lại cho thấy plugin chưa cài ở repo nào và mọi lượt thử chạy trên kho này; ba dòng giới hạn mở, hai dòng đóng. Chờ chủ repo duyệt — [0039](decisions/0039-plan-recut-by-rhythm-and-tier.md), [spec 0002](specs/0002-meta-layer-for-many-repositories.md).
 - 2026-11-15 — Sổ linh kiện ghi lại «dựng từ» cả linh kiện mà tệp chuyển tiếp: bản sửa ghi trùng đã làm `Filters` và `FiltersRow` của Inventory mất quan hệ ấy (mục Ngoài-3 của hồ sơ chép công cụ) — [0038](decisions/0038-a-component-is-drawn-with-what-its-file-hands-on.md).
 - 2026-11-15 — Hai bài kiểm đọc sổ của Inventory thôi ghim những chỗ lệch hình dạng cũ: từ khi PR #58 gộp, sổ linh kiện và sổ màn ở đó đã đúng một hình dạng, nên bài kiểm nay đòi không còn chỗ lệch nào — `plugins/design-assembly/tests/test-contract.mjs`, `plugins/design-assembly/tests/test-screen-ledger.mjs`.
