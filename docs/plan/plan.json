@@ -84,7 +84,8 @@
         {
           "id": "1.1",
           "what": "Cài plugin qua marketplace vào một repo thử, đi cả các lệnh bằng đường của plugin",
-          "state": "todo"
+          "state": "done",
+          "ref": "docs/trials/install-through-marketplace.md"
         },
         {
           "id": "1.2",
