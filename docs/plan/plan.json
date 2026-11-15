@@ -21,7 +21,7 @@
         {
           "id": "0.1",
           "what": "Sửa lỗi chập chờn của lệnh chạy lại lint",
-          "state": "doing",
+          "state": "done",
           "ref": "phiên lint-flake"
         },
         {
@@ -306,6 +306,12 @@
       "what": "Bốn tiêu chí của đề bài 0002 nêu tên một repo",
       "stage": 0,
       "why_not_now": "Là một câu của hàng chờ, trả lời qua decide"
+    },
+    {
+      "on": "2026-11-15",
+      "what": "Bài kiểm bảng mẫu và cuốn sổ của plugin dùng chung một thư mục đầu ra, nên nhiều bản chạy cùng lúc trong một thư mục làm việc xoá tệp của nhau",
+      "stage": 0,
+      "why_not_now": "Một bản make check không gặp; chỉ lộ khi đo độ ổn định bằng nhiều bản song song"
     }
   ]
 }
