@@ -466,7 +466,10 @@ test("--dry-run writes nothing, and names exactly the files the real run then wr
     preview.stdout,
     /^answers that would be recorded: 2, by Test Person on 2026-11-15$/m,
   );
-  assert.match(preview.stdout, /^preview only: nothing was written$/m);
+  assert.match(
+    preview.stdout,
+    /^preview only: nothing was written; the sheet below is as it would be$/m,
+  );
   const named = (out) =>
     [...out.matchAll(/^ {2}(create|update) +(\S+?):/gm)].map((found) => found[2]);
   assert.deepEqual(named(preview.stdout), [LEDGER, BLUEPRINT, WAITING_LIST]);
@@ -483,7 +486,7 @@ test("--dry-run writes nothing, and names exactly the files the real run then wr
   const same = (out) =>
     out
       .replace("answers that would be recorded", "answers recorded")
-      .replace("preview only: nothing was written\n", "");
+      .replace("preview only: nothing was written; the sheet below is as it would be\n", "");
   assert.equal(same(preview.stdout), real.stdout);
   // A preview with no answers has nothing to write, and says so.
   assert.match(
@@ -526,6 +529,38 @@ test("a malformed answers file, an unknown id or an answer the sheet cannot take
     answersFile(["product-type giữ"]),
   );
   assert.equal(outside.status, 2);
+  assert.deepEqual(snapshot(dir), before);
+  // And an id --only names that the sheet does not have stops the run before an answer is written.
+  const stranger = cli(
+    "--target",
+    dir,
+    ...WHO,
+    "--only",
+    "Q2,Q9",
+    "--answers",
+    answersFile(["Q2 giữ"]),
+  );
+  assert.equal(stranger.status, 2);
+  assert.match(stranger.stderr, /Q9/);
+  assert.deepEqual(snapshot(dir), before);
+  // With --json the machine is told what was written, and where.
+  const told = JSON.parse(
+    cli("--target", dir, ...WHO, "--answers", answersFile(["Q2 giữ"]), "--dry-run", "--json")
+      .stdout,
+  );
+  assert.deepEqual(told.recorded, {
+    by: "Test Person",
+    on: "2026-11-15",
+    dry_run: true,
+    files: [
+      {
+        file: WAITING_LIST,
+        state: "update",
+        changes: ["Q2: confirmed by Test Person on 2026-11-15"],
+      },
+    ],
+  });
+  assert.ok(told.answered.some((item) => item.id === "Q2"));
   assert.deepEqual(snapshot(dir), before);
 });
 

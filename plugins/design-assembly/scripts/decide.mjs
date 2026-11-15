@@ -441,6 +441,7 @@ function record(root, state, answers, { by, on, only }) {
   return { files, changes, after, moved };
 }
 
+const PREVIEW = "preview only: nothing was written; the sheet below is as it would be";
 const SAID = { keep: "kept", refuse: "refused", value: "answered" };
 
 // The sheet as a person reads it.
@@ -538,7 +539,7 @@ function recordReport({ moved, changes }, written, { by, on, dryRun }) {
     const file = line.slice(line.lastIndexOf(" ") + 1);
     lines.push(`  ${line}: ${(changes[file] ?? []).join("; ")}`);
   }
-  if (dryRun) lines.push("preview only: nothing was written");
+  if (dryRun) lines.push(PREVIEW);
   lines.push("");
   return `${lines.join("\n")}\n`;
 }
@@ -624,8 +625,10 @@ function main() {
   let result;
   let head = "";
   try {
+    // Before anything is written: an id --only names that the sheet does not have is a wrong call.
+    const now = narrow(sheetOf(state), only);
     if (options.answers === null) {
-      result = narrow(sheetOf(state), only);
+      result = now;
       if (dryRun) head = "preview only: no answers, so nothing to write\n\n";
     } else {
       const refuse = (why) => {
@@ -636,11 +639,12 @@ function main() {
       const on = options.on ?? today();
       if (!isDay(on)) refuse(`--on takes a day written YYYY-MM-DD, and ${on} is not one`);
       const by = (options.by ?? nameFromGit(root) ?? "").trim();
-      if (by === "" || /[\n\r"\\]/.test(by)) {
+      if (by === "") {
         refuse(
           "nobody is named as the person who answered: say who with --by NAME (git has no name for this repository)",
         );
       }
+      if (/["\\]/.test(by)) refuse("a name cannot hold a double quote or a backslash");
       // A ledger a newer plugin wrote is never written over by this one.
       const newer = newerLedgers(root);
       if (newer.length > 0) refuse(newer.join("; "));
@@ -663,8 +667,8 @@ function main() {
           on,
           dry_run: dryRun,
           files: written.map((line) => {
-            const [state, name] = line.split(/\s+/);
-            return { file: name, state, changes: recorded.changes[name] ?? [] };
+            const [what, name] = line.split(/\s+/);
+            return { file: name, state: what, changes: recorded.changes[name] ?? [] };
           }),
         },
       };
