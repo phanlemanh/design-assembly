@@ -32,7 +32,7 @@ sources:
 
 Máy viết ngày 2026-11-15 theo lời chủ repo cùng ngày. Chủ repo duyệt cùng ngày («Duyệt đề bài»). Lệnh
 mới đầu tiên, `status`, đã dựng cùng ngày
-([0040](../decisions/0040-status-reads-ledger-rows-and-compares-the-tool-by-content.md)); tài liệu
+([0041](../decisions/0041-status-reads-ledger-rows-and-compares-the-tool-by-content.md)); tài liệu
 bàn giao của nó (`--out`) và mười hai lệnh còn lại thì chưa. Đề bài này chốt lệnh nào tồn tại, nó
 nhận gì và trả gì.
 

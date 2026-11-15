@@ -40,7 +40,7 @@ Bốn đường của plugin:
   tới, và in dòng `next:` chỉ skill kế tiếp.
 - **new** (`scripts/apply.mjs`): cuộc dẫn dắt. Sinh giá trị từ lựa chọn của người, cài lệnh kiểm.
 - **adopt** (`scripts/adopt.mjs`): nhận cái kho đã có, không đổi gì của kho.
-- **status** (`scripts/status.mjs`, từ 2026-11-15, quyết định 0040): chỉ đọc. Một màn hình: nấc đã
+- **status** (`scripts/status.mjs`, từ 2026-11-15, quyết định 0041): chỉ đọc. Một màn hình: nấc đã
   tới, mỗi nhịp một dòng, việc chờ chủ kho kèm khuyến nghị, bản công cụ có lệch plugin không, lệnh
   nên chạy kế. Nó chỉ thấy việc chờ nằm trong sổ: 26 dòng ở `docs/review-queue.md` nó không đếm.
 

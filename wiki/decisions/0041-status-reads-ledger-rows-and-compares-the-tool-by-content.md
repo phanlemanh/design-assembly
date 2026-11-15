@@ -17,7 +17,7 @@ sources:
   - "chủ repo, 2026-11-15: «Duyệt đề bài»"
 ---
 
-# 0040 Lệnh `status`: việc chờ chủ repo đọc từ dòng sổ, công cụ so bằng nội dung
+# 0041 Lệnh `status`: việc chờ chủ repo đọc từ dòng sổ, công cụ so bằng nội dung
 
 ## Status
 

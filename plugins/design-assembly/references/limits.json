@@ -2058,7 +2058,7 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-15",
-      "where": ["d0040"],
+      "where": ["d0041"],
       "status": "open",
       "note": "Status lists only what waits in the ledgers, so a question that waits on the owner somewhere else, such as a review list in prose, a pull request or a conversation, is not counted and the report can say nothing waits while much does."
     },
@@ -2069,7 +2069,7 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-15",
-      "where": ["d0040"],
+      "where": ["d0041"],
       "status": "open",
       "note": "Whether a person confirmed a row is read from the wording of its note, because the ledger has no key for who confirmed it and when, so a note rewritten in other words confirms a proposal that nobody decided."
     },
@@ -2080,7 +2080,7 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-15",
-      "where": ["d0040"],
+      "where": ["d0041"],
       "status": "open",
       "note": "Status reads a tool stamp that no command writes yet, so every repository reads as having no stamp, a copy that differs cannot be told from one the repository changed on purpose, and the place and shape it reads are a proposal until the command that writes them exists."
     },
@@ -2091,7 +2091,7 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-15",
-      "where": ["d0040"],
+      "where": ["d0041"],
       "status": "open",
       "note": "Status compares the folder of the tool only, without the files whose name starts with a dot, so a file the plugin installs elsewhere, such as the rules page or the tests the repository then owns, can differ from the installed plugin unseen."
     },
@@ -2102,7 +2102,7 @@
       "severity": "medium",
       "plan": "keep",
       "opened": "2026-11-15",
-      "where": ["d0040"],
+      "where": ["d0041"],
       "status": "open",
       "note": "Status ends with 0 when nothing waits on a person even while a check fails or source goes around a decision; it names the audit as the next command, and only the repository's gate fails on them."
     }
