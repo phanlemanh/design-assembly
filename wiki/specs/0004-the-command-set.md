@@ -41,18 +41,18 @@ nhận bản mới của plugin, đưa một khối mới vào, đổi hay bỏ 
 
 ### Ba người dùng và việc họ cần xong
 
-| Người dùng      | Việc cần xong                                                 | Hành vi quan sát được                                                            | Lệnh hôm nay                |
-| --------------- | ------------------------------------------------------------- | -------------------------------------------------------------------------------- | --------------------------- |
-| Chủ repo        | Biết đang ở đâu và việc gì chờ mình                           | Hỏi tiến độ nhiều lần mỗi phiên; 26 dòng chờ duyệt nằm trong một tệp không ai mở | Chưa có                     |
-| Chủ repo        | Quyết một lần cho xong, bằng mắt khi là chuyện thẩm mỹ        | Trả lời một chạm; chọn màu bằng bảng mẫu                                         | Một phần, trong `new`       |
-| Chủ repo        | Có design system cho repo mới, hoặc đưa plugin vào repo đã có | Chạy cuộc dẫn dắt; cho nhận trên nhánh riêng                                     | `new`, `audit`, `adopt`     |
-| Chủ repo        | Nhận bản sửa của plugin                                       | Phải bảo chép tay công cụ; lần gần nhất sổ mất dữ liệu mà không ai báo trước     | Chưa có                     |
-| Chủ repo        | Biết kho có gì và còn đáng tin không                          | Sổ ghi trùng chín linh kiện chỉ lộ ra nhờ lượt chấm nghiệm thu                   | Chưa có                     |
-| Chủ repo        | Bàn giao cho người khác                                       | Cuốn sổ                                                                          | `handoff`                   |
-| Tác tử dựng màn | Dựng một màn mà không phải đoán                               | Lượt thử đếm số chỗ tác tử tự đoán; đây là thước chính của plugin                | Chỉ có trang luật để tự đọc |
-| Tác tử dựng màn | Biết đã có thứ nào cho nhu cầu này chưa                       | Tìm lâu hơn tự dựng thì tác tử tự dựng                                           | Chưa có                     |
-| Tác tử dựng màn | Thiếu một khối thì lấy ở đâu, ghi lại thế nào                 | Ở repo đối chứng phải dùng công cụ viết tay                                      | Chưa có                     |
-| Plugin bên cạnh | Gọi được không cần người, nhận kết quả máy đọc được           | Repo Standards chưa gọi được; kit nghiệm thu đọc tệp, không gọi lệnh             | Chỉ `audit` có `--json`     |
+| Người dùng      | Việc cần xong                                                 | Hành vi quan sát được                                                             | Lệnh hôm nay                |
+| --------------- | ------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------------------------- |
+| Chủ repo        | Biết đang ở đâu và việc gì chờ mình                           | Hỏi tiến độ nhiều lần mỗi phiên; các dòng chờ duyệt nằm trong một tệp không ai mở | Chưa có                     |
+| Chủ repo        | Quyết một lần cho xong, bằng mắt khi là chuyện thẩm mỹ        | Trả lời một chạm; chọn màu bằng bảng mẫu                                          | Một phần, trong `new`       |
+| Chủ repo        | Có design system cho repo mới, hoặc đưa plugin vào repo đã có | Chạy cuộc dẫn dắt; cho nhận trên nhánh riêng                                      | `new`, `audit`, `adopt`     |
+| Chủ repo        | Nhận bản sửa của plugin                                       | Phải bảo chép tay công cụ; lần gần nhất sổ mất dữ liệu mà không ai báo trước      | Chưa có                     |
+| Chủ repo        | Biết kho có gì và còn đáng tin không                          | Sổ ghi trùng chín linh kiện chỉ lộ ra nhờ lượt chấm nghiệm thu                    | Chưa có                     |
+| Chủ repo        | Bàn giao cho người khác                                       | Cuốn sổ                                                                           | `handoff`                   |
+| Tác tử dựng màn | Dựng một màn mà không phải đoán                               | Lượt thử đếm số chỗ tác tử tự đoán; đây là thước chính của plugin                 | Chỉ có trang luật để tự đọc |
+| Tác tử dựng màn | Biết đã có thứ nào cho nhu cầu này chưa                       | Tìm lâu hơn tự dựng thì tác tử tự dựng                                            | Chưa có                     |
+| Tác tử dựng màn | Thiếu một khối thì lấy ở đâu, ghi lại thế nào                 | Ở repo đối chứng phải dùng công cụ viết tay                                       | Chưa có                     |
+| Plugin bên cạnh | Gọi được không cần người, nhận kết quả máy đọc được           | Repo Standards chưa gọi được; kit nghiệm thu đọc tệp, không gọi lệnh              | Chỉ `audit` có `--json`     |
 
 Tài liệu kiến trúc nêu ba điều kiện để tái dùng làm việc nhanh dần: thứ mới được ghi ngay lúc ra
 đời, tra lại rẻ hơn làm mới, kho còn đáng tin. Bốn lệnh hôm nay không phủ điều kiện nào trọn vẹn.
@@ -368,23 +368,21 @@ thiết kế, hướng đi, soát thiết kế, báo cáo tuân thủ, ghi chú 
 
 ## Plan
 
-Theo các đợt của kế hoạch viết lại (0039). Mỗi lệnh ra đời cùng skill, script, bài kiểm, dòng trong
-bảng từ vựng và mục trong tài liệu các lệnh kiểm.
+Theo tám giai đoạn của kế hoạch chính thức (`docs/plan/plan.json`, quyết định 0040). Mỗi lệnh ra đời
+cùng skill, script, bài kiểm, dòng trong bảng từ vựng và mục trong tài liệu các lệnh kiểm.
 
-| Đợt của 0039 | Lệnh                                                                  |
-| ------------ | --------------------------------------------------------------------- |
-| 0            | `status`; hợp đồng chung áp cho bốn lệnh đang có (`--json`, mã thoát) |
-| 0            | Khung chung của tài liệu, áp trước cho `status` và `audit`            |
-| 0            | `decide`, dùng ngay cho 26 dòng đang chờ                              |
-| 1            | `upgrade`                                                             |
-| 3            | `find`, rồi `intake`                                                  |
-| ngay sau 3   | `inventory`, rồi `change`                                             |
-| 2 tới 3      | Nguyên tắc thiết kế và lý lẽ trong `new`; rồi các hướng đi trọn vẹn   |
-| 5            | `brief`, rồi `review`                                                 |
+| Giai đoạn | Lệnh và phần đi kèm                                                                                    |
+| --------- | ------------------------------------------------------------------------------------------------------ |
+| 0         | `status`; hợp đồng chung áp cho bốn lệnh đang có (`--json`, mã thoát)                                  |
+| 0         | Khung chung của tài liệu, áp trước cho `status` và `audit`                                             |
+| 0         | `decide`, dùng ngay cho các dòng đang chờ                                                              |
+| 1         | `upgrade`                                                                                              |
+| 3         | `find`, rồi `intake`, rồi `inventory`, rồi `change`                                                    |
+| 4         | Nguyên tắc thiết kế và lý lẽ trong `new`; các hướng đi trọn vẹn; `handoff` thêm ví dụ nên và không nên |
+| 5         | `brief`, rồi `review`                                                                                  |
 
-`handoff` thêm ví dụ nên và không nên khi các lệnh trên đã có lý lẽ để trỏ tới. Mọi thứ vẽ bằng hình
-(hướng đi, `inventory` có hình, `review`, `handoff`) hôm nay chỉ vẽ được trên một nền dựng; nền dựng
-thứ hai thuộc đợt 4 của 0039.
+Mọi thứ vẽ bằng hình (hướng đi, `inventory` có hình, `review`, `handoff`) hôm nay chỉ vẽ được trên một
+nền dựng; nền dựng thứ hai thuộc giai đoạn 4.
 
 ## Test plan
 
@@ -401,7 +399,7 @@ thứ hai thuộc đợt 4 của 0039.
   một số chú thích; gỡ một chỗ phạm thì còn hai.
 - Vẻ đẹp của tài liệu không có bài kiểm: chủ repo xem từng mẫu tài liệu một lần trước khi mẫu ấy được
   coi là xong.
-- Sau mỗi đợt, một lượt thử độc lập cho lệnh vừa dựng; lượt thử tốn token nên cần chủ repo cho chạy.
+- Sau mỗi giai đoạn, một lượt thử độc lập cho lệnh vừa dựng; lượt thử tốn token nên cần chủ repo cho chạy.
 
 ## Autonomy tier
 

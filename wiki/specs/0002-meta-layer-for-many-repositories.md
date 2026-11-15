@@ -15,6 +15,7 @@ links:
   - wiki/decisions/0032-review-after-stage-two-and-stage-three-recut.md
   - wiki/decisions/0022-record-beside-a-list.md
   - wiki/decisions/0039-plan-recut-by-rhythm-and-tier.md
+  - wiki/decisions/0040-the-plan-of-record-and-how-it-is-kept.md
 sources:
   - "chủ kho, 2026-11-13: tầm nhìn và ba câu trả lời làm rõ"
   - docs/architecture/meta-layer.html
@@ -33,9 +34,10 @@ sources:
 Bản nháp, máy viết ngày 2026-11-13 theo tầm nhìn chủ kho nêu cùng ngày. Chủ kho chưa duyệt bản
 này. Ba câu trả lời của chủ kho được ghi nguyên ở mục Intent; mọi thứ còn lại là đề xuất của máy.
 
-Mục Plan viết lại ngày 2026-11-15 theo quyết định
-[0039](../decisions/0039-plan-recut-by-rhythm-and-tier.md): xếp theo nhịp của vòng đời một repo và
-mức phục vụ, thay cho xếp theo repo. Bản viết lại cũng là đề xuất của máy, chờ chủ kho duyệt.
+Mục Plan là bản kế hoạch chính thức, chủ kho duyệt ngày 2026-11-15
+([0040](../decisions/0040-the-plan-of-record-and-how-it-is-kept.md)): tám giai đoạn, xếp theo nhịp của
+vòng đời một repo và mức phục vụ. Trạng thái từng mục sống ở `docs/plan/plan.json`; `make plan` in nó
+ra.
 
 ## Intent
 
@@ -97,7 +99,7 @@ ngoài trước khi cuộc dẫn dắt dùng tới.
 
 ## Plan
 
-Viết lại ngày 2026-11-15 (0039). Bản trước xếp việc theo repo: kho này, rồi Inventory, rồi hai kho
+Chủ kho duyệt ngày 2026-11-15 (0040). Bản đầu xếp việc theo repo: kho này, rồi Inventory, rồi hai kho
 bên cạnh, rồi lõi của họ. Plugin phục vụ mọi repo ở mọi nhịp của vòng đời, nên kế hoạch xếp theo
 hai trục của tài liệu kiến trúc: **năm nhịp** (mục «Vòng đời của một repo») và **ba mức phục vụ**
 (mục «Bộ chuyển, và ba mức phục vụ»). Inventory là một repo kiểm chứng của mức «Đồng hành», không
@@ -138,93 +140,43 @@ Hai kho bên cạnh: trang ranh giới ba kho ở Repo Standards đã chốt vai
 Standards chưa gọi plugin ở đâu trong mã; kit nghiệm thu mới đọc hai trong mười một sổ (sổ token và
 sổ linh kiện).
 
-### Các đợt, theo thứ tự
+### Tám giai đoạn
 
-Mỗi đợt nêu nó làm ô nào của bảng trên nhúc nhích, xong khi nào, và cần gì ở chủ kho. Đợt sau không
-bắt đầu khi đợt trước chưa có số đo.
+Trang này giữ lý do và điều kiện «xong khi» của từng giai đoạn. Các mục và trạng thái của chúng nằm ở
+`docs/plan/plan.json`; `make plan` in giai đoạn đang mở, và cổng kiểm giữ cho việc làm bám theo
+(0040). Lệnh nêu trong bảng là lệnh của đề bài 0004.
 
-**Đợt 0. Sửa thước và dọn hàng chờ.** Máy làm trong kho này.
+| Giai đoạn                       | Việc                                                                                                                       | Lệnh ra đời                             | Xong khi                                                                                       | Cần chủ kho                        |
+| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------- |
+| 0. Đặt nền                      | Sửa lỗi chập chờn của lệnh chạy lại lint; giữ kế hoạch bằng máy; sửa lệnh đo thang; hợp đồng chung và khung tài liệu chung | `status`, `decide`                      | Cổng kiểm xanh năm lần liền; `status` chạy trên hai repo; hàng chờ không còn dòng chưa đáp     | Trả lời hàng chờ, một lần          |
+| 1. Cài được, lên đời được       | Cài plugin qua marketplace; số bản tăng theo thay đổi                                                                      | `upgrade`                               | Một repo thử đi trọn rà soát, nhận, lên đời; repo kiểm chứng nhận hai bản sửa còn nợ bằng lệnh | Cho phép ở repo kiểm chứng         |
+| 2. Đo độ rộng (song song với 1) | Rà soát, chỉ đọc, trên một repo web ngoài họ và một repo cùng họ                                                           | Không                                   | Có số đo của ba mức trên ba repo; không lần chạy nào sập                                       | Chỉ định hai repo                  |
+| 3. Kho dùng lại                 | Sổ nhập kho, sổ nguồn ngoài                                                                                                | `find`, `intake`, `inventory`, `change` | Khối mới vào qua lệnh; lần hai cùng nhu cầu không gọi người; kiểm kê báo đủ sáu loại phát hiện | Cho phép áp vào repo thật          |
+| 4. Dẫn dắt kiểu studio          | Nguyên tắc thiết kế và lý lẽ; hướng đi trọn vẹn; nền dựng và nguồn linh kiện thứ hai; ví dụ nên và không nên               | Không; nâng `new` và `handoff`          | `new` trình ít nhất hai hướng trên màn thật; cuốn hướng dẫn vẽ được trên nền dựng thứ hai      | Xem từng mẫu tài liệu một lần      |
+| 5. Dựng màn không phải đoán     | Bài kiểm trình duyệt theo vai; một lượt thử độc lập                                                                        | `brief`, `review`                       | Tác tử độc lập dựng một màn chỉ từ `brief`; số chỗ phải đoán không tăng                        | Cho chạy lượt thử                  |
+| 6. Hai kho bên cạnh gọi và đọc  | Repo Standards gọi plugin; kit nghiệm thu đọc sổ màn thay cho khai lại                                                     | Không                                   | Một repo mới ra đời qua Repo Standards có đủ bộ sổ                                             | Duyệt kiến trúc; cho phép từng kho |
+| 7. Lõi của họ sản phẩm          | Hồ sơ quyết định dùng chung; nâng hạng khối                                                                                | Không                                   | Repo thứ hai không bị hỏi lại câu cũ, dùng lại ít nhất một khối                                | Tạo repo cho lõi                   |
 
-- Lệnh đo thang đo tại chỗ trên repo đã nhận, thay cho diễn lại việc nhận; thêm cách đọc theo nhịp.
-  Hôm nay nó in đúng hàng đầu rồi sập trên Inventory đã nhận.
-- Một tờ quyết định cho 26 dòng ở `docs/review-queue.md`, gồm cả bản kế hoạch này (dòng B6): mỗi
-  dòng một khuyến nghị và căn cứ, chủ kho trả lời một lần.
-- Xong khi: `make design-ladder` chạy trọn trên Inventory ở `main`; hàng chờ có lời đáp.
+### Mỗi giai đoạn đẩy tiêu chí nào
 
-**Đợt 1. Cài được và lên đời được.** Ngang mọi nhịp; máy làm trong kho này.
+| Tiêu chí (mục Acceptance criteria)        | Hôm nay                                      | Giai đoạn đẩy tiếp |
+| ----------------------------------------- | -------------------------------------------- | ------------------ |
+| 1. Mỗi sổ một hình dạng                   | Đạt: 7/7 sổ ở Inventory, 11/11 ở kho này     | 3 (hai sổ mới)     |
+| 2. Câu lõi máy giữ ở repo đã có           | Đạt và còn tăng được: 10 câu lõi ở Inventory | 1, 5               |
+| 3. Bảng mẫu và cuốn sổ ngoài nền dựng đầu | Chưa                                         | 4                  |
+| 4. Khối mới qua đường nhập kho            | Chưa                                         | 3                  |
+| 5. Công cụ viết tay giảm                  | Một phần: thay một công cụ ở Inventory       | 3, 4               |
+| 6. Repo thứ hai thừa hưởng lõi            | Chưa                                         | 7                  |
+| 7. Lõi không nêu tên thư viện             | Đạt, có bài kiểm                             | 2, 4 (giữ)         |
 
-- Cài plugin qua marketplace vào một repo bỏ đi, rồi đi cả bốn skill bằng đường của plugin, không
-  gọi lệnh nào của kho này.
-- Lệnh «nhận lại»: chép công cụ của bản plugin đang cài vào repo, ghi vào repo số bản và mã cây git
-  của thư mục công cụ; `audit` nói ra khi thư mục lệch bản đã ghi. Có đưa phép kiểm ấy vào cổng của
-  repo hay không là lựa chọn của từng repo.
-- Số bản của plugin tăng theo mỗi thay đổi đi tới repo.
-- Xong khi: trên repo bỏ đi, audit rồi nhận rồi nhận lại sau một bản sửa đều chạy qua plugin đã
-  cài; dòng giới hạn `adopt-does-not-refresh-tool` và `plugin-never-installed` đóng.
+### Luật đi kèm mọi giai đoạn
 
-**Đợt 2. Đo độ rộng.** Chạy song song với đợt 1 được; chỉ đọc, không ghi vào repo nào.
-
-- Chạy audit và xem trước việc nhận trên ít nhất một repo web ngoài họ (mức «Chỉ luật») và một repo
-  cùng họ không phải Inventory (mức «Đồng hành»).
-- Ghi số cho từng repo: bao nhiêu câu lõi đọc được, chỗ nào plugin sập hay nói sai. Mỗi chỗ thành
-  một dòng sổ giới hạn, không sửa ngay.
-- Xong khi: có bảng số của ba mức trên ba repo, và không lần chạy nào sập.
-- Cần chủ kho: chỉ định repo, và cho phép đọc.
-
-**Đợt 3. Nhịp nhập kho.** Nhịp duy nhất còn trống.
-
-- Hình dạng của sổ nhập kho và sổ nguồn ngoài vào hợp đồng; tên ngành của hai sổ vào bảng từ vựng.
-- Skill nhập kho theo thang ba bậc của tài liệu kiến trúc: tra kho, tra nguồn ngoài (bày ứng viên
-  bằng ảnh), tạo tay; kết quả là một dòng sổ.
-- Chứng minh trên ứng dụng mẫu của kho này trước, rồi trên một repo thật.
-- Xong khi: một khối mới vào ứng dụng mẫu qua skill; lần thứ hai gặp cùng nhu cầu là bậc một, không
-  gọi người.
-- Cần chủ kho: cho phép áp vào repo thật; ở Inventory là thay danh mục và sổ khối viết tay.
-
-**Đợt 4. Bộ chuyển thứ hai cho loại nào repo thật cần.**
-
-- Nền dựng Next.js, để bảng mẫu và cuốn sổ vẽ được ngoài Vite; nguồn linh kiện thứ hai (ReUI hoặc
-  kho khối riêng).
-- Xong khi: bảng mẫu và cuốn sổ vẽ được trên một repo Next; lõi không đổi dòng nào ngoài thư mục bộ
-  chuyển.
-
-**Đợt 5. Nhịp «mỗi thay đổi» theo trang ranh giới ba kho.**
-
-- Bài kiểm trình duyệt theo vai: vai không có quyền thì không thấy nút (dòng giới hạn mức nặng
-  `screen-actions-runtime-hiding-unchecked`).
-- Các giới hạn mức nặng khác chỉ sửa khi một repo thật đụng tới, như đề xuất B5 của hàng chờ.
-
-**Đợt 6. Hai kho bên cạnh gọi và đọc.** Sau đợt 1 và 3, và sau khi kiến trúc được duyệt (B1).
-
-- Repo Standards gọi skill dẫn dắt sau khi đặt nền, và skill nhận ở repo đã có.
-- Kit nghiệm thu đọc sổ màn và bảng trạng thái thay cho khai lại trong bản đặc tả của mỗi tính năng
-  (chỗ lệch thứ nhất của trang ranh giới); cổng phạm vi dùng đường nhập kho.
-- Cần chủ kho: cho phép sửa ở từng kho.
-
-**Đợt 7. Lõi của họ sản phẩm.** Sau khi kiến trúc được duyệt.
-
-- Hồ sơ quyết định dùng chung, registry khối đã nâng hạng, và đề xuất nâng hạng ở nhịp định kỳ.
-- Xong khi: một repo thứ hai cùng họ không bị hỏi lại câu đã trả lời, và dùng lại ít nhất một khối.
-- Cần chủ kho: tạo repo cho lõi.
-
-### Mỗi đợt đẩy tiêu chí nào
-
-| Tiêu chí (mục Acceptance criteria)        | Hôm nay                                      | Đợt đẩy tiếp   |
-| ----------------------------------------- | -------------------------------------------- | -------------- |
-| 1. Mỗi sổ một hình dạng                   | Đạt: 7/7 sổ ở Inventory, 11/11 ở kho này     | 3 (hai sổ mới) |
-| 2. Câu lõi máy giữ ở repo đã có           | Đạt và còn tăng được: 10 câu lõi ở Inventory | 1, 5           |
-| 3. Bảng mẫu và cuốn sổ ngoài nền dựng đầu | Chưa                                         | 4              |
-| 4. Khối mới qua đường nhập kho            | Chưa                                         | 3              |
-| 5. Công cụ viết tay giảm                  | Một phần: thay một công cụ ở Inventory       | 3, 4           |
-| 6. Repo thứ hai thừa hưởng lõi            | Chưa                                         | 7              |
-| 7. Lõi không nêu tên thư viện             | Đạt, có bài kiểm                             | 2, 4 (giữ)     |
-
-### Luật đi kèm mọi đợt
-
-- Thay đổi ở repo khác đi trên nhánh riêng, theo cổng của repo đó; ở Inventory là một hồ sơ nghiệm
-  thu có chữ ký. Đợt 1 làm việc ấy rẻ hơn, không bỏ nó.
-- Sau mỗi đợt, một lượt thử độc lập cho phần vừa dựng. Lượt thử tốn token, nên cần chủ kho cho chạy.
-- Số đo hiện trạng ở trên được đo lại sau mỗi đợt bằng lệnh, không bằng trí nhớ.
+- Đúng một giai đoạn đang mở. Giai đoạn đóng khi mỗi dòng «xong khi» có một lệnh cho thấy nó đúng.
+- Mỗi nhánh nêu mục của kế hoạch nó phục vụ, hoặc khai là ngoài kế hoạch kèm lý do; cổng kiểm giữ.
+- Phát hiện mới vào danh sách «để sang bên» của tệp kế hoạch, trừ khi nó chặn giai đoạn đang mở.
+- Thay đổi ở repo khác đi trên nhánh riêng, theo cổng của repo đó.
+- Sau mỗi giai đoạn, một lượt thử độc lập cho phần vừa dựng; lượt thử tốn token, nên cần chủ kho cho
+  chạy.
 
 ## Test plan
 
@@ -233,10 +185,10 @@ bắt đầu khi đợt trước chưa có số đo.
 - Mỗi lát trên Inventory chạy trên bản sao trước, rồi mới trên một nhánh riêng của kho thật.
 - Mỗi công cụ viết tay bị thay phải có một lần chạy song song cho ra cùng kết quả trước khi bỏ.
 - Chạy thử độc lập như sáu lần trước, thêm một tác tử làm việc trên bản sao Inventory.
-- Đợt 1: một repo bỏ đi cài plugin qua marketplace; bài kiểm cho lệnh nhận lại thấy `audit` nói ra khi
+- Giai đoạn 1: một repo bỏ đi cài plugin qua marketplace; bài kiểm cho lệnh nhận lại thấy `audit` nói ra khi
   thư mục công cụ lệch bản đã ghi.
-- Đợt 2: mỗi repo được đo có một dòng số, sinh bằng lệnh; lần chạy sập là một dòng sổ giới hạn.
-- Đợt 3: bài kiểm hình dạng cho hai sổ mới; một lượt thử độc lập với vai «nhập kho».
+- Giai đoạn 2: mỗi repo được đo có một dòng số, sinh bằng lệnh; lần chạy sập là một dòng sổ giới hạn.
+- Giai đoạn 3: bài kiểm hình dạng cho hai sổ mới; một lượt thử độc lập với vai «nhập kho».
 - Lệnh đo thang chạy được trên repo đã nhận, và có bài kiểm cho điều đó.
 
 ## Autonomy tier
@@ -252,11 +204,10 @@ Chín câu từng còn mở đã được chủ kho chốt ngày 2026-11-13: xem
 
 Còn mở:
 
-- Bản kế hoạch viết lại ngày 2026-11-15 (0039) chưa được duyệt.
 - Tiêu chí 2 đến 5 nêu tên Inventory. Kế hoạch mới coi Inventory là một repo kiểm chứng: giữ chữ của
-  tiêu chí, hay viết lại thành «một repo đã có»? Bảng «Mỗi đợt đẩy tiêu chí nào» tạm đọc theo nghĩa
+  tiêu chí, hay viết lại thành «một repo đã có»? Bảng «Mỗi giai đoạn đẩy tiêu chí nào» tạm đọc theo nghĩa
   rộng.
-- Đợt 2 đo trên repo nào ngoài họ và repo nào cùng họ.
+- Giai đoạn 2 đo trên repo nào ngoài họ và repo nào cùng họ.
 - Kiến trúc tổng thể chưa được duyệt: chủ kho mới chốt ba điều ở mục Intent và chín câu ở 0023.
 - Với từng lời đáp cụ thể của lõi, xếp vào khoá hay mặc định: chủ kho quyết lúc lõi ra đời.
 - Ba việc ở kho khác chờ chủ kho làm hoặc cho phép: thang của delivery-loop đọc kết quả audit,
