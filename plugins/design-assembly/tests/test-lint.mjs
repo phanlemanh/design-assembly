@@ -35,7 +35,7 @@ after(() => made.forEach((dir) => rmSync(dir, { recursive: true, force: true }))
 const TABLE = "JSXOpeningElement[name.name='table']";
 const TEMPLATE = "JSXAttribute[name.name='className'] TemplateLiteral";
 
-function config(selectors) {
+function config(selectors, extra = "") {
   const rules = selectors.map((selector) => `{ selector: "${selector}", message: "no" }`);
   return [
     'import tseslint from "typescript-eslint";',
@@ -44,7 +44,7 @@ function config(selectors) {
     "  {",
     '    files: ["src/**/*.tsx"],',
     "    languageOptions: { parser: tseslint.parser },",
-    `    rules: { "no-restricted-syntax": ["error", ${rules.join(", ")}] },`,
+    `    rules: { "no-restricted-syntax": ["error", ${rules.join(", ")}]${extra} },`,
     "  },",
     "];",
     "",
@@ -148,6 +148,44 @@ test(
     const red = run(check, "--target", dir);
     assert.equal(red.status, 1);
     assert.match(red.stderr, /raw-table: the repository's lint lets through `<table \/>`/);
+  },
+);
+
+test(
+  "another rule that rejects every probe does not hold a row that names a different rule",
+  { skip: !LINTED && "no lint installed here" },
+  () => {
+    const dir = repository();
+    // The row names a rule that is an error on screen files but rejects no table; the rule that
+    // rejects a table is another one.
+    const imports = ', "no-restricted-imports": ["error", "left-pad"]';
+    writeFileSync(path.join(dir, "eslint.config.js"), config([TABLE, TEMPLATE], imports));
+    writeFileSync(
+      path.join(dir, "design/decisions.yaml"),
+      LEDGER.replace(
+        'id: raw-table\n    layer: components\n    kind: standard\n    source: "the team"\n    check: "eslint:no-restricted-syntax"',
+        'id: raw-table\n    layer: components\n    kind: standard\n    source: "the team"\n    check: "eslint:no-restricted-imports"',
+      ),
+    );
+    const adopted = run(ADOPT, "--target", dir, "--dry-run");
+    assert.equal(adopted.status, 0, adopted.stderr);
+    assert.match(
+      adopted.stdout,
+      /raw-table: the repository's lint lets through `<table \/>`: no-restricted-imports does not reject it/,
+    );
+    assert.doesNotMatch(adopted.stdout, /raw-table: every probe is rejected/);
+
+    // A check written by hand for that rule fails, and names the rule.
+    const check = { kind: "lint", rule: "no-restricted-imports", at: "src/app/page.tsx" };
+    const theme = { version: 1, checks: { "raw-table": [check] } };
+    writeFileSync(path.join(dir, "design/theme.json"), `${JSON.stringify(theme, null, 2)}\n`);
+    const tool = path.join(PLUGIN, "templates/tools/design-assembly/check.mjs");
+    const red = run(tool, "--target", dir);
+    assert.notEqual(red.status, 0);
+    assert.match(
+      red.stderr,
+      /raw-table: the repository's lint lets through `<table \/>`: no-restricted-imports does not reject it/,
+    );
   },
 );
 

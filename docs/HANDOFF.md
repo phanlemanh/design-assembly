@@ -51,7 +51,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
   tư**: `phanlemanh/design-assembly`, remote `origin`. Chủ kho bảo tạo và đẩy một lần («Tạo github
   và push»). Cập nhật lần cuối 2026-11-14, sau quyết định 0034.
 - `make check` xanh: lint, typecheck, 102 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (38 quyết định, 44 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 274 bài kiểm của plugin (đường dẫn tới Inventory và kit phải tính được từ thư mục đang chạy, không thì vài bài bị bỏ qua).
+  (37 quyết định, 43 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 276 bài kiểm của plugin (đường dẫn tới Inventory và kit phải tính được từ thư mục đang chạy, không thì vài bài bị bỏ qua).
 - Kho này đáp 39/39 quyết định lõi: 26 máy giữ, 7 tự khai, 6 đã ghi. 11 sổ đúng hình dạng hợp
   đồng.
 - **Lộ trình năm chặng:** 1 «Dọn nền» và 2 «Hợp đồng» đã xong. Chặng 3 «Vào Inventory» đã cắt lại
@@ -93,7 +93,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 | Năm bộ chuyển giữ tên thư viện                                 | 0031    | `templates/tools/design-assembly/adapters/`                                                        |
 | Bộ đọc linh kiện: thuộc tính, khuôn theo thư mục, mọi thư viện | 0034    | `templates/tools/design-assembly/components.mjs`, `adapters/shadcn.mjs`                            |
 | Chạy lại lint của repo trên đoạn mã phạm quyết định            | 0033    | `templates/tools/design-assembly/probes.mjs`, `lint.mjs`, `adapters/eslint.mjs`                    |
-| Sổ màn nói màn hiện gì, nút cho ai; cổng nối với mô hình       | 0035    | `templates/tools/design-assembly/screen-actions.mjs`, `make design-screen-actions-reference`       |
+| Sổ màn nói màn hiện gì, nút cho ai; cổng nối với mô hình       | 0037    | `templates/tools/design-assembly/screen-actions.mjs`, `make design-screen-actions-reference`       |
 
 Lệnh hay dùng ở kho này: `make design-audit`, `make design-plan`, `make design-apply`,
 `make design-adopt`, `make design-adopt-reference` (xem trước trên kho đối chứng, không bao giờ
@@ -129,7 +129,7 @@ chủ kho, người giữ mã ký theo luật tự chủ của Inventory.
 
 1. Bước 1 và 2 đã xong trên nhánh riêng của Inventory. Gộp nhánh đó là việc của chủ kho: nó đụng
    vùng Inventory xếp vào loại phải có người giữ mã ký.
-2. Lát hai đã xong (0033) cho phần lint, cả trên nhánh riêng của Inventory (chủ kho cho phép
+2. Lát hai đã xong (0033, mục 5 thay bởi 0035) cho phần lint, cả trên nhánh riêng của Inventory (chủ kho cho phép
    2026-11-14). Còn lại: bài kiểm và công cụ của repo chưa được chạy lại; hướng nhập chưa có đoạn
    mã phạm.
 3. Lát ba đã xong (0034), và bước 3 của lát đầu đã làm trên nhánh riêng của Inventory (chủ kho cho
@@ -140,9 +140,15 @@ chủ kho, người giữ mã ký theo luật tự chủ của Inventory.
    dẫn T3 phải kèm hồ sơ `_acceptance/<slug>/` có chữ ký người. Việc tách không gỡ được cổng; máy đã
    đoán sai lý do, và đã ghi lại. Chủ kho cho dựng hồ sơ: `_acceptance/adopt-design-assembly/` trên
    nhánh của #58, chạy theo vòng `/feature-loop:feature-loop adopt-design-assembly`. Cổng Phạm vi và
-   Cổng 1.5 đã duyệt (2026-11-14); việc kế là S3 (viết bảy phép đo trong `rang/` theo kế hoạch
-   `docs/superpowers/plans/2026-11-14-adopt-design-assembly.md` của Inventory), rồi lượt chấm, rồi
-   Cổng Bằng chứng chờ chủ kho ký.
+   Cổng 1.5 đã duyệt (2026-11-14); S3 xong; lượt chấm 1 trả REJECT vì lệnh kiểm lint tính «giữ» khi
+   luật khác chặn thay luật dòng sổ nêu tên. Chủ kho chọn siết (2026-11-15, «Siết, sửa AC-2»): plugin
+   sửa ([0035](../wiki/decisions/0035-the-named-rule-holds-the-row.md)), «khoảng cách» của Inventory
+   về lại «tự khai», AC-2 thành 17 quyết định và tám luật, thêm phép đo tắt riêng luật nêu tên.
+   Chủ kho duyệt lại Cổng Phạm vi và Cổng 1.5; lượt chấm 2 đạt mọi phép kiểm máy; **chủ kho đã ký Cổng
+   Bằng chứng ngày 2026-11-15**, lưới trước khi gộp của kit sạch. 13 mục ngoài hợp đồng ghi vào hạn chế
+   đã biết, 2 chấp nhận không sửa, 1 mở hợp đồng mới (sổ linh kiện ghi trùng linh kiện xuất lại qua tệp
+   gom, sửa ở plugin). **Các commit của nhánh sau `11477d7` chưa đẩy**; đẩy cần lời chủ kho, rồi việc
+   gộp #58 là của chủ kho; #59 gộp sau.
    **Tên tệp ở Inventory là tiếng Anh** theo AGENTS.md của nó, dù phần lớn tên có sẵn ở đó là tiếng
    Việt; chủ kho chỉ ra ngày 2026-11-14 và mọi tên của vòng này đã đổi sang tiếng Anh.
 4. Sau cùng: bộ chuyển Next.js cho bảng mẫu và cuốn sổ; sổ nguồn ngoài và sổ nhập kho.
@@ -152,7 +158,7 @@ chủ kho, người giữ mã ký theo luật tự chủ của Inventory.
 
 Các lát đã xong, mới nhất trước:
 
-- **Sổ màn nối mô hình nghiệp vụ** (2026-11-15, đề bài 0003, quyết định 0035), phần của repo này
+- **Sổ màn nối mô hình nghiệp vụ** (2026-11-15, đề bài 0003, quyết định 0037), phần của repo này
   trong bảng vai × màn × nút theo ranh giới ba kho. Sổ màn khai màn hiện gì, mở bằng thao tác nào,
   có nút nào; cổng đỏ khi thao tác không màn nào chào ra cho vai được làm, màn hiện thứ vai không được
   xem, hay nút không ai bấm được. Ở nhánh `claude/so-man-noi-mo-hinh-95de70`, chưa đẩy. Hai màn mẫu

@@ -279,13 +279,6 @@
         "min": 24
       }
     ],
-    "color-role": [
-      {
-        "kind": "lint",
-        "rule": "shadcn/no-raw-colors",
-        "at": "src/App.tsx"
-      }
-    ],
     "type-scale": [
       {
         "kind": "lint",

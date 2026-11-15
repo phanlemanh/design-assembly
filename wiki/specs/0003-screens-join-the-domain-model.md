@@ -4,7 +4,7 @@ title: Sổ màn nói màn hiện gì và chào nút nào cho vai nào, và mộ
 status: implemented
 tier: 1
 links:
-  - wiki/decisions/0035-screens-join-the-domain-model.md
+  - wiki/decisions/0037-screens-join-the-domain-model.md
   - wiki/decisions/0005-output-tiers-and-boundaries.md
   - wiki/decisions/0030-one-ledger-of-screens.md
   - wiki/specs/0002-meta-layer-for-many-repositories.md
@@ -23,7 +23,7 @@ Máy viết ngày 2026-11-15, theo việc phiên điều phối giao. Chủ kho 
 đi» ở phiên này, «Duyệt» ở phiên điều phối. Lời duyệt phủ các bước của mục Plan trừ phần đổi mô hình
 dữ liệu ở bước 4; phần đó chủ kho duyệt riêng cùng ngày («Duyệt, áp bản vá» ở phiên này, «Duyệt» ở phiên điều phối). Các lựa chọn dưới đây vẫn là máy chọn, chờ chủ kho bác. Bản thử đầu tiên nằm ngoài kho, ở thư
 mục ghi chú chung của nhóm phiên, vì đề bài 0002 nói máy chỉ tự xây trong kho sau khi chủ kho duyệt
-từng bước. Đã xây cả năm bước của mục Plan: xem [0035](../decisions/0035-screens-join-the-domain-model.md). Số đo
+từng bước. Đã xây cả năm bước của mục Plan: xem [0037](../decisions/0037-screens-join-the-domain-model.md). Số đo
 chạy lại được bằng `make design-screen-actions-reference`.
 
 ## Intent

@@ -17,7 +17,7 @@ sources:
   - ontology/actions.yaml
 ---
 
-# 0035 Sổ màn nói màn hiện gì, chào nút nào; cổng nối sổ màn với mô hình nghiệp vụ của repo
+# 0037 Sổ màn nói màn hiện gì, chào nút nào; cổng nối sổ màn với mô hình nghiệp vụ của repo
 
 ## Status
 
@@ -60,7 +60,8 @@ nối hai sổ đặt ở bên đọc, tức ở đây.
 
 ## Consequences
 
-- Cổng của repo này giữ 38 quyết định bằng 44 lệnh kiểm (trước là 37 và 43). Bỏ nút xoá khỏi sổ
+- Cổng của repo này giữ 37 quyết định bằng 43 lệnh kiểm (trước là 36 và 42; số trước là 38 và 44 khi chưa gộp bản sửa
+  [0035](0035-the-named-rule-holds-the-row.md), bản sửa đưa «màu là vai trò» về «tự khai»). Bỏ nút xoá khỏi sổ
   màn thì cổng đỏ đúng câu, thử bằng tay ngày 2026-11-15.
 - Bài kiểm của plugin thêm 26 bài: 17 bài viết trước mã ở bản thử, rồi các bài cho cổng, cho bộ
   đọc tệp, cho bộ ghi sổ màn và cho kho đối chứng.
