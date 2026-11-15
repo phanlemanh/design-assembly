@@ -1676,8 +1676,10 @@
       "plan": "fix",
       "opened": "2026-11-14",
       "where": ["d0029"],
-      "status": "open",
-      "note": "The reference repository's component register differs from the contract in three ways, a numeric version, no category, and parts written as objects, so the acceptance kit refuses it and moving it is that repository's change."
+      "status": "closed",
+      "note": "The reference repository's component register differs from the contract in three ways, a numeric version, no category, and parts written as objects, so the acceptance kit refuses it and moving it is that repository's change.",
+      "closed": "2026-11-15",
+      "closed_by": "the reference repository's component register has been written by this plugin's tool since its pull request 58 merged, in the one shape; a plugin test reads every ledger there and asks for no difference"
     },
     {
       "id": "kit-readers-split-on-colour",
@@ -1721,8 +1723,10 @@
       "plan": "fix",
       "opened": "2026-11-14",
       "where": ["d0030"],
-      "status": "open",
-      "note": "The reference repository's ledger of screens has no version and names its family by a key that differs from the name of its page of that kind, so moving it to the contract is that repository's change."
+      "status": "closed",
+      "note": "The reference repository's ledger of screens has no version and names its family by a key that differs from the name of its page of that kind, so moving it to the contract is that repository's change.",
+      "closed": "2026-11-15",
+      "closed_by": "the reference repository's ledger of screens carries the version since its pull request 58 merged; a plugin test reads it and asks for no difference from the contract"
     },
     {
       "id": "screen-listed-twice",
@@ -1933,6 +1937,39 @@
       "note": "After a component was listed only at the file that defines it, the components a barrel file imports and exports again were no longer counted as parts of the components drawn in that file, so the register stopped saying what two filter components are drawn with.",
       "closed": "2026-11-15",
       "closed_by": "the parts of a component are looked up among the components its file defines and those it imports and exports again, in either form of export list; held by a plugin test with both forms, seen failing on the reader before"
+    },
+    {
+      "id": "plugin-never-installed",
+      "area": "guide",
+      "kind": "unproven",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0039"],
+      "status": "open",
+      "note": "The plugin is packaged for a marketplace and says how to install it, yet no repository has installed it: every run so far, the trials and the reference repository alike, called its scripts from this repository, and its version has never moved from 0.0.1."
+    },
+    {
+      "id": "trials-on-this-repository-only",
+      "area": "trials",
+      "kind": "unproven",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0039"],
+      "status": "open",
+      "note": "All ten independent trials ran on copies of this repository; the one other repository the plugin worked on was handled by the session that built the plugin, and no repository outside the family has been audited at all."
+    },
+    {
+      "id": "ladder-replays-adoption",
+      "area": "trials",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0039"],
+      "status": "open",
+      "note": "The ladder command replays adopting on a copy of the reference repository; since that repository adopted the plugin the command prints its first row and then fails, so the four rungs can no longer be measured by a command."
     },
     {
       "id": "screen-actions-placement-unchecked",
