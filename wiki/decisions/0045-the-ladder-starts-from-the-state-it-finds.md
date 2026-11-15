@@ -13,7 +13,7 @@ sources:
   - "kế hoạch chính thức, mục 0.4: «Lệnh đo thang chạy được trên repo đã nhận»"
 ---
 
-# 0042 Lệnh đo thang làm từ trạng thái nó gặp, không diễn lại việc nhận
+# 0045 Lệnh đo thang làm từ trạng thái nó gặp, không diễn lại việc nhận
 
 ## Status
 

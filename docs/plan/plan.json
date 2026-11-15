@@ -21,7 +21,7 @@
         {
           "id": "0.1",
           "what": "Sửa lỗi chập chờn của lệnh chạy lại lint",
-          "state": "doing",
+          "state": "done",
           "ref": "phiên lint-flake"
         },
         {
@@ -41,7 +41,7 @@
           "id": "0.4",
           "what": "Lệnh đo thang chạy được trên repo đã nhận",
           "state": "done",
-          "ref": "quyết định 0042"
+          "ref": "quyết định 0045, PR 11"
         },
         {
           "id": "0.5",
@@ -313,6 +313,12 @@
       "what": "Một quyết định ở repo đã nhận từng được máy giữ nay không còn giữ dưới bản plugin hiện tại, chưa biết dòng nào (máy giữ 16, lần đo trước 18; dòng chênh kia là sổ linh kiện, đã có dòng giới hạn)",
       "stage": 1,
       "why_not_now": "Không chặn giai đoạn 0; phải truy trước khi lên đời repo đó"
+    },
+    {
+      "on": "2026-11-15",
+      "what": "Bài kiểm bảng mẫu và cuốn sổ của plugin dùng chung một thư mục đầu ra, nên nhiều bản chạy cùng lúc trong một thư mục làm việc xoá tệp của nhau",
+      "stage": 0,
+      "why_not_now": "Một bản make check không gặp; chỉ lộ khi đo độ ổn định bằng nhiều bản song song"
     }
   ]
 }

@@ -12,7 +12,7 @@ sao. Nó không bao giờ ghi vào Inventory, và dòng cuối của nó nói In
 
 ## Đo trên Inventory đã nhận, ngày 2026-11-15
 
-Theo quyết định [0042](../../wiki/decisions/0042-the-ladder-starts-from-the-state-it-finds.md).
+Theo quyết định [0045](../../wiki/decisions/0045-the-ladder-starts-from-the-state-it-finds.md).
 Inventory đã nhận plugin trên `main`, nên các bước không còn gì để làm. Bản sao ở `c53b35d`, kèm kit.
 Bốn dòng bằng nhau, và là chỗ Inventory đang đứng:
 
