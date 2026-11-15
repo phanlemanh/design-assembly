@@ -826,7 +826,9 @@ export function documentOf(result, origin, { all = false } = {}) {
       .filter(Boolean)
       .join("; ") || "nothing in the repository answers it";
   const register = {
-    title: all ? "Every core decision, by tier" : "Every tier, with the core decisions still open in it",
+    title: all
+      ? "Every core decision, by tier"
+      : "Every tier, with the core decisions still open in it",
     lede: all
       ? "A decision seen in two or more sources is core; a tier needs its core decisions."
       : "A tier with no row under it has no core decision open. Run the audit with --all for every core decision.",
@@ -864,8 +866,7 @@ export function documentOf(result, origin, { all = false } = {}) {
     failing.length > 0 && {
       what: `Make ${plural(failing.length, "failing check", "failing checks")} pass, or change the row knowingly`,
       basis: { kind: "measurement", text: failing.map((d) => `${d.id}: ${d.by}`).join(". ") },
-      action:
-        "Read the reason under each finding. The gate of the repository fails on the same.",
+      action: "Read the reason under each finding. The gate of the repository fails on the same.",
     },
     pointed.length > 0 && {
       what: `Point ${plural(pointed.length, "row", "rows")} at the proof the repository already runs`,
@@ -879,7 +880,8 @@ export function documentOf(result, origin, { all = false } = {}) {
         kind: "measurement",
         text: `the ${bare.length === 1 ? "row names" : "rows name"} no check, and no proof is seen in the repository: ${ids(bare)}`,
       },
-      action: "Write a check and name it in the row. Until then the audit counts the row as not held.",
+      action:
+        "Write a check and name it in the row. Until then the audit counts the row as not held.",
     },
     proven.length > 0 && {
       what: `Record ${plural(proven.length, "decision", "decisions")} the repository already proves`,

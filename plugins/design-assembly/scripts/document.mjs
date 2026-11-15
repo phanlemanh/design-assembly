@@ -515,9 +515,11 @@ ${familyStyles(look)}${STYLES}
 // The parts a drawn document has, in the order they stand on the page, and whether each says it
 // has nothing to show.
 export function partsOf(html) {
-  return [...String(html).matchAll(/<(?:header|section) class="[^"]*" data-part="([a-z]+)"( data-empty="true")?/g)].map(
-    ([, id, empty]) => ({ id, empty: empty !== undefined }),
-  );
+  return [
+    ...String(html).matchAll(
+      /<(?:header|section) class="[^"]*" data-part="([a-z]+)"( data-empty="true")?/g,
+    ),
+  ].map(([, id, empty]) => ({ id, empty: empty !== undefined }));
 }
 
 // ---- handing it over ------------------------------------------------------------------------------

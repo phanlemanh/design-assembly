@@ -18,7 +18,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { execPath } from "node:process";
+import { env as processEnv, execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
@@ -122,7 +122,7 @@ function bypassed() {
 const COMMITTED = "2001-02-03";
 function commit(dir) {
   const env = {
-    ...process.env,
+    ...processEnv,
     GIT_AUTHOR_DATE: `${COMMITTED}T12:00:00+0000`,
     GIT_COMMITTER_DATE: `${COMMITTED}T12:00:00+0000`,
     GIT_CONFIG_GLOBAL: "/dev/null",
@@ -131,7 +131,15 @@ function commit(dir) {
   const git = (...args) => spawnSync("git", ["-C", dir, ...args], { encoding: "utf8", env });
   if (git("init", "-q").status !== 0) return false;
   git("add", "-A");
-  const done = git("-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "-qm", "x");
+  const done = git(
+    "-c",
+    "user.name=Test",
+    "-c",
+    "user.email=test@example.com",
+    "commit",
+    "-qm",
+    "x",
+  );
   return done.status === 0;
 }
 
@@ -263,7 +271,9 @@ test("the frame renders its six parts in the order the specification gives", () 
     "2 claimed and not re-run",
     "Every row, as read",
   ].map(at);
-  assert.ok(at("The radius goes around its scale") < words.indexOf("Two answers wait", findings[0]));
+  assert.ok(
+    at("The radius goes around its scale") < words.indexOf("Two answers wait", findings[0]),
+  );
   assert.ok(words.indexOf("Two answers wait", findings[0]) < at("A tier rests on a claim"));
   // The recommendations, each with what it rests on and what to do.
   const recommendations = [
@@ -290,7 +300,11 @@ test("the frame renders its six parts in the order the specification gives", () 
 test("a part with nothing to show says so in one line, and is never dropped", () => {
   const bare = {
     ...FIXTURE,
-    decision: { conclusion: "Nothing waits, and nothing is left to fix.", attention: [], decide: [] },
+    decision: {
+      conclusion: "Nothing waits, and nothing is left to fix.",
+      attention: [],
+      decide: [],
+    },
     findings: [],
     register: null,
     recommendations: [],
@@ -416,7 +430,10 @@ for (const command of COMMANDS) {
       const open = LIMITS.filter(
         (limit) => command.areas.includes(limit.area) && limit.status === "open",
       );
-      assert.ok(open.some((limit) => limit.area === "document"), "no limit is written for documents");
+      assert.ok(
+        open.some((limit) => limit.area === "document"),
+        "no limit is written for documents",
+      );
       for (const limit of open) {
         assert.ok(html.includes(`<code>${limit.id}</code>`), limit.id);
         assert.ok(words.includes(limit.note), limit.id);
@@ -428,9 +445,7 @@ for (const command of COMMANDS) {
     // A repository with something broken has findings and recommendations; they are not empty.
     const out = empty();
     run(command, ["--target", bypassed(), "--out", out]);
-    const parts = Object.fromEntries(
-      partsOf(text(out, page)).map((part) => [part.id, part.empty]),
-    );
+    const parts = Object.fromEntries(partsOf(text(out, page)).map((part) => [part.id, part.empty]));
     assert.equal(parts.findings, false);
     assert.equal(parts.recommendations, false);
     assert.equal(parts.next, false);
@@ -575,7 +590,10 @@ test("the status report says what waits and with which command; the audit report
   assert.ok(report.includes("/design-assembly:decide"));
   // A count the screen writes "3 row(s)" is written out on the page.
   for (const rhythm of data.rhythms) assert.ok(report.includes(spelled(rhythm.says)), rhythm.id);
-  assert.equal(spelled("3 row(s) and 11 ledger file(s) of 1 kind(s)"), "3 rows and 11 ledger files of 1 kind(s)");
+  assert.equal(
+    spelled("3 row(s) and 11 ledger file(s) of 1 kind(s)"),
+    "3 rows and 11 ledger files of 1 kind(s)",
+  );
   assert.doesNotMatch(report, /[02-9]\d* [a-z]+\(s\)/);
   assert.ok(report.includes(data.tool.says));
 

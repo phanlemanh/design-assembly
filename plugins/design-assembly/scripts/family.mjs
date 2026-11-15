@@ -29,7 +29,7 @@ const git = (target, ...args) => {
 // after the revision says the repository had changes not yet committed. `apart` is a folder the
 // page itself is written to: it is not the repository's state, even when it lies inside it.
 export function originOf(target, { apart = null } = {}) {
-  let name = null;
+  let name;
   try {
     name = JSON.parse(readFileSync(path.join(target, "package.json"), "utf8")).name ?? null;
   } catch {
@@ -59,8 +59,8 @@ export function originOf(target, { apart = null } = {}) {
 // corner radii, its type sizes, its font. Read from the design tokens file and the stylesheet; a
 // repository that has neither gives an empty look, and the page falls back to plain values.
 export function readLook(target) {
-  let tokens = {};
-  let font = null;
+  let tokens;
+  let font;
   try {
     tokens = JSON.parse(readFileSync(path.join(target, TOKENS), "utf8")) ?? {};
   } catch {

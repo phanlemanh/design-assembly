@@ -69,16 +69,16 @@ It ends with:
 
 ## 4. With `--json`
 
-| Key       | Holds                                                                              |
-| --------- | ---------------------------------------------------------------------------------- |
-| `tier`    | `id` of the tier reached or `null`, `state` (`reached`, `claimed`, `none`), `next` |
-| `held`    | Core decisions this plugin's tool ran again now                                    |
-| `claimed` | Core decisions that rest on a check nothing here ran again                         |
-| `rhythms` | One entry per rhythm: `id`, `name`, `says`                                         |
+| Key       | Holds                                                                                 |
+| --------- | ------------------------------------------------------------------------------------- |
+| `tier`    | `id` of the tier reached or `null`, `state` (`reached`, `claimed`, `none`), `next`    |
+| `held`    | Core decisions this plugin's tool ran again now                                       |
+| `claimed` | Core decisions that rest on a check nothing here ran again                            |
+| `rhythms` | One entry per rhythm: `id`, `name`, `says`                                            |
 | `waiting` | One entry per answer: `id`, `source`, `question`, `recommendation`, `basis`, `answer` |
-| `tool`    | `recorded` (the tool stamp or `null`), `installed`, `copy`, `differs`, `says`      |
-| `next`    | Commands in order: `command`, `why`. Empty when this version has nothing to run    |
-| `files`   | Only with `--out`: each file written, `path` and `change` (`create` or `update`)   |
+| `tool`    | `recorded` (the tool stamp or `null`), `installed`, `copy`, `differs`, `says`         |
+| `next`    | Commands in order: `command`, `why`. Empty when this version has nothing to run       |
+| `files`   | Only with `--out`: each file written, `path` and `change` (`create` or `update`)      |
 
 `source` is `ledger` or `waiting-list`.
 

@@ -20,6 +20,13 @@ scale, shape). Density, elevation, motion and iconography are not.
   the tier reached, one line per rhythm of the repository's life, every answer that waits on the
   owner with a recommendation and what it rests on, whether the repository's copy of the tool is
   the installed plugin's, and the command to run next. `--json` gives the same to another plugin.
+  What waits is read from the ledgers and from `design/waiting-list.json`.
+- `status` and `audit` each hand their answer over as a document: `--out DIR` writes the status
+  report or the design audit report into that folder, as one page that needs nothing else, and
+  `--format pdf` prints it too. Every document is set on one frame of six parts (the cover, one
+  page for the person who decides, the findings with their evidence, the recommendations with
+  what each rests on, the next steps, and what the document does not see), in the look of the
+  repository and of the handoff book. Without `--out` no file is written.
 - `/design-assembly:decide` puts every question that waits on the owner on one sheet, each with
   one recommendation and what it rests on, and takes the answers in one go: a row of the ledger
   nobody confirmed, and the rows of `design/waiting-list.json` when the repository keeps one. It
