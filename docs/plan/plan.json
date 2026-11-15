@@ -27,7 +27,7 @@
         {
           "id": "0.2",
           "what": "Lệnh status",
-          "state": "doing",
+          "state": "done",
           "command": "status",
           "ref": "phiên dựng lệnh status"
         },
