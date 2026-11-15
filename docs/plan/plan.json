@@ -40,7 +40,8 @@
         {
           "id": "0.4",
           "what": "Lệnh đo thang chạy được trên repo đã nhận",
-          "state": "todo"
+          "state": "done",
+          "ref": "quyết định 0042"
         },
         {
           "id": "0.5",

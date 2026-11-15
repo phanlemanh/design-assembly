@@ -10,6 +10,26 @@ Inventory» ghi phần đã làm thật, theo lời cho phép của chủ repo.
 Đo lại bằng `make design-ladder`: lệnh dựng một bản sao bỏ đi, chạy bốn bước, in bảng, rồi xoá bản
 sao. Nó không bao giờ ghi vào Inventory, và dòng cuối của nó nói Inventory có bị đổi không.
 
+## Đo trên Inventory đã nhận, ngày 2026-11-15
+
+Theo quyết định [0042](../../wiki/decisions/0042-the-ladder-starts-from-the-state-it-finds.md).
+Inventory đã nhận plugin trên `main`, nên các bước không còn gì để làm. Bản sao ở `c53b35d`, kèm kit.
+Bốn dòng bằng nhau, và là chỗ Inventory đang đứng:
+
+| Nấc                              | Mốc đầu và cả ba bước |
+| -------------------------------- | --------------------- |
+| Sổ đúng hình dạng                | 7 trên 7              |
+| Câu lõi có lời đáp               | 29 trên 40            |
+| Câu lõi máy của plugin giữ       | 10                    |
+| Quyết định máy giữ, cả ngoài lõi | 16                    |
+| Bậc trong thang của kit          | M2                    |
+
+- Không còn phép so hai sổ linh kiện: sổ ở Inventory là sổ plugin ghi, công cụ cũ đã bị bỏ.
+- Các bảng bên dưới đo trên bản sao **trước khi nhận**. Lệnh không đo lại được chúng trên Inventory
+  nữa; chúng ở lại làm lịch sử.
+- Quyết định máy giữ là 16, thấp hơn 18 của bước 3 ở lần đo trước. Một dòng chênh là sổ linh kiện:
+  bản plugin ở repo này đọc linh kiện mới hơn bản công cụ Inventory đang giữ. Dòng còn lại chưa truy.
+
 ## Trên nhánh riêng của Inventory
 
 Chủ repo cho phép ngày 2026-11-14: làm bước 1 và 2 trên một nhánh riêng, không đẩy lên GitHub.

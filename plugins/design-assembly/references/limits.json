@@ -1967,9 +1967,33 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-15",
-      "where": ["d0039"],
+      "where": ["d0039", "d0042"],
+      "status": "closed",
+      "note": "The ladder command replays adopting on a copy of the reference repository; since that repository adopted the plugin the command prints its first row and then fails, so the four rungs can no longer be measured by a command.",
+      "closed": "2026-11-15",
+      "closed_by": "each step starts from the state the copy is in and keeps a register the ledger already holds, held by a plugin test that runs the command on a throwaway repository before and after adopting; what it still cannot show are the open rows ladder-shows-no-path-once-adopted and ladder-reads-with-the-newer-tool"
+    },
+    {
+      "id": "ladder-shows-no-path-once-adopted",
+      "area": "trials",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-15",
+      "where": ["d0042"],
       "status": "open",
-      "note": "The ladder command replays adopting on a copy of the reference repository; since that repository adopted the plugin the command prints its first row and then fails, so the four rungs can no longer be measured by a command."
+      "note": "On a repository that has already adopted the plugin the ladder command prints four equal rows, where the repository stands today: what each step added, and the register of the repository's own tool it was compared with, can be measured only on a repository that has not adopted yet."
+    },
+    {
+      "id": "ladder-reads-with-the-newer-tool",
+      "area": "trials",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0042"],
+      "status": "open",
+      "note": "The ladder command measures a copy with this repository's version of the plugin, so a repository that vendored an older tool is read as failing on a decision its own gate holds, and the command does not tell that from a real slip."
     },
     {
       "id": "screen-actions-placement-unchecked",

@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-15 — Lệnh đo thang chạy trọn trên repo đã nhận plugin: mỗi bước làm từ trạng thái bản sao đang có, không xoá sổ linh kiện mà sổ quyết định đã giữ. Trên Inventory hôm nay bốn dòng bằng nhau, và lệnh nói vậy. Mục 0.4 của kế hoạch xong — [0042](decisions/0042-the-ladder-starts-from-the-state-it-finds.md), `docs/trials/ladder.mjs`.
 - 2026-11-15 — Chủ repo duyệt kế hoạch tám giai đoạn («Duyệt và ghi»). Kế hoạch thành tệp dữ liệu `docs/plan/plan.json`; `make plan` in giai đoạn đang mở, và cổng kiểm đỏ khi kế hoạch lệch thứ tự hoặc khi một nhánh không nêu mục nó phục vụ — [0040](decisions/0040-the-plan-of-record-and-how-it-is-kept.md).
 - 2026-11-15 — Chủ repo duyệt đề bài bộ lệnh («Duyệt đề bài»): mười ba lệnh, chuẩn tài liệu kiểu studio. Các câu còn mở đi theo lối máy khuyên cho tới khi chủ repo bác. Chưa lệnh mới nào được dựng — [spec 0004](specs/0004-the-command-set.md).
 - 2026-11-15 — Đề bài bộ lệnh bổ sung chuẩn của một studio thiết kế: khung chung cho mọi tài liệu, mỗi lệnh một sản phẩm bàn giao, lý lẽ đi kèm khuyến nghị, nguyên tắc thiết kế và hướng đi trọn vẹn trong `new`, và lệnh thứ mười ba `review` soát màn bằng hình. Chờ chủ repo duyệt — [spec 0004](specs/0004-the-command-set.md).
