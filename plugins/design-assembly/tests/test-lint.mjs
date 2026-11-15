@@ -21,6 +21,7 @@ import { fileURLToPath } from "node:url";
 
 import { inventory } from "../scripts/inventory.mjs";
 import { heldHere } from "../templates/tools/design-assembly/check.mjs";
+import { askLint } from "../templates/tools/design-assembly/lint.mjs";
 import { lintPointer, PROBED, probesFor } from "../templates/tools/design-assembly/probes.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -198,5 +199,73 @@ test(
     const adopted = run(ADOPT, "--target", dir, "--dry-run");
     assert.equal(adopted.status, 0, adopted.stderr);
     assert.match(adopted.stdout, /raw-table: the repository has no lint installed/);
+  },
+);
+
+// The lint runs in a process of its own, in a gate other people wait on: whatever happens to that
+// process comes back as a named error, in time.
+const ASK = { find: { rules: ["no-restricted-syntax"], candidates: ["src/app/page.tsx"] } };
+
+function repositoryWith(configuration) {
+  const dir = repository();
+  writeFileSync(path.join(dir, "eslint.config.js"), configuration);
+  return dir;
+}
+
+test(
+  "a lint that fails on its own configuration is reported in the error's own words",
+  { skip: !LINTED && "no lint installed here" },
+  () => {
+    const dir = repositoryWith('throw new Error("this configuration is broken on purpose");\n');
+    const answer = askLint(dir, ASK);
+    assert.match(answer.error, /the repository's lint failed: .*broken on purpose/);
+  },
+);
+
+test(
+  "a lint process that dies is reported in the error's own words, not by where it was thrown",
+  { skip: !LINTED && "no lint installed here" },
+  () => {
+    // Thrown from a task of its own, so nothing can catch it: the runtime prints the place in the
+    // source first, and the error after.
+    const dir = repositoryWith(
+      'queueMicrotask(() => {\n  throw new Error("thrown where nothing catches it");\n});\nexport default [];\n',
+    );
+    const answer = askLint(dir, ASK);
+    assert.equal(answer.error, "the lint could not be run: Error: thrown where nothing catches it");
+  },
+);
+
+test(
+  "a lint that never answers is stopped and named within the limit",
+  { skip: !LINTED && "no lint installed here" },
+  () => {
+    const dir = repositoryWith(
+      "await new Promise(() => setInterval(() => {}, 1000));\nexport default [];\n",
+    );
+    const started = Date.now();
+    const answer = askLint(dir, ASK, { seconds: 2 });
+    assert.match(answer.error, /the lint did not answer within 2 seconds/);
+    assert.ok(Date.now() - started < 15_000);
+  },
+);
+
+test(
+  "the request does not reach the lint through its standard input",
+  { skip: !LINTED && "no lint installed here" },
+  () => {
+    // The configuration writes down what the lint's process was given as standard input.
+    const dir = repositoryWith(
+      [
+        'import { fstatSync, writeFileSync } from "node:fs";',
+        "const input = fstatSync(0);",
+        'const given = input.isSocket() || input.isFIFO() ? "a pipe" : "no pipe";',
+        'writeFileSync(new URL("./standard-input.txt", import.meta.url), given);',
+        config([TABLE, TEMPLATE]),
+      ].join("\n"),
+    );
+    const answer = askLint(dir, ASK);
+    assert.deepEqual(answer, { at: { "no-restricted-syntax": "src/app/page.tsx" } });
+    assert.equal(readFileSync(path.join(dir, "standard-input.txt"), "utf8"), "no pipe");
   },
 );

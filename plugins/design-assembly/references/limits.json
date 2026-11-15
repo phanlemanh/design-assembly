@@ -2049,6 +2049,19 @@
       "status": "open",
       "note": "A domain model whose one read action covers several entities names only one of them, so every screen that shows the others fails as showing a record nobody may view.",
       "repo": "repo-standards"
+    },
+    {
+      "id": "lint-request-read-before-written",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0033", "d0041"],
+      "status": "closed",
+      "note": "The tool handed its request to the lint's process through standard input, which the runtime had opened without waiting, so on a busy machine the process read before the request arrived, died with EAGAIN, and the gate said a held decision could not be run, naming only a place in the runtime's code; nothing stopped a process that never answered.",
+      "closed": "2026-11-15",
+      "closed_by": "the request and the answer go through files in a folder of their own, removed afterwards, the process is stopped and named after a time limit, and a process that dies is reported in the error's own words; held by four plugin tests seen failing on the tool before"
     }
   ]
 }
