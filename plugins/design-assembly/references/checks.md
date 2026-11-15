@@ -504,24 +504,30 @@ things of its own.
   confirmed; each entry of `waiting` says where it waits in `source`, `ledger` or `waiting-list`.
 - **The tool stamp.** `design/tool-stamp.json`, when the repository has one: `version`, the
   version of the plugin the repository's copy of the tool came from, and `tree`, the hash git
-  gives the folder `tools/design-assembly/` as a tree. No command of this version writes it, and it
-  is not a ledger of the contract yet. Without it status still compares the two folders, by the
-  same hash computed from the files, and says `no stamp`.
+  gives the folder `tools/design-assembly/` as a tree, as it was written. The guide, adopt and
+  upgrade write it whenever they write the tool; it is not a ledger of the contract, and the gate
+  does not read it. Status says which version the copy came from, and that the copy was changed
+  after it was stamped when its tree is not the stamp's. Without a stamp, a repository adopted
+  before stamps, status still compares the two folders by the same hash computed from the files,
+  says `no stamp`, and names the version only when the copy is exactly the tool of a release in
+  `references/releases.json`.
 
 Status ends with `0` when nothing waits, `1` when something waits on a person, the tool differs, or
 a decision is failing or bypassed, and `2` on a wrong call or a repository it cannot read.
 
 ## How every command is called and how it ends
 
-The six commands that exist (`status`, `audit`, `new`, `decide`, `adopt`, `handoff`) share one contract,
-written once in `scripts/command.mjs` and held by `tests/test-command-contract.mjs`.
+The seven commands that exist (`status`, `audit`, `new`, `decide`, `adopt`, `upgrade`, `handoff`)
+share one contract, written once in `scripts/command.mjs` and held by
+`tests/test-command-contract.mjs`.
 
 - `--target DIR` names the repository. Without it the command reads the folder it is run from.
 - `--json` prints one JSON document and nothing else. A key the specification lists that a command
   cannot give yet is left out, and a row of `references/limits.json` says so.
 - `status` and `audit` only read: the tree is the same afterwards, byte for byte. With `--out DIR`
   they also write one document into that folder, and nowhere else (see the next section). `new`, `decide`,
-  `adopt` and `handoff` take `--dry-run`, which lists the files the real run writes and writes nothing.
+  `adopt`, `upgrade` and `handoff` take `--dry-run`, which lists the files the real run writes and
+  writes nothing.
 - A flag the command does not have is a wrong call, not something to pass over.
 
 | Ends with | Means                                                                                                                     |
@@ -540,6 +546,7 @@ What makes each command end with `1`:
 | `new`     | A built layer is not decided yet, or the preview shows a write that would be refused               |
 | `decide`  | A question waits on the owner, or a call only a person can make that another command records       |
 | `adopt`   | `needs a person` lists a question                                                                  |
+| `upgrade` | It stopped, writing nothing: a ledger entry would be lost, or the gate would be red                |
 | `handoff` | The book was written without every picture or in fewer formats than asked; a checked book is stale |
 
 The `make` targets of this repository that call those commands end well on `0` and on `1`; only `2`
@@ -548,13 +555,14 @@ fails them. `make design-status` and `make design-decide` pass the `1` on.
 ## The document a command hands over
 
 Every command has one document to hand over, and every document is set on one frame, written once
-in `scripts/document.mjs` and held by `tests/test-document.mjs`. Two commands hand theirs over
+in `scripts/document.mjs` and held by `tests/test-document.mjs`. Three commands hand theirs over
 today.
 
-| Command  | Document            | File                       |
-| -------- | ------------------- | -------------------------- |
-| `status` | Status report       | `status-report.html`       |
-| `audit`  | Design audit report | `design-audit-report.html` |
+| Command   | Document            | File                       |
+| --------- | ------------------- | -------------------------- |
+| `status`  | Status report       | `status-report.html`       |
+| `audit`   | Design audit report | `design-audit-report.html` |
+| `upgrade` | Release notes       | `release-notes.html`       |
 
 - `--out DIR` writes the document into that folder, and nothing anywhere else. Without `--out` no
   file is written. A relative folder is read from where the command is run, never against the
@@ -619,3 +627,40 @@ and what would change in it, and writes nothing.
 
 Decide ends with `0` when no question waits, `1` while questions wait on the owner, and `2` on a
 wrong call, answers that cannot be taken, or a repository it cannot read.
+
+## What upgrade reads and writes
+
+`scripts/upgrade.mjs` brings the installed plugin's tool into a repository that already runs a
+copy of it. It reads the tool stamp, the repository's copy of the tool, the ledgers the tool writes,
+and the repository as its gate reads it. Before it writes anything it prints, every time:
+
+- **The tool files.** Each file of `tools/design-assembly/` that is created, updated, or deleted
+  because the installed tool no longer has it. Names that start with a dot are left out, as they
+  are from the tree of the stamp.
+- **The ledgers the tool writes.** The design tokens file, the component manifest and the column
+  types file, each as the installed tool would write it now, when this repository's checks name
+  it. Each is compared with the file as it is, entry by entry: a token is one entry, a word of a
+  list is one entry, a record of a list is read by its `name`, `id` or `file`, and anything else is
+  followed down to its values. So a relation a component lost, one name in its `parts`, is one
+  entry removed. The ledgers are written again only when the tool changes.
+- **The decisions that change state.** Each row of `design/decisions.yaml` held one way under the
+  repository's copy, run as its gate runs it, and another under the installed tool on the
+  repository as the upgrade would leave it.
+- **The gate.** The design-assembly step of the repository's gate, run by the installed tool on the
+  repository as the upgrade would leave it: green, or red with each problem.
+
+It stops and writes nothing, ending with `1`, when writing the ledgers again would remove an entry,
+or when the gate would be red. `--accept-lost-entries` and `--accept-red-gate` say the person read
+that and accepts it; the skill asks the person before passing either.
+
+It writes the tool folder, the stamp, and the ledgers the tool writes. It never writes a ledger row
+a person wrote, the stylesheet, a tool of the repository's own, or the gate step
+`mk/design-assembly.mk`, which it compares and names when it differs. A repository with no copy of
+the tool has nothing to upgrade: that is a wrong call, ending with `2`. `--remove`, in the
+specification, is not built (limit `upgrade-has-no-remove`).
+
+The version an upgrade brings is held in this plugin's own repository: `references/releases.json`
+records, for every version, the git tree of `templates/`, of `scripts/` and of the tool, and that
+repository's gate fails when they are not the trees recorded for the version the plugin says it
+is, or when a version main has released is recorded again. `make plugin-version VERSION=x.y.z`
+records a version.

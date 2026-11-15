@@ -1,0 +1,11 @@
+{
+  "about": "Every released version of this plugin, with the git tree of what a repository receives from it: the templates, the scripts, and the tool a repository copies. Written by make plugin-version, never by hand; the gate of the plugin's own repository fails when the templates or the scripts are not the trees recorded for the version the plugin says it is.",
+  "releases": [
+    {
+      "version": "0.1.0",
+      "templates": "b0726010d2b14020b9c60ffeef9246253acbe888",
+      "scripts": "192199165b8f298c3c24d57b091ca1b898c5a4e7",
+      "tool": "4f5d879929427743a4d10ea5aafc435afd0e1034"
+    }
+  ]
+}

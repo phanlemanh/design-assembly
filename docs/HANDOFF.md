@@ -48,6 +48,12 @@ Năm đường của plugin:
   kho, mỗi câu một khuyến nghị và căn cứ: dòng sổ chưa ai xác nhận, và hàng chờ dạng dữ liệu
   `design/waiting-list.json`. Chỉ ghi khi có tệp lời đáp của người (`--answers`), kèm tên và ngày;
   `--dry-run` in trước tệp sẽ ghi. Ở kho này: `make design-decide`, 25 câu chờ, chưa câu nào được đáp.
+- **upgrade** (`scripts/upgrade.mjs`, từ 2026-11-16, quyết định 0047): đưa công cụ của plugin đang
+  cài vào repo đã có bản sao. Luôn in trước tệp công cụ đổi, mục sổ máy sinh thêm/bớt/đổi, quyết định
+  đổi trạng thái và cổng sau khi lên đời; dừng, không ghi gì, khi mất mục hay cổng đỏ, trừ khi người
+  chấp nhận bằng cờ. Ghi dấu bản `design/tool-stamp.json`. Xem trước Inventory, chỉ đọc:
+  `make design-upgrade-reference`. Lên đời thật ở Inventory là mục 1.4, cần chủ kho cho phép. Số bản
+  plugin do cổng giữ: sửa `templates/` hay `scripts/` thì chạy `make plugin-version VERSION=x.y.z`.
 
 Nguyên tắc xuyên suốt: mỗi quyết định thiết kế là một dòng trong sổ `design/decisions.yaml`, trỏ
 tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và mỗi lần chạy đều tự chứng minh nó đỏ

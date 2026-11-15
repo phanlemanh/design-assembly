@@ -11,6 +11,7 @@ import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
+import { STAMP, stampText } from "./stamp.mjs";
 import { FILES, heldHere } from "../templates/tools/design-assembly/check.mjs";
 import { contrast, formatOklch, parseColor } from "../templates/tools/design-assembly/color.mjs";
 import {
@@ -1157,7 +1158,8 @@ export function rulesPage(checks, has) {
   return `${lines.join("\n")}\n`;
 }
 
-// The tool and its gate step, as they are copied into a repository.
+// The tool and its gate step, as they are copied into a repository, and the stamp that says which
+// version of this plugin wrote them.
 export function vendored() {
   const files = {};
   const templates = path.join(PLUGIN, "templates");
@@ -1170,6 +1172,7 @@ export function vendored() {
   };
   // The tool's adapters sit in a folder of their own beside it.
   for (const folder of ["tools/design-assembly", "mk"]) copy(folder);
+  files[STAMP] = stampText();
   return files;
 }
 

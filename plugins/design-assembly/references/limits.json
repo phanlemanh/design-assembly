@@ -12,7 +12,8 @@
     "specimen": "The sheet that draws the options on the repository's own screen.",
     "book": "The handoff book drawn from the repository.",
     "reference-app": "The example application this repository carries as its proof.",
-    "trials": "The runs by independent agents that test the plugin."
+    "trials": "The runs by independent agents that test the plugin.",
+    "upgrade": "The command that brings the installed tool into a repository, the stamp it writes, and the version it compares."
   },
   "kinds": {
     "partial-check": "A check holds less than the ledger row it proves claims.",
@@ -1911,9 +1912,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-14",
-      "where": ["handoff"],
-      "status": "open",
-      "note": "Adopting copies the tool into a repository only when it adds a check, so a fix to the plugin's tool never reaches a repository that adopted it before, and that repository keeps running the old code with nothing to say so."
+      "where": ["handoff", "d0047"],
+      "status": "closed",
+      "note": "Adopting copies the tool into a repository only when it adds a check, so a fix to the plugin's tool never reaches a repository that adopted it before, and that repository keeps running the old code with nothing to say so.",
+      "closed": "2026-11-16",
+      "closed_by": "upgrade brings the installed plugin's tool into a repository that already runs a copy, after a preview of the tool files, the ledger entries and the decisions that change and of the gate afterwards, and stops when an entry would be lost or the gate would turn red; status names it as the next command whenever the copy differs; held by the upgrade tests and the contract test of the commands"
     },
     {
       "id": "barrel-re-export-listed-twice",
@@ -2086,9 +2089,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-15",
-      "where": ["d0041"],
-      "status": "open",
-      "note": "Status reads a tool stamp that no command writes yet, so every repository reads as having no stamp, a copy that differs cannot be told from one the repository changed on purpose, and the place and shape it reads are a proposal until the command that writes them exists."
+      "where": ["d0041", "d0047"],
+      "status": "closed",
+      "note": "Status reads a tool stamp that no command writes yet, so every repository reads as having no stamp, a copy that differs cannot be told from one the repository changed on purpose, and the place and shape it reads are a proposal until the command that writes them exists.",
+      "closed": "2026-11-16",
+      "closed_by": "the guide, adopt and upgrade write design/tool-stamp.json with the plugin's version and the tree of the tool as written, and status reads it to say which version the copy came from and whether it was changed since; held by the upgrade tests, which see the stamp written by each of the three and read by status with a stamp, without one and with a copy changed after it"
     },
     {
       "id": "status-compares-tool-folder-only",
@@ -2445,6 +2450,61 @@
       "where": ["d0046", "spec"],
       "status": "open",
       "note": "Whether a document looks good and reads well only a person can judge, and the owner has looked at neither the status report nor the design audit report."
+    },
+    {
+      "id": "upgrade-has-no-remove",
+      "area": "upgrade",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["d0047"],
+      "status": "open",
+      "note": "The specification gives upgrade a --remove that takes the plugin out of a repository, and this version leaves it out: removing the tool, its gate step, the ledgers it writes and the rows that point at it is more than a small addition, so a repository that wants the plugin gone removes it by hand."
+    },
+    {
+      "id": "upgrade-leaves-gate-step",
+      "area": "upgrade",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["d0047"],
+      "status": "open",
+      "note": "Upgrade writes the tool folder, the stamp and the ledgers the tool writes, and not the gate step mk/design-assembly.mk beside them, so a change the plugin makes to its gate step reaches no repository that adopted it before; upgrade says when that file differs, and writes nothing to it."
+    },
+    {
+      "id": "upgrade-gate-is-the-tool-step-only",
+      "area": "upgrade",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["d0047"],
+      "status": "open",
+      "note": "The gate upgrade calls green or red is the design-assembly step of the repository's gate, run in its process on the repository as the upgrade would leave it, so a test of the repository's own that imports the tool, or any other step of its make check, can turn red after an upgrade that said green."
+    },
+    {
+      "id": "upgrade-before-runs-the-copy",
+      "area": "upgrade",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["d0047"],
+      "status": "open",
+      "note": "Which decisions change state is read by running the repository's own copy of the tool for the state before and the installed tool for the state after, so a copy too old to say how each row is held, or one that cannot be run, gives no before, and upgrade then says it cannot tell instead of listing them."
+    },
+    {
+      "id": "version-counts-templates-and-scripts",
+      "area": "upgrade",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["d0047"],
+      "status": "open",
+      "note": "The gate that makes the plugin's version go up compares the trees of its templates and its scripts, so a change to a skill, a reference list or the README reaches a person under the same version number, and an installed plugin is not told a newer one has other words."
     }
   ]
 }
