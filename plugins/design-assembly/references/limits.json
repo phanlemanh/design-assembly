@@ -1952,8 +1952,10 @@
       "plan": "fix",
       "opened": "2026-11-15",
       "where": ["d0039"],
-      "status": "open",
-      "note": "The plugin is packaged for a marketplace and says how to install it, yet no repository has installed it: every run so far, the trials and the reference repository alike, called its scripts from this repository, and its version has never moved from 0.0.1."
+      "status": "closed",
+      "note": "The plugin is packaged for a marketplace and says how to install it, yet no repository has installed it: every run so far, the trials and the reference repository alike, called its scripts from this repository, and its version has never moved from 0.0.1.",
+      "closed": "2026-11-16",
+      "closed_by": "docs/trials/install-through-marketplace.md: the plugin was installed through its marketplace into a throwaway repository and ran audit, adopt and upgrade from the installed copy, touching nothing of this repository; the version is 0.1.0 since decision 0047"
     },
     {
       "id": "trials-on-this-repository-only",
@@ -2505,6 +2507,61 @@
       "where": ["d0047"],
       "status": "open",
       "note": "The gate that makes the plugin's version go up compares the trees of its templates and its scripts, so a change to a skill, a reference list or the README reaches a person under the same version number, and an installed plugin is not told a newer one has other words."
+    },
+    {
+      "id": "adopt-without-makefile-writes-nothing",
+      "area": "adopt",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["trials"],
+      "status": "open",
+      "note": "On a repository with no Makefile that includes the make files of mk/ and collects their CHECK_TARGETS, adopting writes nothing at all, and its message names only the include line, so a repository not born from repo-setup cannot reach the gate or an upgrade without reading the templates."
+    },
+    {
+      "id": "local-install-copies-working-tree",
+      "area": "trials",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-16",
+      "where": ["trials"],
+      "status": "open",
+      "note": "Installing the plugin from a folder on the machine copies that folder's working tree, untracked files included, while the record of the install names a commit, so what is installed is not exactly that commit."
+    },
+    {
+      "id": "installed-copy-names-checkout-files",
+      "area": "guide",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The installed copy's README points to tests, make targets and an example application that exist only in this repository, and one shipped test reads three folders above itself, so a person who reads them from the installed plugin finds nothing there."
+    },
+    {
+      "id": "checks-md-names-absent-targets",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The page of checks names make targets for status and decide that the gate step adopting installs in a repository does not have, so those commands run only through the plugin's own path there."
+    },
+    {
+      "id": "person-calls-have-no-recommendation",
+      "area": "decide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["trials"],
+      "status": "open",
+      "note": "For the product type and the conformance level, status and decide recommend only that a person answer, though the guide has its own default for the conformance level, so the sheet asks without saying what the machine would choose."
     }
   ]
 }
