@@ -129,5 +129,10 @@ lệch xin làm ngoại lệ) thuộc về lệnh chưa dựng.
 - **Việc nối tiếp cho lệnh khác:** `new` cần giữ ghi chú mà `decide` đã viết khi sinh lại dòng;
   khoá «ai xác nhận, ngày nào» đi cùng `upgrade`; ngoại lệ vào sổ ghi chỗ lệch có chủ ý đi cùng
   `change`.
+- **Bổ sung cùng ngày, sau khi lệnh gộp:** 25 câu của kho này được điền căn cứ, dấu khó đảo hay không
+  và cái giá của việc bác, từ điều máy đọc được ngày 2026-11-15; sáu khuyến nghị bị sự việc vượt qua
+  được viết lại (A13, B1, B5, C1, C3, C6), câu hỏi giữ nguyên chữ. Điều mục 8 nói về «không có căn
+  cứ riêng» và «không dòng nào được đánh dấu khó đảo» vì thế chỉ đúng tới lúc đó. `decide` cũng đọc
+  lời gọi qua hợp đồng chung của [0044](0044-one-contract-for-the-commands-that-exist.md).
 - Chưa có lượt thử độc lập nào cho lệnh này, và chưa chạy lệnh trên repo nào ngoài kho này và các
   repo bỏ đi của bài kiểm.

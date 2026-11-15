@@ -1,13 +1,14 @@
 {
   "version": 1,
-  "about": "Việc chờ chủ repo xem. Gom ngày 2026-11-14 theo quyết định 0032; thành dữ liệu ngày 2026-11-15 theo quyết định 0043. In tờ trình bằng `make design-decide`. Máy không tự ghi lời đáp cho dòng nào: lời đáp chỉ vào đây qua lệnh decide, kèm tên người đáp và ngày.",
+  "about": "Việc chờ chủ repo xem. Gom ngày 2026-11-14 theo quyết định 0032; thành dữ liệu ngày 2026-11-15 theo quyết định 0043. Cùng ngày, mỗi câu được điền căn cứ, dấu khó đảo và cái giá của việc bác, từ điều máy đọc được hôm đó; khuyến nghị nào bị sự việc vượt qua thì viết lại, câu hỏi giữ nguyên chữ. In tờ trình bằng `make design-decide`. Máy không tự ghi lời đáp cho dòng nào: lời đáp chỉ vào đây qua lệnh decide, kèm tên người đáp và ngày.",
   "rows": [
     {
       "id": "A1",
       "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
       "question": "Khung ứng dụng: thanh điều hướng nằm trên đầu, tên ứng dụng bên trái",
       "recommendation": "Giữ",
-      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0025",
+      "basis": "Chủ repo bảo dựng khung ngày 2026-11-13, hình dáng khung là máy chọn (quyết định 0025). Đo trên màn thật: thanh đầu cao 45px, tấm hồ sơ bắt đầu đúng ở 45px và thanh đầu vẫn bấm được. Dễ đảo: chưa repo thật nào nhận khung này, mười lượt thử đều chạy trên bản sao của kho này (đề bài 0002).",
+      "hard_to_undo": false,
       "where": "0025",
       "if_refused": "Dựng lại khung"
     },
@@ -16,7 +17,8 @@
       "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
       "question": "Màn thứ hai của ứng dụng mẫu là «mục quá hạn»",
       "recommendation": "Giữ",
-      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0025",
+      "basis": "Quyết định 0025, mục 4 và 6: màn thứ hai phải khác việc của đề thử chuẩn (một màn cho mục đã cất đi), nếu không lượt thử sau chỉ đọc lại bài làm sẵn. Dễ đảo: màn này chỉ có ở ứng dụng mẫu của kho này, plugin không cài nó cho repo nào.",
+      "hard_to_undo": false,
       "where": "0025",
       "if_refused": "Đổi màn mẫu thứ hai"
     },
@@ -25,7 +27,8 @@
       "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
       "question": "Chuyển màn không tải lại trang",
       "recommendation": "Giữ",
-      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0027",
+      "basis": "Quyết định 0027, mục 3: khi khung tải lại cả trang, dữ liệu mẫu quên điều người dùng vừa làm; bài kiểm đổi màn đỏ khi khung tải lại trang như trước. Dễ đảo ở hôm nay: khung plugin cài cho repo mới mang hành vi này (quyết định 0028), nhưng chưa repo thật nào nhận khung.",
+      "hard_to_undo": false,
       "where": "0027",
       "if_refused": "Khó bác: dữ liệu mẫu sẽ quên việc vừa làm"
     },
@@ -34,7 +37,8 @@
       "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
       "question": "Hoàn tác đưa một dòng quay lại thì tiêu điểm vào đúng nút của dòng đó",
       "recommendation": "Giữ",
-      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0027",
+      "basis": "Quyết định 0027, mục 4: hai tác tử của lượt thử chín, chạy độc lập, cùng chọn như vậy. Chưa lệnh kiểm nào giữ luật này, vì màn mẫu không có thao tác nào làm một dòng quay lại. Dễ đảo: chỉ đổi một luật và bài kiểm của nó.",
+      "hard_to_undo": false,
       "where": "0027",
       "if_refused": "Đổi luật tiêu điểm và bài kiểm"
     },
@@ -43,7 +47,8 @@
       "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
       "question": "Dòng đang xoá hiện vòng quay thay cho chữ, vì chữ «Đang xoá» rộng quá 2px ở bề rộng 320",
       "recommendation": "Giữ",
-      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0027",
+      "basis": "Quyết định 0027, mục 5: với chữ «Đang xoá», cổng kiểm đỏ ở bề rộng 320 vì cột thao tác thiếu 2px; với vòng quay, cột thao tác chừa 20,5px trước ngưỡng, kể cả lúc một dòng đang xoá. Dễ đảo: chỉ đổi cách một nút báo đang làm.",
+      "hard_to_undo": false,
       "where": "0027",
       "if_refused": "Phải tìm cách khác cho bề rộng 320"
     },
@@ -52,7 +57,8 @@
       "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
       "question": "Plugin cài sẵn khung ứng dụng và phần tải chung của màn danh sách cho repo mới",
       "recommendation": "Giữ",
-      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0028",
+      "basis": "Repo mới sau cuộc dẫn dắt không có khung (quyết định 0028), và tác tử dựng màn chép nguyên phần tải của màn mẫu sang màn mới (quyết định 0027); chủ repo chọn làm lát này ngày 2026-11-13, cách làm là máy chọn. Dễ đảo ở hôm nay: chưa repo thật nào ra đời qua cuộc dẫn dắt (đề bài 0002), nên gỡ hai phần khỏi bộ cài chưa làm repo nào phải sửa.",
+      "hard_to_undo": false,
       "where": "0028",
       "if_refused": "Gỡ hai phần khỏi bộ cài"
     },
@@ -61,7 +67,8 @@
       "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
       "question": "Sổ token ghi màu bằng mã hex, giữ chữ oklch bên cạnh",
       "recommendation": "Giữ",
-      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0029",
+      "basis": "Đo ngày 2026-11-14 (quyết định 0029): cổng của kit nghiệm thu từ chối sổ token ghi màu dạng oklch, và mã hex viết thẳng là dạng duy nhất cả hai bộ đọc của kit cùng nhận. Khó đảo: sổ token của Inventory, đọc ngày 2026-11-15, ghi cả 40 màu bằng hex và đã khai với kit; đổi dạng là phải sinh lại sổ ở repo đã nhận.",
+      "hard_to_undo": true,
       "where": "0029",
       "if_refused": "Kit sẽ lại từ chối sổ token"
     },
@@ -70,7 +77,8 @@
       "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
       "question": "Cấp của linh kiện (atom, molecule, organism) do máy tính từ độ sâu nhập, không ai khai",
       "recommendation": "Giữ",
-      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0029",
+      "basis": "Quyết định 0029, mục 5: máy tính cấp từ độ sâu nhập, như công cụ cũ của Inventory từng làm; so trên bản sao Inventory, cấp khớp 269 trên 270 linh kiện (quyết định 0034). Sổ giới hạn ghi: chưa ai đối chiếu cấp với mắt của người thiết kế. Khó đảo: sổ quyết định của Inventory có dòng «cấp linh kiện» giữ bằng chính phép tính này, và sổ linh kiện ở đó ghi cấp cho 291 linh kiện.",
+      "hard_to_undo": true,
       "where": "0029",
       "if_refused": "Thêm chỗ để người khai cấp"
     },
@@ -79,7 +87,8 @@
       "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
       "question": "Sổ linh kiện liệt kê cả linh kiện riêng của repo, không chỉ thư viện",
       "recommendation": "Giữ",
-      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0029",
+      "basis": "Quyết định 0029, mục 5: sổ đọc cả thư mục linh kiện riêng bên cạnh thư mục thư viện; ở kho này sổ có 65 mục, 58 của thư viện và 7 của riêng repo. Khó đảo: sổ linh kiện của Inventory, đọc ngày 2026-11-15, do plugin ghi, có 40 linh kiện riêng trên 291, và skill dựng màn ở đó đọc sổ này.",
+      "hard_to_undo": true,
       "where": "0029",
       "if_refused": "Thu sổ về thư viện"
     },
@@ -88,7 +97,8 @@
       "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
       "question": "Mỗi màn ghi ở hai nơi: sổ màn (có gì) và mã (đi tới bằng cách nào)",
       "recommendation": "Giữ",
-      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0030",
+      "basis": "Quyết định 0030: khi sổ màn chỉ là mã, cổng đọc mã như văn bản nên trạng thái khai bằng hàm bị đọc là không có, và lượt nghiệm thu của quyết định 0028 đỏ hai lượt vì thế; chủ repo chọn hướng này ngày 2026-11-14. Khó đảo: hình dạng sổ màn nằm trong hợp đồng, các lệnh kiểm về màn đọc trạng thái từ sổ, và Inventory đã mang sổ màn đúng hình dạng (7 trên 7 sổ, đo ngày 2026-11-15).",
+      "hard_to_undo": true,
       "where": "0030",
       "if_refused": "Quay lại một nơi; lỗi đọc nhầm trạng thái trở lại"
     },
@@ -97,7 +107,8 @@
       "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
       "question": "Repo được thêm khoá riêng vào sổ màn (ví dụ vai nào được mở màn)",
       "recommendation": "Giữ",
-      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0030",
+      "basis": "Quyết định 0030, mục 1: khoá riêng là phần mở rộng của repo, không thuộc lõi. Khó đảo: sổ màn của Inventory, đọc ngày 2026-11-15, dùng nhiều khoá riêng ở mọi màn (như `vao`, `nut`, `hien`, và khối `khung`); cấm khoá riêng thì sổ ấy lệch hình dạng ở mọi màn.",
+      "hard_to_undo": true,
       "where": "0030",
       "if_refused": "Sổ màn của Inventory sẽ lệch hình dạng ở nhiều chỗ"
     },
@@ -106,7 +117,8 @@
       "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
       "question": "Năm loại bộ chuyển; trình duyệt tách khỏi nền dựng",
       "recommendation": "Giữ",
-      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0031",
+      "basis": "Quyết định 0031, mục 1: mở máy chủ của repo và mở trình duyệt dùng hai thư viện khác nhau, nên trình duyệt thành loại riêng. Từ ngày 2026-11-14 có thêm bộ chuyển thứ sáu, giữ tên công cụ lint (quyết định 0033), nên con số «năm» trong câu hỏi nay là sáu. Khó đảo: thư mục bộ chuyển đi theo công cụ sang repo đã nhận, và Inventory, đọc ngày 2026-11-15, giữ đủ sáu bộ chuyển ấy.",
+      "hard_to_undo": true,
       "where": "0031",
       "if_refused": "Gộp lại thành bốn loại"
     },
@@ -114,8 +126,9 @@
       "id": "A13",
       "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
       "question": "Cách xếp 111 giới hạn đang mở vào ba ngăn: 55 sẽ sửa, 50 chấp nhận, 6 chuyển cho repo khác",
-      "recommendation": "Giữ",
-      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0024",
+      "recommendation": "Giữ cách xếp, tính theo sổ hôm nay: 144 dòng đang mở, 79 sẽ sửa, 57 chấp nhận, 8 chuyển cho repo khác",
+      "basis": "Quyết định 0024: ba ngăn là cơ chế máy dựng khi chủ repo bảo bắt đầu chặng 1 ngày 2026-11-13, việc đầu là khoá phạm vi; xếp dòng nào vào ngăn nào là máy đề xuất. Con số 111 trong câu hỏi là của ngày 2026-11-14; đếm ngày 2026-11-15 từ sổ giới hạn có 198 dòng, 144 đang mở. Dễ đảo: mỗi dòng chuyển ngăn được riêng, bất cứ lúc nào.",
+      "hard_to_undo": false,
       "where": "0024",
       "if_refused": "Chuyển ngăn từng dòng"
     },
@@ -123,73 +136,109 @@
       "id": "B1",
       "group": "B. Điều chưa bao giờ được duyệt",
       "question": "Kiến trúc tổng thể của lớp meta (tài liệu kiến trúc). Mới chốt ba điều và chín câu",
-      "recommendation": "Duyệt sau lát đầu trên Inventory, khi đã có số thật"
+      "recommendation": "Duyệt bây giờ, trừ mục lộ trình (14) và hai mục đo hiệu quả (15, 16) của tài liệu: lộ trình đã thay bằng kế hoạch tám giai đoạn, bộ chỉ số là câu B2",
+      "basis": "Điều kiện cũ «sau lát đầu trên Inventory, khi đã có số thật» đã có: ba lát đã gộp vào Inventory qua ba PR 58, 59, 67 (đề bài 0002), và thang đo ngày 2026-11-15 ra 7 trên 7 sổ đúng hình dạng, 10 câu lõi máy giữ, bậc M2 của kit (quyết định 0045). Tài liệu kiến trúc dừng ở ngày 2026-11-13: mục lộ trình còn vẽ năm chặng và còn ghi «0 trên 24»; máy chưa đối chiếu từng mục 01 đến 13 với mã hôm nay. Khó đảo: ranh giới ba kho và bộ sổ của hợp đồng dựng trên kiến trúc này, và kế hoạch cần lời duyệt này trước giai đoạn 6.",
+      "hard_to_undo": true,
+      "if_refused": "Giai đoạn 6 không mở được: kế hoạch ghi «duyệt kiến trúc» là việc cần chủ repo ở đó; tài liệu kiến trúc tiếp tục vẽ năm chặng cũ"
     },
     {
       "id": "B2",
       "group": "B. Điều chưa bao giờ được duyệt",
       "question": "Bộ chỉ số đo hiệu quả",
-      "recommendation": "Duyệt cùng B3 và B4"
+      "recommendation": "Duyệt cùng B3 và B4",
+      "basis": "Bộ chỉ số là đề xuất của máy ở mục 15 của tài liệu kiến trúc: một chỉ số chính, sáu chỉ số đỡ, một rào chi phí 1,3 lần; B3 đổi chỉ số chính và B4 là thang đo «có thành lớp meta không», nên ba câu là một lời đáp. Từ ngày 2026-11-14: thang đã thành lệnh và đo được (`make design-ladder`, quyết định 0045); còn phép đo chi phí chính thức, theo quyết định 0032, chưa chạy lần nào, và phép chạy nó còn chờ ở dòng D3. Dễ đảo: đổi chỉ số không làm repo nào phải sửa.",
+      "hard_to_undo": false,
+      "if_refused": "Tiến độ tiếp tục đo bằng điều kiện «xong khi» của từng giai đoạn trong kế hoạch; tài liệu kiến trúc giữ dòng «bộ chỉ số chưa được duyệt»"
     },
     {
       "id": "B3",
       "group": "B. Điều chưa bao giờ được duyệt",
       "question": "Đổi chỉ số chính sang «luật bị phạm, có so với không có trang luật»; số chỗ đoán thành số phụ",
-      "recommendation": "Giữ đề xuất"
+      "recommendation": "Giữ đề xuất",
+      "basis": "Quyết định 0032: số chỗ đoán đứng yên qua bốn lượt (12, 12, 13, 11 ở `docs/trials/results.tsv`) và chưa đo đúng định nghĩa, mỗi lượt một tác tử thay vì ba; «luật bị phạm» có nhánh đối chứng, trên repo mới là 0 so với 3, 6, 3. Từ ngày 2026-11-14 không có lượt thử mới (lượt cuối ngày 2026-11-13), và kế hoạch đã duyệt dùng số chỗ đoán làm điều kiện «không tăng» của giai đoạn 5, không đặt đích 0. Dễ đảo: chỉ đổi cột nào là số chính.",
+      "hard_to_undo": false,
+      "if_refused": "Số chỗ đoán vẫn là chỉ số chính với đích 0, dù nó chưa có nhánh đối chứng và chưa được đo bằng ba tác tử như định nghĩa"
     },
     {
       "id": "B4",
       "group": "B. Điều chưa bao giờ được duyệt",
       "question": "Thang bốn nấc ở Inventory: sổ đúng hình dạng, câu lõi máy giữ, công cụ được thay, bậc của kit",
-      "recommendation": "Giữ đề xuất"
+      "recommendation": "Giữ đề xuất",
+      "basis": "Thang đã thành lệnh, và «lệnh đo thang chạy trọn trên repo đã nhận» là một điều kiện đóng giai đoạn 0 của kế hoạch đã duyệt. Đo ngày 2026-11-15 trên Inventory đã nhận (`make design-ladder`, quyết định 0045): sổ đúng hình dạng 7 trên 7, câu lõi có lời đáp 29 trên 40, câu lõi máy giữ 10, quyết định máy giữ 16, kit M2; bảng đo hôm nay không còn dòng «công cụ được thay». Dễ đảo: thang chỉ là phép đo, không ghi gì vào repo được đo.",
+      "hard_to_undo": false,
+      "if_refused": "Phải chọn thước khác cho câu «có thành lớp meta không», và điều kiện «lệnh đo thang chạy trọn trên repo đã nhận» của giai đoạn 0 phải viết lại"
     },
     {
       "id": "B5",
       "group": "B. Điều chưa bao giờ được duyệt",
       "question": "Ngừng thêm luật bằng lời ở repo này; chỉ sửa 14 giới hạn nguy hiểm khi Inventory đụng tới",
-      "recommendation": "Giữ đề xuất"
+      "recommendation": "Giữ đề xuất, đọc «Inventory» thành «một repo thật»: kế hoạch đã để dành các giới hạn mức nặng cho giai đoạn 5 theo đúng lối ấy",
+      "basis": "Mục để dành của kế hoạch, ghi ngày 2026-11-15: giới hạn mức nặng đang mở chờ giai đoạn 5, «chỉ sửa khi một repo thật đụng tới». Con số 14 là của ngày 2026-11-14; kế hoạch đếm 17 lúc ghi, và đếm lại ngày 2026-11-15 từ sổ giới hạn có 18 dòng mức nặng đang mở, 15 thuộc ngăn sẽ sửa và 3 thuộc ngăn chấp nhận. Nửa đầu của câu («ngừng thêm luật bằng lời») chỉ dựa vào đề xuất ở quyết định 0032, mục 4; máy không tìm được số đo nào cho nó. Dễ đảo: đây là cách làm việc, đổi lúc nào cũng được.",
+      "hard_to_undo": false,
+      "if_refused": "Luật bằng lời tiếp tục được thêm ở kho này, và 15 dòng mức nặng thuộc ngăn sẽ sửa phải làm trước giai đoạn 5 mà kế hoạch đã xếp"
     },
     {
       "id": "C1",
       "group": "C. Câu còn mở từ trước",
       "question": "Màn mẫu của một kiểu màn là màn thật trong sổ màn (plugin hiểu vậy) hay trang mẫu riêng (Inventory ghi)",
-      "recommendation": "Màn thật; sẽ phải chốt khi Inventory nhận sổ màn"
+      "recommendation": "Màn thật trong sổ màn. Inventory hôm nay cũng ghi vậy; chỗ lệch còn lại là một khoá của trang kiểu màn",
+      "basis": "Đọc Inventory ngày 2026-11-15: cả ba trang kiểu màn đều nêu một màn thật của sổ màn ở mục «Màn mẫu» (inventory, sign-in, members), và trang «lưới» viết rõ bản mẫu ở trang thử «là mẫu của khuôn, không phải màn mẫu». Chỗ lệch: plugin đọc màn mẫu từ khoá `mau_dang_chay`, mà ở Inventory khoá ấy trỏ tệp mẫu của khuôn ở hai trên ba trang. Khó đảo: lệnh kiểm màn mẫu của plugin và trang kiểu màn của repo đã nhận cùng dựa vào nghĩa của khoá này.",
+      "hard_to_undo": true,
+      "if_refused": "Chọn trang mẫu riêng thì lệnh kiểm màn mẫu của plugin phải viết lại (hôm nay nó đòi màn mẫu là một màn có trong sổ màn, cùng kiểu, khai đủ trạng thái bắt buộc), và kho này phải dựng một trang mẫu riêng mà nó chưa có"
     },
     {
       "id": "C2",
       "group": "C. Câu còn mở từ trước",
       "question": "Có ghim màu thương hiệu của repo được nhận không",
-      "recommendation": "Có: hôm nay đổi sang màu khác vẫn qua nếu đủ tương phản"
+      "recommendation": "Có: hôm nay đổi sang màu khác vẫn qua nếu đủ tương phản",
+      "basis": "Sổ giới hạn có một dòng mức nặng mở từ ngày 2026-11-12: màu thương hiệu của repo được nhận không được ghim, nên đổi sang màu khác đủ tương phản thì cổng vẫn xanh. Đọc Inventory ngày 2026-11-15: dòng màu gốc ở đó là lời người, không kèm lệnh kiểm nào. Dễ đảo: ghim là thêm một lệnh kiểm, bỏ ghim là gỡ nó.",
+      "hard_to_undo": false,
+      "if_refused": "Không ghim thì màu thương hiệu của repo đã nhận đổi được mà không cổng nào đỏ, và dòng giới hạn mức nặng ấy ở lại, phải ghi là chấp nhận"
     },
     {
       "id": "C3",
       "group": "C. Câu còn mở từ trước",
       "question": "Ba tờ cuối của cuốn sổ bàn giao (kiểu màn, đường đi, trạng thái) chưa được xem",
-      "recommendation": "Xem một lượt; chỉ mắt người chấm được"
+      "recommendation": "Xem một lượt ở giai đoạn 4, cùng lượt xem các mẫu tài liệu; chỉ mắt người chấm được",
+      "basis": "Sổ giới hạn ghi từ ngày 2026-11-12: cuốn sổ đẹp hay không chỉ người chấm được, và ba trên tám tờ chưa ai xem; trang bàn giao ghi chủ repo đã xem lát đầu và nói đạt. Từ ngày 2026-11-15 kế hoạch xếp việc «xem từng mẫu tài liệu một lần» vào giai đoạn 4, cùng lúc cuốn sổ thêm ví dụ nên và không nên. Dễ đảo: xem không đổi gì trong repo.",
+      "hard_to_undo": false,
+      "if_refused": "Ba tờ tiếp tục đi tới người nhận bàn giao mà chưa ai xem, và dòng giới hạn ấy ở lại"
     },
     {
       "id": "C4",
       "group": "C. Câu còn mở từ trước",
       "question": "Phần thêm vào trang kiểu màn «danh sách» sau ngày 2026-11-12 (luồng xoá, dòng tự chờ) là máy viết",
-      "recommendation": "Xác nhận hoặc sửa"
+      "recommendation": "Xác nhận hoặc sửa",
+      "basis": "Chủ repo xác nhận ba câu của trang này ngày 2026-11-12 (việc chính, thứ tự thông tin, cách viết lời); từ đó máy thêm 26 dòng và bớt 3 dòng (so bằng lịch sử git của trang), gồm hai mục mới «Mở một mục» và «Hai màn cùng kiểu». Sổ giới hạn ghi: không lệnh kiểm nào đọc phần thân của trang kiểu màn, nên chỉ người soát được. Dễ đảo: sửa một trang văn bản.",
+      "hard_to_undo": false,
+      "if_refused": "Không xác nhận thì phần máy viết thêm vẫn là luật mà tác tử dựng màn đọc và làm theo, dù chưa người nào soát"
     },
     {
       "id": "C5",
       "group": "C. Câu còn mở từ trước",
       "question": "Ngôn ngữ và đơn vị tiền của ứng dụng mẫu là máy suy ra",
-      "recommendation": "Xác nhận"
+      "recommendation": "Xác nhận",
+      "basis": "Sổ giới hạn ghi từ ngày 2026-11-11: ngôn ngữ và đơn vị tiền của ứng dụng mẫu do máy suy ra, chưa ai xác nhận. Hôm nay mã đặt tiếng Việt và đồng Việt Nam ở một chỗ (`src/lib/format.ts`: vi-VN, VND), khớp ngôn ngữ trò chuyện «vi» ghi trong bản thiết kế. Dễ đảo: chỉ ứng dụng mẫu của kho này dùng.",
+      "hard_to_undo": false,
+      "if_refused": "Đổi ngôn ngữ hay đơn vị tiền thì phải viết lại chữ của ứng dụng mẫu và chỗ định dạng tiền"
     },
     {
       "id": "C6",
       "group": "C. Câu còn mở từ trước",
       "question": "Ở Inventory, `DataRegion` là khuôn (trang kiểu màn «lưới» nói vậy) hay organism (công cụ sổ linh kiện)",
-      "recommendation": "Khuôn: trang kiểu màn là chỗ người viết; 0034"
+      "recommendation": "Khuôn. Hai nguồn của Inventory không còn nói khác nhau: công cụ từng xếp nó là organism đã bị bỏ, và sổ do plugin ghi xếp nó là khuôn",
+      "basis": "Đọc Inventory ngày 2026-11-15: sổ linh kiện do plugin ghi xếp `DataRegion` ở cấp khuôn (template), và trang kiểu màn «lưới» vẫn gọi nó là khuôn. Công cụ cũ của Inventory đã bị bỏ khi repo ấy nhận sổ của plugin (bản ghi thang, quyết định 0045); luật «linh kiện mà trang kiểu màn gọi là khuôn thì là khuôn» ở quyết định 0029 và 0034, và hai quyết định 0036, 0038 đổi bộ đọc linh kiện mà không đổi luật này. Khó đảo: đổi lại thì phải đổi luật xếp cấp của plugin và sinh lại sổ linh kiện ở repo đã nhận.",
+      "hard_to_undo": true,
+      "if_refused": "Chọn organism thì trang kiểu màn «lưới» của Inventory và sổ linh kiện ở đó lại nói ngược nhau, và plugin phải bỏ luật lấy khuôn từ trang kiểu màn"
     },
     {
       "id": "C7",
       "group": "C. Câu còn mở từ trước",
       "question": "Bốn tiêu chí của đề bài 0002 nêu tên Inventory: giữ chữ, hay viết lại thành «một repo đã có»",
-      "recommendation": "Viết lại: tiêu chí đo plugin, không đo một repo"
+      "recommendation": "Viết lại: tiêu chí đo plugin, không đo một repo",
+      "basis": "Kế hoạch chủ repo duyệt ngày 2026-11-15 xếp việc theo nhịp và mức phục vụ, và coi Inventory là một repo kiểm chứng (quyết định 0039, 0040). Bảng «mỗi giai đoạn đẩy tiêu chí nào» của đề bài 0002 đã tạm đọc bốn tiêu chí theo nghĩa rộng, và kế hoạch để câu này ở mục để dành, chờ lời đáp. Dễ đảo: chỉ là chữ của bốn tiêu chí trong một đề bài.",
+      "hard_to_undo": false,
+      "if_refused": "Giữ chữ thì tiêu chí 2 đến 5 tiếp tục đo riêng Inventory trong khi kế hoạch đã duyệt đo trên nhiều repo, và bảng đẩy tiêu chí phải đọc lại theo nghĩa hẹp"
     },
     {
       "id": "D2",
