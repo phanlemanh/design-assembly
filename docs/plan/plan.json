@@ -15,7 +15,7 @@
     {
       "id": 0,
       "name": "Đặt nền",
-      "state": "current",
+      "state": "done",
       "parallel": [],
       "items": [
         {
@@ -58,9 +58,9 @@
         {
           "id": "0.7",
           "what": "Lệnh decide; chủ repo trả lời các dòng đang chờ",
-          "state": "doing",
+          "state": "done",
           "command": "decide",
-          "ref": "lệnh đã dựng (quyết định 0043); 25 câu của hàng chờ còn chờ lời đáp của chủ repo"
+          "ref": "lệnh đã dựng (quyết định 0043); chủ repo trả lời cả 25 câu ngày 2026-11-16: «Giữ hết»"
         }
       ],
       "done_when": [
@@ -69,12 +69,16 @@
         "Lệnh đo thang chạy trọn trên repo đã nhận",
         "Hàng chờ duyệt không còn dòng chưa có lời đáp"
       ],
-      "needs_owner": ["Trả lời hàng chờ duyệt, một lần"]
+      "needs_owner": ["Trả lời hàng chờ duyệt, một lần"],
+      "closed": {
+        "on": "2026-11-16",
+        "evidence": "Cổng kiểm xanh năm lần liền trên nhánh chính 83f1767 (369 bài mỗi lượt, không bỏ bài nào); status chạy trên repo này và trên Inventory, chỉ đọc; make design-ladder chạy trọn trên Inventory đã nhận (quyết định 0045); decide báo không còn câu nào chờ chủ repo sau lời đáp «Giữ hết»"
+      }
     },
     {
       "id": 1,
       "name": "Cài được, lên đời được",
-      "state": "next",
+      "state": "current",
       "parallel": [2],
       "items": [
         {
