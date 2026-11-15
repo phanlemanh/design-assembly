@@ -46,6 +46,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 - [0035 Chỉ luật dòng sổ nêu tên mới giữ được dòng sổ ấy](decisions/0035-the-named-rule-holds-the-row.md) — thay mục 5 của 0033
 - [0036 Linh kiện ở tệp định nghĩa nó, không ở tệp gom](decisions/0036-a-component-lives-where-it-is-defined.md) — sổ linh kiện bỏ dòng ở tệp chỉ xuất lại
 - [0037 Sổ màn nói màn hiện gì, chào nút nào; cổng nối sổ màn với mô hình nghiệp vụ](decisions/0037-screens-join-the-domain-model.md) — phép kiểm ở `plugins/design-assembly/templates/tools/design-assembly/screen-actions.mjs`, đo lại bằng `make design-screen-actions-reference`
+- [0038 Linh kiện được ghi «dựng từ» cả linh kiện mà tệp của nó chuyển tiếp](decisions/0038-a-component-is-drawn-with-what-its-file-hands-on.md) — thay một ý của 0036
 - [0024 Khoá phạm vi: sổ giới hạn, ba ngăn, và bộ đề thử cố định](decisions/0024-scope-locked-limits-and-trial-briefs.md) — sổ ở `plugins/design-assembly/references/limits.json`, bộ đề ở `docs/trials/`
 - [0023 Chín lời đáp cho các câu còn mở của kiến trúc lớp meta](decisions/0023-nine-answers-for-the-meta-layer.md) — chủ kho duyệt cả chín; bảng đầy đủ ở mục «Chín câu đã chốt» của `docs/architecture/meta-layer.html`
 - [0022 Mở một hồ sơ cạnh danh sách: câu lõi cuối, chọn bằng mắt](decisions/0022-record-beside-a-list.md) — linh kiện ở `src/components/record-panel.tsx`, bảng mẫu ở `plugins/design-assembly/scripts/specimen.mjs --section record`

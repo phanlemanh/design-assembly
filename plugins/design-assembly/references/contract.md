@@ -69,7 +69,8 @@ other. `version` is a string. Each entry is one exported component:
   its screens, is a template.
 - `source`: `library` for the folder of a component library (the library's own, and the folder of
   each other registry its settings name), `own` for the repository's own components beside them.
-- `parts`: the other components of the same file it is drawn with.
+- `parts`: the other components of its file it is drawn with: those the file defines, and those it
+  imports and exports again.
 - `props`: the props its signature names one by one, in that order, by the name a caller writes;
   not `className`, `children` or a variant axis.
 - `variants`: each written `axis=value`, and `defaults`, the default of each axis.

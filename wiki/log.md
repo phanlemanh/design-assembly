@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-15 — Sổ linh kiện ghi lại «dựng từ» cả linh kiện mà tệp chuyển tiếp: bản sửa ghi trùng đã làm `Filters` và `FiltersRow` của Inventory mất quan hệ ấy (mục Ngoài-3 của hồ sơ chép công cụ) — [0038](decisions/0038-a-component-is-drawn-with-what-its-file-hands-on.md).
 - 2026-11-15 — Hai bài kiểm đọc sổ của Inventory thôi ghim những chỗ lệch hình dạng cũ: từ khi PR #58 gộp, sổ linh kiện và sổ màn ở đó đã đúng một hình dạng, nên bài kiểm nay đòi không còn chỗ lệch nào — `plugins/design-assembly/tests/test-contract.mjs`, `plugins/design-assembly/tests/test-screen-ledger.mjs`.
 - 2026-11-15 — Nhánh sổ màn nối mô hình gộp nhánh chính trên mạng (PR #2: bản sửa luật lint nêu tên, linh kiện qua tệp gom); quyết định của sổ màn đổi số từ 0035 sang [0037](decisions/0037-screens-join-the-domain-model.md) vì 0035 và 0036 đã có chủ; cổng giữ 37 quyết định bằng 43 lệnh kiểm — [phanlemanh/design-assembly#1](https://github.com/phanlemanh/design-assembly/pull/1).
 - 2026-11-15 — Dựng đề bài 0003: sổ màn khai màn hiện gì, mở bằng gì, nút nào; cổng nối sổ màn với mô hình của repo đang được kiểm (dòng sổ `screen-actions` trong plugin); repo này khai hai màn mẫu và mô hình thêm hành động xem `listItems`, chủ kho duyệt riêng phần mô hình (37 quyết định, 43 lệnh kiểm); Inventory đo lại chỉ đọc: 7 và 17 đỏ — [0037](decisions/0037-screens-join-the-domain-model.md).
