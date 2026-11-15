@@ -27,6 +27,6 @@
       "Bash(git push origin master:*)",
       "Bash(git push origin HEAD:main:*)"
     ],
-    "ask": ["Bash(gh pr merge:*)", "Bash(gh pr review --approve:*)", "Bash(gh release create:*)"]
+    "ask": ["Bash(gh pr review --approve:*)", "Bash(gh release create:*)"]
   }
 }
