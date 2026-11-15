@@ -1,7 +1,7 @@
 ---
 type: spec
 title: Bộ lệnh của design-assembly, theo việc người dùng cần xong
-status: needs-approval
+status: approved
 tier: 1
 links:
   - wiki/specs/0002-meta-layer-for-many-repositories.md
@@ -22,6 +22,7 @@ sources:
   - docs/trials/README.md
   - "chủ repo, 2026-11-15: «Dựa vào hành vi và jtbd của người dùng phân tích và đề xuất các tập lệnh»; «kiểm kê kho, các thành phần trong kho»; «Viết bộ lệnh này thành đề bài để tôi duyệt, làm rõ input/output»"
   - "chủ repo, 2026-11-15: «người dùng kỳ vọng như làm việc với một studio chuyên nghiệp nhưng với hoạt động của một engineer, output nên là những chuẩn mực của một design consultant/studio chuyên nghiệp»; «Bổ sung vào 0004»"
+  - "chủ repo, 2026-11-15: «Duyệt đề bài»"
   - plugins/design-assembly/references/book.md
   - plugins/design-assembly/references/layers.json
   - repo-standards/docs/ranh-gioi-ba-kho.md
@@ -29,8 +30,8 @@ sources:
 
 # 0004 Bộ lệnh của design-assembly, theo việc người dùng cần xong
 
-Máy viết ngày 2026-11-15 theo lời chủ repo cùng ngày. Chờ chủ repo duyệt. Chưa lệnh mới nào được
-dựng; đề bài này chỉ chốt lệnh nào tồn tại, nó nhận gì và trả gì.
+Máy viết ngày 2026-11-15 theo lời chủ repo cùng ngày. Chủ repo duyệt cùng ngày («Duyệt đề bài»). Chưa
+lệnh mới nào được dựng; đề bài này chốt lệnh nào tồn tại, nó nhận gì và trả gì.
 
 ## Intent
 
@@ -409,7 +410,8 @@ lệnh một PR. Áp một lệnh vào repo khác cần chủ repo cho phép ri�
 
 ## Open questions
 
-Mỗi câu kèm lối máy khuyên.
+Mỗi câu kèm lối máy khuyên. Chủ repo duyệt đề bài ngày 2026-11-15 mà không đáp riêng từng câu: máy
+dựng theo lối khuyên, và chủ repo bác được từng câu bất cứ lúc nào.
 
 - **Tên lệnh kiểm kê kho.** `inventory` là từ của ngành cho việc này, nhưng script của `audit` đang
   mang tên đó. Khuyên: lệnh tên `inventory`, đổi tên script của `audit` cho khớp tên lệnh.

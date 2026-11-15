@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-15 — Chủ repo duyệt đề bài bộ lệnh («Duyệt đề bài»): mười ba lệnh, chuẩn tài liệu kiểu studio. Các câu còn mở đi theo lối máy khuyên cho tới khi chủ repo bác. Chưa lệnh mới nào được dựng — [spec 0004](specs/0004-the-command-set.md).
 - 2026-11-15 — Đề bài bộ lệnh bổ sung chuẩn của một studio thiết kế: khung chung cho mọi tài liệu, mỗi lệnh một sản phẩm bàn giao, lý lẽ đi kèm khuyến nghị, nguyên tắc thiết kế và hướng đi trọn vẹn trong `new`, và lệnh thứ mười ba `review` soát màn bằng hình. Chờ chủ repo duyệt — [spec 0004](specs/0004-the-command-set.md).
 - 2026-11-15 — Đề bài cho bộ lệnh của plugin: mười hai lệnh trong bốn nhóm (biết, quyết, đổi, giao), mỗi lệnh ghi rõ đầu vào, đầu ra cho người và cho máy, tệp nó ghi và mã thoát; tám lệnh mới, trong đó kiểm kê kho và tra kho. Chờ chủ repo duyệt — [spec 0004](specs/0004-the-command-set.md).
 - 2026-11-15 — Kế hoạch của đề bài 0002 viết lại theo nhịp của vòng đời và mức phục vụ, tám đợt; Inventory thành một repo kiểm chứng. Kiểm lại cho thấy plugin chưa cài ở repo nào và mọi lượt thử chạy trên kho này; ba dòng giới hạn mở, hai dòng đóng. Chờ chủ repo duyệt — [0039](decisions/0039-plan-recut-by-rhythm-and-tier.md), [spec 0002](specs/0002-meta-layer-for-many-repositories.md).
