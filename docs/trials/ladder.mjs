@@ -81,7 +81,10 @@ function measure() {
 
 const adopt = (...flags) => {
   const run = node(path.join(PLUGIN, "adopt.mjs"), "--target", copy, ...flags);
-  if (run.status !== 0) throw new Error(`adopt failed: ${run.stderr.split("\n")[0]}`);
+  // Adopting ends with 1 when it is done and something waits on a person; only 2 is a failure.
+  if (run.status > 1 || run.status === null) {
+    throw new Error(`adopt failed: ${run.stderr.split("\n")[0]}`);
+  }
 };
 const edit = (file, change) => {
   const full = path.join(copy, file);

@@ -68,6 +68,10 @@ Mã thoát theo dòng riêng của `status` trong đề bài: 1 khi có việc c
 kiểm đang đỏ hay mã vòng qua một quyết định **không** làm mã thoát thành 1: đó là việc của cổng và
 của `audit`; `status` in ra và đặt `audit` làm lệnh kế.
 
+Đoạn trên đã được thay ngày 2026-11-15 bởi
+[0044](0044-one-contract-for-the-commands-that-exist.md): `status` nay kết thúc 1 cả trong hai
+trường hợp ấy, theo hợp đồng chung.
+
 ## Consequences
 
 - **Ở kho này, `status` báo «không gì chờ trong sổ»**, nấc cao nhất ở mức «tự khai», công cụ khớp
@@ -77,7 +81,7 @@ của `audit`; `status` in ra và đặt `audit` làm lệnh kế.
 - **Sổ giới hạn thêm khu `status` và năm dòng:** `status-reads-ledgers-only`,
   `status-confirmation-read-from-note`, `status-tool-stamp-never-written`,
   `status-compares-tool-folder-only`, `status-exit-ignores-failing-checks` (dòng cuối xếp «chấp
-  nhận», vì theo đúng đề bài).
+  nhận», vì theo đúng đề bài; đã đóng bởi 0044).
 - **Bảng từ vựng thêm hai từ đặt trong dự án:** `rhythm` và `tool stamp`.
 - **`audit` không đổi hành vi.** Kết quả `--json` của nó thêm một khoá, `values` (giá trị của
   stylesheet đến từ đâu), để `status` không phải viết lại luật ấy.

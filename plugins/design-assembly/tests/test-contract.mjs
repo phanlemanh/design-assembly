@@ -273,7 +273,7 @@ test("the audit counts the ledgers that have their shape, and names how the othe
 test("adopting holds the shapes of the ledgers it leaves, and says why when one differs", () => {
   const dir = existing();
   const adopted = run(ADOPT, "--target", dir);
-  assert.equal(adopted.status, 0, adopted.stderr);
+  assert.equal(adopted.status, 1, adopted.stderr);
   assert.match(adopted.stdout, /ledger-shapes: \d+ ledger\(s\) have the one shape/);
   const gate = run(path.join(dir, "tools/design-assembly/check.mjs"), "--target", dir);
   assert.equal(gate.status, 0, gate.stderr);
@@ -292,7 +292,7 @@ test("adopting holds the shapes of the ledgers it leaves, and says why when one 
   // A repository whose ledger differs today gets no row, and the difference is said.
   const other = existing({ "design/screens.yaml": "screens:\n  - id: a\n    route: /\n" });
   const refused = run(ADOPT, "--target", other);
-  assert.equal(refused.status, 0, refused.stderr);
+  assert.equal(refused.status, 1, refused.stderr);
   assert.match(refused.stdout, /ledger-shapes: design\/screens\.yaml: \.version is missing/);
   assert.ok(
     !/^\s+- id: ledger-shapes$/m.test(

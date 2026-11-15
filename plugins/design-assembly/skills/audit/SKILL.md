@@ -13,8 +13,20 @@ folder two levels above this file).
 
 ## 1. Run it
 
-`node ${CLAUDE_PLUGIN_ROOT}/scripts/inventory.mjs --target <repo>`. Add `--all` to list every core
-decision, not only the open ones, and `--json` for the data.
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/inventory.mjs --target <repo>`. Without `--target` it reads the
+folder it is run from. Add `--all` to list every core decision, not only the open ones, and
+`--json` for the data; another plugin calls it that way. Beside what the report prints, the data
+has `tier` (the tier reached, its state, and the next one), `missing` (what the next tier lacks:
+each open core decision and each artifact that is not there) and `blind` (every open row of
+`references/limits.json`).
+
+It ends with:
+
+- `0`: done.
+- `1`: done, and a decision is `not held`, `FAILING` or `BYPASSED`. Not an error: it is the
+  repository's own work, listed first in the report.
+- `2`: a wrong call, or a repository that cannot be read. The reason is on the error stream, and
+  nothing is printed as an answer. Repeat the reason; do not guess a state.
 
 It measures the repository against `references/standard-decisions.json`: the decisions a design
 system has to answer. A decision seen in two or more sources is core; a tier needs its core

@@ -307,7 +307,7 @@ test("with no typed field the kinds are not claimed; a screen already setting wi
 test("adopting writes no table and no code: it asks for the table, then holds what is there", () => {
   const dir = floor();
   const asked = run(ADOPT, "--target", dir);
-  assert.equal(asked.status, 0, asked.stderr);
+  assert.equal(asked.status, 1, asked.stderr);
   assert.match(
     asked.stdout,
     /display-kind: the data model names 3 column type\(s\) \(text, number, date\) and there is no design\/column-types\.json/,
@@ -319,7 +319,7 @@ test("adopting writes no table and no code: it asks for the table, then holds wh
   for (const name of ["text", "number", "date"]) table.types[name] = { base: name, sample: 8 };
   put(dir, TYPES, `${JSON.stringify(table, null, 2)}\n`);
   const adopted = run(ADOPT, "--target", dir);
-  assert.equal(adopted.status, 0, adopted.stderr);
+  assert.equal(adopted.status, 1, adopted.stderr);
   assert.match(
     adopted.stdout,
     /display-kind: 3 field\(s\) of the data model each name a column type/,

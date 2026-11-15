@@ -232,10 +232,14 @@ test("the file goes where the acceptance kit is told to read it", () => {
 
 test("a tokens file a person already keeps is never written over", () => {
   const mine = '{ "color": { "brand": { "$type": "color", "$value": "#123456" } } }\n';
-  for (const script of [APPLY, ADOPT]) {
+  // The guide ends with 0; adopting ends with 1, with a person's calls still open on the floor.
+  for (const [script, ends] of [
+    [APPLY, 0],
+    [ADOPT, 1],
+  ]) {
     const dir = floor({ "design/tokens.json": mine });
     const result = run(script, "--target", dir);
-    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.status, ends, result.stderr);
     assert.match(result.stdout, /design\/tokens\.json is already there and is not what/);
     assert.equal(text(dir, "design/tokens.json"), mine);
     const ids = parseLedger(text(dir, "design/decisions.yaml")).map((row) => row.id);
@@ -248,7 +252,7 @@ test("adopting writes the file from the values the repository has, changing none
   const dir = floor();
   const css = text(dir, "src/index.css");
   const adopted = run(ADOPT, "--target", dir);
-  assert.equal(adopted.status, 0, adopted.stderr);
+  assert.equal(adopted.status, 1, adopted.stderr);
   assert.equal(text(dir, "src/index.css"), css);
   const data = JSON.parse(text(dir, "design/tokens.json"));
   // The floor's own grey primary, not a generated one.

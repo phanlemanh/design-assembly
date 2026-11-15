@@ -242,7 +242,7 @@ test("a rule the repository does not meet today gets no row, and the guide says 
 test("adopting holds words and error messages as found, and writes no list of states", () => {
   const dir = floor();
   const adopted = run(ADOPT, "--target", dir);
-  assert.equal(adopted.status, 0, adopted.stderr);
+  assert.equal(adopted.status, 1, adopted.stderr);
   const rows = rowsOf(dir);
   assert.equal(rows.labels.check, TOOL);
   assert.equal(rows["error-copy"].check, TOOL);
@@ -328,7 +328,7 @@ test("a repository's own test that names a decision lets adopting claim it", () 
       "// decision:record-panel decision:made-up-one\ntest('opens', () => {});\n",
   });
   const adopted = run(ADOPT, "--target", dir);
-  assert.equal(adopted.status, 0, adopted.stderr);
+  assert.equal(adopted.status, 1, adopted.stderr);
   const rows = rowsOf(dir);
   assert.equal(rows["undo-or-confirm"].check, "test:tests/change.test.tsx");
   assert.equal(rows["record-panel"].check, "e2e:tests/e2e/flow.spec.ts");

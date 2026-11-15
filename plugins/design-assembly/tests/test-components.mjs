@@ -285,10 +285,14 @@ test("the manifest goes where the acceptance kit is told to read it", () => {
 
 test("a registry a person already keeps is never written over", () => {
   const mine = '{ "version": "0.1.0", "components": [{ "name": "Page header/Default" }] }\n';
-  for (const script of [APPLY, ADOPT]) {
+  // The guide ends with 0; adopting ends with 1, with a person's calls still open on the floor.
+  for (const [script, ends] of [
+    [APPLY, 0],
+    [ADOPT, 1],
+  ]) {
     const dir = floor({ [REGISTRY]: mine });
     const result = run(script, "--target", dir);
-    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.status, ends, result.stderr);
     assert.match(result.stdout, /component-registry\.json is already there and is not what/);
     assert.equal(text(dir, REGISTRY), mine);
     const ids = parseLedger(text(dir, "design/decisions.yaml")).map((row) => row.id);
@@ -301,7 +305,7 @@ test("adopting writes the manifest and changes no source; no components means no
   const dir = floor();
   const before = readFolder(dir, "src/components/ui");
   const adopted = run(ADOPT, "--target", dir);
-  assert.equal(adopted.status, 0, adopted.stderr);
+  assert.equal(adopted.status, 1, adopted.stderr);
   assert.deepEqual(readFolder(dir, "src/components/ui"), before);
   assert.equal(JSON.parse(text(dir, REGISTRY)).components.length, 8);
   assert.equal(check(dir).status, 0, check(dir).stderr);
@@ -310,7 +314,7 @@ test("adopting writes the manifest and changes no source; no components means no
     "src/index.css": withoutBlock(own("src/index.css")),
     Makefile: own("Makefile"),
   });
-  assert.equal(run(ADOPT, "--target", bare).status, 0);
+  assert.equal(run(ADOPT, "--target", bare).status, 1);
   assert.ok(!existsSync(path.join(bare, REGISTRY)));
   const ids = parseLedger(text(bare, "design/decisions.yaml")).map((row) => row.id);
   assert.ok(!ids.includes("component-manifest"));
@@ -415,7 +419,7 @@ test("controls below the level's target size get no check, and the person is tol
 
   // Adopting: nothing without a stated level, a held row at AA, a plain refusal at AAA.
   const bare = floor();
-  assert.equal(run(ADOPT, "--target", bare).status, 0);
+  assert.equal(run(ADOPT, "--target", bare).status, 1);
   assert.ok(!parseLedger(text(bare, "design/decisions.yaml")).some((r) => r.id === "target-size"));
   const level = run(ADOPT, "--target", bare, "--conformance-level", "AA");
   assert.match(level.stdout, /target-size: every control that declares a height is at least 24px/);
