@@ -2498,6 +2498,17 @@
       "note": "Which decisions change state is read by running the repository's own copy of the tool for the state before and the installed tool for the state after, so a copy too old to say how each row is held, or one that cannot be run, gives no before, and upgrade then says it cannot tell instead of listing them."
     },
     {
+      "id": "upgrade-blames-ledger-for-missing-dependencies",
+      "area": "upgrade",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["trials"],
+      "status": "open",
+      "note": "On a checkout whose dependencies are not installed, a stylesheet that imports a library's palette cannot be resolved, so the preview says the tokens ledger would lose its entries and the gate would turn red. It stops and writes nothing, which is right, but it names the ledger and a contrast check as the cause instead of the missing dependencies; on a fresh branch of the reference repository it listed 37 tokens as lost until npm ci ran."
+    },
+    {
       "id": "version-counts-templates-and-scripts",
       "area": "upgrade",
       "kind": "partial-check",
