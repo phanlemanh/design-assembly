@@ -453,6 +453,18 @@
       "source": "The owner's standardisation proposal of 2026-11-10",
       "trust": "coined",
       "inherited": true
+    },
+    {
+      "term": "rhythm",
+      "meaning": "One of the moments in a repository's life at which the plugin acts: the repository is born, it meets the plugin, a feature needs a new block, every change, and periodically before handing over. Status gives one line for each.",
+      "source": "The owner's architecture document for the meta layer, section on the life of a repository, 2026-11-13",
+      "trust": "coined"
+    },
+    {
+      "term": "tool stamp",
+      "meaning": "The record, kept in the repository, of which version of the plugin its copy of the tool came from and the hash git gives that folder. What a lockfile is to a dependency.",
+      "source": "The specification of the command set, 2026-11-15",
+      "trust": "coined"
     }
   ]
 }

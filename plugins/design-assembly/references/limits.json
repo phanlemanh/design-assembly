@@ -4,6 +4,7 @@
     "guide": "The skill that walks a person through the layers of a new design system.",
     "adopt": "The skill that records what a repository already has, without changing it.",
     "audit": "The read-only report on how far a repository has got.",
+    "status": "The read-only report on what waits on the owner and what to run next.",
     "checks": "The gate tool and the browser test it installs.",
     "rules": "The page a screen-building agent reads before it starts.",
     "specimen": "The sheet that draws the options on the repository's own screen.",
@@ -2073,6 +2074,61 @@
       "status": "open",
       "note": "A domain model whose one read action covers several entities names only one of them, so every screen that shows the others fails as showing a record nobody may view.",
       "repo": "repo-standards"
+    },
+    {
+      "id": "status-reads-ledgers-only",
+      "area": "status",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0041"],
+      "status": "open",
+      "note": "Status lists only what waits in the ledgers, so a question that waits on the owner somewhere else, such as a review list in prose, a pull request or a conversation, is not counted and the report can say nothing waits while much does."
+    },
+    {
+      "id": "status-confirmation-read-from-note",
+      "area": "status",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0041"],
+      "status": "open",
+      "note": "Whether a person confirmed a row is read from the wording of its note, because the ledger has no key for who confirmed it and when, so a note rewritten in other words confirms a proposal that nobody decided."
+    },
+    {
+      "id": "status-tool-stamp-never-written",
+      "area": "status",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0041"],
+      "status": "open",
+      "note": "Status reads a tool stamp that no command writes yet, so every repository reads as having no stamp, a copy that differs cannot be told from one the repository changed on purpose, and the place and shape it reads are a proposal until the command that writes them exists."
+    },
+    {
+      "id": "status-compares-tool-folder-only",
+      "area": "status",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0041"],
+      "status": "open",
+      "note": "Status compares the folder of the tool only, without the files whose name starts with a dot, so a file the plugin installs elsewhere, such as the rules page or the tests the repository then owns, can differ from the installed plugin unseen."
+    },
+    {
+      "id": "status-exit-ignores-failing-checks",
+      "area": "status",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-15",
+      "where": ["d0041"],
+      "status": "open",
+      "note": "Status ends with 0 when nothing waits on a person even while a check fails or source goes around a decision; it names the audit as the next command, and only the repository's gate fails on them."
     }
   ]
 }

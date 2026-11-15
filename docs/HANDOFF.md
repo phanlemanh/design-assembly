@@ -34,12 +34,15 @@ Một plugin Claude Code (`plugins/design-assembly/`) dẫn người dùng tới
 nằm ngay trong kho của họ, để Claude Code dựng màn mà không phải đoán. Ứng dụng React ở gốc kho là
 bản cài đặt đối chứng: plugin sinh gì thì hiện ở đó và được `make check` chấm.
 
-Ba đường của plugin:
+Bốn đường của plugin:
 
 - **audit** (`scripts/inventory.mjs`): chỉ đọc. Đo kho theo danh mục quyết định chuẩn, nói bậc đã
   tới, và in dòng `next:` chỉ skill kế tiếp.
 - **new** (`scripts/apply.mjs`): cuộc dẫn dắt. Sinh giá trị từ lựa chọn của người, cài lệnh kiểm.
 - **adopt** (`scripts/adopt.mjs`): nhận cái kho đã có, không đổi gì của kho.
+- **status** (`scripts/status.mjs`, từ 2026-11-15, quyết định 0041): chỉ đọc. Một màn hình: nấc đã
+  tới, mỗi nhịp một dòng, việc chờ chủ kho kèm khuyến nghị, bản công cụ có lệch plugin không, lệnh
+  nên chạy kế. Nó chỉ thấy việc chờ nằm trong sổ: 26 dòng ở `docs/review-queue.md` nó không đếm.
 
 Nguyên tắc xuyên suốt: mỗi quyết định thiết kế là một dòng trong sổ `design/decisions.yaml`, trỏ
 tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và mỗi lần chạy đều tự chứng minh nó đỏ
@@ -98,7 +101,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 | Chạy lại lint của repo trên đoạn mã phạm quyết định            | 0033    | `templates/tools/design-assembly/probes.mjs`, `lint.mjs`, `adapters/eslint.mjs`                    |
 | Sổ màn nói màn hiện gì, nút cho ai; cổng nối với mô hình       | 0037    | `templates/tools/design-assembly/screen-actions.mjs`, `make design-screen-actions-reference`       |
 
-Lệnh hay dùng ở kho này: `make design-audit`, `make design-plan`, `make design-apply`,
+Lệnh hay dùng ở kho này: `make design-status`, `make design-audit`, `make design-plan`, `make design-apply`,
 `make design-adopt`, `make design-adopt-reference` (xem trước trên kho đối chứng, không bao giờ
 ghi), `make design-tokens`, `make design-components`, `make design-columns`, `make plugin-test`.
 
@@ -284,7 +287,8 @@ kho trước.
 
 - `.claude/settings.json` của kho chỉ cho sẵn `make`, vài lệnh `git` đọc, và `python3 tools/`.
   Lệnh shell khác đi qua bộ phân loại; `rm -rf` bị từ chối. Sửa tệp bằng công cụ Edit/Write.
-- `make check` dùng cổng 4173 cố định. Nếu đỏ chỉ vì cổng bận thì chờ rồi chạy lại.
+- `make check` xem thử ở một cổng lấy từ thư mục của bản làm việc (từ 4173 trở lên), nên hai bản làm
+  việc chạy cổng kiểm cùng lúc không tranh nhau. `UI_FLOOR_PORT` đặt cổng bằng tay.
 - Sau `make format`, chạy lại `make design-apply` để bản công cụ trong kho (`tools/design-assembly/`)
   khớp bản mẫu trong plugin. Bốn tệp mẫu «của kho» ở `plugins/design-assembly/templates/owned/`
   phải giống hệt bản đang chạy ở kho này; có bài kiểm giữ điều đó, nên sửa bản ở `src/` hoặc
