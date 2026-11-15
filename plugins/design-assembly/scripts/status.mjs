@@ -1,10 +1,13 @@
 // The status: what the owner of a repository asks at any moment. Which tier the repository has
 // reached, one line per rhythm of its life, what waits on the owner with a recommendation for each,
 // whether the repository's copy of the tool is the installed plugin's, and the command to run next.
-// Read-only: it writes nothing, anywhere. The same repository always gives the same answer.
-// Usage: node status.mjs [--target DIR] [--json]
+// Read-only: it writes nothing in the repository. The same repository always gives the same answer.
+// With --out it also hands the answer over as a document, the status report, written to that
+// folder and nowhere else.
+// Usage: node status.mjs [--target DIR] [--json] [--out DIR [--format html|pdf]]
 // Exit: 0 nothing waits; 1 something waits on a person, the tool differs, or a decision is failing
-// or gone around; 2 a wrong call, or a repository that cannot be read.
+// or gone around, or the document was written in fewer formats than asked; 2 a wrong call, or a
+// repository that cannot be read.
 import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
 import { existsSync, lstatSync, readdirSync, readFileSync, readlinkSync, statSync } from "node:fs";
@@ -15,6 +18,8 @@ import { fileURLToPath } from "node:url";
 import { SLIPS_FILE } from "../templates/tools/design-assembly/governance.mjs";
 import { readLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import { finish, readCall, refuse, start } from "./command.mjs";
+import { sheet, WAITING_LIST } from "./decide.mjs";
+import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { inventory, PERSON_CALLS, UNCONFIRMED } from "./inventory.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -36,6 +41,9 @@ const SHOWN = 5;
 const MEASURED = "a measurement on this repository: ";
 // The command that lists the places where a check fails or source goes around a decision.
 const AUDIT = "/design-assembly:audit";
+// The command that takes a person's answers: to a row of the ledger nobody confirmed, and to a
+// question of the waiting list.
+const DECIDE = "/design-assembly:decide";
 
 const hashOf = (type, body) =>
   createHash("sha1").update(`${type} ${body.length}\0`).update(body).digest();
@@ -172,7 +180,7 @@ function recommend(row, decision) {
   };
 }
 
-// What waits on the owner: every row of the ledger that says nobody has confirmed it, then every
+// What waits on the owner in the ledgers: every row that says nobody has confirmed it, then every
 // call only a person can make that a ledger has no row for. Each is a question, never an answer.
 function waitingOf(audit, rows) {
   const decisionOf = (id) => audit.decisions.find((decision) => decision.id === id);
@@ -182,10 +190,11 @@ function waitingOf(audit, rows) {
       const decision = decisionOf(row.id);
       return {
         id: row.id,
+        source: "ledger",
         question: decision?.question ?? `Does the repository's own decision "${row.id}" stand?`,
         ...recommend(row, decision),
-        // The guide records a person's confirmation and writes the row again without its note.
-        answer: "/design-assembly:new",
+        // The decision sheet writes a person's answer into the row, with their name and the date.
+        answer: DECIDE,
       };
     });
   // A repository with no ledger has not met the plugin: nothing waits there yet.
@@ -198,6 +207,7 @@ function waitingOf(audit, rows) {
       const shown = decision.seen?.replace(/: a person confirms it$/, "");
       return {
         id: decision.id,
+        source: "ledger",
         question: decision.question,
         recommendation: "Answer it: only a person can, and the ledger has no row for it.",
         basis: shown ? `${MEASURED}${shown}` : standardBasis(decision),
@@ -206,6 +216,21 @@ function waitingOf(audit, rows) {
     });
   return [...proposals, ...unanswered];
 }
+
+// A question of the waiting list that waits, as status lists it. What the list says for it is
+// read off the repository, and is given as that: a list that grounds nothing is said to.
+const fromList = (item) => ({
+  id: item.id,
+  source: "waiting-list",
+  question: item.question,
+  recommendation: item.recommendation,
+  basis: `${MEASURED}${
+    item.basis
+      ? `the waiting list, ${WAITING_LIST}, gives this ground: ${item.basis}`
+      : `the waiting list, ${WAITING_LIST}, gives no ground for it`
+  }`,
+  answer: DECIDE,
+});
 
 const RHYTHMS = [
   ["start", "the repository is born"],
@@ -266,7 +291,10 @@ function nextOf(audit, waiting, broken) {
     const mine = waiting.filter((item) => item.answer.split(" ")[0] === command);
     next.push({
       command,
-      why: `${mine.length} answer(s) wait on the owner (${mine.map((item) => item.id).join(", ")})`,
+      why: `${mine.length} answer(s) wait on the owner (${mine
+        .slice(0, SHOWN)
+        .map((item) => item.id)
+        .join(", ")}${mine.length > SHOWN ? ", ..." : ""})`,
     });
   }
   // The audit's last line names a command when the scripts have something left to do.
@@ -277,11 +305,15 @@ function nextOf(audit, waiting, broken) {
   return next;
 }
 
-export function status(root) {
+// Everything status reads from the ledgers, read once.
+function readLedgers(root) {
   const audit = inventory(root);
   const rows = readLedger(root) ?? [];
   const broken = audit.decisions.filter((d) => ["failing", "bypassed"].includes(d.state));
-  const waiting = waitingOf(audit, rows);
+  return { audit, broken, waiting: waitingOf(audit, rows), tool: toolOf(root) };
+}
+
+function resultOf({ audit, broken, tool }, waiting) {
   return {
     tier: audit.tier,
     // Core decisions only, as the audit counts them. Two numbers: a claim was not run again here.
@@ -289,9 +321,37 @@ export function status(root) {
     claimed: audit.coverage.claimed,
     rhythms: rhythmsOf(audit, broken),
     waiting,
-    tool: toolOf(root),
+    tool,
     next: nextOf(audit, waiting, broken),
   };
+}
+
+// The reading `fullStatus` holds while it asks the decision sheet what waits in the waiting list:
+// the sheet asks for this very reading, and gets it back instead of a second run of every check.
+let reading = null;
+
+// The status as the ledgers alone give it, before the waiting list is read. The decision sheet is
+// built on this reading, under this name, and reads the waiting list for itself; the command and
+// its document give `fullStatus`.
+export function status(root) {
+  if (reading?.root === root) return reading.result;
+  const read = readLedgers(root);
+  return resultOf(read, read.waiting);
+}
+
+// The whole status: what the ledgers say, and every question of the waiting list that nobody has
+// answered. Which row of the list waits is the decision sheet's rule, asked of it and not written
+// here a second time: a permission and an answered row do not wait.
+export function fullStatus(root) {
+  const read = readLedgers(root);
+  reading = { root, result: resultOf(read, read.waiting) };
+  let listed;
+  try {
+    listed = sheet(root).questions.filter((item) => item.source === "waiting-list");
+  } finally {
+    reading = null;
+  }
+  return resultOf(read, [...read.waiting, ...listed.map(fromList)]);
 }
 
 const TIER_NOTE = {
@@ -312,9 +372,13 @@ export function report(result) {
     ...result.rhythms.map((rhythm) => `  ${rhythm.name}: ${rhythm.says}`),
     "",
   ];
-  if (waiting.length === 0) lines.push("waiting on the owner: nothing in the ledgers");
-  else {
-    lines.push(`waiting on the owner: ${waiting.length}`);
+  if (waiting.length === 0) {
+    lines.push("waiting on the owner: nothing in the ledgers or the waiting list");
+  } else {
+    const listed = waiting.filter((item) => item.source === "waiting-list").length;
+    lines.push(
+      `waiting on the owner: ${waiting.length}${listed > 0 ? ` (${waiting.length - listed} in the ledgers, ${listed} in the waiting list)` : ""}`,
+    );
     waiting.slice(0, SHOWN).forEach((item, index) => {
       lines.push(
         `  ${index + 1}. ${item.id}: ${item.question}`,
@@ -347,7 +411,187 @@ export function report(result) {
   return `${lines.join("\n")}\n`;
 }
 
-const USAGE = "usage: node status.mjs [--target DIR] [--json]\n";
+// The status report: the same answer as a document on the frame every document shares, made from
+// the facts of the answer and from nothing else. `origin` says which state of the repository it is
+// made from. What the screen cuts short the report cuts short too, and says where the rest is.
+export function documentOf(result, origin) {
+  const { tier, waiting, tool, next } = result;
+  const broken = next.find((step) => step.command === AUDIT) ?? null;
+  const listed = waiting.filter((item) => item.source === "waiting-list");
+  const answers = plural(waiting.length, "answer waits", "answers wait");
+  const where =
+    listed.length > 0
+      ? `${waiting.length - listed.length} in the ledgers, ${listed.length} in the waiting list`
+      : "all of them in the ledgers";
+  const reached = tier.id
+    ? `The repository has reached the tier ${tier.id}${tier.state === "claimed" ? ", on checks that were not run again here" : ""}`
+    : "The repository has reached no tier yet";
+  const left = broken
+    ? ", and a decision is failing or gone around"
+    : tool.differs
+      ? ", and its copy of the tool is not the installed plugin's"
+      : "";
+  const claimedTier = tier.state === "claimed";
+
+  // Everything worth a person's attention, the heaviest first; the page shows the first three.
+  const attention = [
+    broken && {
+      title: "A decision is failing, or source goes around one",
+      detail: "It is work to fix, not a question to answer. The audit lists each place.",
+    },
+    waiting.length > 0 && {
+      title: `${answers} on the owner`,
+      detail: `${where}. A proposal is not an answer until a person gives it.`,
+    },
+    tool.differs && {
+      title: "The repository's copy of the tool is not the installed plugin's",
+      detail: tool.says,
+    },
+    claimedTier && {
+      title: `The tier ${tier.id} rests on checks nothing here ran again`,
+      detail: `${result.held} core decisions were run again here; ${result.claimed} are claimed.`,
+    },
+    tier.next && {
+      title: `The next tier is ${tier.next}`,
+      detail: "The audit says what it still lacks.",
+    },
+  ].filter(Boolean);
+
+  // What the person must decide, by the command that takes the answer. The first questions are
+  // written out, as on the screen; the rest are named.
+  const shown = waiting.slice(0, SHOWN);
+  const commands = [...new Set(waiting.map((item) => item.answer.split(" ")[0]))];
+  const decide = commands.map((command) => {
+    const mine = waiting.filter((item) => item.answer.split(" ")[0] === command);
+    const rest = mine.filter((item) => !shown.includes(item));
+    return {
+      what: `Answer ${plural(mine.length, "question", "questions")}`,
+      items: mine
+        .filter((item) => shown.includes(item))
+        .map((item) => `${item.id}: ${item.question}`),
+      more:
+        rest.length > 0
+          ? `and ${rest.length} more, each on the decision sheet: ${rest.map((item) => item.id).join(", ")}`
+          : null,
+      command,
+    };
+  });
+
+  const findings = [
+    broken && {
+      severity: "high",
+      title: "A decision is failing, or source goes around one",
+      detail:
+        "A check of the gate fails, or the repository's own source writes a value around a decision. Nothing here waits on an answer.",
+      evidence: [broken.why],
+    },
+    tool.differs && {
+      severity: "medium",
+      title: "The repository's copy of the tool is not the installed plugin's",
+      detail: "The gate of the repository runs its own copy, whatever the plugin has since become.",
+      evidence: [
+        tool.says,
+        `the repository's copy, as a tree: ${tool.copy ?? "none"}`,
+        `the installed plugin's, version ${tool.installed.version}: ${tool.installed.tree}`,
+      ],
+    },
+    waiting.length > 0 && {
+      severity: "medium",
+      title: `${answers} on the owner`,
+      detail:
+        "Each is a question with a recommendation, never an answer: nothing is decided until a person says so.",
+      evidence: commands.map((command) => {
+        const mine = waiting.filter((item) => item.answer.split(" ")[0] === command);
+        return `answered with ${command}: ${mine.map((item) => item.id).join(", ")}`;
+      }),
+    },
+    claimedTier && {
+      severity: "low",
+      title: `The tier ${tier.id} rests on checks nothing here ran again`,
+      detail: "A claim names a check that can be found. It was not run for this report.",
+      evidence: [
+        `${result.held} core decisions held and run again here`,
+        `${result.claimed} core decisions claimed and not run again`,
+      ],
+    },
+  ].filter(Boolean);
+
+  // A basis is written "what it rests on: the fact". The two kinds status ever gives.
+  const basisOf = (line) =>
+    line.startsWith(MEASURED)
+      ? { kind: "measurement", text: line.slice(MEASURED.length) }
+      : { kind: "standard", text: line.replace(/^a standard: /, "") };
+  const recommendations = [
+    broken && {
+      what: "Fix what is failing or gone around before anything is confirmed",
+      basis: { kind: "measurement", text: broken.why },
+      action: "Run the audit: it names each decision and each place.",
+      command: AUDIT,
+    },
+    tool.differs && {
+      what: "Leave the repository's copy of the tool as it is for now",
+      basis: { kind: "measurement", text: tool.says },
+      action:
+        "Nothing to run: no command of this version brings the installed tool into a repository (limit adopt-does-not-refresh-tool). Do not copy its files by hand unless you mean to.",
+    },
+    ...shown.map((item) => ({
+      about: `${item.id} · ${item.question}`,
+      what: item.recommendation,
+      basis: basisOf(item.basis),
+      action: "Give your answer; the recommendation is not one.",
+      command: item.answer,
+    })),
+  ].filter(Boolean);
+  const unshown = waiting.slice(SHOWN).map((item) => item.id);
+
+  const blind = LIMITS.filter(
+    (limit) => ["status", "document"].includes(limit.area) && limit.status === "open",
+  );
+  return {
+    kind: "status-report",
+    title: "Status report",
+    lede: "Where the design system of this repository stands, what waits on its owner, and what to run next.",
+    origin,
+    version: VERSION,
+    scope: [
+      "The ledgers of the design system, read as the audit reads them",
+      `The waiting list, ${WAITING_LIST}, when the repository keeps one`,
+      `The repository's copy of the tool, ${TOOL_COPY}, against the installed plugin's`,
+      `The tool stamp, ${STAMP}: ${tool.recorded ? `version ${tool.recorded.version}` : "none in this repository"}`,
+    ],
+    decision: {
+      conclusion: `${reached}; ${waiting.length === 0 ? "nothing waits on its owner" : `${answers} on its owner`}${left}.`,
+      figures: [
+        { value: String(waiting.length), label: "answers wait on the owner" },
+        { value: String(result.held), label: "core decisions held, and run again here" },
+        { value: String(result.claimed), label: "core decisions claimed, and not run again" },
+      ],
+      attention: attention.slice(0, 3),
+      decide,
+    },
+    findings,
+    register: {
+      title: "Each rhythm of the repository's life, as read now",
+      columns: ["Rhythm", "What the repository says"],
+      rows: result.rhythms.map((rhythm) => [rhythm.name, rhythm.says]),
+    },
+    recommendations,
+    next: next.map((step) => ({ command: step.command, why: step.why })),
+    blind: blind.map(({ id, note }) => ({ id, note })),
+    after: {
+      recommendations:
+        unshown.length > 0
+          ? `${plural(unshown.length, "more question has", "more questions have")} a recommendation of their own, on the decision sheet (${DECIDE}) and with --json: ${unshown.join(", ")}.`
+          : null,
+    },
+    empty: {
+      findings:
+        "Nothing is failing, nothing waits on the owner, and the tool is the installed plugin's.",
+    },
+  };
+}
+
+const USAGE = "usage: node status.mjs [--target DIR] [--json] [--out DIR [--format html|pdf]]\n";
 
 // Something is left when an answer waits on a person, when the tool differs, or when a check
 // fails or source goes around a decision: `next` then starts with the audit.
@@ -356,12 +600,20 @@ export const leavesWork = (result) =>
   result.tool.differs ||
   result.next.some((step) => step.command === AUDIT);
 
-function main(args) {
-  const call = readCall(args);
+async function main(args) {
+  const call = readCall(args, DOCUMENT_FLAGS);
   if (call.problem) return refuse(call.problem, USAGE);
   if (call.help) return void stdout.write(USAGE);
-  const result = status(call.target);
-  return finish({ json: call.json, result, text: report(result), work: leavesWork(result) });
+  // A wrong call for a document is refused before anything is read.
+  const asked = requested(call);
+  const result = fullStatus(call.target);
+  const handed = await handOver(asked, call.target, (origin) => documentOf(result, origin));
+  return finish({
+    json: call.json,
+    result: { ...result, ...handed.data },
+    text: `${report(result)}${handed.text}`,
+    work: leavesWork(result) || handed.work,
+  });
 }
 
 await start(import.meta.url, main);

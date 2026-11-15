@@ -21,7 +21,7 @@ import { execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { report, STAMP, status, treeHash } from "../scripts/status.mjs";
+import { fullStatus, report, STAMP, status, treeHash } from "../scripts/status.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -126,7 +126,14 @@ test("the machine gets the keys the specification lists, and nothing it cannot r
   assert.ok(result.held >= 2);
   assert.equal(result.claimed, 0);
   for (const item of result.waiting) {
-    assert.deepEqual(Object.keys(item), ["id", "question", "recommendation", "basis", "answer"]);
+    assert.deepEqual(Object.keys(item), [
+      "id",
+      "source",
+      "question",
+      "recommendation",
+      "basis",
+      "answer",
+    ]);
     for (const value of Object.values(item)) assert.ok(String(value).trim() !== "", item.id);
   }
   assert.deepEqual(Object.keys(result.tool), ["recorded", "installed", "copy", "differs", "says"]);
@@ -160,10 +167,12 @@ test("an answer the guide proposed waits on the owner until a person confirms it
   assert.deepEqual(ids(result), CALLS);
   const color = result.waiting.find((item) => item.id === "source-color");
   assert.equal(color.question, "Which source color does the theme start from?");
-  assert.equal(color.answer, "/design-assembly:new");
+  // The decision sheet records a person's answer to a row nobody confirmed.
+  assert.equal(color.answer, "/design-assembly:decide");
+  assert.equal(color.source, "ledger");
   assert.deepEqual(
     result.next.map((step) => step.command),
-    ["/design-assembly:new"],
+    ["/design-assembly:decide"],
   );
   // The other direction: the row as a person leaves it, with no note that it is a proposal.
   edit(dir, LEDGER, (ledger) =>
@@ -366,11 +375,11 @@ test("a person gets one screen: the tier, a line per rhythm, what waits with its
     assert.ok(printed.includes(`answer with: ${item.answer}`), item.id);
   }
   assert.ok(printed.includes(`tool: ${result.tool.says}`));
-  assert.match(printed, /^next: \/design-assembly:new, /m);
+  assert.match(printed, /^next: \/design-assembly:decide, 3 answer\(s\) wait on the owner/m);
   assert.ok(printed.split("\n").length <= 40, "more than one screen");
 
   const quiet = report(status(applied("user")));
-  assert.match(quiet, /^waiting on the owner: nothing in the ledgers$/m);
+  assert.match(quiet, /^waiting on the owner: nothing in the ledgers or the waiting list$/m);
   assert.match(quiet, /^next: nothing to run now/m);
 });
 
@@ -425,6 +434,107 @@ test("every report says what status cannot see, and names no command the plugin 
       assert.ok(existsSync(skill), `${command} is not a command of this plugin`);
     }
   }
+});
+
+// A waiting list as a repository keeps one: two questions that wait, one a person answered, and
+// one permission, which no answer settles.
+const LIST = {
+  version: 1,
+  rows: [
+    {
+      id: "Q1",
+      group: "A. Built already",
+      question: "Does the bar stay on top?",
+      recommendation: "Keep it",
+      basis: "It is built this way, and decision 0025 records it",
+    },
+    { id: "Q2", kind: "question", question: "Is the second sample screen the right one?" },
+    {
+      id: "Q3",
+      question: "Does a change of screen keep the page?",
+      answer: "keep",
+      by: "A Person",
+      on: "2026-01-02",
+    },
+    { id: "P1", kind: "permission", question: "Let the plugin be installed in another repository" },
+  ],
+};
+const WAITING_LIST = "design/waiting-list.json";
+
+test("a question of the waiting list that nobody answered waits on the owner, and decide is the command that answers", () => {
+  const dir = applied("user");
+  assert.deepEqual(ids(fullStatus(dir)), []);
+  put(dir, WAITING_LIST, `${JSON.stringify(LIST, null, 2)}\n`);
+  const result = fullStatus(dir);
+  // The answered row and the permission do not wait: the rule is the decision sheet's own.
+  assert.deepEqual(ids(result), ["Q1", "Q2"]);
+  for (const item of result.waiting) {
+    assert.equal(item.source, "waiting-list");
+    assert.equal(item.answer, "/design-assembly:decide");
+    assert.match(item.basis, /^a measurement on this repository: /);
+  }
+  const [first, second] = result.waiting;
+  assert.equal(first.question, "Does the bar stay on top?");
+  assert.equal(first.recommendation, "Keep it");
+  assert.ok(first.basis.endsWith("It is built this way, and decision 0025 records it"));
+  // A row that recommends nothing is listed as that, never with an answer made up for it.
+  assert.match(second.recommendation, /^none given/);
+  assert.match(second.basis, /gives no ground/);
+  assert.deepEqual(result.next, [
+    { command: "/design-assembly:decide", why: "2 answer(s) wait on the owner (Q1, Q2)" },
+  ]);
+  const printed = report(result);
+  assert.match(printed, /^waiting on the owner: 2 \(0 in the ledgers, 2 in the waiting list\)$/m);
+  assert.match(printed, /^ {5}answer with: \/design-assembly:decide$/m);
+  assert.match(printed, /^next: \/design-assembly:decide, 2 answer\(s\) wait on the owner/m);
+  // The command says the same, and ends with 1 because something waits.
+  const called = cli("--target", dir, "--json");
+  assert.equal(called.status, 1);
+  assert.deepEqual(JSON.parse(called.stdout), result);
+  assert.equal(cli("--target", dir).stdout, printed);
+
+  // The other direction: every question answered, and nothing waits again.
+  const answered = LIST.rows.map((row) =>
+    row.kind === "permission" || row.answer
+      ? row
+      : { ...row, answer: "keep", by: "A Person", on: "2026-01-02" },
+  );
+  put(dir, WAITING_LIST, `${JSON.stringify({ ...LIST, rows: answered })}\n`);
+  assert.deepEqual(ids(fullStatus(dir)), []);
+  assert.equal(cli("--target", dir).status, 0);
+});
+
+test("rows of the ledger nobody confirmed and rows of the waiting list are counted together, under one command", () => {
+  const dir = applied("proposed");
+  put(dir, WAITING_LIST, `${JSON.stringify(LIST)}\n`);
+  const result = fullStatus(dir);
+  assert.deepEqual(ids(result), [...CALLS, "Q1", "Q2"]);
+  assert.deepEqual(
+    result.next.map((step) => step.command),
+    ["/design-assembly:decide"],
+  );
+  assert.match(result.next[0].why, /^5 answer\(s\) wait on the owner/);
+  assert.match(
+    report(result),
+    /^waiting on the owner: 5 \(3 in the ledgers, 2 in the waiting list\)$/m,
+  );
+  // What the ledgers alone say stays what the decision sheet is built on: it never lists a row of
+  // the waiting list, which the sheet reads for itself.
+  assert.deepEqual(ids(status(dir)), CALLS);
+});
+
+test("a waiting list that cannot be read is a repository that cannot be read, not a list with nothing in it", () => {
+  const dir = applied("user");
+  put(dir, WAITING_LIST, "{ not json");
+  const called = cli("--target", dir, "--json");
+  assert.equal(called.status, 2);
+  assert.equal(called.stdout, "");
+  assert.match(
+    called.stderr,
+    /^design-assembly: this repository cannot be read: .*waiting-list\.json/,
+  );
+  put(dir, WAITING_LIST, `${JSON.stringify({ version: 1, rows: [{ id: "Q1" }] })}\n`);
+  assert.equal(cli("--target", dir).status, 2);
 });
 
 test("the skill of the command exists and calls the script", () => {

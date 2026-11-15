@@ -74,6 +74,15 @@ export class Refusal extends Error {}
 // target, the way the repository names it.
 export const fileChange = (file, change) => ({ path: file.split(path.sep).join("/"), change });
 
+// A file a command writes to a folder the caller names, which may lie outside the target: named as
+// the repository names it when it is inside, and by its full path when it is not. `change` says
+// whether the file was there before, so ask before writing it.
+export function changeOf(target, file) {
+  const relative = path.relative(target, file);
+  const outside = relative.startsWith("..") || path.isAbsolute(relative);
+  return fileChange(outside ? file : relative, existsSync(file) ? "update" : "create");
+}
+
 // Runs a command when its file is the one that was started, and not when it is imported. Anything
 // it throws is a repository that cannot be read: the call ends with 2, never with a stack trace
 // that a caller would take for "done, with work left".
