@@ -25,6 +25,10 @@ scale, shape). Density, elevation, motion and iconography are not.
   nobody confirmed, and the rows of `design/waiting-list.json` when the repository keeps one. It
   writes an answer only when a person gave it, with their name and the date; a refusal stays, with
   what they said.
+- Every command takes `--target DIR` (the folder it is run from when not given) and `--json` (one
+  JSON document for another plugin), and ends with `0` when done, `1` when done with work left
+  for a person or something to fix, and `2` on a wrong call or a repository it cannot read. The
+  commands that write take `--dry-run`. `references/checks.md` has the table.
 - `/design-assembly:adopt` takes in what a repository already has: a ledger row for each proof it
   already runs (`references/known-proofs.json`), and a check around each value its stylesheet holds
   today. It changes no value, no lint rule, no test and no existing row.

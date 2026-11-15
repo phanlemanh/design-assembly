@@ -3,7 +3,7 @@
 // rejects every probe gains the tool's check, and the gate fails once that rule is turned off; the
 // other stays claimed, with what it lets through.
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import {
   existsSync,
   mkdirSync,
@@ -17,16 +17,20 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { execPath } from "node:process";
 import { after, test } from "node:test";
+import { clearTimeout, setTimeout } from "node:timers";
 import { fileURLToPath } from "node:url";
 
 import { inventory } from "../scripts/inventory.mjs";
 import { heldHere } from "../templates/tools/design-assembly/check.mjs";
+import { askLint } from "../templates/tools/design-assembly/lint.mjs";
+
 import { lintPointer, PROBED, probesFor } from "../templates/tools/design-assembly/probes.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
 const ROOT = path.resolve(PLUGIN, "../..");
 const ADOPT = path.join(PLUGIN, "scripts/adopt.mjs");
+const LINT = path.join(PLUGIN, "templates/tools/design-assembly/lint.mjs");
 const LINTED = existsSync(path.join(ROOT, "node_modules/eslint"));
 
 const made = [];
@@ -113,7 +117,7 @@ test(
     const dir = repository();
     const before = readFileSync(path.join(dir, "design/decisions.yaml"), "utf8");
     const adopted = run(ADOPT, "--target", dir);
-    assert.equal(adopted.status, 0, adopted.stderr);
+    assert.equal(adopted.status, 1, adopted.stderr);
     assert.match(
       adopted.stdout,
       /now re-run by this tool[^\n]*\n {2}raw-table: every probe is rejected, by no-restricted-syntax/,
@@ -168,7 +172,7 @@ test(
       ),
     );
     const adopted = run(ADOPT, "--target", dir, "--dry-run");
-    assert.equal(adopted.status, 0, adopted.stderr);
+    assert.equal(adopted.status, 1, adopted.stderr);
     assert.match(
       adopted.stdout,
       /raw-table: the repository's lint lets through `<table \/>`: no-restricted-imports does not reject it/,
@@ -196,7 +200,104 @@ test(
     const dir = repository();
     rmSync(path.join(dir, "node_modules"));
     const adopted = run(ADOPT, "--target", dir, "--dry-run");
-    assert.equal(adopted.status, 0, adopted.stderr);
+    assert.equal(adopted.status, 1, adopted.stderr);
     assert.match(adopted.stdout, /raw-table: the repository has no lint installed/);
+  },
+);
+
+// The lint runs in a process of its own, in a gate other people wait on: whatever happens to that
+// process comes back as a named error, in time.
+const ASK = { find: { rules: ["no-restricted-syntax"], candidates: ["src/app/page.tsx"] } };
+
+function repositoryWith(configuration) {
+  const dir = repository();
+  writeFileSync(path.join(dir, "eslint.config.js"), configuration);
+  return dir;
+}
+
+test(
+  "a lint that fails on its own configuration is reported in the error's own words",
+  { skip: !LINTED && "no lint installed here" },
+  () => {
+    const dir = repositoryWith('throw new Error("this configuration is broken on purpose");\n');
+    const answer = askLint(dir, ASK);
+    assert.match(answer.error, /the repository's lint failed: .*broken on purpose/);
+  },
+);
+
+test(
+  "a lint process that dies is reported in the error's own words, not by where it was thrown",
+  { skip: !LINTED && "no lint installed here" },
+  () => {
+    // Thrown from a task of its own, so nothing can catch it: the runtime prints the place in the
+    // source first, and the error after.
+    const dir = repositoryWith(
+      'queueMicrotask(() => {\n  throw new Error("thrown where nothing catches it");\n});\nexport default [];\n',
+    );
+    const answer = askLint(dir, ASK);
+    assert.equal(answer.error, "the lint could not be run: Error: thrown where nothing catches it");
+  },
+);
+
+test(
+  "a lint that never answers is stopped and named within the limit",
+  { skip: !LINTED && "no lint installed here" },
+  () => {
+    const dir = repositoryWith(
+      "await new Promise(() => setInterval(() => {}, 1000));\nexport default [];\n",
+    );
+    const started = Date.now();
+    const answer = askLint(dir, ASK, { seconds: 2 });
+    assert.match(answer.error, /the lint did not answer within 2 seconds/);
+    assert.ok(Date.now() - started < 15_000);
+  },
+);
+
+test(
+  "the request does not reach the lint through its standard input",
+  { skip: !LINTED && "no lint installed here" },
+  () => {
+    // The configuration writes down what the lint's process was given as standard input.
+    const dir = repositoryWith(
+      [
+        'import { fstatSync, writeFileSync } from "node:fs";',
+        "const input = fstatSync(0);",
+        'const given = input.isSocket() || input.isFIFO() ? "a pipe" : "no pipe";',
+        'writeFileSync(new URL("./standard-input.txt", import.meta.url), given);',
+        config([TABLE, TEMPLATE]),
+      ].join("\n"),
+    );
+    const answer = askLint(dir, ASK);
+    assert.deepEqual(answer, { at: { "no-restricted-syntax": "src/app/page.tsx" } });
+    assert.equal(readFileSync(path.join(dir, "standard-input.txt"), "utf8"), "no pipe");
+  },
+);
+
+test(
+  "the lint's process answers when the machine is slow to hand it the request",
+  { skip: !LINTED && "no lint installed here" },
+  async () => {
+    // On a busy machine the tool reached its process later than the process reached for its
+    // request. Read from standard input, the request was then not there yet, and the process died
+    // with EAGAIN; the gate showed only `node:fs:483`. Here the request is handed over 1.5 seconds
+    // late, both as the tool hands it now, in a folder named on the command line, and on standard
+    // input, as it did before.
+    const dir = repository();
+    const asked = mkdtempSync(path.join(tmpdir(), "design-assembly-late-"));
+    made.push(asked);
+    const request = JSON.stringify({ root: dir, request: ASK });
+    writeFileSync(path.join(asked, "request.json"), request);
+    const child = spawn(execPath, [LINT, asked], { stdio: ["pipe", "pipe", "pipe"] });
+    let said = "";
+    child.stderr.on("data", (chunk) => (said += chunk));
+    child.stdout.resume();
+    child.stdin.on("error", () => {});
+    const late = setTimeout(() => child.stdin.end(request), 1500);
+    const [status] = await new Promise((done) => child.on("close", (...end) => done(end)));
+    clearTimeout(late);
+    assert.equal(status, 0, said);
+    assert.deepEqual(JSON.parse(readFileSync(path.join(asked, "answer.json"), "utf8")), {
+      at: { "no-restricted-syntax": "src/app/page.tsx" },
+    });
   },
 );

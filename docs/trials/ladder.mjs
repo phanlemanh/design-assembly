@@ -3,6 +3,9 @@
 // on the clone, and the clone is removed unless --keep is given.
 // Usage: node docs/trials/ladder.mjs --reference DIR [--kit DIR] [--keep]
 // The three answers of step two are assumptions made to measure, not the owner's words.
+// Each step starts from the state the copy is in. On a repository that has already adopted the
+// plugin a step finds its work done and changes nothing, and its row says where the repository
+// stands today.
 import { spawnSync } from "node:child_process";
 import {
   appendFileSync,
@@ -19,6 +22,12 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { argv, execPath, exit, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
+
+import { COMPONENTS_DECISION } from "../../plugins/design-assembly/templates/tools/design-assembly/components.mjs";
+import {
+  LEDGER,
+  parseLedger,
+} from "../../plugins/design-assembly/templates/tools/design-assembly/ledger.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const PLUGIN = path.join(ROOT, "plugins/design-assembly/scripts");
@@ -72,12 +81,28 @@ function measure() {
 
 const adopt = (...flags) => {
   const run = node(path.join(PLUGIN, "adopt.mjs"), "--target", copy, ...flags);
-  if (run.status !== 0) throw new Error(`adopt failed: ${run.stderr.split("\n")[0]}`);
+  // Adopting ends with 1 when it is done and something waits on a person; only 2 is a failure.
+  if (run.status > 1 || run.status === null) {
+    throw new Error(`adopt failed: ${run.stderr.split("\n")[0]}`);
+  }
 };
 const edit = (file, change) => {
   const full = path.join(copy, file);
   if (existsSync(full)) writeFileSync(full, change(readFileSync(full, "utf8")));
 };
+
+// Adopting takes up a decision only while the ledger has no row for it, or a row with no check.
+// So a register the ledger already holds is this plugin's own, and nothing would write it again.
+const REGISTER = "design/component-registry.json";
+const registerIsHeld = () => {
+  const ledger = path.join(copy, LEDGER);
+  if (!existsSync(ledger)) return false;
+  return parseLedger(readFileSync(ledger, "utf8")).some(
+    (row) => row.id === COMPONENTS_DECISION && row.check,
+  );
+};
+// True once step three has put this plugin's register in the place of another tool's.
+let replaced = false;
 
 const steps = [["start", () => {}]];
 steps.push(["1. adopt, no answers", () => adopt()]);
@@ -93,7 +118,13 @@ steps.push([
 steps.push([
   "3. the plugin writes the register, both declared to the kit",
   () => {
-    rmSync(path.join(copy, "design/component-registry.json"), { force: true });
+    // A register the plugin does not hold is another tool's, and adopting keeps a file it did
+    // not write: it is removed here, as its owner would on handing it over. One the plugin holds
+    // stays, or the copy would be left with no register at all.
+    if (!registerIsHeld() && existsSync(path.join(copy, REGISTER))) {
+      rmSync(path.join(copy, REGISTER));
+      replaced = true;
+    }
     adopt();
     adopt();
     edit("_acceptance/config.yaml", (text) =>
@@ -110,7 +141,13 @@ steps.push([
 // After step three, the register this plugin wrote against the one the repository's own tool
 // wrote, by component name. The repository's tool keeps one entry per file, with its parts.
 function compareRegisters() {
-  const file = "design/component-registry.json";
+  const file = REGISTER;
+  if (!replaced) {
+    const why = existsSync(path.join(reference, file))
+      ? "the one in the repository is this plugin's own"
+      : "the repository came with none";
+    return ["", `register: ${why}, so there is no other tool's to compare it with`];
+  }
   const theirs = JSON.parse(readFileSync(path.join(reference, file), "utf8")).components ?? [];
   const mine = JSON.parse(readFileSync(path.join(copy, file), "utf8")).components ?? [];
   const parts = new Map();
@@ -159,11 +196,16 @@ const head = git(reference, "log", "-1", "--format=%h %ad", "--date=short").stdo
 stdout.write(`ladder on a copy of ${path.basename(reference)} at ${head}\n\n`);
 stdout.write("step\tledgers in shape\tcore answered\tcore held\theld in all\tkit tier\n");
 try {
+  const rows = [];
   for (const [name, run] of steps) {
     run();
     const now = measure();
+    rows.push(`${now.shapes}\t${now.answered}\t${now.core}\t${now.held}\t${now.tier}`);
+    stdout.write(`${name}\t${rows.at(-1)}\n`);
+  }
+  if (rows.every((row) => row === rows[0])) {
     stdout.write(
-      `${name}\t${now.shapes}\t${now.answered}\t${now.core}\t${now.held}\t${now.tier}\n`,
+      "\nno step moved a rung: the repository has already taken every one, and each row is where it stands today\n",
     );
   }
   for (const line of compareRegisters()) stdout.write(`${line}\n`);

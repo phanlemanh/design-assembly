@@ -19,8 +19,14 @@ comes first: adopting does not fix it.
 
 ## 2. Preview
 
-`node ${CLAUDE_PLUGIN_ROOT}/scripts/adopt.mjs --target <repo> --dry-run`. Nothing is written. A
-section that is not printed has nothing in it. Read the sections to the person in this order:
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/adopt.mjs --target <repo> --dry-run`. Nothing is written.
+Without `--target` it reads the folder it is run from. It ends with `0` when nothing is left for
+a person, with `1` while `needs a person` lists a question (not an error: go to step 3), and with
+`2` on a wrong call or a repository it cannot read, with the reason on the error stream and no
+answer printed. `--json` gives the same as data: `rows` and how each is held, `rerun`, `loose`,
+`person`, and `files`, the files written or that would be.
+
+A section that is not printed has nothing in it. Read the sections to the person in this order:
 
 | Section                                              | What it means                                                                                           |
 | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
@@ -80,7 +86,8 @@ stated level that the values do not reach is not a reason to lower the level: re
    the same as in the first preview. A row of theirs that could now have a check and was not in
    the first preview (a target size is only measured once the level is known) was never put to
    the person: ask about that row alone before writing.
-2. Run the same command without `--dry-run`. It ends with `done:` and the number of rows and files.
+2. Run the same command without `--dry-run`. Its last line is `done:` with the number of rows and
+   files; it still ends with `1` while a question for a person is open.
    It adds rows to `design/decisions.yaml`, and, when it holds any value, `design/theme.json`,
    `tools/design-assembly/` and `mk/design-assembly.mk`.
 3. It also writes, from what the repository has, the design tokens file (`design/tokens.json`) and

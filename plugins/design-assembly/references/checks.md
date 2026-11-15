@@ -502,8 +502,39 @@ Visual regression and design lint for components are not in this version.
   is not a ledger of the contract yet. Without it status still compares the two folders, by the
   same hash computed from the files, and says `no stamp`.
 
-Status ends with `0` when nothing waits, `1` when something waits on a person or the tool differs,
-and `2` on a wrong call or a repository it cannot read.
+Status ends with `0` when nothing waits, `1` when something waits on a person, the tool differs, or
+a decision is failing or bypassed, and `2` on a wrong call or a repository it cannot read.
+
+## How every command is called and how it ends
+
+The five commands that exist (`status`, `audit`, `new`, `adopt`, `handoff`) share one contract,
+written once in `scripts/command.mjs` and held by `tests/test-command-contract.mjs`.
+
+- `--target DIR` names the repository. Without it the command reads the folder it is run from.
+- `--json` prints one JSON document and nothing else. A key the specification lists that a command
+  cannot give yet is left out, and a row of `references/limits.json` says so.
+- `status` and `audit` only read: the tree is the same afterwards, byte for byte. `new`, `adopt`
+  and `handoff` take `--dry-run`, which lists the files the real run writes and writes nothing.
+- A flag the command does not have is a wrong call, not something to pass over.
+
+| Ends with | Means                                                                                                                     |
+| --------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `0`       | Done, and nothing is left                                                                                                 |
+| `1`       | Done, and there is work for a person or something to fix. Not an error                                                    |
+| `2`       | A wrong call, or a repository that cannot be read. The reason is on the error stream, and nothing is printed as an answer |
+
+What makes each command end with `1`:
+
+| Command   | Ends with `1` when                                                                                 |
+| --------- | -------------------------------------------------------------------------------------------------- |
+| `status`  | An answer waits on a person, the tool differs, or a decision is failing or bypassed                |
+| `audit`   | A decision is not held, failing or bypassed                                                        |
+| `new`     | A built layer is not decided yet, or the preview shows a write that would be refused               |
+| `adopt`   | `needs a person` lists a question                                                                  |
+| `handoff` | The book was written without every picture or in fewer formats than asked; a checked book is stale |
+
+The `make` targets of this repository that call those commands end well on `0` and on `1`; only `2`
+fails them. `make design-status` passes the `1` on.
 
 ## What decide reads and writes
 

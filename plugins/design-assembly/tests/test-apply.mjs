@@ -449,7 +449,8 @@ test("a preview before any blueprint is the normal start, not a failure", () => 
   const dir = repository();
   rmSync(path.join(dir, "design/blueprint.json"));
   const preview = apply(dir, "--dry-run");
-  assert.equal(preview.status, 0, preview.stderr);
+  // It ends with 1, not 2: the preview ran, and every layer is still a person's to decide.
+  assert.equal(preview.status, 1, preview.stderr);
   assert.match(preview.stdout, /the floor is in place\. design\/blueprint\.json is not there yet/);
   assert.equal(apply(dir).status, 2);
 });

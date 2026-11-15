@@ -46,7 +46,14 @@ The floor is checked first, then the blueprint.
 - It refuses because the floor is missing: say what is missing in plain words and stop. A repository
   set up with `repo-setup` and its design layer has the floor.
 - It says the floor is in place and `design/blueprint.json` is not there yet: that is the normal
-  start, and the preview ends without an error. Create the file with the shape below, then go on.
+  start. The preview ends with `1`, which is not an error: no layer is decided yet. Create the
+  file with the shape below, then go on.
+
+The script ends with `0` when it is done, with `1` when a built layer is not decided yet or the
+preview shows a write that would be refused, and with `2` when it refuses: a wrong call, no floor,
+or a blueprint it cannot write from. On `2` the reason is on the error stream and nothing is
+printed as an answer. Without `--target` it reads the folder it is run from; `--json` gives the
+blueprint layer by layer and the files written or that would be, as data.
 
 - `design/blueprint.json` exists: resume from the first built layer that is `pending`.
 
@@ -223,6 +230,8 @@ the preview again.
 2. `node ${CLAUDE_PLUGIN_ROOT}/scripts/adopt.mjs --target <repo>`, with no flags. The guide writes
    only the rows for what it generated; this adds the rows for what the floor already proves with
    its lint rules and guard tool. Without it the audit still shows those decisions with no row.
+   It ends with `1` when it still lists a question under `needs a person`: that is not a failure
+   of this step.
 3. `make format`, then `make design-assembly`. Then the repository's own `make check`.
 4. A failure of `make design-assembly` means a decision is no longer held. Read the message: it
    names the decision and what is wrong. Fix the cause, never the check.

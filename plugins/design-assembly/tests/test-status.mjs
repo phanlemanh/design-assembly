@@ -220,7 +220,8 @@ test("a decision that source goes around is the audit's to list: it is next, and
   assert.deepEqual(result.waiting, []);
   assert.equal(result.next[0].command, "/design-assembly:audit");
   assert.match(result.next[0].why, /^1 decision\(s\) failing or bypassed/);
-  assert.equal(cli("--target", dir).status, 0);
+  // Nothing waits on a person, and something is left to fix: the call ends with 1.
+  assert.equal(cli("--target", dir).status, 1);
 });
 
 test("the tool: the repository's copy against the installed plugin's, and the stamp when there is one", () => {
@@ -309,7 +310,7 @@ test("the same repository gives the same answer twice, to a person and to a mach
   assert.ok(!first.stdout.includes(dir) && !data.stdout.includes(dir));
 });
 
-test("exit codes: 0 nothing waits, 1 something waits or the tool differs, 2 a wrong call or an unreadable repository", () => {
+test("exit codes: 0 nothing is left, 1 something waits, the tool differs or a decision is gone around, 2 a wrong call or an unreadable repository", () => {
   assert.equal(cli("--target", applied("user")).status, 0);
   const waiting = cli("--target", applied("proposed"));
   assert.equal(waiting.status, 1);

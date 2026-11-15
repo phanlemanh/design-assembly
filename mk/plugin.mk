@@ -10,12 +10,18 @@ ACCEPTANCE_KIT ?= ../delivery-loop
 # How the reference repository spells the keys of its ledger of screens that join it with its model.
 REFERENCE_SCREEN_KEYS ?= entry=vao,actions=nut,frame=khung
 
+# The plugin's commands end with 1 when they did their work and something is left for a person, and
+# with 2 on a wrong call or a repository they cannot read. The targets that were here before that
+# contract still end well when the command did its work, so a chain of targets that relied on it
+# keeps running: only 2 fails them. design-status came with the contract and passes the 1 on.
+done-or-work = || [ $$? -eq 1 ]
+
 .PHONY: design-decide design-status design-ladder design-screen-actions-reference plugin-test design-specimen design-book design-apply design-plan design-audit design-adopt design-adopt-plan design-adopt-reference
 
 design-audit: ## Audit this repository: each standard decision's state, and the tier it has reached
-	@node plugins/design-assembly/scripts/inventory.mjs --target .
+	@node plugins/design-assembly/scripts/inventory.mjs --target . $(done-or-work)
 
-design-status: ## Say what waits on the owner here, the tier reached, and the command to run next. Ends with 1 when something waits
+design-status: ## Say what waits on the owner here, the tier reached, and the command to run next. Ends with 1 when something waits or is left to fix
 	@node plugins/design-assembly/scripts/status.mjs --target .
 
 # Extra flags for the sheet, such as DECIDE_ARGS="--answers answers.txt --dry-run" or DECIDE_ARGS="--only A1,C7".
@@ -42,25 +48,25 @@ design-specimen: ## Draw the choices of foundations on this repository's own scr
 BOOK_ARGS ?=
 
 design-book: ## Draw this repository's design system as a book to hand to a person
-	@node plugins/design-assembly/scripts/book.mjs --target . $(BOOK_ARGS)
+	@node plugins/design-assembly/scripts/book.mjs --target . $(BOOK_ARGS) $(done-or-work)
 
 design-plan: ## Show what the guide would write into this repository, the reference implementation
-	@node plugins/design-assembly/scripts/apply.mjs --target . --dry-run
+	@node plugins/design-assembly/scripts/apply.mjs --target . --dry-run $(done-or-work)
 
 design-apply: ## Write what design/blueprint.json decides into this repository
-	@node plugins/design-assembly/scripts/apply.mjs --target .
+	@node plugins/design-assembly/scripts/apply.mjs --target . $(done-or-work)
 
 # Extra flags for adopting, such as ADOPT_ARGS="--conformance-level AA".
 ADOPT_ARGS ?=
 
 design-adopt-plan: ## Show what adopting would add here: rows and checks around what the repository already has
-	@node plugins/design-assembly/scripts/adopt.mjs --target . --dry-run $(ADOPT_ARGS)
+	@node plugins/design-assembly/scripts/adopt.mjs --target . --dry-run $(ADOPT_ARGS) $(done-or-work)
 
 design-adopt: ## Add those rows and checks. Changes no stylesheet, lint rule, test or existing row
-	@node plugins/design-assembly/scripts/adopt.mjs --target . $(ADOPT_ARGS)
+	@node plugins/design-assembly/scripts/adopt.mjs --target . $(ADOPT_ARGS) $(done-or-work)
 
 design-adopt-reference: ## Preview adopting on the reference repository. Never writes there
-	@node plugins/design-assembly/scripts/adopt.mjs --target $(REFERENCE_LEDGER) --dry-run $(ADOPT_ARGS)
+	@node plugins/design-assembly/scripts/adopt.mjs --target $(REFERENCE_LEDGER) --dry-run $(ADOPT_ARGS) $(done-or-work)
 
 design-screen-actions-reference: ## Join the reference repository's ledger of screens with its domain model, as it is and with what each screen shows. Never writes there
 	@echo "--- as the repository declares it"

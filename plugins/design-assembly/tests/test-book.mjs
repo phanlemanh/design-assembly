@@ -200,7 +200,7 @@ test("the repository's own words replace the labels, and are written as text", (
 test("without a browser the book is still drawn: the states are listed, and it says why there is no picture", () => {
   const dir = guided();
   const drawn = run(BOOK, "--target", dir);
-  assert.equal(drawn.status, 0, drawn.stderr);
+  assert.equal(drawn.status, 1, drawn.stderr);
   assert.match(drawn.stdout, /note: no picture was drawn: the repository has no browser/);
   assert.match(drawn.stdout, /note: muted-foreground on muted reaches/);
   const page = readFileSync(path.join(dir, "coverage/design-book/book.html"), "utf8");
@@ -211,7 +211,7 @@ test("without a browser the book is still drawn: the states are listed, and it s
 
 test("a book says when it no longer matches the repository, and which part", () => {
   const dir = guided();
-  assert.equal(run(BOOK, "--target", dir).status, 0);
+  assert.equal(run(BOOK, "--target", dir).status, 1);
   const book = path.join(dir, "coverage/design-book/book.html");
   const fresh = run(BOOK, "--target", dir, "--check", book);
   assert.equal(fresh.status, 0, fresh.stderr);
@@ -220,9 +220,10 @@ test("a book says when it no longer matches the repository, and which part", () 
   const tokens = path.join(dir, "design/tokens.json");
   writeFileSync(tokens, readFileSync(tokens, "utf8").replace("oklch(0.97 0 0)", "oklch(0.9 0 0)"));
   const stale = run(BOOK, "--target", dir, "--check", book);
+  // Stale is an answer, not a refusal: it is printed where answers are, and the call ends with 1.
   assert.equal(stale.status, 1);
   assert.match(
-    stale.stderr,
+    stale.stdout,
     /no longer says what the repository says \(.*colors.*\): draw it again/,
   );
   assert.equal(run(BOOK, "--target", dir, "--check", path.join(dir, "nope.html")).status, 2);
@@ -471,7 +472,7 @@ test("a repository that keeps its screens elsewhere is told so, not that it lack
   const dir = guided();
   rmSync(path.join(dir, "src/screens.ts"));
   const drawn = run(BOOK, "--target", dir);
-  assert.equal(drawn.status, 0, drawn.stderr);
+  assert.equal(drawn.status, 1, drawn.stderr);
   assert.match(drawn.stdout, /note: no picture was drawn: there is no src\/screens\.ts/);
   const page = readFileSync(path.join(dir, "coverage/design-book/book.html"), "utf8");
   assert.ok(page.includes(WORDS.noPicturesScreens));

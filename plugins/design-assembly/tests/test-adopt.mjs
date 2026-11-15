@@ -129,7 +129,9 @@ test("a value is followed through imports and var() to the framework's theme", (
 test("a preview writes nothing", () => {
   const dir = floor();
   const result = adopt(dir, "--dry-run");
-  assert.equal(result.status, 0, result.stderr);
+  // Adopting ends with 1 while a call only a person can make is open, here and in the tests
+  // below: it did its work, and says an answer is still owed.
+  assert.equal(result.status, 1, result.stderr);
   assert.match(result.stdout, /preview only: nothing was written/);
   assert.throws(() => text(dir, "design/decisions.yaml"));
   assert.throws(() => text(dir, "tools/design-assembly/check.mjs"));
@@ -140,7 +142,7 @@ test("on the floor: rows for the proofs it has, checks around its values, nothin
   const untouched = ["src/index.css", "eslint.config.js", "tests/e2e/floor.spec.ts", "Makefile"];
   const before = untouched.map((file) => text(dir, file));
   const result = adopt(dir, "--conformance-level", "AA");
-  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.status, 1, result.stderr);
   assert.deepEqual(
     untouched.map((file) => text(dir, file)),
     before,
@@ -184,7 +186,7 @@ test("on the floor: rows for the proofs it has, checks around its values, nothin
   assert.doesNotMatch(page, /TypedTable|notify\.ts/);
 
   const again = adopt(dir, "--conformance-level", "AA");
-  assert.equal(again.status, 0, again.stderr);
+  assert.equal(again.status, 1, again.stderr);
   assert.match(again.stdout, /rows to add: 0/);
   assert.doesNotMatch(again.stdout, /^\s+(create|update)\s/m);
 });
@@ -199,7 +201,7 @@ test("each adopted value is held: moving it turns the gate red", () => {
   };
   for (const [id, change] of Object.entries(changes)) {
     const dir = floor();
-    assert.equal(adopt(dir, "--conformance-level", "AA").status, 0);
+    assert.equal(adopt(dir, "--conformance-level", "AA").status, 1);
     assert.equal(check(dir).status, 0, id);
     edit(dir, "src/index.css", change);
     const broken = check(dir);
@@ -211,7 +213,7 @@ test("each adopted value is held: moving it turns the gate red", () => {
 test("without a stated conformance level the ratios are shown and no contrast check is added", () => {
   const dir = floor();
   const result = adopt(dir);
-  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.status, 1, result.stderr);
   assert.match(
     result.stdout,
     /contrast ratios today:\n\s+light \(:root\): --primary on --background \d+\.\d\d:1/,
@@ -227,7 +229,7 @@ test("a repository's own brand colour is held where it can be read, and the rest
   const sheets = ["src/app/globals.css", "src/styles/brand.css", "src/styles/dark.css"];
   const before = sheets.map((file) => text(dir, file));
   const result = adopt(dir, "--conformance-level", "AA", "--record", "source-color");
-  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.status, 1, result.stderr);
   assert.deepEqual(
     sheets.map((file) => text(dir, file)),
     before,
@@ -265,7 +267,7 @@ test("a value that would fail today gets no row: the script does not adopt a bro
     "src/styles/brand.css": BRAND["src/styles/brand.css"].replace("#0246ff", "#9db8ff"),
   });
   const result = adopt(dir, "--conformance-level", "AA");
-  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.status, 1, result.stderr);
   assert.match(
     result.stdout,
     /would fail today, so nothing was added:\n\s+color-contrast: light: /,
@@ -288,7 +290,7 @@ test("a row already in the ledger is left byte for byte, and gets no second proo
     "",
   ].join("\n");
   const dir = floor({ "design/decisions.yaml": mine });
-  assert.equal(adopt(dir).status, 0);
+  assert.equal(adopt(dir).status, 1);
   assert.ok(text(dir, "design/decisions.yaml").startsWith(mine.trimEnd()));
   assert.equal(JSON.parse(text(dir, "design/theme.json")).checks["radius-value"], undefined);
   assert.equal(check(dir).status, 0, check(dir).stderr);
@@ -297,7 +299,7 @@ test("a row already in the ledger is left byte for byte, and gets no second proo
 test("a tagged browser test is claimed; an untagged one is not", () => {
   const spec = `// decision:wcag-aa\n${own("tests/e2e/floor.spec.ts")}`;
   const dir = floor({ "tests/e2e/floor.spec.ts": spec });
-  assert.equal(adopt(dir).status, 0);
+  assert.equal(adopt(dir).status, 1);
   const rows = Object.fromEntries(rowsOf(dir).map((row) => [row.id, row]));
   assert.equal(rows["wcag-aa"].check, "e2e:tests/e2e/floor.spec.ts");
   assert.equal(rows["no-sideways-scroll"], undefined);
@@ -306,7 +308,7 @@ test("a tagged browser test is claimed; an untagged one is not", () => {
 test("without a gate that can run the tool, no value check is added and a person is told", () => {
   const dir = floor({ Makefile: "check:\n\t@echo nothing\n" });
   const result = adopt(dir, "--conformance-level", "AA");
-  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.status, 1, result.stderr);
   assert.match(result.stdout, /checks-in-gate: the Makefile does not include mk\/\*\.mk/);
   const rows = rowsOf(dir);
   assert.ok(rows.every((row) => row.check !== TOOL));
@@ -324,7 +326,7 @@ test("flags that would put words in a person's mouth are refused", () => {
   assert.match(record.stderr, /cannot write a row for product-type/);
   assert.throws(() => text(dir, "design/decisions.yaml"));
 
-  assert.equal(adopt(dir, "--conformance-level", "AA").status, 0);
+  assert.equal(adopt(dir, "--conformance-level", "AA").status, 1);
   const changed = adopt(dir, "--conformance-level", "AAA");
   assert.equal(changed.status, 2);
   assert.match(changed.stderr, /already records conformance level AA/);
@@ -347,7 +349,7 @@ function blueprint() {
 
 test("the guide does not write over adopted values unless a person says to replace them", () => {
   const dir = floor({ "design/blueprint.json": blueprint() });
-  assert.equal(adopt(dir, "--conformance-level", "AA").status, 0);
+  assert.equal(adopt(dir, "--conformance-level", "AA").status, 1);
   const css = text(dir, "src/index.css");
 
   const refused = run(APPLY, "--target", dir);
@@ -356,7 +358,7 @@ test("the guide does not write over adopted values unless a person says to repla
   assert.equal(text(dir, "src/index.css"), css);
 
   const preview = run(APPLY, "--target", dir, "--dry-run");
-  assert.equal(preview.status, 0, preview.stderr);
+  assert.equal(preview.status, 1, preview.stderr);
   assert.match(preview.stdout, /note: .*Writing will be refused/);
   assert.equal(text(dir, "src/index.css"), css);
 
@@ -395,7 +397,7 @@ test("the audit and adopting give one answer about the same repository", () => {
   assert.match(untagged.seen, /a proof the ledger cannot point at yet/);
 
   const result = adopt(dir);
-  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.status, 1, result.stderr);
   const rows = rowsOf(dir);
   const claimed = rows.filter((row) => row.check && row.check !== TOOL).map((row) => row.id);
   // Every proof the audit saw has a row after adopting: claimed, or held by this plugin's own
@@ -445,7 +447,7 @@ test("the product type is written on a person's word, like the conformance level
   const bad = adopt(dir, "--product-type", "game");
   assert.equal(bad.status, 2);
   assert.match(bad.stderr, /product type must be one of application, content-site/);
-  assert.equal(adopt(dir, "--product-type", "application").status, 0);
+  assert.equal(adopt(dir, "--product-type", "application").status, 1);
   const row = rowsOf(dir).find((item) => item.id === "product-type");
   assert.equal(row.kind, "judgment");
   assert.equal(JSON.parse(text(dir, "design/theme.json")).inputs.productType, "application");
@@ -454,7 +456,7 @@ test("the product type is written on a person's word, like the conformance level
 
 test("what cannot be read is said on every run, not only the first", () => {
   const dir = folder(BRAND);
-  assert.equal(adopt(dir, "--conformance-level", "AA").status, 0);
+  assert.equal(adopt(dir, "--conformance-level", "AA").status, 1);
   const again = adopt(dir);
   assert.match(again.stdout, /rows to add: 0/);
   assert.match(again.stdout, /contrast ratios today:/);
@@ -483,7 +485,7 @@ test(
       "src/components/ui/card.tsx": own("src/components/ui/card.tsx"),
     };
     const adopted = floor(withComponents);
-    assert.equal(adopt(adopted, "--conformance-level", "AA").status, 0);
+    assert.equal(adopt(adopted, "--conformance-level", "AA").status, 1);
     const guided = floor({ ...withComponents, "design/blueprint.json": blueprint() });
     assert.equal(run(APPLY, "--target", guided).status, 0);
     for (const dir of [adopted, guided]) {
@@ -530,7 +532,7 @@ test("a row of the repository's own that has no check is named, and pointed only
 
   // Without the person's word: both rows are named, and stay byte for byte as they were.
   const listed = adopt(dir, "--conformance-level", "AA");
-  assert.equal(listed.status, 0, listed.stderr);
+  assert.equal(listed.status, 1, listed.stderr);
   assert.match(
     listed.stdout,
     /rows of yours with no check, that could have one \(pass --hold with their names\):\n(.*\n)*\s+target-size: every control that declares a height is at least 24px/,
@@ -549,7 +551,7 @@ test("a row of the repository's own that has no check is named, and pointed only
 
   // With it: each row gains one line, and nothing else in it moves.
   const held = adopt(dir, "--hold", "target-size,undo-or-confirm");
-  assert.equal(held.status, 0, held.stderr);
+  assert.equal(held.status, 1, held.stderr);
   assert.match(held.stdout, /rows of yours that now point at a check:/);
   assert.match(held.stdout, /^done: 0 row\(s\) added to the ledger, 2 given a check, /m);
   const after = text(dir, "design/decisions.yaml");

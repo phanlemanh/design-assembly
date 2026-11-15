@@ -435,7 +435,7 @@ test("a blueprint written before the record layout could be asked is applied wit
     return JSON.stringify(blueprint);
   });
   const applied = run(APPLY, "--target", dir);
-  assert.equal(applied.status, 0, applied.stderr);
+  assert.equal(applied.status, 1, applied.stderr);
   assert.match(text(dir, "src/components/record-panel.tsx"), /= "in-place";/);
   assert.match(
     rowsOf(dir)["record-panel"].note,
@@ -545,7 +545,7 @@ test("adopting claims the page checks from a browser test that names them, and w
     [PAGES_TEST]: text(PLUGIN, "templates/owned/templates.spec.ts.template"),
   });
   const adopted = run(ADOPT, "--target", dir);
-  assert.equal(adopted.status, 0, adopted.stderr);
+  assert.equal(adopted.status, 1, adopted.stderr);
   const rows = rowsOf(dir);
   for (const id of [
     "one-main-one-h1",

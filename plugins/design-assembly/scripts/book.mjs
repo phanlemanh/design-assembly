@@ -4,14 +4,16 @@
 // Every value on a page is read from the repository, never typed: the design tokens file, the
 // stylesheet, the ledger, the screen registry. The pictures are the repository's own screens. The
 // book is drawn in the system it describes: its colours, its type sizes, its corner radius.
-// Usage: node book.mjs --target DIR [--audience client|builder] [--format html|pdf|png]
-//          [--words FILE] [--out DIR] [--facts]
-//        node book.mjs --target DIR --check BOOK.html
+// Usage: node book.mjs [--target DIR] [--audience client|builder] [--format html|pdf|png]
+//          [--words FILE] [--out DIR] [--dry-run] [--json] [--facts]
+//        node book.mjs [--target DIR] --check BOOK.html
+// Exit: 0 done; 1 the book was written without every picture or in fewer formats than asked, or
+// a checked book is stale; 2 a wrong call, or a repository that cannot be read.
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { argv, exit, stderr, stdout } from "node:process";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { stdout } from "node:process";
+import { pathToFileURL } from "node:url";
 
 import { contrast, parseColor } from "../templates/tools/design-assembly/color.mjs";
 import { REGISTRY as COMPONENTS } from "../templates/tools/design-assembly/components.mjs";
@@ -32,6 +34,7 @@ import {
 } from "../templates/tools/design-assembly/styles.mjs";
 import { buildTheme, THRESHOLDS } from "../templates/tools/design-assembly/theme.mjs";
 import { tokenCss, TOKENS } from "../templates/tools/design-assembly/tokens.mjs";
+import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { inventory } from "./inventory.mjs";
 import { openStage, stageAdapters } from "./stage.mjs";
 
@@ -1220,10 +1223,12 @@ async function drawStates(target, facts) {
   return { images, how, components, partial };
 }
 
-// The same book as a file to print, or as one picture per sheet for slides.
+// The same book as a file to print, or as one picture per sheet for slides. Gives the files it
+// wrote, or the problem that stopped it.
 async function exportBook(target, file, format, out) {
   const stage = await openStage(target);
-  if (stage.problem) return stage.problem;
+  if (stage.problem) return { problem: stage.problem };
+  const files = [];
   try {
     const context = await stage.browser.newContext({
       viewport: { width: 1440, height: 900 },
@@ -1232,8 +1237,9 @@ async function exportBook(target, file, format, out) {
     const page = await context.newPage();
     await page.goto(pathToFileURL(file).href);
     if (format === "pdf") {
+      files.push(path.resolve(target, out, PRINTED));
       await page.pdf({
-        path: path.resolve(target, out, "book.pdf"),
+        path: files[0],
         printBackground: true,
         width: "1440px",
         height: "1018px",
@@ -1241,75 +1247,103 @@ async function exportBook(target, file, format, out) {
     } else {
       const sheets = page.locator(".sheet");
       for (let i = 0; i < (await sheets.count()); i += 1) {
-        await sheets.nth(i).screenshot({
-          path: path.resolve(target, out, `sheet-${String(i).padStart(2, "0")}.png`),
-        });
+        files.push(path.resolve(target, out, `sheet-${String(i).padStart(2, "0")}.png`));
+        await sheets.nth(i).screenshot({ path: files.at(-1) });
       }
     }
   } catch (error) {
-    return `the ${format} could not be written: ${error.message.split("\n")[0]}`;
+    return { problem: `the ${format} could not be written: ${error.message.split("\n")[0]}` };
   } finally {
     await stage.close();
   }
-  return null;
+  return { files };
 }
 
-async function main() {
-  const args = argv.slice(2);
-  const value = (flag) => (args.includes(flag) ? args[args.indexOf(flag) + 1] : undefined);
-  if (!value("--target")) {
-    stderr.write(
-      "usage: node book.mjs --target DIR [--audience client|builder] [--format html|pdf|png] [--words FILE] [--out DIR] [--facts] [--words-template]\n       node book.mjs --target DIR --check BOOK.html\n",
-    );
-    exit(2);
-  }
-  const target = path.resolve(value("--target"));
+const USAGE = `usage: node book.mjs [--target DIR] [--audience client|builder] [--format html|pdf|png] [--words FILE] [--out DIR] [--dry-run] [--json] [--facts] [--words-template]
+       node book.mjs [--target DIR] --check BOOK.html
+`;
+const FLAGS = {
+  "--audience": "value",
+  "--format": "value",
+  "--words": "value",
+  "--out": "value",
+  "--check": "value",
+  "--dry-run": "switch",
+  "--facts": "switch",
+  "--words-template": "switch",
+};
+const PAGE = "book.html";
+const PRINTED = "book.pdf";
+
+// A file of the book as the repository names it; a file outside the repository keeps its full path.
+function named(target, file) {
+  const relative = path.relative(target, file);
+  return relative.startsWith("..") || path.isAbsolute(relative) ? file : relative;
+}
+const changeOf = (target, file) =>
+  fileChange(named(target, file), existsSync(file) ? "update" : "create");
+
+async function main(args) {
+  const call = readCall(args, FLAGS);
+  if (call.problem) return refuse(call.problem, USAGE);
+  if (call.help) return void stdout.write(USAGE);
+  const { target } = call;
+  const value = (flag) => call.flags[flag];
   const facts = collectFacts(target);
-  if (args.includes("--facts")) {
-    stdout.write(`${JSON.stringify(facts, null, 2)}\n`);
-    return;
-  }
-  if (args.includes("--words-template")) {
-    stdout.write(`${JSON.stringify(WORDS, null, 2)}\n`);
-    return;
-  }
+  // The facts alone, and the labels alone: data either way, with nothing drawn or written.
+  if (value("--facts")) return finish({ json: true, result: facts });
+  if (value("--words-template")) return finish({ json: true, result: WORDS });
   const checked = value("--check");
   if (checked) {
     const file = path.resolve(checked);
-    if (!existsSync(file)) {
-      stderr.write(`design-assembly: ${checked} is not there\n`);
-      exit(2);
-    }
+    if (!existsSync(file)) throw new Refusal(`${checked} is not there`);
     const stale = staleParts(readFileSync(file, "utf8"), facts);
-    if (stale.length === 0) {
-      // Only what the book lists is compared: say so, so a match is not read as more than it is.
-      const compared = Object.keys(facts).sort().join(", ");
-      stdout.write(
-        `the book says what the repository says, in what this check compares (${compared}). The words on the screens and the pictures are not compared: a change to them needs the book drawn again\n`,
-      );
-      return;
-    }
-    stderr.write(
-      `design-assembly: the book no longer says what the repository says (${stale.join(", ")}): draw it again\n`,
-    );
-    exit(1);
+    // Only what the book lists is compared: say so, so a match is not read as more than it is.
+    const compared = Object.keys(facts).sort();
+    return finish({
+      json: call.json,
+      result: { compared, stale },
+      text:
+        stale.length === 0
+          ? `the book says what the repository says, in what this check compares (${compared.join(", ")}). The words on the screens and the pictures are not compared: a change to them needs the book drawn again\n`
+          : `the book no longer says what the repository says (${stale.join(", ")}): draw it again\n`,
+      work: stale.length > 0,
+    });
   }
   const audience = value("--audience") ?? "client";
   const format = value("--format") ?? "html";
   if (!["client", "builder"].includes(audience) || !["html", "pdf", "png"].includes(format)) {
-    stderr.write(
-      "design-assembly: --audience is client or builder; --format is html, pdf or png\n",
+    throw new Refusal("--audience is client or builder; --format is html, pdf or png");
+  }
+  const out = value("--out") ?? OUT;
+  const file = path.resolve(target, out, PAGE);
+  const lines = [];
+  const end = (files, work) =>
+    finish({
+      json: call.json,
+      result: { dry_run: value("--dry-run") === true, audience, format, facts, files },
+      text: `${lines.join("\n")}\n`,
+      work,
+    });
+  if (value("--dry-run")) {
+    // No browser is opened for a preview, so the pictures of a png book, one per sheet, cannot be
+    // counted here: the page and the file to print are named, the sheets are not.
+    const files = [file, ...(format === "pdf" ? [path.resolve(target, out, PRINTED)] : [])].map(
+      (item) => changeOf(target, item),
     );
-    exit(2);
+    for (const item of files) lines.push(`${item.change.padEnd(9)} ${item.path}`);
+    if (format === "png")
+      lines.push("and one picture per sheet, counted only when the book is drawn");
+    lines.push("preview only: nothing was written");
+    return end(files, false);
   }
   const wordsFile = value("--words") ?? path.join(target, WORDS_FILE);
   const words = existsSync(wordsFile) ? JSON.parse(readFileSync(wordsFile, "utf8")) : {};
   const drawn = await drawStates(target, facts);
-  if (drawn.problem) stdout.write(`note: no picture was drawn: ${drawn.problem}\n`);
-  if (drawn.partial) stdout.write(`note: ${drawn.partial}\n`);
-  const out = value("--out") ?? OUT;
+  if (drawn.problem) lines.push(`note: no picture was drawn: ${drawn.problem}`);
+  if (drawn.partial) lines.push(`note: ${drawn.partial}`);
+  const files = [changeOf(target, file)];
   mkdirSync(path.resolve(target, out), { recursive: true });
-  const file = path.resolve(target, out, "book.html");
   writeFileSync(
     file,
     renderBook(facts, {
@@ -1319,19 +1353,29 @@ async function main() {
       unable: drawn.problem ? drawn.why : null,
     }),
   );
-  stdout.write(`book: ${file}\n`);
-  stdout.write(
-    `for: ${audience}. ${facts.coverage.answered} of ${facts.coverage.core} core decisions answered; ${facts.unconfirmed.length} recorded and not confirmed; ${facts.open.length} open\n`,
+  lines.push(
+    `book: ${file}`,
+    `for: ${audience}. ${facts.coverage.answered} of ${facts.coverage.core} core decisions answered; ${facts.unconfirmed.length} recorded and not confirmed; ${facts.open.length} open`,
   );
-  for (const line of belowThreshold(facts)) stdout.write(`note: ${line}\n`);
+  for (const line of belowThreshold(facts)) lines.push(`note: ${line}`);
+  let exported = {};
   if (format !== "html") {
-    const problem = await exportBook(target, file, format, out);
-    stdout.write(
-      problem
-        ? `note: ${problem}\n`
-        : `also written as ${format} in ${path.resolve(target, out)}\n`,
+    // What was in the folder before, so a file written over is said to be updated, not created.
+    const before = new Set(readdirSync(path.resolve(target, out)));
+    exported = await exportBook(target, file, format, out);
+    for (const item of exported.files ?? []) {
+      const change = before.has(path.basename(item)) ? "update" : "create";
+      files.push(fileChange(named(target, item), change));
+    }
+    lines.push(
+      exported.problem
+        ? `note: ${exported.problem}`
+        : `also written as ${format} in ${path.resolve(target, out)}`,
     );
   }
+  // A book with no picture, or with some missing, or in fewer formats than asked, is a book all
+  // the same: it is written, and the call says work is left.
+  return end(files, Boolean(drawn.problem || drawn.partial || exported.problem));
 }
 
-if (argv[1] && realpathSync(argv[1]) === realpathSync(fileURLToPath(import.meta.url))) await main();
+await start(import.meta.url, main);

@@ -61,10 +61,19 @@ repository each time.
 ## 4. Draw it
 
 `node ${CLAUDE_PLUGIN_ROOT}/scripts/book.mjs --target <repo> [--audience ...] [--format ...]`.
+Without `--target` it reads the folder it is run from. Add `--dry-run` first to see the files it
+would write, with nothing drawn or written; a `png` book's pictures, one per sheet, are not in
+that list.
 
 It prints where the book is, the three numbers, and a `note:` for every pair of text and ground
 that does not reach the contrast ratio of the conformance level. Where the repository has no
 browser to draw with, the states are listed without pictures and the script says so.
+
+It ends with `0` when the book is whole; with `1` when it was written without every picture, or
+in fewer formats than asked: the book is there, and the `note:` says what is missing; with `2` on
+a wrong call or a repository it cannot read, and then nothing is written. `--json` gives one
+document instead: every fact the book is drawn from under `facts`, and the files written under
+`files`. `--facts` gives the facts alone and draws nothing.
 
 ## 5. Look before you show
 
@@ -114,7 +123,7 @@ is changed, as the repository's own rule says.
   guide says.
 - It is not kept in the repository's history: it is drawn again when needed. A book sent earlier
   is checked with `book.mjs --target <repo> --check <book.html>`: it says which parts no longer
-  match the repository.
+  match the repository, and ends with `1` when any does.
 - Export to `pdf` or `png` only when asked.
 
 ## Marks of a book made carelessly
