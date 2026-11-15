@@ -69,6 +69,7 @@ Nguyên nhân nằm ở bước 3 của lệnh, không ở plugin:
     là «đang lệch» dù cổng của Inventory giữ nó. Lệnh chưa tách được chuyện này khỏi một lần trượt
     thật.
 - **Chưa truy hết:** quyết định máy giữ là 16, lần đo ở bước 3 trên bản sao trước khi nhận là 18.
-  Một trong hai dòng chênh là sổ linh kiện nói trên. Needs confirmation: dòng còn lại chưa được truy.
+  Một trong hai dòng chênh là sổ linh kiện nói trên. Needs confirmation: dòng còn lại chưa được truy;
+  việc truy nằm ở mục để dành của kế hoạch, giai đoạn 1, phải xong trước khi lên đời Inventory.
 - Trong một thư mục làm việc riêng (worktree), đường dẫn mặc định tới repo đối chiếu và kit không
   trỏ đúng chỗ; phải truyền `REFERENCE_LEDGER` và `ACCEPTANCE_KIT`. Không sửa ở lần này.
