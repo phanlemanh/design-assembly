@@ -13,7 +13,22 @@ Stack: React + TypeScript SPA — Vite, npm, ESLint (react-hooks), Prettier, Vit
 - `make test` — run tests
 - `make gen` — regenerate types from `ontology/` (never edit generated files)
 - `make ontology` — check `ontology/` + `wiki/` consistency and generated code
+- `make plan` — where the work stands against the plan of record
 - `make check` — everything CI runs. **Run it before you say a task is done.**
+
+## The plan
+
+- The plan of record is `docs/plan/plan.json`, approved by the owner. Run `make plan` before you start:
+  it prints the open stage, its items and what comes after.
+- Work on an item of the open stage. One commit of every branch ends with `Plan: <item id>`, or with
+  `Plan: off-plan — <why>` when the owner asks for something the plan does not have. `make check`
+  holds this.
+- When the owner asks for off-plan work, say in one line which stage it belongs to and which item it
+  delays, then do as told.
+- A finding that does not block the open stage's "done when" goes to `parked` in the plan file; it is
+  not worked on now.
+- A stage closes only when each "done when" line is shown by a command; write the date and the
+  evidence in the stage's `closed`, and set the item states in the same change as the work.
 
 ## Before you change code
 
@@ -53,7 +68,8 @@ Stack: React + TypeScript SPA — Vite, npm, ESLint (react-hooks), Prettier, Vit
 - `tests/` — tests
 - `ontology/` — domain model (source of truth for business concepts)
 - `wiki/` — decisions, incidents, entity notes
-- `tools/` — wiki-lint and ontology code generator (run through `make`)
+- `docs/plan/` — the plan of record, as data
+- `tools/` — wiki-lint, ontology code generator and the plan tool (run through `make`)
 - `.claude/skills/` — procedures for agents (ontology, wiki, independent review)
 
 ## Language

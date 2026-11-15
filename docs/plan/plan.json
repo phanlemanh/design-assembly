@@ -1,0 +1,311 @@
+{
+  "version": 1,
+  "goal": "Một plugin repo nào cũng cài được, ở giai đoạn nào cũng dùng được, để Claude Code dựng màn mà không phải đoán; làm việc như một studio thiết kế, chạy với kỷ luật của kỹ sư.",
+  "approved": {
+    "by": "Manh Phan",
+    "on": "2026-11-15",
+    "words": "Duyệt và ghi"
+  },
+  "sources": [
+    "wiki/specs/0002-meta-layer-for-many-repositories.md",
+    "wiki/specs/0004-the-command-set.md",
+    "wiki/decisions/0040-the-plan-of-record-and-how-it-is-kept.md"
+  ],
+  "stages": [
+    {
+      "id": 0,
+      "name": "Đặt nền",
+      "state": "current",
+      "parallel": [],
+      "items": [
+        {
+          "id": "0.1",
+          "what": "Sửa lỗi chập chờn của lệnh chạy lại lint",
+          "state": "doing",
+          "ref": "phiên lint-flake"
+        },
+        {
+          "id": "0.2",
+          "what": "Lệnh status",
+          "state": "done",
+          "command": "status",
+          "ref": "phiên dựng lệnh status"
+        },
+        {
+          "id": "0.3",
+          "what": "Giữ kế hoạch bằng máy: tệp kế hoạch, lệnh xem vị trí, phép kiểm trong cổng",
+          "state": "doing",
+          "ref": "nhánh docs/plan-of-record"
+        },
+        {
+          "id": "0.4",
+          "what": "Lệnh đo thang chạy được trên repo đã nhận",
+          "state": "todo"
+        },
+        {
+          "id": "0.5",
+          "what": "Hợp đồng chung cho bốn lệnh đang có: kết quả máy đọc được và mã thoát",
+          "state": "todo"
+        },
+        {
+          "id": "0.6",
+          "what": "Khung tài liệu chung, áp cho status và audit",
+          "state": "todo"
+        },
+        {
+          "id": "0.7",
+          "what": "Lệnh decide; chủ repo trả lời các dòng đang chờ",
+          "state": "todo",
+          "command": "decide"
+        }
+      ],
+      "done_when": [
+        "Cổng kiểm xanh năm lần liền trên máy",
+        "status chạy được trên hai repo",
+        "Lệnh đo thang chạy trọn trên repo đã nhận",
+        "Hàng chờ duyệt không còn dòng chưa có lời đáp"
+      ],
+      "needs_owner": ["Trả lời hàng chờ duyệt, một lần"]
+    },
+    {
+      "id": 1,
+      "name": "Cài được, lên đời được",
+      "state": "next",
+      "parallel": [2],
+      "items": [
+        {
+          "id": "1.1",
+          "what": "Cài plugin qua marketplace vào một repo thử, đi cả các lệnh bằng đường của plugin",
+          "state": "todo"
+        },
+        {
+          "id": "1.2",
+          "what": "Lệnh upgrade và dấu bản công cụ của repo",
+          "state": "todo",
+          "command": "upgrade"
+        },
+        {
+          "id": "1.3",
+          "what": "Số bản của plugin tăng theo mỗi thay đổi đi tới repo",
+          "state": "todo"
+        },
+        {
+          "id": "1.4",
+          "what": "Repo kiểm chứng nhận hai bản sửa còn nợ bằng upgrade",
+          "state": "todo"
+        }
+      ],
+      "done_when": [
+        "Một repo thử đi trọn rà soát, nhận, lên đời mà không gọi lệnh nào của kho này",
+        "Repo kiểm chứng chạy đúng bản công cụ của plugin sau khi lên đời"
+      ],
+      "needs_owner": ["Cho phép lên đời ở repo kiểm chứng"]
+    },
+    {
+      "id": 2,
+      "name": "Đo độ rộng",
+      "state": "next",
+      "parallel": [1],
+      "items": [
+        {
+          "id": "2.1",
+          "what": "Rà soát, chỉ đọc, trên một repo web ngoài họ",
+          "state": "todo"
+        },
+        {
+          "id": "2.2",
+          "what": "Rà soát, chỉ đọc, trên một repo cùng họ khác repo kiểm chứng",
+          "state": "todo"
+        },
+        {
+          "id": "2.3",
+          "what": "Mỗi chỗ plugin sập hay nói sai thành một dòng sổ giới hạn",
+          "state": "todo"
+        }
+      ],
+      "done_when": ["Có số đo của ba mức phục vụ trên ba repo", "Không lần chạy nào sập"],
+      "needs_owner": ["Chỉ định hai repo, và cho phép đọc"]
+    },
+    {
+      "id": 3,
+      "name": "Kho dùng lại",
+      "state": "later",
+      "parallel": [],
+      "items": [
+        {
+          "id": "3.1",
+          "what": "Hình dạng sổ nhập kho và sổ nguồn ngoài; tên ngành vào bảng từ vựng",
+          "state": "todo"
+        },
+        {
+          "id": "3.2",
+          "what": "Lệnh find",
+          "state": "todo",
+          "command": "find"
+        },
+        {
+          "id": "3.3",
+          "what": "Lệnh intake",
+          "state": "todo",
+          "command": "intake"
+        },
+        {
+          "id": "3.4",
+          "what": "Lệnh inventory",
+          "state": "todo",
+          "command": "inventory"
+        },
+        {
+          "id": "3.5",
+          "what": "Lệnh change",
+          "state": "todo",
+          "command": "change"
+        }
+      ],
+      "done_when": [
+        "Một khối mới vào ứng dụng mẫu qua lệnh; lần hai cùng nhu cầu không gọi người",
+        "Kiểm kê báo đủ sáu loại phát hiện trên repo thử, và không báo gì trên repo lành"
+      ],
+      "needs_owner": ["Cho phép áp vào một repo thật"]
+    },
+    {
+      "id": 4,
+      "name": "Dẫn dắt kiểu studio",
+      "state": "later",
+      "parallel": [],
+      "items": [
+        {
+          "id": "4.1",
+          "what": "Nguyên tắc thiết kế và lý lẽ đi kèm mọi khuyến nghị",
+          "state": "todo"
+        },
+        {
+          "id": "4.2",
+          "what": "Hướng đi trọn vẹn trong new",
+          "state": "todo",
+          "command": "new"
+        },
+        {
+          "id": "4.3",
+          "what": "Nền dựng thứ hai, để vẽ được ngoài nền dựng đầu",
+          "state": "todo"
+        },
+        {
+          "id": "4.4",
+          "what": "Nguồn linh kiện thứ hai",
+          "state": "todo"
+        },
+        {
+          "id": "4.5",
+          "what": "Ví dụ nên và không nên trong cuốn hướng dẫn",
+          "state": "todo",
+          "command": "handoff"
+        }
+      ],
+      "done_when": [
+        "new trình ít nhất hai hướng trên màn thật, sáng và tối",
+        "Cuốn hướng dẫn vẽ được trên một repo dùng nền dựng thứ hai"
+      ],
+      "needs_owner": ["Xem từng mẫu tài liệu một lần"]
+    },
+    {
+      "id": 5,
+      "name": "Dựng màn không phải đoán",
+      "state": "later",
+      "parallel": [],
+      "items": [
+        {
+          "id": "5.1",
+          "what": "Lệnh brief",
+          "state": "todo",
+          "command": "brief"
+        },
+        {
+          "id": "5.2",
+          "what": "Lệnh review",
+          "state": "todo",
+          "command": "review"
+        },
+        {
+          "id": "5.3",
+          "what": "Bài kiểm trình duyệt theo vai",
+          "state": "todo"
+        },
+        {
+          "id": "5.4",
+          "what": "Một lượt thử độc lập đo số chỗ tác tử phải đoán",
+          "state": "todo"
+        }
+      ],
+      "done_when": [
+        "Một tác tử độc lập dựng một màn chỉ từ brief; số chỗ phải đoán không tăng so với lượt thử gần nhất"
+      ],
+      "needs_owner": ["Cho chạy lượt thử độc lập"]
+    },
+    {
+      "id": 6,
+      "name": "Hai kho bên cạnh gọi và đọc",
+      "state": "later",
+      "parallel": [],
+      "items": [
+        {
+          "id": "6.1",
+          "what": "Repo Standards gọi plugin sau khi đặt nền, và ở repo đã có",
+          "state": "todo"
+        },
+        {
+          "id": "6.2",
+          "what": "Kit nghiệm thu đọc sổ màn và bảng trạng thái thay cho khai lại",
+          "state": "todo"
+        }
+      ],
+      "done_when": ["Một repo mới ra đời qua Repo Standards có đủ bộ sổ mà không ai gọi tay"],
+      "needs_owner": ["Duyệt kiến trúc", "Cho phép sửa ở từng kho"]
+    },
+    {
+      "id": 7,
+      "name": "Lõi của họ sản phẩm",
+      "state": "later",
+      "parallel": [],
+      "items": [
+        {
+          "id": "7.1",
+          "what": "Hồ sơ quyết định dùng chung",
+          "state": "todo"
+        },
+        {
+          "id": "7.2",
+          "what": "Registry khối đã nâng hạng, và đề xuất nâng hạng ở nhịp định kỳ",
+          "state": "todo"
+        },
+        {
+          "id": "7.3",
+          "what": "Một repo thứ hai cùng họ thừa hưởng lõi",
+          "state": "todo"
+        }
+      ],
+      "done_when": ["Repo thứ hai không bị hỏi lại câu đã trả lời, và dùng lại ít nhất một khối"],
+      "needs_owner": ["Tạo repo cho lõi"]
+    }
+  ],
+  "parked": [
+    {
+      "on": "2026-11-15",
+      "what": "Mười bảy giới hạn mức nặng đang mở",
+      "stage": 5,
+      "why_not_now": "Chỉ sửa khi một repo thật đụng tới"
+    },
+    {
+      "on": "2026-11-15",
+      "what": "Tài liệu kiến trúc còn vẽ năm chặng cũ",
+      "stage": 6,
+      "why_not_now": "Chờ chủ repo duyệt kiến trúc"
+    },
+    {
+      "on": "2026-11-15",
+      "what": "Bốn tiêu chí của đề bài 0002 nêu tên một repo",
+      "stage": 0,
+      "why_not_now": "Là một câu của hàng chờ, trả lời qua decide"
+    }
+  ]
+}

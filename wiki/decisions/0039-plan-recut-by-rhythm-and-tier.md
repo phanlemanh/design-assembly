@@ -18,7 +18,8 @@ sources:
 
 ## Status
 
-Proposed. Máy viết ngày 2026-11-15 theo lời chủ repo cùng ngày; chủ repo chưa duyệt. Thay cách cắt
+Superseded by 0040 ngày 2026-11-15: chủ repo duyệt bản gộp tám giai đoạn, có gắn lệnh của đề bài 0004
+([0040](0040-the-plan-of-record-and-how-it-is-kept.md)). Máy viết bản này cùng ngày theo lời chủ repo. Thay cách cắt
 chặng của [0032](0032-review-after-stage-two-and-stage-three-recut.md) cho phần việc còn lại; các lát
 đã làm theo 0032 giữ nguyên.
 
