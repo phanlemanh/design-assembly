@@ -16,6 +16,10 @@ scale, shape). Density, elevation, motion and iconography are not.
   (`references/standard-decisions.json`) it says whether it is held, claimed, recorded, not held,
   bypassed or without a row, then the deliverable tier reached (`references/tiers.json`) and what
   the next tier misses.
+- `/design-assembly:status` reads any repository without changing it and answers in one screen:
+  the tier reached, one line per rhythm of the repository's life, every answer that waits on the
+  owner with a recommendation and what it rests on, whether the repository's copy of the tool is
+  the installed plugin's, and the command to run next. `--json` gives the same to another plugin.
 - `/design-assembly:adopt` takes in what a repository already has: a ledger row for each proof it
   already runs (`references/known-proofs.json`), and a check around each value its stylesheet holds
   today. It changes no value, no lint rule, no test and no existing row.

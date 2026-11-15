@@ -21,7 +21,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 ## Specs
 
 - [0003 Sổ màn nói màn hiện gì, chào nút nào cho vai nào; phép kiểm nối sổ màn với mô hình nghiệp vụ](specs/0003-screens-join-the-domain-model.md) — chủ kho duyệt, đã dựng (0035); số đo trên Inventory ở mục Test plan
-- [0004 Bộ lệnh của design-assembly, theo việc người dùng cần xong](specs/0004-the-command-set.md) — đã duyệt 2026-11-15, chưa dựng
+- [0004 Bộ lệnh của design-assembly, theo việc người dùng cần xong](specs/0004-the-command-set.md) — đã duyệt 2026-11-15; lệnh đầu, `status`, đã dựng (0040), mười hai lệnh còn lại chưa
 - [0002 Design-assembly là lớp meta tạo và giữ design system cho nhiều kho](specs/0002-meta-layer-for-many-repositories.md) — bản nháp, chờ chủ kho duyệt: tầm nhìn, tiêu chí, kế hoạch; kiến trúc đầy đủ kèm sơ đồ ở `docs/architecture/meta-layer.html`
 - [0001 Plugin dẫn người dùng dựng design system cho Claude Code](specs/0001-design-system-for-claude-code.md) — đề bài đã duyệt; lát đầu đã dựng, kết quả theo từng tiêu chí ở cuối mục tiêu chí
 
@@ -49,6 +49,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 - [0037 Sổ màn nói màn hiện gì, chào nút nào; cổng nối sổ màn với mô hình nghiệp vụ](decisions/0037-screens-join-the-domain-model.md) — phép kiểm ở `plugins/design-assembly/templates/tools/design-assembly/screen-actions.mjs`, đo lại bằng `make design-screen-actions-reference`
 - [0038 Linh kiện được ghi «dựng từ» cả linh kiện mà tệp của nó chuyển tiếp](decisions/0038-a-component-is-drawn-with-what-its-file-hands-on.md) — thay một ý của 0036
 - [0039 Kế hoạch xếp lại theo nhịp của vòng đời và mức phục vụ, không theo repo](decisions/0039-plan-recut-by-rhythm-and-tier.md) — đề xuất, chờ duyệt
+- [0040 Lệnh `status`: việc chờ chủ repo đọc từ dòng sổ, công cụ so bằng nội dung](decisions/0040-status-reads-ledger-rows-and-compares-the-tool-by-content.md) — lệnh ở `plugins/design-assembly/scripts/status.mjs`; năm lựa chọn của máy, chờ chủ repo bác
 - [0024 Khoá phạm vi: sổ giới hạn, ba ngăn, và bộ đề thử cố định](decisions/0024-scope-locked-limits-and-trial-briefs.md) — sổ ở `plugins/design-assembly/references/limits.json`, bộ đề ở `docs/trials/`
 - [0023 Chín lời đáp cho các câu còn mở của kiến trúc lớp meta](decisions/0023-nine-answers-for-the-meta-layer.md) — chủ kho duyệt cả chín; bảng đầy đủ ở mục «Chín câu đã chốt» của `docs/architecture/meta-layer.html`
 - [0022 Mở một hồ sơ cạnh danh sách: câu lõi cuối, chọn bằng mắt](decisions/0022-record-beside-a-list.md) — linh kiện ở `src/components/record-panel.tsx`, bảng mẫu ở `plugins/design-assembly/scripts/specimen.mjs --section record`

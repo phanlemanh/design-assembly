@@ -486,3 +486,21 @@ Two counts exist, and they answer different questions:
   over all rows, core or not. It says how much of the ledger is automatic, not how much was run.
 
 Visual regression and design lint for components are not in this version.
+
+## What status reads
+
+`scripts/status.mjs` writes nothing. It reads what the audit reads, and two things of its own.
+
+- **A row nobody confirmed.** A row of the ledger whose `note` says `a person has not confirmed it`
+  (or `has not reviewed`) is a proposal: the guide proposed the answer, or it was read off the
+  repository. Status lists it as waiting on the owner, with the call only a person can make that
+  has no row at all. The ledger has no key yet for who confirmed a row and when; until it has, the
+  wording of the note is the only sign.
+- **The tool stamp.** `design/tool-stamp.json`, when the repository has one: `version`, the
+  version of the plugin the repository's copy of the tool came from, and `tree`, the hash git
+  gives the folder `tools/design-assembly/` as a tree. No command of this version writes it, and it
+  is not a ledger of the contract yet. Without it status still compares the two folders, by the
+  same hash computed from the files, and says `no stamp`.
+
+Status ends with `0` when nothing waits, `1` when something waits on a person or the tool differs,
+and `2` on a wrong call or a repository it cannot read.

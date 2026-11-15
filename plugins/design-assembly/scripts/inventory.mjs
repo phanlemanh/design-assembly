@@ -48,6 +48,15 @@ const VENDOR = /(^|\/)components\/(ui|reui)\//;
 // A decision is answered when the ledger has a row for it that is held, claimed or recorded.
 // What the audit can see without a row is said beside the decision, and is not an answer.
 const ANSWERED = ["held", "claimed", "recorded"];
+// A row whose note says this is an answer nobody has made theirs yet: the guide proposed it, or it
+// was read off the repository. The audit names such rows, and the status lists them as waiting.
+export const UNCONFIRMED = /has not (confirmed|reviewed)/;
+// The calls only a person can make, each with the flag that states the answer when adopting.
+export const PERSON_CALLS = {
+  "product-type": "--product-type TYPE",
+  "conformance-level": "--conformance-level LEVEL",
+  "source-color": "--record source-color",
+};
 
 function walk(root, dir, keep) {
   const full = path.join(root, dir);
@@ -207,9 +216,7 @@ function nextStep(facts, decisions) {
     return "nothing to read: the guide and adopting both need a stylesheet that declares color roles";
   }
   const proofs = decisions.filter((d) => d.seen?.startsWith("a proof the repository already runs"));
-  const calls = decisions.filter(
-    (d) => ["product-type", "conformance-level", "source-color"].includes(d.id) && !d.in_ledger,
-  );
+  const calls = decisions.filter((d) => Object.keys(PERSON_CALLS).includes(d.id) && !d.in_ledger);
   const unheld = decisions.filter((d) => d.state === "not-held");
   const untagged = decisions.filter((d) =>
     d.seen?.startsWith("a proof the ledger cannot point at"),
@@ -410,6 +417,16 @@ export function inventory(root) {
       ids: beyond.filter((d) => ANSWERED.includes(d.state)).map((d) => d.id),
     },
     next: nextStep(facts, facts.decisions),
+    // Where the values of the stylesheet come from: the guide generated them, the repository
+    // brought a primary color role of its own, it still has a grey default, or no stylesheet is read.
+    values:
+      styles === null
+        ? "none"
+        : facts.generated
+          ? "generated"
+          : facts.primary?.own
+            ? "own"
+            : "default",
     ledger:
       rows.length === 0
         ? null
@@ -497,7 +514,7 @@ export function report(result, { all = false } = {}) {
   for (const decision of brokenBeyond) lines.push(...line(decision));
   // A person's call that nobody has confirmed is not an answer yet: named in every report.
   const open = result.decisions.filter(
-    (d) => d.state === "recorded" && /has not (confirmed|reviewed)/.test(d.note ?? ""),
+    (d) => d.state === "recorded" && UNCONFIRMED.test(d.note ?? ""),
   );
   if (open.length > 0) {
     lines.push(
