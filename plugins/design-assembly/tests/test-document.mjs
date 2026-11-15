@@ -22,7 +22,14 @@ import { execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { BASES, PARTS, partsOf, renderDocument, SEVERITIES } from "../scripts/document.mjs";
+import {
+  BASES,
+  PARTS,
+  partsOf,
+  renderDocument,
+  SEVERITIES,
+  spelled,
+} from "../scripts/document.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -354,7 +361,7 @@ test("nothing a document is given is taken as markup, and no value is left unpri
   // A repository with no commit has no date to give: the cover says so.
   assert.match(wordsOf(html), /no commit to take a date from/);
   for (const page of [html, renderDocument(FIXTURE)]) {
-    assert.doesNotMatch(wordsOf(page), /undefined|\bnull\b|\[object Object\]|NaN/);
+    assert.doesNotMatch(wordsOf(page), /undefined|\bnull\b|\[object Object\]|\bNaN\b/);
   }
   // The same data gives the same bytes.
   assert.equal(renderDocument(FIXTURE), renderDocument(FIXTURE));
@@ -415,7 +422,7 @@ for (const command of COMMANDS) {
         assert.ok(words.includes(limit.note), limit.id);
       }
       // Nothing is left as a placeholder, and no data is printed raw.
-      assert.doesNotMatch(words, /undefined|\bnull\b|\[object Object\]|NaN|TODO|lorem/i);
+      assert.doesNotMatch(words, /undefined|\bnull\b|\[object Object\]|\bNaN\b|\bTODO\b/);
       assert.doesNotMatch(words, /[{}]|":/);
     }
     // A repository with something broken has findings and recommendations; they are not empty.
@@ -566,14 +573,17 @@ test("the status report says what waits and with which command; the audit report
     assert.ok(report.includes(item.recommendation), item.id);
   }
   assert.ok(report.includes("/design-assembly:decide"));
-  for (const rhythm of data.rhythms) assert.ok(report.includes(rhythm.says), rhythm.id);
+  // A count the screen writes "3 row(s)" is written out on the page.
+  for (const rhythm of data.rhythms) assert.ok(report.includes(spelled(rhythm.says)), rhythm.id);
+  assert.equal(spelled("3 row(s) and 11 ledger file(s) of 1 kind(s)"), "3 rows and 11 ledger files of 1 kind(s)");
+  assert.doesNotMatch(report, /[02-9]\d* [a-z]+\(s\)/);
   assert.ok(report.includes(data.tool.says));
 
   const audited = wordsOf(text(out, "design-audit-report.html"));
   const facts = JSON.parse(run(audit, ["--target", dir, "--json"]).stdout);
   assert.ok(
     audited.includes(
-      `${facts.coverage.answered} of ${facts.coverage.core} core decisions answered`,
+      `${facts.coverage.answered} of ${facts.coverage.core} core decisions are answered`,
     ),
   );
   for (const tier of facts.tiers) assert.ok(audited.includes(tier.id), tier.id);

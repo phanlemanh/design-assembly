@@ -18,7 +18,7 @@ import { existsSync, mkdirSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 import { changeOf, Refusal } from "./command.mjs";
-import { escape, familyStyles, originOf, readLook } from "./family.mjs";
+import { escape as asText, familyStyles, originOf, readLook } from "./family.mjs";
 import { printPdf } from "./stage.mjs";
 
 export const PARTS = ["cover", "decision", "findings", "recommendations", "next", "blind"];
@@ -87,6 +87,15 @@ export const WORDS = {
 // "1 answer waits", "3 answers wait": a count with the word that fits it.
 export const plural = (count, one, many) => `${count} ${count === 1 ? one : many}`;
 
+// A count the screen of a command writes as "3 row(s)" is written out on a page: "3 rows". A
+// count of one is left as the command wrote it, since the words after it were written for many.
+export const spelled = (text) =>
+  String(text).replace(/\b(\d+) ((?:[a-z]+ )?[a-z]+)\(s\)/g, (whole, count, word) =>
+    count === "1" ? whole : `${count} ${word}s`,
+  );
+// Every word the frame prints goes through here: written out, and never taken as markup.
+const escape = (text) => asText(spelled(text));
+
 const written = (value) => typeof value === "string" && value.trim() !== "";
 const list = (value) => (Array.isArray(value) ? value : []);
 
@@ -139,7 +148,7 @@ export function documentProblems(doc) {
 
 const code = (text) => `<code>${escape(text)}</code>`;
 const emptyLine = (text) => `<p class="note empty">${escape(text)}</p>`;
-const mark = (severity) => `<i class="mark ${severity}"></i>`;
+const mark = (severity) => `<i class="mark mark-${severity}"></i>`;
 
 // One part of the frame after the cover: numbered, with the eyebrow and heading every document
 // gives it. `empty` marks a part that has nothing to show, for a reader and for a check.
@@ -301,11 +310,11 @@ function recommendations(doc, w, emptyOf) {
     .map(
       (item) => `<li class="recommendation">
       <div>
-        ${written(item.about) ? `<p class="label">${escape(item.about)}</p>` : ""}
         <h4>${escape(item.what)}</h4>
+        ${written(item.about) ? `<p class="about">${escape(item.about)}</p>` : ""}
       </div>
       <dl>
-        <div class="rests-on"><dt>${escape(w.restsOn)}</dt><dd><b>${escape(BASES[item.basis.kind])}.</b> ${escape(item.basis.text)}</dd></div>
+        <div class="rests-on"><dt>${escape(w.restsOn)}</dt><dd><b>${escape(BASES[item.basis.kind])}:</b> ${escape(item.basis.text)}</dd></div>
         <div class="to-do"><dt>${escape(w.toDo)}</dt><dd>${escape(item.action)}${written(item.command) ? ` <span class="with">${code(item.command)}</span>` : ""}</dd></div>
       </dl>
     </li>`,
@@ -368,6 +377,7 @@ const after = (doc, id) =>
 const STYLES = `
   .document { max-width: 1080px; }
   .document .sheet { break-inside: auto; }
+  .sheet-head { break-inside: avoid; }
   .document .sheet.cover { padding-bottom: 48px; }
   .document h1 { overflow-wrap: anywhere; }
   .document h2 { max-width: 30ch; }
@@ -403,9 +413,9 @@ const STYLES = `
   .tally b { font-variant-numeric: tabular-nums; }
   .tally span { margin-left: 8px; color: var(--muted); font-size: var(--xs); }
   .mark { display: inline-block; width: 10px; height: 10px; margin-right: 8px; border-radius: 2px; background: var(--fg); }
-  .mark.medium { background: repeating-linear-gradient(135deg, var(--fg) 0 2px, transparent 2px 5px); outline: 1px solid var(--fg); outline-offset: -1px; }
-  .mark.low { background: transparent; outline: 1px solid var(--fg); outline-offset: -1px; }
-  .mark.note { background: transparent; outline: 1px dashed var(--muted); outline-offset: -1px; }
+  .mark-medium { background: repeating-linear-gradient(135deg, var(--fg) 0 2px, transparent 2px 5px); outline: 1px solid var(--fg); outline-offset: -1px; }
+  .mark-low { background: transparent; outline: 1px solid var(--fg); outline-offset: -1px; }
+  .mark-note { background: transparent; outline: 1px dashed var(--muted); outline-offset: -1px; }
   .finding { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 24px; padding: 20px 0; border-top: 1px solid var(--line); break-inside: avoid; }
   .severity { margin: 2px 0 0; font-size: var(--xs); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
   .finding p { margin: 6px 0 0; max-width: 72ch; }
@@ -423,7 +433,7 @@ const STYLES = `
   .recommendations { counter-reset: recommendation; margin-top: 40px; }
   .recommendation { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 16px 48px; padding: 20px 0; border-top: 1px solid var(--line); counter-increment: recommendation; break-inside: avoid; }
   .recommendation h4::before { content: counter(recommendation) ". "; color: var(--accent); font-variant-numeric: tabular-nums; }
-  .recommendation .label { margin-top: 0; }
+  .about { margin: 6px 0 0; color: var(--muted); }
   .recommendation dl { margin: 0; }
   .recommendation dl > div { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 12px; }
   .recommendation dl > div + div { margin-top: 10px; }
@@ -452,7 +462,7 @@ const STYLES = `
     .figures { gap: 20px 32px; margin-top: 32px; }
     .finding, .recommendation { grid-template-columns: minmax(0, 1fr); gap: 8px; }
     .recommendation dl > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
-    table { min-width: 560px; }
+    table { min-width: 640px; }
   }
   @page { size: A4; margin: 16mm 14mm; }
   @media print {

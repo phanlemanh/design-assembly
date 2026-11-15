@@ -228,7 +228,7 @@ test("a decision that source goes around is the audit's to list: it is next, and
   const result = status(dir);
   assert.deepEqual(result.waiting, []);
   assert.equal(result.next[0].command, "/design-assembly:audit");
-  assert.match(result.next[0].why, /^1 decision\(s\) failing or bypassed/);
+  assert.match(result.next[0].why, /^1 decision is failing or bypassed \(type-scale\)/);
   // Nothing waits on a person, and something is left to fix: the call ends with 1.
   assert.equal(cli("--target", dir).status, 1);
 });
@@ -375,7 +375,7 @@ test("a person gets one screen: the tier, a line per rhythm, what waits with its
     assert.ok(printed.includes(`answer with: ${item.answer}`), item.id);
   }
   assert.ok(printed.includes(`tool: ${result.tool.says}`));
-  assert.match(printed, /^next: \/design-assembly:decide, 3 answer\(s\) wait on the owner/m);
+  assert.match(printed, /^next: \/design-assembly:decide, 3 answers wait on the owner/m);
   assert.ok(printed.split("\n").length <= 40, "more than one screen");
 
   const quiet = report(status(applied("user")));
@@ -481,12 +481,12 @@ test("a question of the waiting list that nobody answered waits on the owner, an
   assert.match(second.recommendation, /^none given/);
   assert.match(second.basis, /gives no ground/);
   assert.deepEqual(result.next, [
-    { command: "/design-assembly:decide", why: "2 answer(s) wait on the owner (Q1, Q2)" },
+    { command: "/design-assembly:decide", why: "2 answers wait on the owner (Q1, Q2)" },
   ]);
   const printed = report(result);
   assert.match(printed, /^waiting on the owner: 2 \(0 in the ledgers, 2 in the waiting list\)$/m);
   assert.match(printed, /^ {5}answer with: \/design-assembly:decide$/m);
-  assert.match(printed, /^next: \/design-assembly:decide, 2 answer\(s\) wait on the owner/m);
+  assert.match(printed, /^next: \/design-assembly:decide, 2 answers wait on the owner/m);
   // The command says the same, and ends with 1 because something waits.
   const called = cli("--target", dir, "--json");
   assert.equal(called.status, 1);
@@ -513,7 +513,7 @@ test("rows of the ledger nobody confirmed and rows of the waiting list are count
     result.next.map((step) => step.command),
     ["/design-assembly:decide"],
   );
-  assert.match(result.next[0].why, /^5 answer\(s\) wait on the owner/);
+  assert.match(result.next[0].why, /^5 answers wait on the owner/);
   assert.match(
     report(result),
     /^waiting on the owner: 5 \(3 in the ledgers, 2 in the waiting list\)$/m,

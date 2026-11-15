@@ -20,7 +20,7 @@ import { readLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs"
 import { finish, readCall, refuse, start } from "./command.mjs";
 import { sheet, WAITING_LIST } from "./decide.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
-import { inventory, PERSON_CALLS, UNCONFIRMED } from "./inventory.mjs";
+import { AUDIT, DECIDE, inventory, PERSON_CALLS, UNCONFIRMED } from "./inventory.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const json = (file) => JSON.parse(readFileSync(path.join(PLUGIN, file), "utf8"));
@@ -39,11 +39,6 @@ export const STAMP = "design/tool-stamp.json";
 // How many waiting answers a person is shown in full. The rest are named, and --json has them all.
 const SHOWN = 5;
 const MEASURED = "a measurement on this repository: ";
-// The command that lists the places where a check fails or source goes around a decision.
-const AUDIT = "/design-assembly:audit";
-// The command that takes a person's answers: to a row of the ledger nobody confirmed, and to a
-// question of the waiting list.
-const DECIDE = "/design-assembly:decide";
 
 const hashOf = (type, body) =>
   createHash("sha1").update(`${type} ${body.length}\0`).update(body).digest();
@@ -280,7 +275,7 @@ function nextOf(audit, waiting, broken) {
   if (broken.length > 0) {
     next.push({
       command: AUDIT,
-      why: `${broken.length} decision(s) failing or bypassed (${broken
+      why: `${plural(broken.length, "decision is", "decisions are")} failing or bypassed (${broken
         .slice(0, SHOWN)
         .map((decision) => decision.id)
         .join(", ")}${broken.length > SHOWN ? ", ..." : ""}): the audit lists the places`,
@@ -291,7 +286,7 @@ function nextOf(audit, waiting, broken) {
     const mine = waiting.filter((item) => item.answer.split(" ")[0] === command);
     next.push({
       command,
-      why: `${mine.length} answer(s) wait on the owner (${mine
+      why: `${plural(mine.length, "answer waits", "answers wait")} on the owner (${mine
         .slice(0, SHOWN)
         .map((item) => item.id)
         .join(", ")}${mine.length > SHOWN ? ", ..." : ""})`,
@@ -505,6 +500,11 @@ export function documentOf(result, origin) {
         return `answered with ${command}: ${mine.map((item) => item.id).join(", ")}`;
       }),
     },
+    !tool.differs && {
+      severity: "note",
+      title: "The repository's copy of the tool",
+      evidence: [tool.says],
+    },
     claimedTier && {
       severity: "low",
       title: `The tier ${tier.id} rests on checks nothing here ran again`,
@@ -535,7 +535,7 @@ export function documentOf(result, origin) {
         "Nothing to run: no command of this version brings the installed tool into a repository (limit adopt-does-not-refresh-tool). Do not copy its files by hand unless you mean to.",
     },
     ...shown.map((item) => ({
-      about: `${item.id} · ${item.question}`,
+      about: `${item.id}: ${item.question}`,
       what: item.recommendation,
       basis: basisOf(item.basis),
       action: "Give your answer; the recommendation is not one.",
@@ -583,10 +583,6 @@ export function documentOf(result, origin) {
         unshown.length > 0
           ? `${plural(unshown.length, "more question has", "more questions have")} a recommendation of their own, on the decision sheet (${DECIDE}) and with --json: ${unshown.join(", ")}.`
           : null,
-    },
-    empty: {
-      findings:
-        "Nothing is failing, nothing waits on the owner, and the tool is the installed plugin's.",
     },
   };
 }
