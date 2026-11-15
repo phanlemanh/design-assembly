@@ -38,7 +38,8 @@ bàn giao của hai lệnh (`--out`) và mười một lệnh còn lại thì ch
 ai xác nhận và một hàng chờ giữ dạng dữ liệu; ba nguồn còn lại ở dòng «Đọc» của nó thuộc lệnh chưa
 dựng, câu thẩm mỹ chưa kèm bảng mẫu, và tên người đáp ghi trong ghi chú của dòng sổ thay cho khoá
 riêng (0043 nêu lý do). Hợp đồng chung, phần kết quả máy đọc được và mã thoát, đã áp cho năm lệnh có
-từ trước `decide` ([0044](../decisions/0044-one-contract-for-the-commands-that-exist.md)); hai chỗ
+từ trước `decide` ([0044](../decisions/0044-one-contract-for-the-commands-that-exist.md)), và cùng
+ngày cho cả `decide`; hai chỗ
 còn lệch đề bài nằm ở sổ giới hạn: `new` chưa trả nguyên tắc và hướng đi, `handoff` kết thúc 1 chứ
 không phải 2 khi không vẽ được. Đề bài này chốt lệnh nào tồn tại, nó nhận gì và trả gì.
 

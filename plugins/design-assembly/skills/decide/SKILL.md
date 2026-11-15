@@ -129,7 +129,9 @@ command.
 | `answered`    | `id`, `source`, `answer` (`keep`, `refuse`, `value`), `said`, `by`, `on`                              |
 | `elsewhere`   | Calls with no row: `id`, `source`, `question`, `recommendation`, `basis`, `answer_with`               |
 | `permissions` | `id`, `source`, `group`, `what`                                                                       |
-| `recorded`    | Only with `--answers`: `by`, `on`, `dry_run`, and `files` (`file`, `state`, `changes`)                |
+| `dry_run`     | Whether the call was a preview that wrote nothing                                                     |
+| `files`       | The files written, or that would be: `path`, `change` (`create`, `update`). Empty without answers     |
+| `recorded`    | Only with `--answers`: `by`, `on`, and `changes`, what changed in each file, by its path              |
 
 `source` is `ledger` or `waiting-list`. `hard_to_undo` is `true`, `false`, or `null` when the row
 does not say. `basis` is `null` when the waiting list gives none. With `--answers` the four lists

@@ -161,8 +161,16 @@ test("with no answers the sheet lists every question, ends with 1, and leaves th
 test("the machine gets the keys the specification lists: each question with its recommendation, its basis, and whether it is hard to undo", () => {
   const dir = repo();
   const result = JSON.parse(cli("--target", dir, "--json").stdout);
-  assert.deepEqual(Object.keys(result), ["questions", "answered", "elsewhere", "permissions"]);
-  assert.deepEqual(result, sheet(dir));
+  // The four lists of the sheet, between the two keys every command that writes gives.
+  assert.deepEqual(Object.keys(result), [
+    "dry_run",
+    "questions",
+    "answered",
+    "elsewhere",
+    "permissions",
+    "files",
+  ]);
+  assert.deepEqual(result, { dry_run: false, ...sheet(dir), files: [] });
   for (const item of result.questions) {
     assert.deepEqual(Object.keys(item), [
       "id",
@@ -225,6 +233,9 @@ test("a question that is hard to undo is marked, and one that is not is not", ()
   assert.match(printed, /^ {2}Q1 \[hard to undo\]: /m);
   assert.match(printed, /^ {2}checks-in-gate: /m);
   assert.match(printed, /^ {2}Q2: /m);
+  // What refusing costs is printed under every question that says it, and under no other.
+  assert.ok(printed.includes("      if refused: Build the frame again\n"));
+  assert.equal(printed.match(/^ {6}if refused: /gm).length, 1);
   // The sheet does not let silence read as "easy to undo".
   assert.match(printed, /^hard to undo: 4 marked; 1 row\(s\) of the waiting list do not say$/m);
 });
@@ -548,17 +559,12 @@ test("a malformed answers file, an unknown id or an answer the sheet cannot take
     cli("--target", dir, ...WHO, "--answers", answersFile(["Q2 giữ"]), "--dry-run", "--json")
       .stdout,
   );
+  assert.equal(told.dry_run, true);
+  assert.deepEqual(told.files, [{ path: WAITING_LIST, change: "update" }]);
   assert.deepEqual(told.recorded, {
     by: "Test Person",
     on: "2026-11-15",
-    dry_run: true,
-    files: [
-      {
-        file: WAITING_LIST,
-        state: "update",
-        changes: ["Q2: confirmed by Test Person on 2026-11-15"],
-      },
-    ],
+    changes: { [WAITING_LIST]: ["Q2: confirmed by Test Person on 2026-11-15"] },
   });
   assert.ok(told.answered.some((item) => item.id === "Q2"));
   assert.deepEqual(snapshot(dir), before);
@@ -765,6 +771,8 @@ test("the skill of the command exists, calls the script, and forbids answering f
 // list became data.
 const PAGE_COMMIT = "100eb310cebad864d83cfc59c67f6a03ab8f76b9";
 const PAGE = "docs/review-queue.md";
+// The rows of B and C whose recommendation was written again on 2026-11-15.
+const REFRESHED = ["B1", "B5", "C1", "C3", "C6"];
 // The rows of every table of the page, in order: the section heading, then the cells of the row.
 function pageRows(page) {
   const rows = [];
@@ -817,22 +825,56 @@ test("no row of the page was lost when the list became data: every cell is in th
   assert.equal(page.length, 27);
   const rows = data(ROOT, WAITING_LIST).rows;
   assert.equal(rows.length, page.length);
-  // Which fields hold the cells of a row, by the section of the page the row was in.
+  // Which fields hold the cells of a row, by the section of the page the row was in. The page's
+  // recommendation is the third cell of a row of B or C; it is checked apart, below.
   const fields = {
     A: ["id", "question", "where", "if_refused"],
-    B: ["id", "question", "recommendation"],
-    C: ["id", "question", "recommendation"],
+    B: ["id", "question"],
+    C: ["id", "question"],
     D: ["id", "question"],
   };
+  const rewritten = [];
   page.forEach(({ heading, cells }, index) => {
     const row = rows[index];
     const section = cells[0][0];
     assert.deepEqual(
       fields[section].map((field) => row[field]),
-      cells,
+      cells.slice(0, fields[section].length),
       cells[0],
     );
     assert.equal(row.group, heading, cells[0]);
     assert.equal(row.kind ?? "question", section === "D" ? "permission" : "question", cells[0]);
+    if ("BC".includes(section) && row.recommendation !== cells[2]) rewritten.push(row.id);
   });
+  // A recommendation overtaken by what happened since the page was written is written again, and
+  // the row's basis says what changed. Every other recommendation is the page's, word for word.
+  assert.deepEqual(rewritten, REFRESHED);
+});
+
+test("every question of this repository's waiting list is ready to be decided: a basis, what refusing costs, and whether it is hard to undo", () => {
+  const result = sheet(ROOT);
+  const rows = data(ROOT, WAITING_LIST).rows.filter((row) => row.kind !== "permission");
+  assert.equal(rows.length, 25);
+  for (const row of rows) {
+    assert.ok(String(row.basis ?? "").trim().length > 40, `${row.id}: no basis`);
+    assert.equal(typeof row.hard_to_undo, "boolean", `${row.id}: hard to undo is not said`);
+    assert.ok(String(row.if_refused ?? "").trim() !== "", `${row.id}: no cost of refusing`);
+    // The basis says why the row is, or is not, hard to undo.
+    assert.match(row.basis, row.hard_to_undo ? /Khó đảo: / : /Dễ đảo[^:]*: /, row.id);
+  }
+  // The sheet shows all of it: the mark on each row that has it, counted in the header, and what
+  // refusing costs under every question.
+  const printed = report(result);
+  const marked = result.questions.filter((item) => item.hard_to_undo === true);
+  for (const item of result.questions) {
+    const mark = item.hard_to_undo ? " [hard to undo]" : "";
+    assert.ok(printed.includes(`  ${item.id}${mark}: ${item.question}\n`), item.id);
+    assert.ok(printed.includes(`      because: ${item.basis}\n`), item.id);
+    assert.ok(printed.includes(`      if refused: ${item.if_refused}\n`), item.id);
+  }
+  assert.equal((printed.match(/ \[hard to undo\]: /g) ?? []).length, marked.length);
+  if (result.questions.length > 0) {
+    assert.match(printed, new RegExp(`^hard to undo: ${marked.length} marked$`, "m"));
+  }
+  assert.doesNotMatch(printed, /do not say|gives no basis/);
 });

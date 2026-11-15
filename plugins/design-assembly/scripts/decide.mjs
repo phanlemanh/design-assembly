@@ -6,17 +6,19 @@
 // Usage: node decide.mjs [--target DIR] [--only ID[,ID]] [--answers FILE [--by NAME] [--on DATE]]
 //                        [--dry-run] [--json]
 // Exit: 0 no question waits; 1 questions wait on the owner; 2 a wrong call, answers that cannot be
-// taken, or a repository that cannot be read. On 2 nothing is written.
+// taken, or a repository that cannot be read. On 2 nothing is written. The call is read and ended
+// by the common contract of every command (command.mjs).
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
-import process, { argv, cwd, stderr, stdout } from "node:process";
+import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { LEDGERS, newerLedgers } from "../templates/tools/design-assembly/contract.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { LEDGER, readLedger } from "../templates/tools/design-assembly/ledger.mjs";
-import { writeFiles } from "./apply.mjs";
+import { writeFiles, writtenFiles } from "./apply.mjs";
+import { finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { UNCONFIRMED } from "./inventory.mjs";
 import { status } from "./status.mjs";
 
@@ -571,113 +573,100 @@ const USAGE = `usage: node decide.mjs [--target DIR] [--only ID[,ID]] [--answers
   --on       The day they answered, as YYYY-MM-DD. Without it, today.
   --dry-run  With --answers: say which files would be written and what would change in each,
              and write nothing.
-  --json     The sheet as data: questions, answered, elsewhere, permissions.
+  --json     The sheet as data: questions, answered, elsewhere, permissions, and the files written.
 `;
 
-function main() {
-  const args = argv.slice(2);
-  const options = { target: null, only: null, answers: null, by: null, on: null };
-  const flags = {
-    "--target": "target",
-    "--only": "only",
-    "--answers": "answers",
-    "--by": "by",
-    "--on": "on",
-  };
-  let asJson = false;
-  let dryRun = false;
-  const wrong = (message) => {
-    stderr.write(message);
-    process.exitCode = 2;
-  };
-  for (let index = 0; index < args.length; index += 1) {
-    const arg = args[index];
-    if (arg === "--json") asJson = true;
-    else if (arg === "--dry-run") dryRun = true;
-    else if (arg in flags && args[index + 1] !== undefined && !args[index + 1].startsWith("--")) {
-      options[flags[arg]] = args[(index += 1)];
-    } else return wrong(USAGE);
-  }
-  if (options.answers === null && (options.by !== null || options.on !== null)) {
-    return wrong(
-      "design-assembly: --by and --on say who answered and when; they go with --answers\n",
+const FLAGS = {
+  "--only": "value",
+  "--answers": "value",
+  "--by": "value",
+  "--on": "value",
+  "--dry-run": "switch",
+};
+
+// The answers of the file the call names, put where each question lives, or a refusal that says
+// why none of them was written.
+function recordCall(root, state, call, only) {
+  const refused = (why) => new Refusal(`${why}. Nothing was written`);
+  const named = call.flags["--answers"];
+  const file = path.resolve(named);
+  if (!existsSync(file) || !statSync(file).isFile()) throw refused(`${named} is not a file`);
+  const on = call.flags["--on"] ?? today();
+  if (!isDay(on)) throw refused(`--on takes a day written YYYY-MM-DD, and ${on} is not one`);
+  const by = (call.flags["--by"] ?? nameFromGit(root) ?? "").trim();
+  if (by === "") {
+    throw refused(
+      "nobody is named as the person who answered: say who with --by NAME (git has no name for this repository)",
     );
   }
-  const root = path.resolve(options.target ?? cwd());
-  if (!existsSync(root) || !statSync(root).isDirectory()) {
-    return wrong(`design-assembly: ${root} is not a folder\n`);
+  if (/["\\]/.test(by)) throw refused("a name cannot hold a double quote or a backslash");
+  // A ledger a newer plugin wrote is never written over by this one.
+  const newer = newerLedgers(root);
+  if (newer.length > 0) throw refused(newer.join("; "));
+  try {
+    const answers = parseAnswers(readFileSync(file, "utf8"));
+    if (answers.length === 0) throw new Error(`${named} holds no answer`);
+    return { by, on, ...record(root, state, answers, { by, on, only }) };
+  } catch (error) {
+    throw refused(error.message);
   }
+}
+
+function main(args) {
+  const call = readCall(args, FLAGS);
+  if (call.problem) return refuse(call.problem, USAGE);
+  if (call.help) return void stdout.write(USAGE);
+  const answering = call.flags["--answers"] !== undefined;
+  if (!answering && (call.flags["--by"] !== undefined || call.flags["--on"] !== undefined)) {
+    return refuse("--by and --on say who answered and when; they go with --answers", USAGE);
+  }
+  const root = call.target;
+  const dryRun = call.flags["--dry-run"] === true;
   const only =
-    options.only === null
+    call.flags["--only"] === undefined
       ? null
-      : options.only
+      : call.flags["--only"]
           .split(",")
           .map((id) => id.trim())
           .filter(Boolean);
 
-  let state;
+  // Anything this throws is a repository that cannot be read.
+  const state = readState(root);
+  // Before anything is written: an id --only names that the sheet does not have is a wrong call.
+  let now;
   try {
-    state = readState(root);
+    now = narrow(sheetOf(state), only);
   } catch (error) {
-    return wrong(`design-assembly: this repository cannot be read: ${error.message}\n`);
+    throw new Refusal(error.message);
   }
-
-  let result;
-  let head = "";
-  try {
-    // Before anything is written: an id --only names that the sheet does not have is a wrong call.
-    const now = narrow(sheetOf(state), only);
-    if (options.answers === null) {
-      result = now;
-      if (dryRun) head = "preview only: no answers, so nothing to write\n\n";
-    } else {
-      const refuse = (why) => {
-        throw new Error(`${why}. Nothing was written`);
-      };
-      const file = path.resolve(options.answers);
-      if (!existsSync(file) || !statSync(file).isFile()) refuse(`${options.answers} is not a file`);
-      const on = options.on ?? today();
-      if (!isDay(on)) refuse(`--on takes a day written YYYY-MM-DD, and ${on} is not one`);
-      const by = (options.by ?? nameFromGit(root) ?? "").trim();
-      if (by === "") {
-        refuse(
-          "nobody is named as the person who answered: say who with --by NAME (git has no name for this repository)",
-        );
-      }
-      if (/["\\]/.test(by)) refuse("a name cannot hold a double quote or a backslash");
-      // A ledger a newer plugin wrote is never written over by this one.
-      const newer = newerLedgers(root);
-      if (newer.length > 0) refuse(newer.join("; "));
-      let recorded;
-      try {
-        const answers = parseAnswers(readFileSync(file, "utf8"));
-        if (answers.length === 0) refuse(`${options.answers} holds no answer`);
-        recorded = record(root, state, answers, { by, on, only });
-      } catch (error) {
-        if (error.message.endsWith("Nothing was written")) throw error;
-        refuse(error.message);
-      }
-      const written = writeFiles(root, recorded.files, dryRun);
-      head = recordReport(recorded, written, { by, on, dryRun });
-      // To a machine: the sheet as it is once the answers are written, then what was written.
-      result = {
-        ...narrow(recorded.after, only),
-        recorded: {
-          by,
-          on,
-          dry_run: dryRun,
-          files: written.map((line) => {
-            const [what, name] = line.split(/\s+/);
-            return { file: name, state: what, changes: recorded.changes[name] ?? [] };
-          }),
-        },
-      };
-    }
-  } catch (error) {
-    return wrong(`design-assembly: ${error.message}\n`);
+  if (!answering) {
+    return finish({
+      json: call.json,
+      result: { dry_run: dryRun, ...now, files: [] },
+      text: `${dryRun ? "preview only: no answers, so nothing to write\n\n" : ""}${report(now)}`,
+      work: leavesWork(now),
+    });
   }
-  stdout.write(asJson ? `${JSON.stringify(result, null, 2)}\n` : `${head}${report(result)}`);
-  process.exitCode = result.questions.length + result.elsewhere.length > 0 ? 1 : 0;
+  const recorded = recordCall(root, state, call, only);
+  const written = writeFiles(root, recorded.files, dryRun);
+  const after = narrow(recorded.after, only);
+  // To a machine: the sheet as it is once the answers are written, the files as a list, and what
+  // changes in each; never their content.
+  return finish({
+    json: call.json,
+    result: {
+      dry_run: dryRun,
+      ...after,
+      files: writtenFiles(written),
+      recorded: { by: recorded.by, on: recorded.on, changes: recorded.changes },
+    },
+    text: `${recordReport(recorded, written, { by: recorded.by, on: recorded.on, dryRun })}${report(after)}`,
+    work: leavesWork(after),
+  });
 }
 
-if (argv[1] && realpathSync(argv[1]) === realpathSync(fileURLToPath(import.meta.url))) main();
+// Something waits on the owner that an answer would settle: a question of the sheet, or a call
+// another command records. A permission never counts.
+const leavesWork = (result) => result.questions.length + result.elsewhere.length > 0;
+
+await start(import.meta.url, main);
