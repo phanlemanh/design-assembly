@@ -21,6 +21,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 ## Specs
 
 - [0003 Sổ màn nói màn hiện gì, chào nút nào cho vai nào; phép kiểm nối sổ màn với mô hình nghiệp vụ](specs/0003-screens-join-the-domain-model.md) — chủ kho duyệt, đã dựng (0035); số đo trên Inventory ở mục Test plan
+- [0004 Bộ lệnh của design-assembly, theo việc người dùng cần xong](specs/0004-the-command-set.md) — đã duyệt 2026-11-15, chưa dựng
 - [0002 Design-assembly là lớp meta tạo và giữ design system cho nhiều kho](specs/0002-meta-layer-for-many-repositories.md) — bản nháp, chờ chủ kho duyệt: tầm nhìn, tiêu chí, kế hoạch; kiến trúc đầy đủ kèm sơ đồ ở `docs/architecture/meta-layer.html`
 - [0001 Plugin dẫn người dùng dựng design system cho Claude Code](specs/0001-design-system-for-claude-code.md) — đề bài đã duyệt; lát đầu đã dựng, kết quả theo từng tiêu chí ở cuối mục tiêu chí
 
