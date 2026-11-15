@@ -489,13 +489,19 @@ Visual regression and design lint for components are not in this version.
 
 ## What status reads
 
-`scripts/status.mjs` writes nothing. It reads what the audit reads, and two things of its own.
+`scripts/status.mjs` writes nothing in the repository. It reads what the audit reads, and three
+things of its own.
 
 - **A row nobody confirmed.** A row of the ledger whose `note` says `a person has not confirmed it`
   (or `has not reviewed`) is a proposal: the guide proposed the answer, or it was read off the
   repository. Status lists it as waiting on the owner, with the call only a person can make that
   has no row at all. The ledger has no key yet for who confirmed a row and when; until it has, the
   wording of the note is the only sign.
+- **The waiting list.** `design/waiting-list.json`, when the repository has one. Status lists
+  every question of it that nobody answered; a permission and an answered row do not wait. Which
+  row waits is the rule of the decision sheet, asked of `scripts/decide.mjs` and not written a
+  second time. `/design-assembly:decide` takes the answer to such a question and to a row nobody
+  confirmed; each entry of `waiting` says where it waits in `source`, `ledger` or `waiting-list`.
 - **The tool stamp.** `design/tool-stamp.json`, when the repository has one: `version`, the
   version of the plugin the repository's copy of the tool came from, and `tree`, the hash git
   gives the folder `tools/design-assembly/` as a tree. No command of this version writes it, and it
@@ -513,7 +519,8 @@ written once in `scripts/command.mjs` and held by `tests/test-command-contract.m
 - `--target DIR` names the repository. Without it the command reads the folder it is run from.
 - `--json` prints one JSON document and nothing else. A key the specification lists that a command
   cannot give yet is left out, and a row of `references/limits.json` says so.
-- `status` and `audit` only read: the tree is the same afterwards, byte for byte. `new`, `decide`,
+- `status` and `audit` only read: the tree is the same afterwards, byte for byte. With `--out DIR`
+  they also write one document into that folder, and nowhere else (see the next section). `new`, `decide`,
   `adopt` and `handoff` take `--dry-run`, which lists the files the real run writes and writes nothing.
 - A flag the command does not have is a wrong call, not something to pass over.
 
@@ -529,6 +536,7 @@ What makes each command end with `1`:
 | --------- | -------------------------------------------------------------------------------------------------- |
 | `status`  | An answer waits on a person, the tool differs, or a decision is failing or bypassed                |
 | `audit`   | A decision is not held, failing or bypassed                                                        |
+| either    | With `--out`: the document was written in fewer formats than asked                                 |
 | `new`     | A built layer is not decided yet, or the preview shows a write that would be refused               |
 | `decide`  | A question waits on the owner, or a call only a person can make that another command records       |
 | `adopt`   | `needs a person` lists a question                                                                  |
@@ -536,6 +544,42 @@ What makes each command end with `1`:
 
 The `make` targets of this repository that call those commands end well on `0` and on `1`; only `2`
 fails them. `make design-status` and `make design-decide` pass the `1` on.
+
+## The document a command hands over
+
+Every command has one document to hand over, and every document is set on one frame, written once
+in `scripts/document.mjs` and held by `tests/test-document.mjs`. Two commands hand theirs over
+today.
+
+| Command  | Document            | File                       |
+| -------- | ------------------- | -------------------------- |
+| `status` | Status report       | `status-report.html`       |
+| `audit`  | Design audit report | `design-audit-report.html` |
+
+- `--out DIR` writes the document into that folder, and nothing anywhere else. Without `--out` no
+  file is written. A relative folder is read from where the command is run, never against the
+  target. `--json` then has `files`: each file written, with `path` and `change`.
+- The frame has six parts, always in this order, none ever dropped: the cover (the document's
+  name, the repository, the date, the plugin's version, the scope examined); one page for the
+  person who decides (the conclusion, the three things most worth attention, what they must
+  decide); the findings by severity, each with its evidence; the recommendations, each with what
+  it rests on and what to do; the next steps in order, each with the command to run; and what the
+  document does not see, which lists the open rows of `references/limits.json` in its scope. A
+  part with nothing to show says so in one line.
+- A recommendation rests on a design principle the owner fixed, a standard, or a measurement on
+  the repository. The frame refuses to draw a recommendation that names none of the three, a
+  finding with no evidence, or more than three things on the page for the person.
+- A document is made from the facts of `--json` and from nothing else. It reads no clock: the date
+  on the cover is the day of the repository's last commit, and the revision beside it carries a
+  mark when work was not yet committed. The same repository gives the same page, byte for byte.
+- The page is drawn in the repository's own look, read from its design tokens file by
+  `scripts/family.mjs`, which the handoff book uses too; a repository without one gets plain
+  values.
+- `--format pdf` also prints the page to a pdf, with the browser in the target repository's own
+  packages, through the one function that prints a page (`printPdf` in `scripts/stage.mjs`), which
+  the handoff book uses too. Where the repository has no browser the page is still written,
+  `not_written` says why, and the call ends with `1`. Two pdf files of one page are not the same
+  bytes: the browser writes the moment of printing into the file.
 
 ## What decide reads and writes
 

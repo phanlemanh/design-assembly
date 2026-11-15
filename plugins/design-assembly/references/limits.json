@@ -6,6 +6,7 @@
     "audit": "The read-only report on how far a repository has got.",
     "status": "The read-only report on what waits on the owner and what to run next.",
     "decide": "The sheet of every question that waits on the owner, and the answers written back.",
+    "document": "The document a command hands over, set on the frame every document shares.",
     "checks": "The gate tool and the browser test it installs.",
     "rules": "The page a screen-building agent reads before it starts.",
     "specimen": "The sheet that draws the options on the repository's own screen.",
@@ -2062,8 +2063,10 @@
       "plan": "fix",
       "opened": "2026-11-15",
       "where": ["d0041"],
-      "status": "open",
-      "note": "Status lists only what waits in the ledgers, so a question that waits on the owner somewhere else, such as a review list in prose, a pull request or a conversation, is not counted and the report can say nothing waits while much does."
+      "status": "closed",
+      "note": "Status lists only what waits in the ledgers, so a question that waits on the owner somewhere else, such as a review list in prose, a pull request or a conversation, is not counted and the report can say nothing waits while much does.",
+      "closed": "2026-11-15",
+      "closed_by": "status counts the questions of the waiting list nobody answered, by the rule of the decision sheet, held by three status tests; what waits outside the ledgers and the waiting list is the open row status-blind-outside-ledgers-and-waiting-list"
     },
     {
       "id": "status-confirmation-read-from-note",
@@ -2321,6 +2324,127 @@
       "where": ["d0043"],
       "status": "open",
       "note": "Decide draws no specimen for a question of taste and builds no document to hand over, so a visual question is answered from words and the sheet exists only on the screen and as data."
+    },
+    {
+      "id": "status-blind-outside-ledgers-and-waiting-list",
+      "area": "status",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0041", "d0046"],
+      "status": "open",
+      "note": "Status counts what waits in the ledgers and in the waiting list, so a question that waits somewhere else, such as a pull request, a conversation or a page of prose, is not counted and the report can say nothing waits while something does."
+    },
+    {
+      "id": "status-does-not-count-permissions",
+      "area": "status",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-15",
+      "where": ["d0046"],
+      "status": "open",
+      "note": "Status counts the questions of the waiting list and not the permissions it lists, which only the owner gives step by step, so the count can be nought while the owner still has something to allow."
+    },
+    {
+      "id": "document-findings-without-pictures",
+      "area": "document",
+      "kind": "conflict",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0046", "spec"],
+      "status": "open",
+      "note": "A finding of a document carries its evidence in words only, while the specification asks for a picture wherever one can be drawn, so a reader cannot see the place a finding speaks of."
+    },
+    {
+      "id": "audit-document-without-accessibility-chapter",
+      "area": "document",
+      "kind": "conflict",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0046", "spec"],
+      "status": "open",
+      "note": "The design audit report has no chapter on accessibility conformance and cannot be printed for that chapter alone, which the specification asks for, because no list says which standard decisions are about accessibility."
+    },
+    {
+      "id": "document-pdf-needs-the-repository-browser",
+      "area": "document",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0046"],
+      "status": "open",
+      "note": "A document becomes a pdf only through a browser found in the packages of the target repository, so a repository without one gets the page alone and the call ends with work left."
+    },
+    {
+      "id": "document-pdf-differs-between-two-runs",
+      "area": "document",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-15",
+      "where": ["d0046", "spec"],
+      "status": "open",
+      "note": "Two pdf files printed from the same page differ in their bytes, because the browser writes the moment of printing into the file, so only the page is the same byte for byte."
+    },
+    {
+      "id": "document-words-in-english-only",
+      "area": "document",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0046"],
+      "status": "open",
+      "note": "A document prints the labels of the frame and the words of its command in English only, and the words file a repository keeps for the handoff book does not reach it."
+    },
+    {
+      "id": "document-dated-by-the-last-commit",
+      "area": "document",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-15",
+      "where": ["d0046"],
+      "status": "open",
+      "note": "A document is dated by the last commit of the repository and not by the day it was made, so one made from work not yet committed carries an earlier date and only a mark beside its revision says so."
+    },
+    {
+      "id": "document-rests-on-no-principle-yet",
+      "area": "document",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0046", "spec"],
+      "status": "open",
+      "note": "No recommendation of a document rests on a design principle yet, because no command records the principles an owner fixed, so every reason given is a measurement or a standard."
+    },
+    {
+      "id": "status-report-writes-out-five-questions",
+      "area": "document",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-15",
+      "where": ["d0046"],
+      "status": "open",
+      "note": "The status report writes out the first five questions that wait and names the rest, as the screen does, so the recommendation for the others is only on the decision sheet and in the data."
+    },
+    {
+      "id": "document-beauty-unjudged",
+      "area": "document",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-15",
+      "where": ["d0046", "spec"],
+      "status": "open",
+      "note": "Whether a document looks good and reads well only a person can judge, and the owner has looked at neither the status report nor the design audit report."
     }
   ]
 }

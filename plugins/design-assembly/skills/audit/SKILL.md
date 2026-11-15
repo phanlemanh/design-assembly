@@ -5,8 +5,9 @@ description: Audit a repository's design system without changing it — measure 
 
 # Audit the design system of a repository
 
-Read-only. It changes nothing, and it does not need the design floor. Run it first on any
-repository, before the guide and before adopting.
+Read-only. It changes nothing in the repository, and it does not need the design floor. Run it
+first on any repository, before the guide and before adopting. Only when asked for a document
+does it write a file, and only into the folder named.
 
 Scripts are in `${CLAUDE_PLUGIN_ROOT}/scripts/` (if the variable is not expanded, use the `scripts/`
 folder two levels above this file).
@@ -102,5 +103,34 @@ Before that line:
 - If the ledger uses older layer names, say that they are read as they are and can be renamed
   whenever convenient.
 - Say what the audit does not measure: whether the screens look good or serve their users.
+
+## 6. The design audit report, a document to hand over
+
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/inventory.mjs --target <repo> --out <folder>` writes
+`design-audit-report.html` into that folder: the same audit on the frame every document of this
+plugin shares. Without `--out` no file is written. A relative folder is read from where the
+command is run, never against the repository. With `--json`, `files` lists what was written.
+
+- The six parts, always in this order: the cover (the document's name, the repository, the date,
+  the plugin's version, the scope examined), one page for the person who decides (the conclusion,
+  the three things most worth attention, what they must decide), the findings by severity with
+  their evidence, the recommendations with what each rests on and what to do, the next steps with
+  the command to run, and what the document does not see. A part with nothing to show says so in
+  one line.
+- Severity: `high` is a decision that is `FAILING` or `BYPASSED`; `medium` is a row with no check,
+  a proposal nobody confirmed, a ledger off the contract's shape, or a lint exception with no
+  reason; `low` is a tier resting on a claim, and what the next tier lacks; `note` is for the
+  record.
+- Under the findings, a table of every tier with the core decisions still open in it; with
+  `--all`, every core decision.
+- The date on the cover is the day of the repository's last commit, never today's: the same
+  repository gives the same page, byte for byte.
+- `--format pdf` also prints `design-audit-report.pdf` from the page, with the browser in the
+  repository's own packages. Where there is none, the page is still written, the call ends with
+  `1`, and the screen says why.
+- The report has no chapter on accessibility yet, and no picture beside a finding: its last part
+  says so. Do not present it as a conformance report.
+- Give the person the path the screen prints after `document:`. Do not rewrite the document's
+  findings in your own words, and do not add a recommendation it does not make.
 
 Use the terms in `references/vocabulary.json`.

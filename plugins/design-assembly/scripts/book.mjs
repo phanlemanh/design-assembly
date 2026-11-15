@@ -9,7 +9,6 @@
 //        node book.mjs [--target DIR] --check BOOK.html
 // Exit: 0 done; 1 the book was written without every picture or in fewer formats than asked, or
 // a checked book is stale; 2 a wrong call, or a repository that cannot be read.
-import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { stdout } from "node:process";
@@ -34,9 +33,19 @@ import {
 } from "../templates/tools/design-assembly/styles.mjs";
 import { buildTheme, THRESHOLDS } from "../templates/tools/design-assembly/theme.mjs";
 import { tokenCss, TOKENS } from "../templates/tools/design-assembly/tokens.mjs";
-import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
+import {
+  changeOf,
+  fileChange,
+  finish,
+  nameIn,
+  readCall,
+  Refusal,
+  refuse,
+  start,
+} from "./command.mjs";
+import { escape, familyStyles, originOf } from "./family.mjs";
 import { inventory } from "./inventory.mjs";
-import { openStage, stageAdapters } from "./stage.mjs";
+import { openStage, printPdf, stageAdapters } from "./stage.mjs";
 
 export const OUT = "coverage/design-book";
 // A repository's own words for the book, in the language its documents are written in.
@@ -161,12 +170,6 @@ export const WORDS = {
   noPicturesStopped: "No picture could be drawn here: the drawing stopped before it finished.",
 };
 
-const escape = (text) =>
-  String(text).replace(
-    /[&<>"]/g,
-    (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
-  );
-
 function ratio(text, ground) {
   const a = parseColor(String(text ?? ""));
   const b = parseColor(String(ground ?? ""));
@@ -267,17 +270,11 @@ export function collectFacts(target) {
     reference: kind.reference,
     body: bodyOf(kind.file),
   }));
-  const revision = spawnSync("git", ["-C", target, "rev-parse", "--short", "HEAD"], {
-    encoding: "utf8",
-  });
-  const dirty =
-    spawnSync("git", ["-C", target, "status", "--porcelain"], {
-      encoding: "utf8",
-    }).stdout?.trim() !== "";
+  // A plus after the revision says the repository had changes not yet committed when it was read.
+  const origin = originOf(target);
   return {
-    name: json("package.json")?.name ?? path.basename(target),
-    // A plus says the repository had changes not yet committed when it was read.
-    revision: revision.status === 0 ? `${revision.stdout.trim()}${dirty ? "+" : ""}` : null,
+    name: origin.name,
+    revision: origin.revision,
     level,
     threshold: min,
     stylesheet,
@@ -975,10 +972,13 @@ export function renderBook(
   // `unable` is why nothing was drawn, when nothing was: the sheets then say that reason.
   w.noPictures =
     { screens: w.noPicturesScreens, stopped: w.noPicturesStopped }[unable] ?? w.noPictures;
-  const color = (name, mode = "light") =>
-    facts.colors.find((item) => item.name === name)?.[mode] ?? null;
-  const radius = facts.radius.find((step) => step.step === "lg")?.size ?? "0.5rem";
-  const size = (step, fallback) => facts.type.find((item) => item.step === step)?.size ?? fallback;
+  // The look the whole family of pages is set in, from the facts this book already holds.
+  const look = {
+    colors: Object.fromEntries(facts.colors.map((item) => [item.name, item.light])),
+    radius: Object.fromEntries(facts.radius.map((step) => [step.step, step.size])),
+    sizes: Object.fromEntries(facts.type.map((step) => [step.step, step.size])),
+    font: facts.font,
+  };
   // The facts never hold a picture: they are what a later check compares against the repository.
   const manifest = JSON.stringify(facts).replaceAll("<", "\\u003c");
   return `<!doctype html>
@@ -988,38 +988,7 @@ export function renderBook(
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>${escape(w.title)} · ${escape(facts.name)}</title>
 <style>
-  :root {
-    --bg: ${color("background") ?? "#fff"}; --fg: ${color("foreground") ?? "#111"};
-    --muted: ${color("muted-foreground") ?? "#666"}; --surface: ${color("muted") ?? "#f4f4f5"};
-    --line: ${color("border") ?? "#e4e4e7"}; --accent: ${color("primary") ?? "#111"};
-    --on-accent: ${color("primary-foreground") ?? "#fff"}; --radius: ${radius};
-    --xs: ${size("xs", "0.75rem")}; --sm: ${size("sm", "0.875rem")}; --base: ${size("base", "1rem")};
-    --lg: ${size("lg", "1.125rem")}; --xl: ${size("xl", "1.25rem")}; --h2: ${size("3xl", "1.875rem")};
-    --h1: ${size("5xl", "3rem")};
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--fg); font: var(--sm)/1.55 ${facts.font ?? "system-ui, sans-serif"}; -webkit-font-smoothing: antialiased; }
-  .book { max-width: 1240px; margin: 0 auto; padding: 0 56px 96px; }
-  .sheet { padding: 72px 0 56px; border-top: 1px solid var(--line); break-inside: avoid-page; }
-  .sheet.cover { border-top: 0; padding-top: 96px; }
-  .eyebrow { margin: 0 0 12px; font-size: var(--xs); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-  .eyebrow span { color: var(--accent); margin-right: 12px; font-variant-numeric: tabular-nums; }
-  h1 { margin: 0; font-size: var(--h1); line-height: 1.05; letter-spacing: -0.02em; font-weight: 650; }
-  h2 { margin: 0; font-size: var(--h2); line-height: 1.15; letter-spacing: -0.01em; font-weight: 620; max-width: 24ch; }
-  h3 { margin: 40px 0 12px; font-size: var(--xs); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
-  h4 { margin: 20px 0 8px; font-size: var(--xs); letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; }
-  .lede { margin: 16px 0 0; max-width: 62ch; font-size: var(--lg); line-height: 1.5; color: var(--muted); }
-  .muted { color: var(--muted); margin: 8px 0 0; }
-  code, .mono { font: 0.92em ui-monospace, SFMono-Regular, Menlo, monospace; }
-  .plain { margin: 0; padding: 0; list-style: none; }
-  .plain li { padding: 10px 0; border-top: 1px solid var(--line); max-width: 62ch; }
-  .two, .cover-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 72px; }
-  .cover-grid { margin-top: 56px; }
-  .two { margin-top: 48px; }
-  .cover-grid h3:first-child, .two h3:first-child { margin-top: 0; }
-  .big { margin: 0; display: flex; align-items: baseline; gap: 12px; line-height: 1; }
-  .big b { font-size: 112px; font-weight: 650; letter-spacing: -0.04em; }
-  .big span { font-size: var(--h2); color: var(--muted); }
+${familyStyles(look)}
   .bar { display: flex; gap: 3px; height: 14px; margin: 28px 0 20px; }
   .seg, .key { background: var(--accent); border-radius: 2px; }
   .seg.claimed, .key.claimed { background: color-mix(in oklab, var(--accent) 45%, var(--bg)); }
@@ -1030,7 +999,6 @@ export function renderBook(
   .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
   .stat b { display: block; font-size: var(--h2); font-weight: 620; line-height: 1.1; }
   .stat span { display: block; padding-left: 18px; text-indent: -18px; color: var(--muted); font-size: var(--xs); }
-  .note { margin: 20px 0 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: var(--radius); }
   .tiers { margin: 0; padding: 0; list-style: none; counter-reset: tier; }
   .tiers li { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); counter-increment: tier; }
   .tiers li span::before { content: counter(tier); display: inline-block; width: 24px; color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -1226,6 +1194,12 @@ async function drawStates(target, facts) {
 // The same book as a file to print, or as one picture per sheet for slides. Gives the files it
 // wrote, or the problem that stopped it.
 async function exportBook(target, file, format, out) {
+  if (format === "pdf") {
+    // A wide sheet, one after another: the book is laid out for a screen.
+    const printed = path.resolve(target, out, PRINTED);
+    const done = await printPdf(target, file, printed, { width: "1440px", height: "1018px" });
+    return done.problem ? { problem: done.problem } : { files: [printed] };
+  }
   const stage = await openStage(target);
   if (stage.problem) return { problem: stage.problem };
   const files = [];
@@ -1236,20 +1210,10 @@ async function exportBook(target, file, format, out) {
     });
     const page = await context.newPage();
     await page.goto(pathToFileURL(file).href);
-    if (format === "pdf") {
-      files.push(path.resolve(target, out, PRINTED));
-      await page.pdf({
-        path: files[0],
-        printBackground: true,
-        width: "1440px",
-        height: "1018px",
-      });
-    } else {
-      const sheets = page.locator(".sheet");
-      for (let i = 0; i < (await sheets.count()); i += 1) {
-        files.push(path.resolve(target, out, `sheet-${String(i).padStart(2, "0")}.png`));
-        await sheets.nth(i).screenshot({ path: files.at(-1) });
-      }
+    const sheets = page.locator(".sheet");
+    for (let i = 0; i < (await sheets.count()); i += 1) {
+      files.push(path.resolve(target, out, `sheet-${String(i).padStart(2, "0")}.png`));
+      await sheets.nth(i).screenshot({ path: files.at(-1) });
     }
   } catch (error) {
     return { problem: `the ${format} could not be written: ${error.message.split("\n")[0]}` };
@@ -1274,14 +1238,6 @@ const FLAGS = {
 };
 const PAGE = "book.html";
 const PRINTED = "book.pdf";
-
-// A file of the book as the repository names it; a file outside the repository keeps its full path.
-function named(target, file) {
-  const relative = path.relative(target, file);
-  return relative.startsWith("..") || path.isAbsolute(relative) ? file : relative;
-}
-const changeOf = (target, file) =>
-  fileChange(named(target, file), existsSync(file) ? "update" : "create");
 
 async function main(args) {
   const call = readCall(args, FLAGS);
@@ -1365,7 +1321,7 @@ async function main(args) {
     exported = await exportBook(target, file, format, out);
     for (const item of exported.files ?? []) {
       const change = before.has(path.basename(item)) ? "update" : "create";
-      files.push(fileChange(named(target, item), change));
+      files.push(fileChange(nameIn(target, item), change));
     }
     lines.push(
       exported.problem

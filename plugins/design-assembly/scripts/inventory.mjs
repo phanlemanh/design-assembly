@@ -1,10 +1,11 @@
 // The audit tier: reads a repository and says, for each standard decision of a design system,
 // whether it is undecided, bypassed, decided but not held, claimed, held or recorded; then which
 // tier the repository has reached. Read-only. Works on any repository, with or without the design
-// floor. The same repository state always gives the same report.
-// Usage: node inventory.mjs [--target DIR] [--json] [--all]
-// Exit: 0 done; 1 a decision is not held, failing or gone around; 2 a wrong call, or a repository
-// that cannot be read.
+// floor. The same repository state always gives the same report. With --out it also hands the
+// report over as a document, the design audit report, written to that folder and nowhere else.
+// Usage: node inventory.mjs [--target DIR] [--json] [--all] [--out DIR [--format html|pdf]]
+// Exit: 0 done; 1 a decision is not held, failing or gone around, or the document was written in
+// fewer formats than asked; 2 a wrong call, or a repository that cannot be read.
 import { differences, presentLedgers } from "../templates/tools/design-assembly/contract.mjs";
 import { adapterOf } from "../templates/tools/design-assembly/adapters/index.mjs";
 import { adapter as values } from "../templates/tools/design-assembly/adapters/tailwind.mjs";
@@ -31,11 +32,15 @@ import {
 import { readKinds, readPages } from "../templates/tools/design-assembly/screens.mjs";
 import { readBlock } from "../templates/tools/design-assembly/theme.mjs";
 import { finish, readCall, refuse, start } from "./command.mjs";
+import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { findProofs } from "./proofs.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const reference = (name) =>
   JSON.parse(readFileSync(path.join(HERE, "../references", name), "utf8"));
+const VERSION = JSON.parse(
+  readFileSync(path.join(HERE, "../.claude-plugin/plugin.json"), "utf8"),
+).version;
 const TIERS = reference("tiers.json").tiers;
 const STANDARD = reference("standard-decisions.json");
 // What this plugin is known not to hold. A report that does not say where it is blind reads as a
@@ -54,6 +59,9 @@ const ANSWERED = ["held", "claimed", "recorded"];
 // A row whose note says this is an answer nobody has made theirs yet: the guide proposed it, or it
 // was read off the repository. The audit names such rows, and the status lists them as waiting.
 export const UNCONFIRMED = /has not (confirmed|reviewed)/;
+// The command that lists each decision's state, and the one that takes a person's answers.
+export const AUDIT = "/design-assembly:audit";
+export const DECIDE = "/design-assembly:decide";
 // The calls only a person can make, each with the flag that states the answer when adopting.
 export const PERSON_CALLS = {
   "product-type": "--product-type TYPE",
@@ -526,6 +534,15 @@ function line(decision) {
   return lines;
 }
 
+// The answers nobody has made theirs yet. `recorded`: a person's call the guide proposed or read
+// off the repository. `held`: a choice a check holds, which is still the proposal it holds.
+const proposalsOf = (decisions) => ({
+  recorded: decisions.filter((d) => d.state === "recorded" && UNCONFIRMED.test(d.note ?? "")),
+  held: decisions.filter(
+    (d) => d.state !== "recorded" && /a person has not confirmed it/.test(d.note ?? ""),
+  ),
+});
+
 // By default the report lists what is open in each tier; `all` lists every core decision.
 export function report(result, { all = false } = {}) {
   const lines = [];
@@ -550,18 +567,13 @@ export function report(result, { all = false } = {}) {
   );
   for (const decision of brokenBeyond) lines.push(...line(decision));
   // A person's call that nobody has confirmed is not an answer yet: named in every report.
-  const open = result.decisions.filter(
-    (d) => d.state === "recorded" && UNCONFIRMED.test(d.note ?? ""),
-  );
+  const { recorded: open, held: proposedHeld } = proposalsOf(result.decisions);
   if (open.length > 0) {
     lines.push(
       `  ${open.length} of the recorded are a proposal a person has not confirmed: ${open.map((d) => d.id).join(", ")}`,
     );
   }
   // A choice a check holds can still be one nobody made: the check holds the proposal.
-  const proposedHeld = result.decisions.filter(
-    (d) => d.state !== "recorded" && /a person has not confirmed it/.test(d.note ?? ""),
-  );
   if (proposedHeld.length > 0) {
     lines.push(
       `  ${proposedHeld.length} held by a check are still a proposal a person has not confirmed: ${proposedHeld.map((d) => d.id).join(", ")}`,
@@ -626,18 +638,373 @@ export function report(result, { all = false } = {}) {
   return `${lines.join("\n")}\n`;
 }
 
-const CALL = "usage: node inventory.mjs [--target DIR] [--json] [--all]\n";
+// How many of a list are written out on the page for the person; the rest are named.
+const SHOWN = 5;
+const LEDGER_FILE = "design/decisions.yaml";
 
-function main(args) {
-  const call = readCall(args, { "--all": "switch" });
+// The design audit report: the same audit as a document on the frame every document shares, made
+// from the facts of the audit and from nothing else. `origin` says which state of the repository
+// it is made from. Like the screen, it lists the core decisions still open; `all` lists every one.
+export function documentOf(result, origin, { all = false } = {}) {
+  const c = result.coverage;
+  const { tier, missing, decisions } = result;
+  const ids = (found) => found.map((d) => d.id).join(", ");
+  const gone = decisions.filter((d) => d.state === "bypassed");
+  const failing = decisions.filter((d) => d.state === "failing");
+  const unheld = decisions.filter((d) => d.state === "not-held");
+  const broken = [...gone, ...failing, ...unheld];
+  const proposals = proposalsOf(decisions);
+  const unconfirmed = [...proposals.recorded, ...proposals.held];
+  const proven = decisions.filter((d) => d.seen?.startsWith("a proof the repository already runs"));
+  const calls = decisions.filter((d) => d.id in PERSON_CALLS && !d.in_ledger);
+  const undecided = decisions.filter((d) => d.core && d.state === "undecided");
+  const claimedTiers = result.tiers.filter((item) => item.state === "claimed");
+  const differing = result.contract.filter((item) => item.differs.length > 0);
+  const heavy = result.blind.filter((limit) => limit.severity === "high");
+  const places = (d) =>
+    `${plural(d.bypassed, "place in source goes", "places in source go")} around it: ${d.bypassed_in.join(", ")}`;
+  // The audit's own last line, split into the command it names and the reason it gives.
+  const named = /^(\/design-assembly:[a-z-]+),? (.*)$/.exec(result.next);
+  const sentence = (line) => `${line.charAt(0).toUpperCase()}${line.slice(1)}.`;
+
+  const reached = tier.id
+    ? `Tier reached: ${tier.id}${tier.state === "claimed" ? ", on checks that were not run again here" : ""}`
+    : "No tier is reached yet";
+  const attention = [
+    gone.length + failing.length > 0 && {
+      title: `${plural(gone.length + failing.length, "decision is", "decisions are")} failing, or gone around in source`,
+      detail: `${ids([...gone, ...failing])}. A check of the gate would fail on each today.`,
+    },
+    unheld.length > 0 && {
+      title: `${plural(unheld.length, "row of the ledger names", "rows of the ledger name")} no check`,
+      detail: `${ids(unheld)}. The answer is written down, and nothing holds it.`,
+    },
+    unconfirmed.length > 0 && {
+      title: `${plural(unconfirmed.length, "answer is a proposal", "answers are proposals")} nobody confirmed`,
+      detail: `${ids(unconfirmed)}. Each counts as answered, and is not yet a person's.`,
+    },
+    tier.next && {
+      title: `The next tier, ${tier.next}, lacks ${plural(missing.length, "thing", "things")}`,
+      detail: missing
+        .slice(0, SHOWN)
+        .map((item) => item.decision ?? item.artifact)
+        .join(", "),
+    },
+    claimedTiers.length > 0 && {
+      title: `${plural(claimedTiers.length, "tier rests", "tiers rest")} on checks the audit did not run again`,
+      detail: `${claimedTiers.map((item) => item.id).join(", ")}. A claim names a check that can be found; it was not run for this report.`,
+    },
+    heavy.length > 0 && {
+      title: `${plural(heavy.length, "open limit", "open limits")} of this plugin can leave a check green while what it holds is broken`,
+      detail: "They are listed in the last part of this report.",
+    },
+    differing.length > 0 && {
+      title: `${plural(differing.length, "ledger file does", "ledger files do")} not have the shape of the contract`,
+      detail: differing.map((item) => item.file).join(", "),
+    },
+  ].filter(Boolean);
+
+  const asked = (found) => ({
+    items: found.slice(0, SHOWN).map((d) => `${d.id}: ${d.question}`),
+    more:
+      found.length > SHOWN
+        ? `and ${found.length - SHOWN} more, in the findings: ${ids(found.slice(SHOWN))}`
+        : null,
+  });
+  const decide = [
+    unconfirmed.length > 0 && {
+      what: `Confirm or change ${plural(unconfirmed.length, "proposal", "proposals")}`,
+      ...asked(unconfirmed),
+      command: DECIDE,
+    },
+    calls.length > 0 && {
+      what: `Make ${plural(calls.length, "call", "calls")} only a person can make`,
+      detail: "The ledger has no row for them yet.",
+      ...asked(calls),
+    },
+    undecided.length > 0 && {
+      what: `Decide ${plural(undecided.length, "thing", "things")} nothing in the repository answers`,
+      ...asked(undecided),
+    },
+  ].filter(Boolean);
+
+  const findings = [
+    ...gone.map((d) => ({
+      severity: "high",
+      title: `${d.id} is gone around in the repository's own source`,
+      detail: d.question,
+      evidence: [places(d), ...(d.by ? [`what claims to hold it: ${d.by}`] : [])],
+    })),
+    ...failing.map((d) => ({
+      severity: "high",
+      title: `${d.id} is failing`,
+      detail: d.question,
+      evidence: [d.by ?? "its check does not pass, and the audit could not say why"],
+    })),
+    ...unheld.map((d) => ({
+      severity: "medium",
+      title: `${d.id} has a row in the ledger, and no check`,
+      detail: d.question,
+      evidence: [d.seen ?? "the row names no check, and no proof of it is seen in the repository"],
+    })),
+    unconfirmed.length > 0 && {
+      severity: "medium",
+      title: `${plural(unconfirmed.length, "answer is a proposal", "answers are proposals")} nobody confirmed`,
+      detail:
+        "The guide proposed the answer, or it was read off the repository. It counts as answered and is not a person's yet.",
+      evidence: unconfirmed.map((d) => `${d.id}: ${d.note}`),
+    },
+    ...differing.map((item) => ({
+      severity: "medium",
+      title: `${item.file} does not have the shape of the contract`,
+      detail: "Every reader of a ledger relies on its one shape.",
+      evidence: item.differs,
+    })),
+    result.departures.unexplained > 0 && {
+      severity: "medium",
+      title: `${plural(result.departures.unexplained, "lint exception gives", "lint exceptions give")} no reason`,
+      detail: "An exception with nothing after its two dashes is not shown to be on purpose.",
+      evidence: [
+        `${result.departures.lint} lint exceptions in the repository's own source, ${result.departures.unexplained} of them with no reason`,
+      ],
+    },
+    claimedTiers.length > 0 && {
+      severity: "low",
+      title: `${plural(claimedTiers.length, "tier is", "tiers are")} complete on checks the audit did not run again`,
+      detail: `${c.claimed} core decisions are claimed: the ledger names a check that exists and is wired in, and nothing here ran it.`,
+      evidence: claimedTiers.map((item) => {
+        const count = item.needs.find((need) => need.missing !== undefined);
+        return `${item.id}${count ? `: ${count.what}` : ""}`;
+      }),
+    },
+    tier.next && {
+      severity: "low",
+      title: `The tier ${tier.next} is not reached`,
+      detail: "A tier needs every one of its core decisions answered and its artifacts in place.",
+      evidence:
+        missing.length > 0
+          ? missing.map((item) =>
+              item.decision
+                ? `decision ${item.decision}: ${LABEL[item.state]}`
+                : `missing: ${item.artifact}`,
+            )
+          : ["a tier below it is not in place"],
+    },
+    (result.ledger?.old_layer_names.length ?? 0) > 0 && {
+      severity: "low",
+      title: `${plural(result.ledger.old_layer_names.length, "row uses", "rows use")} an older layer name`,
+      detail: "They are read as they are, and can be renamed whenever convenient.",
+      evidence: [`in ${LEDGER_FILE}`],
+    },
+    result.slips && {
+      severity: "note",
+      title: "The record of what slipped past the checks",
+      evidence: [
+        result.slips.count === 0
+          ? `${SLIPS_FILE}: no line yet. An empty record is not proof that nothing slipped`
+          : `${SLIPS_FILE}: ${plural(result.slips.count, "line", "lines")}${result.slips.latest ? `, the latest on ${result.slips.latest}` : ""}`,
+      ],
+    },
+    result.departures.lint + result.departures.excused + result.departures.left > 0 && {
+      severity: "note",
+      title: "Departures on purpose",
+      evidence: [
+        `${result.departures.lint} lint exceptions in the repository's own source`,
+        `${result.departures.excused} screens excused from the states`,
+        `${result.departures.left} files left out of a kind of screen`,
+      ],
+    },
+  ].filter(Boolean);
+
+  const seenOf = (d) =>
+    [
+      d.by && `by ${d.by}`,
+      d.seen && `seen: ${d.seen}`,
+      d.bypassed > 0 && places(d),
+      d.note && `note: ${d.note}`,
+    ]
+      .filter(Boolean)
+      .join("; ") || "nothing in the repository answers it";
+  const register = {
+    title: all
+      ? "Every core decision, by tier"
+      : "Every tier, with the core decisions still open in it",
+    lede: all
+      ? "A decision seen in two or more sources is core; a tier needs its core decisions."
+      : "A tier with no row under it has no core decision open. Run the audit with --all for every core decision.",
+    columns: ["State", "Decision", "What holds it, or what the audit sees"],
+    groups: result.tiers.map((item) => ({
+      title: item.id,
+      note: [
+        NOTE[item.state],
+        ...item.needs
+          .filter((need) => need.missing !== undefined || !need.ok)
+          .map((need) => (need.missing !== undefined ? need.what : `missing: ${need.what}`)),
+      ].join("; "),
+      rows: decisions
+        .filter((d) => d.tier === item.id && d.core && (all || !ANSWERED.includes(d.state)))
+        .map((d) => [LABEL[d.state], { code: d.id, text: d.question }, seenOf(d)]),
+    })),
+  };
+
+  const open = missing.filter((item) => item.decision);
+  const absent = missing.filter((item) => item.artifact);
+  const pointed = unheld.filter((d) => d.seen);
+  const bare = unheld.filter((d) => !d.seen);
+  const nextLine = sentence(result.next);
+  const recommendations = [
+    gone.length > 0 && {
+      what: `Bring ${plural(gone.length, "decision", "decisions")} back onto the scale, before anything else`,
+      basis: {
+        kind: "measurement",
+        text: gone.map((d) => `${d.id}: ${places(d)}`).join(". "),
+      },
+      action:
+        "Change each place listed to a value of the scale, then run the audit again. A check would fail on them today.",
+      command: AUDIT,
+    },
+    failing.length > 0 && {
+      what: `Make ${plural(failing.length, "failing check", "failing checks")} pass, or change the row knowingly`,
+      basis: { kind: "measurement", text: failing.map((d) => `${d.id}: ${d.by}`).join(". ") },
+      action: "Read the reason under each finding. The gate of the repository fails on the same.",
+    },
+    pointed.length > 0 && {
+      what: `Point ${plural(pointed.length, "row", "rows")} at the proof the repository already runs`,
+      basis: { kind: "measurement", text: pointed.map((d) => `${d.id}: ${d.seen}`).join(". ") },
+      action: "Adopt with --hold for each row named: it adds the pointer and changes nothing else.",
+      command: `/design-assembly:adopt --hold ${pointed[0]?.id}`,
+    },
+    bare.length > 0 && {
+      what: `Give ${plural(bare.length, "row", "rows")} a check, or accept that nothing holds ${bare.length === 1 ? "it" : "them"}`,
+      basis: {
+        kind: "measurement",
+        text: `the ${bare.length === 1 ? "row names" : "rows name"} no check, and no proof is seen in the repository: ${ids(bare)}`,
+      },
+      action:
+        "Write a check and name it in the row. Until then the audit counts the row as not held.",
+    },
+    proven.length > 0 && {
+      what: `Record ${plural(proven.length, "decision", "decisions")} the repository already proves`,
+      basis: { kind: "measurement", text: proven.map((d) => `${d.id}: ${d.seen}`).join(". ") },
+      action: "Adopt: it adds a row for each, and changes no value, rule or test.",
+      command: "/design-assembly:adopt",
+    },
+    unconfirmed.length > 0 && {
+      what: `Have a person confirm or change ${plural(unconfirmed.length, "proposal", "proposals")}`,
+      basis: {
+        kind: "measurement",
+        text: `the note of each row says a person has not confirmed it: ${ids(unconfirmed)}`,
+      },
+      action: "Answer them on the decision sheet, in one go.",
+      command: DECIDE,
+    },
+    tier.next &&
+      missing.length > 0 && {
+        what: `Close what the tier ${tier.next} lacks: ${plural(open.length, "core decision", "core decisions")} and ${plural(absent.length, "artifact", "artifacts")}`,
+        basis: {
+          kind: "standard",
+          text: `this plugin's list of standard decisions names each decision as core, seen in two or more of its sources, and its list of tiers asks for each artifact: ${missing.map((item) => item.decision ?? item.artifact).join(", ")}`,
+        },
+        action: named ? sentence(named[2]) : nextLine,
+        command: named?.[1],
+      },
+  ].filter(Boolean);
+
+  const next = [
+    gone.length + failing.length > 0 && {
+      command: null,
+      why: `Fix ${plural(gone.length + failing.length, "decision", "decisions")} that fail or are gone around, at the places the findings list: ${ids([...gone, ...failing])}`,
+    },
+    gone.length + failing.length > 0 && {
+      command: AUDIT,
+      why: "Run the audit again, to see them closed",
+    },
+    unconfirmed.length > 0 && {
+      command: DECIDE,
+      why: `${plural(unconfirmed.length, "proposal waits", "proposals wait")} for a person: ${ids(unconfirmed)}`,
+    },
+    named && { command: named[1], why: sentence(named[2]) },
+  ].filter(Boolean);
+
+  // Where this report is blind: its own limits in full, then the heavy ones of everything it
+  // counts on; the lighter ones are counted, and named where to find them.
+  const mine = result.blind.filter((limit) => ["audit", "document"].includes(limit.area));
+  const others = heavy.filter((limit) => !mine.includes(limit));
+  const lighter = result.blind.filter((limit) => !mine.includes(limit) && !others.includes(limit));
+  const byArea = [...new Set(lighter.map((limit) => limit.area))].map(
+    (area) => `${area} ${lighter.filter((limit) => limit.area === area).length}`,
+  );
+  return {
+    kind: "design-audit-report",
+    title: "Design audit report",
+    lede: "How far the design system of this repository has got: what answers each standard decision and what holds the answer, the tier reached, and what the next one lacks.",
+    origin,
+    version: VERSION,
+    scope: [
+      `Stylesheets: ${result.stylesheets.join(", ") || "none found under src/"}`,
+      `${plural(result.source_files, "source file", "source files")} of the repository's own screens and components, searched for values written around a scale`,
+      result.ledger
+        ? `The ledger ${LEDGER_FILE}: ${plural(result.ledger.total, "row", "rows")}, ${result.ledger.automatic} naming a check that can be found`
+        : `No ledger: ${LEDGER_FILE} is not there`,
+      `${decisions.length} standard decisions, ${c.core} of them core`,
+      `${plural(result.contract.length, "ledger file", "ledger files")}, against the one shape of the contract`,
+      `${result.tiers.length} deliverable tiers, lowest first`,
+    ],
+    decision: {
+      conclusion: `${c.answered} of ${c.core} core decisions are answered, and ${broken.length === 0 ? "none is" : plural(broken.length, "decision is", "decisions are")} failing, unheld or gone around. ${reached}.`,
+      figures: [
+        { value: String(c.answered), of: String(c.core), label: "core decisions answered" },
+        { value: String(c.held), label: "held, and run again here" },
+        { value: String(c.claimed), label: "claimed, and not run again" },
+        { value: String(c.recorded), label: "recorded: a person's call" },
+      ],
+      attention: attention.slice(0, 3),
+      decide,
+    },
+    findings,
+    register,
+    recommendations,
+    next,
+    blind: [
+      ...mine.map(({ id, note }) => ({ id, note, group: "Of this report itself" })),
+      ...others.map(({ id, note }) => ({
+        id,
+        note,
+        group: "Of what it counts on, where a check can stay green while what it holds is broken",
+      })),
+    ],
+    after: {
+      next: named ? null : nextLine,
+      blind:
+        lighter.length > 0
+          ? `${plural(lighter.length, "more open limit of this plugin is", "more open limits of this plugin are")} lighter. Each is a row of ${LIMITS_FILE}, and is given under blind with --json. By area: ${byArea.join(", ")}.`
+          : null,
+    },
+    empty: {
+      findings: "No decision is failing, unheld or gone around, and no tier rests on a claim.",
+    },
+  };
+}
+
+const CALL =
+  "usage: node inventory.mjs [--target DIR] [--json] [--all] [--out DIR [--format html|pdf]]\n";
+
+async function main(args) {
+  const call = readCall(args, { "--all": "switch", ...DOCUMENT_FLAGS });
   if (call.problem) return refuse(call.problem, CALL);
   if (call.help) return void stdout.write(CALL);
+  // A wrong call for a document is refused before anything is read.
+  const asked = requested(call);
+  const all = call.flags["--all"] === true;
   const result = inventory(call.target);
+  const handed = await handOver(asked, call.target, (origin) =>
+    documentOf(result, origin, { all }),
+  );
   return finish({
     json: call.json,
-    result,
-    text: report(result, { all: call.flags["--all"] === true }),
-    work: result.decisions.some((decision) => BROKEN.includes(decision.state)),
+    result: { ...result, ...handed.data },
+    text: `${report(result, { all })}${handed.text}`,
+    work: result.decisions.some((decision) => BROKEN.includes(decision.state)) || handed.work,
   });
 }
 

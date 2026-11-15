@@ -5,9 +5,9 @@ description: Say where a repository's design system stands right now and what wa
 
 # Status of a repository's design system
 
-Read-only. It writes nothing, in the repository or anywhere else, and it calls no model: the same
-repository always gives the same answer. Run it at any moment; it is the short answer, and the
-audit is the long one.
+Read-only. It writes nothing in the repository, and it calls no model: the same repository always
+gives the same answer. Run it at any moment; it is the short answer, and the audit is the long
+one. Only when asked for a document does it write a file, and only into the folder named.
 
 Scripts are in `${CLAUDE_PLUGIN_ROOT}/scripts/` (if the variable is not expanded, use the `scripts/`
 folder two levels above this file).
@@ -35,10 +35,12 @@ It ends with:
   now: it is born (where its values come from), it meets the plugin (the ledger), a feature needs
   a new block (not built in this version), every change (the checks in the gate and the shape of
   the ledgers), and periodically (the record of what slipped past the checks).
-- `waiting on the owner`: each answer only a person can give. Two kinds are listed: a row of
-  `design/decisions.yaml` whose note says a person has not confirmed it, and a call only a person
-  can make that the ledger has no row for. Each has a `recommendation`, a `because` and an
-  `answer with`.
+- `waiting on the owner`: each answer only a person can give. Three kinds are listed: a row of
+  `design/decisions.yaml` whose note says a person has not confirmed it, a call only a person
+  can make that the ledger has no row for, and a question of `design/waiting-list.json` that
+  nobody answered. Each has a `recommendation`, a `because` and an `answer with`.
+  `/design-assembly:decide` takes the answer to a row nobody confirmed and to a question of the
+  waiting list. A permission in the waiting list is not counted: only the owner gives it.
 - `tool`: whether the repository's copy under `tools/design-assembly/` is the tool of the
   installed plugin. Content decides, not the version number. `no stamp` means the repository does
   not record which version it took; no command of this version writes the tool stamp
@@ -58,23 +60,48 @@ It ends with:
 - When the tool differs, say that this version has no command that brings the installed tool into
   a repository, and name the limit the screen prints. Do not copy files by hand unless the person
   asks.
-- Always say the one thing this report cannot know: it reads the ledgers, so a question that waits
-  somewhere else (a review list in prose, a pull request, a conversation) is not counted.
-  "Nothing in the ledgers" is not "nothing waits".
+- Always say the one thing this report cannot know: it reads the ledgers and the waiting list, so
+  a question that waits somewhere else (a pull request, a conversation, a page of prose) is not
+  counted. "Nothing in the ledgers or the waiting list" is not "nothing waits".
 - A decision that is failing or bypassed does not wait on the owner's answer: status names the
   audit as the next command, and ends with `1`, because something is left to fix. Run the audit
   for the places.
 
 ## 4. With `--json`
 
-| Key       | Holds                                                                              |
-| --------- | ---------------------------------------------------------------------------------- |
-| `tier`    | `id` of the tier reached or `null`, `state` (`reached`, `claimed`, `none`), `next` |
-| `held`    | Core decisions this plugin's tool ran again now                                    |
-| `claimed` | Core decisions that rest on a check nothing here ran again                         |
-| `rhythms` | One entry per rhythm: `id`, `name`, `says`                                         |
-| `waiting` | One entry per answer: `id`, `question`, `recommendation`, `basis`, `answer`        |
-| `tool`    | `recorded` (the tool stamp or `null`), `installed`, `copy`, `differs`, `says`      |
-| `next`    | Commands in order: `command`, `why`. Empty when this version has nothing to run    |
+| Key       | Holds                                                                                 |
+| --------- | ------------------------------------------------------------------------------------- |
+| `tier`    | `id` of the tier reached or `null`, `state` (`reached`, `claimed`, `none`), `next`    |
+| `held`    | Core decisions this plugin's tool ran again now                                       |
+| `claimed` | Core decisions that rest on a check nothing here ran again                            |
+| `rhythms` | One entry per rhythm: `id`, `name`, `says`                                            |
+| `waiting` | One entry per answer: `id`, `source`, `question`, `recommendation`, `basis`, `answer` |
+| `tool`    | `recorded` (the tool stamp or `null`), `installed`, `copy`, `differs`, `says`         |
+| `next`    | Commands in order: `command`, `why`. Empty when this version has nothing to run       |
+| `files`   | Only with `--out`: each file written, `path` and `change` (`create` or `update`)      |
+
+`source` is `ledger` or `waiting-list`.
+
+## 5. The status report, a document to hand over
+
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/status.mjs --target <repo> --out <folder>` writes
+`status-report.html` into that folder: the same answer on the frame every document of this plugin
+shares. Without `--out` no file is written. A relative folder is read from where the command is
+run, never against the repository.
+
+- The six parts, always in this order: the cover (the document's name, the repository, the date,
+  the plugin's version, the scope examined), one page for the person who decides (the conclusion,
+  the three things most worth attention, what they must decide), the findings by severity with
+  their evidence, the recommendations with what each rests on and what to do, the next steps with
+  the command to run, and what the document does not see. A part with nothing to show says so in
+  one line.
+- The date on the cover is the day of the repository's last commit, never today's: the same
+  repository gives the same page, byte for byte.
+- `--format pdf` also prints `status-report.pdf` from the page, with the browser in the
+  repository's own packages. Where there is none, the page is still written, the call ends with
+  `1`, and the screen says why. Say so; do not look for another browser.
+- The report writes out the first five questions and names the rest, as the screen does.
+- Give the person the path the screen prints after `document:`. Do not rewrite the document's
+  findings in your own words, and do not add a recommendation it does not make.
 
 Use the terms in `references/vocabulary.json`.

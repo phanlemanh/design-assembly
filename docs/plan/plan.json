@@ -52,7 +52,8 @@
         {
           "id": "0.6",
           "what": "Khung tài liệu chung, áp cho status và audit",
-          "state": "todo"
+          "state": "done",
+          "ref": "quyết định 0046, nhánh feat/document-frame-for-status-and-audit"
         },
         {
           "id": "0.7",

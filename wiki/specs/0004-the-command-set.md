@@ -33,8 +33,11 @@ sources:
 Máy viết ngày 2026-11-15 theo lời chủ repo cùng ngày. Chủ repo duyệt cùng ngày («Duyệt đề bài»). Hai
 lệnh mới đã dựng cùng ngày: `status`
 ([0041](../decisions/0041-status-reads-ledger-rows-and-compares-the-tool-by-content.md)) và `decide`
-([0043](../decisions/0043-decide-reads-ledger-rows-and-a-waiting-list-kept-as-data.md)). Tài liệu
-bàn giao của hai lệnh (`--out`) và mười một lệnh còn lại thì chưa. `decide` hôm nay đọc dòng sổ chưa
+([0043](../decisions/0043-decide-reads-ledger-rows-and-a-waiting-list-kept-as-data.md)). Khung
+chung của tài liệu đã dựng và áp cho `status` và `audit` (`--out`, `--format`;
+[0046](../decisions/0046-one-frame-for-every-document.md)): phát hiện chưa có hình, và báo cáo rà
+soát chưa có chương khả năng truy cập. Tài liệu của `decide`, của ba lệnh có từ trước và mười một
+lệnh còn lại thì chưa theo khung. `status` nay đếm cả câu của hàng chờ. `decide` hôm nay đọc dòng sổ chưa
 ai xác nhận và một hàng chờ giữ dạng dữ liệu; ba nguồn còn lại ở dòng «Đọc» của nó thuộc lệnh chưa
 dựng, câu thẩm mỹ chưa kèm bảng mẫu, và tên người đáp ghi trong ghi chú của dòng sổ thay cho khoá
 riêng (0043 nêu lý do). Hợp đồng chung, phần kết quả máy đọc được và mã thoát, đã áp cho năm lệnh có

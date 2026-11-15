@@ -477,6 +477,24 @@
       "meaning": "The questions that wait on the owner and are not rows of a design ledger, kept as data in the repository so that the decision sheet can list them and take their answers. A repository may have none. It is not one of the ledgers of the contract.",
       "source": "Decision 0043 of this project, 2026-11-15",
       "trust": "coined"
+    },
+    {
+      "term": "document frame",
+      "meaning": "The six parts every document of a command has, always in the same order: the cover, one page for the person who decides, the findings with their evidence, the recommendations with what each rests on, the next steps, and what the document does not see.",
+      "source": "The specification of the command set, 2026-11-15",
+      "trust": "coined"
+    },
+    {
+      "term": "status report",
+      "meaning": "The document status hands over: where the design system of a repository stands, what waits on its owner, and what to run next, set on the document frame.",
+      "source": "The specification of the command set, 2026-11-15",
+      "trust": "coined"
+    },
+    {
+      "term": "design audit report",
+      "meaning": "The document the audit hands over: what answers each standard decision and what holds the answer, the tier reached and what the next one lacks, set on the document frame.",
+      "source": "The specification of the command set, 2026-11-15",
+      "trust": "coined"
     }
   ]
 }
