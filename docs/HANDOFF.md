@@ -147,8 +147,10 @@ chủ kho, người giữ mã ký theo luật tự chủ của Inventory.
    Chủ kho duyệt lại Cổng Phạm vi và Cổng 1.5; lượt chấm 2 đạt mọi phép kiểm máy; **chủ kho đã ký Cổng
    Bằng chứng ngày 2026-11-15**, lưới trước khi gộp của kit sạch. 13 mục ngoài hợp đồng ghi vào hạn chế
    đã biết, 2 chấp nhận không sửa, 1 mở hợp đồng mới (sổ linh kiện ghi trùng linh kiện xuất lại qua tệp
-   gom, sửa ở plugin). **Các commit của nhánh sau `11477d7` chưa đẩy**; đẩy cần lời chủ kho, rồi việc
-   gộp #58 là của chủ kho; #59 gộp sau.
+   gom, sửa ở plugin). Main gộp lần ba vào nhánh (quyết định của nhánh đổi số thành 0034 vì main đã có
+   0032), hồ sơ ghim lại trên cây đã gộp, CI xanh; **chủ kho cho gộp, #58 đã gộp ngày 2026-11-15**
+   (commit gộp `2715cf4`). Còn: #59 phải đặt lại nền lên main; bản sửa ghi trùng nằm ở nhánh
+   `claude/quizzical-moser-3a6146` của kho này, chưa gộp, chưa đẩy.
    **Tên tệp ở Inventory là tiếng Anh** theo AGENTS.md của nó, dù phần lớn tên có sẵn ở đó là tiếng
    Việt; chủ kho chỉ ra ngày 2026-11-14 và mọi tên của vòng này đã đổi sang tiếng Anh.
 4. Sau cùng: bộ chuyển Next.js cho bảng mẫu và cuốn sổ; sổ nguồn ngoài và sổ nhập kho.
