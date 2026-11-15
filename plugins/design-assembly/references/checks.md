@@ -535,3 +535,42 @@ What makes each command end with `1`:
 
 The `make` targets of this repository that call those commands end well on `0` and on `1`; only `2`
 fails them. `make design-status` passes the `1` on.
+
+## What decide reads and writes
+
+`scripts/decide.mjs` gathers the questions that wait on the owner into one sheet. Without answers it
+writes nothing. It reads two sources.
+
+- **A row nobody confirmed.** The same rows status lists, by the same rule, with the recommendation
+  and the basis status gives. A row is marked hard to undo when its layer is one every other layer
+  is built on: context or foundations.
+- **The waiting list.** `design/waiting-list.json`, when the repository has one: questions that
+  wait on the owner and are not rows of a design ledger. It is not a ledger of the contract, and
+  the gate does not read it. One file, `version` 1, and `rows`. A row has an `id` and a `question`,
+  and may have a `kind` (`question`, the default, or `permission`), a `group` (the heading it is
+  printed under), a `recommendation`, a `basis`, `hard_to_undo` (true or false), a `where` (the
+  record that states it) and an `if_refused` (what refusing costs). A row of kind `permission` is
+  something only the owner gives, step by step: it is listed, takes no answer, and is not counted.
+
+A call only a person can make that the ledger has no row for is listed too, with the command that
+records it; decide cannot take its answer.
+
+Answers come from a file, one line each: the id, then `giữ` (or `keep`), `bác` (or `refuse`) with
+a sentence saying what to change, or a value in the person's words. Each answer is written where
+its question lives, with the name of the person and the date.
+
+- **In the ledger,** only the note of the row changes: the clause that said nobody confirmed it
+  becomes `confirmed by NAME on DATE`, `refused by NAME on DATE: SENTENCE` or
+  `answered by NAME on DATE: VALUE`, put last in the note. The ledger has no key for who answered
+  and when, and gains none: a repository that adopted earlier needs no newer tool to pass its gate.
+  A kept answer to a row the guide writes from the blueprint is also listed under `confirmed` of
+  its layer in `design/blueprint.json`, where the guide reads it.
+- **In the waiting list,** the row gains `answer` (`keep`, `refuse`, `value`), `said`, `by` and
+  `on`, and stays in the file.
+
+A refusal is recorded and nothing else changes: no command of this version changes the value. One
+answer that cannot be taken refuses the whole file. `--dry-run` prints each file a run would write
+and what would change in it, and writes nothing.
+
+Decide ends with `0` when no question waits, `1` while questions wait on the owner, and `2` on a
+wrong call, answers that cannot be taken, or a repository it cannot read.

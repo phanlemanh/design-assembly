@@ -20,6 +20,11 @@ scale, shape). Density, elevation, motion and iconography are not.
   the tier reached, one line per rhythm of the repository's life, every answer that waits on the
   owner with a recommendation and what it rests on, whether the repository's copy of the tool is
   the installed plugin's, and the command to run next. `--json` gives the same to another plugin.
+- `/design-assembly:decide` puts every question that waits on the owner on one sheet, each with
+  one recommendation and what it rests on, and takes the answers in one go: a row of the ledger
+  nobody confirmed, and the rows of `design/waiting-list.json` when the repository keeps one. It
+  writes an answer only when a person gave it, with their name and the date; a refusal stays, with
+  what they said.
 - Every command takes `--target DIR` (the folder it is run from when not given) and `--json` (one
   JSON document for another plugin), and ends with `0` when done, `1` when done with work left
   for a person or something to fix, and `2` on a wrong call or a repository it cannot read. The

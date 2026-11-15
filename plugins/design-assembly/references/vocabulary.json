@@ -465,6 +465,18 @@
       "meaning": "The record, kept in the repository, of which version of the plugin its copy of the tool came from and the hash git gives that folder. What a lockfile is to a dependency.",
       "source": "The specification of the command set, 2026-11-15",
       "trust": "coined"
+    },
+    {
+      "term": "decision sheet",
+      "meaning": "Every question that waits on the owner of a repository, gathered on one sheet, each with one recommendation and what it rests on, answered in one go. Decide prints it and writes the answers back with the name of the person who gave them and the date.",
+      "source": "The specification of the command set, 2026-11-15",
+      "trust": "coined"
+    },
+    {
+      "term": "waiting list",
+      "meaning": "The questions that wait on the owner and are not rows of a design ledger, kept as data in the repository so that the decision sheet can list them and take their answers. A repository may have none. It is not one of the ledgers of the contract.",
+      "source": "Decision 0043 of this project, 2026-11-15",
+      "trust": "coined"
     }
   ]
 }
