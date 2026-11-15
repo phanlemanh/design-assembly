@@ -221,6 +221,16 @@ function changedStates(was, now) {
 const read = (root, file) =>
   existsSync(path.join(root, file)) ? readFileSync(path.join(root, file), "utf8") : null;
 
+// A ledger as data, or null when it is missing or is not JSON: then every entry written is new.
+function parsed(text) {
+  if (text === null) return null;
+  try {
+    return JSON.parse(text);
+  } catch {
+    return null;
+  }
+}
+
 // Everything the upgrade of the repository at `root` would do, and what stops it. Nothing written.
 export async function upgradePlan(root, accept = {}) {
   // Read first, whatever comes next: a repository that cannot be read is said to be so.
@@ -282,13 +292,7 @@ export async function upgradePlan(root, accept = {}) {
       }
       const text = read(root, made.file);
       if (text !== null && sameContent(made.file, text, made.content)) continue;
-      let data = null;
-      try {
-        data = text === null ? null : JSON.parse(text);
-      } catch {
-        data = null;
-      }
-      ledgers.push({ ledger, file: made.file, ...ledgerChanges(data, made.data) });
+      ledgers.push({ ledger, file: made.file, ...ledgerChanges(parsed(text), made.data) });
       written[made.file] = made.content;
     }
   }
@@ -621,7 +625,8 @@ async function main(args) {
   });
   if (!dryRun && plan.blocked.length === 0) write(root, plan);
   const handed = await handOver(asked, root, (origin) => documentOf(plan, dryRun, origin));
-  const { written, ...facts } = plan;
+  // A machine gets what the report is written from; the files as a list, never their content.
+  const facts = Object.fromEntries(Object.entries(plan).filter(([key]) => key !== "written"));
   return finish({
     json: call.json,
     result: {
