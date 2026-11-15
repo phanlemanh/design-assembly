@@ -463,6 +463,7 @@ const STYLES = `
     .finding, .recommendation { grid-template-columns: minmax(0, 1fr); gap: 8px; }
     .recommendation dl > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
     table { min-width: 640px; }
+    td:first-child { white-space: normal; }
   }
   @page { size: A4; margin: 16mm 14mm; }
   @media print {
