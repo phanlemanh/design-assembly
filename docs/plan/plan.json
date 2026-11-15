@@ -34,8 +34,8 @@
         {
           "id": "0.3",
           "what": "Giữ kế hoạch bằng máy: tệp kế hoạch, lệnh xem vị trí, phép kiểm trong cổng",
-          "state": "doing",
-          "ref": "nhánh docs/plan-of-record"
+          "state": "done",
+          "ref": "PR 8, gộp 2026-11-15"
         },
         {
           "id": "0.4",
