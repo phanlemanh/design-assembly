@@ -44,7 +44,12 @@ riêng (0043 nêu lý do). Hợp đồng chung, phần kết quả máy đọc �
 từ trước `decide` ([0044](../decisions/0044-one-contract-for-the-commands-that-exist.md)), và cùng
 ngày cho cả `decide`; hai chỗ
 còn lệch đề bài nằm ở sổ giới hạn: `new` chưa trả nguyên tắc và hướng đi, `handoff` kết thúc 1 chứ
-không phải 2 khi không vẽ được. Đề bài này chốt lệnh nào tồn tại, nó nhận gì và trả gì.
+không phải 2 khi không vẽ được. Ngày 2026-11-16 dựng lệnh thứ ba, `upgrade`
+([0047](../decisions/0047-tool-stamp-upgrade-and-the-version-rule.md)), cùng dấu bản công cụ mà
+`new`, `adopt` và `upgrade` ghi và `status` đọc; ghi chú phát hành theo khung chung. Phần chưa dựng
+của nó ở sổ giới hạn: không có `--remove`, không ghi bước cổng, và «cổng» nó đo là bước
+design-assembly chứ không phải cả `make check` của repo. Đề bài này chốt lệnh nào tồn tại, nó nhận gì
+và trả gì.
 
 ## Intent
 

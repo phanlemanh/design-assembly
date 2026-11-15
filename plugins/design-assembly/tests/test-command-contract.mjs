@@ -22,6 +22,7 @@ import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { EXIT, readCall } from "../scripts/command.mjs";
+import { treeHash } from "../scripts/stamp.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -101,6 +102,16 @@ const COMMANDS = [
       { on: "answered", exit: EXIT.done, real: EXIT.work, why: "a book with no picture" },
     ],
   },
+  {
+    name: "upgrade",
+    script: "upgrade.mjs",
+    writes: true,
+    keys: ["from", "to", "tool_files", "ledgers", "decisions", "gate", "files"],
+    cases: [
+      { on: "answered", exit: EXIT.done, real: EXIT.done, why: "already the installed tool" },
+      { on: "older", exit: EXIT.done, real: EXIT.done, why: "an older stamp, a safe upgrade" },
+    ],
+  },
 ];
 
 const made = [];
@@ -136,6 +147,16 @@ const BUILD = {
   answered: () => apply(blueprint("user")),
   // The guide applied, with every person's call still a proposal.
   proposed: () => apply(blueprint("proposed")),
+  // The same as answered, as if an older plugin had written its tool: one file of the copy is
+  // another, and the stamp names an older version.
+  older() {
+    const dir = apply(blueprint("user"));
+    const file = "tools/design-assembly/scale.mjs";
+    put(dir, file, `${text(dir, file)}// older\n`);
+    const tree = treeHash(path.join(dir, "tools/design-assembly"));
+    put(dir, "design/tool-stamp.json", `${JSON.stringify({ version: "0.0.1", tree })}\n`);
+    return dir;
+  },
   // The same as answered, with one file of source that writes a space around the scale.
   bypassed() {
     const dir = apply(blueprint("user"));

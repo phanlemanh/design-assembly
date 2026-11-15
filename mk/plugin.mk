@@ -1,4 +1,4 @@
-CHECK_TARGETS += plugin-test
+CHECK_TARGETS += plugin-test plugin-version-check
 
 # A repository on this machine that already keeps a design ledger and its own checker. When it is
 # there, the plugin's reader is tested against the real file; when it is not, that test is skipped
@@ -16,13 +16,32 @@ REFERENCE_SCREEN_KEYS ?= entry=vao,actions=nut,frame=khung
 # keeps running: only 2 fails them. design-status came with the contract and passes the 1 on.
 done-or-work = || [ $$? -eq 1 ]
 
-.PHONY: design-decide design-status design-ladder design-screen-actions-reference plugin-test design-specimen design-book design-apply design-plan design-audit design-adopt design-adopt-plan design-adopt-reference
+.PHONY: plugin-version plugin-version-check design-upgrade design-upgrade-plan design-upgrade-reference design-decide design-status design-ladder design-screen-actions-reference plugin-test design-specimen design-book design-apply design-plan design-audit design-adopt design-adopt-plan design-adopt-reference
 
 design-audit: ## Audit this repository: each standard decision's state, and the tier it has reached
 	@node plugins/design-assembly/scripts/inventory.mjs --target . $(done-or-work)
 
 design-status: ## Say what waits on the owner here, the tier reached, and the command to run next. Ends with 1 when something waits or is left to fix
 	@node plugins/design-assembly/scripts/status.mjs --target .
+
+design-upgrade-plan: ## Show what bringing the installed plugin's tool in here would change: tool files, ledger entries, decisions, the gate. Ends with 1 when it would stop
+	@node plugins/design-assembly/scripts/upgrade.mjs --target . --dry-run
+
+design-upgrade: ## Bring the installed plugin's tool in here. Stops and writes nothing when an entry would be lost or the gate would be red
+	@node plugins/design-assembly/scripts/upgrade.mjs --target .
+
+design-upgrade-reference: ## Preview the upgrade of the reference repository. Never writes there
+	@node plugins/design-assembly/scripts/upgrade.mjs --target $(REFERENCE_LEDGER) --dry-run $(done-or-work)
+
+# The version the plugin is recorded at, such as VERSION=0.1.1.
+VERSION ?=
+
+plugin-version: ## Record the plugin's version after a change a repository receives: make plugin-version VERSION=x.y.z
+	@node tools/plugin_version.mjs --bump $(VERSION)
+
+plugin-version-check: ## Check the plugin's version went up with every change to what a repository receives
+	@node --test tools/plugin_version_test.mjs > /dev/null 2>&1 || (node --test tools/plugin_version_test.mjs; exit 1)
+	@node tools/plugin_version.mjs
 
 # Extra flags for the sheet, such as DECIDE_ARGS="--answers answers.txt --dry-run" or DECIDE_ARGS="--only A1,C7".
 DECIDE_ARGS ?=

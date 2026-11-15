@@ -32,6 +32,14 @@ scale, shape). Density, elevation, motion and iconography are not.
   nobody confirmed, and the rows of `design/waiting-list.json` when the repository keeps one. It
   writes an answer only when a person gave it, with their name and the date; a refusal stays, with
   what they said.
+- `/design-assembly:upgrade` brings the installed plugin's tool into a repository that already runs
+  a copy of it. It previews first, every time: the tool files that change, the entries of the
+  ledgers the tool writes that would be added, removed or changed, the decisions that change state,
+  and whether the repository's gate stays green. It writes the tool folder, the tool stamp
+  (`design/tool-stamp.json`) and those ledgers, and stops without writing when an entry would be
+  lost or the gate would be red, unless the person accepts it. `--out DIR` writes the release
+  notes. The guide and adopt write the stamp too, so status can say which version a copy came from
+  and whether it was changed since.
 - Every command takes `--target DIR` (the folder it is run from when not given) and `--json` (one
   JSON document for another plugin), and ends with `0` when done, `1` when done with work left
   for a person or something to fix, and `2` on a wrong call or a repository it cannot read. The
@@ -132,3 +140,12 @@ From a Claude Code session in any repository:
 
 `version` in `.claude-plugin/plugin.json` and in the marketplace entry at the repository root must
 match. `tests/plugin-manifest.test.ts` checks it.
+
+The version goes up whenever a change reaches what a repository receives: anything under
+`templates/`, and the scripts under `scripts/`. `references/releases.json` records, for each
+version, the git tree of those two folders and of the tool a repository copies; the gate of this
+repository (`make plugin-version-check`) fails when they are not the trees recorded for the current
+version, and when a version main has released is recorded again with other trees. After such a
+change, run `make plugin-version VERSION=x.y.z` with the next version (or with the current one, while
+main has not released it): it writes both manifests, the record, and this repository's own tool
+stamp.

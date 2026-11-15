@@ -235,6 +235,8 @@ test("a decision that source goes around is the audit's to list: it is next, and
 
 test("the tool: the repository's copy against the installed plugin's, and the stamp when there is one", () => {
   const dir = applied("user");
+  // The guide stamps what it writes; this test starts from a repository adopted before stamps.
+  rmSync(path.join(dir, STAMP));
   const same = status(dir).tool;
   assert.equal(same.recorded, null);
   assert.match(same.says, /no stamp/);

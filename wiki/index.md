@@ -21,7 +21,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 ## Specs
 
 - [0003 Sổ màn nói màn hiện gì, chào nút nào cho vai nào; phép kiểm nối sổ màn với mô hình nghiệp vụ](specs/0003-screens-join-the-domain-model.md) — chủ kho duyệt, đã dựng (0035); số đo trên Inventory ở mục Test plan
-- [0004 Bộ lệnh của design-assembly, theo việc người dùng cần xong](specs/0004-the-command-set.md) — đã duyệt 2026-11-15; đã dựng hai lệnh mới, `status` (0041) và `decide` (0043); hợp đồng chung đã áp cho sáu lệnh đang có (0044); khung tài liệu chung áp cho `status` và `audit` (0046); mười một lệnh còn lại chưa
+- [0004 Bộ lệnh của design-assembly, theo việc người dùng cần xong](specs/0004-the-command-set.md) — đã duyệt 2026-11-15; đã dựng ba lệnh mới, `status` (0041), `decide` (0043) và `upgrade` (0047); hợp đồng chung đã áp cho bảy lệnh đang có (0044, 0047); khung tài liệu chung áp cho `status`, `audit` và `upgrade` (0046, 0047); mười lệnh còn lại chưa
 - [0002 Design-assembly là lớp meta tạo và giữ design system cho nhiều kho](specs/0002-meta-layer-for-many-repositories.md) — bản nháp, chờ chủ kho duyệt: tầm nhìn, tiêu chí, kế hoạch; kiến trúc đầy đủ kèm sơ đồ ở `docs/architecture/meta-layer.html`
 - [0001 Plugin dẫn người dùng dựng design system cho Claude Code](specs/0001-design-system-for-claude-code.md) — đề bài đã duyệt; lát đầu đã dựng, kết quả theo từng tiêu chí ở cuối mục tiêu chí
 
@@ -53,6 +53,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 - [0042 Lint của repo được hỏi qua tệp, có giới hạn thời gian, và báo lỗi bằng chính lời của lỗi](decisions/0042-the-lint-is-asked-through-files.md) — sửa lần cổng đỏ thất thường do tiến trình lint đọc câu hỏi trước khi nó tới
 - [0044 Hợp đồng chung áp cho năm lệnh đang có: một chỗ đọc lời gọi, mã thoát 1 là «xong, còn việc»](decisions/0044-one-contract-for-the-commands-that-exist.md) — hợp đồng ở `plugins/design-assembly/scripts/command.mjs`; tám lựa chọn của máy, chờ chủ repo bác
 - [0046 Khung tài liệu chung: một mô-đun dựng sáu phần, bìa mang ngày của commit cuối, PDF in từ trang bằng trình duyệt của repo](decisions/0046-one-frame-for-every-document.md) — khung ở `plugins/design-assembly/scripts/document.mjs`, vẻ ngoài chung với cuốn sổ ở `plugins/design-assembly/scripts/family.mjs`; mười lựa chọn của máy, chờ chủ repo bác
+- [0047 Dấu bản công cụ, lệnh `upgrade` dừng khi mất mục hay cổng đỏ, và số bản do cổng giữ](decisions/0047-tool-stamp-upgrade-and-the-version-rule.md) — lệnh ở `plugins/design-assembly/scripts/upgrade.mjs`, sổ bản ở `plugins/design-assembly/references/releases.json`; máy chọn, chờ chủ repo bác
 - [0043 Lệnh `decide`: câu chờ đọc từ dòng sổ và từ một hàng chờ giữ dạng dữ liệu](decisions/0043-decide-reads-ledger-rows-and-a-waiting-list-kept-as-data.md) — lệnh ở `plugins/design-assembly/scripts/decide.mjs`, hàng chờ của kho này ở `design/waiting-list.json`; máy chọn, chờ chủ repo bác
 - [0024 Khoá phạm vi: sổ giới hạn, ba ngăn, và bộ đề thử cố định](decisions/0024-scope-locked-limits-and-trial-briefs.md) — sổ ở `plugins/design-assembly/references/limits.json`, bộ đề ở `docs/trials/`
 - [0023 Chín lời đáp cho các câu còn mở của kiến trúc lớp meta](decisions/0023-nine-answers-for-the-meta-layer.md) — chủ kho duyệt cả chín; bảng đầy đủ ở mục «Chín câu đã chốt» của `docs/architecture/meta-layer.html`

@@ -8,101 +8,51 @@
 // Exit: 0 nothing waits; 1 something waits on a person, the tool differs, or a decision is failing
 // or gone around, or the document was written in fewer formats than asked; 2 a wrong call, or a
 // repository that cannot be read.
-import { Buffer } from "node:buffer";
-import { createHash } from "node:crypto";
-import { existsSync, lstatSync, readdirSync, readFileSync, readlinkSync, statSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { SLIPS_FILE } from "../templates/tools/design-assembly/governance.mjs";
-import { readLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
+import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
 import { finish, readCall, refuse, start } from "./command.mjs";
 import { sheet, WAITING_LIST } from "./decide.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { AUDIT, DECIDE, inventory, PERSON_CALLS, UNCONFIRMED } from "./inventory.mjs";
+import {
+  installedTree,
+  readStamp,
+  releaseOf,
+  STAMP,
+  TOOL_COPY,
+  treeHash,
+  VERSION,
+} from "./stamp.mjs";
+
+export { STAMP, treeHash };
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const json = (file) => JSON.parse(readFileSync(path.join(PLUGIN, file), "utf8"));
-const VERSION = json(".claude-plugin/plugin.json").version;
 const LIMITS = json("references/limits.json").limits;
 // Named from the plugin's own folder: installed elsewhere, the plugin has no `plugins/` around it.
 const LIMITS_FILE = "references/limits.json of this plugin";
-
-// Where the repository keeps its copy of the tool, and where the plugin keeps the one it installs.
-const TOOL_COPY = path.posix.dirname(TOOL.slice("tool:".length));
-const TOOL_SOURCE = path.join(PLUGIN, "templates", TOOL_COPY);
-// The tool stamp: which version of the plugin the repository's copy of the tool came from, and the
-// hash git gives that folder. No command writes it yet; status reads it when it is there.
-export const STAMP = "design/tool-stamp.json";
+const UPGRADE = "/design-assembly:upgrade";
 
 // How many waiting answers a person is shown in full. The rest are named, and --json has them all.
 const SHOWN = 5;
 const MEASURED = "a measurement on this repository: ";
 
-const hashOf = (type, body) =>
-  createHash("sha1").update(`${type} ${body.length}\0`).update(body).digest();
-
-// The tree object git would write for a folder, or null when the folder is missing or holds no
-// file. Names that start with a dot are left out: a file an editor or the system drops into the
-// folder is not the tool.
-function treeOf(dir) {
-  if (!existsSync(dir) || !statSync(dir).isDirectory()) return null;
-  const entries = [];
-  for (const name of readdirSync(dir)) {
-    if (name.startsWith(".")) continue;
-    const full = path.join(dir, name);
-    const found = lstatSync(full);
-    if (found.isDirectory()) {
-      const hash = treeOf(full);
-      // git sorts a folder as if its name ended with a slash, and keeps no empty folder.
-      if (hash) entries.push({ mode: "40000", name, hash, order: `${name}/` });
-    } else if (found.isSymbolicLink()) {
-      const hash = hashOf("blob", Buffer.from(readlinkSync(full)));
-      entries.push({ mode: "120000", name, hash, order: name });
-    } else {
-      const mode = found.mode & 0o111 ? "100755" : "100644";
-      entries.push({ mode, name, hash: hashOf("blob", readFileSync(full)), order: name });
-    }
-  }
-  if (entries.length === 0) return null;
-  entries.sort((a, b) => Buffer.compare(Buffer.from(a.order), Buffer.from(b.order)));
-  return hashOf(
-    "tree",
-    Buffer.concat(
-      entries.flatMap((entry) => [Buffer.from(`${entry.mode} ${entry.name}\0`), entry.hash]),
-    ),
-  );
-}
-
-// The hash git gives a folder as a tree, in hex, so that a stamp written by git and one computed
-// here are the same text.
-export function treeHash(dir) {
-  return treeOf(dir)?.toString("hex") ?? null;
-}
-
-function readStamp(root) {
-  const file = path.join(root, STAMP);
-  if (!existsSync(file)) return null;
-  let data;
-  try {
-    data = JSON.parse(readFileSync(file, "utf8"));
-  } catch {
-    throw new Error(`${STAMP} is not JSON`);
-  }
-  if (typeof data?.version !== "string" || !/^[0-9a-f]{40}$/.test(String(data?.tree))) {
-    throw new Error(`${STAMP} does not give a version and the tree of ${TOOL_COPY}`);
-  }
-  return { version: data.version, tree: data.tree };
-}
-
 // The repository's copy of the tool against the installed plugin's. Content decides, not the
-// version number: two folders with the same tree are the same tool.
+// version number: two folders with the same tree are the same tool. The stamp says where the copy
+// came from; without one, a copy that is exactly the tool of a recorded release is named by it.
 function toolOf(root) {
   const recorded = readStamp(root);
-  const installed = { version: VERSION, tree: treeHash(TOOL_SOURCE) };
+  const installed = { version: VERSION, tree: installedTree() };
   const copy = treeHash(path.join(root, TOOL_COPY));
-  const noStamp = "the repository does not record which version it took";
+  const known = recorded ? null : releaseOf(copy);
+  const noStamp = known
+    ? `no stamp: by its content it is the tool of version ${known}`
+    : "no stamp: the repository does not record which version it took";
   let says;
   if (copy === null) {
     says = recorded
@@ -113,11 +63,11 @@ function toolOf(root) {
   } else if (copy !== installed.tree) {
     says = recorded
       ? `the repository's copy is stamped as version ${recorded.version}; the installed plugin is version ${installed.version}, and its tool is another`
-      : `the repository's copy differs from the installed plugin's, version ${installed.version} (no stamp: ${noStamp}, so it cannot be said where the copy came from or whether it was changed here)`;
+      : `the repository's copy differs from the installed plugin's, version ${installed.version} (${noStamp}${known ? "" : ", so it cannot be said where the copy came from or whether it was changed here"})`;
   } else {
     says = recorded
       ? `the repository's copy is the installed plugin's, version ${installed.version}, as stamped`
-      : `the repository's copy is the installed plugin's, version ${installed.version} (no stamp: ${noStamp})`;
+      : `the repository's copy is the installed plugin's, version ${installed.version} (${noStamp})`;
   }
   const differs =
     copy === null
@@ -270,7 +220,7 @@ function rhythmsOf(audit, broken) {
 
 // The commands to run next, in order: what is broken first, then what answers the owner, then what
 // the audit decides from the files. Only commands this plugin has.
-function nextOf(audit, waiting, broken) {
+function nextOf(audit, waiting, broken, tool) {
   const next = [];
   if (broken.length > 0) {
     next.push({
@@ -290,6 +240,14 @@ function nextOf(audit, waiting, broken) {
         .slice(0, SHOWN)
         .map((item) => item.id)
         .join(", ")}${mine.length > SHOWN ? ", ..." : ""})`,
+    });
+  }
+  // A copy of the tool that is not the installed plugin's is brought in by upgrade, after its
+  // preview: the person reads what would change before anything does.
+  if (tool.differs && tool.copy !== null) {
+    next.push({
+      command: UPGRADE,
+      why: `${tool.says}: preview with --dry-run what would change, then upgrade`,
     });
   }
   // The audit's last line names a command when the scripts have something left to do.
@@ -317,7 +275,7 @@ function resultOf({ audit, broken, tool }, waiting) {
     rhythms: rhythmsOf(audit, broken),
     waiting,
     tool,
-    next: nextOf(audit, waiting, broken),
+    next: nextOf(audit, waiting, broken, tool),
   };
 }
 
@@ -388,10 +346,8 @@ export function report(result) {
     }
   }
   lines.push("", `tool: ${tool.says}`);
-  if (tool.differs) {
-    lines.push(
-      "  no command of this version brings the installed tool into a repository (limit adopt-does-not-refresh-tool)",
-    );
+  if (tool.differs && tool.copy !== null) {
+    lines.push(`  ${UPGRADE} --dry-run says what bringing the installed tool in would change`);
   }
   // Where this report is blind, so that "nothing waits" does not read as more than it is.
   const blind = LIMITS.filter((limit) => limit.area === "status" && limit.status === "open");
@@ -529,10 +485,11 @@ export function documentOf(result, origin) {
       command: AUDIT,
     },
     tool.differs && {
-      what: "Leave the repository's copy of the tool as it is for now",
+      what: "Preview the upgrade before the repository's copy of the tool changes",
       basis: { kind: "measurement", text: tool.says },
       action:
-        "Nothing to run: no command of this version brings the installed tool into a repository (limit adopt-does-not-refresh-tool). Do not copy its files by hand unless you mean to.",
+        "Run the upgrade with --dry-run: it lists the tool files, the ledger entries and the decisions that would change, and whether the gate stays green. Do not copy the files by hand.",
+      command: `${UPGRADE} --dry-run`,
     },
     ...shown.map((item) => ({
       about: `${item.id}: ${item.question}`,

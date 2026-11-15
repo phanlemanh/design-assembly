@@ -467,6 +467,18 @@
       "trust": "coined"
     },
     {
+      "term": "upgrade",
+      "meaning": "Bringing the installed version of the plugin's tool into a repository that already runs a copy of it, after a preview of what would change. The Vietnamese of the documents says lên đời.",
+      "source": "Common practice: package managers upgrade a dependency to a newer version, and say what it changes before they do",
+      "trust": "practice"
+    },
+    {
+      "term": "release notes",
+      "meaning": "The document that says what a version changes for the one who takes it. Upgrade hands over the release notes of one repository: which tool files, ledger entries and decisions the installed version changes there.",
+      "source": "Common practice in software releases and in the change logs of design systems",
+      "trust": "practice"
+    },
+    {
       "term": "decision sheet",
       "meaning": "Every question that waits on the owner of a repository, gathered on one sheet, each with one recommendation and what it rests on, answered in one go. Decide prints it and writes the answers back with the name of the person who gave them and the date.",
       "source": "The specification of the command set, 2026-11-15",

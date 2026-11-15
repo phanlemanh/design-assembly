@@ -42,9 +42,11 @@ It ends with:
   `/design-assembly:decide` takes the answer to a row nobody confirmed and to a question of the
   waiting list. A permission in the waiting list is not counted: only the owner gives it.
 - `tool`: whether the repository's copy under `tools/design-assembly/` is the tool of the
-  installed plugin. Content decides, not the version number. `no stamp` means the repository does
-  not record which version it took; no command of this version writes the tool stamp
-  (`design/tool-stamp.json`), so today every repository reads that way.
+  installed plugin. Content decides, not the version number. The tool stamp
+  (`design/tool-stamp.json`, written by the guide, adopt and upgrade) says which version the copy
+  came from, and `changed after it was stamped` says someone edited the copy since. `no stamp`
+  means the repository was adopted before stamps; a copy that is exactly the tool of a recorded
+  release is then named by that version.
 - `status does not see`: the limits of this report, by id, in `references/limits.json`.
 - `next`, then `then`: the commands to run, in order.
 
@@ -57,9 +59,9 @@ It ends with:
 - A proposal is not the person's answer. Do not say a row is decided while it is listed here, and
   do not answer for the person.
 - More than five items: the screen shows five in full and names the rest. `--json` has them all.
-- When the tool differs, say that this version has no command that brings the installed tool into
-  a repository, and name the limit the screen prints. Do not copy files by hand unless the person
-  asks.
+- When the tool differs, `next` names `/design-assembly:upgrade`: offer its preview
+  (`--dry-run`), which says what bringing the installed tool in would change. Do not copy files by
+  hand.
 - Always say the one thing this report cannot know: it reads the ledgers and the waiting list, so
   a question that waits somewhere else (a pull request, a conversation, a page of prose) is not
   counted. "Nothing in the ledgers or the waiting list" is not "nothing waits".
