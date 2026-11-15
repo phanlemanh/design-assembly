@@ -507,14 +507,14 @@ a decision is failing or bypassed, and `2` on a wrong call or a repository it ca
 
 ## How every command is called and how it ends
 
-The five commands that exist (`status`, `audit`, `new`, `adopt`, `handoff`) share one contract,
+The six commands that exist (`status`, `audit`, `new`, `decide`, `adopt`, `handoff`) share one contract,
 written once in `scripts/command.mjs` and held by `tests/test-command-contract.mjs`.
 
 - `--target DIR` names the repository. Without it the command reads the folder it is run from.
 - `--json` prints one JSON document and nothing else. A key the specification lists that a command
   cannot give yet is left out, and a row of `references/limits.json` says so.
-- `status` and `audit` only read: the tree is the same afterwards, byte for byte. `new`, `adopt`
-  and `handoff` take `--dry-run`, which lists the files the real run writes and writes nothing.
+- `status` and `audit` only read: the tree is the same afterwards, byte for byte. `new`, `decide`,
+  `adopt` and `handoff` take `--dry-run`, which lists the files the real run writes and writes nothing.
 - A flag the command does not have is a wrong call, not something to pass over.
 
 | Ends with | Means                                                                                                                     |
@@ -530,11 +530,12 @@ What makes each command end with `1`:
 | `status`  | An answer waits on a person, the tool differs, or a decision is failing or bypassed                |
 | `audit`   | A decision is not held, failing or bypassed                                                        |
 | `new`     | A built layer is not decided yet, or the preview shows a write that would be refused               |
+| `decide`  | A question waits on the owner, or a call only a person can make that another command records       |
 | `adopt`   | `needs a person` lists a question                                                                  |
 | `handoff` | The book was written without every picture or in fewer formats than asked; a checked book is stale |
 
 The `make` targets of this repository that call those commands end well on `0` and on `1`; only `2`
-fails them. `make design-status` passes the `1` on.
+fails them. `make design-status` and `make design-decide` pass the `1` on.
 
 ## What decide reads and writes
 

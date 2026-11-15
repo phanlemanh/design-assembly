@@ -80,6 +80,17 @@ const COMMANDS = [
     ],
   },
   {
+    name: "decide",
+    script: "decide.mjs",
+    writes: true,
+    keys: ["questions", "answered"],
+    cases: [
+      // With no answers file nothing is written: the preview and the real run name no file.
+      { on: "answered", exit: EXIT.done, real: EXIT.done, why: "no question waits" },
+      { on: "proposed", exit: EXIT.work, real: EXIT.work, why: "rows nobody confirmed" },
+    ],
+  },
+  {
     name: "handoff",
     script: "book.mjs",
     writes: true,
