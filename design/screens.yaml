@@ -5,6 +5,9 @@
 #   family  the `nhom` of the page of its kind under design/patterns, or null
 #   status  built (the screen exists) | planned (declared ahead, not built yet)
 #   states  the names of the states it shows, as the code that reaches them names them
+#   shows   the entities of ontology/ it shows
+#   entry   the action of ontology/actions.yaml a role must hold to open it, or null for every role
+#   actions the actions of ontology/actions.yaml it has buttons for
 # The code that reaches each state is the screen list of the application. Keep this file in
 # block style.
 version: 1
@@ -17,6 +20,12 @@ screens:
     title: screenTitle
     family: danh-sach
     status: built
+    shows:
+      - Item
+    entry: listItems
+    actions:
+      - createItem
+      - deleteItem
     states:
       - ready
       - loading
@@ -35,6 +44,10 @@ screens:
     title: overdueTitle
     family: danh-sach
     status: built
+    shows:
+      - Item
+    entry: listItems
+    actions: []
     states:
       - ready
       - loading

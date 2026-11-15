@@ -83,9 +83,16 @@ import {
   STARTER_WIDTHS,
 } from "../templates/tools/design-assembly/screens.mjs";
 import {
+  readScreenLedger,
   renderScreenLedger,
   SCREEN_LEDGER,
 } from "../templates/tools/design-assembly/screen-ledger.mjs";
+import {
+  MODEL,
+  offersOf,
+  readModel,
+  screenActionsProblem,
+} from "../templates/tools/design-assembly/screen-actions.mjs";
 
 // The repository's own test that the ledger of screens and the code agree while the code runs.
 const LEDGER_TEST = "tests/screens-ledger.test.ts";
@@ -584,6 +591,27 @@ export function patternsPlan(target, { starter, code = false }) {
         "utf8",
       );
     }
+  }
+  // The ledger of screens joined with the domain model, once the ledger says what a screen shows,
+  // opens with or offers, and the repository declares actions. Its names are the repository's.
+  const model = readModel(target);
+  if (
+    ledgerText !== null &&
+    model.present &&
+    shapeProblems("screens", ledgerText, SCREEN_LEDGER).length === 0 &&
+    offersOf(readScreenLedger(ledgerText)).declared
+  ) {
+    propose("screen-actions", screenActionsProblem(ledgerText, model, SCREEN_LEDGER), {
+      what: `every action of ${MODEL}/ is offered on a screen of ${SCREEN_LEDGER} to every role that may run it, and no screen shows a record or a button to a role without the right`,
+      row: {
+        layer: "templates",
+        kind: "closed",
+        source: `${SCREEN_LEDGER}, what each screen shows, opens with and offers, against ${MODEL}/`,
+        check: TOOL,
+        note: "reads the ledger and the model as written: where a button sits, and that a role without the right does not see it while the screen runs, are not checked here",
+      },
+      checks: [{ kind: "screen-actions", file: SCREEN_LEDGER, model: MODEL }],
+    });
   }
   let statesText = read(STATES_FILE);
   if (registry !== null && statesText === null && starter) {
@@ -1087,6 +1115,8 @@ export function rulesPage(checks, has) {
       ? "A screen is listed twice: in `src/screens.ts`, how each of its states is reached, and in `design/screens.yaml`, the ledger every tool reads: its `id`, `route`, `title` (the key of its title among the repository's words), `family` (the `nhom` of the page of its kind), `status` and the names of its `states`, in the code's order. Add both in the same change. The gate fails when the two list different screens, and `tests/screens-ledger.test.ts` when a title or the states differ. States in `src/screens.ts` may be built by a function: the checks read them from the ledger."
       : held("state-matrix") &&
         "The gate reads `src/screens.ts` as written: list each screen and each of its states in full there, never built by a function or spread from another list, or the gate does not see them.",
+    held("screen-actions") &&
+      "A screen's entry in `design/screens.yaml` also says what it shows (`shows`, entities of `ontology/`), the action a role must hold to open it (`entry`, or null for every role) and the actions it has buttons for (`actions`). Every action of `ontology/actions.yaml` is offered on a screen to every role that may run it; an action that has no screen is listed under `no_screen` with `later: <where>`, or `never: <reason>` with `decided_by`, the person who decided, never you. The gate fails when an action is offered to nobody who may run it, when a screen shows a record to a role that may not view it, and when a button is one no role that opens its screen may press.",
     held("navigation-in-frame") &&
       (has("src/components/app-frame.tsx")
         ? "Moving between screens is the frame's. Once there is more than one screen, `src/App.tsx` draws `AppFrame` (`src/components/app-frame.tsx`) with the list of screens, each given a `title` from the repository's words: it moves between them without loading the page again, marks the open one, leaves a screen's toasts behind and draws the toaster once. A screen never links to another screen: the gate fails when one does."

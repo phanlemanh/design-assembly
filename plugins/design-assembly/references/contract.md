@@ -93,6 +93,18 @@ the names of the states it shows. Beside the screens the file may name `families
 `statuses`. A repository may keep keys of its own, on a screen or beside the screens, such as who
 may open it: they are its extension, and are read without complaint.
 
+Three more keys of a screen join the ledger with the repository's domain model: `shows`, the
+entities it shows; `entry`, the action a role must hold to open it, or null for every role; and
+`actions`, the actions it has buttons for. Every name is one of the repository's own `ontology/`.
+Beside the screens, `frame` says the same (`shows`, `actions`) for the frame around every screen;
+`no_screen` lists each action that has no screen, as `{ later: <where> }` or
+`{ never: <reason>, decided_by: <the person> }`; and `keys` gives the repository's own spelling of
+these keys, such as `{ entry: vao, actions: nut, frame: khung }`. Once a screen declares any of
+them and the repository declares actions, the gate holds that every action is offered to every role
+that may run it, that no screen shows a record to a role that may not view it, and that no button
+is one no role that opens its screen may press. What the model or the ledger plans for later is
+listed on every run.
+
 The ledger says what there is; the code that lists the screens says how each state is reached. The
 gate holds that both list the same built screens, that no id or route is listed twice, and that
 each family is the kind of a page; the screen checks read the states from the ledger. The

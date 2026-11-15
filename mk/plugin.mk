@@ -7,8 +7,10 @@ REFERENCE_LEDGER ?= ../onehub-inventory
 # A checkout of the acceptance kit on this machine. When it is there, the design tokens file the
 # plugin writes is given to the kit's own reader; when it is not, that test is skipped too.
 ACCEPTANCE_KIT ?= ../delivery-loop
+# How the reference repository spells the keys of its ledger of screens that join it with its model.
+REFERENCE_SCREEN_KEYS ?= entry=vao,actions=nut,frame=khung
 
-.PHONY: design-ladder plugin-test design-specimen design-book design-apply design-plan design-audit design-adopt design-adopt-plan design-adopt-reference
+.PHONY: design-ladder design-screen-actions-reference plugin-test design-specimen design-book design-apply design-plan design-audit design-adopt design-adopt-plan design-adopt-reference
 
 design-audit: ## Audit this repository: each standard decision's state, and the tier it has reached
 	@node plugins/design-assembly/scripts/inventory.mjs --target .
@@ -50,6 +52,12 @@ design-adopt: ## Add those rows and checks. Changes no stylesheet, lint rule, te
 
 design-adopt-reference: ## Preview adopting on the reference repository. Never writes there
 	@node plugins/design-assembly/scripts/adopt.mjs --target $(REFERENCE_LEDGER) --dry-run $(ADOPT_ARGS)
+
+design-screen-actions-reference: ## Join the reference repository's ledger of screens with its domain model, as it is and with what each screen shows. Never writes there
+	@echo "--- as the repository declares it"
+	-@node plugins/design-assembly/templates/tools/design-assembly/screen-actions.mjs --target $(REFERENCE_LEDGER) --keys $(REFERENCE_SCREEN_KEYS)
+	@echo "--- with what each screen shows, written by the machine in docs/trials/inventory-shows.json"
+	-@node plugins/design-assembly/templates/tools/design-assembly/screen-actions.mjs --target $(REFERENCE_LEDGER) --keys $(REFERENCE_SCREEN_KEYS),shows=hien --overlay docs/trials/inventory-shows.json
 
 design-ladder: ## Measure the four-rung ladder on a throwaway copy of the reference repository. Never writes there
 	@node docs/trials/ladder.mjs --reference $(REFERENCE_LEDGER) --kit $(ACCEPTANCE_KIT)
