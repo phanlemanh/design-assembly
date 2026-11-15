@@ -40,7 +40,8 @@
         {
           "id": "0.4",
           "what": "Lệnh đo thang chạy được trên repo đã nhận",
-          "state": "todo"
+          "state": "done",
+          "ref": "quyết định 0045, PR 11"
         },
         {
           "id": "0.5",
@@ -306,6 +307,12 @@
       "what": "Bốn tiêu chí của đề bài 0002 nêu tên một repo",
       "stage": 0,
       "why_not_now": "Là một câu của hàng chờ, trả lời qua decide"
+    },
+    {
+      "on": "2026-11-15",
+      "what": "Một quyết định ở repo đã nhận từng được máy giữ nay không còn giữ dưới bản plugin hiện tại, chưa biết dòng nào (máy giữ 16, lần đo trước 18; dòng chênh kia là sổ linh kiện, đã có dòng giới hạn)",
+      "stage": 1,
+      "why_not_now": "Không chặn giai đoạn 0; phải truy trước khi lên đời repo đó"
     },
     {
       "on": "2026-11-15",
