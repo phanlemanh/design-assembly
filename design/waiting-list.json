@@ -1,0 +1,207 @@
+{
+  "version": 1,
+  "about": "Việc chờ chủ repo xem. Gom ngày 2026-11-14 theo quyết định 0032; thành dữ liệu ngày 2026-11-15 theo quyết định 0043. In tờ trình bằng `make design-decide`. Máy không tự ghi lời đáp cho dòng nào: lời đáp chỉ vào đây qua lệnh decide, kèm tên người đáp và ngày.",
+  "rows": [
+    {
+      "id": "A1",
+      "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+      "question": "Khung ứng dụng: thanh điều hướng nằm trên đầu, tên ứng dụng bên trái",
+      "recommendation": "Giữ",
+      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0025",
+      "where": "0025",
+      "if_refused": "Dựng lại khung"
+    },
+    {
+      "id": "A2",
+      "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+      "question": "Màn thứ hai của ứng dụng mẫu là «mục quá hạn»",
+      "recommendation": "Giữ",
+      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0025",
+      "where": "0025",
+      "if_refused": "Đổi màn mẫu thứ hai"
+    },
+    {
+      "id": "A3",
+      "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+      "question": "Chuyển màn không tải lại trang",
+      "recommendation": "Giữ",
+      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0027",
+      "where": "0027",
+      "if_refused": "Khó bác: dữ liệu mẫu sẽ quên việc vừa làm"
+    },
+    {
+      "id": "A4",
+      "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+      "question": "Hoàn tác đưa một dòng quay lại thì tiêu điểm vào đúng nút của dòng đó",
+      "recommendation": "Giữ",
+      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0027",
+      "where": "0027",
+      "if_refused": "Đổi luật tiêu điểm và bài kiểm"
+    },
+    {
+      "id": "A5",
+      "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+      "question": "Dòng đang xoá hiện vòng quay thay cho chữ, vì chữ «Đang xoá» rộng quá 2px ở bề rộng 320",
+      "recommendation": "Giữ",
+      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0027",
+      "where": "0027",
+      "if_refused": "Phải tìm cách khác cho bề rộng 320"
+    },
+    {
+      "id": "A6",
+      "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+      "question": "Plugin cài sẵn khung ứng dụng và phần tải chung của màn danh sách cho repo mới",
+      "recommendation": "Giữ",
+      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0028",
+      "where": "0028",
+      "if_refused": "Gỡ hai phần khỏi bộ cài"
+    },
+    {
+      "id": "A7",
+      "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+      "question": "Sổ token ghi màu bằng mã hex, giữ chữ oklch bên cạnh",
+      "recommendation": "Giữ",
+      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0029",
+      "where": "0029",
+      "if_refused": "Kit sẽ lại từ chối sổ token"
+    },
+    {
+      "id": "A8",
+      "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+      "question": "Cấp của linh kiện (atom, molecule, organism) do máy tính từ độ sâu nhập, không ai khai",
+      "recommendation": "Giữ",
+      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0029",
+      "where": "0029",
+      "if_refused": "Thêm chỗ để người khai cấp"
+    },
+    {
+      "id": "A9",
+      "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+      "question": "Sổ linh kiện liệt kê cả linh kiện riêng của repo, không chỉ thư viện",
+      "recommendation": "Giữ",
+      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0029",
+      "where": "0029",
+      "if_refused": "Thu sổ về thư viện"
+    },
+    {
+      "id": "A10",
+      "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+      "question": "Mỗi màn ghi ở hai nơi: sổ màn (có gì) và mã (đi tới bằng cách nào)",
+      "recommendation": "Giữ",
+      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0030",
+      "where": "0030",
+      "if_refused": "Quay lại một nơi; lỗi đọc nhầm trạng thái trở lại"
+    },
+    {
+      "id": "A11",
+      "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+      "question": "Repo được thêm khoá riêng vào sổ màn (ví dụ vai nào được mở màn)",
+      "recommendation": "Giữ",
+      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0030",
+      "where": "0030",
+      "if_refused": "Sổ màn của Inventory sẽ lệch hình dạng ở nhiều chỗ"
+    },
+    {
+      "id": "A12",
+      "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+      "question": "Năm loại bộ chuyển; trình duyệt tách khỏi nền dựng",
+      "recommendation": "Giữ",
+      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0031",
+      "where": "0031",
+      "if_refused": "Gộp lại thành bốn loại"
+    },
+    {
+      "id": "A13",
+      "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+      "question": "Cách xếp 111 giới hạn đang mở vào ba ngăn: 55 sẽ sửa, 50 chấp nhận, 6 chuyển cho repo khác",
+      "recommendation": "Giữ",
+      "basis": "Máy đã chọn và đã dựng điều này; ghi ở quyết định 0024",
+      "where": "0024",
+      "if_refused": "Chuyển ngăn từng dòng"
+    },
+    {
+      "id": "B1",
+      "group": "B. Điều chưa bao giờ được duyệt",
+      "question": "Kiến trúc tổng thể của lớp meta (tài liệu kiến trúc). Mới chốt ba điều và chín câu",
+      "recommendation": "Duyệt sau lát đầu trên Inventory, khi đã có số thật"
+    },
+    {
+      "id": "B2",
+      "group": "B. Điều chưa bao giờ được duyệt",
+      "question": "Bộ chỉ số đo hiệu quả",
+      "recommendation": "Duyệt cùng B3 và B4"
+    },
+    {
+      "id": "B3",
+      "group": "B. Điều chưa bao giờ được duyệt",
+      "question": "Đổi chỉ số chính sang «luật bị phạm, có so với không có trang luật»; số chỗ đoán thành số phụ",
+      "recommendation": "Giữ đề xuất"
+    },
+    {
+      "id": "B4",
+      "group": "B. Điều chưa bao giờ được duyệt",
+      "question": "Thang bốn nấc ở Inventory: sổ đúng hình dạng, câu lõi máy giữ, công cụ được thay, bậc của kit",
+      "recommendation": "Giữ đề xuất"
+    },
+    {
+      "id": "B5",
+      "group": "B. Điều chưa bao giờ được duyệt",
+      "question": "Ngừng thêm luật bằng lời ở repo này; chỉ sửa 14 giới hạn nguy hiểm khi Inventory đụng tới",
+      "recommendation": "Giữ đề xuất"
+    },
+    {
+      "id": "C1",
+      "group": "C. Câu còn mở từ trước",
+      "question": "Màn mẫu của một kiểu màn là màn thật trong sổ màn (plugin hiểu vậy) hay trang mẫu riêng (Inventory ghi)",
+      "recommendation": "Màn thật; sẽ phải chốt khi Inventory nhận sổ màn"
+    },
+    {
+      "id": "C2",
+      "group": "C. Câu còn mở từ trước",
+      "question": "Có ghim màu thương hiệu của repo được nhận không",
+      "recommendation": "Có: hôm nay đổi sang màu khác vẫn qua nếu đủ tương phản"
+    },
+    {
+      "id": "C3",
+      "group": "C. Câu còn mở từ trước",
+      "question": "Ba tờ cuối của cuốn sổ bàn giao (kiểu màn, đường đi, trạng thái) chưa được xem",
+      "recommendation": "Xem một lượt; chỉ mắt người chấm được"
+    },
+    {
+      "id": "C4",
+      "group": "C. Câu còn mở từ trước",
+      "question": "Phần thêm vào trang kiểu màn «danh sách» sau ngày 2026-11-12 (luồng xoá, dòng tự chờ) là máy viết",
+      "recommendation": "Xác nhận hoặc sửa"
+    },
+    {
+      "id": "C5",
+      "group": "C. Câu còn mở từ trước",
+      "question": "Ngôn ngữ và đơn vị tiền của ứng dụng mẫu là máy suy ra",
+      "recommendation": "Xác nhận"
+    },
+    {
+      "id": "C6",
+      "group": "C. Câu còn mở từ trước",
+      "question": "Ở Inventory, `DataRegion` là khuôn (trang kiểu màn «lưới» nói vậy) hay organism (công cụ sổ linh kiện)",
+      "recommendation": "Khuôn: trang kiểu màn là chỗ người viết; 0034"
+    },
+    {
+      "id": "C7",
+      "group": "C. Câu còn mở từ trước",
+      "question": "Bốn tiêu chí của đề bài 0002 nêu tên Inventory: giữ chữ, hay viết lại thành «một repo đã có»",
+      "recommendation": "Viết lại: tiêu chí đo plugin, không đo một repo"
+    },
+    {
+      "id": "D2",
+      "kind": "permission",
+      "group": "D. Việc chỉ chủ repo làm được",
+      "question": "Cho phép từng bước ở Inventory, delivery-loop và Repo Standards"
+    },
+    {
+      "id": "D3",
+      "kind": "permission",
+      "group": "D. Việc chỉ chủ repo làm được",
+      "question": "Cho phép chạy phép đo token chính thức (tốn tiền API)"
+    }
+  ]
+}

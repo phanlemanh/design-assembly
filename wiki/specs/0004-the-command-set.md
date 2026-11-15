@@ -30,14 +30,17 @@ sources:
 
 # 0004 Bộ lệnh của design-assembly, theo việc người dùng cần xong
 
-Máy viết ngày 2026-11-15 theo lời chủ repo cùng ngày. Chủ repo duyệt cùng ngày («Duyệt đề bài»). Lệnh
-mới đầu tiên, `status`, đã dựng cùng ngày
-([0041](../decisions/0041-status-reads-ledger-rows-and-compares-the-tool-by-content.md)); tài liệu
-bàn giao của nó (`--out`) và mười hai lệnh còn lại thì chưa. Hợp đồng chung, phần kết quả máy đọc
-được và mã thoát, đã áp cho năm lệnh đang có
-([0044](../decisions/0044-one-contract-for-the-commands-that-exist.md)); hai chỗ còn lệch đề bài nằm
-ở sổ giới hạn: `new` chưa trả nguyên tắc và hướng đi, `handoff` kết thúc 1 chứ không phải 2 khi
-không vẽ được. Đề bài này chốt lệnh nào tồn tại, nó nhận gì và trả gì.
+Máy viết ngày 2026-11-15 theo lời chủ repo cùng ngày. Chủ repo duyệt cùng ngày («Duyệt đề bài»). Hai
+lệnh mới đã dựng cùng ngày: `status`
+([0041](../decisions/0041-status-reads-ledger-rows-and-compares-the-tool-by-content.md)) và `decide`
+([0043](../decisions/0043-decide-reads-ledger-rows-and-a-waiting-list-kept-as-data.md)). Tài liệu
+bàn giao của hai lệnh (`--out`) và mười một lệnh còn lại thì chưa. `decide` hôm nay đọc dòng sổ chưa
+ai xác nhận và một hàng chờ giữ dạng dữ liệu; ba nguồn còn lại ở dòng «Đọc» của nó thuộc lệnh chưa
+dựng, câu thẩm mỹ chưa kèm bảng mẫu, và tên người đáp ghi trong ghi chú của dòng sổ thay cho khoá
+riêng (0043 nêu lý do). Hợp đồng chung, phần kết quả máy đọc được và mã thoát, đã áp cho năm lệnh có
+từ trước `decide` ([0044](../decisions/0044-one-contract-for-the-commands-that-exist.md)); hai chỗ
+còn lệch đề bài nằm ở sổ giới hạn: `new` chưa trả nguyên tắc và hướng đi, `handoff` kết thúc 1 chứ
+không phải 2 khi không vẽ được. Đề bài này chốt lệnh nào tồn tại, nó nhận gì và trả gì.
 
 ## Intent
 

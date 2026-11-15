@@ -14,7 +14,8 @@ thư mục tạm của phiên cũ, và **không thừa hưởng quyền nào ch�
 2. `AGENTS.md` và `CLAUDE.md` ở gốc kho: lệnh, luật, ngôn ngữ.
 3. `wiki/decisions/0032-review-after-stage-two-and-stage-three-recut.md`: bản review và việc cắt lại
    chặng 3. Rồi `docs/trials/inventory-ladder.md`: thang bốn nấc và số đo của lát đầu.
-4. `docs/review-queue.md`: 25 dòng đang chờ chủ kho xem. Đừng tự coi dòng nào là đã duyệt.
+4. `make design-decide`: tờ trình 25 câu đang chờ chủ kho đáp (dữ liệu ở `design/waiting-list.json`).
+   Đừng tự coi câu nào là đã duyệt, và đừng tự viết lời đáp.
 5. `wiki/specs/0002-meta-layer-for-many-repositories.md`: tầm nhìn, bảy tiêu chí, kế hoạch.
    Kiến trúc đầy đủ ở `docs/architecture/meta-layer.html` (chưa duyệt toàn bộ). Tài liệu đó gọi kho
    mã là «repo» và nơi chứa thứ dùng lại là «kho»; trang viết trước 2026-11-13 còn dùng «kho» cho
@@ -34,7 +35,7 @@ Một plugin Claude Code (`plugins/design-assembly/`) dẫn người dùng tới
 nằm ngay trong kho của họ, để Claude Code dựng màn mà không phải đoán. Ứng dụng React ở gốc kho là
 bản cài đặt đối chứng: plugin sinh gì thì hiện ở đó và được `make check` chấm.
 
-Bốn đường của plugin:
+Năm đường của plugin:
 
 - **audit** (`scripts/inventory.mjs`): chỉ đọc. Đo kho theo danh mục quyết định chuẩn, nói bậc đã
   tới, và in dòng `next:` chỉ skill kế tiếp.
@@ -42,7 +43,11 @@ Bốn đường của plugin:
 - **adopt** (`scripts/adopt.mjs`): nhận cái kho đã có, không đổi gì của kho.
 - **status** (`scripts/status.mjs`, từ 2026-11-15, quyết định 0041): chỉ đọc. Một màn hình: nấc đã
   tới, mỗi nhịp một dòng, việc chờ chủ kho kèm khuyến nghị, bản công cụ có lệch plugin không, lệnh
-  nên chạy kế. Nó chỉ thấy việc chờ nằm trong sổ: 26 dòng ở `docs/review-queue.md` nó không đếm.
+  nên chạy kế. Nó chỉ thấy việc chờ nằm trong sổ: các câu ở `design/waiting-list.json` nó không đếm.
+- **decide** (`scripts/decide.mjs`, từ 2026-11-15, quyết định 0043): một tờ gom mọi câu chờ chủ
+  kho, mỗi câu một khuyến nghị và căn cứ: dòng sổ chưa ai xác nhận, và hàng chờ dạng dữ liệu
+  `design/waiting-list.json`. Chỉ ghi khi có tệp lời đáp của người (`--answers`), kèm tên và ngày;
+  `--dry-run` in trước tệp sẽ ghi. Ở kho này: `make design-decide`, 25 câu chờ, chưa câu nào được đáp.
 
 Nguyên tắc xuyên suốt: mỗi quyết định thiết kế là một dòng trong sổ `design/decisions.yaml`, trỏ
 tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và mỗi lần chạy đều tự chứng minh nó đỏ
@@ -101,7 +106,7 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 | Chạy lại lint của repo trên đoạn mã phạm quyết định            | 0033    | `templates/tools/design-assembly/probes.mjs`, `lint.mjs`, `adapters/eslint.mjs`                    |
 | Sổ màn nói màn hiện gì, nút cho ai; cổng nối với mô hình       | 0037    | `templates/tools/design-assembly/screen-actions.mjs`, `make design-screen-actions-reference`       |
 
-Lệnh hay dùng ở kho này: `make design-status`, `make design-audit`, `make design-plan`, `make design-apply`,
+Lệnh hay dùng ở kho này: `make design-status`, `make design-decide`, `make design-audit`, `make design-plan`, `make design-apply`,
 `make design-adopt`, `make design-adopt-reference` (xem trước trên kho đối chứng, không bao giờ
 ghi), `make design-tokens`, `make design-components`, `make design-columns`, `make plugin-test`.
 
@@ -123,8 +128,9 @@ Khuôn mẫu về nhịp dẫn dắt: `~/dev/repo-standards/plugins/repo-setup/s
 
 ## Việc kế
 
-**Đang chờ chủ kho trả lời:** 25 dòng A, B, C ở `docs/review-queue.md`; C7 là chữ của bốn tiêu chí nêu
-tên Inventory. Lệnh `decide` (giai đoạn 0) sẽ gom chúng thành một tờ.
+**Đang chờ chủ kho trả lời:** 25 câu A, B, C ở `design/waiting-list.json`, in bằng
+`make design-decide`; C7 là chữ của bốn tiêu chí nêu tên Inventory. Chủ kho đáp một lần bằng tệp
+lời đáp (`make design-decide DECIDE_ARGS="--answers TỆP"`); máy không tự đáp câu nào.
 
 Chủ kho đã đáp ba câu của Inventory ngày 2026-11-14: ứng dụng, mức AA, giữ màu thương hiệu
 `#0246ff`. Quyền đã cho ngày đó, bằng lời, trong một phiên: bước 1 và 2 trên nhánh riêng của
@@ -233,8 +239,8 @@ API); lệnh kiểm tương phản cho nút khi rê chuột; adopt nhận trang 
 
 ## Điều còn mở
 
-Cần chủ kho quyết: mọi câu đã gom vào `docs/review-queue.md`, 25 dòng, mỗi dòng trả lời bằng một
-chạm. Hình dạng sổ linh kiện đã được phân xử (0023 câu 1, dựng ở 0029). Riêng ở kho đối chứng: bảy
+Cần chủ kho quyết: mọi câu đã gom vào `design/waiting-list.json`, 25 câu, in bằng
+`make design-decide`, mỗi câu trả lời bằng một chạm. Hình dạng sổ linh kiện đã được phân xử (0023 câu 1, dựng ở 0029). Riêng ở kho đối chứng: bảy
 dòng sổ đã có bài kiểm mà dòng chưa trỏ tới; `adopt --hold` gắn được, làm hay không là việc của
 chủ kho ở kho đó.
 
