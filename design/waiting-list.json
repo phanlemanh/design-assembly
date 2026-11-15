@@ -136,10 +136,10 @@
       "id": "B1",
       "group": "B. Điều chưa bao giờ được duyệt",
       "question": "Kiến trúc tổng thể của lớp meta (tài liệu kiến trúc). Mới chốt ba điều và chín câu",
-      "recommendation": "Duyệt bây giờ, trừ mục lộ trình (14) và hai mục đo hiệu quả (15, 16) của tài liệu: lộ trình đã thay bằng kế hoạch tám giai đoạn, bộ chỉ số là câu B2",
-      "basis": "Điều kiện cũ «sau lát đầu trên Inventory, khi đã có số thật» đã có: ba lát đã gộp vào Inventory qua ba PR 58, 59, 67 (đề bài 0002), và thang đo ngày 2026-11-15 ra 7 trên 7 sổ đúng hình dạng, 10 câu lõi máy giữ, bậc M2 của kit (quyết định 0045). Tài liệu kiến trúc dừng ở ngày 2026-11-13: mục lộ trình còn vẽ năm chặng và còn ghi «0 trên 24»; máy chưa đối chiếu từng mục 01 đến 13 với mã hôm nay. Khó đảo: ranh giới ba kho và bộ sổ của hợp đồng dựng trên kiến trúc này, và kế hoạch cần lời duyệt này trước giai đoạn 6.",
+      "recommendation": "Hoãn tới cổng của giai đoạn 6, nơi kế hoạch đã xếp việc «duyệt kiến trúc»: trước đó máy đối chiếu mục 01 đến 13 với mã và viết lại mục lộ trình (14) cùng hai mục đo hiệu quả (15, 16)",
+      "basis": "Kế hoạch chủ repo duyệt ngày 2026-11-15 xếp «duyệt kiến trúc» là việc cần chủ repo ở giai đoạn 6; không giai đoạn nào trước đó cần lời duyệt này. Điều kiện cũ «sau lát đầu trên Inventory, khi đã có số thật» đã có: ba lát đã gộp vào Inventory qua ba PR 58, 59, 67 (đề bài 0002), và thang đo ngày 2026-11-15 ra 7 trên 7 sổ đúng hình dạng, 10 câu lõi máy giữ, bậc M2 của kit (quyết định 0045). Nhưng tài liệu kiến trúc dừng ở ngày 2026-11-13: mục lộ trình còn vẽ năm chặng và còn ghi «0 trên 24», và máy chưa đối chiếu từng mục 01 đến 13 với mã hôm nay, nên duyệt bây giờ là duyệt một tài liệu chưa ai soát lại. Khó đảo: ranh giới ba kho và bộ sổ của hợp đồng dựng trên kiến trúc này.",
       "hard_to_undo": true,
-      "if_refused": "Giai đoạn 6 không mở được: kế hoạch ghi «duyệt kiến trúc» là việc cần chủ repo ở đó; tài liệu kiến trúc tiếp tục vẽ năm chặng cũ"
+      "if_refused": "Duyệt ngay hôm nay thì lời duyệt đặt trên tài liệu chưa đối chiếu với mã, và phải loại mục 14, 15, 16 khỏi lời duyệt vì chúng đã lỗi thời; bác hẳn kiến trúc thì giai đoạn 6 không mở được"
     },
     {
       "id": "B2",
