@@ -4,13 +4,14 @@
 // floor. The same repository state always gives the same report.
 // Usage: node inventory.mjs --target DIR [--json] [--all]
 import { differences, presentLedgers } from "../templates/tools/design-assembly/contract.mjs";
+import { adapterOf } from "../templates/tools/design-assembly/adapters/index.mjs";
 import { adapter as values } from "../templates/tools/design-assembly/adapters/tailwind.mjs";
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
-import { readState, runChecks } from "../templates/tools/design-assembly/check.mjs";
+import { heldHere, readState, runChecks } from "../templates/tools/design-assembly/check.mjs";
 import {
   ledgerRate,
   oldLayerNames,
@@ -40,6 +41,7 @@ const LIMITS = reference("limits.json").limits;
 
 // Named from the plugin's own folder: installed elsewhere, the plugin has no `plugins/` around it.
 const LIMITS_FILE = "references/limits.json of this plugin";
+const LINT = adapterOf("lint");
 const SKIP_DIRS = new Set(["node_modules", "dist", "coverage", "test-results", "generated"]);
 // Code the repository did not write: a vendor's components are not the repository's decisions.
 const VENDOR = /(^|\/)components\/(ui|reui)\//;
@@ -131,7 +133,7 @@ function sockets(root) {
 }
 
 // The state of a decision the repository's ledger has a row for.
-function fromLedger(root, row, held, proofs) {
+function fromLedger(root, row, held, proofs, checks) {
   if (row.kind === "judgment") return { state: "recorded", by: "the ledger", note: row.note };
   if (!row.check) {
     // The row names no check. A proof the repository runs may be there all the same.
@@ -148,6 +150,11 @@ function fromLedger(root, row, held, proofs) {
     return held.has(row.id)
       ? { state: "held", by: "this plugin's tool, run now", note: row.note }
       : { state: "failing", by: "this plugin's tool reports a problem" };
+  }
+  if (heldHere(row, checks)) {
+    return held.has(row.id)
+      ? { state: "held", by: `${row.check}, re-run by this plugin's tool`, note: row.note }
+      : { state: "failing", by: `this plugin's tool re-runs ${row.check} and reports a problem` };
   }
   const broken = pointerProblem(root, row.id, row.check);
   return broken ? { state: "failing", by: broken } : { state: "claimed", by: row.check };
@@ -283,7 +290,7 @@ function departures(root) {
   // purpose.
   const exceptions = Object.entries(readSources(root))
     .filter(([file]) => !VENDOR.test(file))
-    .flatMap(([, text]) => text.match(/eslint-disable[^\n]*/g) ?? []);
+    .flatMap(([, text]) => text.match(LINT.exception) ?? []);
   const lint = exceptions.length;
   const unexplained = exceptions.filter((line) => !/\s--\s*\S/.test(line)).length;
   let excused;
@@ -315,9 +322,7 @@ export function inventory(root) {
     declared: declarations(root, sheets),
     // The stylesheet is built on the framework its values adapter knows.
     framework: sheets.some((file) => values.importsFramework.test(read(root, file) ?? "")),
-    eslint: ["eslint.config.js", "eslint.config.mjs", "eslint.config.ts"]
-      .map((file) => read(root, file) ?? "")
-      .join("\n"),
+    lintConfig: LINT.configFiles.map((file) => read(root, file) ?? "").join("\n"),
     setup: JSON.parse(read(root, ".repo-setup.json") ?? "{}"),
     sockets: sockets(root),
     rows,
@@ -349,7 +354,9 @@ export function inventory(root) {
 
   facts.decisions = STANDARD.decisions.map((decision) => {
     const row = rows.find((r) => r.id === decision.id);
-    const found = row ? fromLedger(root, row, held, facts.proofs) : fromRepository(decision, facts);
+    const found = row
+      ? fromLedger(root, row, held, facts.proofs, state.theme?.checks)
+      : fromRepository(decision, facts);
     const around = bypass[decision.id] ?? { count: 0, files: [] };
     return {
       id: decision.id,

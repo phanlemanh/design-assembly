@@ -49,44 +49,50 @@ tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và
 
 - Nhánh `main`, cây làm việc sạch, mọi thứ đã commit. Kho có trên GitHub từ 2026-11-14, **riêng
   tư**: `phanlemanh/design-assembly`, remote `origin`. Chủ kho bảo tạo và đẩy một lần («Tạo github
-  và push»). Cập nhật lần cuối 2026-11-14, sau quyết định 0032.
+  và push»). Cập nhật lần cuối 2026-11-14, sau quyết định 0034.
 - `make check` xanh: lint, typecheck, 102 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (27 quyết định, 33 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 238 bài kiểm của plugin.
-- Kho này đáp 39/39 quyết định lõi: 16 máy giữ, 17 tự khai, 6 đã ghi. 11 sổ đúng hình dạng hợp
+  (36 quyết định, 42 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 249 bài kiểm của plugin.
+- Kho này đáp 39/39 quyết định lõi: 26 máy giữ, 7 tự khai, 6 đã ghi. 11 sổ đúng hình dạng hợp
   đồng.
 - **Lộ trình năm chặng:** 1 «Dọn nền» và 2 «Hợp đồng» đã xong. Chặng 3 «Vào Inventory» đã cắt lại
-  thành lát mỏng (0032); lát đầu mới chạy trên bản sao. Chặng 4 «Hai repo đổi vai» và 5 «Lõi của
+  thành lát mỏng (0032); lát đầu (bước 1, 2) đã làm trên nhánh riêng của Inventory, lát hai (0033)
+  chạy lại lint của repo, lát ba (0034) đưa bộ đọc linh kiện ngang công cụ của Inventory. Chặng 4 «Hai repo đổi vai» và 5 «Lõi của
   họ» chưa bắt đầu.
-- **Kho Inventory thật chưa bị đụng tới.** Mọi phép đo ở đó chạy trên bản sao bỏ đi:
-  `make design-ladder` dựng bản sao, chạy bốn bước, in thang đo, rồi xoá bản sao.
+- **Inventory chỉ bị đụng trên một nhánh riêng, đã đẩy và mở PR, chưa gộp:**
+  [phanlemanh/onehub-inventory#58](https://github.com/phanlemanh/onehub-inventory/pull/58). Chủ kho cho phép ngày 2026-11-14 làm
+  bước 1, 2, lát hai và bước 3 trên nhánh riêng. Tất cả đã commit ở nhánh `chore/adopt-design-assembly`, trong thư
+  mục làm việc `~/dev/onehub-inventory/.claude/worktrees/adopt-design-assembly`. Bản chính của
+  Inventory vẫn ở `main`. Phép đo vẫn chạy trên bản sao bỏ đi bằng `make design-ladder`.
 - Số đo chính hôm nay: số chỗ tác tử phải đoán khi dựng một màn là 12, 12, 13, 11 (đứng yên); luật
   bị phạm có so với không có trang luật là 0 so với 3, 6, 3. Ở Inventory, trên bản sao: sổ đúng
-  hình dạng 2/4 lên 5/5, quyết định máy giữ 0 lên 9, kit từ M1 lên M2.
+  hình dạng 2/4 lên 5/5, câu lõi máy giữ 0 lên 11, quyết định máy giữ 0 lên 18, kit từ M1 lên M2.
 
 ## Đã dựng gì, theo thứ tự
 
-| Phần                                                       | Bản ghi | Tệp chính                                                                                          |
-| ---------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------- |
-| Bậc deliverable, ranh giới với hai kho bên cạnh, audit     | 0005    | `references/tiers.json`, `scripts/inventory.mjs`                                                   |
-| Sổ chuẩn, bảy tầng, danh mục 66 quyết định (38 lõi)        | 0006    | `templates/tools/design-assembly/ledger.mjs`, `references/standard-decisions.json`                 |
-| Adopt: nhận giá trị kho đã có                              | 0007    | `scripts/adopt.mjs`, `references/known-proofs.json`                                                |
-| Tệp design tokens sinh từ stylesheet                       | 0008    | `templates/tools/design-assembly/tokens.mjs`                                                       |
-| Sổ linh kiện sinh từ mã nguồn                              | 0009    | `templates/tools/design-assembly/components.mjs`                                                   |
-| Chỉ dòng sổ mới là lời đáp; audit in bước kế               | 0010    | `scripts/inventory.mjs`, `scripts/proofs.mjs`                                                      |
-| Cỡ vùng bấm đo từ mã nguồn                                 | 0011    | `components.mjs`                                                                                   |
-| Bảng dữ liệu: kiểu cột quyết định canh lề, bề rộng, mật độ | 0012    | `templates/tools/design-assembly/columns.mjs`, `src/components/ui/typed-table.tsx`                 |
-| Trạng thái, chữ, câu báo lỗi                               | 0013    | `templates/tools/design-assembly/patterns.mjs`                                                     |
-| Kênh thông báo, hoàn tác, bài kiểm gắn thẻ làm bằng chứng  | 0014    | `src/lib/notify.ts`, `scripts/proofs.mjs`                                                          |
-| Trang luật cho tác tử; dòng sổ chưa có lệnh kiểm           | 0015    | `.claude/rules/design-assembly.md`, cờ `--hold` của adopt                                          |
-| Skill bàn giao và cuốn sổ design system                    | 0020    | `scripts/book.mjs`, `scripts/stage.mjs`, `skills/handoff/`, `references/book.md`                   |
-| Bảng mẫu thị giác cho tầng foundations                     | 0019    | `scripts/specimen.mjs`, `references/source-colors.json`                                            |
-| Hướng nhập giữa các phần, sổ lỗi lọt                       | 0018    | `templates/tools/design-assembly/governance.mjs`, `design/parts.json`, `design/escapes.md`         |
-| Sau một thao tác: tiêu điểm, đổi tại chỗ, trống, đi lại    | 0017    | `src/example/ReferenceScreen.tsx`, `src/lib/slow.ts`, `templates/owned/templates.spec.ts.template` |
-| Sáu luật cho điều tác tử dựng màn phải đoán ở lần thử năm  | 0021    | `src/components/held-label.tsx`, `typed-table.tsx`, `design/parts.json`, `ontology/actions.yaml`   |
-| Kiểu màn, cỡ màn được kiểm, thao tác thất bại              | 0016    | `templates/tools/design-assembly/screens.mjs`, `design/patterns/`, `src/lib/notify.ts`             |
-| Hợp đồng: mỗi sổ một hình dạng, cổng giữ hình dạng         | 0029    | `templates/tools/design-assembly/contract.mjs`, `references/contract.md`                           |
-| Một sổ màn, mã chỉ giữ cách tới từng trạng thái            | 0030    | `design/screens.yaml`, `templates/tools/design-assembly/screen-ledger.mjs`                         |
-| Năm bộ chuyển giữ tên thư viện                             | 0031    | `templates/tools/design-assembly/adapters/`                                                        |
+| Phần                                                           | Bản ghi | Tệp chính                                                                                          |
+| -------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------- |
+| Bậc deliverable, ranh giới với hai kho bên cạnh, audit         | 0005    | `references/tiers.json`, `scripts/inventory.mjs`                                                   |
+| Sổ chuẩn, bảy tầng, danh mục 66 quyết định (38 lõi)            | 0006    | `templates/tools/design-assembly/ledger.mjs`, `references/standard-decisions.json`                 |
+| Adopt: nhận giá trị kho đã có                                  | 0007    | `scripts/adopt.mjs`, `references/known-proofs.json`                                                |
+| Tệp design tokens sinh từ stylesheet                           | 0008    | `templates/tools/design-assembly/tokens.mjs`                                                       |
+| Sổ linh kiện sinh từ mã nguồn                                  | 0009    | `templates/tools/design-assembly/components.mjs`                                                   |
+| Chỉ dòng sổ mới là lời đáp; audit in bước kế                   | 0010    | `scripts/inventory.mjs`, `scripts/proofs.mjs`                                                      |
+| Cỡ vùng bấm đo từ mã nguồn                                     | 0011    | `components.mjs`                                                                                   |
+| Bảng dữ liệu: kiểu cột quyết định canh lề, bề rộng, mật độ     | 0012    | `templates/tools/design-assembly/columns.mjs`, `src/components/ui/typed-table.tsx`                 |
+| Trạng thái, chữ, câu báo lỗi                                   | 0013    | `templates/tools/design-assembly/patterns.mjs`                                                     |
+| Kênh thông báo, hoàn tác, bài kiểm gắn thẻ làm bằng chứng      | 0014    | `src/lib/notify.ts`, `scripts/proofs.mjs`                                                          |
+| Trang luật cho tác tử; dòng sổ chưa có lệnh kiểm               | 0015    | `.claude/rules/design-assembly.md`, cờ `--hold` của adopt                                          |
+| Skill bàn giao và cuốn sổ design system                        | 0020    | `scripts/book.mjs`, `scripts/stage.mjs`, `skills/handoff/`, `references/book.md`                   |
+| Bảng mẫu thị giác cho tầng foundations                         | 0019    | `scripts/specimen.mjs`, `references/source-colors.json`                                            |
+| Hướng nhập giữa các phần, sổ lỗi lọt                           | 0018    | `templates/tools/design-assembly/governance.mjs`, `design/parts.json`, `design/escapes.md`         |
+| Sau một thao tác: tiêu điểm, đổi tại chỗ, trống, đi lại        | 0017    | `src/example/ReferenceScreen.tsx`, `src/lib/slow.ts`, `templates/owned/templates.spec.ts.template` |
+| Sáu luật cho điều tác tử dựng màn phải đoán ở lần thử năm      | 0021    | `src/components/held-label.tsx`, `typed-table.tsx`, `design/parts.json`, `ontology/actions.yaml`   |
+| Kiểu màn, cỡ màn được kiểm, thao tác thất bại                  | 0016    | `templates/tools/design-assembly/screens.mjs`, `design/patterns/`, `src/lib/notify.ts`             |
+| Hợp đồng: mỗi sổ một hình dạng, cổng giữ hình dạng             | 0029    | `templates/tools/design-assembly/contract.mjs`, `references/contract.md`                           |
+| Một sổ màn, mã chỉ giữ cách tới từng trạng thái                | 0030    | `design/screens.yaml`, `templates/tools/design-assembly/screen-ledger.mjs`                         |
+| Năm bộ chuyển giữ tên thư viện                                 | 0031    | `templates/tools/design-assembly/adapters/`                                                        |
+| Bộ đọc linh kiện: thuộc tính, khuôn theo thư mục, mọi thư viện | 0034    | `templates/tools/design-assembly/components.mjs`, `adapters/shadcn.mjs`                            |
+| Chạy lại lint của repo trên đoạn mã phạm quyết định            | 0033    | `templates/tools/design-assembly/probes.mjs`, `lint.mjs`, `adapters/eslint.mjs`                    |
 
 Lệnh hay dùng ở kho này: `make design-audit`, `make design-plan`, `make design-apply`,
 `make design-adopt`, `make design-adopt-reference` (xem trước trên kho đối chứng, không bao giờ
@@ -110,25 +116,40 @@ Khuôn mẫu về nhịp dẫn dắt: `~/dev/repo-standards/plugins/repo-setup/s
 
 ## Việc kế
 
-**Đang chờ chủ kho trả lời, chưa có quyền nào được cho:**
+**Đang chờ chủ kho trả lời:** 25 dòng ở `docs/review-queue.md`.
 
-1. Cho phép làm bước 1 và 2 của lát đầu trên **một nhánh riêng** của Inventory, không đẩy lên
-   GitHub. Bước 1 chạy «nhận» (thêm sổ token, sáu dòng máy giữ, thư mục công cụ của plugin). Bước 2
-   cần ba lời đáp của chủ kho; máy mới _giả định_ để đo: loại sản phẩm là ứng dụng, mức
-   accessibility AA, ghi nhận màu thương hiệu đang dùng. Bước 2 cũng thêm một dòng số phiên bản vào
-   sổ màn của Inventory.
-2. 25 dòng ở `docs/review-queue.md`.
-
-Phiên mới **hỏi lại** câu 1 trước khi đụng vào Inventory, dù phiên cũ đã hỏi.
+Chủ kho đã đáp ba câu của Inventory ngày 2026-11-14: ứng dụng, mức AA, giữ màu thương hiệu
+`#0246ff`. Quyền đã cho ngày đó, bằng lời, trong một phiên: bước 1 và 2 trên nhánh riêng của
+Inventory, không đẩy; rồi chạy lại «nhận» ở đó với plugin của lát hai; rồi bước 3. Tất cả đã xong. Phiên mới **hỏi lại** trước khi đụng vào Inventory, vì quyền
+bằng lời không theo sang phiên khác. Chủ kho bảo đẩy nhánh và mở PR («Đẩy và mở PR»); việc gộp là của
+chủ kho, người giữ mã ký theo luật tự chủ của Inventory.
 
 **Kế tiếp, theo thứ tự máy đề xuất** (0032 và `docs/trials/inventory-ladder.md`):
 
-1. Lát đầu trên nhánh thật của Inventory, sau khi có quyền. Chạy `make design-ladder` trước để
-   biết Inventory có đổi gì từ lần đo trước.
-2. Lát hai: plugin chạy lại được bằng chứng của chính repo (lint, bài kiểm có thẻ). Hôm nay 21 câu
-   lõi của Inventory ghi «tự khai» vì plugin không chạy lại chúng, nên số «máy giữ» ở đó thấp.
-3. Lát ba: bộ đọc linh kiện ghi danh sách thuộc tính, biết thư mục khuôn và thư viện mua thứ hai.
-   Xong mới thay được công cụ sổ linh kiện của Inventory, và mới khai được sổ với kit để lên M2.
+1. Bước 1 và 2 đã xong trên nhánh riêng của Inventory. Gộp nhánh đó là việc của chủ kho: nó đụng
+   vùng Inventory xếp vào loại phải có người giữ mã ký.
+2. Lát hai đã xong (0033, mục 5 thay bởi 0035) cho phần lint, cả trên nhánh riêng của Inventory (chủ kho cho phép
+   2026-11-14). Còn lại: bài kiểm và công cụ của repo chưa được chạy lại; hướng nhập chưa có đoạn
+   mã phạm.
+3. Lát ba đã xong (0034), và bước 3 của lát đầu đã làm trên nhánh riêng của Inventory (chủ kho cho
+   phép 2026-11-14): plugin ghi sổ linh kiện ở đó, công cụ cũ bị bỏ, hai sổ khai với kit. Nhánh có
+   đã đẩy, hai lần gộp main để gỡ xung đột. Hai dòng khai với kit tách sang PR nháp
+   [phanlemanh/onehub-inventory#59](https://github.com/phanlemanh/onehub-inventory/pull/59), đặt nền
+   trên nhánh của #58; bậc M2 chờ #59. **Cổng trước khi gộp của kit vẫn đỏ ở #58**: mọi PR đổi đường
+   dẫn T3 phải kèm hồ sơ `_acceptance/<slug>/` có chữ ký người. Việc tách không gỡ được cổng; máy đã
+   đoán sai lý do, và đã ghi lại. Chủ kho cho dựng hồ sơ: `_acceptance/adopt-design-assembly/` trên
+   nhánh của #58, chạy theo vòng `/feature-loop:feature-loop adopt-design-assembly`. Cổng Phạm vi và
+   Cổng 1.5 đã duyệt (2026-11-14); S3 xong; lượt chấm 1 trả REJECT vì lệnh kiểm lint tính «giữ» khi
+   luật khác chặn thay luật dòng sổ nêu tên. Chủ kho chọn siết (2026-11-15, «Siết, sửa AC-2»): plugin
+   sửa ([0035](../wiki/decisions/0035-the-named-rule-holds-the-row.md)), «khoảng cách» của Inventory
+   về lại «tự khai», AC-2 thành 17 quyết định và tám luật, thêm phép đo tắt riêng luật nêu tên.
+   Chủ kho duyệt lại Cổng Phạm vi và Cổng 1.5; lượt chấm 2 đạt mọi phép kiểm máy; **chủ kho đã ký Cổng
+   Bằng chứng ngày 2026-11-15**, lưới trước khi gộp của kit sạch. 13 mục ngoài hợp đồng ghi vào hạn chế
+   đã biết, 2 chấp nhận không sửa, 1 mở hợp đồng mới (sổ linh kiện ghi trùng linh kiện xuất lại qua tệp
+   gom, sửa ở plugin). **Các commit của nhánh sau `11477d7` chưa đẩy**; đẩy cần lời chủ kho, rồi việc
+   gộp #58 là của chủ kho; #59 gộp sau.
+   **Tên tệp ở Inventory là tiếng Anh** theo AGENTS.md của nó, dù phần lớn tên có sẵn ở đó là tiếng
+   Việt; chủ kho chỉ ra ngày 2026-11-14 và mọi tên của vòng này đã đổi sang tiếng Anh.
 4. Sau cùng: bộ chuyển Next.js cho bảng mẫu và cuốn sổ; sổ nguồn ngoài và sổ nhập kho.
 
 **Đừng làm, trừ khi chủ kho bảo:** thêm luật bằng lời ở kho này; chạy thêm lượt thử bằng tác tử
@@ -136,6 +157,13 @@ Phiên mới **hỏi lại** câu 1 trước khi đụng vào Inventory, dù phi
 
 Các lát đã xong, mới nhất trước:
 
+- **Chặng 3, lát ba** (2026-11-14, 0034). Sổ linh kiện ghi thuộc tính, khuôn theo thư mục, mọi thư
+  viện; bộ đọc bỏ qua chú thích. Trên bản sao Inventory: thuộc tính giống 268/270.
+- **Chặng 3, lát hai** (2026-11-14, 0033). Plugin chạy lại lint của chính repo trên đoạn mã phạm
+  từng quyết định, trong cổng; bộ chuyển thứ sáu giữ tên công cụ lint. Inventory, bản sao: câu lõi
+  máy giữ 2 lên 11.
+- **Chặng 3, lát đầu, bước 1 và 2 trên nhánh riêng của Inventory** (2026-11-14). Chủ kho đáp ba
+  câu: ứng dụng, AA, giữ màu thương hiệu đang dùng.
 - **Review sau chặng 2 và lát đầu của chặng 3 trên bản sao** (2026-11-14, 0032). Plugin đọc được
   màu pha trong oklch, audit đếm sổ đúng hình dạng, «nhận» giữ hình dạng sổ.
 - **Chặng 2 «Hợp đồng»** (2026-11-14, 0029 đến 0031). Hình dạng 11 sổ viết một chỗ và cổng giữ
@@ -193,6 +221,8 @@ chủ kho ở kho đó.
 
 Cần Repo Standards:
 
+- Luật «tên lớp viết nguyên» của sàn chỉ đọc tên lớp đặt trên linh kiện: tên lớp ghép trên thẻ
+  thường lọt qua (0033). Dòng sổ đó ở kho này vẫn là «tự khai».
 - Ba bài kiểm trình duyệt của sàn (một vùng chính, không cuộn ngang, accessibility) không mang thẻ
   `decision:<id>`. Sổ giờ trỏ tới bài kiểm của plugin thay cho chúng, nên ở kho này accessibility
   được kiểm hai lần. Khi sàn gắn thẻ thì bỏ được một bên.

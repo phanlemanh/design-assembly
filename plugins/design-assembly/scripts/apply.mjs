@@ -15,7 +15,7 @@ import path from "node:path";
 import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
-import { FILES } from "../templates/tools/design-assembly/check.mjs";
+import { FILES, heldHere } from "../templates/tools/design-assembly/check.mjs";
 import { contrast, formatOklch, parseColor } from "../templates/tools/design-assembly/color.mjs";
 import {
   BASES,
@@ -37,6 +37,7 @@ import {
   COMPONENTS_DECISION,
   COMPONENTS_FOLDER,
   componentsProblem,
+  libraryFolders,
   ownFolder,
   readComponents,
   readFolder,
@@ -306,7 +307,9 @@ export function componentsPlan(target, alreadyHeld, pending = {}) {
   const arriving = Object.entries(pending).filter(([file]) => file.startsWith(`${read}/`));
   const sources = { ...readFolder(target, read), ...Object.fromEntries(arriving) };
   if (!Object.keys(sources).some((name) => name.startsWith(`${folder}/`))) return { nothing: true };
-  const options = { library: folder, pages: readPages(target) };
+  // Another library's folder, installed from a second registry, is a library too.
+  const others = libraryFolders(target).filter((item) => item !== folder);
+  const options = { library: [folder, ...others], pages: readPages(target) };
   const file = socket(target, "registry") ?? REGISTRY;
   const full = path.join(target, file);
   const before = existsSync(full) ? readFileSync(full, "utf8") : null;
@@ -325,7 +328,16 @@ export function componentsPlan(target, alreadyHeld, pending = {}) {
       source: `${read}, written out by make design-components`,
       check: TOOL,
     },
-    checks: [{ kind: "components", file, folder, ...(own ? { own } : {}), pages: KINDS_FOLDER }],
+    checks: [
+      {
+        kind: "components",
+        file,
+        folder,
+        ...(others.length > 0 ? { libraries: others } : {}),
+        ...(own ? { own } : {}),
+        pages: KINDS_FOLDER,
+      },
+    ],
   };
 }
 
@@ -1393,8 +1405,9 @@ export function plan(target, blueprint) {
   }
   // A check this tool already holds is never dropped because its rule is broken today: the row
   // stays, so the check stays, and the gate fails with the real reason.
+  // A lint rule this tool re-runs is kept the same way, for as long as the row points at it.
   const pointed = parseLedger(read(FILES.ledger) ?? "")
-    .filter((row) => row.check === TOOL)
+    .filter((row) => heldHere(row, prior))
     .map((row) => row.id);
   const kept = Object.keys(prior).filter((id) => !(id in checks) && pointed.includes(id));
   for (const id of kept) checks[id] = prior[id];

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "about": "Proofs a repository may already have, and the standard decision each one answers. The adopt script adds a ledger row for a proof only when every string under `needs` is found in the file the pointer names (for an eslint pointer, the lint configuration), every path under `files` exists, and the pointer resolves. A row added this way is claimed: the proof is named and wired in, and nothing here runs it.",
+  "about": "Proofs a repository may already have, and the standard decision each one answers. The adopt script adds a ledger row for a proof only when every string under `needs` is found in the file the pointer names (for an eslint pointer, the lint configuration), every path under `files` exists, and the pointer resolves. A row added this way is claimed: the proof is named and wired in. When it is a lint rule and this plugin has texts that break the decision, adopting re-runs the rule on them and the tool holds the row from then on (checks.md).",
   "proofs": [
     {
       "id": "color-role",

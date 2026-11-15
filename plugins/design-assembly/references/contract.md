@@ -65,10 +65,13 @@ other. `version` is a string. Each entry is one exported component:
 - `name`, `category` and `file`: the component, what it is, and where.
 - `level`: `atom`, `molecule`, `organism` or `template`. Computed, never declared: how deep the
   file imports other components (none an atom, one step a molecule, two or more an organism). A
-  component a page of a screen kind names as the frame of its screens is a template.
-- `source`: `library` for the component library's folder, `own` for the repository's own
-  components beside it.
+  component in a folder named `templates`, or one a page of a screen kind names as the frame of
+  its screens, is a template.
+- `source`: `library` for the folder of a component library (the library's own, and the folder of
+  each other registry its settings name), `own` for the repository's own components beside them.
 - `parts`: the other components of the same file it is drawn with.
+- `props`: the props its signature names one by one, in that order, by the name a caller writes;
+  not `className`, `children` or a variant axis.
 - `variants`: each written `axis=value`, and `defaults`, the default of each axis.
 - `control` and `min_height`: a component a person activates, and the smallest height its own
   classes declare, written in `px`.

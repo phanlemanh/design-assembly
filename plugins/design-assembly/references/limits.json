@@ -311,9 +311,11 @@
       "severity": "medium",
       "plan": "keep",
       "opened": "2026-11-12",
-      "where": ["d0009", "d0029"],
-      "status": "open",
-      "note": "The component register carries no states and no props, and reads only the library folder and the folder of the repository's own components beside it."
+      "where": ["d0009", "d0029", "d0034"],
+      "status": "closed",
+      "note": "The component register carries no states and no props, and reads only the library folder and the folder of the repository's own components beside it.",
+      "closed": "2026-11-14",
+      "closed_by": "the register carries each component's props and reads every library's folder; the states it still does not carry are the open row register-carries-no-states"
     },
     {
       "id": "target-size-unmeasured-controls",
@@ -1784,9 +1786,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-14",
-      "where": ["d0032", "trials"],
-      "status": "open",
-      "note": "The components adapter knows one folder for the component library, so a second bought library kept in a folder of its own is listed as the repository's own components."
+      "where": ["d0032", "trials", "d0034"],
+      "status": "closed",
+      "note": "The components adapter knows one folder for the component library, so a second bought library kept in a folder of its own is listed as the repository's own components.",
+      "closed": "2026-11-14",
+      "closed_by": "the folder of every registry the component library's settings name is read as a library folder when it is there"
     },
     {
       "id": "register-takeover-not-equal",
@@ -1795,9 +1799,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-14",
-      "where": ["d0032", "trials"],
-      "status": "open",
-      "note": "On a copy of the reference repository this plugin's register reader gave the same levels and nearly the same variants as that repository's own tool, but no list of props and one template where it has ten, so the tool cannot be retired yet."
+      "where": ["d0032", "trials", "d0034"],
+      "status": "closed",
+      "note": "On a copy of the reference repository this plugin's register reader gave the same levels and nearly the same variants as that repository's own tool, but no list of props and one template where it has ten, so the tool cannot be retired yet.",
+      "closed": "2026-11-14",
+      "closed_by": "on a copy of the reference repository the register reader now gives the same props for 268 of 270 components, the same template files, the same level for 269 and the same variants for 262, the others being props typed as a list of words that it lists as variants as well; retiring that repository's tool now waits on moving its register to the contract's shape, the open row reference-register-other-shape"
     },
     {
       "id": "shapes-row-claims-not-rerun",
@@ -1806,9 +1812,114 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-14",
-      "where": ["d0032", "trials"],
+      "where": ["d0032", "trials", "d0033"],
+      "status": "closed",
+      "note": "In an adopted repository most core decisions are held by the repository's own lint rules and tests, which this plugin never runs again, so the count of decisions it holds stays low however well the repository is held.",
+      "closed": "2026-11-14",
+      "closed_by": "the tool re-runs a repository's own lint rules on texts that break each decision, in the gate, seen failing with the rejecting rules off; tests and tools of the repository are the open row tests-and-tools-not-rerun"
+    },
+    {
+      "opened": "2026-11-14",
+      "where": ["d0033"],
       "status": "open",
-      "note": "In an adopted repository most core decisions are held by the repository's own lint rules and tests, which this plugin never runs again, so the count of decisions it holds stays low however well the repository is held."
+      "id": "tests-and-tools-not-rerun",
+      "area": "audit",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "note": "A row held by one of the repository's own tests or tools is still claimed and never run again here, so the count of decisions this plugin holds stays below what the repository holds."
+    },
+    {
+      "opened": "2026-11-14",
+      "where": ["d0033"],
+      "status": "open",
+      "id": "probes-known-forms-only",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "note": "A lint rule is held when it rejects every text this plugin knows breaks the decision; a breach written another way may still pass the rule."
+    },
+    {
+      "opened": "2026-11-15",
+      "where": ["d0033", "d0035"],
+      "status": "closed",
+      "id": "lint-held-by-another-rule",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "high",
+      "plan": "fix",
+      "note": "A lint check passed when any rule rejected the texts that break the decision, and its changed copy turned off every rule that did, so the rule the row names could be switched off with the gate still green.",
+      "closed": "2026-11-15",
+      "closed_by": "the check counts a text as rejected only when the rule the row names rejects it, and its changed copy turns off that rule alone; held by a plugin test where another rule rejects every text"
+    },
+    {
+      "opened": "2026-11-14",
+      "where": ["d0033"],
+      "status": "open",
+      "id": "probe-one-screen-file",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "note": "The texts are linted as one screen file of the repository, where the rule the row names is an error; a rule switched off in another folder is not seen."
+    },
+    {
+      "opened": "2026-11-14",
+      "where": ["d0033"],
+      "status": "open",
+      "id": "import-direction-not-probed",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "note": "No text breaks the direction of imports, since what breaks it depends on how each repository splits its parts, so a lint rule said to hold it is not run again."
+    },
+    {
+      "opened": "2026-11-14",
+      "where": ["d0034"],
+      "status": "open",
+      "id": "register-carries-no-states",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "note": "The component register says which props and variants a component takes, not which states it shows, so an agent learns those from the pages of screen kinds and the behaviour page."
+    },
+    {
+      "opened": "2026-11-14",
+      "where": ["d0034"],
+      "status": "open",
+      "id": "props-from-signature-only",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "note": "Props are read from the object a component's first parameter takes apart; a component that takes its props whole lists none, and a prop is never read from a type declared elsewhere."
+    },
+    {
+      "id": "adopt-does-not-refresh-tool",
+      "area": "adopt",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-14",
+      "where": ["handoff"],
+      "status": "open",
+      "note": "Adopting copies the tool into a repository only when it adds a check, so a fix to the plugin's tool never reaches a repository that adopted it before, and that repository keeps running the old code with nothing to say so."
+    },
+    {
+      "id": "barrel-re-export-listed-twice",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-15",
+      "where": ["d0036"],
+      "status": "closed",
+      "note": "A component a barrel file re-exports from another file was listed twice in the component register: once at the file that defines it, with its props, and once with none at the barrel, so an agent looking it up got two answers.",
+      "closed": "2026-11-15",
+      "closed_by": "the reader lists a component only at the file that defines it, skipping lists exported from another file, export-all lines and names the file imports and exports again; held by a plugin test with a barrel file, seen failing on the old reader"
     }
   ]
 }

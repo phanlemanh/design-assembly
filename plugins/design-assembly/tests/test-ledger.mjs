@@ -13,6 +13,7 @@ import {
   LAYERS,
   ledgerProblems,
   ledgerRate,
+  literally,
   mergeLedger,
   parseLedger,
   pointerProblem,
@@ -196,3 +197,13 @@ test(
     assert.equal(mergeLedger(text, []), text);
   },
 );
+
+test("a name is matched as itself, whatever characters it holds, the backslash included", () => {
+  for (const name of ["--radius", "@scope/toast", "a.b", "x\\y", "(a|b)", "c[0]", "n+1"]) {
+    const pattern = new RegExp(`^${literally(name)}$`);
+    assert.ok(pattern.test(name), name);
+    assert.ok(!pattern.test(`${name}z`), name);
+  }
+  assert.ok(!new RegExp(`^${literally("x\\y")}$`).test("xy"));
+  assert.ok(!new RegExp(`^${literally("a.b")}$`).test("acb"));
+});

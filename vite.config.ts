@@ -9,7 +9,7 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     reporters: ["dot"],
-    exclude: ["node_modules/**", "tests/e2e/**"],
+    exclude: ["node_modules/**", "tests/e2e/**", ".claude/worktrees/**"],
     setupFiles: ["./tests/setup.ts"],
   },
 });

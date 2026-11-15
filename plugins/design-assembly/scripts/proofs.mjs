@@ -5,7 +5,10 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { adapterOf } from "../templates/tools/design-assembly/adapters/index.mjs";
 import { pointerProblem } from "../templates/tools/design-assembly/ledger.mjs";
+
+const lint = adapterOf("lint");
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PROOFS = JSON.parse(
@@ -45,12 +48,10 @@ const read = (root, file) =>
 // Every known proof whose marks are in the repository. `problem` is null when a ledger row can
 // point at it, else why it cannot yet.
 export function findProofs(root) {
-  const lintConfig = ["eslint.config.js", "eslint.config.mjs", "eslint.config.ts"]
-    .map((file) => read(root, file) ?? "")
-    .join("\n");
+  const lintConfig = lint.configFiles.map((file) => read(root, file) ?? "").join("\n");
   const known = PROOFS.filter((proof) => {
     const [prefix, ...rest] = proof.check.split(":");
-    const text = prefix === "eslint" ? lintConfig : (read(root, rest.join(":")) ?? "");
+    const text = prefix === lint.prefix ? lintConfig : (read(root, rest.join(":")) ?? "");
     return (
       proof.needs.every((part) => text.includes(part)) &&
       (proof.files ?? []).every((file) => read(root, file) !== null)

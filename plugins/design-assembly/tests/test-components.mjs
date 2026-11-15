@@ -19,6 +19,7 @@ import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import {
+  libraryFolders,
   readComponents,
   readFolder,
   targetProblem,
@@ -145,12 +146,15 @@ test("components and variants are read from source: variant sets, typed props, s
         // It imports another component's file: one step up from an atom.
         level: "molecule",
         source: "library",
-        // A prop typed as a closed list of words is a variant axis; a boolean is not.
+        // A prop typed as a closed list of words is a variant axis and still a prop; a boolean is
+        // only a prop.
+        props: ["orientation", "disabled"],
         variants: ["orientation=horizontal", "orientation=vertical"],
         defaults: { orientation: "horizontal" },
       },
       {
-        // A variant set declared in another file belongs to every component that calls it.
+        // A variant set declared in another file belongs to a component that calls it and takes
+        // its axes as props.
         name: "ToggleGroupItem",
         category: "component",
         file: "ui/toggle-group.tsx",
@@ -542,4 +546,217 @@ test("each component says its level, where it comes from, and what of its file i
       [],
     );
   }
+});
+
+test("each component lists the props it takes, as its signature names them", () => {
+  const files = {
+    "src/components/ui/button.tsx": [
+      'const buttonVariants = cva("h-9", { variants: { size: { sm: "h-8", lg: "h-10" } } });',
+      "export function Button({ className, size, asLink = false, ...props }: Props) {",
+      "  return <button className={buttonVariants({ size })} {...props} />;",
+      "}",
+      "",
+    ].join("\n"),
+    "src/components/ui/field.tsx": [
+      "export const Field = ({ label, hint: help, children }: FieldProps) => <div />;",
+      "export const Wrapped = React.forwardRef<HTMLDivElement, P>(({ tone, className }, ref) => <div ref={ref} />);",
+      "export function Bare(props: P) {\n  return <div {...props} />;\n}",
+      "",
+    ].join("\n"),
+  };
+  const byName = Object.fromEntries(
+    readComponents(files, { library: "src/components/ui" }).components.map((item) => [
+      item.name,
+      item,
+    ]),
+  );
+  // In the order the signature names them; not the class names, the children, nor an axis of a
+  // variant set, which the variants already list; a renamed prop by the name a caller writes.
+  assert.deepEqual(byName.Button.props, ["asLink"]);
+  assert.deepEqual(byName.Field.props, ["label", "hint"]);
+  assert.deepEqual(byName.Wrapped.props, ["tone"]);
+  // Props taken whole are not named one by one.
+  assert.equal(byName.Bare.props, undefined);
+  for (const item of Object.values(byName)) {
+    assert.deepEqual(
+      shapeProblems("components", JSON.stringify({ version: "2", components: [item] })),
+      [],
+    );
+  }
+});
+
+test("a component in the templates folder is a template, and every library's folder is a library", () => {
+  const files = {
+    "src/components/ui/button.tsx": "export function Button() {\n  return <button />;\n}\n",
+    "src/components/vendor/badge.tsx": "export function Badge() {\n  return <span />;\n}\n",
+    "src/components/templates/page-header.tsx":
+      "export function PageHeader() {\n  return <header />;\n}\n",
+    "src/components/templates/app-shell/sidebar.tsx":
+      "export function Sidebar() {\n  return <nav />;\n}\n",
+    "src/components/candidate/row-actions.tsx":
+      "export function RowActions() {\n  return <div />;\n}\n",
+  };
+  const byName = Object.fromEntries(
+    readComponents(files, {
+      library: ["src/components/ui", "src/components/vendor"],
+    }).components.map((item) => [item.name, item]),
+  );
+  assert.equal(byName.PageHeader.level, "template");
+  assert.equal(byName.Sidebar.level, "template");
+  assert.equal(byName.RowActions.level, "atom");
+  assert.equal(byName.Badge.source, "library");
+  assert.equal(byName.Button.source, "library");
+  assert.equal(byName.RowActions.source, "own");
+});
+
+test("the folders of every library the settings name are read, when they are there", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "design-assembly-libraries-"));
+  made.push(dir);
+  const settings = {
+    aliases: { components: "@/components", ui: "@/components/ui" },
+    registries: { "@vendor": { url: "https://example.com/{name}.json" }, "@absent": { url: "x" } },
+  };
+  writeFileSync(path.join(dir, "components.json"), JSON.stringify(settings));
+  mkdirSync(path.join(dir, "src/components/vendor"), { recursive: true });
+  assert.deepEqual(libraryFolders(dir), ["src/components/ui", "src/components/vendor"]);
+});
+
+test("comments are not structure: a variant set and a signature with comments are read whole", () => {
+  const files = {
+    "src/components/vendor/frame.tsx": [
+      "const frameVariants = cva(",
+      '  [ "flex", // the base, with a note: { not a brace',
+      '    "gap-2" ],',
+      "  {",
+      "    variants: {",
+      '      variant: { default: "border", ghost: "border-0" },',
+      "      // Bars read as chrome: px stays level with the body.",
+      '      spacing: { sm: "p-2", lg: "p-4" },',
+      "      /* dense pins the panels flush */",
+      '      dense: { true: "gap-0" },',
+      "    },",
+      "  },",
+      ");",
+      "export function Frame({",
+      "  className,",
+      "  // Accepted and ignored, so it is never spread onto the page, nor split here.",
+      "  skeletonRows,",
+      '  "aria-describedby": described,',
+      "  ...props",
+      "}: Props) {",
+      "  return <div className={frameVariants({ className })} {...props} />;",
+      "}",
+      "",
+    ].join("\n"),
+    // Another file declares a set of the same name; each component reads its own file's first.
+    "src/components/ui/frame.tsx": [
+      'const frameVariants = cva("flex", { variants: { tone: { a: "x", b: "y" } } });',
+      "export function UiFrame() {\n  return <div className={frameVariants()} />;\n}",
+      "",
+    ].join("\n"),
+  };
+  const byName = Object.fromEntries(
+    readComponents(files, { library: "src/components/ui" }).components.map((item) => [
+      item.name,
+      item,
+    ]),
+  );
+  assert.deepEqual(byName.Frame.variants, [
+    "variant=default",
+    "variant=ghost",
+    "spacing=sm",
+    "spacing=lg",
+    "dense=true",
+  ]);
+  assert.deepEqual(byName.Frame.props, ["skeletonRows", "aria-describedby"]);
+  assert.deepEqual(byName.UiFrame.variants, ["tone=a", "tone=b"]);
+});
+
+test("a component that calls another file's variant set with values of its own has none of its axes", () => {
+  const files = {
+    "src/components/ui/button.tsx": [
+      'const buttonVariants = cva("h-9", { variants: { variant: { default: "a", outline: "b" } } });',
+      "export function Button({ variant, ...props }: Props) {",
+      "  return <button className={buttonVariants({ variant })} {...props} />;",
+      "}",
+      "export { buttonVariants };",
+      "",
+    ].join("\n"),
+    "src/components/templates/page-state.tsx": [
+      'import { buttonVariants } from "@/components/ui/button";',
+      "export function PageState({ title }: Props) {",
+      '  return <a className={buttonVariants({ variant: "outline" })}>{title}</a>;',
+      "}",
+      "",
+    ].join("\n"),
+  };
+  const byName = Object.fromEntries(
+    readComponents(files, { library: "src/components/ui" }).components.map((item) => [
+      item.name,
+      item,
+    ]),
+  );
+  assert.equal(byName.PageState.variants, undefined);
+  assert.deepEqual(byName.PageState.props, ["title"]);
+  assert.deepEqual(byName.Button.variants, ["variant=default", "variant=outline"]);
+});
+
+test("a component re-exported through a barrel file is listed once, at the file that defines it", () => {
+  const dir = folder({
+    "src/components/reui/filters/filters-chip.tsx": [
+      "export function FilterChip({ label, onRemove }: Props) {",
+      "  return <span>{label}</span>;",
+      "}",
+      "",
+    ].join("\n"),
+    "src/components/reui/filters/filters-builder.tsx": [
+      "export function FiltersBuilder({ fields, onAdd }: Props) {",
+      "  return <div>{fields.length}</div>;",
+      "}",
+      "",
+    ].join("\n"),
+    "src/components/reui/filters/filters-date.tsx": [
+      "export const FilterDate = ({ value }: Props) => <time>{value}</time>;",
+      "",
+    ].join("\n"),
+    "src/components/reui/filters/filters-dnd.tsx": [
+      "export function FilterHandle({ grip }: Props) {",
+      "  return <i>{grip}</i>;",
+      "}",
+      "",
+    ].join("\n"),
+    // The barrel defines one component of its own and hands on the others: a list read from
+    // another file, all of another file, and a name it imports and then exports.
+    "src/components/reui/filters/filters.tsx": [
+      'import { FilterHandle } from "@/components/reui/filters/filters-dnd";',
+      "export function Filters({ query }: Props) {",
+      "  return <div>{query}</div>;",
+      "}",
+      "export {",
+      "  // The chip a custom row draws.",
+      "  FilterChip,",
+      '} from "@/components/reui/filters/filters-chip";',
+      'export { FiltersBuilder as Builder, FiltersBuilder } from "./filters-builder";',
+      'export * from "./filters-date";',
+      "export { FilterHandle };",
+      "",
+    ].join("\n"),
+  });
+  const { components } = readComponents(readFolder(dir, "src/components/reui"), {
+    library: "src/components/ui",
+  });
+  const where = components.map((item) => `${item.name} ${item.file}`).sort();
+  assert.deepEqual(where, [
+    "FilterChip src/components/reui/filters/filters-chip.tsx",
+    "FilterDate src/components/reui/filters/filters-date.tsx",
+    "FilterHandle src/components/reui/filters/filters-dnd.tsx",
+    "Filters src/components/reui/filters/filters.tsx",
+    "FiltersBuilder src/components/reui/filters/filters-builder.tsx",
+  ]);
+  const byName = Object.fromEntries(components.map((item) => [item.name, item]));
+  assert.deepEqual(byName.FilterChip.props, ["label", "onRemove"]);
+  assert.deepEqual(byName.FiltersBuilder.props, ["fields", "onAdd"]);
+  assert.deepEqual(byName.FilterDate.props, ["value"]);
+  assert.deepEqual(byName.FilterHandle.props, ["grip"]);
+  assert.deepEqual(byName.Filters.props, ["query"]);
 });

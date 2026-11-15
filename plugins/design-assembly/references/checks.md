@@ -50,6 +50,13 @@ The guide writes only the rows it holds. They point at `tool:tools/design-assemb
 Adopting adds rows for decisions that have none, and points them at the proof the repository
 already runs. A row that is already there is kept byte for byte, comments included.
 
+A row that points at a lint rule of the repository is re-run when this plugin has texts that
+break the decision. The repository's own lint reads them as one of its screen files; the decision
+is held when the lint rejects every one, and the check was seen failing with the rules that
+rejected them turned off. Adopting then adds the check to the tool's data, and the gate runs it
+from then on; the row is not rewritten. A rule that lets a text through stays claimed, and
+adopting names the text.
+
 ## The shape of each ledger
 
 Every ledger above has one shape, stated in `contract.md`, so this plugin, the acceptance kit and

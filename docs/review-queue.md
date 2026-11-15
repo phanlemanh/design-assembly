@@ -43,6 +43,7 @@ Máy không tự đánh dấu dòng nào là đã duyệt.
 | C3  | Ba tờ cuối của cuốn sổ bàn giao (kiểu màn, đường đi, trạng thái) chưa được xem                          | Xem một lượt; chỉ mắt người chấm được                   |
 | C4  | Phần thêm vào trang kiểu màn «danh sách» sau ngày 2026-11-12 (luồng xoá, dòng tự chờ) là máy viết       | Xác nhận hoặc sửa                                       |
 | C5  | Ngôn ngữ và đơn vị tiền của ứng dụng mẫu là máy suy ra                                                  | Xác nhận                                                |
+| C6  | Ở Inventory, `DataRegion` là khuôn (trang kiểu màn «lưới» nói vậy) hay organism (công cụ sổ linh kiện)  | Khuôn: trang kiểu màn là chỗ người viết; 0034           |
 
 ## D. Việc chỉ chủ repo làm được
 
