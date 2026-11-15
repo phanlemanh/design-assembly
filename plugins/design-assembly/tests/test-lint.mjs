@@ -3,7 +3,7 @@
 // rejects every probe gains the tool's check, and the gate fails once that rule is turned off; the
 // other stays claimed, with what it lets through.
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import {
   existsSync,
   mkdirSync,
@@ -17,17 +17,20 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { execPath } from "node:process";
 import { after, test } from "node:test";
+import { clearTimeout, setTimeout } from "node:timers";
 import { fileURLToPath } from "node:url";
 
 import { inventory } from "../scripts/inventory.mjs";
 import { heldHere } from "../templates/tools/design-assembly/check.mjs";
 import { askLint } from "../templates/tools/design-assembly/lint.mjs";
+
 import { lintPointer, PROBED, probesFor } from "../templates/tools/design-assembly/probes.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
 const ROOT = path.resolve(PLUGIN, "../..");
 const ADOPT = path.join(PLUGIN, "scripts/adopt.mjs");
+const LINT = path.join(PLUGIN, "templates/tools/design-assembly/lint.mjs");
 const LINTED = existsSync(path.join(ROOT, "node_modules/eslint"));
 
 const made = [];
@@ -267,5 +270,34 @@ test(
     const answer = askLint(dir, ASK);
     assert.deepEqual(answer, { at: { "no-restricted-syntax": "src/app/page.tsx" } });
     assert.equal(readFileSync(path.join(dir, "standard-input.txt"), "utf8"), "no pipe");
+  },
+);
+
+test(
+  "the lint's process answers when the machine is slow to hand it the request",
+  { skip: !LINTED && "no lint installed here" },
+  async () => {
+    // On a busy machine the tool reached its process later than the process reached for its
+    // request. Read from standard input, the request was then not there yet, and the process died
+    // with EAGAIN; the gate showed only `node:fs:483`. Here the request is handed over 1.5 seconds
+    // late, both as the tool hands it now, in a folder named on the command line, and on standard
+    // input, as it did before.
+    const dir = repository();
+    const asked = mkdtempSync(path.join(tmpdir(), "design-assembly-late-"));
+    made.push(asked);
+    const request = JSON.stringify({ root: dir, request: ASK });
+    writeFileSync(path.join(asked, "request.json"), request);
+    const child = spawn(execPath, [LINT, asked], { stdio: ["pipe", "pipe", "pipe"] });
+    let said = "";
+    child.stderr.on("data", (chunk) => (said += chunk));
+    child.stdout.resume();
+    child.stdin.on("error", () => {});
+    const late = setTimeout(() => child.stdin.end(request), 1500);
+    const [status] = await new Promise((done) => child.on("close", (...end) => done(end)));
+    clearTimeout(late);
+    assert.equal(status, 0, said);
+    assert.deepEqual(JSON.parse(readFileSync(path.join(asked, "answer.json"), "utf8")), {
+      at: { "no-restricted-syntax": "src/app/page.tsx" },
+    });
   },
 );

@@ -61,9 +61,11 @@ read`. Chạy cả thư mục bài kiểm của plugin tám lượt cùng lúc, 
 
 ## Consequences
 
-- Bốn bài kiểm mới ở `plugins/design-assembly/tests/test-lint.mjs`, mỗi bài đã thấy đỏ trên công cụ
+- Năm bài kiểm mới ở `plugins/design-assembly/tests/test-lint.mjs`, mỗi bài đã thấy đỏ trên công cụ
   cũ: lỗi của lint đến tay người gọi bằng lời của nó; tiến trình chết được báo bằng lời của lỗi; lint
-  không trả lời bị dừng và được nêu tên trong giới hạn; câu hỏi không còn đi qua đầu vào chuẩn.
+  không trả lời bị dừng và được nêu tên trong giới hạn; câu hỏi không còn đi qua đầu vào chuẩn; và
+  tiến trình lint vẫn trả lời khi câu hỏi tới trễ 1,5 giây. Bài cuối dựng lại đúng lỗi gốc mỗi lần
+  chạy: trên công cụ cũ tiến trình chết với EAGAIN, không cần máy bận.
 - Sau khi sửa: cả thư mục bài kiểm của plugin chạy tám bản cùng lúc, năm lượt mỗi bản, 40 lượt mà
   không tiến trình lint nào chết; trước khi sửa, 16 lượt đã có 10 lần. Các lượt đỏ còn lại ở phép đo
   này đều là bài kiểm bảng mẫu và cuốn sổ, vì tám bản chạy trong cùng một thư mục làm việc dùng chung
