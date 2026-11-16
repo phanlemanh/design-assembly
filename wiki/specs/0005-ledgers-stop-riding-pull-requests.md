@@ -24,7 +24,7 @@ sources:
   - src/screens.ts
   - tests/e2e/routes.ts
   - mk/plugin.mk
-  - "repo-standards/docs/thiet-ke-tong-quan-ba-kho.md, mục 4, 5, 7, 9 (PR 14 của kho đó)"
+  - "repo-standards/docs/three-repo-overview-design.md, mục 4, 5, 7, 9 (PR 14 của kho đó)"
   - "repo kiểm chứng, nhánh chính tại b6f4f29 và 7f113f7, đọc ngày 2026-11-16: 30 PR gộp gần nhất, thư mục thiết kế, các công cụ đọc sổ, cấu hình bộ chạy bài trình duyệt"
   - "delivery-loop, nhánh chuyen-nha, GUIDE.md: khoá design_floor.sinh_lai"
   - "chủ repo, 2026-11-16: «Duyệt kế hoạch»"

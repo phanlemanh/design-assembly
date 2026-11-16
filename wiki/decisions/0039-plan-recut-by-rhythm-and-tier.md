@@ -10,7 +10,7 @@ sources:
   - docs/trials/README.md
   - docs/trials/results.tsv
   - plugins/design-assembly/references/limits.json
-  - repo-standards/docs/ranh-gioi-ba-kho.md
+  - repo-standards/docs/three-repo-boundaries.md
   - "chủ repo, 2026-11-15: «design-assembly là một repo meta/plugin hoạt động trên mọi repo mọi giai đoạn»; «Kiểm tra kỹ lưỡng và viết lại kế hoạch»"
 ---
 

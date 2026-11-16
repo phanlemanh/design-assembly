@@ -8,7 +8,7 @@ links:
   - wiki/specs/0004-the-command-set.md
 sources:
   - docs/plan/plan.json
-  - "repo-standards/docs/thiet-ke-tong-quan-ba-kho.md, mục 5, 7 và 8 (PR 14 của kho đó)"
+  - "repo-standards/docs/three-repo-overview-design.md, mục 5, 7 và 8 (PR 14 của kho đó)"
   - 'chủ repo, 2026-11-16, ở phiên Repo-standards: «Gửi qua design-assembly ở phiên "Design Assembly" yêu cầu thực hiện cho hạn mục của mình và cung cấp bối cảnh hoàn chỉnh.»'
   - "chủ repo, 2026-11-16, ở phiên Repo-standards: «Đồng ý, nếu liên quan design thì là design assembly còn nếu ko thì ở delivery loop»"
   - "chủ repo, 2026-11-16, ở phiên này, sau bản rà soát: «Duyệt kế hoạch»"
