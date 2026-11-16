@@ -18,8 +18,10 @@ import { env, execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { gitFacts } from "../templates/tools/design-assembly/check.mjs";
 import {
   libraryFolders,
+  outOfGitChecks,
   readComponents,
   readFolder,
   targetProblem,
@@ -68,16 +70,16 @@ function blueprint() {
 const own = (file) => readFileSync(path.join(ROOT, file), "utf8");
 // The floor with two of its real components: one that declares variant sets, one that types a
 // prop as a closed list.
-const floor = (extra = {}) =>
-  folder({
-    "src/index.css": withoutBlock(own("src/index.css")),
-    Makefile: own("Makefile"),
-    "components.json": own("components.json"),
-    "src/components/ui/button.tsx": own("src/components/ui/button.tsx"),
-    "src/components/ui/card.tsx": own("src/components/ui/card.tsx"),
-    "design/blueprint.json": blueprint(),
-    ...extra,
-  });
+const floorFiles = (extra = {}) => ({
+  "src/index.css": withoutBlock(own("src/index.css")),
+  Makefile: own("Makefile"),
+  "components.json": own("components.json"),
+  "src/components/ui/button.tsx": own("src/components/ui/button.tsx"),
+  "src/components/ui/card.tsx": own("src/components/ui/card.tsx"),
+  "design/blueprint.json": blueprint(),
+  ...extra,
+});
+const floor = (extra = {}) => folder(floorFiles(extra));
 
 const run = (script, ...args) => spawnSync(execPath, [script, ...args], { encoding: "utf8" });
 const check = (dir) => run(path.join(dir, "tools/design-assembly/check.mjs"), "--target", dir);
@@ -819,4 +821,208 @@ test("a component is drawn with the components its file hands on, as well as its
   // component it merely imports.
   assert.deepEqual(byName.Filters.parts, ["FiltersRow", "FiltersAdvanced"]);
   assert.deepEqual(byName.FiltersRow.parts, ["FilterChip"]);
+});
+
+// A derived file a repository keeps out of git. The choice is the repository's, written in its
+// tool data; a repository that never asked keeps today's behaviour.
+const git = (dir, ...args) => spawnSync("git", ["-C", dir, ...args], { encoding: "utf8" });
+const manifestKinds = (dir) =>
+  JSON.parse(text(dir, "design/theme.json")).checks["component-manifest"].map((item) => item.kind);
+const applied = () => {
+  const dir = floor();
+  const said = run(APPLY, "--target", dir);
+  assert.equal(said.status, 0, said.stderr);
+  return dir;
+};
+
+test("a manifest kept out of git: the gate is red while git tracks it, and green once git ignores it", () => {
+  const dir = applied();
+  assert.equal(git(dir, "init", "-q").status, 0);
+  const asked = components(dir, "--out-of-git");
+  assert.equal(asked.status, 0, asked.stderr);
+  assert.deepEqual(manifestKinds(dir), ["components", "untracked"]);
+  // Git tracks the file, so a pull request would carry it.
+  git(dir, "add", "-A");
+  const tracked = check(dir);
+  assert.equal(tracked.status, 1, tracked.stdout);
+  assert.match(
+    tracked.stderr,
+    /component-manifest: design\/component-registry\.json .*git tracks it/,
+  );
+  // Out of the index but not ignored: the next commit may take it back.
+  assert.equal(git(dir, "rm", "-q", "--cached", REGISTRY).status, 0);
+  const loose = check(dir);
+  assert.equal(loose.status, 1, loose.stdout);
+  assert.match(loose.stderr, /git does not ignore it/);
+  writeFileSync(path.join(dir, ".gitignore"), `${REGISTRY}\n`);
+  const held = check(dir);
+  assert.equal(held.status, 0, held.stderr);
+});
+
+test("the gate draws a manifest kept out of git again before it checks, so a clean checkout is green", () => {
+  const dir = applied();
+  git(dir, "init", "-q");
+  components(dir, "--out-of-git");
+  writeFileSync(path.join(dir, ".gitignore"), `${REGISTRY}\n`);
+  rmSync(path.join(dir, REGISTRY));
+  const clean = check(dir);
+  assert.equal(clean.status, 0, clean.stderr);
+  assert.ok(existsSync(path.join(dir, REGISTRY)), "the gate did not draw the manifest again");
+  // A component added in the source is in the file after the next run of the gate.
+  writeFileSync(path.join(dir, "src/components/ui/toggle.tsx"), TOGGLE);
+  const added = check(dir);
+  assert.equal(added.status, 0, added.stderr);
+  assert.match(text(dir, REGISTRY), /"Toggle"/);
+});
+
+test("a repository that never asked keeps its manifest in git: nothing new is checked or written", () => {
+  const dir = applied();
+  git(dir, "init", "-q");
+  git(dir, "add", "-A");
+  assert.deepEqual(manifestKinds(dir), ["components"]);
+  const held = check(dir);
+  assert.equal(held.status, 0, held.stderr);
+  // A manifest that is in git and missing is still a failure, and the gate does not write it.
+  rmSync(path.join(dir, REGISTRY));
+  const missing = check(dir);
+  assert.equal(missing.status, 1);
+  assert.match(missing.stderr, /is missing/);
+  assert.ok(!existsSync(path.join(dir, REGISTRY)));
+});
+
+test("keeping the manifest out of git outlives the next run of the guide, and one command takes it back", () => {
+  const dir = applied();
+  assert.equal(components(dir, "--out-of-git").status, 0);
+  const again = run(APPLY, "--target", dir);
+  assert.equal(again.status, 0, again.stderr);
+  assert.deepEqual(manifestKinds(dir), ["components", "untracked"]);
+  const back = components(dir, "--in-git");
+  assert.equal(back.status, 0, back.stderr);
+  assert.deepEqual(manifestKinds(dir), ["components"]);
+});
+
+test("outside a git repository a manifest kept out of git has nothing to answer for, and the gate is green", () => {
+  const dir = applied();
+  assert.equal(components(dir, "--out-of-git").status, 0);
+  assert.deepEqual(manifestKinds(dir), ["components", "untracked"]);
+  const held = check(dir);
+  assert.equal(held.status, 0, held.stderr);
+  assert.match(held.stdout, /each seen failing on a changed copy/);
+});
+
+test("a repository with no manifest of this tool is told so when asked to keep it out of git", () => {
+  const dir = folder({
+    "src/index.css": withoutBlock(own("src/index.css")),
+    Makefile: own("Makefile"),
+    "design/blueprint.json": blueprint(),
+  });
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  const before = text(dir, "design/theme.json");
+  const said = components(dir, "--out-of-git");
+  assert.equal(said.status, 0, said.stderr);
+  assert.match(said.stdout, /manages no component manifest here/);
+  assert.equal(text(dir, "design/theme.json"), before);
+});
+
+test("a repository that adopted keeps its manifest out of git the same way, and adopting again leaves the choice alone", () => {
+  const dir = floor();
+  assert.equal(run(ADOPT, "--target", dir).status, 1);
+  git(dir, "init", "-q");
+  assert.equal(components(dir, "--out-of-git").status, 0);
+  writeFileSync(path.join(dir, ".gitignore"), `${REGISTRY}\n`);
+  const held = check(dir);
+  assert.equal(held.status, 0, held.stderr);
+  const before = text(dir, "design/theme.json");
+  const again = run(ADOPT, "--target", dir);
+  assert.equal(again.status, 1, again.stderr);
+  // Adopting never rewrites the checks of a decision it already holds, so the data is untouched.
+  assert.equal(text(dir, "design/theme.json"), before);
+  assert.deepEqual(manifestKinds(dir), ["components", "untracked"]);
+  const still = check(dir);
+  assert.equal(still.status, 0, still.stderr);
+});
+
+test("the choice follows the manifest when the repository names another file for it", () => {
+  const prior = {
+    checks: {
+      "component-manifest": [
+        { kind: "components", file: "design/old-name.json", folder: "src/components/ui" },
+        { kind: "untracked", file: "design/old-name.json" },
+      ],
+    },
+  };
+  assert.deepEqual(outOfGitChecks(prior, "design/new-name.json"), [
+    { kind: "untracked", file: "design/new-name.json" },
+  ]);
+  // A repository that never asked, or has no tool data yet, gets nothing.
+  assert.deepEqual(outOfGitChecks({ checks: { "component-manifest": [] } }, "design/x.json"), []);
+  assert.deepEqual(outOfGitChecks(null, "design/x.json"), []);
+});
+
+test("git is asked about a file whose name has a space and letters outside ASCII", () => {
+  const name = "design/sổ linh kiện.json";
+  const dir = folder({ [name]: "{}\n", "design/other.json": "{}\n" });
+  git(dir, "init", "-q");
+  assert.deepEqual(gitFacts(dir, [name]), { tracked: [], ignored: [] });
+  git(dir, "add", "-A");
+  assert.deepEqual(gitFacts(dir, [name]).tracked, [name]);
+  git(dir, "rm", "-q", "--cached", name);
+  writeFileSync(path.join(dir, ".gitignore"), `${name}\n`);
+  assert.deepEqual(gitFacts(dir, [name]), { tracked: [], ignored: [name] });
+  // No check asks: git is not run at all.
+  assert.equal(gitFacts(dir, []), null);
+});
+
+test("a target inside a larger git repository, in a folder with a space, is held the same way", () => {
+  const parent = folder({});
+  git(parent, "init", "-q");
+  const dir = path.join(parent, "my app");
+  for (const [file, content] of Object.entries(floorFiles())) {
+    mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    writeFileSync(path.join(dir, file), content);
+  }
+  assert.equal(run(APPLY, "--target", dir).status, 0);
+  assert.equal(components(dir, "--out-of-git").status, 0);
+  git(parent, "add", "-A");
+  const tracked = check(dir);
+  assert.equal(tracked.status, 1, tracked.stdout);
+  assert.match(tracked.stderr, /git tracks it/);
+  git(parent, "rm", "-q", "--cached", path.join("my app", REGISTRY));
+  writeFileSync(path.join(dir, ".gitignore"), `${REGISTRY}\n`);
+  const held = check(dir);
+  assert.equal(held.status, 0, held.stderr);
+});
+
+test("when git is there but will not answer, the gate says so; with no git at all, nothing tracks the file", () => {
+  const dir = applied();
+  git(dir, "init", "-q");
+  assert.equal(components(dir, "--out-of-git").status, 0);
+  writeFileSync(path.join(dir, ".gitignore"), `${REGISTRY}\n`);
+  const gate = path.join(dir, "tools/design-assembly/check.mjs");
+  const withPath = (bin) =>
+    spawnSync(execPath, [gate, "--target", dir], { encoding: "utf8", env: { ...env, PATH: bin } });
+  // A git that refuses for a reason other than "not a repository", as it does for a checkout
+  // owned by another user.
+  const bin = folder({
+    git: '#!/bin/sh\necho "fatal: detected dubious ownership in repository" >&2\nexit 128\n',
+  });
+  spawnSync("chmod", ["+x", path.join(bin, "git")]);
+  const refused = withPath(bin);
+  assert.equal(refused.status, 1, refused.stdout);
+  assert.match(refused.stderr, /git could not be asked.*dubious ownership/);
+  // No git on the machine: nothing can track the file.
+  const none = withPath(folder({}));
+  assert.equal(none.status, 0, none.stderr);
+});
+
+test("asking twice changes nothing the second time, and asking for both at once is refused", () => {
+  const dir = applied();
+  assert.equal(components(dir, "--out-of-git").status, 0);
+  const once = text(dir, "design/theme.json");
+  assert.equal(components(dir, "--out-of-git").status, 0);
+  assert.equal(text(dir, "design/theme.json"), once);
+  const both = components(dir, "--out-of-git", "--in-git");
+  assert.equal(both.status, 1);
+  assert.match(both.stderr, /one of --out-of-git and --in-git/);
+  assert.equal(text(dir, "design/theme.json"), once);
 });

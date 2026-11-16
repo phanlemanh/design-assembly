@@ -32,6 +32,7 @@ import {
 } from "../templates/tools/design-assembly/contract.mjs";
 import {
   COMPONENTS_DECISION,
+  outOfGitChecks,
   COMPONENTS_FOLDER,
   componentsProblem,
   libraryFolders,
@@ -300,6 +301,16 @@ export function componentsFolder(target) {
   return named ?? COMPONENTS_FOLDER;
 }
 
+// The tool data the repository has today, or null.
+function priorTheme(target) {
+  const file = path.join(target, FILES.theme);
+  try {
+    return existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
+  } catch {
+    return null;
+  }
+}
+
 // The component manifest for the source as it is, with its ledger row and its check; or why it
 // is left alone. `nothing` means the repository has no components to list.
 export function componentsPlan(target, alreadyHeld, pending = {}) {
@@ -341,6 +352,9 @@ export function componentsPlan(target, alreadyHeld, pending = {}) {
         ...(own ? { own } : {}),
         pages: KINDS_FOLDER,
       },
+      // A repository that keeps the manifest out of git said so in its tool data: the choice is
+      // carried over, never made here, and it follows the manifest when its path changes.
+      ...outOfGitChecks(priorTheme(target), file),
     ],
   };
 }
@@ -1150,7 +1164,7 @@ export function rulesPage(checks, has) {
   section("After a change", [
     held("design-tokens") && "A value in the stylesheet changed: run `make design-tokens`.",
     held("component-manifest") &&
-      "A component or one of its variants changed: run `make design-components`. Look a component and its variants up in `design/component-registry.json` before reading its source.",
+      "A component or one of its variants changed: run `make design-components`. Look a component and its variants up in `design/component-registry.json` before reading its source; when the file is not there, the repository keeps it out of git and the same command writes it.",
     held("column-align") &&
       "A field's column type or the table of column types changed: run `make design-columns`.",
     "Never edit by hand the files those commands write, `design/theme.json`, `tools/design-assembly/` or `mk/design-assembly.mk`.",

@@ -93,6 +93,6 @@ it.
 ## After a change
 
 - A value in the stylesheet changed: run `make design-tokens`.
-- A component or one of its variants changed: run `make design-components`. Look a component and its variants up in `design/component-registry.json` before reading its source.
+- A component or one of its variants changed: run `make design-components`. Look a component and its variants up in `design/component-registry.json` before reading its source; when the file is not there, the repository keeps it out of git and the same command writes it.
 - A field's column type or the table of column types changed: run `make design-columns`.
 - Never edit by hand the files those commands write, `design/theme.json`, `tools/design-assembly/` or `mk/design-assembly.mk`.

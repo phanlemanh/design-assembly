@@ -104,6 +104,10 @@
         "folder": "src/components/ui",
         "own": "src/components",
         "pages": "design/patterns"
+      },
+      {
+        "kind": "untracked",
+        "file": "design/component-registry.json"
       }
     ],
     "display-kind": [

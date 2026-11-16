@@ -1,15 +1,22 @@
 // Checks the decisions this tool holds, shows every check failing on a changed copy, and validates
 // the ledger that points at them.
 // Usage: node tools/design-assembly/check.mjs [--rate] [--target DIR]
-import { existsSync, readFileSync, realpathSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { contrast } from "./color.mjs";
 import { cellProblems, columnsProblem, readDisplays, typesProblem } from "./columns.mjs";
-import { componentsProblem, readFolder, targetProblem } from "./components.mjs";
-import { LEDGERS, shapeProblems } from "./contract.mjs";
+import {
+  componentsProblem,
+  readFolder,
+  regenerated,
+  targetProblem,
+  UNTRACKED,
+} from "./components.mjs";
+import { LEDGERS, newerProblem, shapeProblems } from "./contract.mjs";
 import {
   LAYER_ALIASES,
   LAYERS,
@@ -346,6 +353,28 @@ const KINDS = {
         'export const ChangedCopy = () => (\n  <tr className="h-9">\n    <td className="w-40 text-right" />\n  </tr>\n);\n';
       const files = { ...state.folders?.[check.folder], [added]: source };
       return { ...state, folders: { ...state.folders, [check.folder]: files } };
+    },
+  },
+  // A derived file the repository keeps out of git is not in git, so no pull request carries it.
+  // Where there is no git repository nothing can track the file, and the check has nothing to say.
+  [UNTRACKED]: {
+    run(state, check) {
+      if (!state.git) return null;
+      if (state.git.problem) {
+        return `${check.file} is kept out of git, but git could not be asked whether it tracks the file (${state.git.problem}): the check proves nothing until git answers`;
+      }
+      if (state.git.tracked.includes(check.file)) {
+        return `${check.file} is written from the source and this repository keeps it out of git, but git tracks it: run git rm --cached ${check.file}`;
+      }
+      if (!state.git.ignored.includes(check.file)) {
+        return `${check.file} is kept out of git, but git does not ignore it, so it may be added back by mistake: add it to .gitignore`;
+      }
+      return null;
+    },
+    // Git tracks the file.
+    change(state, check) {
+      const git = state.git ?? { tracked: [], ignored: [] };
+      return { ...state, git: { ignored: git.ignored, tracked: [...git.tracked, check.file] } };
     },
   },
   // Every screen of the registry declares the states every view of data has.
@@ -689,6 +718,68 @@ export function checkFolders(checks) {
   return [...new Set(checks.flatMap((check) => [check.folder, check.own]).filter(Boolean))];
 }
 
+// What git says of the files a repository keeps out of it: which it tracks, and which it ignores.
+// Null when no check asks, or when the folder is not in a git repository.
+// A git that is there and will not answer, for a checkout owned by another user for instance, is
+// neither: the facts then carry `problem`, and the check fails instead of passing unasked.
+export function gitFacts(root, files) {
+  if (files.length === 0) return null;
+  const git = (args, input) =>
+    spawnSync("git", ["-C", root, ...args], { encoding: "utf8", ...(input ? { input } : {}) });
+  const inside = git(["rev-parse", "--is-inside-work-tree"]);
+  // No git on this machine: nothing can track the file.
+  if (inside.error) return null;
+  if (inside.status !== 0) {
+    const said = (inside.stderr ?? "").trim();
+    if (/not a git repository/i.test(said)) return null;
+    return { tracked: [], ignored: [], problem: said.split("\n")[0] || "git gave no reason" };
+  }
+  // Names are read whole, ended by a zero byte: git otherwise quotes a name with a space or a
+  // letter outside ASCII, and no file would match it.
+  const names = (run) => (run.stdout ?? "").split("\0").filter(Boolean);
+  // The ignore question takes names ended by a zero byte only on its input.
+  return {
+    tracked: names(git(["ls-files", "-z", "--", ...files])),
+    ignored: names(git(["check-ignore", "-z", "--stdin"], files.join("\0"))),
+  };
+}
+
+// Whether a manifest on disk has a shape newer than this tool writes. Text that is not JSON has none.
+function newerManifest(text) {
+  if (text === null) return false;
+  try {
+    return newerProblem("components", JSON.parse(text)) !== null;
+  } catch {
+    return false;
+  }
+}
+
+// Writes again every derived file the repository keeps out of git, and names the ones it wrote. A
+// clean checkout has none of them, and whatever reads one after the gate must not read an old one.
+// A file of a newer shape is left alone: the check says so.
+export function drawUntracked(root) {
+  const themeFile = path.join(root, FILES.theme);
+  if (!existsSync(themeFile)) return [];
+  const checks = Object.values(JSON.parse(readFileSync(themeFile, "utf8")).checks ?? {}).flat();
+  const wanted = checks.filter((check) => check.kind === UNTRACKED).map((check) => check.file);
+  if (wanted.length === 0) return [];
+  const written = [];
+  const made = regenerated(root);
+  if (made && wanted.includes(made.file)) {
+    const full = path.join(root, made.file);
+    const before = existsSync(full) ? readFileSync(full, "utf8") : null;
+    const stale =
+      before === null ||
+      componentsProblem(before, made.files, made.file, made.read, made.options) !== null;
+    if (!newerManifest(before) && stale) {
+      mkdirSync(path.dirname(full), { recursive: true });
+      writeFileSync(full, made.content);
+      written.push(made.file);
+    }
+  }
+  return written;
+}
+
 export function readState(root) {
   const read = (file) => {
     const full = path.join(root, file);
@@ -751,6 +842,10 @@ export function readState(root) {
     displays: readDisplays(root),
     gate: read(FILES.gate),
     makefile: read("Makefile"),
+    git: gitFacts(
+      root,
+      checks.filter((check) => check.kind === UNTRACKED).map((check) => check.file),
+    ),
   };
 }
 
@@ -838,6 +933,9 @@ function main() {
   const args = argv.slice(2);
   const at = args.indexOf("--target");
   const root = at === -1 ? cwd() : path.resolve(args[at + 1] ?? "");
+  for (const file of drawUntracked(root)) {
+    stdout.write(`design-assembly: wrote ${file} again from the source; it is kept out of git\n`);
+  }
   const state = readState(root);
   if (state.theme === null || state.ledger === null) {
     stderr.write(

@@ -110,6 +110,17 @@ it is drawn with. Look a component up here before reading its source. The shape 
   helper, and props typed as a closed list of words. A true/false prop is not a variant.
 - The file is derived. Change the component, then run `make design-components`. The `components`
   check fails when the two disagree, whichever side moved.
+- A repository may keep the file out of git, so that no pull request carries it and two pull
+  requests that each touch a component do not meet in it. That is the repository's choice, off
+  until asked for: `node tools/design-assembly/components.mjs --out-of-git` writes the choice into
+  the tool data and says the two steps left for a person (add the file to `.gitignore`, take it
+  out of the index); `--in-git` takes the choice back. The command never touches git itself. From
+  then on the gate writes the file again from the source before it checks, so a clean checkout
+  has it, and the `untracked` check fails while git tracks the file or does not ignore it. The
+  guide carries the choice over on its next run. In a folder that is not a git repository, or on
+  a machine with no git, the check has nothing to say; when git is there and will not answer, the
+  check fails and says why. The gate writes over whatever is in the file, a hand edit included:
+  the source is the only place a component changes.
 - A control (a component that renders something a person activates: a button, an input, a
   trigger, an item) is marked `control: true`, with `min_height`: the smallest height its own
   classes declare, over all its variants. A control without `min_height` takes its height from
@@ -450,6 +461,7 @@ passes: a check that cannot fail proves nothing.
 | `scale`             | Every step of the type scale is larger than the one before                             |
 | `tokens`            | The design tokens file is exactly what the stylesheet gives                            |
 | `components`        | The component manifest is exactly what the component source gives                      |
+| `untracked`         | A derived file the repository keeps out of git is not tracked by git, and is ignored   |
 | `target-size`       | Every control declares a height that reaches the target size of the conformance level  |
 | `column-types`      | The table of column types is well formed, and every field names one of its types       |
 | `columns`           | The file code reads is exactly what the table and the data model give                  |
