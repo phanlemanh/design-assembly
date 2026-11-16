@@ -30,6 +30,12 @@
       "templates": "70be2f70e906d21e99148c78efd27b5a7311a649",
       "scripts": "b05eec6d8fb46e2c2ff099457b57e930e599fb27",
       "tool": "2a701be01d3eb0194f1da14689d67b3a19a6f7f4"
+    },
+    {
+      "version": "0.6.0",
+      "templates": "3b1bc49c4422db7518fd9f268d2b8f0e46bd3e5d",
+      "scripts": "9239e01169a7f3e2df39b6d959a430380f2b53ff",
+      "tool": "7806e10b6bd670b038b630ffdaf5da841ff8b429"
     }
   ]
 }

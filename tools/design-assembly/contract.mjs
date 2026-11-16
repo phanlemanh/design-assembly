@@ -195,6 +195,8 @@ export const LEDGERS = {
             audience: text,
             status: required({ ...text, values: ["built", "planned"] }),
             states: list(text),
+            // The widths this screen is checked at, when they are not the ones every page is.
+            sizes: list({ ...text, pattern: "^\\d+$" }),
             // What the screen shows, the action a role must hold to open it (null: every role),
             // and the actions it has buttons for: names of the repository's domain model.
             shows: list(text),

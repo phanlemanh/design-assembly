@@ -519,6 +519,12 @@
       "meaning": "A file a tool writes from a source, such as the component manifest from the components: a change goes to the source, and the file is written again from it rather than edited.",
       "source": "Common practice in build tooling: generated or derived files",
       "trust": "practice"
+    },
+    {
+      "term": "test impact analysis",
+      "meaning": "Telling from a change which tests it can reach, so that only those run: here, which screens a change reaches through the files each screen imports, and the whole suite whenever that cannot be told.",
+      "source": "Common practice in testing and build tooling",
+      "trust": "practice"
     }
   ]
 }

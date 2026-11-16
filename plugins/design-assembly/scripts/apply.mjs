@@ -1500,6 +1500,8 @@ export function plan(target, blueprint) {
     ...(before.stylesheet ? { stylesheet: before.stylesheet } : {}),
     inputs,
     checks,
+    // What a person wrote of the change map is theirs: kept as it is.
+    ...(before.affected ? { affected: before.affected } : {}),
   };
   files[FILES.theme] = renderJson(data, lineWidth(target));
   files[RULES_PAGE] = rulesPage(checks, (file) => file in files || read(file) !== null);
