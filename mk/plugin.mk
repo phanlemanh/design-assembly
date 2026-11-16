@@ -24,6 +24,9 @@ design-audit: ## Audit this repository: each standard decision's state, and the 
 design-status: ## Say what waits on the owner here, the tier reached, and the command to run next. Ends with 1 when something waits or is left to fix
 	@node plugins/design-assembly/scripts/status.mjs --target .
 
+design-status-reference: ## Say where the reference repository stands, which tool version it runs included. Never writes there
+	@node plugins/design-assembly/scripts/status.mjs --target $(REFERENCE_LEDGER) $(done-or-work)
+
 design-upgrade-plan: ## Show what bringing the installed plugin's tool in here would change: tool files, ledger entries, decisions, the gate. Ends with 1 when it would stop
 	@node plugins/design-assembly/scripts/upgrade.mjs --target . --dry-run
 
