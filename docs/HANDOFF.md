@@ -163,3 +163,9 @@ upgrade-design-assembly-tool --reason "gộp main" --write`; nhả khoá;
 - Đổi hình dạng một sổ hay một lệnh kiểm thì bài kiểm cũ của plugin đỏ theo. Phân biệt kỳ vọng cũ với lỗi thật trước khi
   sửa bài kiểm.
 - Tác tử báo về là báo cáo, chưa phải bằng chứng: tự kiểm lại trước khi sửa hay gộp.
+- **Dòng `Plan:` phải nằm ở đoạn cuối của thông điệp commit.** Thêm một dòng trống rồi mới tới dòng đồng tác giả thì
+  `Plan:` không còn ở đoạn cuối, và `make check` đỏ sau khi commit dù trước đó xanh. Viết các dòng cuối liền nhau.
+- **Từ một bản làm việc trong `.claude/worktrees/`, đường `../onehub-inventory` không tới được repo kiểm chứng.** Chạy
+  `make check REFERENCE_LEDGER=<đường tuyệt đối> ACCEPTANCE_KIT=<đường tuyệt đối>`, nếu không hai bài bị bỏ qua.
+- **Bản làm việc mới chưa có sổ linh kiện** (tệp nằm ngoài git từ bước 8.1a). Chạy `make design-components` trước khi
+  chạy riêng bài kiểm của plugin; `make check` thì tự vẽ lại.
