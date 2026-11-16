@@ -9,7 +9,7 @@ links:
   - wiki/decisions/0030-one-ledger-of-screens.md
   - wiki/specs/0002-meta-layer-for-many-repositories.md
 sources:
-  - repo-standards/docs/ranh-gioi-ba-kho.md
+  - repo-standards/docs/three-repo-boundaries.md
   - repo-standards/docs/superpowers/specs/2026-11-14-entity-lifecycle-design.md (gộp vào nhánh chính của Repo Standards ngày 2026-11-15, PR 9)
   - onehub-inventory/.acceptance-runs/dieu-phoi-nen/trinh/ra-soat-crud/bao-cao.md
   - onehub-inventory/design/screens.yaml

@@ -25,7 +25,7 @@ sources:
   - "chủ repo, 2026-11-15: «Duyệt đề bài»"
   - plugins/design-assembly/references/book.md
   - plugins/design-assembly/references/layers.json
-  - repo-standards/docs/ranh-gioi-ba-kho.md
+  - repo-standards/docs/three-repo-boundaries.md
 ---
 
 # 0004 Bộ lệnh của design-assembly, theo việc người dùng cần xong
