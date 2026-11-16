@@ -1,0 +1,24 @@
+id: reference
+route: /
+title: screenTitle
+family: danh-sach
+status: built
+shows:
+  - Item
+entry: listItems
+actions:
+  - createItem
+  - deleteItem
+states:
+  - ready
+  - loading
+  - error
+  - empty
+  - no-results
+  - confirm-delete
+  - saving
+  - delete-failed
+  - record-open
+  - adding
+  - add-failed
+  - undo-failed

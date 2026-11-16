@@ -106,6 +106,20 @@ that may run it, that no screen shows a record to a role that may not view it, a
 is one no role that opens its screen may press. What the model or the ledger plans for later is
 listed on every run.
 
+A repository may keep this ledger as a folder instead of one file, so that two changes that each
+add a screen write two files and never meet in one. The folder is the ledger's path without its
+ending, `design/screens`: each screen is `design/screens/<id>.yaml`, the keys of that screen at
+the left margin, and everything that is not a screen (`version`, `families`, `audiences`,
+`statuses`, `frame`, `no_screen`, `keys`, the repository's own keys) is in
+`design/screens/_shared.yaml`. The data is the same, so the shape and its version are the same.
+Every reader takes both for good: the folder when it holds `_shared.yaml`, else the one file; a
+folder of that name without `_shared.yaml` is not a ledger. The screens are then read in the
+order of their ids. A file's name is the id inside it, so two screens with one id cannot both be
+there; the gate fails on a file named otherwise, on a file without the shape of a screen, and on
+the one file kept beside the folder. It is the repository's choice, off until asked for:
+`node tools/design-assembly/screen-fragments.mjs --split` cuts the one file, `--join` takes that
+back, and `--print` gives the ledger as one text; `checks.md` says what each does.
+
 The ledger says what there is; the code that lists the screens says how each state is reached. The
 gate holds that both list the same built screens, that no id or route is listed twice, and that
 each family is the kind of a page; the screen checks read the states from the ledger. The

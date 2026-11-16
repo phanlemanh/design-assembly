@@ -12,6 +12,12 @@
       "templates": "090bd3219b89058fb37c8365a2148ceb39e9d7fd",
       "scripts": "95c89b638add2380b3dc083623700d75d2751a6f",
       "tool": "279eb03c085f1cf4385d5b1457bec5fa1e479a7d"
+    },
+    {
+      "version": "0.3.0",
+      "templates": "c4617629c5ac1274cd643d0fbd49bdde9e01f57a",
+      "scripts": "2f0ce05aa77536b945c25c1c51bdca2660bf265b",
+      "tool": "9e7b08fef11ff456aebb655295038fc65fb0d407"
     }
   ]
 }

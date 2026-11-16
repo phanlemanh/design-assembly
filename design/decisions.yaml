@@ -285,7 +285,7 @@ decisions:
   - id: screen-ledger
     layer: templates
     kind: closed
-    source: "design/screens.yaml, every screen with its kind and states"
+    source: "design/screens, every screen with its kind and states"
     check: "tool:tools/design-assembly/check.mjs"
     note: "that the ledger has its shape and lists the screens the code lists, each family a kind with a page; that each screen's title and states are the code's is held by the repository's own test, tests/screens-ledger.test.ts"
   - id: screen-actions

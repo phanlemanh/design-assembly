@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 
 import { shapeProblems } from "../templates/tools/design-assembly/contract.mjs";
 import { statesProblem } from "../templates/tools/design-assembly/patterns.mjs";
+import { ledgerText } from "../templates/tools/design-assembly/screen-fragments.mjs";
 import {
   builtScreens,
   readScreenLedger,
@@ -178,7 +179,8 @@ test("the gate holds the ledger to the code: the same screens, each of a describ
 });
 
 test("this repository's ledger has its shape and agrees with its code", () => {
-  const text = readFileSync(path.join(ROOT, "design/screens.yaml"), "utf8");
+  // In whichever shape this repository keeps it: one file, or one file per screen.
+  const text = ledgerText(ROOT, "design/screens.yaml");
   assert.deepEqual(shapeProblems("screens", text), []);
   const code = readFileSync(path.join(ROOT, "src/screens.ts"), "utf8");
   const pages = {
