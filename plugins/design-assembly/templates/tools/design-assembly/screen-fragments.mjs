@@ -1,10 +1,12 @@
 // The ledger of screens on disk, in either shape a repository keeps it in: one file, or a folder
 // with one file per screen. Keeping the folder is the repository's choice, off until it asks:
 // --split cuts the one file into fragments, --join takes that back, and --print gives the ledger
-// as one text to whatever still reads one. Each says first what it will write, and --split stops
-// when an entry would be lost. Nothing here touches git.
-// Usage: node tools/design-assembly/screen-fragments.mjs [--split | --join | --print] [--dry-run]
-//          [--target DIR]
+// as one text to whatever still reads one. --copy keeps that text as a file at the old path for the
+// repository's own readers, written from the folder and kept out of git; --no-copy takes it back.
+// Each says first what it will write, and --split stops when an entry would be lost. Nothing here
+// touches git.
+// Usage: node tools/design-assembly/screen-fragments.mjs
+//          [--split | --join] [--dry-run] | --print | --copy | --no-copy [--target DIR]
 import {
   existsSync,
   mkdirSync,
@@ -19,6 +21,7 @@ import path from "node:path";
 import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
+import { UNTRACKED } from "./components.mjs";
 import { lineWidth, renderJson } from "./json.mjs";
 import {
   FRAGMENTS_SHARED,
@@ -42,9 +45,9 @@ const read = (root, file) =>
   existsSync(path.join(root, file)) ? readFileSync(path.join(root, file), "utf8") : null;
 
 // The fragments a repository keeps for the ledger at `file`: the shared part and one text per
-// screen, in the order of the ids; `beside` says the one file is there as well. Null when the
-// folder does not hold the shared part: a folder of that name with other things in it is not a
-// ledger.
+// screen, in the order of the ids; `beside` says the one file is there as well, and `besideText`
+// is what it holds. Null when the folder does not hold the shared part: a folder of that name with
+// other things in it is not a ledger.
 export function readFragments(root, file = SCREEN_LEDGER) {
   const folder = fragmentsFolder(file);
   const shared = read(root, `${folder}/${FRAGMENTS_SHARED}`);
@@ -62,6 +65,7 @@ export function readFragments(root, file = SCREEN_LEDGER) {
       text: readFileSync(path.join(root, folder, name), "utf8"),
     })),
     beside: existsSync(path.join(root, file)),
+    besideText: read(root, file),
   };
 }
 
@@ -72,16 +76,20 @@ export function ledgerText(root, file = SCREEN_LEDGER) {
   return found ? joinLedger(found.shared, found.fragments) : read(root, file);
 }
 
-// The check to list beside the ledger's own when the checks of its decision are built again: the
-// repository keeps fragments when its disk has them, or when its tool data already says so. The
-// choice is carried, never made here.
+// The checks to list beside the ledger's own when the checks of its decision are built again: the
+// repository keeps fragments when its disk has them, or when its tool data already says so, and a
+// copy kept out of git when its tool data says so. Each choice is carried, never made here, and the
+// copy follows the ledger when its path changes.
 export function fragmentsChecks(root, theme, file = SCREEN_LEDGER) {
   const asked = Object.values(theme?.checks ?? {})
     .flat()
     .some((check) => check?.kind === FRAGMENTS);
-  return asked || readFragments(root, file) !== null
-    ? [{ kind: FRAGMENTS, file, fragments: fragmentsFolder(file) }]
-    : [];
+  if (!asked && readFragments(root, file) === null) return [];
+  const copy = (theme?.checks?.[SHAPES_DECISION] ?? []).some((check) => check?.kind === UNTRACKED);
+  return [
+    { kind: FRAGMENTS, file, fragments: fragmentsFolder(file) },
+    ...(copy ? [{ kind: UNTRACKED, file }] : []),
+  ];
 }
 
 // The tool data with the ledger kept as fragments, or as one file again. Only the ledger's own
@@ -97,6 +105,26 @@ export function withFragments(theme, file, on) {
     ? [...others, { kind: FRAGMENTS, file, fragments: fragmentsFolder(file) }]
     : others;
   return { ...theme, checks: { ...theme.checks, [SHAPES_DECISION]: next } };
+}
+
+// The tool data with a copy of the ledger kept out of git at `file`, or with none. As with the
+// fragments, only the ledger's own list of checks changes.
+export function withCopy(theme, file, on) {
+  const checks = theme?.checks?.[SHAPES_DECISION];
+  if (!Array.isArray(checks)) return theme;
+  const has = checks.some((check) => check.kind === UNTRACKED && check.file === file);
+  if (on === has) return theme;
+  const others = checks.filter((check) => check.kind !== UNTRACKED);
+  const next = on ? [...others, { kind: UNTRACKED, file }] : others;
+  return { ...theme, checks: { ...theme.checks, [SHAPES_DECISION]: next } };
+}
+
+// Whether the one file beside the folder is the copy the repository asked for, as it must be.
+function isCopy(root, file, found) {
+  const kept = (themeOf(root)?.checks?.[SHAPES_DECISION] ?? []).some(
+    (check) => check?.kind === UNTRACKED && check.file === file,
+  );
+  return kept && found.besideText === joinLedger(found.shared, found.fragments);
 }
 
 // The tool data of the repository, or null when it has none that reads.
@@ -116,10 +144,13 @@ function ledgerFile(root) {
   return named ?? SCREEN_LEDGER;
 }
 
-// Writes the choice into the tool data, and says whether a gate holds the ledger here.
+// Writes the choice into the tool data, and says whether a gate holds the ledger here. One file
+// again keeps no copy either.
 function record(root, file, on) {
   const theme = themeOf(root);
-  const next = withFragments(theme, file, on);
+  const next = on
+    ? withFragments(theme, file, true)
+    : withCopy(withFragments(theme, file, false), file, false);
   if (next !== theme) writeFileSync(path.join(root, THEME), renderJson(next, lineWidth(root)));
   return Array.isArray(theme?.checks?.[SHAPES_DECISION]);
 }
@@ -168,7 +199,7 @@ export function splitPlan(root, file = SCREEN_LEDGER) {
 function split(root, file, dry) {
   const folder = fragmentsFolder(file);
   const found = readFragments(root, file);
-  if (found?.beside) {
+  if (found?.beside && !isCopy(root, file, found)) {
     stderr.write(
       `${NAME}: ${file} is there beside ${folder}, which already holds the fragments. The folder is what is read: remove ${file}, or take the folder away and split again. Nothing was written.\n`,
     );
@@ -270,7 +301,10 @@ function join(root, file, dry) {
     if (one !== null && !dry) record(root, file, false);
     return 0;
   }
-  if (found.beside) {
+  // The copy the repository asked for is the joined text already, so it is written over; any
+  // other file there would be lost.
+  const copied = found.beside && isCopy(root, file, found);
+  if (found.beside && !copied) {
     stderr.write(
       `${NAME}: ${file} is there beside ${folder}, and joining would write over it. Remove it first; the folder is what is read. Nothing was written.\n`,
     );
@@ -309,7 +343,65 @@ function join(root, file, dry) {
   // The folder goes when nothing of the repository's own is left in it.
   if (readdirSync(path.join(root, folder)).length === 0) rmdirSync(path.join(root, folder));
   record(root, file, false);
-  stdout.write(`  to finish: commit ${file} and the removal of the fragments in one change\n`);
+  stdout.write(
+    copied
+      ? `  to finish: take ${file} out of .gitignore, then commit it and the removal of the fragments in one change\n`
+      : `  to finish: commit ${file} and the removal of the fragments in one change\n`,
+  );
+  return 0;
+}
+
+// Keeps a copy of the ledger as one file at its old path, for whatever of the repository's own
+// reads that path, or stops keeping it. The copy is written by the gate and by derived.mjs, never
+// by hand: the folder is the ledger.
+function copy(root, file, on) {
+  const folder = fragmentsFolder(file);
+  const found = readFragments(root, file);
+  const theme = themeOf(root);
+  if (on && !found) {
+    stderr.write(
+      `${NAME}: ${file} is one file, so there is no folder to copy it from: run --split first. Nothing was written.\n`,
+    );
+    return 1;
+  }
+  if (on && !Array.isArray(theme?.checks?.[SHAPES_DECISION])) {
+    stderr.write(
+      `${NAME}: no gate here holds the ledger of screens, so nothing would write the copy. Nothing was written.\n`,
+    );
+    return 1;
+  }
+  const next = withCopy(theme, file, on);
+  if (next === theme) {
+    stdout.write(
+      on
+        ? `${NAME}: ${file} is kept as a copy of ${folder} already; nothing to change\n`
+        : `${NAME}: no copy of ${folder} is kept; nothing to change\n`,
+    );
+    return 0;
+  }
+  writeFileSync(path.join(root, THEME), renderJson(next, lineWidth(root)));
+  if (on) {
+    stdout.write(
+      `${NAME}: ${file} is kept as a copy of ${folder} from now on, for whatever of this repository's own reads that path\n`,
+    );
+    stdout.write(
+      "  the gate and derived.mjs write it from the folder, which stays the ledger: a change goes there, and the copy is written over\n",
+    );
+    stdout.write(
+      `  to finish: add ${file} to .gitignore; the gate is red while git tracks the file or does not ignore it\n`,
+    );
+    return 0;
+  }
+  // A copy that matches the folder is the tool's own, and goes; one edited by hand is left.
+  if (found?.beside && found.besideText === joinLedger(found.shared, found.fragments)) {
+    unlinkSync(path.join(root, file));
+    stdout.write(`${NAME}: the copy of ${folder} is no longer kept; ${file} was taken away\n`);
+  } else if (found?.beside) {
+    stdout.write(
+      `${NAME}: the copy of ${folder} is no longer kept; ${file} differs from the folder, so it was left: remove it, the folder is the ledger\n`,
+    );
+  } else stdout.write(`${NAME}: the copy of ${folder} is no longer kept\n`);
+  stdout.write(`  you may take ${file} out of .gitignore\n`);
   return 0;
 }
 
@@ -323,8 +415,9 @@ function print(root, file) {
   return 0;
 }
 
-const MODES = ["--split", "--join", "--print"];
-const USAGE = "screen-fragments.mjs [--split | --join | --print] [--dry-run] [--target DIR]";
+const MODES = ["--split", "--join", "--print", "--copy", "--no-copy"];
+const USAGE =
+  "screen-fragments.mjs [--split | --join] [--dry-run] | --print | --copy | --no-copy [--target DIR]";
 
 function main(args) {
   const at = args.indexOf("--target");
@@ -344,7 +437,7 @@ function main(args) {
   const root = folder === null ? cwd() : path.resolve(folder);
   const asked = MODES.filter((flag) => args.includes(flag));
   if (asked.length > 1) {
-    stderr.write(`${NAME}: give one of --split, --join and --print, not ${asked.join(" and ")}\n`);
+    stderr.write(`${NAME}: give one of ${MODES.join(", ")}, not ${asked.join(" and ")}\n`);
     return 1;
   }
   const dry = args.includes("--dry-run");
@@ -356,6 +449,8 @@ function main(args) {
   if (asked[0] === "--split") return split(root, file, dry);
   if (asked[0] === "--join") return join(root, file, dry);
   if (asked[0] === "--print") return print(root, file);
+  if (asked[0] === "--copy") return copy(root, file, true);
+  if (asked[0] === "--no-copy") return copy(root, file, false);
   // Asked nothing: which shape the repository keeps.
   const found = readFragments(root, file);
   const one = read(root, file);

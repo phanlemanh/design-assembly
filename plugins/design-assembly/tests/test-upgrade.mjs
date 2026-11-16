@@ -356,6 +356,26 @@ test("an upgrade that would lose a ledger entry stops: exit 1, nothing written, 
   assert.ok(!text(dir, REGISTRY).includes("tone=ghost"));
 });
 
+test("a ledger the repository keeps out of git loses nothing: a clean checkout without it upgrades, and the file is written", () => {
+  const dir = older();
+  const asked = run(path.join(dir, TOOL_COPY, "components.mjs"), "--target", dir, "--out-of-git");
+  assert.equal(asked.status, 0, asked.stderr);
+  // A clean checkout: the derived file is not there.
+  rmSync(path.join(dir, REGISTRY));
+  const shown = upgrade(dir, "--dry-run", "--json");
+  assert.equal(shown.status, 0, shown.stdout);
+  const data = JSON.parse(shown.stdout);
+  const ledger = data.ledgers.find((item) => item.file === REGISTRY);
+  assert.deepEqual(ledger.removed, []);
+  assert.equal(ledger.derived, true);
+  assert.deepEqual(data.blocked, []);
+  assert.match(upgrade(dir, "--dry-run").stdout, /kept out of git: nothing in it is a person's/);
+  const done = upgrade(dir, "--json");
+  assert.equal(done.status, 0, done.stdout);
+  assert.ok(existsSync(path.join(dir, REGISTRY)), "the derived file was not written");
+  assert.equal(treeHash(path.join(dir, TOOL_COPY)), INSTALLED);
+});
+
 test("an upgrade that would leave the gate red stops the same way, and says why", () => {
   const dir = older();
   radius(dir);

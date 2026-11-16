@@ -28,6 +28,7 @@ import { gateProblems, ledgerView, readState } from "../templates/tools/design-a
 import { regenerated as columnsNow } from "../templates/tools/design-assembly/columns.mjs";
 import { regenerated as componentsNow } from "../templates/tools/design-assembly/components.mjs";
 import { newerLedgers } from "../templates/tools/design-assembly/contract.mjs";
+import { keptOutOfGit } from "../templates/tools/design-assembly/derived.mjs";
 import { regenerated as tokensNow } from "../templates/tools/design-assembly/tokens.mjs";
 import { sameContent } from "./apply.mjs";
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
@@ -275,6 +276,9 @@ export async function upgradePlan(root, accept = {}) {
   // that is out of date is the gate's to say.
   const ledgers = [];
   const written = {};
+  // A file the repository keeps out of git is derived and no person's: it is written again, and
+  // nothing in it can be lost. On a clean checkout it is not there at all.
+  const outOfGit = themeText === null ? [] : keptOutOfGit(JSON.parse(themeText));
   if (tool.length > 0) {
     for (const [ledger, writer] of WRITERS) {
       const made = writer(root);
@@ -292,7 +296,12 @@ export async function upgradePlan(root, accept = {}) {
       }
       const text = read(root, made.file);
       if (text !== null && sameContent(made.file, text, made.content)) continue;
-      ledgers.push({ ledger, file: made.file, ...ledgerChanges(parsed(text), made.data) });
+      const changes = ledgerChanges(parsed(text), made.data);
+      ledgers.push(
+        outOfGit.includes(made.file)
+          ? { ledger, file: made.file, ...changes, removed: [], derived: true }
+          : { ledger, file: made.file, ...changes },
+      );
       written[made.file] = made.content;
     }
   }
@@ -399,6 +408,12 @@ export function report(plan, dryRun) {
     for (const ledger of plan.ledgers) {
       if (ledger.problem) {
         lines.push(`  ${ledger.file}: cannot be written: ${ledger.problem}`);
+        continue;
+      }
+      if (ledger.derived) {
+        lines.push(
+          `  ${ledger.file}: kept out of git: nothing in it is a person's, so it is written again from the source`,
+        );
         continue;
       }
       const { added, removed, changed } = ledger;

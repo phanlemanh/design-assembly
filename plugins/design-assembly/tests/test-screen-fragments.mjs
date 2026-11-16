@@ -28,7 +28,6 @@ import {
 } from "../templates/tools/design-assembly/contract.mjs";
 import { fragmentsProblem } from "../templates/tools/design-assembly/check.mjs";
 import { parseLedger } from "../templates/tools/design-assembly/ledger.mjs";
-import { CORE_STATES } from "../templates/tools/design-assembly/patterns.mjs";
 import { ledgerText, readFragments } from "../templates/tools/design-assembly/screen-fragments.mjs";
 import {
   FRAGMENTS_MARKER,
@@ -38,7 +37,7 @@ import {
   readScreenLedger,
   splitLedger,
 } from "../templates/tools/design-assembly/screen-ledger.mjs";
-import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
+import { floorFiles, own } from "./helpers/guided-repo.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
@@ -47,7 +46,6 @@ const APPLY = path.join(PLUGIN, "scripts/apply.mjs");
 const ADOPT = path.join(PLUGIN, "scripts/adopt.mjs");
 const AUDIT = path.join(PLUGIN, "scripts/inventory.mjs");
 const TOOL_SOURCE = path.join(PLUGIN, "templates/tools/design-assembly");
-const LAYERS = JSON.parse(readFileSync(path.join(PLUGIN, "references/layers.json"), "utf8")).layers;
 const LEDGER = "design/screens.yaml";
 const FOLDER = "design/screens";
 const SHARED = `${FOLDER}/_shared.yaml`;
@@ -338,72 +336,6 @@ test("one reader for both shapes: the folder when it holds the shared part, else
 
 // ---- on a repository -----------------------------------------------------------------------------
 
-function blueprint() {
-  const choices = {
-    context: { product_type: "application", conformance_level: "AA" },
-    patterns: { record_panel: "beside" },
-    foundations: { source_color: "#0246ff" },
-  };
-  const layers = {};
-  for (const layer of LAYERS) {
-    layers[layer.id] = layer.built
-      ? { status: "decided", source: "proposed", choice: choices[layer.id], why: "For the test." }
-      : { status: "planned" };
-  }
-  return JSON.stringify({ version: 1, status: "approved", layers });
-}
-
-const ALL = ["ready", ...CORE_STATES];
-const screen = (route, source) =>
-  `  { path: "${route}", load: () => import("${source}").then((m) => m.Page), states: [${ALL.map(
-    (name) => `{ name: "${name}", shows: LABELS.title }`,
-  ).join(", ")}] },`;
-const REGISTRY = `export const SCREENS = [\n${screen("/", "@/pages/List")}\n${screen("/archive", "@/pages/Archive")}\n];\n`;
-const SOURCE = [
-  'import { LABELS } from "@/lib/labels";',
-  "",
-  "export function Page() {",
-  "  return (",
-  "    <main>",
-  "      <h1>{LABELS.title}</h1>",
-  "    </main>",
-  "  );",
-  "}",
-  "",
-].join("\n");
-const PAGE = [
-  "---",
-  "nhom: list",
-  "doi_tuong: A screen that shows many items of one type.",
-  "khuon:",
-  "  ten: Table",
-  '  nhap: "@/components/ui/table"',
-  "nhan_dien:",
-  '  - "src/pages/**/*.tsx"',
-  "mau_dang_chay:",
-  "  tep: src/pages/List.tsx",
-  "khe_bat_buoc: []",
-  "cam_ngoai_khuon: []",
-  "ngoai_le: []",
-  "nhan_viec: Find one item, then work with it",
-  "---",
-  "",
-  "## When to use",
-  "",
-  "A list of items.",
-  "",
-].join("\n");
-const own = (file) => readFileSync(path.join(ROOT, file), "utf8");
-const floorFiles = (extra = {}) => ({
-  "src/index.css": withoutBlock(own("src/index.css")),
-  Makefile: own("Makefile"),
-  "src/screens.ts": REGISTRY,
-  "src/pages/List.tsx": SOURCE,
-  "src/pages/Archive.tsx": SOURCE,
-  "design/blueprint.json": blueprint(),
-  "design/patterns/list.md": PAGE,
-  ...extra,
-});
 // A repository the guide built: two screens, a ledger of them, the gate green.
 const built = (extra = {}) => {
   const dir = folder(floorFiles(extra));
@@ -588,7 +520,7 @@ test("one command takes it back: the one file returns with the same data and the
   // Both at once is a wrong call.
   const both = fragments(dir, "--split", "--join");
   assert.equal(both.status, 1);
-  assert.match(both.stderr, /one of --split, --join and --print/);
+  assert.match(both.stderr, /give one of --split, --join, --print, --copy, --no-copy/);
 });
 
 test("a repository that never asked sees no change, even with a folder of that name", () => {

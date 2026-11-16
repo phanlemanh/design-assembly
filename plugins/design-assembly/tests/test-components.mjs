@@ -875,6 +875,29 @@ test("the gate draws a manifest kept out of git again before it checks, so a cle
   assert.match(text(dir, REGISTRY), /"Toggle"/);
 });
 
+test("the command that writes derived files draws a manifest kept out of git, for readers that run before the gate", () => {
+  const dir = applied();
+  git(dir, "init", "-q");
+  components(dir, "--out-of-git");
+  writeFileSync(path.join(dir, ".gitignore"), `${REGISTRY}\n`);
+  rmSync(path.join(dir, REGISTRY));
+  const derived = run(path.join(dir, "tools/design-assembly/derived.mjs"), "--target", dir);
+  assert.equal(derived.status, 0, derived.stderr);
+  assert.match(derived.stdout, new RegExp(`wrote ${REGISTRY} from the source`));
+  assert.ok(existsSync(path.join(dir, REGISTRY)), "the command did not draw the manifest");
+  // What it wrote is what the gate would: the gate then has nothing to write.
+  const held = check(dir);
+  assert.equal(held.status, 0, held.stderr);
+  assert.doesNotMatch(held.stdout, /wrote/);
+  // A repository that never asked: the command writes nothing.
+  const never = applied();
+  rmSync(path.join(never, REGISTRY));
+  const none = run(path.join(never, "tools/design-assembly/derived.mjs"), "--target", never);
+  assert.equal(none.status, 0, none.stderr);
+  assert.match(none.stdout, /keeps no derived file out of git/);
+  assert.ok(!existsSync(path.join(never, REGISTRY)));
+});
+
 test("a repository that never asked keeps its manifest in git: nothing new is checked or written", () => {
   const dir = applied();
   git(dir, "init", "-q");

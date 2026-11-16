@@ -122,6 +122,13 @@ it is drawn with. Look a component up here before reading its source. The shape 
   a machine with no git, the check has nothing to say; when git is there and will not answer, the
   check fails and says why. The gate writes over whatever is in the file, a hand edit included:
   the source is the only place a component changes.
+- Whatever of the repository's own reads the file before the gate runs, a test for instance, finds
+  none on a clean checkout. `node tools/design-assembly/derived.mjs` writes every derived file the
+  repository keeps out of git and says which it wrote; it writes nothing in a repository that keeps
+  none. The gate runs it first. The plugin's make step has it as `make design-derived`, and runs it
+  before `make test` when the tests are a step of the gate (`test` is in `CHECK_TARGETS` where the
+  step is included). There it says only what it wrote, and it is skipped where the installed tool
+  has no such command yet. A test run some other way, by its runner alone, does not get it.
 - A control (a component that renders something a person activates: a button, an input, a
   trigger, an item) is marked `control: true`, with `min_height`: the smallest height its own
   classes declare, over all its variants. A control without `min_height` takes its height from
@@ -304,6 +311,14 @@ nothing about it changes. The contract says the shape; this is what the command 
   fragments removed. A file of the repository's own in the folder is left where it is.
 - `--print` writes the ledger as one text, whichever way it is kept, and changes nothing: for
   whatever of the repository's own still reads one file.
+- `--copy` keeps that text as a file at the old path, `design/screens.yaml`, for the tools and
+  tests of the repository's own that read it. The copy is derived: the folder stays the ledger,
+  the gate and `derived.mjs` write the copy from it, and it is kept out of git, with the same
+  `untracked` check as the component manifest. The command writes the choice and says the step left
+  for a person, adding the file to `.gitignore`. It refuses where the ledger is one file, and where
+  no gate holds the ledgers' shapes, since nothing would write the copy there. `--no-copy` takes the
+  choice back and takes the copy away when it matches the folder. `--join` writes the one file in
+  the copy's place and takes both choices back; the file then goes back into git.
 - The command writes the choice into the tool data, as a check `screen-fragments` beside the one
   that holds the shapes of the ledgers, so a repository the guide built and one that adopted are
   held alike. The guide and adopting carry the choice over, and never write the one file again
@@ -312,7 +327,10 @@ nothing about it changes. The contract says the shape; this is what the command 
   removal of the one file is left to a person.
 - The check fails when a file's name is not the id it holds, when a file has no id or lacks the
   shape of a screen, when `_shared.yaml` lists screens of its own, when the one file is back
-  beside the folder, and when the folder is gone.
+  beside the folder and is not a copy the repository asked for, and when the folder is gone. The
+  gate writes the copy again from the folder before it checks, over a hand edit too, as it does the
+  component manifest: the folder is the only place a screen changes. Only a state read without that
+  step, as an upgrade previews one, can hold a copy that differs, and the check names it.
 - The test the guide installs, `tests/screens-ledger.test.ts`, reads either shape from this
   version on. One installed by an earlier version names the one file, and fails when that file is
   gone: delete it and run the guide again, or change its import the same way.

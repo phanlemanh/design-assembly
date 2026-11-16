@@ -18,6 +18,12 @@
       "templates": "c4617629c5ac1274cd643d0fbd49bdde9e01f57a",
       "scripts": "2f0ce05aa77536b945c25c1c51bdca2660bf265b",
       "tool": "9e7b08fef11ff456aebb655295038fc65fb0d407"
+    },
+    {
+      "version": "0.4.0",
+      "templates": "f9b015c054dca58503109e75f70ee664d5f5bce6",
+      "scripts": "c95989808dac1b11ae0e093e2602d14b6ef85141",
+      "tool": "6400fbe5edca663ff87e4797f2e3acee3d6f4300"
     }
   ]
 }
