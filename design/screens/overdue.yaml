@@ -1,0 +1,16 @@
+id: overdue
+route: /overdue
+title: overdueTitle
+family: danh-sach
+status: built
+shows:
+  - Item
+entry: listItems
+actions: []
+states:
+  - ready
+  - loading
+  - error
+  - empty
+  - no-results
+  - record-open

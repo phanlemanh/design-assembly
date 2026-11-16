@@ -17,6 +17,7 @@ Read this when you build (step 6 of the guide) or explain a failing check.
 | `design/columns.json`                | What code reads: each column type with its alignment, each field with its type                                                                        | `make design-columns` only                                                 |
 | `design/states.json`                 | The states every screen must declare, and the screens excused from them                                                                               | A person                                                                   |
 | `design/screens.yaml`                | The ledger of screens: every screen with its route, title, kind, status and states                                                                    | A person or an agent, with each new screen. The guide writes the first one |
+| `design/screens/<id>.yaml`           | The same ledger kept as one file per screen, with `_shared.yaml` for what is not a screen, when the repository asks for it                            | A person or an agent, with each new screen. The guide writes the first one |
 | `design/patterns/<kind>.md`          | One page per kind of screen: its main task, the files of its screens, its reference screen                                                            | A person. The scripts write none                                           |
 | `design/screen-sizes.json`           | The widths every page is checked at                                                                                                                   | A person                                                                   |
 | `design/parts.json`                  | The parts of the code, from the top down: which may import which                                                                                      | A person                                                                   |
@@ -283,6 +284,39 @@ every page; the others are a person's review, and the rules page says so.
   every screen, the current screen marked. A screen does not link to other screens from beside
   its heading.
 
+## One file per screen
+
+A repository may keep the ledger of screens as a folder, `design/screens`, with one file per
+screen named after the screen's id and one file, `_shared.yaml`, for everything that is not a
+screen. Two changes that each add a screen then write two files, and do not meet in one. It is the
+repository's choice, off until asked for; a repository that never asks keeps its one file and
+nothing about it changes. The contract says the shape; this is what the command does.
+
+- `node tools/design-assembly/screen-fragments.mjs` says which of the two the repository keeps.
+- `--split` cuts `design/screens.yaml` into the folder. It says first every file it will write
+  and that it removes the one file; `--dry-run` stops there. Lines are moved, not written again,
+  so a comment and a key of the repository's own go where their screen goes. Before the one file
+  is removed the fragments are read back: when an entry is lost or changed, when two entries
+  share an id, when an id cannot be the name of a file (anything but plain letters, digits, dot,
+  dash and underscore, or two ids that differ only by capitals), or when the folder already holds
+  a file that would be read as a screen, it stops and writes nothing.
+- `--join` takes it back: the one file again, the screens in the order of their ids, the
+  fragments removed. A file of the repository's own in the folder is left where it is.
+- `--print` writes the ledger as one text, whichever way it is kept, and changes nothing: for
+  whatever of the repository's own still reads one file.
+- The command writes the choice into the tool data, as a check `screen-fragments` beside the one
+  that holds the shapes of the ledgers, so a repository the guide built and one that adopted are
+  held alike. The guide and adopting carry the choice over, and never write the one file again
+  beside the folder. Where no gate holds the ledgers' shapes the command still splits, and says
+  that nothing checks the fragments there. It never touches git: committing the folder and the
+  removal of the one file is left to a person.
+- The check fails when a file's name is not the id it holds, when a file has no id or lacks the
+  shape of a screen, when `_shared.yaml` lists screens of its own, when the one file is back
+  beside the folder, and when the folder is gone.
+- The test the guide installs, `tests/screens-ledger.test.ts`, reads either shape from this
+  version on. One installed by an earlier version names the one file, and fails when that file is
+  gone: delete it and run the guide again, or change its import the same way.
+
 ## Kinds of screen
 
 A screen is of one kind: a list, a record, a form. A kind has one page under `design/patterns`,
@@ -462,6 +496,7 @@ passes: a check that cannot fail proves nothing.
 | `tokens`            | The design tokens file is exactly what the stylesheet gives                            |
 | `components`        | The component manifest is exactly what the component source gives                      |
 | `untracked`         | A derived file the repository keeps out of git is not tracked by git, and is ignored   |
+| `screen-fragments`  | A ledger of screens kept as one file per screen: each file is named after its id       |
 | `target-size`       | Every control declares a height that reaches the target size of the conformance level  |
 | `column-types`      | The table of column types is well formed, and every field names one of its types       |
 | `columns`           | The file code reads is exactly what the table and the data model give                  |

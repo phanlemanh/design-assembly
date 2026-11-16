@@ -9,7 +9,8 @@ import path from "node:path";
 
 import { adapterOf } from "./adapters/index.mjs";
 import { parseLedger } from "./ledger.mjs";
-import { readScreenLedger } from "./screen-ledger.mjs";
+import { ledgerText, readFragments } from "./screen-fragments.mjs";
+import { FRAGMENTS_SHARED, fragmentsFolder, readScreenLedger } from "./screen-ledger.mjs";
 import { frontMatter } from "./screens.mjs";
 
 // A field: its type, whether it must be there, the values it may take, and what it holds.
@@ -163,6 +164,14 @@ export const LEDGERS = {
     writer: "a person or an agent, with each new screen",
     version: 1,
     format: "yaml-screens",
+    // A repository may keep this ledger as a folder instead: one file per screen, named after the
+    // screen's id, and one file for the keys that are not a screen. The data is the same, so the
+    // shape and its version are the same; a reader takes the folder when it is there.
+    fragments: {
+      folder: fragmentsFolder("design/screens.yaml"),
+      shared: FRAGMENTS_SHARED,
+      named_by: "id",
+    },
     root: {
       version: required({ type: "number|string" }),
       families: { type: "object", open: true },
@@ -403,6 +412,14 @@ export function presentLedgers(root) {
           }
         }
       }
+    } else if (ledger.fragments && readFragments(root, ledger.file)) {
+      // Kept as one file per screen: one ledger, named by its folder, read as one text.
+      const folder = fragmentsFolder(ledger.file);
+      found.push({
+        kind,
+        file: folder,
+        problems: shapeProblems(kind, ledgerText(root, ledger.file), folder),
+      });
     } else if (existsSync(path.join(root, ledger.file))) files.push(ledger.file);
     for (const file of files) {
       const text = readFileSync(path.join(root, file), "utf8");

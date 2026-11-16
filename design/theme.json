@@ -274,6 +274,11 @@
           "screens": "design/screens.yaml"
         },
         "pages": "design/patterns"
+      },
+      {
+        "kind": "screen-fragments",
+        "file": "design/screens.yaml",
+        "fragments": "design/screens"
       }
     ],
     "target-size": [

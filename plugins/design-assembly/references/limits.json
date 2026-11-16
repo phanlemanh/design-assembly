@@ -2606,6 +2606,94 @@
       "where": ["d0049"],
       "status": "open",
       "note": "Keeping the manifest out of git needs two steps in git that the command only names: the ignore line and taking the file out of the index. Until a person does both, the gate is red."
+    },
+    {
+      "id": "screen-fragments-own-readers-get-no-file",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["d0050"],
+      "status": "open",
+      "note": "Once the ledger of screens is kept as one file per screen, a tool or a test of the repository's own that reads the one file finds none. The command gives the ledger as one text on demand, but nothing writes it to the old path before such a reader runs; a derived file kept out of git and written by the gate, as the component manifest is, is not built."
+    },
+    {
+      "id": "screen-fragments-installed-test-of-an-earlier-version",
+      "area": "guide",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-16",
+      "where": ["d0050"],
+      "status": "open",
+      "note": "The test the guide installed before this version imports the one file of the ledger of screens. After a split it fails on a missing file and does not say why, and the guide does not replace a test it installed once; a person deletes it and runs the guide again."
+    },
+    {
+      "id": "screen-fragments-order-is-the-ids",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-16",
+      "where": ["d0050"],
+      "status": "open",
+      "note": "Kept as one file per screen, the screens are read in the order of their ids. The order a person gave them in the one file is not kept, and nothing lets a repository say another order."
+    },
+    {
+      "id": "screen-fragments-plain-ids-only",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-16",
+      "where": ["d0050"],
+      "status": "open",
+      "note": "A ledger of screens is cut into fragments only when every id is plain letters, digits, dot, dash and underscore, and no two ids differ only by capitals. A repository whose ids carry a slash or letters with marks must rename them first; the command stops and says which."
+    },
+    {
+      "id": "screen-fragments-block-style-only",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-16",
+      "where": ["d0050"],
+      "status": "open",
+      "note": "The command cuts a ledger of screens by moving its lines, so it reads only a list of screens written in block style. A list written on one line is refused, and text that runs over several lines under one key is not understood, as the reader itself does not understand it. A note written at the margin of the list goes with the screen after it, also when a person meant it for the one before, and every line ends the way this tool writes lines."
+    },
+    {
+      "id": "screen-fragments-git-left-to-a-person",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-16",
+      "where": ["d0050"],
+      "status": "open",
+      "note": "Splitting and joining change files and never touch git. Committing the folder with the removal of the one file is left to a person, and a pull request open at the time, which still edits the one file, meets that removal once. The second look the command takes before it removes the one file, reading the fragments back and comparing every entry, has stopped no ledger tried so far: only the comparison itself is tested, on entries taken away by hand."
+    },
+    {
+      "id": "screen-fragments-test-reads-through-the-bundler",
+      "area": "guide",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-16",
+      "where": ["d0050"],
+      "status": "open",
+      "note": "The test the guide installs finds the fragments through the bundler's own way of importing every file of a folder as text. A repository whose tests run without that bundler, or with a version that spells it otherwise, has to read the folder its own way."
+    },
+    {
+      "id": "screen-fragments-not-brought-by-upgrade",
+      "area": "upgrade",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["d0050"],
+      "status": "open",
+      "note": "Upgrade does not offer to cut a ledger of screens into fragments; a person runs the tool's own command after upgrading. On the reference repository only a copy of its ledger and its model was split and joined: its own tools and tests that read the one file, and the acceptance kit, were not run against the folder."
     }
   ]
 }

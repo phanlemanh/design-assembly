@@ -12,7 +12,8 @@
     "wiki/decisions/0040-the-plan-of-record-and-how-it-is-kept.md",
     "wiki/specs/0005-ledgers-stop-riding-pull-requests.md",
     "wiki/decisions/0048-a-ninth-stage-ledgers-stop-riding-pull-requests.md",
-    "wiki/decisions/0049-a-repository-may-keep-the-component-manifest-out-of-git.md"
+    "wiki/decisions/0049-a-repository-may-keep-the-component-manifest-out-of-git.md",
+    "wiki/decisions/0050-a-repository-may-keep-the-ledger-of-screens-one-file-per-screen.md"
   ],
   "stages": [
     {
@@ -327,7 +328,7 @@
           "id": "8.1",
           "what": "Sổ thôi đi theo PR: vật dẫn xuất thôi commit, sổ ghi tay tách mỗi mục một mảnh",
           "state": "doing",
-          "ref": "8.1a xong: quyết định 0049; 8.1b và 8.1c chưa"
+          "ref": "8.1a xong: quyết định 0049; 8.1b xong: quyết định 0050; 8.1c chưa"
         },
         {
           "id": "8.2",

@@ -81,6 +81,13 @@ import {
   STARTER_WIDTHS,
 } from "../templates/tools/design-assembly/screens.mjs";
 import {
+  FRAGMENTS,
+  fragmentsChecks,
+  ledgerText as screensText,
+} from "../templates/tools/design-assembly/screen-fragments.mjs";
+import {
+  FRAGMENTS_SHARED,
+  fragmentsFolder,
   readScreenLedger,
   renderScreenLedger,
   SCREEN_LEDGER,
@@ -566,26 +573,31 @@ export function patternsPlan(target, { starter, code = false }) {
   };
 
   const registry = read(SCREENS);
-  // The ledger of screens: written once from the code that lists them, then a person's.
-  let ledgerText = read(SCREEN_LEDGER);
+  // The ledger of screens: written once from the code that lists them, then a person's. It is
+  // read in whichever shape the repository keeps it, one file or one file per screen, and a
+  // repository that keeps fragments is never given the one file again.
+  let ledgerText = screensText(target, SCREEN_LEDGER);
   if (registry !== null && ledgerText === null && starter) {
     ledgerText = renderScreenLedger(ledgerFromCode(registry, readPages(target), sources));
     files[SCREEN_LEDGER] = ledgerText;
   }
   const withLedger = ledgerText === null ? {} : { ledger: SCREEN_LEDGER };
+  // A repository that keeps fragments has no such file: its ledger is named by its folder.
+  const asFragments = fragmentsChecks(target, priorTheme(target), SCREEN_LEDGER);
+  const ledgerName = asFragments.length > 0 ? fragmentsFolder(SCREEN_LEDGER) : SCREEN_LEDGER;
   if (registry !== null && ledgerText !== null) {
-    const shape = shapeProblems("screens", ledgerText, SCREEN_LEDGER);
+    const shape = shapeProblems("screens", ledgerText, ledgerName);
     propose(
       "screen-ledger",
       shape.length > 0
         ? shape.slice(0, 3).join("; ")
-        : screenLedgerProblem(ledgerText, registry, readPages(target)),
+        : screenLedgerProblem(ledgerText, registry, readPages(target), ledgerName),
       {
-        what: `${SCREEN_LEDGER} lists the screens ${SCREENS} lists, each of a described kind`,
+        what: `${ledgerName} lists the screens ${SCREENS} lists, each of a described kind`,
         row: {
           layer: "templates",
           kind: "closed",
-          source: `${SCREEN_LEDGER}, every screen with its kind and states`,
+          source: `${ledgerName}, every screen with its kind and states`,
           check: TOOL,
           note: `that the ledger has its shape and lists the screens the code lists, each family a kind with a page; that each screen's title and states are the code's is held by the repository's own test, ${LEDGER_TEST}`,
         },
@@ -786,7 +798,9 @@ export function templatesPlan(target, { starter, code = false, pending = {}, lay
   const registry = read(SCREENS);
   const pages = readPages(target);
   const sources = readFolder(target, "src");
-  const ledgerText = read(SCREEN_LEDGER);
+  // The ledger this run is about to write, else the one on disk in whichever shape it is kept.
+  const ledgerText =
+    SCREEN_LEDGER in pending ? pending[SCREEN_LEDGER] : screensText(target, SCREEN_LEDGER);
   const withLedger = ledgerText === null ? {} : { ledger: SCREEN_LEDGER };
   if (registry !== null && Object.keys(pages).length > 0) {
     propose("page-layouts", kindsProblem(pages, registry, sources, KINDS_FOLDER, ledgerText), {
@@ -999,6 +1013,19 @@ export const RULES_PAGE = ".claude/rules/design-assembly.md";
 
 export function rulesPage(checks, has) {
   const held = (id) => id in checks;
+  // Where a screen is entered in the ledger: its own file, or the one file every screen shares.
+  const inFragments = Object.values(checks)
+    .flat()
+    .some((check) => check.kind === FRAGMENTS);
+  const entryFile = inFragments
+    ? `\`${fragmentsFolder(SCREEN_LEDGER)}/<id>.yaml\`, its own file in the ledger every tool reads, named after its \`id\``
+    : `\`${SCREEN_LEDGER}\`, the ledger every tool reads`;
+  const sharedFile = inFragments
+    ? ` in \`${fragmentsFolder(SCREEN_LEDGER)}/${FRAGMENTS_SHARED}\``
+    : "";
+  const entryOf = inFragments
+    ? `A screen's file under \`${fragmentsFolder(SCREEN_LEDGER)}\``
+    : `A screen's entry in \`${SCREEN_LEDGER}\``;
   const lines = [
     "---",
     'paths: ["src/**/*.tsx"]',
@@ -1123,11 +1150,11 @@ export function rulesPage(checks, has) {
     held("test-screen-sizes") &&
       "Every state of every screen is checked in a browser at the widths of `design/screen-sizes.json`: one main region, one top heading, no sideways scroll, the accessibility checks. A screen with an action done at once lists a state for that action failing.",
     held("screen-ledger")
-      ? "A screen is listed twice: in `src/screens.ts`, how each of its states is reached, and in `design/screens.yaml`, the ledger every tool reads: its `id`, `route`, `title` (the key of its title among the repository's words), `family` (the `nhom` of the page of its kind), `status` and the names of its `states`, in the code's order. Add both in the same change. The gate fails when the two list different screens, and `tests/screens-ledger.test.ts` when a title or the states differ. States in `src/screens.ts` may be built by a function: the checks read them from the ledger."
+      ? `A screen is listed twice: in \`src/screens.ts\`, how each of its states is reached, and in ${entryFile}: its \`id\`, \`route\`, \`title\` (the key of its title among the repository's words), \`family\` (the \`nhom\` of the page of its kind), \`status\` and the names of its \`states\`, in the code's order. Add both in the same change. The gate fails when the two list different screens, and \`tests/screens-ledger.test.ts\` when a title or the states differ. States in \`src/screens.ts\` may be built by a function: the checks read them from the ledger.`
       : held("state-matrix") &&
         "The gate reads `src/screens.ts` as written: list each screen and each of its states in full there, never built by a function or spread from another list, or the gate does not see them.",
     held("screen-actions") &&
-      "A screen's entry in `design/screens.yaml` also says what it shows (`shows`, entities of `ontology/`), the action a role must hold to open it (`entry`, or null for every role) and the actions it has buttons for (`actions`). Every action of `ontology/actions.yaml` is offered on a screen to every role that may run it; an action that has no screen is listed under `no_screen` with `later: <where>`, or `never: <reason>` with `decided_by`, the person who decided, never you. The gate fails when an action is offered to nobody who may run it, when a screen shows a record to a role that may not view it, and when a button is one no role that opens its screen may press.",
+      `${entryOf} also says what it shows (\`shows\`, entities of \`ontology/\`), the action a role must hold to open it (\`entry\`, or null for every role) and the actions it has buttons for (\`actions\`). Every action of \`ontology/actions.yaml\` is offered on a screen to every role that may run it; an action that has no screen is listed under \`no_screen\`${sharedFile} with \`later: <where>\`, or \`never: <reason>\` with \`decided_by\`, the person who decided, never you. The gate fails when an action is offered to nobody who may run it, when a screen shows a record to a role that may not view it, and when a button is one no role that opens its screen may press.`,
     held("navigation-in-frame") &&
       (has("src/components/app-frame.tsx")
         ? "Moving between screens is the frame's. Once there is more than one screen, `src/App.tsx` draws `AppFrame` (`src/components/app-frame.tsx`) with the list of screens, each given a `title` from the repository's words: it moves between them without loading the page again, marks the open one, leaves a screen's toasts behind and draws the toaster once. A screen never links to another screen: the gate fails when one does."
@@ -1406,14 +1433,16 @@ export function plan(target, blueprint) {
   // Every ledger this run leaves has the one shape the contract gives it. Read as it is about to
   // be written; the decisions ledger is written below, and checked by the gate from then on.
   const ledgerFiles = { decisions: FILES.ledger };
+  // The ledger of screens may be a folder of fragments: it is read as the one text they give.
+  const onDisk = (kind, file) => (kind === "screens" ? screensText(target, file) : read(file));
   for (const [kind, ledger] of Object.entries(LEDGERS)) {
     if (!ledger.file || kind === "decisions") continue;
     const file = { tokens: tokens.file, components: components.file }[kind] ?? ledger.file;
-    if (file && (file in files || read(file) !== null)) ledgerFiles[kind] = file;
+    if (file && (file in files || onDisk(kind, file) !== null)) ledgerFiles[kind] = file;
   }
   const shapes = Object.entries(ledgerFiles)
     .filter(([kind]) => kind !== "decisions")
-    .flatMap(([kind, file]) => shapeProblems(kind, files[file] ?? read(file), file));
+    .flatMap(([kind, file]) => shapeProblems(kind, files[file] ?? onDisk(kind, file), file));
   const kindPages = Object.keys(readPages(target)).length > 0;
   for (const [file, text] of Object.entries(readPages(target))) {
     shapes.push(...shapeProblems("screen-kinds", text, file));
@@ -1430,6 +1459,9 @@ export function plan(target, blueprint) {
       },
       checks: [
         { kind: "shapes", ledgers: ledgerFiles, ...(kindPages ? { pages: KINDS_FOLDER } : {}) },
+        // A repository that keeps its ledger of screens as one file per screen said so on its
+        // disk or in its tool data: the choice is carried over, never made here.
+        ...fragmentsChecks(target, priorTheme(target), ledgerFiles.screens ?? SCREEN_LEDGER),
       ],
     };
     governance.held["ledger-shapes"] = item;

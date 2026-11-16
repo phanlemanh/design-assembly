@@ -4,12 +4,26 @@
 // the code runs, so states built by a function are read as well as states written out.
 import { describe, expect, test } from "vitest";
 
-import ledgerText from "../design/screens.yaml?raw";
-import { builtScreens, readScreenLedger } from "../tools/design-assembly/screen-ledger.mjs";
+import {
+  builtScreens,
+  ledgerOfFiles,
+  readScreenLedger,
+} from "../tools/design-assembly/screen-ledger.mjs";
 import { LABELS } from "@/lib/labels";
 import { SCREENS } from "@/screens";
 
-const listed = builtScreens(readScreenLedger(ledgerText));
+// The ledger is one file, or one file per screen in a folder: whichever the repository keeps.
+const one = import.meta.glob<string>("../design/screens.yaml", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
+const perScreen = import.meta.glob<string>("../design/screens/*.yaml", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+});
+const listed = builtScreens(readScreenLedger(ledgerOfFiles({ ...one, ...perScreen })));
 
 describe("the ledger of screens", () => {
   test("lists every screen of the application, and nothing else, at the same route", () => {
@@ -22,7 +36,7 @@ describe("the ledger of screens", () => {
     "%s: its title and its states are the ledger's",
     (route, screen) => {
       const entry = listed.find((item) => item.path === route);
-      expect(entry, `${route} is not in design/screens.yaml`).toBeDefined();
+      expect(entry, `${route} is not in the ledger of screens`).toBeDefined();
       if (!entry) return;
       // A screen list that gives no title has none to compare.
       if (entry.title !== null && "title" in screen) {
