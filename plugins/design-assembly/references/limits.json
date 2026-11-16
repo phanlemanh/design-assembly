@@ -2593,8 +2593,10 @@
       "plan": "fix",
       "opened": "2026-11-16",
       "where": ["d0049"],
-      "status": "open",
-      "note": "A manifest kept out of git is written by the gate or by make design-components. Whatever reads it earlier on a clean checkout, such as a test that runs before the gate or another tool, finds no file, or an old one, and is not told why."
+      "status": "closed",
+      "note": "A manifest kept out of git is written by the gate or by make design-components. Whatever reads it earlier on a clean checkout, such as a test that runs before the gate or another tool, finds no file, or an old one, and is not told why. Seen on a copy of a real repository whose gate runs its tests before the design step, 2026-11-16: five tests in three files failed on a clean clone, all green once the manifest was written.",
+      "closed": "2026-11-16",
+      "closed_by": "derived.mjs writes every derived file a repository keeps out of git, and the plugin's make step runs it before make test when the tests are a step of the gate; what still misses it is limit derived-files-not-written-for-a-runner-alone"
     },
     {
       "id": "out-of-git-steps-left-to-a-person",
@@ -2608,6 +2610,40 @@
       "note": "Keeping the manifest out of git needs two steps in git that the command only names: the ignore line and taking the file out of the index. Until a person does both, the gate is red."
     },
     {
+      "id": "out-of-git-manifest-lowers-kit-tier",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "hand-off",
+      "opened": "2026-11-16",
+      "where": ["d0049"],
+      "status": "open",
+      "note": "An acceptance kit that reads the design floor's tier from files on disk asks for the component manifest to be there. On a fresh worktree of a repository that keeps the manifest out of git, the file is not there until something writes it, so the kit reads the lower tier and names the manifest as missing. Seen on a copy of a real repository, 2026-11-16.",
+      "repo": "delivery-loop"
+    },
+    {
+      "id": "derived-files-not-written-for-a-runner-alone",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["d0051"],
+      "status": "open",
+      "note": "A derived file kept out of git is written by the gate, by derived.mjs and by the plugin's make step before make test. A test run by its runner alone, as an acceptance kit runs one test file, gets none of them, and on a clean checkout finds no file. The make step also reaches no repository through upgrade, which does not write it (limit upgrade-leaves-gate-step)."
+    },
+    {
+      "id": "screen-copy-left-at-old-path",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-16",
+      "where": ["d0051"],
+      "status": "open",
+      "note": "When the tool data names another path for the ledger of screens, the copy kept out of git follows the ledger to the new path, and the copy at the old path stays on disk, ignored by git and no longer written. A reader of the old path then reads an old ledger and is not told."
+    },
+    {
       "id": "screen-fragments-own-readers-get-no-file",
       "area": "checks",
       "kind": "wrong-signal",
@@ -2615,8 +2651,10 @@
       "plan": "fix",
       "opened": "2026-11-16",
       "where": ["d0050"],
-      "status": "open",
-      "note": "Once the ledger of screens is kept as one file per screen, a tool or a test of the repository's own that reads the one file finds none. The command gives the ledger as one text on demand, but nothing writes it to the old path before such a reader runs; a derived file kept out of git and written by the gate, as the component manifest is, is not built."
+      "status": "closed",
+      "note": "Once the ledger of screens is kept as one file per screen, a tool or a test of the repository's own that reads the one file finds none. The command gives the ledger as one text on demand, but nothing writes it to the old path before such a reader runs; a derived file kept out of git and written by the gate, as the component manifest is, is not built. Seen on a copy of a real repository, 2026-11-16: 99 tests in seven files and two other steps of its gate failed after the split. With the printed ledger written to the old path, the two other steps were green again and all but four tests passed, the four being about screen order; the design step was red then, because the shape check refuses a one-file ledger beside the folder.",
+      "closed": "2026-11-16",
+      "closed_by": "a repository may keep a copy of the ledger as one file at the old path (screen-fragments.mjs --copy), derived from the folder, out of git, written by the gate, by derived.mjs and before make test; what still misses it is limit derived-files-not-written-for-a-runner-alone"
     },
     {
       "id": "screen-fragments-installed-test-of-an-earlier-version",
@@ -2638,7 +2676,7 @@
       "opened": "2026-11-16",
       "where": ["d0050"],
       "status": "open",
-      "note": "Kept as one file per screen, the screens are read in the order of their ids. The order a person gave them in the one file is not kept, and nothing lets a repository say another order."
+      "note": "Kept as one file per screen, the screens are read in the order of their ids. The order a person gave them in the one file is not kept, and nothing lets a repository say another order. Seen on a copy of a real repository, 2026-11-16: a generated table the repository commits was written again in the new order, and two of its tests that expect the old order failed; nothing a user sees read the order."
     },
     {
       "id": "screen-fragments-plain-ids-only",

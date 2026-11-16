@@ -2,21 +2,15 @@
 // the ledger that points at them.
 // Usage: node tools/design-assembly/check.mjs [--rate] [--target DIR]
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, realpathSync } from "node:fs";
 import path from "node:path";
 import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { contrast } from "./color.mjs";
 import { cellProblems, columnsProblem, readDisplays, typesProblem } from "./columns.mjs";
-import {
-  componentsProblem,
-  readFolder,
-  regenerated,
-  targetProblem,
-  UNTRACKED,
-} from "./components.mjs";
-import { LEDGERS, newerProblem, shapeProblems } from "./contract.mjs";
+import { componentsProblem, readFolder, targetProblem, UNTRACKED } from "./components.mjs";
+import { LEDGERS, shapeProblems } from "./contract.mjs";
 import {
   LAYER_ALIASES,
   LAYERS,
@@ -54,6 +48,7 @@ import {
   screenActionsDebts,
   screenActionsProblem,
 } from "./screen-actions.mjs";
+import { drawDerived, keptOutOfGit } from "./derived.mjs";
 import { FRAGMENTS, ledgerText, readFragments } from "./screen-fragments.mjs";
 import { FRAGMENTS_SHARED, joinLedger, readScreenLedger, twinNames } from "./screen-ledger.mjs";
 import { DEFAULT_STYLESHEET, findStylesheet, loadStyles, resolve } from "./styles.mjs";
@@ -434,7 +429,12 @@ const KINDS = {
   // and the one file is not kept beside the folder as a second source.
   [FRAGMENTS]: {
     run(state, check) {
-      return fragmentsProblem(state.fragments?.[check.file] ?? null, check);
+      const found = state.fragments?.[check.file] ?? null;
+      const copy =
+        found && keptOutOfGit(state.theme).includes(check.file)
+          ? joinLedger(found.shared, found.fragments)
+          : null;
+      return fragmentsProblem(found, check, copy);
     },
     // A fragment under another name than its id; where there is none, one is added so.
     change(state, check) {
@@ -754,16 +754,22 @@ export function checkFolders(checks) {
 const SCREEN_KINDS = ["screen-ledger", "screen-actions", FRAGMENTS];
 
 // Why the fragments a repository keeps its ledger of screens in are not what they must be, or
-// null. `found` is what the disk holds for the ledger the check names.
-export function fragmentsProblem(found, check) {
+// null. `found` is what the disk holds for the ledger the check names. `copy` is what the one file
+// beside the folder must hold when the repository keeps it as a copy out of git, else null: the
+// one file is then a second source.
+export function fragmentsProblem(found, check, copy = null) {
   const folder = check.fragments;
   if (!found) {
     return `${check.file} is kept as one file per screen under ${folder}, and ${folder}/${FRAGMENTS_SHARED} is not there: bring the folder back, or run the tool's screen-fragments.mjs --join on what is left`;
   }
   const problems = [];
-  if (found.beside) {
+  if (found.beside && copy === null) {
     problems.push(
       `${check.file} is there beside ${folder}, so the ledger has two sources: the folder is what is read, remove the file`,
+    );
+  } else if (found.beside && found.besideText !== copy) {
+    problems.push(
+      `${check.file} is the copy the gate writes, and it differs from ${folder}: the folder is the ledger, so a change goes there, and the copy is written again from it`,
     );
   }
   if (/^screens:/m.test(found.shared)) {
@@ -823,42 +829,6 @@ export function gitFacts(root, files) {
     tracked: names(git(["ls-files", "-z", "--", ...files])),
     ignored: names(git(["check-ignore", "-z", "--stdin"], files.join("\0"))),
   };
-}
-
-// Whether a manifest on disk has a shape newer than this tool writes. Text that is not JSON has none.
-function newerManifest(text) {
-  if (text === null) return false;
-  try {
-    return newerProblem("components", JSON.parse(text)) !== null;
-  } catch {
-    return false;
-  }
-}
-
-// Writes again every derived file the repository keeps out of git, and names the ones it wrote. A
-// clean checkout has none of them, and whatever reads one after the gate must not read an old one.
-// A file of a newer shape is left alone: the check says so.
-export function drawUntracked(root) {
-  const themeFile = path.join(root, FILES.theme);
-  if (!existsSync(themeFile)) return [];
-  const checks = Object.values(JSON.parse(readFileSync(themeFile, "utf8")).checks ?? {}).flat();
-  const wanted = checks.filter((check) => check.kind === UNTRACKED).map((check) => check.file);
-  if (wanted.length === 0) return [];
-  const written = [];
-  const made = regenerated(root);
-  if (made && wanted.includes(made.file)) {
-    const full = path.join(root, made.file);
-    const before = existsSync(full) ? readFileSync(full, "utf8") : null;
-    const stale =
-      before === null ||
-      componentsProblem(before, made.files, made.file, made.read, made.options) !== null;
-    if (!newerManifest(before) && stale) {
-      mkdirSync(path.dirname(full), { recursive: true });
-      writeFileSync(full, made.content);
-      written.push(made.file);
-    }
-  }
-  return written;
 }
 
 export function readState(root) {
@@ -1030,8 +1000,17 @@ function main() {
   const args = argv.slice(2);
   const at = args.indexOf("--target");
   const root = at === -1 ? cwd() : path.resolve(args[at + 1] ?? "");
-  for (const file of drawUntracked(root)) {
-    stdout.write(`design-assembly: wrote ${file} again from the source; it is kept out of git\n`);
+  let drawn;
+  try {
+    drawn = drawDerived(root);
+  } catch (error) {
+    stderr.write(`design-assembly: ${error.message}. Nothing was checked.\n`);
+    exit(1);
+  }
+  for (const item of drawn.written) {
+    stdout.write(
+      `design-assembly: wrote ${item.file} again from ${item.from}; it is kept out of git\n`,
+    );
   }
   const state = readState(root);
   if (state.theme === null || state.ledger === null) {

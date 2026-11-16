@@ -118,7 +118,9 @@ order of their ids. A file's name is the id inside it, so two screens with one i
 there; the gate fails on a file named otherwise, on a file without the shape of a screen, and on
 the one file kept beside the folder. It is the repository's choice, off until asked for:
 `node tools/design-assembly/screen-fragments.mjs --split` cuts the one file, `--join` takes that
-back, and `--print` gives the ledger as one text; `checks.md` says what each does.
+back, and `--print` gives the ledger as one text; `checks.md` says what each does. A repository
+whose own readers still need the one file may also keep it as a copy (`--copy`): derived from the
+folder, out of git, never a second source.
 
 The ledger says what there is; the code that lists the screens says how each state is reached. The
 gate holds that both list the same built screens, that no id or route is listed twice, and that
