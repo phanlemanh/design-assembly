@@ -1,5 +1,6 @@
 // Writes again every derived file a repository keeps out of git: the component manifest from the
-// components, and the copy of the ledger of screens as one file from the folder that is the ledger.
+// components, and the copy of a ledger kept as fragments (the screens, the intake) as one file
+// from the folder that is the ledger.
 // A clean checkout has none of them, so whatever reads one runs this first: the gate does, and the
 // plugin's make step does before the tests. A repository that keeps none out of git gets nothing.
 // Usage: node tools/design-assembly/derived.mjs [--quiet] [--target DIR]
@@ -11,8 +12,7 @@ import { fileURLToPath } from "node:url";
 
 import { componentsProblem, regenerated, UNTRACKED } from "./components.mjs";
 import { newerProblem } from "./contract.mjs";
-import { readFragments } from "./screen-fragments.mjs";
-import { joinLedger } from "./screen-ledger.mjs";
+import { FRAGMENTS, joinFound, ledgerOf, readFragments } from "./screen-fragments.mjs";
 
 const THEME = "design/theme.json";
 
@@ -39,9 +39,18 @@ function newerManifest(text) {
   }
 }
 
+// The ledger a copy kept out of git is of: the one whose fragments the tool data keeps at that path.
+function copyOf(theme, file) {
+  const checks = Object.values(theme?.checks ?? {}).flat();
+  const held = checks.find(
+    (check) => (check?.kind === FRAGMENTS || check?.kind === UNTRACKED) && check.file === file,
+  );
+  return ledgerOf(held);
+}
+
 // What each file kept out of git should hold, with where it comes from. A file of a newer shape
 // is left alone, and so is a copy whose folder is not there: the gate says so.
-function wanted(root, files) {
+function wanted(root, files, theme) {
   const plans = [];
   const made = regenerated(root);
   if (made && files.includes(made.file)) {
@@ -54,9 +63,9 @@ function wanted(root, files) {
     }
   }
   for (const file of files.filter((name) => name !== made?.file)) {
-    const found = readFragments(root, file);
+    const found = readFragments(root, file, copyOf(theme, file));
     if (!found) continue;
-    const text = joinLedger(found.shared, found.fragments);
+    const text = joinFound(found);
     plans.push({ file, from: found.folder, text, stale: read(root, file) !== text });
   }
   return plans;
@@ -79,7 +88,7 @@ export function drawDerived(root) {
   const files = keptOutOfGit(data);
   if (files.length === 0) return { kept: 0, written: [] };
   const written = [];
-  for (const plan of wanted(root, files)) {
+  for (const plan of wanted(root, files, data)) {
     if (!plan.stale) continue;
     const full = path.join(root, plan.file);
     mkdirSync(path.dirname(full), { recursive: true });

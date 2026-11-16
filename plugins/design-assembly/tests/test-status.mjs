@@ -417,6 +417,20 @@ test("the rhythms are read from the repository: each line changes when the repos
   assert.match(says(start, "change"), /no check/);
   assert.match(says(run, "change"), /0 failing or bypassed/);
   assert.match(says(run, "intake"), /not built in this version/);
+  assert.match(says(run, "intake"), /nothing records which need got which block/);
+  // A ledger kept by hand is named, with whether it has its shape.
+  const kept = applied("user");
+  put(
+    kept,
+    "design/intake.yaml",
+    "version: 1\nblocks:\n  - name: Header\n    file: src/header.tsx\n    source: made-by-hand\n    need: page-head\n    approved: 2026-11-16\n",
+  );
+  assert.match(
+    says(status(kept), "intake"),
+    /not built in this version of the plugin; design\/intake\.yaml records which need got which block, written by hand, with the one shape of the contract/,
+  );
+  put(kept, "design/intake.yaml", "version: 1\nblocks: []\nkhoi: 1\nkeys: 2\n");
+  assert.match(says(status(kept), "intake"), /not of the contract's shape/);
   assert.match(says(start, "periodic"), /no record of what slipped/);
   assert.match(says(run, "periodic"), /no line yet/);
 });

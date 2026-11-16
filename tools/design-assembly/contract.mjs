@@ -8,6 +8,13 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 
 import { adapterOf } from "./adapters/index.mjs";
+import {
+  INTAKE_LEDGER,
+  readIntakeLedger,
+  repeatedNeeds,
+  spellingProblems,
+} from "./intake-ledger.mjs";
+import { readYaml } from "./yaml.mjs";
 import { parseLedger } from "./ledger.mjs";
 import { ledgerText, readFragments } from "./screen-fragments.mjs";
 import { FRAGMENTS_SHARED, fragmentsFolder, readScreenLedger } from "./screen-ledger.mjs";
@@ -211,6 +218,47 @@ export const LEDGERS = {
     // And keys of its own beside the screens.
     open: true,
   },
+  intake: {
+    file: INTAKE_LEDGER,
+    question: "which need got which block, from where, and who approved it on which day",
+    writer: "the round that takes the block in, once, with its approval",
+    version: 1,
+    format: "yaml-intake",
+    // Kept as a folder, each block is a file named after its need: one need, one answer, held by
+    // the names of the files.
+    fragments: {
+      folder: fragmentsFolder(INTAKE_LEDGER),
+      shared: FRAGMENTS_SHARED,
+      named_by: "need",
+    },
+    root: {
+      version: required({ type: "number|string" }),
+      blocks: required(
+        list({
+          type: "object",
+          fields: {
+            // What it is and where its code is, where it came from (an outside library's name for
+            // it, or that it was made by hand) and at which pin, which need it answers, the record
+            // of the round that took it in, and who approved it on which day.
+            name: required(text),
+            file: required(text),
+            source: required(text),
+            pin: text,
+            need: required({ ...text, pattern: "^[a-z0-9]+(-[a-z0-9]+)*$" }),
+            description: text,
+            record: text,
+            approved: required({ ...text, pattern: "^\\d{4}-\\d{2}-\\d{2}$" }),
+            approved_by: text,
+          },
+          // A repository may keep keys of its own on a block.
+          open: true,
+        }),
+      ),
+      // The repository's own spelling of these keys, such as `{ blocks: <its list>, need: … }`.
+      keys: { type: "object", open: true },
+    },
+    open: true,
+  },
   "screen-kinds": {
     folder: "design/patterns",
     question: "how a screen of each kind is built",
@@ -242,8 +290,8 @@ export const LEDGERS = {
 
 // Ledgers the contract names whose one shape is not settled yet, and why.
 export const UNSETTLED = {
-  intake: "which need got which block, and who approved it: one repository keeps one so far",
-  sources: "which outside libraries blocks come from, in what order, at which pin: likewise",
+  sources:
+    "which outside libraries blocks come from, in what order, at which pin: one repository keeps one so far",
 };
 
 const typeOf = (value) => (value === null ? "null" : Array.isArray(value) ? "array" : typeof value);
@@ -368,6 +416,7 @@ export function shapeProblems(kind, textOfFile, file = LEDGERS[kind]?.file) {
       line.replace(/is not in the contract$/, "is not a key the acceptance kit reads"),
     );
   }
+  if (ledger.format === "yaml-intake") return intakeProblems(textOfFile, file);
   let data;
   if (ledger.format === "yaml-screens") {
     const { screens, ...rest } = readScreenLedger(textOfFile);
@@ -394,6 +443,28 @@ export function shapeProblems(kind, textOfFile, file = LEDGERS[kind]?.file) {
   return objectProblems(data, ledger.root, ledger.open, file);
 }
 
+// The intake ledger, read in the contract's keys whatever its spelling: a problem names a key the
+// repository spells otherwise as both, and a need answered twice is named once.
+function intakeProblems(textOfFile, file) {
+  const { spelled, ...data } = readIntakeLedger(textOfFile);
+  const newer = newerProblem("intake", data);
+  if (newer) return [newer];
+  const own = Object.entries(spelled).filter(([key, value]) => key !== value);
+  const named = (line) =>
+    own.reduce(
+      (said, [key, value]) =>
+        said.replace(new RegExp(`\\.${key}( |\\[|$)`, "g"), `.${key} (${value})$1`),
+      line,
+    );
+  return [
+    ...spellingProblems(readYaml(textOfFile)).map((line) => `${file}: ${line}`),
+    ...objectProblems(data, LEDGERS.intake.root, LEDGERS.intake.open, file).map(named),
+    ...repeatedNeeds(data).map(
+      (need) => `${file}: two blocks answer the need ${need}: one need, one solution`,
+    ),
+  ];
+}
+
 // Files in the folder of screen kinds that are not a kind of screen.
 const NOT_A_KIND = ["README.md", "lech-lot.md"];
 
@@ -412,13 +483,13 @@ export function presentLedgers(root) {
           }
         }
       }
-    } else if (ledger.fragments && readFragments(root, ledger.file)) {
-      // Kept as one file per screen: one ledger, named by its folder, read as one text.
+    } else if (ledger.fragments && readFragments(root, ledger.file, kind)) {
+      // Kept as one file per entry: one ledger, named by its folder, read as one text.
       const folder = fragmentsFolder(ledger.file);
       found.push({
         kind,
         file: folder,
-        problems: shapeProblems(kind, ledgerText(root, ledger.file), folder),
+        problems: shapeProblems(kind, ledgerText(root, ledger.file, kind), folder),
       });
     } else if (existsSync(path.join(root, ledger.file))) files.push(ledger.file);
     for (const file of files) {

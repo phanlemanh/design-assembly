@@ -49,8 +49,21 @@ import {
   screenActionsProblem,
 } from "./screen-actions.mjs";
 import { drawDerived, keptOutOfGit } from "./derived.mjs";
-import { FRAGMENTS, ledgerText, readFragments } from "./screen-fragments.mjs";
-import { FRAGMENTS_SHARED, joinLedger, readScreenLedger, twinNames } from "./screen-ledger.mjs";
+import {
+  FRAGMENT_LEDGERS,
+  FRAGMENTS,
+  joinFound,
+  ledgerOf,
+  ledgerText,
+  readFragments,
+} from "./screen-fragments.mjs";
+import {
+  FRAGMENTS_SHARED,
+  joinLedger,
+  listLine,
+  readScreenLedger,
+  twinNames,
+} from "./screen-ledger.mjs";
 import { DEFAULT_STYLESHEET, findStylesheet, loadStyles, resolve } from "./styles.mjs";
 import { lintProbes } from "./lint.mjs";
 import { probesFor, ruleOf } from "./probes.mjs";
@@ -424,31 +437,32 @@ const KINDS = {
       return { ...state, files: { ...state.files, [check.registry]: registry } };
     },
   },
-  // A ledger of screens the repository keeps as one file per screen: each file is named after the
-  // id it holds, so two screens with one id cannot both be there, each has the shape of a screen,
-  // and the one file is not kept beside the folder as a second source.
+  // A ledger the repository keeps as one file per entry, the screens or the intake: each file is
+  // named after the key it holds, so two entries with one key cannot both be there, each has the
+  // shape of an entry, and the one file is not kept beside the folder as a second source.
   [FRAGMENTS]: {
     run(state, check) {
       const found = state.fragments?.[check.file] ?? null;
       const copy =
         found && keptOutOfGit(state.theme).includes(check.file)
-          ? joinLedger(found.shared, found.fragments)
+          ? joinFound({ ...found, ledger: ledgerOf(check) })
           : null;
       return fragmentsProblem(found, check, copy);
     },
-    // A fragment under another name than its id; where there is none, one is added so.
+    // A fragment under another name than its key; where there is none, one is added so.
     change(state, check) {
       const found = state.fragments?.[check.file] ?? {
         folder: check.fragments,
         shared: "version: 1\n",
         fragments: [],
         beside: false,
+        ledger: ledgerOf(check),
       };
       const [first, ...rest] = found.fragments;
       const moved = {
         name: "changed-copy.yaml",
         file: `${found.folder}/changed-copy.yaml`,
-        text: first?.text ?? "id: another\nroute: /another\n",
+        text: first?.text ?? FRAGMENT_LEDGERS[ledgerOf(check)].sample,
       };
       return {
         ...state,
@@ -753,14 +767,17 @@ export function checkFolders(checks) {
 // The checks whose `file` is a ledger of screens.
 const SCREEN_KINDS = ["screen-ledger", "screen-actions", FRAGMENTS];
 
-// Why the fragments a repository keeps its ledger of screens in are not what they must be, or
-// null. `found` is what the disk holds for the ledger the check names. `copy` is what the one file
-// beside the folder must hold when the repository keeps it as a copy out of git, else null: the
-// one file is then a second source.
+// Why the fragments a repository keeps a ledger in are not what they must be, or null. `found` is
+// what the disk holds for the ledger the check names. `copy` is what the one file beside the
+// folder must hold when the repository keeps it as a copy out of git, else null: the one file is
+// then a second source. Each problem is said in the words of the ledger the check holds.
 export function fragmentsProblem(found, check, copy = null) {
   const folder = check.fragments;
+  const kind = ledgerOf(check);
+  const L = FRAGMENT_LEDGERS[kind];
   if (!found) {
-    return `${check.file} is kept as one file per screen under ${folder}, and ${folder}/${FRAGMENTS_SHARED} is not there: bring the folder back, or run the tool's screen-fragments.mjs --join on what is left`;
+    const asked = kind === "screens" ? "" : ` --ledger ${kind}`;
+    return `${check.file} is kept as one file per ${L.one} under ${folder}, and ${folder}/${FRAGMENTS_SHARED} is not there: bring the folder back, or run the tool's screen-fragments.mjs${asked} --join on what is left`;
   }
   const problems = [];
   if (found.beside && copy === null) {
@@ -772,9 +789,10 @@ export function fragmentsProblem(found, check, copy = null) {
       `${check.file} is the copy the gate writes, and it differs from ${folder}: the folder is the ledger, so a change goes there, and the copy is written again from it`,
     );
   }
-  if (/^screens:/m.test(found.shared)) {
+  const { list } = L.cut(found.shared);
+  if (listLine(list, "m").test(found.shared)) {
     problems.push(
-      `${folder}/${FRAGMENTS_SHARED} lists screens of its own: each screen has its own file`,
+      `${folder}/${FRAGMENTS_SHARED} lists ${L.many} of its own: each ${L.one} has its own file`,
     );
   }
   const twins = twinNames(found.fragments.map((fragment) => fragment.name));
@@ -783,21 +801,26 @@ export function fragmentsProblem(found, check, copy = null) {
       `${twins.map((name) => `${folder}/${name}`).join(" and ")} differ only by capitals, so a system that does not tell them apart keeps one`,
     );
   }
+  // One fragment read as a ledger of one entry, so only this entry is judged: with the
+  // repository's spelling of the keys, and nothing else of the shared part.
+  const stub = L.stub(found.shared);
+  const cut = L.cut(stub);
+  const at = new RegExp(`^\\.${L.canonical}( \\([^)]*\\))?\\[0\\]\\.`);
   for (const fragment of found.fragments) {
-    // One fragment read as a ledger of one screen, so only this entry is judged.
-    const one = joinLedger("version: 1\n", [fragment]);
-    const id = readScreenLedger(one).screens[0]?.id;
+    const one = joinLedger(stub, [fragment], cut);
+    const id = L.entries(one)[0]?.[L.by];
     if (typeof id !== "string" || id === "") {
-      problems.push(`${fragment.file} names no id, so no screen is read from it`);
+      problems.push(`${fragment.file} names no ${cut.name}, so no ${L.one} is read from it`);
       continue;
     }
     if (fragment.name !== `${id}.yaml`) {
       problems.push(
-        `${fragment.file} holds the screen ${id}: the file's name is the screen's id, so it is ${folder}/${id}.yaml`,
+        `${fragment.file} holds ${L.holds(id)}: the file's name is ${L.named(cut.name)}, so it is ${folder}/${id}.yaml`,
       );
     }
-    for (const line of shapeProblems("screens", one, fragment.file)) {
-      problems.push(line.replace(`${fragment.file}.screens[0].`, `${fragment.file}: `));
+    for (const line of shapeProblems(kind, one, fragment.file)) {
+      const rest = line.startsWith(fragment.file) ? line.slice(fragment.file.length) : null;
+      problems.push(rest !== null && at.test(rest) ? rest.replace(at, `${fragment.file}: `) : line);
     }
   }
   if (problems.length === 0) return null;
@@ -846,18 +869,19 @@ export function readState(root) {
   const usual = Object.values(LEDGERS)
     .map((ledger) => ledger.file)
     .filter(Boolean);
-  // The ledger of screens is read in whichever shape the repository keeps it: one file, or one
-  // file per screen. Every check then reads one text, under the path the tool data names.
-  const screenLedgers = new Set(
-    [
-      LEDGERS.screens.file,
-      ...checks.flatMap((check) => [
-        check.ledger,
-        check.ledgers?.screens,
-        SCREEN_KINDS.includes(check.kind) ? check.file : null,
-      ]),
-    ].filter(Boolean),
+  // A ledger that may be kept as fragments, the screens or the intake, is read in whichever shape
+  // the repository keeps it: one file, or one file per entry. Every check then reads one text,
+  // under the path the tool data names. Each path is known with the ledger it is.
+  const splittable = new Map(
+    Object.keys(FRAGMENT_LEDGERS).map((kind) => [LEDGERS[kind].file, kind]),
   );
+  for (const check of checks) {
+    if (check.ledger) splittable.set(check.ledger, "screens");
+    for (const kind of Object.keys(FRAGMENT_LEDGERS)) {
+      if (check.ledgers?.[kind]) splittable.set(check.ledgers[kind], kind);
+    }
+    if (SCREEN_KINDS.includes(check.kind)) splittable.set(check.file, ledgerOf(check));
+  }
   const named = [...checks, { ledgers: usual }]
     .flatMap((check) => [
       check.file,
@@ -869,7 +893,10 @@ export function readState(root) {
       ...Object.values(check.ledgers ?? {}),
     ])
     .filter(Boolean)
-    .map((file) => [file, screenLedgers.has(file) ? ledgerText(root, file) : read(file)]);
+    .map((file) => [
+      file,
+      splittable.has(file) ? ledgerText(root, file, splittable.get(file)) : read(file),
+    ]);
   // Source folders a check names, file by file.
   const folders = checkFolders(checks).map((folder) => [folder, readFolder(root, folder)]);
   // Folders whose every source file a check reads, plain modules included.
@@ -897,9 +924,9 @@ export function readState(root) {
     // framework's theme, read only when a value points into it.
     ...loadStyles(root, stylesheet),
     files: Object.fromEntries(named),
-    // The fragments of each ledger of screens kept as a folder, or null where it is one file.
+    // The fragments of each such ledger kept as a folder, or null where it is one file.
     fragments: Object.fromEntries(
-      [...screenLedgers].map((file) => [file, readFragments(root, file)]),
+      [...splittable].map(([file, kind]) => [file, readFragments(root, file, kind)]),
     ),
     folders: Object.fromEntries(folders),
     pages: Object.fromEntries(pages),
