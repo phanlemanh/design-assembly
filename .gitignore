@@ -27,3 +27,6 @@ __pycache__/
 
 # Diagrams drawn locally with Archify
 .archify/
+
+# Derived from the component source; the design gate writes it again (make design-components)
+design/component-registry.json

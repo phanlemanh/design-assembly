@@ -6,6 +6,12 @@
       "templates": "b0726010d2b14020b9c60ffeef9246253acbe888",
       "scripts": "9c1884c05200f3c62a9e2e75b0bd7cc2032a3ed1",
       "tool": "4f5d879929427743a4d10ea5aafc435afd0e1034"
+    },
+    {
+      "version": "0.2.0",
+      "templates": "090bd3219b89058fb37c8365a2148ceb39e9d7fd",
+      "scripts": "95c89b638add2380b3dc083623700d75d2751a6f",
+      "tool": "279eb03c085f1cf4385d5b1457bec5fa1e479a7d"
     }
   ]
 }

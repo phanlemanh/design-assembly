@@ -2573,6 +2573,39 @@
       "where": ["trials"],
       "status": "open",
       "note": "For the product type and the conformance level, status and decide recommend only that a person answer, though the guide has its own default for the conformance level, so the sheet asks without saying what the machine would choose."
+    },
+    {
+      "id": "out-of-git-manifest-only",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-16",
+      "where": ["d0049"],
+      "status": "open",
+      "note": "Only the component manifest can be kept out of git. The design tokens file and the column types file are derived too and stay in git; nothing offers the choice for them."
+    },
+    {
+      "id": "out-of-git-file-absent-before-the-gate",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["d0049"],
+      "status": "open",
+      "note": "A manifest kept out of git is written by the gate or by make design-components. Whatever reads it earlier on a clean checkout, such as a test that runs before the gate or another tool, finds no file, or an old one, and is not told why."
+    },
+    {
+      "id": "out-of-git-steps-left-to-a-person",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-16",
+      "where": ["d0049"],
+      "status": "open",
+      "note": "Keeping the manifest out of git needs two steps in git that the command only names: the ignore line and taking the file out of the index. Until a person does both, the gate is red."
     }
   ]
 }
