@@ -313,8 +313,8 @@
       "items": [
         {
           "id": "8.0",
-          "what": "Đề bài chi tiết cho cả giai đoạn, chờ chủ repo duyệt",
-          "state": "doing",
+          "what": "Đề bài chi tiết cho cả giai đoạn, chủ repo duyệt",
+          "state": "done",
           "ref": "wiki/specs/0005-ledgers-stop-riding-pull-requests.md"
         },
         {
@@ -344,7 +344,6 @@
         "Một lượt dựng màn không hỏi chủ repo giữa chừng: câu mới nằm ở hàng chờ, khuôn mới và màu thương hiệu bị chặn tới khi có lời đáp"
       ],
       "needs_owner": [
-        "Duyệt đề bài 0005",
         "Quyết tên tiếng Anh cho hai sổ đang mang tên tiếng Việt ở repo kiểm chứng",
         "Cho phép sửa ở repo kiểm chứng, từng bước"
       ]

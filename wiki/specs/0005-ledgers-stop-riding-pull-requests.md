@@ -1,7 +1,7 @@
 ---
 type: spec
 title: Sổ thiết kế thôi đi theo PR, bản đồ màn tới bài kiểm, và sổ quyết định đứng thay trưởng thiết kế
-status: needs-approval
+status: approved
 tier: 1
 links:
   - wiki/decisions/0048-a-ninth-stage-ledgers-stop-riding-pull-requests.md
@@ -28,6 +28,7 @@ sources:
   - "repo kiểm chứng, nhánh chính tại b6f4f29 và 7f113f7, đọc ngày 2026-11-16: 30 PR gộp gần nhất, thư mục thiết kế, các công cụ đọc sổ, cấu hình bộ chạy bài trình duyệt"
   - "delivery-loop, nhánh chuyen-nha, GUIDE.md: khoá design_floor.sinh_lai"
   - "chủ repo, 2026-11-16: «Duyệt kế hoạch»"
+  - "chủ repo, 2026-11-16: «Duyệt đề bài, luôn nhớ vai trò mà mục đích là hoạt động trên mọi repo và giai đoạn repo.»"
 ---
 
 # 0005 Sổ thiết kế thôi đi theo PR, bản đồ màn tới bài kiểm, và sổ quyết định đứng thay trưởng thiết kế
@@ -43,6 +44,25 @@ luật của bản thiết kế tổng quan ba kho:
 
 Ba phần, theo thứ tự dựng: phần A là mục 8.1 của kế hoạch, phần B là 8.2, phần C là 8.3. Mục 8.4 đưa cả ba sang repo
 kiểm chứng.
+
+### Mọi repo, mọi giai đoạn
+
+Chủ repo duyệt đề bài kèm một lời dặn: plugin phải chạy được trên mọi repo, ở mọi giai đoạn của repo. Số đo bên dưới
+lấy từ một repo; thiết kế thì không được dựa vào repo ấy. Sáu luật áp cho cả ba phần:
+
+1. **Mặc định là hành vi hôm nay.** Mọi thứ mới là lựa chọn của từng repo, ghi trong dữ liệu công cụ của repo đó, tắt
+   cho tới khi được bật. Repo lên đời mà không bật gì thì cổng của nó không đổi màu.
+2. **Hình dạng cũ luôn đọc được.** Bộ đọc nhận cả tệp một khối lẫn thư mục mảnh, không có hạn chót.
+3. **Chưa có gì cũng chạy được.** Repo chưa có sổ nào, chưa có sổ màn, không có `Makefile`, hay không nằm trong git:
+   lệnh vẫn trả lời, nói rõ nó không thấy gì, và đưa câu an toàn («trọn bộ», «không có gì để giữ») thay vì báo lỗi.
+4. **Thứ gắn với một loại repo nằm ở bộ chuyển tiếp:** cách tìm tệp trang, cách đọc `import`, thư mục linh kiện. Lõi
+   không nêu tên thư viện hay công cụ dựng nào; loại repo chưa có bộ chuyển tiếp thì nhận câu an toàn.
+5. **Không tên riêng trong plugin.** Tên tệp, tên khoá và tên repo của một sản phẩm chỉ đi vào qua tham số hoặc bảng
+   ánh xạ khoá, như sổ màn hôm nay.
+6. **Mỗi phần thử trên ít nhất ba dáng repo:** repo do cuộc dẫn dắt dựng, repo đã nhận hệ có sẵn, và repo chưa có gì.
+   Bản sao của repo kiểm chứng là dáng thứ tư, chỉ để đo.
+
+Theo luật 1, «sổ thôi đi theo PR» ở phần A là thứ một repo bật lên, không phải thứ plugin áp cho mọi repo.
 
 ### Số đo hôm nay
 

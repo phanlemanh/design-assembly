@@ -20,7 +20,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 
 ## Specs
 
-- [0005 Sổ thiết kế thôi đi theo PR, bản đồ màn tới bài kiểm, và sổ quyết định đứng thay trưởng thiết kế](specs/0005-ledgers-stop-riding-pull-requests.md) — chờ chủ repo duyệt; chưa dựng gì; là mục 8.0 của kế hoạch
+- [0005 Sổ thiết kế thôi đi theo PR, bản đồ màn tới bài kiểm, và sổ quyết định đứng thay trưởng thiết kế](specs/0005-ledgers-stop-riding-pull-requests.md) — đã duyệt 2026-11-16, kèm luật «mọi repo, mọi giai đoạn»; dựng theo mục 8.1 đến 8.4 của kế hoạch
 - [0003 Sổ màn nói màn hiện gì, chào nút nào cho vai nào; phép kiểm nối sổ màn với mô hình nghiệp vụ](specs/0003-screens-join-the-domain-model.md) — chủ kho duyệt, đã dựng (0035); số đo trên Inventory ở mục Test plan
 - [0004 Bộ lệnh của design-assembly, theo việc người dùng cần xong](specs/0004-the-command-set.md) — đã duyệt 2026-11-15; đã dựng ba lệnh mới, `status` (0041), `decide` (0043) và `upgrade` (0047); hợp đồng chung đã áp cho bảy lệnh đang có (0044, 0047); khung tài liệu chung áp cho `status`, `audit` và `upgrade` (0046, 0047); mười lệnh còn lại chưa
 - [0002 Design-assembly là lớp meta tạo và giữ design system cho nhiều kho](specs/0002-meta-layer-for-many-repositories.md) — bản nháp, chờ chủ kho duyệt: tầm nhìn, tiêu chí, kế hoạch; kiến trúc đầy đủ kèm sơ đồ ở `docs/architecture/meta-layer.html`
