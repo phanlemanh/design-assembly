@@ -27,6 +27,7 @@ import {
   shapeProblems,
 } from "../templates/tools/design-assembly/contract.mjs";
 import {
+  FRAGMENT_LEDGERS,
   fragmentsChecks,
   ledgerText as screensText,
   readFragments,
@@ -420,9 +421,11 @@ export function adoption(
       for (const [kind, ledger] of Object.entries(LEDGERS)) {
         if (!ledger.file) continue;
         const file = planned[kind] ?? ledger.file;
-        // The ledger of screens is read in either shape: one file, or one file per screen.
+        // A ledger that may be kept as fragments is read in either shape: one file, or one file
+        // per entry.
         const text =
-          pending[file] ?? (kind === "screens" ? screensText(root, file) : read(root, file));
+          pending[file] ??
+          (kind in FRAGMENT_LEDGERS ? screensText(root, file, kind) : read(root, file));
         if (text === null || text === undefined) continue;
         ledgers[kind] = file;
         const differs = differences(shapeProblems(kind, text, file), file);
@@ -445,8 +448,10 @@ export function adoption(
           },
           checks: [
             { kind: "shapes", ledgers, ...(withPages ? { pages: KINDS_FOLDER } : {}) },
-            // A ledger of screens already kept as one file per screen is held as such.
-            ...(ledgers.screens ? fragmentsChecks(root, null, ledgers.screens) : []),
+            // A ledger already kept as one file per entry is held as such.
+            ...Object.keys(FRAGMENT_LEDGERS)
+              .filter((kind) => ledgers[kind])
+              .flatMap((kind) => fragmentsChecks(root, null, ledgers[kind], kind)),
           ],
         };
       }
@@ -468,11 +473,17 @@ export function adoption(
       }
       // Each candidate is run by the tool itself on the repository as it is: a check is added only
       // when it passes now and fails on a changed copy.
-      // A ledger of screens is read in either shape: one file, or one file per screen.
-      const asScreens = Object.values(candidates)
-        .flatMap((candidate) => candidate.checks)
-        .map((item) => item.ledgers?.screens)
-        .filter(Boolean);
+      // A ledger that may be kept as fragments is read in either shape: one file, or one file per
+      // entry. Each path is known with the ledger it is.
+      const splittable = new Map(
+        Object.values(candidates)
+          .flatMap((candidate) => candidate.checks)
+          .flatMap((item) =>
+            Object.keys(FRAGMENT_LEDGERS)
+              .filter((kind) => item.ledgers?.[kind])
+              .map((kind) => [item.ledgers[kind], kind]),
+          ),
+      );
       const trial = {
         root,
         stylesheet: result.stylesheet,
@@ -498,13 +509,17 @@ export function adoption(
               .filter(Boolean)
               .map((file) => [
                 file,
-                asScreens.includes(file) ? screensText(root, file) : read(root, file),
+                splittable.has(file)
+                  ? screensText(root, file, splittable.get(file))
+                  : read(root, file),
               ])
               .filter(([, text]) => text !== null),
           ),
           ...columns.files,
         },
-        fragments: Object.fromEntries(asScreens.map((file) => [file, readFragments(root, file)])),
+        fragments: Object.fromEntries(
+          [...splittable].map(([file, kind]) => [file, readFragments(root, file, kind)]),
+        ),
         folders: Object.fromEntries(
           checkFolders(Object.values(candidates).flatMap((candidate) => candidate.checks)).map(
             (folder) => [folder, readFolder(root, folder)],

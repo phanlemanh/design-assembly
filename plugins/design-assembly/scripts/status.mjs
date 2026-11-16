@@ -191,6 +191,18 @@ const VALUES = {
   none: "no stylesheet that declares color roles",
 };
 
+// What the intake rhythm has: the command is not built yet, and the ledger it would write may be
+// kept by hand already.
+function intakeSays(ledger) {
+  const command = "the command is not built in this version of the plugin";
+  if (!ledger) return `${command}: nothing records which need got which block`;
+  const shape =
+    ledger.differs.length === 0
+      ? "with the one shape of the contract"
+      : "not of the contract's shape";
+  return `${command}; ${ledger.file} records which need got which block, written by hand, ${shape}`;
+}
+
 // One line per rhythm of a repository's life, each read from the repository as it is now.
 function rhythmsOf(audit, broken) {
   const c = audit.coverage;
@@ -209,7 +221,7 @@ function rhythmsOf(audit, broken) {
     adopt: l
       ? `${l.total} row(s) in the ledger; ${c.answered} of ${c.core} core decisions answered (${c.held} held and re-run here, ${c.claimed} claimed and not re-run, ${c.recorded} recorded)`
       : "no ledger: nothing is recorded yet",
-    intake: "not built in this version of the plugin: nothing records which need got which block",
+    intake: intakeSays(audit.contract.find((item) => item.kind === "intake")),
     change: l
       ? `${l.automatic} of ${l.total} row(s) name a check that can be found; ${broken.length} failing or bypassed; ${shaped} of ${audit.contract.length} ledger file(s) have the one shape of the contract`
       : "no check that this plugin can see in the gate",

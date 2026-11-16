@@ -335,6 +335,23 @@ nothing about it changes. The contract says the shape; this is what the command 
   version on. One installed by an earlier version names the one file, and fails when that file is
   gone: delete it and run the guide again, or change its import the same way.
 
+## One file per block
+
+The intake ledger, `design/intake.yaml`, may be kept the same way, as `design/intake` with one file
+per block named after its need. `screen-fragments.mjs --ledger intake` takes every flag above and
+does the same with it; without `--ledger`, or with `--ledger screens`, the command is the ledger
+of screens' as before. Each ledger's choices are its own: splitting, joining or copying one leaves
+the other's checks in the tool data as they were.
+
+- `--split` stops where two blocks name one need, or a block names none.
+- The check is the same `screen-fragments`, carrying `of: intake`, and its copy's `untracked`
+  check carries it too. It fails when a file's name is not the need it holds and when a file lacks
+  the shape of a block, its approval day included, as well as on everything the screens' check
+  fails on.
+- A repository that spells the keys its own way says so under `keys` in the one file, and then in
+  `_shared.yaml`: the command cuts the list by its own name and names each file by its own key.
+- The ledger's path is the one the shapes check names under `ledgers.intake`, else the usual one.
+
 ## Kinds of screen
 
 A screen is of one kind: a list, a record, a form. A kind has one page under `design/patterns`,
@@ -514,7 +531,7 @@ passes: a check that cannot fail proves nothing.
 | `tokens`            | The design tokens file is exactly what the stylesheet gives                            |
 | `components`        | The component manifest is exactly what the component source gives                      |
 | `untracked`         | A derived file the repository keeps out of git is not tracked by git, and is ignored   |
-| `screen-fragments`  | A ledger of screens kept as one file per screen: each file is named after its id       |
+| `screen-fragments`  | A ledger kept as one file per entry: each file is named after its id, or its need      |
 | `target-size`       | Every control declares a height that reaches the target size of the conformance level  |
 | `column-types`      | The table of column types is well formed, and every field names one of its types       |
 | `columns`           | The file code reads is exactly what the table and the data model give                  |

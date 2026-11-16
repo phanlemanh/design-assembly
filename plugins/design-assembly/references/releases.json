@@ -24,6 +24,12 @@
       "templates": "f9b015c054dca58503109e75f70ee664d5f5bce6",
       "scripts": "c95989808dac1b11ae0e093e2602d14b6ef85141",
       "tool": "6400fbe5edca663ff87e4797f2e3acee3d6f4300"
+    },
+    {
+      "version": "0.5.0",
+      "templates": "70be2f70e906d21e99148c78efd27b5a7311a649",
+      "scripts": "b05eec6d8fb46e2c2ff099457b57e930e599fb27",
+      "tool": "2a701be01d3eb0194f1da14689d67b3a19a6f7f4"
     }
   ]
 }

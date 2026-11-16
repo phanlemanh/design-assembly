@@ -507,6 +507,18 @@
       "meaning": "The document the audit hands over: what answers each standard decision and what holds the answer, the tier reached and what the next one lacks, set on the document frame.",
       "source": "The specification of the command set, 2026-11-15",
       "trust": "coined"
+    },
+    {
+      "term": "intake ledger",
+      "meaning": "The ledger of every block a repository took in: what it is and where its code is, where it came from and at which pin, which need it answers, and who approved it on which day. One need has one answer.",
+      "source": "The specification of the ledgers that stop riding pull requests, 2026-11-16; the trade speaks of an intake or a contribution process, not traced to one source",
+      "trust": "coined"
+    },
+    {
+      "term": "derived file",
+      "meaning": "A file a tool writes from a source, such as the component manifest from the components: a change goes to the source, and the file is written again from it rather than edited.",
+      "source": "Common practice in build tooling: generated or derived files",
+      "trust": "practice"
     }
   ]
 }

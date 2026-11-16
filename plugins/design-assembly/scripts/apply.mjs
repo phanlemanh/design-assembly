@@ -82,7 +82,9 @@ import {
 } from "../templates/tools/design-assembly/screens.mjs";
 import {
   FRAGMENTS,
+  FRAGMENT_LEDGERS,
   fragmentsChecks,
+  ledgerOf,
   ledgerText as screensText,
 } from "../templates/tools/design-assembly/screen-fragments.mjs";
 import {
@@ -1016,7 +1018,7 @@ export function rulesPage(checks, has) {
   // Where a screen is entered in the ledger: its own file, or the one file every screen shares.
   const inFragments = Object.values(checks)
     .flat()
-    .some((check) => check.kind === FRAGMENTS);
+    .some((check) => check.kind === FRAGMENTS && ledgerOf(check) === "screens");
   const entryFile = inFragments
     ? `\`${fragmentsFolder(SCREEN_LEDGER)}/<id>.yaml\`, its own file in the ledger every tool reads, named after its \`id\``
     : `\`${SCREEN_LEDGER}\`, the ledger every tool reads`;
@@ -1433,8 +1435,9 @@ export function plan(target, blueprint) {
   // Every ledger this run leaves has the one shape the contract gives it. Read as it is about to
   // be written; the decisions ledger is written below, and checked by the gate from then on.
   const ledgerFiles = { decisions: FILES.ledger };
-  // The ledger of screens may be a folder of fragments: it is read as the one text they give.
-  const onDisk = (kind, file) => (kind === "screens" ? screensText(target, file) : read(file));
+  // A ledger may be a folder of fragments: it is read as the one text they give.
+  const onDisk = (kind, file) =>
+    kind in FRAGMENT_LEDGERS ? screensText(target, file, kind) : read(file);
   for (const [kind, ledger] of Object.entries(LEDGERS)) {
     if (!ledger.file || kind === "decisions") continue;
     const file = { tokens: tokens.file, components: components.file }[kind] ?? ledger.file;
@@ -1462,6 +1465,9 @@ export function plan(target, blueprint) {
         // A repository that keeps its ledger of screens as one file per screen said so on its
         // disk or in its tool data: the choice is carried over, never made here.
         ...fragmentsChecks(target, priorTheme(target), ledgerFiles.screens ?? SCREEN_LEDGER),
+        ...(ledgerFiles.intake
+          ? fragmentsChecks(target, priorTheme(target), ledgerFiles.intake, "intake")
+          : []),
       ],
     };
     governance.held["ledger-shapes"] = item;

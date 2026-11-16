@@ -2639,9 +2639,9 @@
       "severity": "low",
       "plan": "keep",
       "opened": "2026-11-16",
-      "where": ["d0051"],
+      "where": ["d0051", "d0052"],
       "status": "open",
-      "note": "When the tool data names another path for the ledger of screens, the copy kept out of git follows the ledger to the new path, and the copy at the old path stays on disk, ignored by git and no longer written. A reader of the old path then reads an old ledger and is not told."
+      "note": "When the tool data names another path for the ledger of screens, the copy kept out of git follows the ledger to the new path, and the copy at the old path stays on disk, ignored by git and no longer written. A reader of the old path then reads an old ledger and is not told. The copy of the intake ledger is left the same way."
     },
     {
       "id": "screen-fragments-own-readers-get-no-file",
@@ -2674,9 +2674,9 @@
       "severity": "low",
       "plan": "keep",
       "opened": "2026-11-16",
-      "where": ["d0050"],
+      "where": ["d0050", "d0052"],
       "status": "open",
-      "note": "Kept as one file per screen, the screens are read in the order of their ids. The order a person gave them in the one file is not kept, and nothing lets a repository say another order. Seen on a copy of a real repository, 2026-11-16: a generated table the repository commits was written again in the new order, and two of its tests that expect the old order failed; nothing a user sees read the order."
+      "note": "Kept as one file per screen, the screens are read in the order of their ids. The order a person gave them in the one file is not kept, and nothing lets a repository say another order. Seen on a copy of a real repository, 2026-11-16: a generated table the repository commits was written again in the new order, and two of its tests that expect the old order failed; nothing a user sees read the order. The intake ledger kept as one file per block is read the same way, in the order of its needs."
     },
     {
       "id": "screen-fragments-plain-ids-only",
@@ -2729,9 +2729,31 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-16",
-      "where": ["d0050"],
+      "where": ["d0050", "d0052"],
       "status": "open",
-      "note": "Upgrade does not offer to cut a ledger of screens into fragments; a person runs the tool's own command after upgrading. On the reference repository only a copy of its ledger and its model was split and joined: its own tools and tests that read the one file, and the acceptance kit, were not run against the folder."
+      "note": "Upgrade does not offer to cut a ledger of screens into fragments; a person runs the tool's own command after upgrading. On the reference repository only a copy of its ledger and its model was split and joined: its own tools and tests that read the one file, and the acceptance kit, were not run against the folder. The same holds for the intake ledger, which no real repository has split yet: only made-up ledgers were cut, held and joined."
+    },
+    {
+      "id": "intake-ledger-path-named-by-hand",
+      "area": "adopt",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["d0052"],
+      "status": "open",
+      "note": "The guide and adopting find the intake ledger only at design/intake.yaml. A ledger kept elsewhere, under a name in the repository's own language for instance, is held only once a person names its path under ledgers.intake in the shapes check, and the guide's next run writes the usual path there again. Renaming the file to the usual path removes the limit."
+    },
+    {
+      "id": "intake-own-keys-need-a-line-in-the-ledger",
+      "area": "checks",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-16",
+      "where": ["d0052"],
+      "status": "open",
+      "note": "A repository that spells the keys of the intake ledger its own way says so with a keys line in the ledger. A ledger written before that has no such line and is read as missing every key the contract names. Whether a repository's own reader of the ledger takes the extra key was not tried."
     }
   ]
 }

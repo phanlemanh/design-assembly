@@ -31,6 +31,7 @@ a screen kind, must have its shape.
 | `screen-sizes` | `design/screen-sizes.json`       | The widths every page is checked at                              | A person                                   | 1     |
 | `parts`        | `design/parts.json`              | The parts of the code from the top down                          | A person                                   | 1     |
 | `screens`      | `design/screens.yaml`            | Which screens exist, of which kind, with which states            | A person or an agent, with each new screen | 1     |
+| `intake`       | `design/intake.yaml`             | Which need got which block, from where, approved by whom, when   | The round that takes the block in, once    | 1     |
 | `screen-kinds` | `design/patterns/<kind>.md`      | How a screen of each kind is built                               | A person                                   | none  |
 
 ### decisions
@@ -128,6 +129,27 @@ each family is the kind of a page; the screen checks read the states from the le
 repository's own test, installed once, reads both while the code runs and holds that each screen's
 title and states are the code's, so states built by a function are read too.
 
+### intake
+
+Block-style YAML: `version`, then `blocks`, a list: one entry per block the repository took in. A
+block has `name` (what it is), `file` (where its code is), `source` (the name an outside library
+gives it, or that it was made by hand), `need` (the need it answers, a key in small letters and
+dashes) and `approved` (the day it was approved, `YYYY-MM-DD`), and may have `pin` (the version of
+the source it came from), `description` (the need in one plain sentence), `record` (the record of
+the round that took it in) and `approved_by`. A repository may keep keys of its own on a block or
+beside the blocks. A need has one answer, so the gate fails when two blocks name one need.
+
+A repository that already spells these keys its own way says so beside the blocks under `keys`,
+such as `{ blocks: <its list>, need: <its key>, approved: <its key> }`: every reader then takes the
+ledger in the contract's keys, and the gate names a key both ways when it is missing.
+
+Like the screens, the ledger may be kept as a folder, `design/intake`: each block is
+`design/intake/<need>.yaml`, and the rest, `keys` included, is in `design/intake/_shared.yaml`. The
+name of a block's file is its need, so one need with two answers cannot both be there. A block is
+written by one round, once, its approval included, so each file has one writer.
+`node tools/design-assembly/screen-fragments.mjs --ledger intake` takes every flag the screens take,
+and `checks.md` says what each does.
+
 ### screen-kinds
 
 One page per kind of screen, with the front matter the acceptance kit defines. Eight keys are
@@ -139,7 +161,7 @@ which this plugin reads and does not rename.
 
 ## Not settled yet
 
-Two ledgers have no one shape yet:
+One ledger has no one shape yet:
 
-- `intake`: which need got which block, and who approved it. One repository keeps one so far.
-- `sources`: which outside libraries blocks come from, in what order, at which pin. Likewise.
+- `sources`: which outside libraries blocks come from, in what order, at which pin. One repository
+  keeps one so far.
