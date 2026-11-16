@@ -352,6 +352,41 @@ the other's checks in the tool data as they were.
   `_shared.yaml`: the command cuts the list by its own name and names each file by its own key.
 - The ledger's path is the one the shapes check names under `ledgers.intake`, else the usual one.
 
+## Which screens a change reaches
+
+`node tools/design-assembly/affected.mjs`, or `make design-affected`, says which screens a change
+reaches, and at which widths each is checked: test impact analysis. It only reads. It does not
+change how a repository runs its tests; a repository's own runner may take the pattern it gives.
+
+- The change is what differs from where the branch left the main one, what is not committed yet,
+  and what git does not know yet; `--base REF` measures from elsewhere, and `--files` names the
+  files instead, with no git needed.
+- A screen is drawn from its page and from every file its page imports, however far. The page is
+  the module the code that lists the screens loads at its route; where the folders of the source
+  are the screens, the routes adapter finds the page at the route and the files that wrap it.
+- Code the server runs on its own, which the routes adapter names (a route handler, the
+  middleware), may change any screen that calls it while it runs, which no import shows: a changed
+  file it reaches asks for the whole suite, even when a page imports it too.
+- Imports are read as the build reads them: `from`, `import`, `import()` and `require()`, the
+  aliases of the repository's TypeScript settings beside `@/`, a name ending `.js` for the `.ts`
+  file it is built from, and a data file or a stylesheet a module imports. An import of the
+  repository's own that names no file, or whose name is built while the code runs, cannot be
+  followed: while a screen has one, every change of code asks for the whole suite.
+- A screen's own file of a ledger kept as fragments reaches that screen alone.
+- Whatever cannot be traced asks for the whole suite, with why: the stylesheet the tool data
+  names, a file the tool data names global, the ledger of screens as one file or the part every
+  screen shares, a file of no screen, and any code file while a screen's page cannot be found. A
+  repository with no ledger of screens runs everything for any change.
+- The tool data names the files that reach every screen and the files that reach none, as globs:
+  `"affected": { "global": [...], "none": [...] }`. The guide and adopting keep it as it is. A
+  file a screen imports is that screen's whatever `none` says.
+- A screen is checked at the widths of `design/screen-sizes.json`, or at its own `sizes`.
+- For a person: one line per screen, with the files that reach it, or why everything runs. With
+  `--json`: `base`, `changed`, `all`, `why` (each with `file` and `reason`), `screens` (each with
+  `id`, `route`, `sizes` and `why`), `unmapped`, and `grep`, a pattern that picks the tests whose
+  names hold one of the routes. Tests that name no screen are the runner's to keep.
+- It ends with 0 with an answer, and with 2 on a wrong call or a repository it cannot read.
+
 ## Kinds of screen
 
 A screen is of one kind: a list, a record, a form. A kind has one page under `design/patterns`,

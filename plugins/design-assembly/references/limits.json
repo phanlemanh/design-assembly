@@ -2754,6 +2754,51 @@
       "where": ["d0052"],
       "status": "open",
       "note": "A repository that spells the keys of the intake ledger its own way says so with a keys line in the ledger. A ledger written before that has no such line and is read as missing every key the contract names. Whether a repository's own reader of the ledger takes the extra key was not tried."
+    },
+    {
+      "id": "affected-reach-beyond-imports",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-16",
+      "where": ["d0053"],
+      "status": "open",
+      "note": "Which screens a change reaches is read from imports. What a screen reaches while it runs without importing it is followed only where an adapter names the code the server runs on its own, as route handlers: a request to an address written as text, a module imported by a computed name, a component chosen by its name at run time, code a job or worker runs. A file reached that way and also imported by a page is taken to reach that page alone."
+    },
+    {
+      "id": "affected-imports-through-one-alias",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-16",
+      "where": ["d0053"],
+      "status": "open",
+      "note": "An import is followed when it is relative, starts with @/, or starts with an alias the repository's TypeScript settings map to one folder, as x/* to ./src/*. An alias the build declares elsewhere, or one mapped to several folders, is taken as the first folder or not at all: an import of the repository's own that names no file then cannot be followed, and every change of code asks for the whole suite."
+    },
+    {
+      "id": "affected-app-folder-under-src-only",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-16",
+      "where": ["d0053"],
+      "status": "open",
+      "note": "Where the folders are the screens, the pages are looked for under src/app only. A repository that keeps its app folder at the top finds no page, and every change of code asks for the whole suite."
+    },
+    {
+      "id": "affected-not-used-by-a-runner",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "hand-off",
+      "repo": "repo-standards",
+      "opened": "2026-11-16",
+      "where": ["d0053", "spec"],
+      "status": "open",
+      "note": "The command only says which screens a change reaches and gives a pattern for their tests. Nothing runs fewer tests on it yet: choosing what continuous integration runs is the repository standards' own work, and the browser tests of this repository are theirs to change."
     }
   ]
 }

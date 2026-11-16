@@ -637,6 +637,8 @@ export function adoption(
       },
       ...(adopted.length > 0 ? { adopted } : {}),
       checks: { ...theme?.checks, ...checks },
+      // What a person wrote of the change map is theirs: kept as it is.
+      ...(theme?.affected ? { affected: theme.affected } : {}),
     };
     result.files[FILES.theme] = renderJson(data, lineWidth(root));
   }

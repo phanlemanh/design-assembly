@@ -355,5 +355,9 @@
         "at": "src/App.tsx"
       }
     ]
+  },
+  "affected": {
+    "global": ["src/App.tsx", "src/main.tsx", "src/components/app-frame.tsx"],
+    "none": ["wiki/**", "docs/**", "*.md"]
   }
 }

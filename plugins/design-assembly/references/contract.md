@@ -92,8 +92,9 @@ Block-style YAML: `version`, then `screens`, a list. A screen has `id`, `route` 
 `title` (the key of its title among the repository's words, or null), `family` (the `nhom` of the
 page of its kind, or null), `status` (`built` or `planned`), and may have `audience` and `states`,
 the names of the states it shows. Beside the screens the file may name `families`, `audiences` and
-`statuses`. A repository may keep keys of its own, on a screen or beside the screens, such as who
-may open it: they are its extension, and are read without complaint.
+`statuses`. A screen may also have `sizes`, the widths it is checked at when they are not the ones
+of `screen-sizes` (whole numbers). A repository may keep keys of its own, on a screen or beside the
+screens, such as who may open it: they are its extension, and are read without complaint.
 
 Three more keys of a screen join the ledger with the repository's domain model: `shows`, the
 entities it shows; `entry`, the action a role must hold to open it, or null for every role; and
