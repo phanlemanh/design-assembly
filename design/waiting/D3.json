@@ -1,0 +1,6 @@
+{
+  "id": "D3",
+  "kind": "permission",
+  "group": "D. Việc chỉ chủ repo làm được",
+  "question": "Cho phép chạy phép đo token chính thức (tốn tiền API)"
+}

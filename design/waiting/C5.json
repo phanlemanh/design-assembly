@@ -1,0 +1,12 @@
+{
+  "id": "C5",
+  "group": "C. Câu còn mở từ trước",
+  "question": "Ngôn ngữ và đơn vị tiền của ứng dụng mẫu là máy suy ra",
+  "recommendation": "Xác nhận",
+  "basis": "Sổ giới hạn ghi từ ngày 2026-11-11: ngôn ngữ và đơn vị tiền của ứng dụng mẫu do máy suy ra, chưa ai xác nhận. Hôm nay mã đặt tiếng Việt và đồng Việt Nam ở một chỗ (`src/lib/format.ts`: vi-VN, VND), khớp ngôn ngữ trò chuyện «vi» ghi trong bản thiết kế. Dễ đảo: chỉ ứng dụng mẫu của kho này dùng.",
+  "hard_to_undo": false,
+  "if_refused": "Đổi ngôn ngữ hay đơn vị tiền thì phải viết lại chữ của ứng dụng mẫu và chỗ định dạng tiền",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

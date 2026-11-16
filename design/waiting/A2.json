@@ -1,0 +1,13 @@
+{
+  "id": "A2",
+  "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+  "question": "Màn thứ hai của ứng dụng mẫu là «mục quá hạn»",
+  "recommendation": "Giữ",
+  "basis": "Quyết định 0025, mục 4 và 6: màn thứ hai phải khác việc của đề thử chuẩn (một màn cho mục đã cất đi), nếu không lượt thử sau chỉ đọc lại bài làm sẵn. Dễ đảo: màn này chỉ có ở ứng dụng mẫu của kho này, plugin không cài nó cho repo nào.",
+  "hard_to_undo": false,
+  "where": "0025",
+  "if_refused": "Đổi màn mẫu thứ hai",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

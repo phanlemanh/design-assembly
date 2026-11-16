@@ -1,9 +1,10 @@
 # Việc chờ chủ repo xem
 
-Từ ngày 2026-11-15 hàng chờ không còn viết ở trang này. Nó là dữ liệu, ở
-[`design/waiting-list.json`](../design/waiting-list.json), và lệnh `decide` của plugin in nó thành
-một tờ trình (quyết định
-[0043](../wiki/decisions/0043-decide-reads-ledger-rows-and-a-waiting-list-kept-as-data.md)).
+Từ ngày 2026-11-15 hàng chờ không còn viết ở trang này. Nó là dữ liệu, và lệnh `decide` của plugin in
+nó thành một tờ trình (quyết định
+[0043](../wiki/decisions/0043-decide-reads-ledger-rows-and-a-waiting-list-kept-as-data.md)). Từ ngày
+2026-11-17 mỗi câu là một tệp ở [`design/waiting/`](../design/waiting/), tên tệp là mã câu (quyết
+định [0054](../wiki/decisions/0054-the-decision-ledger-stands-in-for-the-head-of-design.md)).
 
 Hàng chờ gom ngày 2026-11-14, theo quyết định
 [0032](../wiki/decisions/0032-review-after-stage-two-and-stage-three-recut.md). Khi thành dữ liệu,
@@ -37,7 +38,7 @@ make design-decide DECIDE_ARGS="--answers TỆP --dry-run"
 make design-decide DECIDE_ARGS="--answers TỆP"
 ```
 
-Lời đáp được ghi vào đúng dòng của nó trong `design/waiting-list.json`, kèm tên người đáp và ngày.
+Lời đáp được ghi vào đúng tệp của câu ấy trong `design/waiting/`, kèm tên người đáp và ngày.
 Dòng bị bác không bị xoá: nó giữ nguyên, kèm câu chủ repo đã nói.
 
 Máy không tự đánh dấu dòng nào là đã duyệt, và không tự viết tệp lời đáp.

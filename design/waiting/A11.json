@@ -1,0 +1,13 @@
+{
+  "id": "A11",
+  "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+  "question": "Repo được thêm khoá riêng vào sổ màn (ví dụ vai nào được mở màn)",
+  "recommendation": "Giữ",
+  "basis": "Quyết định 0030, mục 1: khoá riêng là phần mở rộng của repo, không thuộc lõi. Khó đảo: sổ màn của Inventory, đọc ngày 2026-11-15, dùng nhiều khoá riêng ở mọi màn (như `vao`, `nut`, `hien`, và khối `khung`); cấm khoá riêng thì sổ ấy lệch hình dạng ở mọi màn.",
+  "hard_to_undo": true,
+  "where": "0030",
+  "if_refused": "Sổ màn của Inventory sẽ lệch hình dạng ở nhiều chỗ",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

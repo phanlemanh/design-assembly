@@ -1,0 +1,12 @@
+{
+  "id": "B4",
+  "group": "B. Điều chưa bao giờ được duyệt",
+  "question": "Thang bốn nấc ở Inventory: sổ đúng hình dạng, câu lõi máy giữ, công cụ được thay, bậc của kit",
+  "recommendation": "Giữ đề xuất",
+  "basis": "Thang đã thành lệnh, và «lệnh đo thang chạy trọn trên repo đã nhận» là một điều kiện đóng giai đoạn 0 của kế hoạch đã duyệt. Đo ngày 2026-11-15 trên Inventory đã nhận (`make design-ladder`, quyết định 0045): sổ đúng hình dạng 7 trên 7, câu lõi có lời đáp 29 trên 40, câu lõi máy giữ 10, quyết định máy giữ 16, kit M2; bảng đo hôm nay không còn dòng «công cụ được thay». Dễ đảo: thang chỉ là phép đo, không ghi gì vào repo được đo.",
+  "hard_to_undo": false,
+  "if_refused": "Phải chọn thước khác cho câu «có thành lớp meta không», và điều kiện «lệnh đo thang chạy trọn trên repo đã nhận» của giai đoạn 0 phải viết lại",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

@@ -102,9 +102,11 @@
       "severity": "high",
       "plan": "fix",
       "opened": "2026-11-12",
-      "where": ["d0010", "handoff"],
-      "status": "open",
-      "note": "An adopted brand colour is not pinned, so swapping it for another colour that also meets contrast passes."
+      "where": ["d0010", "handoff", "d0054"],
+      "status": "closed",
+      "note": "An adopted brand colour is not pinned, so swapping it for another colour that also meets contrast passes.",
+      "closed": "2026-11-17",
+      "closed_by": "the wall, row owner-calls: a branch that changes the root colour line of the stylesheet fails the gate until the waiting list holds the owner's kept answer for that very colour; what it still does not see is limit owner-calls-root-colour-as-written"
     },
     {
       "id": "redness-inferred-not-tested",
@@ -2799,6 +2801,106 @@
       "where": ["d0053", "spec"],
       "status": "open",
       "note": "The command only says which screens a change reaches and gives a pattern for their tests. Nothing runs fewer tests on it yet: choosing what continuous integration runs is the repository standards' own work, and the browser tests of this repository are theirs to change."
+    },
+    {
+      "id": "owner-calls-root-colour-as-written",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-17",
+      "where": ["d0054", "spec"],
+      "status": "open",
+      "note": "The wall reads the root colour line as written in the stylesheet the tool data names: the last --primary of a top-level :root block. A --primary declared in a file the stylesheet imports is not read, and a --primary that points at another variable (var(--brand)) is not followed, so changing that variable changes the brand colour and the wall stays open."
+    },
+    {
+      "id": "owner-calls-trusts-a-written-answer",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "high",
+      "plan": "hand-off",
+      "repo": "repo-standards",
+      "opened": "2026-11-17",
+      "where": ["d0054", "spec"],
+      "status": "open",
+      "note": "The wall opens on an answered question of the waiting list, and cannot tell whether the owner or an agent wrote that answer: the file is data, like the answers file of the decision sheet (limit decide-cannot-tell-who-wrote-the-answers). The rules page forbids an agent to answer, and nothing holds it. Asking the owner on the hosting service before a pull request that adds a kind of screen or a brand colour merges is the repository standards' own work."
+    },
+    {
+      "id": "decision-sheet-reads-what-a-branch-writes",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-17",
+      "where": ["d0054", "spec"],
+      "status": "open",
+      "note": "The total comparison reads the judgments a branch adds or changes against the main branch. A judgment already on the main branch that no person marked is not compared, nor is anything on the branch where the repository meets the plugin (the base has no decision ledger), nor anything in a repository with no commit yet. Comparing every row would turn every repository that adopted before 0.7.0 red, though its rows were written on a person's word."
+    },
+    {
+      "id": "decision-sheet-free-layout-not-read",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-17",
+      "where": ["d0054", "spec"],
+      "status": "open",
+      "note": "The total comparison covers the choices a machine reads: values, components, kinds of screen, states, words and column types. How the parts of one screen are laid out, when no rule of the ledger names it, is not a choice it can see: an agent that settles such a layout alone is not caught."
+    },
+    {
+      "id": "decision-sheet-four-scales-gone-around",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-17",
+      "where": ["d0054", "spec"],
+      "status": "open",
+      "note": "Source that goes around a decision is found for four scales only, as the audit finds it: a raw colour, a type size, a spacing and a radius between square brackets. A value going around any other decision is the repository's lint rule to catch."
+    },
+    {
+      "id": "owner-calls-needs-git-and-a-main-branch",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-17",
+      "where": ["d0054", "spec"],
+      "status": "open",
+      "note": "Outside git the wall and the total comparison compare nothing: both pass, and the gate prints that it did not compare. With git and no branch it can name as the main one, both fail rather than pass unseen: a checkout that fetched one commit only needs its history (fetch-depth: 0 in continuous integration), and a main branch with another name is named with \"main\" on either check in design/theme.json."
+    },
+    {
+      "id": "decide-ask-trusts-the-agent-to-ask",
+      "area": "decide",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-17",
+      "where": ["d0054", "spec"],
+      "status": "open",
+      "note": "Nothing makes an agent ask: it queues a question with decide --ask because the rules page says so. A call it makes in code alone, with no row of the ledger and none of the files the wall reads, leaves no trace the gate can compare."
+    },
+    {
+      "id": "decision-sheet-trusts-the-note",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "high",
+      "plan": "keep",
+      "opened": "2026-11-17",
+      "where": ["d0054", "spec"],
+      "status": "open",
+      "note": "The total comparison reads a person's answer to a judgment from the row's own note: an agent that writes 'confirmed by NAME on DATE' into a row it wrote itself passes, and nobody was asked. The ledger has no other place for who answered (limit decide-answer-kept-in-the-note), and the rules page forbids an agent to answer; nothing holds it."
+    },
+    {
+      "id": "decision-sheet-audit-proofs-not-read",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-17",
+      "where": ["d0054", "spec"],
+      "status": "open",
+      "note": "Of what the audit reports as a decision with no row, the gate reads only a test that names decision:ID for an id with no row. A proof the audit recognises from the plugin's list of known proofs, and a value that looks like a person's answer, need lists that do not travel with the installed tool, so the gate does not read them; the audit still reports them."
     }
   ]
 }

@@ -343,7 +343,8 @@
         {
           "id": "8.3",
           "what": "Sổ quyết định đứng thay trưởng thiết kế: hàng chờ theo mảnh, phép so tổng, tường cho khuôn mới và màu thương hiệu",
-          "state": "todo"
+          "state": "done",
+          "ref": "quyết định 0054; 8.3a: plugins/design-assembly/tests/test-waiting.mjs; 8.3b: plugins/design-assembly/tests/test-owner-calls.mjs"
         },
         {
           "id": "8.4",

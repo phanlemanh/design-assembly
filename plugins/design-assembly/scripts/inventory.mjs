@@ -31,6 +31,11 @@ import {
 } from "../templates/tools/design-assembly/governance.mjs";
 import { readKinds, readPages } from "../templates/tools/design-assembly/screens.mjs";
 import { readBlock } from "../templates/tools/design-assembly/theme.mjs";
+import {
+  bypasses as sourceBypasses,
+  VENDOR,
+} from "../templates/tools/design-assembly/owner-calls.mjs";
+import { UNCONFIRMED } from "../templates/tools/design-assembly/waiting.mjs";
 import { finish, readCall, refuse, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { findProofs } from "./proofs.mjs";
@@ -51,14 +56,13 @@ const LIMITS = reference("limits.json").limits;
 const LIMITS_FILE = "references/limits.json of this plugin";
 const LINT = adapterOf("lint");
 const SKIP_DIRS = new Set(["node_modules", "dist", "coverage", "test-results", "generated"]);
-// Code the repository did not write: a vendor's components are not the repository's decisions.
-const VENDOR = /(^|\/)components\/(ui|reui)\//;
 // A decision is answered when the ledger has a row for it that is held, claimed or recorded.
 // What the audit can see without a row is said beside the decision, and is not an answer.
 const ANSWERED = ["held", "claimed", "recorded"];
 // A row whose note says this is an answer nobody has made theirs yet: the guide proposed it, or it
 // was read off the repository. The audit names such rows, and the status lists them as waiting.
-export const UNCONFIRMED = /has not (confirmed|reviewed)/;
+// Written once, in the tool, where the gate reads it too.
+export { UNCONFIRMED };
 // The command that lists each decision's state, and the one that takes a person's answers.
 export const AUDIT = "/design-assembly:audit";
 export const DECIDE = "/design-assembly:decide";
@@ -100,44 +104,17 @@ function declarations(root, sheets) {
 }
 
 // What the audit can see without a ledger: the four decisions about using a scale, each with the
-// variable that shows it is decided, the lint rule that would hold it, and how source goes around it.
+// variable that shows it is decided and the lint rule that would hold it. How source goes around
+// each is the gate's own detector, BYPASS, so the audit and the gate never differ on it.
 const USAGE = {
-  "color-role": {
-    variable: "--primary",
-    lint: /no-raw-colors|no-hardcoded-color/,
-    bypass: /\[#[0-9a-fA-F]{3,8}\]|["'`\s:]#[0-9a-fA-F]{6}\b/g,
-  },
-  "type-scale": {
-    variable: null,
-    lint: /no-arbitrary-values|no-arbitrary-text-size/,
-    bypass: /\btext-\[[^\]]*(?:px|rem|em)\]/g,
-  },
-  spacing: {
-    variable: null,
-    lint: /no-arbitrary-values|no-off-scale-spacing/,
-    bypass: /\b(?:p|px|py|pt|pb|pl|pr|m|mx|my|mt|mb|ml|mr|gap|space-x|space-y)-\[[^\]]+\]/g,
-  },
-  radius: {
-    variable: "--radius",
-    lint: /no-arbitrary-values/,
-    bypass: /\brounded(?:-[a-z]{1,2})?-\[[^\]]+\]/g,
-  },
+  "color-role": { variable: "--primary", lint: /no-raw-colors|no-hardcoded-color/ },
+  "type-scale": { variable: null, lint: /no-arbitrary-values|no-arbitrary-text-size/ },
+  spacing: { variable: null, lint: /no-arbitrary-values|no-off-scale-spacing/ },
+  radius: { variable: "--radius", lint: /no-arbitrary-values/ },
 };
 
-function bypasses(root, sources) {
-  const result = Object.fromEntries(Object.keys(USAGE).map((id) => [id, { count: 0, files: [] }]));
-  for (const file of sources) {
-    const text = read(root, file) ?? "";
-    for (const [id, { bypass }] of Object.entries(USAGE)) {
-      const hits = text.match(bypass)?.length ?? 0;
-      if (hits > 0) {
-        result[id].count += hits;
-        result[id].files.push(`${file} (${hits})`);
-      }
-    }
-  }
-  return result;
-}
+const bypasses = (root, sources) =>
+  sourceBypasses(Object.fromEntries(sources.map((file) => [file, read(root, file) ?? ""])));
 
 // The sockets the acceptance kit reads from a repository, when its config names them.
 function sockets(root) {

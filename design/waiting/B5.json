@@ -1,0 +1,12 @@
+{
+  "id": "B5",
+  "group": "B. Điều chưa bao giờ được duyệt",
+  "question": "Ngừng thêm luật bằng lời ở repo này; chỉ sửa 14 giới hạn nguy hiểm khi Inventory đụng tới",
+  "recommendation": "Giữ đề xuất, đọc «Inventory» thành «một repo thật»: kế hoạch đã để dành các giới hạn mức nặng cho giai đoạn 5 theo đúng lối ấy",
+  "basis": "Mục để dành của kế hoạch, ghi ngày 2026-11-15: giới hạn mức nặng đang mở chờ giai đoạn 5, «chỉ sửa khi một repo thật đụng tới». Con số 14 là của ngày 2026-11-14; kế hoạch đếm 17 lúc ghi, và đếm lại ngày 2026-11-15 từ sổ giới hạn có 18 dòng mức nặng đang mở, 15 thuộc ngăn sẽ sửa và 3 thuộc ngăn chấp nhận. Nửa đầu của câu («ngừng thêm luật bằng lời») chỉ dựa vào đề xuất ở quyết định 0032, mục 4; máy không tìm được số đo nào cho nó. Dễ đảo: đây là cách làm việc, đổi lúc nào cũng được.",
+  "hard_to_undo": false,
+  "if_refused": "Luật bằng lời tiếp tục được thêm ở kho này, và 15 dòng mức nặng thuộc ngăn sẽ sửa phải làm trước giai đoạn 5 mà kế hoạch đã xếp",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

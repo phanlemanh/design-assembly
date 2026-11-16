@@ -1,0 +1,13 @@
+{
+  "id": "A4",
+  "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+  "question": "Hoàn tác đưa một dòng quay lại thì tiêu điểm vào đúng nút của dòng đó",
+  "recommendation": "Giữ",
+  "basis": "Quyết định 0027, mục 4: hai tác tử của lượt thử chín, chạy độc lập, cùng chọn như vậy. Chưa lệnh kiểm nào giữ luật này, vì màn mẫu không có thao tác nào làm một dòng quay lại. Dễ đảo: chỉ đổi một luật và bài kiểm của nó.",
+  "hard_to_undo": false,
+  "where": "0027",
+  "if_refused": "Đổi luật tiêu điểm và bài kiểm",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

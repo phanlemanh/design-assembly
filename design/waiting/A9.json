@@ -1,0 +1,13 @@
+{
+  "id": "A9",
+  "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+  "question": "Sổ linh kiện liệt kê cả linh kiện riêng của repo, không chỉ thư viện",
+  "recommendation": "Giữ",
+  "basis": "Quyết định 0029, mục 5: sổ đọc cả thư mục linh kiện riêng bên cạnh thư mục thư viện; ở kho này sổ có 65 mục, 58 của thư viện và 7 của riêng repo. Khó đảo: sổ linh kiện của Inventory, đọc ngày 2026-11-15, do plugin ghi, có 40 linh kiện riêng trên 291, và skill dựng màn ở đó đọc sổ này.",
+  "hard_to_undo": true,
+  "where": "0029",
+  "if_refused": "Thu sổ về thư viện",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 import { SLIPS_FILE } from "../templates/tools/design-assembly/governance.mjs";
 import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
 import { finish, readCall, refuse, start } from "./command.mjs";
-import { sheet, WAITING_LIST } from "./decide.mjs";
+import { sheet, WAITING_FOLDER, WAITING_LIST } from "./decide.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { AUDIT, DECIDE, inventory, PERSON_CALLS, UNCONFIRMED } from "./inventory.mjs";
 import {
@@ -171,8 +171,8 @@ const fromList = (item) => ({
   recommendation: item.recommendation,
   basis: `${MEASURED}${
     item.basis
-      ? `the waiting list, ${WAITING_LIST}, gives this ground: ${item.basis}`
-      : `the waiting list, ${WAITING_LIST}, gives no ground for it`
+      ? `the waiting list gives this ground: ${item.basis}`
+      : `the waiting list gives no ground for it`
   }`,
   answer: DECIDE,
 });
@@ -524,7 +524,7 @@ export function documentOf(result, origin) {
     version: VERSION,
     scope: [
       "The ledgers of the design system, read as the audit reads them",
-      `The waiting list, ${WAITING_LIST}, when the repository keeps one`,
+      `The waiting list, ${WAITING_FOLDER} with one file per question or ${WAITING_LIST}, when the repository keeps one`,
       `The repository's copy of the tool, ${TOOL_COPY}, against the installed plugin's`,
       `The tool stamp, ${STAMP}: ${tool.recorded ? `version ${tool.recorded.version}` : "none in this repository"}`,
     ],

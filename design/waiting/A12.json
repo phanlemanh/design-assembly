@@ -1,0 +1,13 @@
+{
+  "id": "A12",
+  "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+  "question": "Năm loại bộ chuyển; trình duyệt tách khỏi nền dựng",
+  "recommendation": "Giữ",
+  "basis": "Quyết định 0031, mục 1: mở máy chủ của repo và mở trình duyệt dùng hai thư viện khác nhau, nên trình duyệt thành loại riêng. Từ ngày 2026-11-14 có thêm bộ chuyển thứ sáu, giữ tên công cụ lint (quyết định 0033), nên con số «năm» trong câu hỏi nay là sáu. Khó đảo: thư mục bộ chuyển đi theo công cụ sang repo đã nhận, và Inventory, đọc ngày 2026-11-15, giữ đủ sáu bộ chuyển ấy.",
+  "hard_to_undo": true,
+  "where": "0031",
+  "if_refused": "Gộp lại thành bốn loại",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

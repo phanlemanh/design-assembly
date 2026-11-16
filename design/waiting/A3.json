@@ -1,0 +1,13 @@
+{
+  "id": "A3",
+  "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+  "question": "Chuyển màn không tải lại trang",
+  "recommendation": "Giữ",
+  "basis": "Quyết định 0027, mục 3: khi khung tải lại cả trang, dữ liệu mẫu quên điều người dùng vừa làm; bài kiểm đổi màn đỏ khi khung tải lại trang như trước. Dễ đảo ở hôm nay: khung plugin cài cho repo mới mang hành vi này (quyết định 0028), nhưng chưa repo thật nào nhận khung.",
+  "hard_to_undo": false,
+  "where": "0027",
+  "if_refused": "Khó bác: dữ liệu mẫu sẽ quên việc vừa làm",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

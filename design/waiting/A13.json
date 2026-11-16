@@ -1,0 +1,13 @@
+{
+  "id": "A13",
+  "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+  "question": "Cách xếp 111 giới hạn đang mở vào ba ngăn: 55 sẽ sửa, 50 chấp nhận, 6 chuyển cho repo khác",
+  "recommendation": "Giữ cách xếp, tính theo sổ hôm nay: 144 dòng đang mở, 79 sẽ sửa, 57 chấp nhận, 8 chuyển cho repo khác",
+  "basis": "Quyết định 0024: ba ngăn là cơ chế máy dựng khi chủ repo bảo bắt đầu chặng 1 ngày 2026-11-13, việc đầu là khoá phạm vi; xếp dòng nào vào ngăn nào là máy đề xuất. Con số 111 trong câu hỏi là của ngày 2026-11-14; đếm ngày 2026-11-15 từ sổ giới hạn có 198 dòng, 144 đang mở. Dễ đảo: mỗi dòng chuyển ngăn được riêng, bất cứ lúc nào.",
+  "hard_to_undo": false,
+  "where": "0024",
+  "if_refused": "Chuyển ngăn từng dòng",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

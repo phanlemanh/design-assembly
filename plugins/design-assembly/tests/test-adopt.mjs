@@ -156,6 +156,10 @@ test("on the floor: rows for the proofs it has, checks around its values, nothin
     assert.equal(rows[id].check, TOOL, id);
   }
   assert.equal(rows["checks-in-gate"].check, TOOL);
+  // The decision sheet and the wall come with the gate.
+  assert.equal(rows["decision-sheet"].check, TOOL);
+  assert.equal(rows["owner-calls"].check, TOOL);
+  assert.equal(rows["decision-sheet"].layer, "governance");
   assert.equal(rows["conformance-level"].kind, "judgment");
   assert.equal(rows["conformance-level"].check, undefined);
   // The brand colour is a person's call: seen, shown, not written.
@@ -175,8 +179,9 @@ test("on the floor: rows for the proofs it has, checks around its values, nothin
   ]);
   const checked = check(dir);
   assert.equal(checked.status, 0, checked.stderr);
-  // The six values and checks around them, and the shapes of the ledgers adopting leaves.
-  assert.match(checked.stdout, /7 decisions held by \d+ checks, each seen failing/);
+  // The six values and checks around them, the shapes of the ledgers adopting leaves, the decision
+  // sheet and the wall.
+  assert.match(checked.stdout, /9 decisions held by \d+ checks, each seen failing/);
 
   // Adopting leaves the page of rules too, written from what it now holds.
   const page = text(dir, ".claude/rules/design-assembly.md");

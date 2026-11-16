@@ -1,0 +1,13 @@
+{
+  "id": "A1",
+  "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+  "question": "Khung ứng dụng: thanh điều hướng nằm trên đầu, tên ứng dụng bên trái",
+  "recommendation": "Giữ",
+  "basis": "Chủ repo bảo dựng khung ngày 2026-11-13, hình dáng khung là máy chọn (quyết định 0025). Đo trên màn thật: thanh đầu cao 45px, tấm hồ sơ bắt đầu đúng ở 45px và thanh đầu vẫn bấm được. Dễ đảo: chưa repo thật nào nhận khung này, mười lượt thử đều chạy trên bản sao của kho này (đề bài 0002).",
+  "hard_to_undo": false,
+  "where": "0025",
+  "if_refused": "Dựng lại khung",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

@@ -160,6 +160,14 @@ required: `nhom`, `doi_tuong`, `khuon` (with `ten`), `nhan_dien`, `mau_dang_chay
 `thanh_phan_tang_ngan`. No other key. The keys are in the kit's own language: they are its format,
 which this plugin reads and does not rename.
 
+## Not a ledger: the waiting list
+
+The questions that wait on the owner are not a ledger of the contract: they are not design
+decisions, the audit does not count them, and their shape is stated in `waiting.mjs`, not in
+`contract.mjs`. They are kept as one file per question, `design/waiting/<id>.json`, or in the older
+shared file `design/waiting-list.json`; never both. The gate reads them for two rows of the
+decisions ledger, `decision-sheet` and `owner-calls`, and `checks.md` says how.
+
 ## Not settled yet
 
 One ledger has no one shape yet:

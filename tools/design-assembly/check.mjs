@@ -69,6 +69,14 @@ import { lintProbes } from "./lint.mjs";
 import { probesFor, ruleOf } from "./probes.mjs";
 import { buildTheme, readBlock, renderBlock, withoutBlock } from "./theme.mjs";
 import { tokensProblem } from "./tokens.mjs";
+import {
+  branchFacts,
+  branchNotes,
+  sheetProblem,
+  taggedTests,
+  wallProblem,
+} from "./owner-calls.mjs";
+import { readWaiting } from "./waiting.mjs";
 
 export const FILES = {
   // What this tool needs to check its decisions: the stylesheet it reads, the inputs the decisions
@@ -685,6 +693,60 @@ const KINDS = {
       return { ...state, files: { ...state.files, [check.file]: text } };
     },
   },
+  // Every choice points at a row, and every judgment nobody confirmed waits on the decision sheet:
+  // a judgment this branch writes that no person answered and no question asks, source that goes
+  // around a decided scale, and a test that proves a decision the ledger has no row for, fail.
+  "decision-sheet": {
+    run(state, check) {
+      let blueprint;
+      try {
+        blueprint = JSON.parse(state.files?.[check.blueprint] ?? "null");
+      } catch {
+        return `${check.blueprint} is not valid JSON`;
+      }
+      return sheetProblem({
+        ledger: state.ledger,
+        branch: state.branch ?? null,
+        waiting: state.waiting,
+        blueprint,
+        sources: state.sources?.[check.sources] ?? {},
+        tagged: state.tagged ?? [],
+      });
+    },
+    notes: (state) => branchNotes(state.branch ?? null),
+    // The branch writes a judgment of its own, and nobody is asked.
+    change(state) {
+      const row = {
+        id: "changed-copy",
+        layer: "context",
+        kind: "judgment",
+        source: "a changed copy",
+      };
+      const branch = state.branch && !state.branch.problem ? state.branch : emptyBranch();
+      return {
+        ...state,
+        ledger: [...(state.ledger ?? []), row],
+        branch: { ...branch, judgments: [...branch.judgments, row.id] },
+      };
+    },
+  },
+  // The wall: a new kind of screen and the brand colour are the owner's calls. A branch that adds a
+  // page of a kind of screen, or changes the root colour line, fails until the waiting list holds
+  // the owner's answer that keeps that very item.
+  "owner-calls": {
+    run(state) {
+      return wallProblem({ branch: state.branch ?? null, waiting: state.waiting });
+    },
+    notes: (state) => branchNotes(state.branch ?? null),
+    // The branch adds a page of a kind of screen that nobody asked the owner about.
+    change(state) {
+      const branch = state.branch && !state.branch.problem ? state.branch : emptyBranch();
+      return {
+        ...state,
+        branch: { ...branch, pages_added: [...branch.pages_added, "changed-copy"] },
+      };
+    },
+  },
   gate: {
     run(state) {
       if (state.gate === null) return `${FILES.gate} is missing, so make check does not run this`;
@@ -707,6 +769,33 @@ const KINDS = {
 };
 
 const lintKey = (id, check) => `${id}:${check.rule}`;
+
+// A branch that adds nothing, for a changed copy to add to.
+const emptyBranch = () => ({
+  base: "changed-copy",
+  main: "changed-copy",
+  pages_added: [],
+  colour: { base: null, now: null },
+  judgments: [],
+});
+
+// The checks that read what a branch adds, and the waiting list.
+const BRANCH_KINDS = ["decision-sheet", "owner-calls"];
+
+// The waiting list as the gate reads it: its rows, or why it cannot be read.
+function waitingOf(root, rows) {
+  try {
+    return {
+      rows:
+        readWaiting(
+          root,
+          (rows ?? []).map((row) => String(row.id)),
+        )?.rows ?? [],
+    };
+  } catch (error) {
+    return { problem: error.message };
+  }
+}
 
 // The lint rules the ledger points at, for the probe about exceptions.
 const pointedRules = (rows) =>
@@ -913,6 +1002,19 @@ export function readState(root) {
     readModel(root, folder),
   ]);
   const rows = ledger === null ? null : parseLedger(ledger);
+  // What this branch adds, read once, for the checks that ask.
+  const asking = checks.filter((check) => BRANCH_KINDS.includes(check.kind));
+  const pagesOf = asking.find((check) => check.pages)?.pages ?? "design/patterns";
+  const branch =
+    asking.length === 0
+      ? null
+      : branchFacts(root, {
+          pages: pagesOf,
+          stylesheet,
+          ledger: FILES.ledger,
+          main: asking.find((check) => check.main)?.main ?? null,
+        });
+  const testsOf = asking.find((check) => check.tests)?.tests;
   return {
     root,
     theme: data,
@@ -940,6 +1042,9 @@ export function readState(root) {
       root,
       checks.filter((check) => check.kind === UNTRACKED).map((check) => check.file),
     ),
+    waiting: asking.length === 0 ? null : waitingOf(root, rows),
+    branch,
+    tagged: testsOf ? taggedTests(root, testsOf) : [],
   };
 }
 

@@ -52,6 +52,7 @@ import {
   starterParts,
 } from "../templates/tools/design-assembly/governance.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
+import { WAITING_FOLDER } from "../templates/tools/design-assembly/waiting.mjs";
 import {
   channelsProblem,
   CORE_STATES,
@@ -1005,8 +1006,42 @@ export function governancePlan(target, { starter, pending = {} }) {
       checks: [{ kind: "slips", file: SLIPS_FILE }],
     });
   }
+  // The decision sheet stands in for the head of design: every choice points at a row, every
+  // judgment nobody confirmed waits on the sheet, and a new kind of screen and the brand colour
+  // wait for the owner. Both are held whatever this run finds, so that a branch that would fail
+  // them later fails them: a wall that only stands when nothing pushes on it holds nothing.
+  held["decision-sheet"] = DECISION_SHEET;
+  held["owner-calls"] = OWNER_CALLS;
   return { files, held, failing };
 }
+
+// The two rows and their checks, as the guide and adopting write them.
+export const DECISION_SHEET = {
+  what: "every judgment this branch writes was answered by a person or is asked on the decision sheet, no source goes around a decided scale, and no test proves a decision without a row",
+  row: {
+    layer: "governance",
+    kind: "closed",
+    source:
+      "every choice points at a row, and every judgment nobody confirmed waits on the decision sheet",
+    check: TOOL,
+    note: "what this branch writes is read from git against the main branch; a person's answer is read from the note of a row, as the decision sheet writes it; the choices it reads are values, components, kinds of screen, states, words and column types, and free layout inside a screen is not read",
+  },
+  checks: [
+    { kind: "decision-sheet", sources: SOURCE_FOLDER, blueprint: BLUEPRINT, tests: "tests" },
+  ],
+};
+export const OWNER_CALLS = {
+  what: "a branch that adds a page of a kind of screen, or changes the root colour line, waits for the owner's answer that keeps that very item",
+  row: {
+    layer: "governance",
+    kind: "closed",
+    source:
+      "a new kind of screen and the brand colour wait for the owner's answer in the waiting list",
+    check: TOOL,
+    note: `a new page under ${KINDS_FOLDER}, and the root colour line of the stylesheet, against the main branch; enforcing it on the hosting service is not this tool's`,
+  },
+  checks: [{ kind: "owner-calls", pages: KINDS_FOLDER }],
+};
 
 // The page an agent reads before it touches a screen: the rules this tool holds in this
 // repository, and the command to run after each kind of change. Written from what is installed, so
@@ -1171,6 +1206,12 @@ export function rulesPage(checks, has) {
       "When you find a fault that every check let through, add a line to `design/escapes.md` before you fix it: the date, what slipped, the layer that should have caught it, and what was done.",
     (held("tier-direction") || held("escapes")) &&
       "A departure on purpose stays beside the rule it bends, with its reason: a lint exception, a screen excused from the states, a file left out of its kind.",
+  ]);
+  section("Questions only the owner answers", [
+    held("decision-sheet") &&
+      `A choice that \`design/decisions.yaml\`, the components and the pages of kinds do not settle is not yours to make alone. Ask it on the decision sheet, \`/design-assembly:decide --ask "QUESTION" --recommend TEXT --because TEXT --easy-to-undo\` (or \`--hard-to-undo\`; add \`--item decision:ID\` when it is about one row of the ledger), and go on with your recommendation: it writes one new file, \`${WAITING_FOLDER}/<id>.json\`, and touches nothing else. Never write an answer for the owner. A judgment you write into the ledger says in its note that a person has not confirmed it, or a question names it: the gate fails otherwise.`,
+    held("owner-calls") &&
+      `A new kind of screen and the brand colour are the owner's alone. Before you add a page of a new kind of screen, \`${KINDS_FOLDER}/<kind>.md\`, or change the \`--primary\` line of \`:root\`, ask with \`--item pattern:NAME\` or \`--item source-color:VALUE\`, and stop there: the gate fails on the branch until the owner keeps that very item.`,
   ]);
   section("No check holds these: a person reviews them", [
     has("ontology/glossary.md") &&

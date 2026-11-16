@@ -572,6 +572,20 @@
       "kind": "closed",
       "question": "Does every ledger have the one shape every tool that reads it relies on?",
       "sources": ["design-assembly"]
+    },
+    {
+      "id": "decision-sheet",
+      "layer": "governance",
+      "kind": "closed",
+      "question": "Does every choice point at a row of the ledger, and does every judgment nobody confirmed wait on the decision sheet?",
+      "sources": ["design-assembly"]
+    },
+    {
+      "id": "owner-calls",
+      "layer": "governance",
+      "kind": "closed",
+      "question": "Do a new kind of screen and a new brand colour wait for the owner's answer before they are built on?",
+      "sources": ["design-assembly"]
     }
   ]
 }

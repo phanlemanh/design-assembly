@@ -1,0 +1,12 @@
+{
+  "id": "C3",
+  "group": "C. Câu còn mở từ trước",
+  "question": "Ba tờ cuối của cuốn sổ bàn giao (kiểu màn, đường đi, trạng thái) chưa được xem",
+  "recommendation": "Xem một lượt ở giai đoạn 4, cùng lượt xem các mẫu tài liệu; chỉ mắt người chấm được",
+  "basis": "Sổ giới hạn ghi từ ngày 2026-11-12: cuốn sổ đẹp hay không chỉ người chấm được, và ba trên tám tờ chưa ai xem; trang bàn giao ghi chủ repo đã xem lát đầu và nói đạt. Từ ngày 2026-11-15 kế hoạch xếp việc «xem từng mẫu tài liệu một lần» vào giai đoạn 4, cùng lúc cuốn sổ thêm ví dụ nên và không nên. Dễ đảo: xem không đổi gì trong repo.",
+  "hard_to_undo": false,
+  "if_refused": "Ba tờ tiếp tục đi tới người nhận bàn giao mà chưa ai xem, và dòng giới hạn ấy ở lại",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

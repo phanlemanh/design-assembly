@@ -77,6 +77,11 @@ it.
 - When you find a fault that every check let through, add a line to `design/escapes.md` before you fix it: the date, what slipped, the layer that should have caught it, and what was done.
 - A departure on purpose stays beside the rule it bends, with its reason: a lint exception, a screen excused from the states, a file left out of its kind.
 
+## Questions only the owner answers
+
+- A choice that `design/decisions.yaml`, the components and the pages of kinds do not settle is not yours to make alone. Ask it on the decision sheet, `/design-assembly:decide --ask "QUESTION" --recommend TEXT --because TEXT --easy-to-undo` (or `--hard-to-undo`; add `--item decision:ID` when it is about one row of the ledger), and go on with your recommendation: it writes one new file, `design/waiting/<id>.json`, and touches nothing else. Never write an answer for the owner. A judgment you write into the ledger says in its note that a person has not confirmed it, or a question names it: the gate fails otherwise.
+- A new kind of screen and the brand colour are the owner's alone. Before you add a page of a new kind of screen, `design/patterns/<kind>.md`, or change the `--primary` line of `:root`, ask with `--item pattern:NAME` or `--item source-color:VALUE`, and stop there: the gate fails on the branch until the owner keeps that very item.
+
 ## No check holds these: a person reviews them
 
 - A screen that needs a concept or an action the data model does not name adds it to `ontology/` first, in the same change, and says in the change's description that the data model changed and a person reviews it before it merges. Only where the repository forbids an agent to change the data model does the agent stop and ask. It never names the concept in a screen alone.

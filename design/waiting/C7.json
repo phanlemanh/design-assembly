@@ -1,0 +1,12 @@
+{
+  "id": "C7",
+  "group": "C. Câu còn mở từ trước",
+  "question": "Bốn tiêu chí của đề bài 0002 nêu tên Inventory: giữ chữ, hay viết lại thành «một repo đã có»",
+  "recommendation": "Viết lại: tiêu chí đo plugin, không đo một repo",
+  "basis": "Kế hoạch chủ repo duyệt ngày 2026-11-15 xếp việc theo nhịp và mức phục vụ, và coi Inventory là một repo kiểm chứng (quyết định 0039, 0040). Bảng «mỗi giai đoạn đẩy tiêu chí nào» của đề bài 0002 đã tạm đọc bốn tiêu chí theo nghĩa rộng, và kế hoạch để câu này ở mục để dành, chờ lời đáp. Dễ đảo: chỉ là chữ của bốn tiêu chí trong một đề bài.",
+  "hard_to_undo": false,
+  "if_refused": "Giữ chữ thì tiêu chí 2 đến 5 tiếp tục đo riêng Inventory trong khi kế hoạch đã duyệt đo trên nhiều repo, và bảng đẩy tiêu chí phải đọc lại theo nghĩa hẹp",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

@@ -25,6 +25,7 @@ import { fileURLToPath } from "node:url";
 import { parseAnswers, report, sheet, WAITING_LIST } from "../scripts/decide.mjs";
 import { status } from "../scripts/status.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
+import { readWaiting, WAITING_FOLDER } from "../templates/tools/design-assembly/waiting.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ROOT = path.resolve(PLUGIN, "../..");
@@ -790,7 +791,7 @@ function pageRows(page) {
 }
 
 test("this repository's waiting list is data: 25 questions and 2 permissions, and an answer there names a person", () => {
-  const rows = data(ROOT, WAITING_LIST).rows;
+  const rows = readWaiting(ROOT).rows;
   const expected = [
     ...Array.from({ length: 13 }, (_, index) => `A${index + 1}`),
     ...Array.from({ length: 5 }, (_, index) => `B${index + 1}`),
@@ -809,11 +810,13 @@ test("this repository's waiting list is data: 25 questions and 2 permissions, an
   for (const item of result.questions) {
     assert.ok(String(item.recommendation ?? "").trim() !== "", `${item.id}: no recommendation`);
   }
-  // An answer in this file names a person and a date, and the page of the list points at the data.
+  // An answer in this list names a person and a date, and the page of the list points at the data.
   for (const row of rows.filter((item) => item.answer)) {
     assert.ok(row.by && /^\d{4}-\d{2}-\d{2}$/.test(row.on), `${row.id}: answered by nobody`);
   }
-  assert.ok(text(ROOT, PAGE).includes(WAITING_LIST));
+  // Kept as one file per question since step 8.3a of specification 0005.
+  assert.equal(readWaiting(ROOT).shape, "folder");
+  assert.ok(text(ROOT, PAGE).includes(WAITING_FOLDER));
 });
 
 test("no row of the page was lost when the list became data: every cell is in the data word for word", (t) => {
@@ -823,7 +826,7 @@ test("no row of the page was lost when the list became data: every cell is in th
   if (shown.status !== 0) return t.skip("the history that holds the page is not in this checkout");
   const page = pageRows(shown.stdout);
   assert.equal(page.length, 27);
-  const rows = data(ROOT, WAITING_LIST).rows;
+  const rows = readWaiting(ROOT).rows;
   assert.equal(rows.length, page.length);
   // Which fields hold the cells of a row, by the section of the page the row was in. The page's
   // recommendation is the third cell of a row of B or C; it is checked apart, below.
@@ -853,7 +856,7 @@ test("no row of the page was lost when the list became data: every cell is in th
 
 test("every question of this repository's waiting list is ready to be decided: a basis, what refusing costs, and whether it is hard to undo", () => {
   const result = sheet(ROOT);
-  const rows = data(ROOT, WAITING_LIST).rows.filter((row) => row.kind !== "permission");
+  const rows = readWaiting(ROOT).rows.filter((row) => row.kind !== "permission");
   assert.equal(rows.length, 25);
   for (const row of rows) {
     assert.ok(String(row.basis ?? "").trim().length > 40, `${row.id}: no basis`);

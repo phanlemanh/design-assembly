@@ -1,0 +1,6 @@
+{
+  "id": "D2",
+  "kind": "permission",
+  "group": "D. Việc chỉ chủ repo làm được",
+  "question": "Cho phép từng bước ở Inventory, delivery-loop và Repo Standards"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "A7",
+  "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+  "question": "Sổ token ghi màu bằng mã hex, giữ chữ oklch bên cạnh",
+  "recommendation": "Giữ",
+  "basis": "Đo ngày 2026-11-14 (quyết định 0029): cổng của kit nghiệm thu từ chối sổ token ghi màu dạng oklch, và mã hex viết thẳng là dạng duy nhất cả hai bộ đọc của kit cùng nhận. Khó đảo: sổ token của Inventory, đọc ngày 2026-11-15, ghi cả 40 màu bằng hex và đã khai với kit; đổi dạng là phải sinh lại sổ ở repo đã nhận.",
+  "hard_to_undo": true,
+  "where": "0029",
+  "if_refused": "Kit sẽ lại từ chối sổ token",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}
