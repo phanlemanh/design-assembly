@@ -1,333 +1,165 @@
 # Bàn giao phiên làm việc
 
-Viết lại ngày 2026-11-14, lúc chủ kho đổi tài khoản lần hai. Trang này đủ để một phiên Claude Code
-mới tiếp tục mà không cần bản ghi của phiên cũ. Phiên mới không thấy cuộc trò chuyện cũ, không có
-thư mục tạm của phiên cũ, và **không thừa hưởng quyền nào chủ kho đã cho bằng lời**.
+Viết lại ngày 2026-11-16, lúc chủ kho chuyển sang máy Mac Studio. Trang này đủ để một phiên Claude Code mới tiếp tục mà
+không cần bản ghi của phiên cũ. Phiên mới không thấy cuộc trò chuyện cũ, không có thư mục tạm và bộ nhớ của máy cũ, và
+**không thừa hưởng quyền nào chủ kho đã cho bằng lời**.
 
 ## Câu để dán vào phiên mới
 
 > Đọc `docs/HANDOFF.md` rồi tiếp tục từ mục «Việc kế». Trả lời bằng tiếng Việt.
 
+## Chuẩn bị máy mới
+
+Các kho đặt cạnh nhau dưới `~/dev/`, vì lệnh của kho này tìm kho bên cạnh theo đường tương đối (`mk/plugin.mk`).
+
+| Thư mục                             | Lấy từ                                       | Dùng để                                        |
+| ----------------------------------- | -------------------------------------------- | ---------------------------------------------- |
+| `~/dev/design-assembly`             | `phanlemanh/design-assembly` (riêng tư)      | Kho này                                        |
+| `~/dev/onehub-inventory`            | `phanlemanh/onehub-inventory`                | Repo kiểm chứng; mọi lệnh `*-reference` đọc nó |
+| `~/dev/delivery-loop`               | kho kit nghiệm thu, nhánh `chuyen-nha`       | Bậc M của kit; chỉ đọc                         |
+| `~/dev/acceptance-gate-kit-v2.38.0` | `phanlemanh/acceptance-gate-kit`, bản 2.38.0 | Marketplace thư mục của các plugin nghiệm thu  |
+| `~/dev/repo-standards`              | kho Repo Standards                           | Chỉ đọc                                        |
+
+Rồi:
+
+1. `make setup` trong kho này và trong `~/dev/onehub-inventory`. **Thiếu thư viện ở Inventory thì lệnh `upgrade` báo sai**
+   (sổ token mất 37 mục, cổng đỏ); xem «Bẫy đã gặp».
+2. Thêm marketplace `acceptance-gate-kit` từ thư mục `~/dev/acceptance-gate-kit-v2.38.0`, cài `acceptance-gate`,
+   `feature-loop`, `dieu-phoi`. Cài `superpowers` từ `claude-plugins-official`.
+3. Đặt ghi nhớ của chủ kho: ghi nhớ của máy cũ nằm ở `~/.claude/projects/-Users-manhphan-dev-design-assembly/memory/`,
+   không tự sang máy mới. Chép thư mục ấy sang, hoặc để phiên mới tự học lại từ trang này.
+4. Kiểm máy: `make check REFERENCE_LEDGER=$HOME/dev/onehub-inventory ACCEPTANCE_KIT=$HOME/dev/delivery-loop` phải xanh,
+   0 bài bỏ qua.
+
 ## Đọc theo thứ tự này
 
 1. Trang này.
 2. `AGENTS.md` và `CLAUDE.md` ở gốc kho: lệnh, luật, ngôn ngữ.
-3. `wiki/decisions/0032-review-after-stage-two-and-stage-three-recut.md`: bản review và việc cắt lại
-   chặng 3. Rồi `docs/trials/inventory-ladder.md`: thang bốn nấc và số đo của lát đầu.
-4. `make design-decide`: tờ trình 25 câu đang chờ chủ kho đáp (dữ liệu ở `design/waiting-list.json`).
-   Đừng tự coi câu nào là đã duyệt, và đừng tự viết lời đáp.
-5. `wiki/specs/0002-meta-layer-for-many-repositories.md`: tầm nhìn, bảy tiêu chí, kế hoạch.
-   Kiến trúc đầy đủ ở `docs/architecture/meta-layer.html` (chưa duyệt toàn bộ). Tài liệu đó gọi kho
-   mã là «repo» và nơi chứa thứ dùng lại là «kho»; trang viết trước 2026-11-13 còn dùng «kho» cho
-   repo.
-6. `plugins/design-assembly/references/contract.md`: hình dạng của từng sổ. Và
-   `references/limits.json`: mọi giới hạn đã biết. Đọc trước khi tin một dòng sổ nào là «máy giữ».
-7. Bản ghi quyết định `wiki/decisions/0024` đến `0032` cho các lát gần nhất; `0005` đến `0023` khi
-   cần biết vì sao một phần được dựng như vậy.
-
-Ghi nhớ của máy tự nạp nếu phiên mới chạy trên cùng máy, cùng người dùng hệ điều hành:
-`~/.claude/projects/-Users-manhphan-dev-design-assembly/memory/`. Trang này lặp lại mọi điều cần
-từ đó.
+3. `make plan`: kế hoạch chính thức (`docs/plan/plan.json`, quyết định 0040), giai đoạn đang mở, việc của nó và việc chờ
+   chủ kho.
+4. `docs/trials/upgrade-inventory.md`: lần lên đời Inventory, việc đang dở.
+5. `wiki/index.md` khi cần lý do của một quyết định.
 
 ## Kho này là gì
 
-Một plugin Claude Code (`plugins/design-assembly/`) dẫn người dùng tới một design system chuẩn hoá
-nằm ngay trong kho của họ, để Claude Code dựng màn mà không phải đoán. Ứng dụng React ở gốc kho là
-bản cài đặt đối chứng: plugin sinh gì thì hiện ở đó và được `make check` chấm.
+Một plugin Claude Code (`plugins/design-assembly/`, bản 0.1.0) dẫn người dùng tới một design system chuẩn hoá nằm ngay
+trong kho của họ, để Claude Code dựng màn mà không phải đoán. Ứng dụng React ở gốc kho là bản cài đặt đối chứng: plugin
+sinh gì thì hiện ở đó và được `make check` chấm.
 
-Năm đường của plugin:
+Bảy lệnh của plugin, chung một khế ước gọi (thoát 0 xong, 1 chờ người, 2 gọi sai; quyết định 0044) và một khung tài liệu
+(quyết định 0046):
 
-- **audit** (`scripts/inventory.mjs`): chỉ đọc. Đo kho theo danh mục quyết định chuẩn, nói bậc đã
-  tới, và in dòng `next:` chỉ skill kế tiếp.
-- **new** (`scripts/apply.mjs`): cuộc dẫn dắt. Sinh giá trị từ lựa chọn của người, cài lệnh kiểm.
-- **adopt** (`scripts/adopt.mjs`): nhận cái kho đã có, không đổi gì của kho.
-- **status** (`scripts/status.mjs`, từ 2026-11-15, quyết định 0041): chỉ đọc. Một màn hình: nấc đã
-  tới, mỗi nhịp một dòng, việc chờ chủ kho kèm khuyến nghị, bản công cụ có lệch plugin không, lệnh
-  nên chạy kế. Nó chỉ thấy việc chờ nằm trong sổ: các câu ở `design/waiting-list.json` nó không đếm.
-- **decide** (`scripts/decide.mjs`, từ 2026-11-15, quyết định 0043): một tờ gom mọi câu chờ chủ
-  kho, mỗi câu một khuyến nghị và căn cứ: dòng sổ chưa ai xác nhận, và hàng chờ dạng dữ liệu
-  `design/waiting-list.json`. Chỉ ghi khi có tệp lời đáp của người (`--answers`), kèm tên và ngày;
-  `--dry-run` in trước tệp sẽ ghi. Ở kho này: `make design-decide`, 25 câu chờ, chưa câu nào được đáp.
-- **upgrade** (`scripts/upgrade.mjs`, từ 2026-11-16, quyết định 0047): đưa công cụ của plugin đang
-  cài vào repo đã có bản sao. Luôn in trước tệp công cụ đổi, mục sổ máy sinh thêm/bớt/đổi, quyết định
-  đổi trạng thái và cổng sau khi lên đời; dừng, không ghi gì, khi mất mục hay cổng đỏ, trừ khi người
-  chấp nhận bằng cờ. Ghi dấu bản `design/tool-stamp.json`. Xem trước Inventory, chỉ đọc:
-  `make design-upgrade-reference`. Lên đời thật ở Inventory là mục 1.4, cần chủ kho cho phép. Số bản
-  plugin do cổng giữ: sửa `templates/` hay `scripts/` thì chạy `make plugin-version VERSION=x.y.z`.
+- **status**: một màn hình nấc đã tới, việc chờ, bản công cụ có lệch không, lệnh nên chạy kế.
+- **audit**: chỉ đọc, đo theo danh mục quyết định chuẩn.
+- **new**: cuộc dẫn dắt dựng hệ mới. **adopt**: nhận hệ đã có, không đổi gì của kho.
+- **decide**: tờ gom mọi câu chờ chủ kho (`design/waiting-list.json`), ghi lời đáp kèm tên và ngày.
+- **upgrade**: đưa công cụ của plugin vào repo đã có bản sao; in trước mọi thay đổi, dừng khi mất mục hay cổng đỏ; ghi
+  dấu bản `design/tool-stamp.json` (quyết định 0047).
+- **handoff**: cuốn sổ bàn giao design system.
 
-Nguyên tắc xuyên suốt: mỗi quyết định thiết kế là một dòng trong sổ `design/decisions.yaml`, trỏ
-tới thứ chứng minh nó. Lệnh kiểm của plugin đọc tệp thật và mỗi lần chạy đều tự chứng minh nó đỏ
-được trên một bản bị đổi.
+Số bản plugin do cổng giữ: sửa `templates/` hay `scripts/` thì chạy `make plugin-version VERSION=x.y.z`.
 
 ## Trạng thái lúc bàn giao
 
-- Nhánh `main`, cây làm việc sạch, mọi thứ đã commit. Kho có trên GitHub từ 2026-11-14, **riêng
-  tư**: `phanlemanh/design-assembly`, remote `origin`. Chủ kho bảo tạo và đẩy một lần («Tạo github
-  và push»). Cập nhật lần cuối 2026-11-14, sau quyết định 0034.
-- `make check` xanh: lint, typecheck, 102 bài kiểm của kho, ontology, lệnh kiểm design-assembly
-  (37 quyết định, 43 lệnh kiểm), bộ rào của sàn, 76 lượt kiểm trình duyệt, 276 bài kiểm của plugin (đường dẫn tới Inventory và kit phải tính được từ thư mục đang chạy, không thì vài bài bị bỏ qua).
-- Kho này đáp 39/39 quyết định lõi: 26 máy giữ, 7 tự khai, 6 đã ghi. 11 sổ đúng hình dạng hợp
-  đồng.
-- **Kế hoạch chính thức, chủ kho duyệt ngày 2026-11-15 (0040):** tám giai đoạn ở `docs/plan/plan.json`.
-  Chạy `make plan` để biết giai đoạn đang mở và từng mục; đừng tin câu nào trong trang này về tiến độ
-  hơn lệnh đó. Lý do và điều kiện «xong khi» ở mục Plan của
-  `wiki/specs/0002-meta-layer-for-many-repositories.md`; bộ mười ba lệnh ở
-  `wiki/specs/0004-the-command-set.md` (đã duyệt). Mỗi nhánh kết một commit bằng dòng `Plan: <mã mục>`,
-  hoặc `Plan: off-plan — <lý do>`; cổng kiểm giữ điều đó. Lộ trình năm chặng cũ còn ở tài liệu kiến
-  trúc, chưa sửa.
-- **Inventory chỉ bị đụng trên một nhánh riêng, đã đẩy và mở PR, chưa gộp:**
-  [phanlemanh/onehub-inventory#58](https://github.com/phanlemanh/onehub-inventory/pull/58). Chủ kho cho phép ngày 2026-11-14 làm
-  bước 1, 2, lát hai và bước 3 trên nhánh riêng. Tất cả đã commit ở nhánh `chore/adopt-design-assembly`, trong thư
-  mục làm việc `~/dev/onehub-inventory/.claude/worktrees/adopt-design-assembly`. Bản chính của
-  Inventory vẫn ở `main`. Phép đo vẫn chạy trên bản sao bỏ đi bằng `make design-ladder`.
-- Số đo chính hôm nay: số chỗ tác tử phải đoán khi dựng một màn là 12, 12, 13, 11 (đứng yên); luật
-  bị phạm có so với không có trang luật là 0 so với 3, 6, 3. Ở Inventory, trên bản sao: sổ đúng
-  hình dạng 2/4 lên 5/5, câu lõi máy giữ 0 lên 11, quyết định máy giữ 0 lên 18, kit từ M1 lên M2.
+- **Nhánh chính** ở GitHub: xem `git log origin/main`. Trang này vào nhánh chính cùng bản ghi lần lên đời và dòng giới
+  hạn mới.
+- **Giai đoạn 0** đóng ngày 2026-11-16, chứng cứ ghi trong `plan.json`.
+- **Giai đoạn 1** «Cài được, lên đời được»: 3 trên 4 mục xong. Mục **1.4** (repo kiểm chứng nhận hai bản sửa còn nợ bằng
+  `upgrade`) đang dở, xem dưới.
+- **Giai đoạn 2** «Đo độ rộng» được chạy song song, chưa bắt đầu: chờ chủ kho chỉ định hai repo.
+- **25 câu của hàng chờ** đã được chủ kho đáp «Giữ hết» ngày 2026-11-16; `make design-decide` báo không còn câu nào.
 
-## Đã dựng gì, theo thứ tự
+### Mục 1.4: lên đời Inventory, đang dở
 
-| Phần                                                           | Bản ghi | Tệp chính                                                                                          |
-| -------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------- |
-| Bậc deliverable, ranh giới với hai kho bên cạnh, audit         | 0005    | `references/tiers.json`, `scripts/inventory.mjs`                                                   |
-| Sổ chuẩn, bảy tầng, danh mục 66 quyết định (38 lõi)            | 0006    | `templates/tools/design-assembly/ledger.mjs`, `references/standard-decisions.json`                 |
-| Adopt: nhận giá trị kho đã có                                  | 0007    | `scripts/adopt.mjs`, `references/known-proofs.json`                                                |
-| Tệp design tokens sinh từ stylesheet                           | 0008    | `templates/tools/design-assembly/tokens.mjs`                                                       |
-| Sổ linh kiện sinh từ mã nguồn                                  | 0009    | `templates/tools/design-assembly/components.mjs`                                                   |
-| Chỉ dòng sổ mới là lời đáp; audit in bước kế                   | 0010    | `scripts/inventory.mjs`, `scripts/proofs.mjs`                                                      |
-| Cỡ vùng bấm đo từ mã nguồn                                     | 0011    | `components.mjs`                                                                                   |
-| Bảng dữ liệu: kiểu cột quyết định canh lề, bề rộng, mật độ     | 0012    | `templates/tools/design-assembly/columns.mjs`, `src/components/ui/typed-table.tsx`                 |
-| Trạng thái, chữ, câu báo lỗi                                   | 0013    | `templates/tools/design-assembly/patterns.mjs`                                                     |
-| Kênh thông báo, hoàn tác, bài kiểm gắn thẻ làm bằng chứng      | 0014    | `src/lib/notify.ts`, `scripts/proofs.mjs`                                                          |
-| Trang luật cho tác tử; dòng sổ chưa có lệnh kiểm               | 0015    | `.claude/rules/design-assembly.md`, cờ `--hold` của adopt                                          |
-| Skill bàn giao và cuốn sổ design system                        | 0020    | `scripts/book.mjs`, `scripts/stage.mjs`, `skills/handoff/`, `references/book.md`                   |
-| Bảng mẫu thị giác cho tầng foundations                         | 0019    | `scripts/specimen.mjs`, `references/source-colors.json`                                            |
-| Hướng nhập giữa các phần, sổ lỗi lọt                           | 0018    | `templates/tools/design-assembly/governance.mjs`, `design/parts.json`, `design/escapes.md`         |
-| Sau một thao tác: tiêu điểm, đổi tại chỗ, trống, đi lại        | 0017    | `src/example/ReferenceScreen.tsx`, `src/lib/slow.ts`, `templates/owned/templates.spec.ts.template` |
-| Sáu luật cho điều tác tử dựng màn phải đoán ở lần thử năm      | 0021    | `src/components/held-label.tsx`, `typed-table.tsx`, `design/parts.json`, `ontology/actions.yaml`   |
-| Kiểu màn, cỡ màn được kiểm, thao tác thất bại                  | 0016    | `templates/tools/design-assembly/screens.mjs`, `design/patterns/`, `src/lib/notify.ts`             |
-| Hợp đồng: mỗi sổ một hình dạng, cổng giữ hình dạng             | 0029    | `templates/tools/design-assembly/contract.mjs`, `references/contract.md`                           |
-| Một sổ màn, mã chỉ giữ cách tới từng trạng thái                | 0030    | `design/screens.yaml`, `templates/tools/design-assembly/screen-ledger.mjs`                         |
-| Năm bộ chuyển giữ tên thư viện                                 | 0031    | `templates/tools/design-assembly/adapters/`                                                        |
-| Bộ đọc linh kiện: thuộc tính, khuôn theo thư mục, mọi thư viện | 0034    | `templates/tools/design-assembly/components.mjs`, `adapters/shadcn.mjs`                            |
-| Chạy lại lint của repo trên đoạn mã phạm quyết định            | 0033    | `templates/tools/design-assembly/probes.mjs`, `lint.mjs`, `adapters/eslint.mjs`                    |
-| Sổ màn nói màn hiện gì, nút cho ai; cổng nối với mô hình       | 0037    | `templates/tools/design-assembly/screen-actions.mjs`, `make design-screen-actions-reference`       |
-
-Lệnh hay dùng ở kho này: `make design-status`, `make design-decide`, `make design-audit`, `make design-plan`, `make design-apply`,
-`make design-adopt`, `make design-adopt-reference` (xem trước trên kho đối chứng, không bao giờ
-ghi), `make design-tokens`, `make design-components`, `make design-columns`, `make plugin-test`.
-
-## Hướng chủ kho nêu ngày 2026-11-12
-
-«Tôi thích cách dẫn dắt như ở repo-standards. Ở repo này thị giác quan trọng hơn từ ngữ. Một
-chuyên gia cố vấn hàng đầu cần dẫn đi qua các hạng mục bằng thị giác nhưng phải thoả mãn sự tất
-định của Claude.» Máy đóng khung thành «chọn bằng mắt, giữ bằng máy» với bốn điều kiện (quyết
-định 0019). Lát đầu đã dựng: `make design-specimen` vẽ bảng mẫu cho màu gốc, thang chữ, bo góc.
-Nửa «sau khi quyết» cũng đã có lát đầu: skill `handoff` và `make design-book` vẽ cuốn sổ bàn giao
-(quyết định 0020), mượn ý từ skill Diagram Design. Lời tiếng Việt của cuốn sổ ở
-`design/book-words.json`.
-Cuốn sổ đã có tám tờ: bìa, màu, chữ và hình khối, linh kiện, kiểu màn, đường đi, trạng thái, và
-«không cho thấy gì». Chủ kho đã xem lát đầu và nói đạt; ba tờ sau chưa được chủ kho nhận xét.
-Các lát sau, mỗi lát duyệt riêng: xuất slide theo khổ; điểm dừng
-thị giác cho năm tầng còn lại và phòng trưng bày
-trạng thái; độ sâu «mang sẵn thiết kế tới»; phản biện độc lập bằng ảnh; tờ hướng dẫn để lại.
-Khuôn mẫu về nhịp dẫn dắt: `~/dev/repo-standards/plugins/repo-setup/skills/new/`.
+- PR [phanlemanh/onehub-inventory#72](https://github.com/phanlemanh/onehub-inventory/pull/72), nhánh
+  `chore/upgrade-design-assembly`.
+  - Hồ sơ `_acceptance/upgrade-design-assembly-tool/` của Inventory: chủ kho duyệt phạm vi, kế hoạch, và **đã ký Cổng
+    Bằng chứng** ngày 2026-11-16.
+  - Lượt chấm 1 ĐẠT.
+  - CI xanh trên đầu nhánh `d40007f`.
+- **Chưa gộp**, vì Inventory đang chạy một đợt điều phối riêng (`dieu-phoi-nen`, giám sát là phiên «G · Giám sát đợt
+  dieu-phoi-nen»). Giám sát xếp #72 gộp sau #65 (đã gộp) và #69 (dán từ Excel). Lần lên đời đi dưới tên dãy C của đợt.
+- **Đợt ấy chạy trên máy cũ**: bộ phát lịch, khoá chấm và phiên giám sát đều ở đó. Đổi máy thì có hai đường:
+  - đợt vẫn chạy ở máy cũ: chờ giám sát báo «hàng 5 đã gộp», rồi làm bốn bước dưới;
+  - đợt được bàn giao sang máy mới bằng `/dieu-phoi:ban-giao` ở máy cũ rồi `/dieu-phoi:tiep-tuc` ở máy mới: phiên mới
+    ghi danh lại dãy C từ worktree mới trước khi xin khoá.
+- Bốn bước khi tới lượt, trong worktree của nhánh ở Inventory:
+  1. gộp nhánh chính mới vào nhánh (luật gộp của đợt: sổ linh kiện lấy main rồi `make gen`; `_acceptance/config.yaml` giữ
+     cả hai; LO-TRINH và PRODUCT-MAP lấy main rồi sinh lại; `wiki/log.md` giữ cả hai);
+  2. xin khoá chấm của đợt, ghim lại bằng chứng bằng làn máy của kit: `repin-lane.mjs --root . --slug
+upgrade-design-assembly-tool --reason "gộp main" --write`; nhả khoá;
+  3. đẩy, chờ CI xanh;
+  4. xin khoá gộp, `dieu-phoi.mjs gop 72`, báo giám sát sha đã gộp.
+- Gộp xong thì ở kho này:
+  - đánh dấu 1.4 xong trong `plan.json`, ref là PR #72;
+  - xoá dòng «16 vs 18» ở `parked` (đã truy xong, xem bản ghi lần lên đời);
+  - đóng giai đoạn 1 nếu cả hai điều kiện «xong khi» chứng được bằng lệnh. Điều kiện hai: với Inventory ở nhánh chính,
+    `make design-status-reference` báo bản công cụ khớp bản plugin đang cài, và `make design-upgrade-reference` báo
+    không có gì để ghi.
 
 ## Việc kế
 
-**Đang chờ chủ kho trả lời:** 25 câu A, B, C ở `design/waiting-list.json`, in bằng
-`make design-decide`; C7 là chữ của bốn tiêu chí nêu tên Inventory. Chủ kho đáp một lần bằng tệp
-lời đáp (`make design-decide DECIDE_ARGS="--answers TỆP"`); máy không tự đáp câu nào.
+1. Hoàn tất mục 1.4 như trên.
+2. Giai đoạn 2: chờ chủ kho chỉ định hai repo để rà soát chỉ đọc (một repo web ngoài họ, một repo cùng họ khác Inventory).
+3. Dòng giới hạn mới cần sửa ở plugin: `upgrade-blames-ledger-for-missing-dependencies`. Lỗi «nhận không ghi gì khi repo
+   không có Makefile» (`adopt-without-makefile-writes-nothing`) đã để dành, sửa khi giai đoạn 2 gặp loại repo ấy.
 
-Chủ kho đã đáp ba câu của Inventory ngày 2026-11-14: ứng dụng, mức AA, giữ màu thương hiệu
-`#0246ff`. Quyền đã cho ngày đó, bằng lời, trong một phiên: bước 1 và 2 trên nhánh riêng của
-Inventory, không đẩy; rồi chạy lại «nhận» ở đó với plugin của lát hai; rồi bước 3. Tất cả đã xong. Phiên mới **hỏi lại** trước khi đụng vào Inventory, vì quyền
-bằng lời không theo sang phiên khác. Chủ kho bảo đẩy nhánh và mở PR («Đẩy và mở PR»); việc gộp là của
-chủ kho, người giữ mã ký theo luật tự chủ của Inventory.
+## Quyền và cổng
 
-**Kế tiếp:** chạy `make plan`. Giai đoạn đang mở và mục kế tiếp nằm ở đó, không nằm ở trang này.
-
-**Thứ tự cũ của chặng 3, giữ làm lịch sử** (0032 và `docs/trials/inventory-ladder.md`):
-
-1. Bước 1 và 2 đã xong trên nhánh riêng của Inventory. Gộp nhánh đó là việc của chủ kho: nó đụng
-   vùng Inventory xếp vào loại phải có người giữ mã ký.
-2. Lát hai đã xong (0033, mục 5 thay bởi 0035) cho phần lint, cả trên nhánh riêng của Inventory (chủ kho cho phép
-   2026-11-14). Còn lại: bài kiểm và công cụ của repo chưa được chạy lại; hướng nhập chưa có đoạn
-   mã phạm.
-3. Lát ba đã xong (0034), và bước 3 của lát đầu đã làm trên nhánh riêng của Inventory (chủ kho cho
-   phép 2026-11-14): plugin ghi sổ linh kiện ở đó, công cụ cũ bị bỏ, hai sổ khai với kit. Nhánh có
-   đã đẩy, hai lần gộp main để gỡ xung đột. Hai dòng khai với kit tách sang PR nháp
-   [phanlemanh/onehub-inventory#59](https://github.com/phanlemanh/onehub-inventory/pull/59), đặt nền
-   trên nhánh của #58; bậc M2 chờ #59. **Cổng trước khi gộp của kit vẫn đỏ ở #58**: mọi PR đổi đường
-   dẫn T3 phải kèm hồ sơ `_acceptance/<slug>/` có chữ ký người. Việc tách không gỡ được cổng; máy đã
-   đoán sai lý do, và đã ghi lại. Chủ kho cho dựng hồ sơ: `_acceptance/adopt-design-assembly/` trên
-   nhánh của #58, chạy theo vòng `/feature-loop:feature-loop adopt-design-assembly`. Cổng Phạm vi và
-   Cổng 1.5 đã duyệt (2026-11-14); S3 xong; lượt chấm 1 trả REJECT vì lệnh kiểm lint tính «giữ» khi
-   luật khác chặn thay luật dòng sổ nêu tên. Chủ kho chọn siết (2026-11-15, «Siết, sửa AC-2»): plugin
-   sửa ([0035](../wiki/decisions/0035-the-named-rule-holds-the-row.md)), «khoảng cách» của Inventory
-   về lại «tự khai», AC-2 thành 17 quyết định và tám luật, thêm phép đo tắt riêng luật nêu tên.
-   Chủ kho duyệt lại Cổng Phạm vi và Cổng 1.5; lượt chấm 2 đạt mọi phép kiểm máy; **chủ kho đã ký Cổng
-   Bằng chứng ngày 2026-11-15**, lưới trước khi gộp của kit sạch. 13 mục ngoài hợp đồng ghi vào hạn chế
-   đã biết, 2 chấp nhận không sửa, 1 mở hợp đồng mới (sổ linh kiện ghi trùng linh kiện xuất lại qua tệp
-   gom, sửa ở plugin). Main gộp lần ba vào nhánh (quyết định của nhánh đổi số thành 0034 vì main đã có
-   0032), hồ sơ ghim lại trên cây đã gộp, CI xanh; **chủ kho cho gộp, #58 đã gộp ngày 2026-11-15**
-   (commit gộp `2715cf4`). Còn: #59 phải đặt lại nền lên main; bản sửa ghi trùng nằm ở nhánh
-   `claude/quizzical-moser-3a6146` của kho này, chưa gộp, chưa đẩy.
-   **Tên tệp ở Inventory là tiếng Anh** theo AGENTS.md của nó, dù phần lớn tên có sẵn ở đó là tiếng
-   Việt; chủ kho chỉ ra ngày 2026-11-14 và mọi tên của vòng này đã đổi sang tiếng Anh.
-4. Sau cùng: bộ chuyển Next.js cho bảng mẫu và cuốn sổ; sổ nguồn ngoài và sổ nhập kho.
-
-**Đừng làm, trừ khi chủ kho bảo:** thêm luật bằng lời ở kho này; chạy thêm lượt thử bằng tác tử
-(tốn token); sửa 55 giới hạn «sẽ sửa» ngoài những dòng Inventory đụng tới.
-
-Các lát đã xong, mới nhất trước:
-
-- **Sổ màn nối mô hình nghiệp vụ** (2026-11-15, đề bài 0003, quyết định 0037), phần của repo này
-  trong bảng vai × màn × nút theo ranh giới ba kho. Sổ màn khai màn hiện gì, mở bằng thao tác nào,
-  có nút nào; cổng đỏ khi thao tác không màn nào chào ra cho vai được làm, màn hiện thứ vai không được
-  xem, hay nút không ai bấm được. Ở nhánh `claude/so-man-noi-mo-hinh-95de70`, chưa đẩy. Hai màn mẫu
-  đã khai; mô hình thêm hành động xem `listItems`, chủ kho duyệt riêng. Inventory, chỉ đọc: 7 đỏ nguyên trạng, 17 với lớp phủ
-  «màn hiện gì» của máy.
-
-- **Chặng 3, lát ba** (2026-11-14, 0034). Sổ linh kiện ghi thuộc tính, khuôn theo thư mục, mọi thư
-  viện; bộ đọc bỏ qua chú thích. Trên bản sao Inventory: thuộc tính giống 268/270.
-- **Chặng 3, lát hai** (2026-11-14, 0033). Plugin chạy lại lint của chính repo trên đoạn mã phạm
-  từng quyết định, trong cổng; bộ chuyển thứ sáu giữ tên công cụ lint. Inventory, bản sao: câu lõi
-  máy giữ 2 lên 11.
-- **Chặng 3, lát đầu, bước 1 và 2 trên nhánh riêng của Inventory** (2026-11-14). Chủ kho đáp ba
-  câu: ứng dụng, AA, giữ màu thương hiệu đang dùng.
-- **Review sau chặng 2 và lát đầu của chặng 3 trên bản sao** (2026-11-14, 0032). Plugin đọc được
-  màu pha trong oklch, audit đếm sổ đúng hình dạng, «nhận» giữ hình dạng sổ.
-- **Chặng 2 «Hợp đồng»** (2026-11-14, 0029 đến 0031). Hình dạng 11 sổ viết một chỗ và cổng giữ
-  chúng; sổ mang số phiên bản; sổ token ghi màu bằng hex vì cổng của kit từng từ chối tệp; sổ linh
-  kiện thêm cấp, nguồn, các phần; một sổ màn `design/screens.yaml` (thêm màn thì ghi ở cả sổ lẫn
-  mã); năm bộ chuyển giữ tên thư viện.
-- **Dọn nền 2** (2026-11-13, 0028) và bốn lượt nhánh đối chứng (`docs/trials/control-arm.md`).
-- **Chín lần chạy thử** bằng tác tử độc lập: số ở `docs/trials/results.tsv`, lời ở cuối spec 0001.
-
-Việc cũ còn treo, chưa việc nào được duyệt: đo token theo giao thức của Repo Standards (tốn tiền
-API); lệnh kiểm tương phản cho nút khi rê chuột; adopt nhận trang kiểu màn ở kho đã có.
+- **Lời chủ kho ngày 2026-11-15, nguyên văn:** «Để bảo hiệu quả khi thực hiện dự án, bạn giữ toàn quyền điều phối các phiên
+  mở ra và sắp xếp giải quyêt các vấn đề phát sinh, bạn toàn quyền sắp xếp gộp và gộp. Bạn cũng giữ quyền thêm lượt để
+  đạt được hiệu quả cao nhất. Tôi chỉ xuất hiện ở các cổng.»
+  - Phiên mới hỏi lại một chạm trước lần gộp đầu tiên của mình, vì quyền bằng lời không theo sang phiên mới.
+- **«Cổng»** — cách máy hiểu, chủ kho chưa sửa:
+  - việc của kế hoạch ghi «needs the owner»;
+  - hàng chờ;
+  - thay đổi `ontology/`;
+  - mọi thay đổi ở Inventory (nhánh riêng, hồ sơ có chữ ký);
+  - việc ngoài kế hoạch làm chậm một mục;
+  - việc khó đảo.
+- **Inventory:** cho phép theo từng bước. Lên đời bằng `upgrade` đã được cho phép ngày 2026-11-16. Gộp đi qua khe của
+  đợt Inventory; chủ kho dặn đợt ấy «báo trước khi gộp PR ngoài đợt», nên luôn báo giám sát trước.
+- **`delivery-loop` và `repo-standards`:** chỉ đọc, không bao giờ sửa hay đẩy.
 
 ## Cách chủ kho muốn làm việc
 
-Đây là yêu cầu đã lặp lại nhiều lần, không phải gợi ý.
-
-- Trả lời **tiếng Việt**, bằng **tiếng sản phẩm**: bỏ hết tên tệp, tên hàm đi thì câu vẫn phải có
-  nghĩa.
-- Nhịp: **phân tích, đánh giá, hoàn thiện, đề xuất**. Chạy hết rồi mới hỏi.
-- Kết bài **tối đa một quyết định**, trả lời được bằng một chạm. Một khuyến nghị kèm căn cứ, không
-  bày menu. Không có gì cần người thì nói thẳng rồi dừng.
-- Việc đảo được và máy chắc thì **làm, báo sau**. Chỉ việc phán xét, trách nhiệm hay khó đảo mới
-  hỏi trước.
-- Máy không phát ngôn hộ quyết định: không tự đặt «đã duyệt», không viết sẵn verdict. Điều gì máy
-  đề xuất thay người thì ghi rõ là đề xuất.
-- Báo cáo trung thực: không gọi «máy giữ» cho thứ mới «tự khai»; nêu giới hạn; khi một điều đã nói
-  hoá ra sai thì nói lại thẳng ở lượt sau.
-- Commit khi xong một việc đã được duyệt («làm tiếp» là đủ). Commit theo Conventional Commits,
-  tiếng Anh.
+- Trả lời **tiếng Việt**, bằng **tiếng sản phẩm**: bỏ hết tên tệp, tên hàm đi thì câu vẫn phải có nghĩa.
+- Nhịp **phân tích, đánh giá, hoàn thiện, đề xuất**. Chạy hết rồi mới hỏi.
+- Kết bài **tối đa một quyết định**, trả lời một chạm. Một khuyến nghị kèm căn cứ, không bày menu.
+- Việc đảo được và máy chắc thì **làm, báo sau**. Chỉ việc phán xét, trách nhiệm hay khó đảo mới hỏi trước.
+- Máy không phát ngôn hộ quyết định: không viết sẵn lời đáp, verdict hay chữ ký.
+- Báo cáo trung thực: không gọi «máy giữ» cho thứ mới «tự khai»; điều đã nói hoá ra sai thì nói lại ở lượt sau.
+- Mỗi nhánh có một commit mang `Plan: <mục>` hoặc `Plan: off-plan — <lý do>`; việc ngoài kế hoạch nêu một dòng nó thuộc
+  giai đoạn nào và làm chậm mục nào.
 
 ## Ràng buộc cứng
 
-- **Đẩy lên GitHub chỉ khi chủ kho bảo.** Kho này đã có remote riêng tư từ 2026-11-14 vì chủ kho
-  bảo tạo và đẩy lần đó. Lần đẩy sau vẫn cần chủ kho bảo. Không đổi kho sang công khai, không tạo
-  kho nào khác; ba kho bên cạnh không bao giờ được đẩy từ đây.
-- **Không sửa ba kho bên cạnh**: `~/dev/repo-standards`, `~/dev/delivery-loop` (kit nghiệm thu,
-  nhánh `chuyen-nha`), `~/dev/onehub-inventory` (kho đối chứng). Chỉ đọc, hoặc xem trước không ghi.
-  Muốn thử trên chúng thì clone vào thư mục tạm.
-- **Thư mục `plugins/` chỉ viết tiếng Anh, không nêu tên sản phẩm hay kho của chủ kho.** Tên kho
-  thật chỉ nằm ở `mk/plugin.mk`. Từ dùng với người lấy từ `references/vocabulary.json`; bài kiểm
-  `tests/plugin-vocabulary.test.ts` bắt từ bị cấm (ví dụ «catalogue», «seed»).
-- **Không sửa năm tệp của Repo Standards**: khối lint của sàn, `tools/design_guards.mjs`,
-  `tests/e2e/floor.spec.ts`, `mk/design.mk`, `.claude/rules/ui.md`.
-- **Thay đổi mô hình dữ liệu (`ontology/`) cần người duyệt**, và làm qua skill `/ontology-add`.
-- **Cài gói mới phải hỏi trước.** Lần trước chủ kho duyệt đúng một gói (`sonner`).
-- `make check` phải xanh trước khi nói xong việc; sau mỗi việc thêm một dòng vào `wiki/log.md`, và
-  lựa chọn kỹ thuật đáng kể thì thêm bản ghi quyết định.
-
-## Điều còn mở
-
-Cần chủ kho quyết: mọi câu đã gom vào `design/waiting-list.json`, 25 câu, in bằng
-`make design-decide`, mỗi câu trả lời bằng một chạm. Hình dạng sổ linh kiện đã được phân xử (0023 câu 1, dựng ở 0029). Riêng ở kho đối chứng: bảy
-dòng sổ đã có bài kiểm mà dòng chưa trỏ tới; `adopt --hold` gắn được, làm hay không là việc của
-chủ kho ở kho đó.
-
-Cần Repo Standards:
-
-- Luật «tên lớp viết nguyên» của sàn chỉ đọc tên lớp đặt trên linh kiện: tên lớp ghép trên thẻ
-  thường lọt qua (0033). Dòng sổ đó ở kho này vẫn là «tự khai».
-- Ba bài kiểm trình duyệt của sàn (một vùng chính, không cuộn ngang, accessibility) không mang thẻ
-  `decision:<id>`. Sổ giờ trỏ tới bài kiểm của plugin thay cho chúng, nên ở kho này accessibility
-  được kiểm hai lần. Khi sàn gắn thẻ thì bỏ được một bên.
-- Trang luật giao diện của sàn ghi «đừng ép bề rộng cột», trái với luật bề rộng tối thiểu đã duyệt.
-- Một hành vi mới vào mô hình dữ liệu ra sao; kiểu dữ liệu của màn có phải lấy từ mã sinh ra không.
-
-Giới hạn đã biết của plugin (chi tiết ở từng bản ghi):
-
-- Các sửa đổi sau lần chạy thử thứ năm **chưa được tác tử độc lập thử lại**.
-- Nhiều dòng «máy giữ» chỉ giữ phần đọc được từ mã nguồn; dòng sổ có ghi chú nói phần nào.
-- Tương phản mới kiểm hai cặp của màu chính. Màu viết dạng pha trộn không đọc được.
-- Luật thao tác thất bại không đọc được từ mã nguồn: giữ bằng bài kiểm của kho, mức «tự khai».
-- Tương phản của nút khi rê chuột không được lệnh kiểm đo. Số hiện ra không qua bộ định dạng thì
-  không ai bắt.
-- Chưa có token cho phông chữ, khoảng cách, đổ bóng, chuyển động. Chưa có băng báo sự cố.
-- Kho này chưa khai gì với kit nghiệm thu, nên bậc M của kit chưa đổi.
-
-## Cách chạy thử bằng tác tử độc lập
-
-Từ lần bảy, bộ đề và chuỗi số nằm ở `docs/trials/`; trang này giữ các bẫy đã gặp. Đọc
-`docs/trials/README.md` trước khi dựng bản sao.
-
-Đã làm năm lần, lần nào cũng tìm ra lỗi mà bài kiểm trên kho giả không thấy. Tốn token, nên hỏi chủ
-kho trước.
-
-- Bản sao đặt ở thư mục tạm của phiên. Kho trước khi có plugin: clone kho này rồi checkout
-  `e56e77c`, nối `node_modules` bằng liên kết. Kho đối chứng: clone, rồi chỉ chép riêng tệp
-  `node_modules/tailwindcss/theme.css`; **không** nối `node_modules` của kho đó.
-- Ba vai: đi trọn cuộc dẫn dắt; adopt trên kho đã có hệ riêng; và **dựng màn** trên bản sao kho
-  hiện tại, không cho đọc `plugins/` và `wiki/decisions/`. Vai thứ ba đo đúng mục đích của plugin.
-- Câu trả lời của người để trong tệp niêm phong, **mỗi câu một tệp**, chỉ mở khi skill bảo hỏi.
-- Không sửa plugin trong lúc tác tử còn đọc nó. Hai lượt kiểm trình duyệt dùng chung cổng 4173:
-  lần bốn cho mỗi tác tử một câu lệnh giữ khoá bằng thư mục (`mkdir` trước, `rmdir` sau) quanh
-  `make check`, và ba tác tử chạy song song không vướng nhau.
-- Bản sao dùng cho vai dựng màn thì xoá trang bàn giao này đi, và cấm đọc cả `wiki/specs/`.
-- Lần năm: câu trả lời niêm phong viết bằng lời của người («xanh lục», «bản đậm hơn»), không
-  bằng chữ cái, để thử việc đổi lời thành giá trị trên bảng mẫu. Cho tác tử tự mở từng ảnh.
-- Ở kho này `src/lib/notify.ts` phải giống hệt bản mẫu trong plugin; tác tử dựng màn không biết
-  điều đó và bị bài kiểm của plugin đánh đỏ. Dặn trước trong đề bài.
-- Tác tử báo về là báo cáo, chưa phải bằng chứng: tự kiểm lại trước khi sửa.
+- **Thư mục `plugins/` chỉ viết tiếng Anh, không nêu tên sản phẩm hay kho của chủ kho.** Tên kho thật chỉ nằm ở
+  `mk/plugin.mk`.
+- **Không sửa năm tệp của Repo Standards**: khối lint của sàn, `tools/design_guards.mjs`, `tests/e2e/floor.spec.ts`,
+  `mk/design.mk`, `.claude/rules/ui.md`.
+- **Thay đổi `ontology/` cần người duyệt**, làm qua skill `/ontology-add`. **Cài gói mới phải hỏi trước.**
+- `make check` xanh trước khi nói xong; mỗi việc một dòng `wiki/log.md`; lựa chọn đáng kể thì một bản ghi quyết định.
+- Gộp PR: kiểm `git rev-list --count origin/main..main` bằng 0 trước, rồi
+  `gh pr merge <n> --merge --match-head-commit <sha đủ 40 ký tự>`.
 
 ## Bẫy đã gặp
 
-- `.claude/settings.json` của kho chỉ cho sẵn `make`, vài lệnh `git` đọc, và `python3 tools/`.
-  Lệnh shell khác đi qua bộ phân loại; `rm -rf` bị từ chối. Sửa tệp bằng công cụ Edit/Write.
-- `make check` xem thử ở một cổng lấy từ thư mục của bản làm việc (từ 4173 trở lên), nên hai bản làm
-  việc chạy cổng kiểm cùng lúc không tranh nhau. `UI_FLOOR_PORT` đặt cổng bằng tay.
-- Sau `make format`, chạy lại `make design-apply` để bản công cụ trong kho (`tools/design-assembly/`)
-  khớp bản mẫu trong plugin. Bốn tệp mẫu «của kho» ở `plugins/design-assembly/templates/owned/`
-  phải giống hệt bản đang chạy ở kho này; có bài kiểm giữ điều đó, nên sửa bản ở `src/` hoặc
-  `tests/` rồi chép sang.
-- **Luôn áp vào kho này rồi chạy cổng trước khi commit**: hai lỗi trong ngày 12/11 chỉ lộ ra ở
-  bước đó.
-- Mật độ bảng đo bằng ResizeObserver, thứ không chạy khi khung trình duyệt không vẽ khung hình.
-  Khi xem thử, chụp màn hình trước rồi mới đọc mật độ. Cấu hình xem thử ở `.claude/launch.json`
-  (máy chủ `dev`, cổng 5179).
-- Tệp JSON do lệnh ghi phải đúng kiểu bộ định dạng của kho để lại; dùng `renderJson` trong
-  `templates/tools/design-assembly/json.mjs`, đừng dùng `JSON.stringify` thẳng cho tệp có mảng.
-- Kho đối chứng đổi trong lúc mình làm. Đừng dựa vào con số đã đọc từ nó ở lượt trước.
-- Thư viện toast gỡ một toast ở khung hình kế tiếp. Bài kiểm dùng đồng hồ giả phải giả cả khung
-  hình, và phải tua hai nhịp: một nhịp để toast được đánh dấu rời đi, một nhịp để nó biến mất.
-- Một khối rỗng không có chiều cao thì không làm trang cuộn ngang. Muốn thử cho bài kiểm cuộn
-  ngang đỏ thì khối phải có chiều cao.
-- Bộ đọc trang tài liệu không đọc được trang dựng bằng script (Material Design). Mở bằng trình
-  duyệt trong ứng dụng thì đọc được.
-- **Thư mục tạm của phiên mất theo phiên.** Lần mất gần nhất làm mất bản sao của lần thử tám. Thứ
-  gì cần đo lại thì phải là một lệnh trong kho, như `make design-ladder`; đừng để kết quả chỉ nằm
-  ở thư mục tạm.
-- Lệnh `rm -rf` bị từ chối trong phiên. Tạo thư mục mới thay vì xoá, hoặc xoá bằng kịch bản node.
-- Sau `make format`, tệp trong kho có thể khác bản mẫu của plugin: chạy `make design-apply` rồi mới
-  `make check`.
-- Đổi hình dạng một sổ hay một lệnh kiểm thì nhiều bài kiểm cũ của plugin đỏ theo, vì chúng khẳng
-  định hành vi cũ. Đọc từng bài: phân biệt kỳ vọng cũ với lỗi thật trước khi sửa bài kiểm.
-- Kit nghiệm thu có hai bộ đọc token mâu thuẫn nhau: cổng đòi mã hex trong giá trị, bộ đo độ phủ
-  không nhận giá trị dạng đối tượng. Chỉ mã hex viết thẳng qua được cả hai.
-- Trình duyệt cắt từng kênh màu khi màu ra ngoài dải hiển thị được; đừng giảm độ rực khi tính mã
-  hex, nếu không số sẽ lệch với thứ người dùng thấy.
+- **Thiếu thư viện thì `upgrade` và lệnh kiểm đọc sai stylesheet.** Stylesheet của Inventory nhập bảng màu của Tailwind
+  từ thư mục thư viện. Worktree mới phải `make setup` trước khi xem trước.
+- **Heredoc không nháy chạy dấu nháy ngược như lệnh.** Ghi sổ quyết định bằng `<<'JSON'` (có nháy), không `<<JSON`.
+- **Ở Inventory, mọi lệnh chấm cần khoá của đợt**, kể cả làn trước chữ ký chỉ bỏ qua. Xin bằng `dieu-phoi.mjs xin s4`,
+  chạy việc dài qua `giu-nhip.mjs` để khoá không bị thu hồi; nhường khi giám sát xếp lại.
+- **Bộ dò khoá bí mật của Inventory báo nhầm mã băm** trong tệp tham số lượt chấm (`s4-args.json`). Tệp ấy không commit.
+- **Công cụ Workflow không đọc tham số từ tệp.** Truyền tham số lượt chấm thẳng, bỏ hai trường ảnh chụp băm
+  (`thuocChup`, `cayChup`): lượt chấm không đọc chúng, bước sau lượt đọc chúng từ tệp trên đĩa.
+- **Commit ở Inventory** đi qua kiểm thông điệp commit kiểu Conventional Commits, bộ định dạng và bộ dò khoá bí mật.
+- `.claude/settings.json` của kho này: `rm -rf`, đẩy ép, `git reset --hard`, đẩy thẳng `main` bị từ chối. Tạo thư mục mới
+  thay vì xoá.
+- `make check` xem thử ở một cổng suy từ thư mục của bản làm việc, nên nhiều bản làm việc chạy cùng lúc không tranh nhau.
+- **Thư mục tạm của phiên mất theo phiên.** Thứ cần đo lại phải là một lệnh trong kho, như `make design-ladder`.
+- Sau `make format`, chạy `make design-apply` rồi mới `make check`, để bản công cụ trong kho khớp bản mẫu của plugin.
+- Kho đối chứng đổi trong lúc mình làm. Đừng dựa vào con số đọc từ nó ở lượt trước.
+- Đổi hình dạng một sổ hay một lệnh kiểm thì bài kiểm cũ của plugin đỏ theo. Phân biệt kỳ vọng cũ với lỗi thật trước khi
+  sửa bài kiểm.
+- Tác tử báo về là báo cáo, chưa phải bằng chứng: tự kiểm lại trước khi sửa hay gộp.
