@@ -9,7 +9,9 @@
   "sources": [
     "wiki/specs/0002-meta-layer-for-many-repositories.md",
     "wiki/specs/0004-the-command-set.md",
-    "wiki/decisions/0040-the-plan-of-record-and-how-it-is-kept.md"
+    "wiki/decisions/0040-the-plan-of-record-and-how-it-is-kept.md",
+    "wiki/specs/0005-ledgers-stop-riding-pull-requests.md",
+    "wiki/decisions/0048-a-ninth-stage-ledgers-stop-riding-pull-requests.md"
   ],
   "stages": [
     {
@@ -79,7 +81,7 @@
       "id": 1,
       "name": "Cài được, lên đời được",
       "state": "current",
-      "parallel": [2],
+      "parallel": [2, 8],
       "items": [
         {
           "id": "1.1",
@@ -116,7 +118,7 @@
       "id": 2,
       "name": "Đo độ rộng",
       "state": "next",
-      "parallel": [1],
+      "parallel": [1, 8],
       "items": [
         {
           "id": "2.1",
@@ -297,6 +299,55 @@
       ],
       "done_when": ["Repo thứ hai không bị hỏi lại câu đã trả lời, và dùng lại ít nhất một khối"],
       "needs_owner": ["Tạo repo cho lõi"]
+    },
+    {
+      "id": 8,
+      "name": "Gỡ va chạm cho ba kho",
+      "state": "next",
+      "parallel": [1, 2],
+      "added": {
+        "by": "Manh Phan",
+        "on": "2026-11-16",
+        "words": "Duyệt kế hoạch"
+      },
+      "items": [
+        {
+          "id": "8.0",
+          "what": "Đề bài chi tiết cho cả giai đoạn, chờ chủ repo duyệt",
+          "state": "doing",
+          "ref": "wiki/specs/0005-ledgers-stop-riding-pull-requests.md"
+        },
+        {
+          "id": "8.1",
+          "what": "Sổ thôi đi theo PR: vật dẫn xuất thôi commit, sổ ghi tay tách mỗi mục một mảnh",
+          "state": "todo"
+        },
+        {
+          "id": "8.2",
+          "what": "Lệnh nói tệp đổi ảnh hưởng màn nào, bài trình duyệt nào, ở khổ màn nào",
+          "state": "todo"
+        },
+        {
+          "id": "8.3",
+          "what": "Sổ quyết định đứng thay trưởng thiết kế: hàng chờ theo mảnh, phép so tổng, tường cho khuôn mới và màu thương hiệu",
+          "state": "todo"
+        },
+        {
+          "id": "8.4",
+          "what": "Repo kiểm chứng nhận 8.1 đến 8.3 bằng upgrade",
+          "state": "todo"
+        }
+      ],
+      "done_when": [
+        "Trên repo kiểm chứng, số PR chạm sổ linh kiện và bảng vai × màn × nút về 0, và mỗi PR chỉ chạm mảnh sổ của chính nó",
+        "Lệnh bản đồ màn chọn đúng màn bị ảnh hưởng trên ứng dụng mẫu và trên repo kiểm chứng, và trả trọn bộ khi không lần được",
+        "Một lượt dựng màn không hỏi chủ repo giữa chừng: câu mới nằm ở hàng chờ, khuôn mới và màu thương hiệu bị chặn tới khi có lời đáp"
+      ],
+      "needs_owner": [
+        "Duyệt đề bài 0005",
+        "Quyết tên tiếng Anh cho hai sổ đang mang tên tiếng Việt ở repo kiểm chứng",
+        "Cho phép sửa ở repo kiểm chứng, từng bước"
+      ]
     }
   ],
   "parked": [
