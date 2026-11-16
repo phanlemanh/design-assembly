@@ -82,7 +82,7 @@
     {
       "id": 1,
       "name": "Cài được, lên đời được",
-      "state": "current",
+      "state": "done",
       "parallel": [2, 8],
       "items": [
         {
@@ -107,20 +107,25 @@
         {
           "id": "1.4",
           "what": "Repo kiểm chứng nhận hai bản sửa còn nợ bằng upgrade",
-          "state": "todo"
+          "state": "done",
+          "ref": "phanlemanh/onehub-inventory#72, docs/trials/upgrade-inventory.md"
         }
       ],
       "done_when": [
         "Một repo thử đi trọn rà soát, nhận, lên đời mà không gọi lệnh nào của kho này",
         "Repo kiểm chứng chạy đúng bản công cụ của plugin sau khi lên đời"
       ],
-      "needs_owner": ["Cho phép lên đời ở repo kiểm chứng"]
+      "needs_owner": ["Cho phép lên đời ở repo kiểm chứng"],
+      "closed": {
+        "on": "2026-11-16",
+        "evidence": "Repo thử đi trọn rà soát, nhận, lên đời bằng đường của plugin, bộ canh ghi 0 lần chạm tới kho này (docs/trials/install-through-marketplace.md; nhận cần repo có Makefile, dòng giới hạn adopt-without-makefile-writes-nothing). Inventory lên đời bằng upgrade, PR #72 gộp ở 7bc5f69: git rev-parse HEAD:tools/design-assembly ở Inventory ra 4f5d8799, đúng cây công cụ ghi cho bản 0.1.0 trong releases.json, và design/tool-stamp.json ghi cùng bản ấy; make design-status-reference đọc dấu 0.1.0. Plugin đã lên 0.2.0 sau đó (mục 8.1); Inventory nhận bản ấy ở mục 8.4."
+      }
     },
     {
       "id": 2,
       "name": "Đo độ rộng",
-      "state": "next",
-      "parallel": [1, 8],
+      "state": "current",
+      "parallel": [8],
       "items": [
         {
           "id": "2.1",
@@ -306,7 +311,7 @@
       "id": 8,
       "name": "Gỡ va chạm cho ba kho",
       "state": "next",
-      "parallel": [1, 2],
+      "parallel": [2],
       "added": {
         "by": "Manh Phan",
         "on": "2026-11-16",
@@ -370,12 +375,6 @@
       "what": "Bốn tiêu chí của đề bài 0002 nêu tên một repo",
       "stage": 0,
       "why_not_now": "Là một câu của hàng chờ, trả lời qua decide"
-    },
-    {
-      "on": "2026-11-15",
-      "what": "Một quyết định ở repo đã nhận từng được máy giữ nay không còn giữ dưới bản plugin hiện tại, chưa biết dòng nào (máy giữ 16, lần đo trước 18; dòng chênh kia là sổ linh kiện, đã có dòng giới hạn)",
-      "stage": 1,
-      "why_not_now": "Không chặn giai đoạn 0; phải truy trước khi lên đời repo đó"
     },
     {
       "on": "2026-11-15",

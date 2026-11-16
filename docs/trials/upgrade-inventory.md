@@ -43,7 +43,7 @@ Lần đo ngày 2026-11-14 đếm 18 quyết định máy giữ, lần đo ngày
 
 ## Điều này nói gì
 
-Điều kiện thứ hai của giai đoạn 1 đạt khi PR gộp: repo kiểm chứng chạy đúng bản công cụ của plugin sau khi lên đời.
+Điều kiện thứ hai của giai đoạn 1 đạt khi PR gộp (gộp ngày 2026-11-16 ở `7bc5f69`): repo kiểm chứng chạy đúng bản công cụ của plugin sau khi lên đời.
 Đường lên đời đi được trên một repo thật, và bản xem trước dừng đúng ở ca đáng dừng. Nhưng lời báo của nó khi thiếu thư
 viện chỉ sai chỗ (dòng giới hạn `upgrade-blames-ledger-for-missing-dependencies`).
 
