@@ -64,44 +64,26 @@ Số bản plugin do cổng giữ: sửa `templates/` hay `scripts/` thì chạy
 - **Nhánh chính** ở GitHub: xem `git log origin/main`. Trang này vào nhánh chính cùng bản ghi lần lên đời và dòng giới
   hạn mới.
 - **Giai đoạn 0** đóng ngày 2026-11-16, chứng cứ ghi trong `plan.json`.
-- **Giai đoạn 1** «Cài được, lên đời được»: 3 trên 4 mục xong. Mục **1.4** (repo kiểm chứng nhận hai bản sửa còn nợ bằng
-  `upgrade`) đang dở, xem dưới.
-- **Giai đoạn 2** «Đo độ rộng» được chạy song song, chưa bắt đầu: chờ chủ kho chỉ định hai repo.
+- **Giai đoạn 1** «Cài được, lên đời được» đóng ngày 2026-11-16, chứng cứ ghi trong `plan.json`.
+- **Giai đoạn 2** «Đo độ rộng» là giai đoạn đang mở, chưa bắt đầu: chờ chủ kho chỉ định hai repo.
+- **Giai đoạn 8** «Gỡ va chạm cho ba kho» chạy song song: mục 8.1 đang dở, plugin đã lên bản 0.2.0.
 - **25 câu của hàng chờ** đã được chủ kho đáp «Giữ hết» ngày 2026-11-16; `make design-decide` báo không còn câu nào.
 
-### Mục 1.4: lên đời Inventory, đang dở
+### Mục 1.4: lên đời Inventory, đã xong
 
-- PR [phanlemanh/onehub-inventory#72](https://github.com/phanlemanh/onehub-inventory/pull/72), nhánh
-  `chore/upgrade-design-assembly`.
-  - Hồ sơ `_acceptance/upgrade-design-assembly-tool/` của Inventory: chủ kho duyệt phạm vi, kế hoạch, và **đã ký Cổng
-    Bằng chứng** ngày 2026-11-16.
-  - Lượt chấm 1 ĐẠT.
-  - CI xanh trên đầu nhánh `d40007f`.
-- **Chưa gộp**, vì Inventory đang chạy một đợt điều phối riêng (`dieu-phoi-nen`, giám sát là phiên «G · Giám sát đợt
-  dieu-phoi-nen»). Giám sát xếp #72 gộp sau #65 (đã gộp) và #69 (dán từ Excel). Lần lên đời đi dưới tên dãy C của đợt.
-- **Đợt ấy chạy trên máy cũ**: bộ phát lịch, khoá chấm và phiên giám sát đều ở đó. Đổi máy thì có hai đường:
-  - đợt vẫn chạy ở máy cũ: chờ giám sát báo «hàng 5 đã gộp», rồi làm bốn bước dưới;
-  - đợt được bàn giao sang máy mới bằng `/dieu-phoi:ban-giao` ở máy cũ rồi `/dieu-phoi:tiep-tuc` ở máy mới: phiên mới
-    ghi danh lại dãy C từ worktree mới trước khi xin khoá.
-- Bốn bước khi tới lượt, trong worktree của nhánh ở Inventory:
-  1. gộp nhánh chính mới vào nhánh (luật gộp của đợt: sổ linh kiện lấy main rồi `make gen`; `_acceptance/config.yaml` giữ
-     cả hai; LO-TRINH và PRODUCT-MAP lấy main rồi sinh lại; `wiki/log.md` giữ cả hai);
-  2. xin khoá chấm của đợt, ghim lại bằng chứng bằng làn máy của kit: `repin-lane.mjs --root . --slug
-upgrade-design-assembly-tool --reason "gộp main" --write`; nhả khoá;
-  3. đẩy, chờ CI xanh;
-  4. xin khoá gộp, `dieu-phoi.mjs gop 72`, báo giám sát sha đã gộp.
-- Gộp xong thì ở kho này:
-  - đánh dấu 1.4 xong trong `plan.json`, ref là PR #72;
-  - xoá dòng «16 vs 18» ở `parked` (đã truy xong, xem bản ghi lần lên đời);
-  - đóng giai đoạn 1 nếu cả hai điều kiện «xong khi» chứng được bằng lệnh. Điều kiện hai: với Inventory ở nhánh chính,
-    `make design-status-reference` báo bản công cụ khớp bản plugin đang cài, và `make design-upgrade-reference` báo
-    không có gì để ghi.
+- PR [phanlemanh/onehub-inventory#72](https://github.com/phanlemanh/onehub-inventory/pull/72) gộp ngày 2026-11-16 ở
+  `7bc5f69`, theo khe giám sát đợt `dieu-phoi-nen` của Inventory xếp, sau khi gộp nhánh chính `a66e005` vào nhánh, ghim
+  lại bằng chứng và CI xanh 9/9.
+- Lượt ghim đầu đỏ vì một bài kiểm hai chiều của hồ sơ dựng bản phá thử từ sổ linh kiện đang có trên nhánh, không từ sổ
+  của commit lên đời. Đã sửa bài kiểm (sản phẩm và phép đo không đổi), ghi một dòng `fix` ở sổ quyết định của hồ sơ.
+- Inventory chạy đúng cây công cụ của bản 0.1.0. Plugin nay ở bản 0.2.0: `make design-status-reference` và
+  `make design-upgrade-reference` (với `REFERENCE_LEDGER=$HOME/dev/onehub-inventory`) báo hai tệp công cụ sẽ đổi. Lần lên
+  đời đó là mục 8.4, cần chủ kho cho phép riêng.
 
 ## Việc kế
 
-1. Hoàn tất mục 1.4 như trên.
-2. Giai đoạn 2: chờ chủ kho chỉ định hai repo để rà soát chỉ đọc (một repo web ngoài họ, một repo cùng họ khác Inventory).
-3. Dòng giới hạn mới cần sửa ở plugin: `upgrade-blames-ledger-for-missing-dependencies`. Lỗi «nhận không ghi gì khi repo
+1. Giai đoạn 2: chờ chủ kho chỉ định hai repo để rà soát chỉ đọc (một repo web ngoài họ, một repo cùng họ khác Inventory).
+2. Dòng giới hạn mới cần sửa ở plugin: `upgrade-blames-ledger-for-missing-dependencies`. Lỗi «nhận không ghi gì khi repo
    không có Makefile» (`adopt-without-makefile-writes-nothing`) đã để dành, sửa khi giai đoạn 2 gặp loại repo ấy.
 
 ## Quyền và cổng
