@@ -79,12 +79,18 @@ function measure() {
   };
 }
 
+// Why adopting refused a call, by the name of the step that made it: one reason per step.
+const refused = new Map();
+let step = null;
 const adopt = (...flags) => {
   const run = node(path.join(PLUGIN, "adopt.mjs"), "--target", copy, ...flags);
-  // Adopting ends with 1 when it is done and something waits on a person; only 2 is a failure.
-  if (run.status > 1 || run.status === null) {
-    throw new Error(`adopt failed: ${run.stderr.split("\n")[0]}`);
-  }
+  // Adopting ends with 1 when it is done and something waits on a person. With 2 it refused the
+  // call and wrote nothing, as on a repository with no --primary to record: the step changes
+  // nothing and the ladder goes on. Anything else is adopting itself failing.
+  if (run.status === 0 || run.status === 1) return;
+  const reason = run.stderr.split("\n")[0].replace(/^design-assembly: /, "");
+  if (run.status !== 2) throw new Error(`adopt failed: ${reason || run.signal}`);
+  if (!refused.has(step)) refused.set(step, reason);
 };
 const edit = (file, change) => {
   const full = path.join(copy, file);
@@ -195,20 +201,33 @@ function compareRegisters() {
 const head = git(reference, "log", "-1", "--format=%h %ad", "--date=short").stdout.trim();
 stdout.write(`ladder on a copy of ${path.basename(reference)} at ${head}\n\n`);
 stdout.write("step\tledgers in shape\tcore answered\tcore held\theld in all\tkit tier\n");
+let stopped = null;
 try {
   const rows = [];
   for (const [name, run] of steps) {
+    step = name;
     run();
     const now = measure();
     rows.push(`${now.shapes}\t${now.answered}\t${now.core}\t${now.held}\t${now.tier}`);
     stdout.write(`${name}\t${rows.at(-1)}\n`);
   }
   if (rows.every((row) => row === rows[0])) {
+    // Equal rows mean the work was done before, or that there was nothing adopting could take in.
     stdout.write(
-      "\nno step moved a rung: the repository has already taken every one, and each row is where it stands today\n",
+      existsSync(path.join(copy, LEDGER))
+        ? "\nno step moved a rung: the repository has already taken every one, and each row is where it stands today\n"
+        : "\nno step moved a rung: the copy has no ledger, and adopting took nothing in, so each row is where it stands today\n",
     );
   }
+  if (refused.size > 0) stdout.write("\n");
+  for (const [name, reason] of refused) {
+    stdout.write(`refused at step ${name}: adopting wrote nothing for it: ${reason}\n`);
+  }
   for (const line of compareRegisters()) stdout.write(`${line}\n`);
+} catch (error) {
+  // Said as a line of the report, so the copy is still removed and the reference still compared.
+  stopped = error.message;
+  stdout.write(`\nladder stopped at ${step}: ${stopped}\n`);
 } finally {
   if (argv.includes("--keep")) stdout.write(`\nthe copy is kept at ${copy}\n`);
   else {
@@ -221,3 +240,4 @@ try {
 stdout.write(
   `\nreference repository changed: ${git(reference, "status", "--short").stdout.trim() ? "YES" : "no"}\n`,
 );
+if (stopped) exit(1);

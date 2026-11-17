@@ -127,27 +127,39 @@
     {
       "id": 2,
       "name": "Đo độ rộng",
-      "state": "current",
+      "state": "done",
       "parallel": [8],
       "items": [
         {
           "id": "2.1",
           "what": "Rà soát, chỉ đọc, trên một repo web ngoài họ",
-          "state": "todo"
+          "state": "done",
+          "ref": "docs/trials/breadth-on-two-repositories.md"
         },
         {
           "id": "2.2",
           "what": "Rà soát, chỉ đọc, trên một repo cùng họ khác repo kiểm chứng",
-          "state": "todo"
+          "state": "done",
+          "ref": "docs/trials/breadth-on-two-repositories.md"
         },
         {
           "id": "2.3",
           "what": "Mỗi chỗ plugin sập hay nói sai thành một dòng sổ giới hạn",
-          "state": "todo"
+          "state": "done",
+          "ref": "sáu dòng mở và một dòng đóng trong plugins/design-assembly/references/limits.json, mở ngày 2026-11-17; docs/trials/breadth-on-two-repositories.md"
         }
       ],
       "done_when": ["Có số đo của ba mức phục vụ trên ba repo", "Không lần chạy nào sập"],
-      "needs_owner": ["Chỉ định hai repo, và cho phép đọc"]
+      "needs_owner": ["Chỉ định hai repo, và cho phép đọc"],
+      "owner_answered": {
+        "on": "2026-11-17",
+        "by": "Manh Phan",
+        "answer": "2.1: floorplanstudio (phanlemanh/floorplanstudio), repo web ngoài họ; 2.2: crm-onehub (phanlemanh/crm-onehub), repo cùng họ. Cho đọc, chỉ đọc. Đo ở đỉnh nhánh mặc định: origin/main f548bfe và onehub 74a29a68d."
+      },
+      "closed": {
+        "on": "2026-11-17",
+        "evidence": "Ba mức trên ba repo, đo trên bản sao bằng script của plugin 0.7.0 (docs/trials/breadth-on-two-repositories.md): floorplanstudio ở f548bfe và crm-onehub ở 74a29a68d đều 0 trên 40, M0, không bậc nào đạt; Inventory ở ea774a0f 29 trên 40, 10 máy giữ, M2, khớp lần đo ngày 2026-11-15. 58 lần chạy lệnh của plugin thoát 0, 1 hoặc 2, không lần nào in dấu vết ngăn xếp. Thang bốn nấc sập ở bước 2 trên hai repo mới; chủ repo cho sửa, nay ba lần chạy thoát 0 (node --test plugins/design-assembly/tests/test-ladder.mjs, ba bài xanh). Sáu chỗ plugin nói sai thành sáu dòng giới hạn mở; dòng của thang mở và đóng cùng thay đổi. Repo thật không đổi: git status rỗng ở cả ba sau lượt đo."
+      }
     },
     {
       "id": 3,
@@ -314,7 +326,7 @@
     {
       "id": 8,
       "name": "Gỡ va chạm cho ba kho",
-      "state": "next",
+      "state": "current",
       "parallel": [2],
       "added": {
         "by": "Manh Phan",
@@ -388,6 +400,12 @@
       "what": "Bài kiểm bảng mẫu và cuốn sổ của plugin dùng chung một thư mục đầu ra, nên nhiều bản chạy cùng lúc trong một thư mục làm việc xoá tệp của nhau",
       "stage": 0,
       "why_not_now": "Một bản make check không gặp; chỉ lộ khi đo độ ổn định bằng nhiều bản song song"
+    },
+    {
+      "on": "2026-11-17",
+      "what": "Sáu giới hạn mở từ lượt đo độ rộng, đứng đầu là repo nhiều gói mà audit đọc ra rỗng (audit-workspace-reads-top-src-only)",
+      "stage": 7,
+      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 2; chặn mục 7.3 nếu repo cùng họ thứ hai là một repo nhiều gói"
     }
   ]
 }
