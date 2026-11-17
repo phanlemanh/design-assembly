@@ -349,7 +349,8 @@
         {
           "id": "8.4",
           "what": "Repo kiểm chứng nhận 8.1 đến 8.3 bằng upgrade",
-          "state": "todo"
+          "state": "doing",
+          "ref": "quyết định 0055; docs/trials/upgrade-inventory-0-7-0.md; phanlemanh/onehub-inventory#84 (chưa gộp); còn hai dòng 8.3, chờ plugin 0.7.1"
         }
       ],
       "done_when": [
