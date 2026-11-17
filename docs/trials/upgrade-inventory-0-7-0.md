@@ -83,6 +83,7 @@ Vì dòng 1 và dòng 3 chưa có, giai đoạn 8 chưa đóng và mục 8.4 cò
 ## Còn chưa làm
 
 - Đo dòng 1 trên các PR sau PR #84.
-- Plugin 0.7.1: `decision-sheet` và `owner-calls` chạy được trên bản sao nông. Thêm hai dòng giới hạn cho hai điều ở mục
-  trên.
+- ~~Plugin 0.7.1: `decision-sheet` và `owner-calls` chạy được trên bản sao nông. Thêm hai dòng giới hạn cho hai điều ở
+  mục trên.~~ Xong ngày 2026-11-17, quyết định
+  [0056](../../wiki/decisions/0056-a-shallow-checkout-fetches-the-history-the-two-checks-need.md).
 - Lên đời repo kiểm chứng thêm một lần để thêm hai dòng của 8.3.

@@ -559,9 +559,16 @@ or `origin/master`, the first git knows), with what is not committed yet.
   with the person, in the guide or while adopting: nothing it writes is compared, and nor is
   anything in a repository with no commit yet. Git that is
   there and cannot name a main branch fails both, rather than let a new kind of screen through
-  unseen: a checkout in continuous integration needs the history of the main branch
-  (`fetch-depth: 0`), and a main branch of another name is named with `"main": "<name>"` on either
-  check. Of several main branches git knows, the base is the newest place this branch left one, so
+  unseen. A shallow checkout, as continuous integration makes one, fetches what it lacks from the
+  remote named `origin`: the main branch (`main`, else `master`, or the one named; never the branch
+  the remote's `HEAD` points at, which in a working folder used as a remote is the branch under
+  check), then more history on both sides, 50 commits first and the step doubled for five rounds,
+  then the whole history. The gate says when it fetched. Fetching writes the remote's ref of that
+  branch and the depth of the checkout, so a shallow clone on a person's machine is deepened too.
+  Each call to the remote gives up after two minutes and never waits on a prompt. A shallow
+  checkout with no `origin`, a remote with neither `main` nor `master` and none named, or a fetch
+  that fails, fails both with what git said. A main branch of another name is named with
+  `"main": "<name>"` on either check. Of several main branches git knows, the base is the newest place this branch left one, so
   a local `main` that was not pulled does not count what was merged since as this branch's. A file
   git cannot read at the base fails both; only a file the base does not have is an absence. An
   unreadable waiting list fails both. A person's answer to a judgment is read from the note of its
