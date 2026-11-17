@@ -12,7 +12,8 @@ trên một nhánh riêng có hồ sơ nghiệm thu T3 do chủ repo ký. Mỗi 
 - **Hồ sơ:** `_acceptance/upgrade-design-assembly-0-7-0/` trên nhánh ấy. Có 10 tiêu chí và 22 eval. Lượt 1 bị trả
   lại vì lint của chính hồ sơ, lượt 2 PASS. Chủ repo ký ở Cổng 2, commit `07cc1d9f`.
 - **PR:** [phanlemanh/onehub-inventory#84](https://github.com/phanlemanh/onehub-inventory/pull/84), mở theo lời chủ repo
-  sau khi ký. Chưa gộp.
+  sau khi ký. Gộp ngày 2026-11-17, commit gộp `8925e8ff`. Trước khi gộp, bài `tests/e2e-db/screens.spec.ts` được sửa
+  cho màn xếp theo mã; hợp đồng thêm tiêu chí AC-11, và chủ repo ký lại ở commit `632ae1fd`.
 
 ## Các bước, theo thứ tự
 
@@ -81,7 +82,7 @@ Vì dòng 1 và dòng 3 chưa có, giai đoạn 8 chưa đóng và mục 8.4 cò
 
 ## Còn chưa làm
 
-- Gộp PR #84, và đo dòng 1 trên các PR tiếp theo.
+- Đo dòng 1 trên các PR sau PR #84.
 - Plugin 0.7.1: `decision-sheet` và `owner-calls` chạy được trên bản sao nông. Thêm hai dòng giới hạn cho hai điều ở mục
   trên.
 - Lên đời repo kiểm chứng thêm một lần để thêm hai dòng của 8.3.
