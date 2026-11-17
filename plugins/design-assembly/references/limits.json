@@ -2865,9 +2865,9 @@
       "severity": "low",
       "plan": "keep",
       "opened": "2026-11-17",
-      "where": ["d0054", "spec"],
+      "where": ["d0054", "spec", "d0056"],
       "status": "open",
-      "note": "Outside git the wall and the total comparison compare nothing: both pass, and the gate prints that it did not compare. With git and no branch it can name as the main one, both fail rather than pass unseen: a checkout that fetched one commit only needs its history (fetch-depth: 0 in continuous integration), and a main branch with another name is named with \"main\" on either check in design/theme.json."
+      "note": "Outside git the wall and the total comparison compare nothing: both pass, and the gate prints that it did not compare. With git and no branch it can name as the main one, both fail rather than pass unseen. A shallow checkout, as continuous integration makes one, has its history fetched from the remote named origin: main, else master, never the branch the remote's HEAD points at. So both need that remote, a way to reach it within two minutes a call, and a main branch named main or master or named with \"main\" on either check in design/theme.json; without them both fail and say what git said. Fetching writes the remote's ref and the checkout's depth, so a shallow clone on a person's machine is deepened by the gate, to its whole history when it is longer than every step."
     },
     {
       "id": "decide-ask-trusts-the-agent-to-ask",
@@ -2980,6 +2980,28 @@
       "note": "On a repository whose stylesheet declares no --primary, adopting rightly refuses the source colour of step two, and the ladder command stopped there with an uncaught error and its stack, printing no row for steps two and three and not saying whether the reference changed; past that point, its equal rows were said to mean the repository had already taken every rung.",
       "closed": "2026-11-17",
       "closed_by": "the ladder writes a refused step as a line of its report and goes on, and says when equal rows mean adopting took nothing in; held by the ladder's test on a repository with no gate and no --primary"
+    },
+    {
+      "id": "decision-sheet-reads-tags-in-test-data",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-17",
+      "where": ["d0055", "d0056", "trials"],
+      "status": "open",
+      "note": "The total comparison takes every decision:ID written anywhere in a test of tests/ as a proof of that decision, the text of a sample or a string under test included. A test that writes decision:a or decision:other as data fails the gate with a decision the ledger has no row for, though nothing proves it. Seen on the reference repository."
+    },
+    {
+      "id": "fragment-copy-older-than-the-folder",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-17",
+      "where": ["d0055", "d0056", "trials"],
+      "status": "open",
+      "note": "A ledger kept as one file per entry has a one-file copy outside git for the repository's own readers. The copy is written by the gate and by the tool's own command. A fragment edited since then leaves the copy older than the folder, and a reader that prefers the copy reads the old values with nothing to say they are old. Seen on the reference repository, where one reader preferred the copy and another read the folder."
     }
   ]
 }

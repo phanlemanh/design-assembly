@@ -42,6 +42,12 @@
       "templates": "89da7e559ff235b68d1d470644682bb9fae9e8f7",
       "scripts": "d1ef019fbfbd210b0fed2f314927771529e3072a",
       "tool": "f3d66a61fdcfbdfca103d48c7077bd1c9b95bb73"
+    },
+    {
+      "version": "0.7.1",
+      "templates": "b678e5c268d923660bac7eacb88f87d2a7a7ed5e",
+      "scripts": "d1ef019fbfbd210b0fed2f314927771529e3072a",
+      "tool": "2da4cc56de55b9805b50baf46731151f12428f63"
     }
   ]
 }
