@@ -3,13 +3,18 @@
 // nothing. With answers it writes each one where the question lives, with the name of the person
 // who answered and the date; a refusal stays, with what the person said. It never writes an answer
 // nobody gave, and it calls no model.
+// A building agent that meets a question nobody answered queues it with --ask: one new file of the
+// waiting list, and no shared file touched. One shared waiting list is split with --split.
 // Usage: node decide.mjs [--target DIR] [--only ID[,ID]] [--answers FILE [--by NAME] [--on DATE]]
-//                        [--dry-run] [--json]
+//                        [--ask QUESTION --recommend TEXT --because TEXT (--hard-to-undo |
+//                        --easy-to-undo) [--item KIND:WHICH] [--id ID] [--on DATE]]
+//                        [--split] [--dry-run] [--json]
 // Exit: 0 no question waits; 1 questions wait on the owner; 2 a wrong call, answers that cannot be
 // taken, or a repository that cannot be read. On 2 nothing is written. The call is read and ended
 // by the common contract of every command (command.mjs).
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, statSync, unlinkSync } from "node:fs";
 import path from "node:path";
 import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
@@ -17,9 +22,22 @@ import { fileURLToPath } from "node:url";
 import { LEDGERS, newerLedgers } from "../templates/tools/design-assembly/contract.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { LEDGER, readLedger } from "../templates/tools/design-assembly/ledger.mjs";
+import {
+  folderRows,
+  ID,
+  isDay,
+  itemProblem,
+  mustAsk,
+  questionFile,
+  readWaiting,
+  rowProblems,
+  STAMP,
+  UNCONFIRMED,
+  WAITING_FOLDER,
+  WAITING_LIST,
+} from "../templates/tools/design-assembly/waiting.mjs";
 import { writeFiles, writtenFiles } from "./apply.mjs";
-import { finish, readCall, Refusal, refuse, start } from "./command.mjs";
-import { UNCONFIRMED } from "./inventory.mjs";
+import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { status } from "./status.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -29,29 +47,10 @@ const LAYERS = json("references/layers.json").layers;
 const LIMITS_FILE = "references/limits.json of this plugin";
 const BLUEPRINT = LEDGERS.blueprint.file;
 
-// The waiting list: questions that wait on the owner and are not rows of a design ledger, kept as
-// data so that this command can list them and write the answers back. A repository may have none.
-// It is not one of the ledgers of the contract: the gate of a repository does not read it.
-export const WAITING_LIST = "design/waiting-list.json";
-const LIST_VERSION = 1;
-const ROW_KINDS = ["question", "permission"];
-const ROW_KEYS = [
-  "id",
-  "kind",
-  "group",
-  "question",
-  "recommendation",
-  "basis",
-  "hard_to_undo",
-  "where",
-  "if_refused",
-  "answer",
-  "said",
-  "by",
-  "on",
-];
-const ROW_TEXTS = ["group", "question", "recommendation", "basis", "where", "if_refused", "said"];
-const ANSWERS = ["keep", "refuse", "value"];
+// The waiting list (waiting.mjs): questions that wait on the owner and are not rows of a design
+// ledger. A repository may have none. It is not one of the ledgers of the contract.
+export { WAITING_FOLDER, WAITING_LIST };
+const ANSWERS_SAID = { keep: "kept", refuse: "refused", value: "answered" };
 // The words an answer starts with, in the two languages the sheet is answered in. Anything else is
 // a value: the person's own answer, in their words.
 const WORDS = {
@@ -65,95 +64,18 @@ const WORDS = {
 // What a row of the ledger says once a person answered it.
 const VERBS = { keep: "confirmed", refuse: "refused", value: "answered" };
 const ANSWER_OF = Object.fromEntries(Object.entries(VERBS).map(([answer, verb]) => [verb, answer]));
-const STAMP = /(?:^|; )(confirmed|refused|answered) by (.+?) on (\d{4}-\d{2}-\d{2})(?:: (.*))?$/;
-const DAY = /^\d{4}-\d{2}-\d{2}$/;
 // The layers every other layer is built on: an answer there is hard to undo.
 const BASE_LAYERS = ["context", "foundations"];
 
 const read = (root, file) =>
   existsSync(path.join(root, file)) ? readFileSync(path.join(root, file), "utf8") : null;
 
-const isDay = (value) =>
-  DAY.test(String(value)) && new Date(`${value}T00:00:00Z`).toISOString().startsWith(value);
-
-// Every way the waiting list cannot be read, one line each.
-function listProblems(list, ledgerIds) {
-  if (list === null || typeof list !== "object" || Array.isArray(list)) return ["is not an object"];
-  if (typeof list.version !== "number") return ["no version"];
-  if (list.version > LIST_VERSION) {
-    return [`has version ${list.version}, newer than this plugin reads (${LIST_VERSION})`];
-  }
-  if (!Array.isArray(list.rows)) return ["no rows"];
-  const found = [];
-  const seen = new Set();
-  for (const [index, row] of list.rows.entries()) {
-    const id = typeof row?.id === "string" ? row.id : "";
-    const at = id || `row ${index + 1}`;
-    if (!/^[^\s,]+$/.test(id)) {
-      found.push(`${at}: no id, or an id with a space or a comma in it`);
-      continue;
-    }
-    if (seen.has(id)) found.push(`${at}: a second row has this id`);
-    seen.add(id);
-    if (ledgerIds.includes(id)) found.push(`${at}: the ledger has a row with this id`);
-    for (const key of Object.keys(row)) {
-      if (!ROW_KEYS.includes(key)) found.push(`${at}: unknown key '${key}'`);
-    }
-    if (row.kind !== undefined && !ROW_KINDS.includes(row.kind)) {
-      found.push(`${at}: kind must be one of ${ROW_KINDS.join(", ")}`);
-    }
-    for (const key of ROW_TEXTS) {
-      if (row[key] !== undefined && (typeof row[key] !== "string" || row[key].trim() === "")) {
-        found.push(`${at}: ${key} is not a written text`);
-      }
-    }
-    if (row.question === undefined) found.push(`${at}: no question`);
-    if (row.hard_to_undo !== undefined && typeof row.hard_to_undo !== "boolean") {
-      found.push(`${at}: hard_to_undo is true or false`);
-    }
-    const named = row.by !== undefined || row.on !== undefined;
-    if (row.kind === "permission") {
-      if (row.answer !== undefined || named || row.said !== undefined) {
-        found.push(`${at}: a permission carries no answer`);
-      }
-    } else if (row.answer === undefined) {
-      if (named) found.push(`${at}: a name and a date with no answer`);
-      if (row.said !== undefined) found.push(`${at}: words with no answer`);
-    } else {
-      if (!ANSWERS.includes(row.answer)) {
-        found.push(`${at}: answer must be one of ${ANSWERS.join(", ")}`);
-      }
-      if (typeof row.by !== "string" || row.by.trim() === "" || !isDay(row.on)) {
-        found.push(`${at}: an answer with no name of who gave it, or no date`);
-      }
-      if (row.answer === "value" && row.said === undefined) {
-        found.push(`${at}: a value with no words`);
-      }
-    }
-  }
-  return found;
-}
-
-function readList(root, ledgerIds) {
-  const text = read(root, WAITING_LIST);
-  if (text === null) return null;
-  let list;
-  try {
-    list = JSON.parse(text);
-  } catch {
-    throw new Error(`${WAITING_LIST} is not JSON`);
-  }
-  const problems = listProblems(list, ledgerIds);
-  if (problems.length > 0) throw new Error(`${WAITING_LIST}: ${problems.join("; ")}`);
-  return list;
-}
-
 // Everything the sheet is made from, read once: the rows of the ledger, what the status says waits
 // in them, and the waiting list.
 function readState(root) {
   const rows = readLedger(root) ?? [];
   const waiting = status(root).waiting;
-  const list = readList(
+  const list = readWaiting(
     root,
     rows.map((row) => String(row.id)),
   );
@@ -416,11 +338,21 @@ function record(root, state, answers, { by, on, only }) {
     const rows = state.list.rows.map((row) => {
       const answer = inList.find((item) => item.id === row.id);
       if (!answer) return row;
-      say(WAITING_LIST, `${row.id}: ${stampOf(answer, by, on)}`);
       const { answer: kind, said } = answer;
       return { ...row, answer: kind, ...(said ? { said } : {}), by, on };
     });
-    files[WAITING_LIST] = renderJson({ ...state.list, rows }, lineWidth(root));
+    for (const answer of inList) {
+      say(state.list.files[answer.id], `${answer.id}: ${stampOf(answer, by, on)}`);
+    }
+    // One file per question: only the answered questions' own files are written.
+    if (state.list.shape === "folder") {
+      for (const answer of inList) {
+        const row = rows.find((item) => item.id === answer.id);
+        files[state.list.files[answer.id]] = renderJson(row, lineWidth(root));
+      }
+    } else {
+      files[WAITING_LIST] = renderJson({ ...state.list.list, rows }, lineWidth(root));
+    }
   }
 
   // The sheet once the answers are written: each answered question moves, in the order of the sheet.
@@ -444,7 +376,7 @@ function record(root, state, answers, { by, on, only }) {
 }
 
 const PREVIEW = "preview only: nothing was written; the sheet below is as it would be";
-const SAID = { keep: "kept", refuse: "refused", value: "answered" };
+const SAID = ANSWERS_SAID;
 
 // The sheet as a person reads it.
 export function report(result) {
@@ -560,7 +492,9 @@ const today = () => {
 };
 
 const USAGE = `usage: node decide.mjs [--target DIR] [--only ID[,ID]] [--answers FILE [--by NAME] [--on DATE]]
-                      [--dry-run] [--json]
+                      [--ask QUESTION --recommend TEXT --because TEXT (--hard-to-undo | --easy-to-undo)
+                       [--item KIND:WHICH] [--id ID] [--on DATE]]
+                      [--split] [--dry-run] [--json]
 
   --only     Narrow the sheet, the data and the exit code to these questions.
   --answers  A file a person's answers were written to, one line per answer:
@@ -571,8 +505,20 @@ const USAGE = `usage: node decide.mjs [--target DIR] [--only ID[,ID]] [--answers
              taken refuses the whole file.
   --by       Who answered. Without it, the name git has for the repository.
   --on       The day they answered, as YYYY-MM-DD. Without it, today.
-  --dry-run  With --answers: say which files would be written and what would change in each,
-             and write nothing.
+  --ask      Queue a question nobody has answered, as one new file of ${WAITING_FOLDER}; no other
+             file is touched. Give what the agent recommends (--recommend), what it rests on
+             (--because) and whether it is hard to undo. The agent then goes on with its own
+             recommendation, except for a call that is the owner's alone (see --item).
+  --item     What the question is about, when it is one item: decision:ID (a row of the ledger),
+             pattern:NAME (a new page of a kind of screen) or source-color:VALUE (the root colour).
+             A new kind of screen and the brand colour are the owner's calls: the agent stops,
+             and the gate stays red until the owner keeps it.
+  --id       The question's id, and the name of its file. Without it, made from the item, or
+             from the words of the question.
+  --split    Turn a waiting list kept as one shared file, ${WAITING_LIST}, into one file per
+             question; stops, and writes nothing, if a question could be lost.
+  --dry-run  With --answers, --ask or --split: say which files would be written and what would
+             change in each, and write nothing.
   --json     The sheet as data: questions, answered, elsewhere, permissions, and the files written.
 `;
 
@@ -581,8 +527,214 @@ const FLAGS = {
   "--answers": "value",
   "--by": "value",
   "--on": "value",
+  "--ask": "value",
+  "--recommend": "value",
+  "--because": "value",
+  "--hard-to-undo": "switch",
+  "--easy-to-undo": "switch",
+  "--item": "value",
+  "--id": "value",
+  "--split": "switch",
   "--dry-run": "switch",
 };
+const ASKING = ["--recommend", "--because", "--hard-to-undo", "--easy-to-undo", "--item", "--id"];
+
+// A short name made of the words of an item: lowercase letters, digits and dashes.
+const slug = (words) =>
+  words
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 48)
+    .replace(/-+$/, "");
+
+// The id of an asked question: the one given, else made from its item, else from its words. Made
+// from its words, two agents that ask two questions on two branches write two files.
+function askedId(call) {
+  const given = call.flags["--id"];
+  if (given !== undefined) return given;
+  const item = call.flags["--item"];
+  if (item !== undefined) return slug(item) || `q-${hash(item)}`;
+  return `q-${hash(call.flags["--ask"].normalize("NFC").trim())}`;
+}
+const hash = (words) => createHash("sha256").update(words).digest("hex").slice(0, 8);
+
+// A question an agent asks, as one new file of the waiting list. Refused, and nothing written,
+// when the question is not whole, when the list is one shared file, or when its id waits already.
+function askCall(root, state, call) {
+  const refused = (why) => new Refusal(`${why}. Nothing was written`);
+  const flags = call.flags;
+  const hard = flags["--hard-to-undo"] === true;
+  const easy = flags["--easy-to-undo"] === true;
+  if (hard === easy) {
+    throw refused(
+      "say whether the answer is hard to undo: --hard-to-undo or --easy-to-undo, one of them",
+    );
+  }
+  for (const [flag, what] of [
+    ["--recommend", "what the agent recommends, and goes on with"],
+    ["--because", "what the recommendation rests on"],
+  ]) {
+    if (typeof flags[flag] !== "string" || flags[flag].trim() === "") {
+      throw refused(`a question is asked with ${flag}: ${what}`);
+    }
+  }
+  if (flags["--item"] !== undefined && itemProblem(flags["--item"])) {
+    throw refused(`--item: ${itemProblem(flags["--item"])}`);
+  }
+  if (state.list?.shape === "file") {
+    throw refused(
+      `the waiting list is one shared file, ${WAITING_LIST}, and asking would change it: split it first, with --split`,
+    );
+  }
+  const id = askedId(call);
+  if (!ID.test(id)) {
+    throw refused(
+      `${id} cannot be the id of a question: no space, comma or slash, and no dot first`,
+    );
+  }
+  const ledgerIds = state.rows.map((row) => String(row.id));
+  if (ledgerIds.includes(id))
+    throw refused(`${id} is the id of a row of ${LEDGER}: give another --id`);
+  // The same item asked before, or the same id: the answer, or the wait, is already there.
+  const item = flags["--item"];
+  const before = (state.list?.rows ?? []).find(
+    (row) => (item !== undefined && row.item === item) || row.id.toLowerCase() === id.toLowerCase(),
+  );
+  if (before) throw refused(askedBefore(before, item));
+  const on = flags["--on"] ?? today();
+  if (!isDay(on)) throw refused(`--on takes a day written YYYY-MM-DD, and ${on} is not one`);
+  const row = {
+    id,
+    question: flags["--ask"].trim(),
+    recommendation: flags["--recommend"].trim(),
+    basis: flags["--because"].trim(),
+    hard_to_undo: hard,
+    ...(flags["--item"] !== undefined ? { item: flags["--item"] } : {}),
+    asked_on: on,
+  };
+  const problems = rowProblems(row, id);
+  if (problems.length > 0) throw refused(problems.join("; "));
+  const file = questionFile(id);
+  const list = {
+    shape: "folder",
+    rows: [...(state.list?.rows ?? []), row],
+    files: { ...state.list?.files, [id]: file },
+  };
+  return {
+    file,
+    content: renderJson(row, lineWidth(root)),
+    asked: { id, file, item: row.item ?? null, may_go_on: !mustAsk(row.item) },
+    after: sheetOf({
+      ...state,
+      list: {
+        ...list,
+        rows: [...list.rows].sort((a, b) => a.id.localeCompare(b.id, "en", { numeric: true })),
+      },
+    }),
+  };
+}
+
+// Why a question is not asked again: what the owner answered, or that it waits.
+function askedBefore(row, item) {
+  if (item === undefined || row.item !== item) {
+    return `a question with the id ${row.id} is in the waiting list already: give another --id`;
+  }
+  const on = `${row.id}, by ${row.by} on ${row.on}`;
+  const said = row.said ? `: ${row.said}` : "";
+  if (row.answer === "keep")
+    return `${item} was answered in ${on}: the owner kept it; go on with it`;
+  if (row.answer === "refuse") {
+    return `${item} was answered in ${on}: the owner refused it${said}; stop, and do not build on it`;
+  }
+  if (row.answer === "value") {
+    return `${item} was answered in ${on}, in the owner's own words${said}; stop, and build what they said, not your recommendation`;
+  }
+  return `${item} is asked already in ${row.id}, which waits on the owner`;
+}
+
+// What an asked question tells the agent that asked it.
+function askReport(asked, written, dryRun) {
+  const lines = [
+    `${dryRun ? "a question would be asked" : "asked"}: ${asked.id}, ${written}`,
+    asked.may_go_on
+      ? "go on with your recommendation: the owner answers it on this sheet once, and the answer stays for the next time"
+      : `stop: ${asked.item} is the owner's call. Do not build on it until the owner keeps it here; until then the gate is red for it`,
+  ];
+  if (dryRun) lines.push(PREVIEW);
+  return `${lines.join("\n")}\n\n`;
+}
+
+// A waiting list kept as one shared file, as one file per question. The files are made in memory
+// and read back before anything is written: a question that would not come back the same stops it.
+function splitCall(root, state, dryRun) {
+  const refused = (why) => new Refusal(`${why}. Nothing was written`);
+  if (state.list === null) throw refused(`this repository has no waiting list to split`);
+  if (state.list.shape === "folder") {
+    throw refused(`the waiting list is one file per question already, in ${WAITING_FOLDER}`);
+  }
+  const width = lineWidth(root);
+  const files = Object.fromEntries(
+    state.list.rows.map((row) => [questionFile(row.id), renderJson(row, width)]),
+  );
+  const lower = new Set();
+  for (const row of state.list.rows) {
+    const key = row.id.toLowerCase();
+    if (lower.has(key)) {
+      throw refused(
+        `two questions, one of them ${row.id}, differ only by capitals: one file would hold both`,
+      );
+    }
+    lower.add(key);
+  }
+  // An id the shared file took that cannot name a file of the folder: it would be lost there.
+  const unnamed = state.list.rows.filter((row) => !ID.test(row.id)).map((row) => row.id);
+  if (unnamed.length > 0) {
+    throw refused(
+      `${unnamed.join(", ")} cannot name a file of ${WAITING_FOLDER} (a space, a comma, a slash, or a dot first): give each another id in ${WAITING_LIST} first`,
+    );
+  }
+  const lost = state.list.rows.filter(
+    (row) => JSON.stringify(JSON.parse(files[questionFile(row.id)])) !== JSON.stringify(row),
+  );
+  if (lost.length > 0)
+    throw refused(`${lost.map((row) => row.id).join(", ")} would not be kept as written`);
+  const written = writeFiles(root, files, dryRun);
+  if (!dryRun) {
+    // Read back from the disk before the shared file goes: every question, as it was.
+    const back = folderRows(root);
+    const same =
+      back.problems.length === 0 &&
+      back.rows.length === state.list.rows.length &&
+      state.list.rows.every((row) => {
+        const found = back.rows.find((item) => item.id === row.id);
+        return found && JSON.stringify(found) === JSON.stringify(row);
+      });
+    if (!same) {
+      for (const file of Object.keys(files)) {
+        if (existsSync(path.join(root, file))) unlinkSync(path.join(root, file));
+      }
+      throw refused(
+        `the folder did not read back as ${WAITING_LIST} holds it (${back.problems[0] ?? `${back.rows.length} of ${state.list.rows.length} questions`}): the files written were taken away again, and ${WAITING_LIST} is kept`,
+      );
+    }
+    unlinkSync(path.join(root, WAITING_LIST));
+  }
+  const kept = state.list.list.about;
+  return {
+    files: [...writtenFiles(written), fileChange(WAITING_LIST, "remove")],
+    text: [
+      `${dryRun ? "would split" : "split"} ${WAITING_LIST} into ${state.list.rows.length} file(s) under ${WAITING_FOLDER}:`,
+      ...written.map((line) => `  ${line}`),
+      `  remove    ${WAITING_LIST}`,
+      ...(kept ? [`the list's own "about" is not a question and has no file: ${kept}`] : []),
+      ...(dryRun ? [PREVIEW] : []),
+      "",
+    ].join("\n"),
+  };
+}
 
 // The answers of the file the call names, put where each question lives, or a refusal that says
 // why none of them was written.
@@ -617,7 +769,28 @@ function main(args) {
   if (call.problem) return refuse(call.problem, USAGE);
   if (call.help) return void stdout.write(USAGE);
   const answering = call.flags["--answers"] !== undefined;
-  if (!answering && (call.flags["--by"] !== undefined || call.flags["--on"] !== undefined)) {
+  const asking = call.flags["--ask"] !== undefined;
+  const splitting = call.flags["--split"] === true;
+  if ([answering, asking, splitting].filter(Boolean).length > 1) {
+    return refuse(
+      "answering, asking and splitting are three calls: give one of --answers, --ask, --split",
+      USAGE,
+    );
+  }
+  if (!asking && ASKING.some((flag) => call.flags[flag] !== undefined)) {
+    return refuse(
+      `${ASKING.filter((flag) => call.flags[flag] !== undefined).join(", ")} go with --ask`,
+      USAGE,
+    );
+  }
+  if (asking && call.flags["--by"] !== undefined) {
+    return refuse("--by says who answered; it goes with --answers", USAGE);
+  }
+  if (
+    !answering &&
+    !asking &&
+    (call.flags["--by"] !== undefined || call.flags["--on"] !== undefined)
+  ) {
     return refuse("--by and --on say who answered and when; they go with --answers", USAGE);
   }
   const root = call.target;
@@ -638,6 +811,28 @@ function main(args) {
     now = narrow(sheetOf(state), only);
   } catch (error) {
     throw new Refusal(error.message);
+  }
+  if (splitting) {
+    const split = splitCall(root, state, dryRun);
+    return finish({
+      json: call.json,
+      result: { dry_run: dryRun, files: split.files },
+      text: split.text,
+      work: false,
+    });
+  }
+  if (asking) {
+    const newer = newerLedgers(root);
+    if (newer.length > 0) throw new Refusal(`${newer.join("; ")}. Nothing was written`);
+    const asked = askCall(root, state, call);
+    const written = writeFiles(root, { [asked.file]: asked.content }, dryRun);
+    const after = narrow(asked.after, only);
+    return finish({
+      json: call.json,
+      result: { dry_run: dryRun, ...after, asked: asked.asked, files: writtenFiles(written) },
+      text: `${askReport(asked.asked, `written to ${asked.file}`, dryRun)}${report(after)}`,
+      work: leavesWork(after),
+    });
   }
   if (!answering) {
     return finish({

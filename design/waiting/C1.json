@@ -1,0 +1,12 @@
+{
+  "id": "C1",
+  "group": "C. Câu còn mở từ trước",
+  "question": "Màn mẫu của một kiểu màn là màn thật trong sổ màn (plugin hiểu vậy) hay trang mẫu riêng (Inventory ghi)",
+  "recommendation": "Màn thật trong sổ màn. Inventory hôm nay cũng ghi vậy; chỗ lệch còn lại là một khoá của trang kiểu màn",
+  "basis": "Đọc Inventory ngày 2026-11-15: cả ba trang kiểu màn đều nêu một màn thật của sổ màn ở mục «Màn mẫu» (inventory, sign-in, members), và trang «lưới» viết rõ bản mẫu ở trang thử «là mẫu của khuôn, không phải màn mẫu». Chỗ lệch: plugin đọc màn mẫu từ khoá `mau_dang_chay`, mà ở Inventory khoá ấy trỏ tệp mẫu của khuôn ở hai trên ba trang. Khó đảo: lệnh kiểm màn mẫu của plugin và trang kiểu màn của repo đã nhận cùng dựa vào nghĩa của khoá này.",
+  "hard_to_undo": true,
+  "if_refused": "Chọn trang mẫu riêng thì lệnh kiểm màn mẫu của plugin phải viết lại (hôm nay nó đòi màn mẫu là một màn có trong sổ màn, cùng kiểu, khai đủ trạng thái bắt buộc), và kho này phải dựng một trang mẫu riêng mà nó chưa có",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

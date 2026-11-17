@@ -20,7 +20,7 @@ scale, shape). Density, elevation, motion and iconography are not.
   the tier reached, one line per rhythm of the repository's life, every answer that waits on the
   owner with a recommendation and what it rests on, whether the repository's copy of the tool is
   the installed plugin's, and the command to run next. `--json` gives the same to another plugin.
-  What waits is read from the ledgers and from `design/waiting-list.json`.
+  What waits is read from the ledgers and from the waiting list, `design/waiting/`.
 - `status` and `audit` each hand their answer over as a document: `--out DIR` writes the status
   report or the design audit report into that folder, as one page that needs nothing else, and
   `--format pdf` prints it too. Every document is set on one frame of six parts (the cover, one
@@ -29,9 +29,12 @@ scale, shape). Density, elevation, motion and iconography are not.
   repository and of the handoff book. Without `--out` no file is written.
 - `/design-assembly:decide` puts every question that waits on the owner on one sheet, each with
   one recommendation and what it rests on, and takes the answers in one go: a row of the ledger
-  nobody confirmed, and the rows of `design/waiting-list.json` when the repository keeps one. It
+  nobody confirmed, and the questions of the waiting list when the repository keeps one. It
   writes an answer only when a person gave it, with their name and the date; a refusal stays, with
   what they said.
+  An agent that builds queues a question with `--ask`, one new file under `design/waiting/`, and
+  goes on with its own recommendation; a new kind of screen and the brand colour wait for the
+  owner, and the gate holds both (`decision-sheet`, `owner-calls`).
 - `/design-assembly:upgrade` brings the installed plugin's tool into a repository that already runs
   a copy of it. It previews first, every time: the tool files that change, the entries of the
   ledgers the tool writes that would be added, removed or changed, the decisions that change state,

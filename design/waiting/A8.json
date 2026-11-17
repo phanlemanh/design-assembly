@@ -1,0 +1,13 @@
+{
+  "id": "A8",
+  "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+  "question": "Cấp của linh kiện (atom, molecule, organism) do máy tính từ độ sâu nhập, không ai khai",
+  "recommendation": "Giữ",
+  "basis": "Quyết định 0029, mục 5: máy tính cấp từ độ sâu nhập, như công cụ cũ của Inventory từng làm; so trên bản sao Inventory, cấp khớp 269 trên 270 linh kiện (quyết định 0034). Sổ giới hạn ghi: chưa ai đối chiếu cấp với mắt của người thiết kế. Khó đảo: sổ quyết định của Inventory có dòng «cấp linh kiện» giữ bằng chính phép tính này, và sổ linh kiện ở đó ghi cấp cho 291 linh kiện.",
+  "hard_to_undo": true,
+  "where": "0029",
+  "if_refused": "Thêm chỗ để người khai cấp",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

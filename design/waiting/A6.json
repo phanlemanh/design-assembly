@@ -1,0 +1,13 @@
+{
+  "id": "A6",
+  "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+  "question": "Plugin cài sẵn khung ứng dụng và phần tải chung của màn danh sách cho repo mới",
+  "recommendation": "Giữ",
+  "basis": "Repo mới sau cuộc dẫn dắt không có khung (quyết định 0028), và tác tử dựng màn chép nguyên phần tải của màn mẫu sang màn mới (quyết định 0027); chủ repo chọn làm lát này ngày 2026-11-13, cách làm là máy chọn. Dễ đảo ở hôm nay: chưa repo thật nào ra đời qua cuộc dẫn dắt (đề bài 0002), nên gỡ hai phần khỏi bộ cài chưa làm repo nào phải sửa.",
+  "hard_to_undo": false,
+  "where": "0028",
+  "if_refused": "Gỡ hai phần khỏi bộ cài",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

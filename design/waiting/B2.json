@@ -1,0 +1,12 @@
+{
+  "id": "B2",
+  "group": "B. Điều chưa bao giờ được duyệt",
+  "question": "Bộ chỉ số đo hiệu quả",
+  "recommendation": "Duyệt cùng B3 và B4",
+  "basis": "Bộ chỉ số là đề xuất của máy ở mục 15 của tài liệu kiến trúc: một chỉ số chính, sáu chỉ số đỡ, một rào chi phí 1,3 lần; B3 đổi chỉ số chính và B4 là thang đo «có thành lớp meta không», nên ba câu là một lời đáp. Từ ngày 2026-11-14: thang đã thành lệnh và đo được (`make design-ladder`, quyết định 0045); còn phép đo chi phí chính thức, theo quyết định 0032, chưa chạy lần nào, và phép chạy nó còn chờ ở dòng D3. Dễ đảo: đổi chỉ số không làm repo nào phải sửa.",
+  "hard_to_undo": false,
+  "if_refused": "Tiến độ tiếp tục đo bằng điều kiện «xong khi» của từng giai đoạn trong kế hoạch; tài liệu kiến trúc giữ dòng «bộ chỉ số chưa được duyệt»",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

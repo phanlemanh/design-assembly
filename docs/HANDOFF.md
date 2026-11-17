@@ -52,7 +52,7 @@ Bảy lệnh của plugin, chung một khế ước gọi (thoát 0 xong, 1 ch�
 - **status**: một màn hình nấc đã tới, việc chờ, bản công cụ có lệch không, lệnh nên chạy kế.
 - **audit**: chỉ đọc, đo theo danh mục quyết định chuẩn.
 - **new**: cuộc dẫn dắt dựng hệ mới. **adopt**: nhận hệ đã có, không đổi gì của kho.
-- **decide**: tờ gom mọi câu chờ chủ kho (`design/waiting-list.json`), ghi lời đáp kèm tên và ngày.
+- **decide**: tờ gom mọi câu chờ chủ kho (`design/waiting/`, mỗi câu một tệp), ghi lời đáp kèm tên và ngày.
 - **upgrade**: đưa công cụ của plugin vào repo đã có bản sao; in trước mọi thay đổi, dừng khi mất mục hay cổng đỏ; ghi
   dấu bản `design/tool-stamp.json` (quyết định 0047).
 - **handoff**: cuốn sổ bàn giao design system.

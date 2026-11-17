@@ -1,0 +1,12 @@
+{
+  "id": "C6",
+  "group": "C. Câu còn mở từ trước",
+  "question": "Ở Inventory, `DataRegion` là khuôn (trang kiểu màn «lưới» nói vậy) hay organism (công cụ sổ linh kiện)",
+  "recommendation": "Khuôn. Hai nguồn của Inventory không còn nói khác nhau: công cụ từng xếp nó là organism đã bị bỏ, và sổ do plugin ghi xếp nó là khuôn",
+  "basis": "Đọc Inventory ngày 2026-11-15: sổ linh kiện do plugin ghi xếp `DataRegion` ở cấp khuôn (template), và trang kiểu màn «lưới» vẫn gọi nó là khuôn. Công cụ cũ của Inventory đã bị bỏ khi repo ấy nhận sổ của plugin (bản ghi thang, quyết định 0045); luật «linh kiện mà trang kiểu màn gọi là khuôn thì là khuôn» ở quyết định 0029 và 0034, và hai quyết định 0036, 0038 đổi bộ đọc linh kiện mà không đổi luật này. Khó đảo: đổi lại thì phải đổi luật xếp cấp của plugin và sinh lại sổ linh kiện ở repo đã nhận.",
+  "hard_to_undo": true,
+  "if_refused": "Chọn organism thì trang kiểu màn «lưới» của Inventory và sổ linh kiện ở đó lại nói ngược nhau, và plugin phải bỏ luật lấy khuôn từ trang kiểu màn",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

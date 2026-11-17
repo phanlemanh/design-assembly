@@ -73,6 +73,8 @@ import {
   vendored,
   writeFiles,
   writtenFiles,
+  DECISION_SHEET,
+  OWNER_CALLS,
 } from "./apply.mjs";
 import { findProofs } from "./proofs.mjs";
 
@@ -470,6 +472,17 @@ export function adoption(
           row: { kind: "standard", source: "make check" },
           checks: [{ kind: "gate" }],
         };
+      }
+      // The decision sheet and the wall come with the gate: every repository that runs this tool
+      // gets them, as the guide writes them.
+      for (const [id, item] of [
+        ["decision-sheet", DECISION_SHEET],
+        ["owner-calls", OWNER_CALLS],
+      ]) {
+        if (!open(id)) continue;
+        // Adopting gives the layer and the pointer at the tool itself.
+        const row = { kind: item.row.kind, source: item.row.source, note: item.row.note };
+        candidates[id] = { what: item.what, row, checks: item.checks };
       }
       // Each candidate is run by the tool itself on the repository as it is: a check is added only
       // when it passes now and fails on a changed copy.

@@ -37,7 +37,7 @@ It ends with:
   the ledgers), and periodically (the record of what slipped past the checks).
 - `waiting on the owner`: each answer only a person can give. Three kinds are listed: a row of
   `design/decisions.yaml` whose note says a person has not confirmed it, a call only a person
-  can make that the ledger has no row for, and a question of `design/waiting-list.json` that
+  can make that the ledger has no row for, and a question of the waiting list (`design/waiting/`) that
   nobody answered. Each has a `recommendation`, a `because` and an `answer with`.
   `/design-assembly:decide` takes the answer to a row nobody confirmed and to a question of the
   waiting list. A permission in the waiting list is not counted: only the owner gives it.

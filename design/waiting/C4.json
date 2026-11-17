@@ -1,0 +1,12 @@
+{
+  "id": "C4",
+  "group": "C. Câu còn mở từ trước",
+  "question": "Phần thêm vào trang kiểu màn «danh sách» sau ngày 2026-11-12 (luồng xoá, dòng tự chờ) là máy viết",
+  "recommendation": "Xác nhận hoặc sửa",
+  "basis": "Chủ repo xác nhận ba câu của trang này ngày 2026-11-12 (việc chính, thứ tự thông tin, cách viết lời); từ đó máy thêm 26 dòng và bớt 3 dòng (so bằng lịch sử git của trang), gồm hai mục mới «Mở một mục» và «Hai màn cùng kiểu». Sổ giới hạn ghi: không lệnh kiểm nào đọc phần thân của trang kiểu màn, nên chỉ người soát được. Dễ đảo: sửa một trang văn bản.",
+  "hard_to_undo": false,
+  "if_refused": "Không xác nhận thì phần máy viết thêm vẫn là luật mà tác tử dựng màn đọc và làm theo, dù chưa người nào soát",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

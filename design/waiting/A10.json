@@ -1,0 +1,13 @@
+{
+  "id": "A10",
+  "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+  "question": "Mỗi màn ghi ở hai nơi: sổ màn (có gì) và mã (đi tới bằng cách nào)",
+  "recommendation": "Giữ",
+  "basis": "Quyết định 0030: khi sổ màn chỉ là mã, cổng đọc mã như văn bản nên trạng thái khai bằng hàm bị đọc là không có, và lượt nghiệm thu của quyết định 0028 đỏ hai lượt vì thế; chủ repo chọn hướng này ngày 2026-11-14. Khó đảo: hình dạng sổ màn nằm trong hợp đồng, các lệnh kiểm về màn đọc trạng thái từ sổ, và Inventory đã mang sổ màn đúng hình dạng (7 trên 7 sổ, đo ngày 2026-11-15).",
+  "hard_to_undo": true,
+  "where": "0030",
+  "if_refused": "Quay lại một nơi; lỗi đọc nhầm trạng thái trở lại",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

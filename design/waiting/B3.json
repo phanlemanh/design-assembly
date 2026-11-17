@@ -1,0 +1,12 @@
+{
+  "id": "B3",
+  "group": "B. Điều chưa bao giờ được duyệt",
+  "question": "Đổi chỉ số chính sang «luật bị phạm, có so với không có trang luật»; số chỗ đoán thành số phụ",
+  "recommendation": "Giữ đề xuất",
+  "basis": "Quyết định 0032: số chỗ đoán đứng yên qua bốn lượt (12, 12, 13, 11 ở `docs/trials/results.tsv`) và chưa đo đúng định nghĩa, mỗi lượt một tác tử thay vì ba; «luật bị phạm» có nhánh đối chứng, trên repo mới là 0 so với 3, 6, 3. Từ ngày 2026-11-14 không có lượt thử mới (lượt cuối ngày 2026-11-13), và kế hoạch đã duyệt dùng số chỗ đoán làm điều kiện «không tăng» của giai đoạn 5, không đặt đích 0. Dễ đảo: chỉ đổi cột nào là số chính.",
+  "hard_to_undo": false,
+  "if_refused": "Số chỗ đoán vẫn là chỉ số chính với đích 0, dù nó chưa có nhánh đối chứng và chưa được đo bằng ba tác tử như định nghĩa",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

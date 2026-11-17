@@ -1,0 +1,13 @@
+{
+  "id": "A5",
+  "group": "A. Điều máy đã chọn và đã dựng, chờ bác",
+  "question": "Dòng đang xoá hiện vòng quay thay cho chữ, vì chữ «Đang xoá» rộng quá 2px ở bề rộng 320",
+  "recommendation": "Giữ",
+  "basis": "Quyết định 0027, mục 5: với chữ «Đang xoá», cổng kiểm đỏ ở bề rộng 320 vì cột thao tác thiếu 2px; với vòng quay, cột thao tác chừa 20,5px trước ngưỡng, kể cả lúc một dòng đang xoá. Dễ đảo: chỉ đổi cách một nút báo đang làm.",
+  "hard_to_undo": false,
+  "where": "0027",
+  "if_refused": "Phải tìm cách khác cho bề rộng 320",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

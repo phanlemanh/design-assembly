@@ -1,6 +1,6 @@
 ---
 name: decide
-description: Put every question that waits on a repository's owner on one sheet and take the answers in one go — each question with one recommendation and what it rests on, the ones that are hard to undo marked — then write each answer where the question lives, with the name of the person who answered and the date. Use when the user says "what do I have to decide", "let me answer what is waiting", "the decision sheet", "confirm the proposals", "keep" or "refuse" for waiting rows, or after status says answers wait on the owner. Not for a first design system (that is the guide), and not for changing a value the owner refused (no command does that yet).
+description: Put every question that waits on a repository's owner on one sheet and take the answers in one go — each question with one recommendation and what it rests on, the ones that are hard to undo marked — then write each answer where the question lives, with the name of the person who answered and the date. Use when the user says "what do I have to decide", "let me answer what is waiting", "the decision sheet", "confirm the proposals", "keep" or "refuse" for waiting rows, or after status says answers wait on the owner. Also for an agent building a screen that meets a choice nothing settles: it queues the question with --ask and goes on. Not for a first design system (that is the guide), and not for changing a value the owner refused (no command does that yet).
 ---
 
 # The decision sheet of a repository
@@ -40,9 +40,10 @@ Two sources, in this order:
 - **Rows of the ledger nobody confirmed.** A row of `design/decisions.yaml` whose note says a person
   has not confirmed it: the guide proposed the answer, or it was read off the repository. The
   recommendation and what it rests on are the ones status gives.
-- **The waiting list.** `design/waiting-list.json`, when the repository has one: questions that are
-  not rows of a design ledger, as data (`references/checks.md`, "What decide reads and writes"). They
-  are printed under the heading each row gives as its `group`.
+- **The waiting list.** `design/waiting/`, one file per question, or the older shared file
+  `design/waiting-list.json`, when the repository has one: questions that are not rows of a design
+  ledger, as data (`references/checks.md`, "What decide reads and writes"). They are printed under
+  the heading each row gives as its `group`, in the order of their ids.
 
 Each question has an id, a `recommendation`, a `because`, and where the list gives them a `where`
 and an `if refused`. `[hard to undo]` marks a row of the ledger in a layer every other layer is
@@ -105,7 +106,8 @@ What it writes:
   guide writes from the blueprint and the answer is "keep", the choice is also listed under
   `confirmed` in `design/blueprint.json`, so the guide does not turn it back into a proposal.
 - **A row of the waiting list:** it gains `answer` (`keep`, `refuse`, `value`), `said` when the
-  person said something, `by` and `on`. The row stays in the file.
+  person said something, `by` and `on`. The row stays. Kept as one file per question, only the
+  answered questions' own files are written.
 
 One answer that cannot be taken refuses the whole file: an id the sheet does not have, a
 permission, a call with no row, a question answered before, a line with no answer. Nothing is
@@ -121,17 +123,42 @@ command.
   record, in their words, with the date.
 - Run `/design-assembly:status` to see what still waits elsewhere.
 
-## 6. With `--json`
+## 6. Asking: for an agent that builds
 
-| Key           | Holds                                                                                                 |
-| ------------- | ----------------------------------------------------------------------------------------------------- |
-| `questions`   | `id`, `source`, `group`, `question`, `recommendation`, `basis`, `hard_to_undo`, `where`, `if_refused` |
-| `answered`    | `id`, `source`, `answer` (`keep`, `refuse`, `value`), `said`, `by`, `on`                              |
-| `elsewhere`   | Calls with no row: `id`, `source`, `question`, `recommendation`, `basis`, `answer_with`               |
-| `permissions` | `id`, `source`, `group`, `what`                                                                       |
-| `dry_run`     | Whether the call was a preview that wrote nothing                                                     |
-| `files`       | The files written, or that would be: `path`, `change` (`create`, `update`). Empty without answers     |
-| `recorded`    | Only with `--answers`: `by`, `on`, and `changes`, what changed in each file, by its path              |
+An agent that meets a choice the ledger, the components and the pages of kinds do not settle does
+not settle it alone, and does not stop to ask in the middle of its work either. It queues the
+question and goes on with its own recommendation:
+
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/decide.mjs --target <repo> --ask "QUESTION" --recommend "TEXT" --because "TEXT" --easy-to-undo`
+
+- `--hard-to-undo` instead when the answer is hard to undo. One of the two is required, as are
+  `--recommend` and `--because`.
+- `--item decision:ID` when the question is about one row of `design/decisions.yaml`. A judgment the
+  agent writes into the ledger is asked this way, or says in its note that a person has not
+  confirmed it; the gate fails otherwise.
+- `--item pattern:NAME` for a new page of a kind of screen, `--item source-color:VALUE` for a new
+  brand colour. These are the owner's calls: the script says **stop**, and the agent does not
+  build on it. The gate stays red on the branch until the owner keeps that very item here.
+- `--id ID` names the question; without it the id is made from the item, or from the words.
+- It writes one new file, `design/waiting/<id>.json`, and nothing else. When the waiting list is
+  still the shared file, it refuses: run `--split` once first (with `--dry-run` to see it), which
+  turns the file into one file per question and writes nothing if one would be lost.
+
+Asking is not answering: never ask and answer the same question, and never write `answer`, `by`
+or `on` into a question's file by hand.
+
+## 7. With `--json`
+
+| Key           | Holds                                                                                                                              |
+| ------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `questions`   | `id`, `source`, `group`, `question`, `recommendation`, `basis`, `hard_to_undo`, `where`, `if_refused`                              |
+| `answered`    | `id`, `source`, `answer` (`keep`, `refuse`, `value`), `said`, `by`, `on`                                                           |
+| `elsewhere`   | Calls with no row: `id`, `source`, `question`, `recommendation`, `basis`, `answer_with`                                            |
+| `permissions` | `id`, `source`, `group`, `what`                                                                                                    |
+| `dry_run`     | Whether the call was a preview that wrote nothing                                                                                  |
+| `files`       | The files written, or that would be: `path`, `change` (`create`, `update`, `remove`). Empty without answers, a question or a split |
+| `recorded`    | Only with `--answers`: `by`, `on`, and `changes`, what changed in each file, by its path                                           |
+| `asked`       | Only with `--ask`: `id`, `file`, `item`, and `may_go_on`, false for the owner's calls                                              |
 
 `source` is `ledger` or `waiting-list`. `hard_to_undo` is `true`, `false`, or `null` when the row
 does not say. `basis` is `null` when the waiting list gives none. With `--answers` the four lists

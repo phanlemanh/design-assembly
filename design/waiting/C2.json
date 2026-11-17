@@ -1,0 +1,12 @@
+{
+  "id": "C2",
+  "group": "C. Câu còn mở từ trước",
+  "question": "Có ghim màu thương hiệu của repo được nhận không",
+  "recommendation": "Có: hôm nay đổi sang màu khác vẫn qua nếu đủ tương phản",
+  "basis": "Sổ giới hạn có một dòng mức nặng mở từ ngày 2026-11-12: màu thương hiệu của repo được nhận không được ghim, nên đổi sang màu khác đủ tương phản thì cổng vẫn xanh. Đọc Inventory ngày 2026-11-15: dòng màu gốc ở đó là lời người, không kèm lệnh kiểm nào. Dễ đảo: ghim là thêm một lệnh kiểm, bỏ ghim là gỡ nó.",
+  "hard_to_undo": false,
+  "if_refused": "Không ghim thì màu thương hiệu của repo đã nhận đổi được mà không cổng nào đỏ, và dòng giới hạn mức nặng ấy ở lại, phải ghi là chấp nhận",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-16"
+}

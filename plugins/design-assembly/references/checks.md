@@ -528,6 +528,45 @@ Two rules about the system, and one about how it is bent on purpose.
 The file `design/patterns/lech-lot.md` is the acceptance kit's own record of screens that left
 their frame. The audit accepts it for the tier; this tool does not write to it.
 
+## Questions only the owner answers
+
+The ledger stands in for the head of design: the machine chooses from the ledger and the
+components, queues what they do not settle on the decision sheet, and goes on with its own
+recommendation; a new kind of screen and the brand colour wait for the owner. Two rows of the
+governance layer hold this, and the guide and adopting write both. What a branch adds is read from
+git: against where the branch left the main branch (`origin/HEAD`, `main`, `master`, `origin/main`
+or `origin/master`, the first git knows), with what is not committed yet.
+
+- **`decision-sheet`: the total comparison.** It fails on a judgment row the branch adds or changes
+  that no person answered and no question asks. A row is answered when its note carries what the
+  decision sheet writes (`confirmed by`, `refused by`, `answered by`), or when the guide wrote it
+  from a layer of `design/blueprint.json` that is the person's own or lists the choice under
+  `confirmed`. It is asked when its note says a person has not confirmed it, which the sheet
+  lists, or when a question of the waiting list names it with `item: decision:ID`. It also fails
+  where source goes around a decided scale (the same detector as the audit: a raw colour, a type
+  size, a spacing or a radius between square brackets, for a decision the ledger has a row for),
+  and where a test of `tests/` names `decision:ID` for an id the ledger has no row for. It covers
+  the choices a machine reads: values, components, kinds of screen, states, words and column
+  types. Free layout inside one screen is outside it.
+- **`owner-calls`: the wall.** It fails on a page under `design/patterns` that the branch adds,
+  and on a root colour line (the last `--primary` of a top-level `:root` block of the stylesheet,
+  as written) that differs from the base, until a question of the waiting list names that very
+  item (`pattern:NAME`, or `source-color:VALUE` with the new value) and the owner kept it. A
+  question asked and not answered, or answered with a refusal or other words, leaves it failing
+  and says so. Raising a pull request's rank on the hosting service is not this tool's.
+- **What is not compared.** Outside git, nothing: both pass, and the gate prints that it did not
+  compare. A branch whose base has no decision ledger is where the repository meets the plugin,
+  with the person, in the guide or while adopting: nothing it writes is compared, and nor is
+  anything in a repository with no commit yet. Git that is
+  there and cannot name a main branch fails both, rather than let a new kind of screen through
+  unseen: a checkout in continuous integration needs the history of the main branch
+  (`fetch-depth: 0`), and a main branch of another name is named with `"main": "<name>"` on either
+  check. Of several main branches git knows, the base is the newest place this branch left one, so
+  a local `main` that was not pulled does not count what was merged since as this branch's. A file
+  git cannot read at the base fails both; only a file the base does not have is an absence. An
+  unreadable waiting list fails both. A person's answer to a judgment is read from the note of its
+  row: an agent that writes one in is not caught (limit `decision-sheet-trusts-the-note`).
+
 ## A row that has no check
 
 A repository may already have a row for a decision, with no check. The scripts never rewrite a
@@ -580,6 +619,8 @@ passes: a check that cannot fail proves nothing.
 | `screen-sizes`      | The widths reach down to 320 CSS pixels, and the browser test reads them               |
 | `import-direction`  | No source file imports a file of a part listed above its own                           |
 | `slips`             | Every line of the record names a date, what slipped, a layer and what was done         |
+| `decision-sheet`    | Every judgment the branch writes is answered or asked; nothing goes around a decision  |
+| `owner-calls`       | A new kind of screen or root colour on the branch has the owner's kept answer          |
 | `gate`              | `make check` runs the tool in a way that can fail                                      |
 
 The tool also checks that it and the ledger agree in both directions: every row that points at it
@@ -614,7 +655,7 @@ things of its own.
   repository. Status lists it as waiting on the owner, with the call only a person can make that
   has no row at all. The ledger has no key yet for who confirmed a row and when; until it has, the
   wording of the note is the only sign.
-- **The waiting list.** `design/waiting-list.json`, when the repository has one. Status lists
+- **The waiting list.** `design/waiting/`, or `design/waiting-list.json`, when the repository has one. Status lists
   every question of it that nobody answered; a permission and an answered row do not wait. Which
   row waits is the rule of the decision sheet, asked of `scripts/decide.mjs` and not written a
   second time. `/design-assembly:decide` takes the answer to such a question and to a row nobody
@@ -714,13 +755,19 @@ writes nothing. It reads two sources.
 - **A row nobody confirmed.** The same rows status lists, by the same rule, with the recommendation
   and the basis status gives. A row is marked hard to undo when its layer is one every other layer
   is built on: context or foundations.
-- **The waiting list.** `design/waiting-list.json`, when the repository has one: questions that
-  wait on the owner and are not rows of a design ledger. It is not a ledger of the contract, and
-  the gate does not read it. One file, `version` 1, and `rows`. A row has an `id` and a `question`,
-  and may have a `kind` (`question`, the default, or `permission`), a `group` (the heading it is
-  printed under), a `recommendation`, a `basis`, `hard_to_undo` (true or false), a `where` (the
-  record that states it) and an `if_refused` (what refusing costs). A row of kind `permission` is
-  something only the owner gives, step by step: it is listed, takes no answer, and is not counted.
+- **The waiting list.** Questions that wait on the owner and are not rows of a design ledger, when
+  the repository has them. It is not a ledger of the contract; the gate reads it only for the
+  decision sheet and the wall (see "Questions only the owner answers"). It is kept in one of two
+  shapes, never both: `design/waiting/<id>.json`, one file per question named after its id, or
+  the older `design/waiting-list.json`, one shared file with `version` 1 and `rows`. In a folder,
+  a file that is not `.json` is no question and is left alone; two names that differ only by
+  capitals cannot be read. A row has an `id` and a `question`, and may have a `kind` (`question`,
+  the default, or `permission`), a `group` (the heading it is printed under), a `recommendation`,
+  a `basis`, `hard_to_undo` (true or false), a `where` (the record that states it), an
+  `if_refused` (what refusing costs), an `item` (the one thing it is about: `decision:ID`,
+  `pattern:NAME` or `source-color:VALUE`) and `asked_on` (the day an agent asked it). A row of
+  kind `permission` is something only the owner gives, step by step: it is listed, takes no
+  answer, and is not counted. The questions of a folder are listed in the order of their ids.
 
 A call only a person can make that the ledger has no row for is listed too, with the command that
 records it; decide cannot take its answer.
@@ -736,7 +783,19 @@ its question lives, with the name of the person and the date.
   A kept answer to a row the guide writes from the blueprint is also listed under `confirmed` of
   its layer in `design/blueprint.json`, where the guide reads it.
 - **In the waiting list,** the row gains `answer` (`keep`, `refuse`, `value`), `said`, `by` and
-  `on`, and stays in the file.
+  `on`, and stays. In a folder only the files of the answered questions are written.
+
+**Asking.** A building agent that meets a question nobody answered asks it with `--ask QUESTION`,
+`--recommend TEXT`, `--because TEXT` and one of `--hard-to-undo` or `--easy-to-undo`; `--item`
+names what it is about, `--id` its id (else one is made from the item, or from the words of the
+question). Decide writes one new file under `design/waiting/` and touches no other file, so two
+branches that each ask merge with nothing in common. It refuses, and writes nothing, when the
+question is not whole, when its id waits already or is a row of the ledger, and when the waiting
+list is still one shared file. It then tells the agent to go on with its own recommendation, or,
+for an item of kind `pattern` or `source-color`, to stop: those are the owner's calls, and the wall
+holds them. `--split` turns the shared file into one file per question; it writes the files from
+memory, reads them back, and writes nothing if one question would not come back the same. The
+shared file's own `about` is not a question and is printed, not kept.
 
 A refusal is recorded and nothing else changes: no command of this version changes the value. One
 answer that cannot be taken refuses the whole file. `--dry-run` prints each file a run would write
