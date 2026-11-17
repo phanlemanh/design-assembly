@@ -2901,6 +2901,85 @@
       "where": ["d0054", "spec"],
       "status": "open",
       "note": "Of what the audit reports as a decision with no row, the gate reads only a test that names decision:ID for an id with no row. A proof the audit recognises from the plugin's list of known proofs, and a value that looks like a person's answer, need lists that do not travel with the installed tool, so the gate does not read them; the audit still reports them."
+    },
+    {
+      "id": "audit-workspace-reads-top-src-only",
+      "area": "audit",
+      "kind": "wrong-signal",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-17",
+      "where": ["trials"],
+      "status": "open",
+      "note": "In a workspace repository whose screens live under apps/NAME/ and whose stylesheet lives under packages/NAME/src/styles/, the audit and status read only the src/ folder at the top: they print no stylesheet and 0 source files, the audit's next line says there is nothing to read, and status ends with 0 and nothing to run, while the UI package alone, given as --target, has a stylesheet with a primary colour of its own and 35 places that go around four scales."
+    },
+    {
+      "id": "audit-undecided-with-nothing-read",
+      "area": "audit",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-17",
+      "where": ["trials"],
+      "status": "open",
+      "note": "On a package that keeps its screens in an app folder at its top rather than under src/, the audit reads 0 source files and prints no stylesheet under src/, yet in the same report quotes the primary colour of a stylesheet the component settings name outside the folder given, and calls color-role, type-scale, spacing and radius undecided, as if it had seen that nothing answers them."
+    },
+    {
+      "id": "guide-commands-look-for-src-index-css-only",
+      "area": "specimen",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-17",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The specimen and the guide's writer look for the stylesheet at src/index.css only, not at the one design/theme.json or the component settings name, so on an adopted repository whose stylesheet is src/app/globals.css they end with 2 saying there is no screen to draw and no design floor to build on."
+    },
+    {
+      "id": "values-under-a-cascade-layer-unread",
+      "area": "adopt",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-17",
+      "where": ["trials"],
+      "status": "open",
+      "note": "Custom properties declared under :root inside an @layer block of an imported stylesheet are not read, so a colour role written as var(--x), with --x declared there, is reported as pointing nowhere, and the contrast of the primary colour is said to be unreadable rather than measured."
+    },
+    {
+      "id": "words-check-reads-type-parameters-as-text",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-17",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The check for words written into a screen reads a type parameter in a .tsx file, such as <TData extends Omit<...>>, as a tag that holds text, so adopting reports the labels decision as failing today in files that put no words on a screen."
+    },
+    {
+      "id": "library-folder-not-read-from-settings",
+      "area": "audit",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-17",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The component library's files are known by the folders components/ui and components/reui, not by the ui alias the component settings give, so a package that keeps the library in src/components counts the library's own files as its own: bypasses of the type, spacing and radius scales are listed in its button, calendar, tabs and scroll area, and its toaster is reported as a screen that calls the toast library itself."
+    },
+    {
+      "id": "ladder-stopped-where-adopt-refused",
+      "area": "trials",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-17",
+      "where": ["trials"],
+      "status": "closed",
+      "note": "On a repository whose stylesheet declares no --primary, adopting rightly refuses the source colour of step two, and the ladder command stopped there with an uncaught error and its stack, printing no row for steps two and three and not saying whether the reference changed; past that point, its equal rows were said to mean the repository had already taken every rung.",
+      "closed": "2026-11-17",
+      "closed_by": "the ladder writes a refused step as a line of its report and goes on, and says when equal rows mean adopting took nothing in; held by the ladder's test on a repository with no gate and no --primary"
     }
   ]
 }
