@@ -416,6 +416,48 @@ test("the gate check follows the Makefile: a check target that drops the added s
   );
 });
 
+// repo-setup 0.9.0 splits the gate in two tiers: `check: check-quick check-heavy`, and
+// `check-quick` runs CHECK_TARGETS (onehub-inventory, 2026-11-18).
+const TWO_TIERS = [
+  "check-quick: $(CHECK_TARGETS) ## The light tier: CI runs it on every push",
+  "\t@:",
+  "",
+  "check-heavy: $(HEAVY_TARGETS) ## The heavy tier: CI runs it when the files it reads change",
+  "\t@:",
+  "",
+  "check: check-quick check-heavy ## Everything CI runs: both tiers",
+].join("\n");
+
+test("the gate check follows a two-tier Makefile: check reaches CHECK_TARGETS through check-quick", () => {
+  const dir = repository();
+  assert.equal(apply(dir).status, 0);
+  edit(dir, "Makefile", (make) => make.replace(/^check:.*$/m, TWO_TIERS));
+  const result = check(dir);
+  assert.equal(result.status, 0, result.stderr);
+});
+
+test("a two-tier Makefile whose light tier drops the added steps is caught", () => {
+  const dir = repository();
+  assert.equal(apply(dir).status, 0);
+  const dropped = TWO_TIERS.replace("check-quick: $(CHECK_TARGETS)", "check-quick: lint");
+  edit(dir, "Makefile", (make) => make.replace(/^check:.*$/m, dropped));
+  const broken = check(dir);
+  assert.equal(broken.status, 1);
+  assert.match(
+    broken.stderr,
+    /checks-in-gate: the Makefile's check target no longer runs CHECK_TARGETS/,
+  );
+});
+
+test("CHECK_TARGETS named only in a comment of the check target does not count", () => {
+  const dir = repository();
+  assert.equal(apply(dir).status, 0);
+  edit(dir, "Makefile", (make) =>
+    make.replace(/^check:.*$/m, "check: lint ## used to run $(CHECK_TARGETS)"),
+  );
+  assert.equal(check(dir).status, 1);
+});
+
 test("a source color may be written as the stylesheet writes colours", () => {
   const content = blueprint();
   content.layers.foundations.choice = { source_color: "oklch(0.488 0.243 264.376)" };
