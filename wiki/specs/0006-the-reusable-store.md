@@ -1,7 +1,7 @@
 ---
 type: spec
 title: Kho dùng lại — sổ nguồn ngoài, và bốn lệnh tra kho, kiểm kê kho, nhập kho, đổi
-status: needs-approval
+status: approved
 tier: 1
 links:
   - wiki/specs/0004-the-command-set.md
@@ -29,13 +29,16 @@ sources:
   - plugins/design-assembly/references/limits.json
   - plugins/design-assembly/references/vocabulary.json
   - docs/trials/breadth-on-two-repositories.md
+  - "chủ repo, 2026-11-19: «Duyệt, mở PR»"
   - "repo kiểm chứng, nhánh chính tại 47d52b06, đọc ngày 2026-11-19, chỉ đọc: design/intake/, design/reui-catalog.json, tools/reui_catalog/, tools/proof_gate/check.py"
 ---
 
 # 0006 Kho dùng lại — sổ nguồn ngoài, và bốn lệnh tra kho, kiểm kê kho, nhập kho, đổi
 
 Máy viết ngày 2026-11-19, là đề bài chi tiết cho giai đoạn 3 của kế hoạch («Kho dùng lại»), như đề bài 0005 cho giai
-đoạn 8. Không gì được dựng trước khi chủ repo duyệt. Mọi điều về mã hiện có ở dưới đã được đọc lại trên `main` tại
+đoạn 8. Chủ repo duyệt ngày 2026-11-19 («Duyệt, mở PR») mà không đáp riêng từng câu hỏi: mười câu đi theo
+khuyến nghị, kể cả mục 3.0 mới của kế hoạch cho chính đề bài này (câu 1) và một mục để sang bên cho `change --to` và
+`--migrate` (câu 8). Chủ repo bác được từng câu bất cứ lúc nào. Mọi điều về mã hiện có ở dưới đã được đọc lại trên `main` tại
 `03e2a99`; điều về repo kiểm chứng đọc tại `47d52b06`, chỉ đọc.
 
 ## Intent
@@ -428,16 +431,16 @@ Bảng từ vựng thêm các tên ở phần A3.
 
 ## Plan
 
-| Bước | Nhánh và PR                       | Mục kế hoạch      | Việc                                                                      | Cần chủ repo                                   |
-| ---- | --------------------------------- | ----------------- | ------------------------------------------------------------------------- | ---------------------------------------------- |
-| 0    | Nhánh này                         | 3.1, hoặc 3.0 mới | Đề bài này                                                                | Duyệt; đáp các câu hỏi                         |
-| 1    | Sổ nguồn ngoài, khoá mới, từ vựng | 3.1               | Hình dạng, bộ đọc, phép kiểm, `contract.md`, bảng từ vựng, `starter.json` | Duyệt PR                                       |
-| 2    | Đổi tên script của `audit`        | 3.4               | Phần một của 3.4                                                          | Duyệt PR                                       |
-| 3    | `find`                            | 3.2               | Lệnh, skill, bài kiểm, đo trên bản sao                                    | Cho đọc lại hai repo của giai đoạn 2; duyệt PR |
-| 4    | `inventory`                       | 3.4               | Lệnh, sáu phát hiện, dòng «xong khi» thứ hai, trang thử                   | Duyệt PR                                       |
-| 5    | `intake`                          | 3.3               | Lệnh, `before` cho ứng dụng mẫu, khối đầu tiên, dòng «xong khi» thứ nhất  | Đáp một câu chờ; cho phép nếu khối cần gói mới |
-| 6    | `change`                          | 3.5               | Lệnh, tác động, cho nghỉ và gộp                                           | Duyệt PR                                       |
-| 7    | Đóng giai đoạn                    | —                 | Chạy hai dòng «xong khi», ghi ngày và bằng chứng vào `closed`             | Lời của chủ repo                               |
+| Bước | Nhánh và PR                       | Mục kế hoạch | Việc                                                                      | Cần chủ repo                                   |
+| ---- | --------------------------------- | ------------ | ------------------------------------------------------------------------- | ---------------------------------------------- |
+| 0    | Nhánh này                         | 3.0          | Đề bài này                                                                | Đã duyệt 2026-11-19                            |
+| 1    | Sổ nguồn ngoài, khoá mới, từ vựng | 3.1          | Hình dạng, bộ đọc, phép kiểm, `contract.md`, bảng từ vựng, `starter.json` | Duyệt PR                                       |
+| 2    | Đổi tên script của `audit`        | 3.4          | Phần một của 3.4                                                          | Duyệt PR                                       |
+| 3    | `find`                            | 3.2          | Lệnh, skill, bài kiểm, đo trên bản sao                                    | Cho đọc lại hai repo của giai đoạn 2; duyệt PR |
+| 4    | `inventory`                       | 3.4          | Lệnh, sáu phát hiện, dòng «xong khi» thứ hai, trang thử                   | Duyệt PR                                       |
+| 5    | `intake`                          | 3.3          | Lệnh, `before` cho ứng dụng mẫu, khối đầu tiên, dòng «xong khi» thứ nhất  | Đáp một câu chờ; cho phép nếu khối cần gói mới |
+| 6    | `change`                          | 3.5          | Lệnh, tác động, cho nghỉ và gộp                                           | Duyệt PR                                       |
+| 7    | Đóng giai đoạn                    | —            | Chạy hai dòng «xong khi», ghi ngày và bằng chứng vào `closed`             | Lời của chủ repo                               |
 
 Sau bước 5, nếu chủ repo muốn: một lượt thử độc lập với vai «nhập kho» (đề bài 0002, mục Test plan), và một lần áp lên
 repo thật (câu hỏi 9).
@@ -481,10 +484,11 @@ delivery-loop, Repo Standards.
 
 ## Open questions
 
-Mỗi câu kèm một khuyến nghị. Câu nào chủ repo không đáp, máy đi theo khuyến nghị và ghi câu ấy vào hàng chờ.
+Mỗi câu kèm một khuyến nghị. Chủ repo duyệt đề bài ngày 2026-11-19 mà không đáp riêng từng câu: máy dựng theo
+khuyến nghị của cả mười câu.
 
 1. **Thêm mục 3.0 vào kế hoạch cho đề bài này, như 8.0?** Khuyến nghị: thêm. Kế hoạch là của chủ repo, nên máy chưa sửa
-   `docs/plan/plan.json`; commit này tạm phục vụ 3.1.
+   `docs/plan/plan.json`; hai commit đầu của đề bài phục vụ 3.1. Đã thêm 3.0 khi chủ repo duyệt.
 2. **Đổi tên script của `audit` thành `audit.mjs` trước, giữ một tệp nhỏ thoát 2 ở tên cũ cho tới 3.4?** Khuyến nghị:
    có. Làm cùng lúc với 3.4 thì có một bản mà cùng lời gọi `--json` trả một kết quả khác mà không báo.
 3. **Sổ nguồn ngoài mỗi nguồn một tệp JSON ở `design/sources/`, bản ghim ghi tại chỗ hoặc trỏ tới tệp ghim sẵn có, và
