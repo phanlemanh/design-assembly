@@ -3,12 +3,15 @@
 // a checkout that cannot fetch it still fails rather than let a new kind of screen through.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { env } from "node:process";
 import { after, test } from "node:test";
 
+import { noteLines, runChecks } from "../templates/tools/design-assembly/check.mjs";
 import {
+  branchDone,
   branchFacts,
   branchNotes,
   wallProblem,
@@ -118,7 +121,100 @@ test("a commit fetched alone by its id: the main branch is fetched, and the new 
   assert.deepEqual(branch.pages_added, ["board"]);
   assert.match(wall(branch), /pattern:board/);
   assert.match(branch.fetched, /origin/);
-  assert.match(branchNotes(branch).join(" "), /fetched/);
+  // A fetch the check made is work done, said as such, never listed with the debts.
+  assert.doesNotMatch(branchNotes(branch).join(" "), /fetched/);
+  assert.match(branchDone(branch).join(" "), /fetched/);
+});
+
+test("the gate says a fetch it made as done, not as a debt", () => {
+  const branch = facts(byId(remote({ page: false })));
+  assert.equal(branch.problem, undefined, JSON.stringify(branch));
+  const state = {
+    theme: { checks: { "owner-calls": [{ kind: "owner-calls" }] } },
+    branch,
+    waiting: { rows: [] },
+  };
+  const [result] = runChecks(state);
+  assert.equal(result.problem, null);
+  assert.deepEqual(result.notes, []);
+  assert.deepEqual(result.done, [branch.fetched]);
+  const lines = noteLines([result, { id: "screen-actions", notes: ["a debt"], done: [] }]);
+  assert.deepEqual(lines, [`  owner-calls: ${branch.fetched}`, "  screen-actions, debt: a debt"]);
+});
+
+// A stand-in for ssh that records how it was called, then runs the command git asks of the far
+// side on this machine: the last word it is given. So a remote reached over ssh needs no server.
+function fakeSsh(name = "fake-ssh") {
+  const dir = folder();
+  const said = path.join(dir, "called.log");
+  const script = path.join(dir, name);
+  writeFileSync(
+    script,
+    `#!/bin/sh\necho "$@" >> '${said}'\nfor last; do :; done\nexec sh -c "$last"\n`,
+    { mode: 0o755 },
+  );
+  return { dir, script, said: () => (existsSync(said) ? readFileSync(said, "utf8") : "") };
+}
+
+// A shallow checkout whose remote is reached over ssh, at a host that does not exist: only the
+// command the machine configured can reach it.
+function overSsh(source) {
+  const dir = byId(source);
+  git(dir, "remote", "set-url", "origin", `ssh://nowhere.invalid${source.dir}`);
+  return dir;
+}
+
+// Sets environment variables for one call, undefined meaning unset, and puts back what was there.
+function withEnv(values, call) {
+  const set = (entries) => {
+    for (const [key, value] of entries) {
+      if (value === undefined) delete env[key];
+      else env[key] = value;
+    }
+  };
+  const before = Object.keys(values).map((key) => [key, env[key]]);
+  set(Object.entries(values));
+  try {
+    return call();
+  } finally {
+    set(before);
+  }
+}
+
+test("an ssh command the checkout configures is the one the fetch uses", () => {
+  const source = remote();
+  const ssh = fakeSsh();
+  const dir = overSsh(source);
+  git(dir, "config", "core.sshCommand", ssh.script);
+  const branch = withEnv({ GIT_SSH_COMMAND: undefined, GIT_SSH: undefined }, () => facts(dir));
+  assert.equal(branch.problem, undefined, JSON.stringify(branch));
+  assert.deepEqual(branch.pages_added, ["board"]);
+  assert.match(ssh.said(), /git-upload-pack/);
+});
+
+test("an ssh program the environment names is the one the fetch uses", () => {
+  const source = remote();
+  const ssh = fakeSsh();
+  const dir = overSsh(source);
+  const branch = withEnv({ GIT_SSH_COMMAND: undefined, GIT_SSH: ssh.script }, () => facts(dir));
+  assert.equal(branch.problem, undefined, JSON.stringify(branch));
+  assert.match(ssh.said(), /git-upload-pack/);
+});
+
+test("with no ssh command configured, ssh is told never to ask for a password", () => {
+  const source = remote();
+  const ssh = fakeSsh("ssh");
+  const dir = overSsh(source);
+  const branch = withEnv(
+    {
+      GIT_SSH_COMMAND: undefined,
+      GIT_SSH: undefined,
+      PATH: `${ssh.dir}${path.delimiter}${env.PATH}`,
+    },
+    () => facts(dir),
+  );
+  assert.equal(branch.problem, undefined, JSON.stringify(branch));
+  assert.match(ssh.said(), /BatchMode=yes/);
 });
 
 test("a shallow checkout of a branch that adds nothing the owner decides is green", () => {

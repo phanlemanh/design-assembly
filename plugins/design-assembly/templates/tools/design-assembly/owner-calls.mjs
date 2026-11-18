@@ -103,16 +103,13 @@ export function branchFacts(
 ) {
   // Never waits on a prompt for a password or a passphrase: a fetch that needs one fails, and
   // says so. `timed` also gives up after a while, for a call that goes to the remote.
+  const quiet = { ...env, GIT_TERMINAL_PROMPT: "0", ...sshOverride(root) };
   const run = (timeout, args) =>
     spawnSync("git", ["-C", root, ...args], {
       encoding: "utf8",
       maxBuffer: 1 << 30,
       timeout,
-      env: {
-        ...env,
-        GIT_TERMINAL_PROMPT: "0",
-        GIT_SSH_COMMAND: env.GIT_SSH_COMMAND ?? "ssh -o BatchMode=yes",
-      },
+      env: quiet,
     });
   const git = Object.assign((...args) => run(undefined, args), {
     timed: (timeout, ...args) => run(timeout, args),
@@ -184,6 +181,20 @@ export function branchFacts(
   } catch (error) {
     return { problem: error.message };
   }
+}
+
+// The ssh command git runs for the remote, told never to ask for a password, only where the machine
+// names none of its own. An environment variable wins over git's settings, so setting one over a
+// command the machine configured (`GIT_SSH_COMMAND`, `GIT_SSH`, or `core.sshCommand`, such as a
+// key a continuous integration checkout names) would drop that command and its key. A configured
+// command is left alone: a call to the remote still gives up after NETWORK_MS.
+function sshOverride(root) {
+  if (env.GIT_SSH_COMMAND || env.GIT_SSH) return {};
+  const configured = spawnSync("git", ["-C", root, "config", "--get", "core.sshCommand"], {
+    encoding: "utf8",
+  });
+  if (configured.status === 0 && configured.stdout.trim() !== "") return {};
+  return { GIT_SSH_COMMAND: "ssh -o BatchMode=yes" };
 }
 
 // How a shallow checkout's history is fetched: `step` commits first, a step doubled each later
@@ -428,7 +439,8 @@ export function wallProblem({ branch, waiting }) {
   return problems.length === 0 ? null : problems.join("; ");
 }
 
-// What the checks say on a pass that did not compare, and where history was fetched to compare.
+// What the checks say on a pass that did not compare. History fetched to compare is work done, not
+// a debt: `branchDone` says it.
 export function branchNotes(branch) {
   if (branch === null) {
     return ["not in a git repository: what a branch adds is not compared with the main branch"];
@@ -440,5 +452,10 @@ export function branchNotes(branch) {
           ? "no commit yet: the repository starts here, so what it adds is not compared"
           : "the main branch has no decision ledger: this branch is where the repository meets the plugin, so what it adds is not compared",
       ];
-  return branch.fetched ? [...born, branch.fetched] : born;
+  return born;
+}
+
+// What the checks did to compare: in a shallow checkout, the history they fetched.
+export function branchDone(branch) {
+  return branch?.fetched ? [branch.fetched] : [];
 }

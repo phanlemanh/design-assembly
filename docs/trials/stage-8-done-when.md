@@ -146,17 +146,20 @@ bảng ở trên.
   một tệp chạy ngoài bản sao trỏ tới script của plugin, và dặn tác tử chạy chứ không đọc.
 - Đề nói «app có một màn», trong khi kho nay có hai. Đề giữ nguyên để không cắt chuỗi.
 
-**Điều lần thử tìm ra.** Phiên điều phối đã kiểm các con số ở bảng trên. Các điều dưới đây là lời tác tử báo, chưa được
-kiểm từng điều và chưa thành dòng sổ giới hạn:
+**Điều lần thử tìm ra.** Phiên điều phối đã kiểm các con số ở bảng trên. Ngày 2026-11-18, một phiên sau kiểm từng điều
+tác tử báo, trên bản sao của nó (nhánh `trial/screen`, commit `e33ed85`, chỉ đọc) và trên nhánh chính của kho này. Cả
+bảy điều đứng vững. Không điều nào được sửa ở lượt kiểm ấy; mỗi điều nay nằm ở một dòng của
+`plugins/design-assembly/references/limits.json`:
 
-- Cổng xanh cả khi chưa câu nào được xếp: công cụ tin tác tử tự hỏi. Giới hạn `decide-ask-trusts-the-agent-to-ask`
-  đã ghi điều này.
-- Tác tử phải tự viết phần xử lý dòng dùng chung cho hai màn, vì màn mẫu giữ phần ấy trong chính nó. Giới hạn
-  `row-change-logic-not-shipped` đã ghi điều này.
-- `RowActions` lúc chờ không đưa chữ nào lên trang, trong khi sổ trạng thái cần chữ để bài trình duyệt đợi.
-- Luật «trạng thái trống có nhiều nhất một liên kết trong câu» ngược với cổng, vốn cấm một màn liên kết sang màn khác.
-- Hai câu của trạng thái trống thành sai sau khi có thao tác mới mà mọi phép kiểm vẫn xanh; tác tử ghi vào sổ lỗi lọt
-  rồi sửa.
+| Điều tác tử báo                                                                                                                                                            | Kiểm thấy                                                                                                                                                                                                          | Dòng sổ giới hạn                                                                   |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| `RowActions` lúc chờ không đưa chữ nào lên trang, trong khi sổ trạng thái cần chữ để bài trình duyệt đợi                                                                   | Đúng: lúc chờ nút chỉ đổi biểu tượng và tên đọc. Bài trình duyệt chỉ đợi chữ xuất hiện, không đòi chữ ấy vắng trước các bước, nên một trạng thái khai bằng chữ luôn có trên trang qua ngay mà không được đo        | `spoken-only-state-unlisted` (đã có), `state-words-present-before-the-state` (mới) |
+| Luật «trạng thái trống có nhiều nhất một liên kết trong câu» ngược với cổng                                                                                                | Đúng: phép kiểm `screen-links` đỏ với mọi liên kết từ một màn tới đường dẫn của màn khác, nên liên kết duy nhất luật cho phép không trỏ được tới màn nơi mục tới                                                   | `empty-state-link-fails-the-gate` (mới)                                            |
+| Trang hành vi nói nút đang chờ báo «qua `useSlow`», còn `RowActions` giữ hằng một giây của riêng nó                                                                        | Đúng. Trang luật còn bảo màn «không tự viết đồng hồ», nhưng nút không cho màn biết lúc nó bắt đầu báo, nên màn muốn có chữ cho bài kiểm phải viết đồng hồ thứ hai; tác tử đã làm vậy và xếp câu `aside-busy-words` | `row-waiting-words-need-a-second-clock` (mới)                                      |
+| Trang kiểu màn danh sách nói màn chỉ đưa nguồn, tiêu đề, lời trạng thái trống và việc trên dòng, trong khi màn mẫu tự giữ mọi việc của dòng (tiêu điểm, chờ, hộp xác nhận) | Đúng: màn mẫu tự giữ nút xoá, đồng hồ chờ, tiêu điểm và hộp thoại; tác tử phải tự viết phần dùng chung cho hai màn                                                                                                 | `row-change-logic-not-shipped` (đã có)                                             |
+| Không gì báo một chữ của `src/lib/labels.ts` không còn mã nào dùng                                                                                                         | Đúng, và cả trên nhánh chính: ba chữ mẫu (`sampleFirstBody`, `sampleSecondBody`, `sampleNewBody`) không mã nào dùng, cổng xanh                                                                                     | `unused-words-unflagged` (mới)                                                     |
+| Hai câu của trạng thái trống thành sai sau khi có thao tác mới mà mọi phép kiểm vẫn xanh                                                                                   | Đúng: tác tử ghi dòng ngày 2026-11-18 vào sổ lỗi lọt của bản sao rồi sửa hai câu. Lỗi chỉ có trên bản sao, nên sổ lỗi lọt của kho này không thêm dòng                                                              | `post-action-rules-uncheck` (đã có)                                                |
+| 3 trên 9 chỗ phải đoán được tự quyết mà không xếp câu, và không phép kiểm nào bắt                                                                                          | Đúng: sáu câu trong `design/waiting/` của bản sao, không câu nào hỏi hình dạng khái niệm mới, việc màn «Quá hạn» nhận thao tác mới, hay vị trí màn mới trong điều hướng                                            | `decide-ask-trusts-the-agent-to-ask` (đã có)                                       |
 
 ## Còn thiếu gì để đóng giai đoạn 8
 
@@ -165,8 +168,9 @@ kiểm từng điều và chưa thành dòng sổ giới hạn:
   chứng vẫn là bằng chứng mạnh hơn, khi có.
 - **Dòng 3:** không còn thiếu về lệnh. Lần 11 là một lượt, trên ứng dụng mẫu; 3 trên 9 chỗ phải đoán không vào hàng
   chờ, và không phép kiểm nào bắt được điều đó.
-- **Việc theo sau lần 11**, chưa làm: kiểm từng điều tác tử báo rồi ghi thành dòng sổ giới hạn, theo mục «Sau khi chạy»
-  của [`README.md`](README.md).
+- **Việc theo sau lần 11**, đã làm ngày 2026-11-18 theo mục «Sau khi chạy» của [`README.md`](README.md): bảy điều đã
+  kiểm và mỗi điều có dòng sổ giới hạn (bảng ở mục lần 11). Chưa điều nào được sửa; mục gác lại của `docs/plan/plan.json`
+  giữ chúng cho giai đoạn 5.
 
 ## Còn chưa đo
 
