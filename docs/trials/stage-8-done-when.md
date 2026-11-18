@@ -1,8 +1,10 @@
 # Ba dòng «done when» của giai đoạn 8, chạy bằng lệnh
 
 Chạy ngày 2026-11-18, sau khi mục 8.4 đóng. Kế hoạch chỉ cho đóng giai đoạn 8 khi mỗi dòng «done when» được chứng bằng
-một lệnh. Trang này ghi lệnh nào đã chạy và mỗi dòng đứng ở đâu. Kết luận: dòng 2 chứng được, dòng 1 và dòng 3 mỗi
-dòng mới chứng được một nửa, nên giai đoạn 8 chưa đóng.
+một lệnh. Trang này ghi lệnh nào đã chạy và mỗi dòng đứng ở đâu. Kết luận: cả ba dòng đã có lệnh chứng, mỗi dòng kèm
+một điều cần biết ghi ở mục của nó. Nửa sau của dòng 1 chứng bằng một phép phát lại, và nửa sau của dòng 3 bằng lần
+chạy thử 11, đều thêm cùng ngày. Chủ repo đọc các điều cần biết ấy rồi bảo đóng giai đoạn 8, ngày 2026-11-18; lời ghi
+đóng nằm ở `closed` của giai đoạn trong `docs/plan/plan.json`.
 
 ## Chạy trên gì
 
@@ -11,11 +13,11 @@ dòng mới chứng được một nửa, nên giai đoạn 8 chưa đóng.
   cài của Inventory được nối vào bản sao bằng một liên kết, không nằm trong chỉ mục của bản sao.
 - Không lệnh nào ghi vào Inventory thật: `git status` ở đó rỗng trước và sau.
 
-| Dòng «done when»                                                                 | Kết quả                                |
-| -------------------------------------------------------------------------------- | -------------------------------------- |
-| 1. Số PR chạm hai sổ về 0, và mỗi PR chỉ chạm mảnh sổ của chính nó               | Nửa đầu đạt; nửa sau chưa có PR để đo  |
-| 2. Lệnh bản đồ màn chọn đúng màn bị ảnh hưởng, và trả trọn bộ khi không lần được | Đạt                                    |
-| 3. Một lượt dựng màn không hỏi giữa chừng; tường chặn tới khi có lời đáp         | Tường đạt; lượt dựng màn chưa được thử |
+| Dòng «done when»                                                                 | Kết quả                                   |
+| -------------------------------------------------------------------------------- | ----------------------------------------- |
+| 1. Số PR chạm hai sổ về 0, và mỗi PR chỉ chạm mảnh sổ của chính nó               | Đạt; nửa sau bằng phép phát lại           |
+| 2. Lệnh bản đồ màn chọn đúng màn bị ảnh hưởng, và trả trọn bộ khi không lần được | Đạt                                       |
+| 3. Một lượt dựng màn không hỏi giữa chừng; tường chặn tới khi có lời đáp         | Đạt ở một lượt; 6 trên 9 chỗ vào hàng chờ |
 
 ## Dòng 1: PR chạm sổ
 
@@ -25,10 +27,36 @@ commit gộp của 40 PR gần nhất.
 - **Về 0, đạt.** Sổ linh kiện (`design/component-registry.json`) và bảng vai × màn × nút
   (`design/role-screen-buttons.md`) không còn trong git và nằm trong `.gitignore`. Hai PR gộp sau lần nhận 0.7.0 (PR 85
   và 86) chạm 0 tệp trong hai tệp ấy. Trong 37 PR gộp trước lần nhận, 20 PR có chạm ít nhất một tệp.
-- **Mảnh của chính nó, chưa chứng được.** Hai PR ấy không chạm mảnh nào trong `design/screens/` hay `design/intake/`.
-  Từ lúc tách mảnh chưa có PR dựng màn nào gộp, nên chưa có gì để đếm.
+- **Mảnh của chính nó, trên PR thật: chưa có gì để đếm.** Hai PR ấy không chạm mảnh nào trong `design/screens/` hay
+  `design/intake/`. Từ lúc tách mảnh chưa có PR dựng màn nào gộp. Phép phát lại ở dưới chứng nửa này.
 - **Một PR đang mở cắt từ trước lần nhận** (PR 83, gốc `ea774a0f`) còn sửa sổ linh kiện. Khi gộp nhánh chính vào, nó
   gặp việc xoá tệp ấy một lần. Đây là điều giới hạn `screen-fragments-git-left-to-a-person` đã nêu.
+
+### Phát lại: hai nhánh, mỗi nhánh thêm một màn
+
+Trên bản sao, hai nhánh cắt từ cùng một commit. Mỗi nhánh thêm một màn chỉ dùng lúc phát triển: một thư mục trang chép
+từ màn mẫu `proto/bo-nut-theo-quyen` sang đường dẫn mới, và mục sổ màn của nó. Rồi gộp hai nhánh vào nhau theo cả hai
+thứ tự bằng `git merge`. Phép này chạy hai lần: trên bố cục mảnh ở `bd32d73e`, và để đối chứng trên bố cục sổ một tệp
+ở `ea774a0f` (trước lần nhận 0.7.0, công cụ bản 0.1.0).
+
+| Đo gì                                            | Sổ một tệp, `ea774a0f`                            | Sổ theo mảnh, `bd32d73e`            |
+| ------------------------------------------------ | ------------------------------------------------- | ----------------------------------- |
+| Tệp trong `design/` mỗi nhánh chạm               | 2 tệp chung: sổ màn và bảng vai × màn × nút       | 1 tệp: mảnh của chính màn ấy        |
+| Tệp xung đột khi gộp nhánh thứ hai               | 2: `design/screens.yaml`, `design/vai-man-nut.md` | 0, ở cả hai thứ tự                  |
+| Cổng của công cụ và phép kiểm sổ màn sau khi gộp | không chạy: phải gỡ xung đột bằng tay trước       | xanh; sổ màn ghép lại có cả hai màn |
+
+Trên bố cục mảnh, từng nhánh và cả hai kết quả gộp đều qua ba lệnh: `node tools/design-assembly/derived.mjs`,
+`node tools/design-assembly/check.mjs` (19 quyết định, 27 phép kiểm) và `python3 tools/coverage_matrix/check.py`
+(11 màn, 10 trang sau khi gộp). Các tệp dẫn xuất được ghi lại mà git không thấy thay đổi nào. Lệnh bản đồ màn trả đúng
+màn mới cho tệp trang của mỗi nhánh.
+
+Hai điều cần biết về phép phát lại:
+
+- Hai màn là màn dựng cho phép thử, chép từ một màn mẫu, không phải việc thật của repo kiểm chứng. Chúng không thêm
+  thao tác, thực thể hay bài trình duyệt, nên phép này không nói gì về các tệp ấy.
+- Ở bố cục cũ, mục sổ màn mới được thêm vào cuối tệp, sau màn đứng cuối. Hai mục thêm vào hai chỗ xa nhau của tệp
+  có thể không xung đột, nên con số 2 là của cách thêm này. Sổ linh kiện không đổi ở cả hai nhánh cũ, vì thư mục trang
+  chép sang không thêm linh kiện nào vào sổ.
 
 ## Dòng 2: lệnh bản đồ màn
 
@@ -87,17 +115,58 @@ sao được trả về như cũ sau mỗi bước.
 **Bài kiểm của plugin.** `node --test` trên `test-waiting.mjs`, `test-owner-calls.mjs` và
 `test-owner-calls-shallow.mjs`: 43 bài đạt.
 
-**Chưa chứng được: một lượt dựng màn không hỏi chủ repo giữa chừng.** Lần chạy thử vai dựng màn gần nhất là lần 10,
-ngày 2026-11-13, trước khi có 8.3. Chưa lượt dựng màn nào chạy với hàng chờ. Công cụ cũng chỉ tin tác tử tự đưa câu
-vào hàng chờ (giới hạn `decide-ask-trusts-the-agent-to-ask`), nên không lệnh nào ở trên thay được một lượt thật.
+### Chạy thử lần 11: một lượt dựng màn với hàng chờ
+
+Lần chạy thử vai dựng màn trước đó là lần 10, ngày 2026-11-13, trước khi có 8.3. Lần 11 chạy đề chuẩn
+`briefs/screen.md`, nguyên văn, bằng một tác tử độc lập, trên một bản sao của kho này ở `315d571`. Chủ repo cho phép
+trước khi chạy.
+
+| Đo gì                                           | Kết quả                                                                          |
+| ----------------------------------------------- | -------------------------------------------------------------------------------- |
+| Số lần tác tử dừng lại hỏi người                | 0                                                                                |
+| Câu tác tử đưa vào hàng chờ                     | 6, mỗi câu một tệp trong `design/waiting/`, đều «dễ đảo»                         |
+| Câu trong hàng chờ có lời đáp do tác tử ghi     | 0                                                                                |
+| Cổng lúc tác tử nói xong                        | xanh; phiên điều phối chạy lại `make check`: 124 bài đơn vị, 144 bài trình duyệt |
+| Chỗ tác tử khai là tự quyết                     | 18                                                                               |
+| Chỗ phải đoán, sau khi phiên điều phối kiểm     | 9: bỏ 9 chỗ đã có trang chỉ hướng                                                |
+| Trong 9 chỗ ấy, vào hàng chờ / tự quyết lặng lẽ | 6 / 3                                                                            |
+| Dòng thêm vào sổ lỗi lọt                        | 1                                                                                |
+| Tệp tác tử không được đụng                      | không đổi: `src/lib/notify.ts`, `src/components/ui/`, `tools/`, `mk/`            |
+
+Ba chỗ tự quyết mà không xếp câu: hình dạng của khái niệm mới trong mô hình dữ liệu (tác tử ghi «cần xác nhận» ở trang
+thực thể, theo luật của mô hình dữ liệu), màn «Quá hạn» có nhận thao tác mới hay không, và vị trí của màn mới trong
+vùng điều hướng. Lượt này không thêm kiểu màn mới và không đổi màu gốc, nên tường không bị thử ở đây; phép thử tường là
+bảng ở trên.
+
+**Bản sao khác các lần 7 đến 10 ở ba chỗ**, nên con số 9 không so thẳng được với chuỗi 12, 12, 13, 11:
+
+- Bản sao bỏ thêm `mk/plan.mk` và mục kế hoạch trong `AGENTS.md`. Kế hoạch có sau lần 10 và đọc `docs/`, là thư mục
+  bản sao phải bỏ.
+- Trang luật bảo tác tử xếp câu bằng `/design-assembly:decide --ask`. Bản sao không có plugin, nên phiên điều phối đặt
+  một tệp chạy ngoài bản sao trỏ tới script của plugin, và dặn tác tử chạy chứ không đọc.
+- Đề nói «app có một màn», trong khi kho nay có hai. Đề giữ nguyên để không cắt chuỗi.
+
+**Điều lần thử tìm ra.** Phiên điều phối đã kiểm các con số ở bảng trên. Các điều dưới đây là lời tác tử báo, chưa được
+kiểm từng điều và chưa thành dòng sổ giới hạn:
+
+- Cổng xanh cả khi chưa câu nào được xếp: công cụ tin tác tử tự hỏi. Giới hạn `decide-ask-trusts-the-agent-to-ask`
+  đã ghi điều này.
+- Tác tử phải tự viết phần xử lý dòng dùng chung cho hai màn, vì màn mẫu giữ phần ấy trong chính nó. Giới hạn
+  `row-change-logic-not-shipped` đã ghi điều này.
+- `RowActions` lúc chờ không đưa chữ nào lên trang, trong khi sổ trạng thái cần chữ để bài trình duyệt đợi.
+- Luật «trạng thái trống có nhiều nhất một liên kết trong câu» ngược với cổng, vốn cấm một màn liên kết sang màn khác.
+- Hai câu của trạng thái trống thành sai sau khi có thao tác mới mà mọi phép kiểm vẫn xanh; tác tử ghi vào sổ lỗi lọt
+  rồi sửa.
 
 ## Còn thiếu gì để đóng giai đoạn 8
 
-- **Dòng 1:** một PR dựng màn thật ở repo kiểm chứng sau khi tách mảnh, hoặc một phép phát lại trên bản sao gộp hai
-  nhánh, mỗi nhánh thêm một màn. Phép phát lại ấy cũng là điều
-  [`ledgers-on-a-reference-copy.md`](ledgers-on-a-reference-copy.md) ghi là chưa thử.
-- **Dòng 3:** một lần chạy thử vai dựng màn bằng tác tử độc lập, trên bản sao, đếm số lần nó hỏi giữa chừng và số câu
-  nó đưa vào hàng chờ. Lần chạy thử tốn token, nên hỏi chủ repo trước.
+- **Dòng 1:** không còn thiếu về lệnh. Phép phát lại ở trên là điều
+  [`ledgers-on-a-reference-copy.md`](ledgers-on-a-reference-copy.md) ghi là chưa thử. Một PR dựng màn thật ở repo kiểm
+  chứng vẫn là bằng chứng mạnh hơn, khi có.
+- **Dòng 3:** không còn thiếu về lệnh. Lần 11 là một lượt, trên ứng dụng mẫu; 3 trên 9 chỗ phải đoán không vào hàng
+  chờ, và không phép kiểm nào bắt được điều đó.
+- **Việc theo sau lần 11**, chưa làm: kiểm từng điều tác tử báo rồi ghi thành dòng sổ giới hạn, theo mục «Sau khi chạy»
+  của [`README.md`](README.md).
 
 ## Còn chưa đo
 
