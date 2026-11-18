@@ -29,6 +29,7 @@ sources:
   - plugins/design-assembly/references/limits.json
   - plugins/design-assembly/references/vocabulary.json
   - docs/trials/breadth-on-two-repositories.md
+  - "chủ repo, 2026-11-19: «Duyệt cả mười», đáp câu «Duyệt đề bài 0006 theo cả mười khuyến nghị?»"
   - "chủ repo, 2026-11-19: «Duyệt, mở PR»"
   - "repo kiểm chứng, nhánh chính tại 47d52b06, đọc ngày 2026-11-19, chỉ đọc: design/intake/, design/reui-catalog.json, tools/reui_catalog/, tools/proof_gate/check.py"
 ---
@@ -36,9 +37,8 @@ sources:
 # 0006 Kho dùng lại — sổ nguồn ngoài, và bốn lệnh tra kho, kiểm kê kho, nhập kho, đổi
 
 Máy viết ngày 2026-11-19, là đề bài chi tiết cho giai đoạn 3 của kế hoạch («Kho dùng lại»), như đề bài 0005 cho giai
-đoạn 8. Chủ repo duyệt ngày 2026-11-19 («Duyệt, mở PR») mà không đáp riêng từng câu hỏi: mười câu đi theo
-khuyến nghị, kể cả mục 3.0 mới của kế hoạch cho chính đề bài này (câu 1) và một mục để sang bên cho `change --to` và
-`--migrate` (câu 8). Chủ repo bác được từng câu bất cứ lúc nào. Mọi điều về mã hiện có ở dưới đã được đọc lại trên `main` tại
+đoạn 8. Chủ repo duyệt ngày 2026-11-19 và đáp cả mười câu hỏi theo khuyến nghị («Duyệt cả mười»), kể cả mục 3.0 mới của kế hoạch cho chính đề bài này (câu 1) và một mục để sang bên cho `change --to` và
+`--migrate` (câu 8). Mọi điều về mã hiện có ở dưới đã được đọc lại trên `main` tại
 `03e2a99`; điều về repo kiểm chứng đọc tại `47d52b06`, chỉ đọc.
 
 ## Intent
@@ -484,8 +484,8 @@ delivery-loop, Repo Standards.
 
 ## Open questions
 
-Mỗi câu kèm một khuyến nghị. Chủ repo duyệt đề bài ngày 2026-11-19 mà không đáp riêng từng câu: máy dựng theo
-khuyến nghị của cả mười câu.
+Mỗi câu kèm một khuyến nghị. Chủ repo đáp cả mười câu theo khuyến nghị ngày 2026-11-19
+(«Duyệt cả mười»).
 
 1. **Thêm mục 3.0 vào kế hoạch cho đề bài này, như 8.0?** Khuyến nghị: thêm. Kế hoạch là của chủ repo, nên máy chưa sửa
    `docs/plan/plan.json`; hai commit đầu của đề bài phục vụ 3.1. Đã thêm 3.0 khi chủ repo duyệt.
