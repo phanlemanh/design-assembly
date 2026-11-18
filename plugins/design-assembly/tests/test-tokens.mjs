@@ -14,6 +14,7 @@ import { parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs
 import { loadStyles } from "../templates/tools/design-assembly/styles.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
 import { readTokens, renderTokens, tokenCss } from "../templates/tools/design-assembly/tokens.mjs";
+import { kitFile } from "./helpers/kit.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
@@ -262,8 +263,11 @@ test("adopting writes the file from the values the repository has, changing none
 
 // The acceptance kit's own reader, when the kit is on this machine: it turns a token path into a
 // variable name, and counts a declaration as a token when it uses one.
-const KIT = path.resolve(ROOT, env.DESIGN_ASSEMBLY_KIT ?? "", "design-floor/dist/ui.mjs");
-const noKit = !env.DESIGN_ASSEMBLY_KIT || !existsSync(KIT);
+const KIT = kitFile(
+  env.DESIGN_ASSEMBLY_KIT && path.resolve(ROOT, env.DESIGN_ASSEMBLY_KIT),
+  "design-floor/dist/ui.mjs",
+);
+const noKit = KIT === null;
 
 test(
   "the acceptance kit's reader takes the file and recognises its variables",

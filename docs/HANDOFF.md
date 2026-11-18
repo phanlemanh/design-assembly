@@ -12,20 +12,23 @@ không cần bản ghi của phiên cũ. Phiên mới không thấy cuộc trò 
 
 Các kho đặt cạnh nhau dưới `~/dev/`, vì lệnh của kho này tìm kho bên cạnh theo đường tương đối (`mk/plugin.mk`).
 
-| Thư mục                             | Lấy từ                                       | Dùng để                                        |
-| ----------------------------------- | -------------------------------------------- | ---------------------------------------------- |
-| `~/dev/design-assembly`             | `phanlemanh/design-assembly` (riêng tư)      | Kho này                                        |
-| `~/dev/onehub-inventory`            | `phanlemanh/onehub-inventory`                | Repo kiểm chứng; mọi lệnh `*-reference` đọc nó |
-| `~/dev/delivery-loop`               | kho kit nghiệm thu, nhánh `chuyen-nha`       | Bậc M của kit; chỉ đọc                         |
-| `~/dev/acceptance-gate-kit-v2.38.0` | `phanlemanh/acceptance-gate-kit`, bản 2.38.0 | Marketplace thư mục của các plugin nghiệm thu  |
-| `~/dev/repo-standards`              | kho Repo Standards                           | Chỉ đọc                                        |
+| Thư mục                             | Lấy từ                                         | Dùng để                                        |
+| ----------------------------------- | ---------------------------------------------- | ---------------------------------------------- |
+| `~/dev/design-assembly`             | `phanlemanh/design-assembly` (riêng tư)        | Kho này                                        |
+| `~/dev/onehub-inventory`            | `phanlemanh/onehub-inventory`                  | Repo kiểm chứng; mọi lệnh `*-reference` đọc nó |
+| `~/dev/delivery-loop`               | `phanlemanh/delivery-loop`, kho kit nghiệm thu | Bậc M của kit; chỉ đọc                         |
+| `~/dev/acceptance-gate-kit-v2.38.0` | `phanlemanh/acceptance-gate-kit`, bản 2.38.0   | Marketplace thư mục của các plugin nghiệm thu  |
+| `~/dev/repo-standards`              | kho Repo Standards                             | Chỉ đọc                                        |
 
 Rồi:
 
 1. `make setup` trong kho này và trong `~/dev/onehub-inventory`. **Thiếu thư viện ở Inventory thì lệnh `upgrade` báo sai**
    (sổ token mất 37 mục, cổng đỏ); xem «Bẫy đã gặp».
 2. Thêm marketplace `acceptance-gate-kit` từ thư mục `~/dev/acceptance-gate-kit-v2.38.0`, cài `acceptance-gate`,
-   `feature-loop`, `dieu-phoi`. Cài `superpowers` từ `claude-plugins-official`.
+   `feature-loop`, `dieu-phoi`. Cài `superpowers` từ `claude-plugins-official`. Repo kiểm chứng ghim kit 2.38.1 ở kho
+   cũ, nên giữ chợ cũ cho tới khi nó chuyển. Từ kit 3.0.0, chợ mang tên `delivery-loop` (kho `phanlemanh/delivery-loop`),
+   `dieu-phoi` đổi thành `dispatch` và không có bí danh tên cũ; **đừng bật cả hai chợ trong một kho**, vì ba plugin giữ
+   tên sẽ trùng. Bài kiểm của kho này đọc được kit ở cả hai bố cục: tệp ở gốc kit, hoặc trong `plugins/<tên>/`.
 3. Đặt ghi nhớ của chủ kho: ghi nhớ của máy cũ nằm ở `~/.claude/projects/-Users-manhphan-dev-design-assembly/memory/`,
    không tự sang máy mới. Chép thư mục ấy sang, hoặc để phiên mới tự học lại từ trang này.
 4. Kiểm máy: `make check REFERENCE_LEDGER=$HOME/dev/onehub-inventory ACCEPTANCE_KIT=$HOME/dev/delivery-loop` phải xanh,

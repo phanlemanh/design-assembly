@@ -24,6 +24,7 @@ import { argv, execPath, exit, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { COMPONENTS_DECISION } from "../../plugins/design-assembly/templates/tools/design-assembly/components.mjs";
+import { kitFile } from "../../plugins/design-assembly/tests/helpers/kit.mjs";
 import {
   LEDGER,
   parseLedger,
@@ -66,9 +67,11 @@ function measure() {
   const shaped = audit.contract.filter((item) => item.differs.length === 0).length;
   let tier = "kit not given";
   if (kit) {
+    // The kit's tier reader sits at its root, or in a plugin folder for a kit laid out by plugin.
+    const reader = kitFile(kit, "scripts/design-floor-bac.mjs");
     git(copy, "add", "-A");
-    const read = node(path.join(kit, "scripts/design-floor-bac.mjs"), "--root", copy, "--json");
-    tier = read.status === 0 ? (JSON.parse(read.stdout).bac ?? "?") : "not read";
+    const read = reader ? node(reader, "--root", copy, "--json") : null;
+    tier = read?.status === 0 ? (JSON.parse(read.stdout).bac ?? "?") : "not read";
   }
   return {
     shapes: `${shaped} of ${audit.contract.length}`,

@@ -26,6 +26,7 @@ import {
   shapeProblems,
   UNSETTLED,
 } from "../templates/tools/design-assembly/contract.mjs";
+import { kitFile } from "./helpers/kit.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
@@ -208,8 +209,11 @@ test(
 );
 
 // A checkout of the acceptance kit on this machine.
-const KIT = path.resolve(ROOT, env.DESIGN_ASSEMBLY_KIT ?? "", "design-floor/dist/ui.mjs");
-const noKit = !env.DESIGN_ASSEMBLY_KIT || !existsSync(KIT);
+const KIT = kitFile(
+  env.DESIGN_ASSEMBLY_KIT && path.resolve(ROOT, env.DESIGN_ASSEMBLY_KIT),
+  "design-floor/dist/ui.mjs",
+);
+const noKit = KIT === null;
 
 test(
   "the acceptance kit reads this repository's component register and token file",
