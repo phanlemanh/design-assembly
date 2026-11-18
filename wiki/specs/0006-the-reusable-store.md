@@ -133,8 +133,8 @@ repo kiểm chứng viết `tao-tay`, khai bằng `values`. `keys` chỉ đổi 
   - `id`: chữ thường nối gạch, bằng tên tệp; tên tệp khác `id` thì cổng đỏ.
   - `title`: tên người đọc.
   - `order`: số; `find` tra các nguồn theo số nhỏ trước, rồi theo `id`.
-  - `pin`: bản đã ghim, một trong hai dạng. Dạng tệp: `{ on, files: [{ file, url, bytes, sha256 }] }`, như repo kiểm
-    chứng. Dạng bản: `{ version }`, cho nguồn phát hành theo số bản. Hoặc `pin_file`: đường dẫn tới tệp đang giữ bản
+  - `pin`: bản đã ghim, một trong hai dạng. Dạng tệp: `{ fetched_at, files: [{ file, url, bytes, sha256 }] }`, đúng
+    từng khoá của tệp ghim ở repo kiểm chứng. Dạng bản: `{ version }`, cho nguồn phát hành theo số bản. Hoặc `pin_file`: đường dẫn tới tệp đang giữ bản
     ghim theo một trong hai dạng ấy, để repo đã có tệp ghim riêng không phải chép lại thành hai nguồn sự thật.
   - `catalog`: đường dẫn tới danh mục trong repo.
   - `install`: dòng lệnh lấy một mục về, có chỗ `{name}`. Đây là dữ liệu của repo, nên nêu tên thư viện ở đây không phạm
@@ -142,7 +142,7 @@ repo kiểm chứng viết `tao-tay`, khai bằng `values`. `keys` chỉ đổi 
   - `licence`: tuỳ chọn, một câu, ví dụ «cần khoá của repo lúc lấy về». Không bao giờ là khoá.
   - Khoá riêng của repo được giữ.
 - **Danh mục** là danh sách mục, mỗi mục có `name`, `kind`, `title`, `description`, và có thể có `group`, `page`. Dạng
-  xếp nhóm của repo kiểm chứng (mỗi nhóm có `kind`, `group`, `base`, `items`) đọc ra cùng các mục ấy. Danh mục không
+  xếp nhóm của repo kiểm chứng (mỗi nhóm có `kind`, `group`, `category`, `base`, `items`) đọc ra cùng các mục ấy. Danh mục không
   chứa mã.
 - **Plugin không bao giờ dùng mạng.** Không lệnh nào của giai đoạn này lấy hay ghim lại một nguồn; việc ấy là của công
   cụ riêng của repo hoặc của người. Lệnh đọc danh mục thì so bản chụp với `sha256` đã ghim khi bản ghim có dạng tệp; lệch
