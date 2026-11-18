@@ -361,8 +361,8 @@
         {
           "id": "8.4",
           "what": "Repo kiểm chứng nhận 8.1 đến 8.3 bằng upgrade",
-          "state": "doing",
-          "ref": "quyết định 0055; docs/trials/upgrade-inventory-0-7-0.md; phanlemanh/onehub-inventory#84 (gộp ngày 2026-11-17, commit 8925e8f, sau lần ký lại thêm AC-11); plugin 0.7.1: quyết định 0056; còn lên đời repo kiểm chứng một lần để thêm hai dòng 8.3"
+          "state": "done",
+          "ref": "quyết định 0055; docs/trials/upgrade-inventory-0-7-0.md; phanlemanh/onehub-inventory#84 (gộp ngày 2026-11-17, commit 8925e8f, sau lần ký lại thêm AC-11); plugin 0.7.1: quyết định 0056; phanlemanh/onehub-inventory#86 (gộp ngày 2026-11-18, commit bd32d73e): repo kiểm chứng lên 0.7.1, sổ quyết định có thêm hai dòng decision-sheet và owner-calls của 8.3"
         }
       ],
       "done_when": [
