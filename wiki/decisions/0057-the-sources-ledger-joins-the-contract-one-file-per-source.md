@@ -62,7 +62,10 @@ cho nghỉ chưa, và những gì repo làm trước khi có sổ.
    - `isByHand` nói một khối có phải tạo tay không, theo chữ `by-hand` của hợp đồng hoặc chữ repo khai ở `values`.
 5. **Bảng từ vựng thêm mười tên:** `interface inventory` (nguồn đã đọc ngày 2026-11-19), `vendoring` (chỉ đọc được bản
    tóm tắt của mục ấy, nên ghi `summary`), `pin`, `catalog`, `starter kit`, `deprecation`, `drift` (thói quen của
-   ngành), và `sources ledger`, `external source`, `reuse ladder` (`coined`).
+   ngành), và `sources ledger`, `external source`, `reuse ladder` (`coined`). `component manifest` từng ghi «catalog» là
+   chữ phải tránh, để không ai gọi sổ linh kiện là danh mục. Nay «catalog» là tên của danh mục một nguồn ngoài, đúng
+   chữ repo kiểm chứng dùng, và nghĩa của nó nói rõ nó không phải sổ linh kiện. Vì vậy sổ linh kiện chỉ còn tránh
+   «catalogue». Đổi lại, bài kiểm từ vựng không còn bắt được một trang gọi sổ linh kiện là «catalog».
 6. **Một dòng giới hạn mới,** `sources-never-fetched`: plugin không ghim lại nguồn, nên bản ghim cũ chỉ được báo; và
    bản chụp chỉ được so khi nguồn nêu thư mục của nó.
 

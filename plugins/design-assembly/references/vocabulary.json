@@ -356,7 +356,7 @@
       "source": "Search summaries only",
       "trust": "summary",
       "inherited": true,
-      "avoid": ["catalogue", "catalog"]
+      "avoid": ["catalogue"]
     },
     {
       "term": "reference implementation",
@@ -564,7 +564,7 @@
     },
     {
       "term": "catalog",
-      "meaning": "The list of what a source offers, each item by name, kind, title and description, kept in the repository so that it can be searched without the network. It holds no code.",
+      "meaning": "The list of what an external source offers, each item by name, kind, title and description, kept in the repository so that it can be searched without the network. It holds no code. It is not the component manifest, which lists the repository's own components.",
       "source": "Common practice",
       "trust": "practice"
     },
@@ -590,8 +590,7 @@
       "term": "deprecation",
       "meaning": "Marking a thing of the store as on its way out, with why and what replaces it, while the screens that still use it keep working. The Vietnamese of the documents says cho nghỉ.",
       "source": "Common practice in the change policies of design systems",
-      "trust": "practice",
-      "avoid": ["removal"]
+      "trust": "practice"
     },
     {
       "term": "drift",
