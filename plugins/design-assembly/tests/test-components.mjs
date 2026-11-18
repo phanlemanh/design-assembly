@@ -31,6 +31,7 @@ import { shapeProblems } from "../templates/tools/design-assembly/contract.mjs";
 import { renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
+import { kitFile } from "./helpers/kit.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
@@ -435,8 +436,11 @@ test("controls below the level's target size get no check, and the person is tol
 
 // The acceptance kit's own plan check, when the kit is on this machine: a plan may only name
 // registered components, variants the component has, and tokens that exist.
-const KIT = path.resolve(ROOT, env.DESIGN_ASSEMBLY_KIT ?? "", "design-floor/dist/ui.mjs");
-const noKit = !env.DESIGN_ASSEMBLY_KIT || !existsSync(KIT);
+const KIT = kitFile(
+  env.DESIGN_ASSEMBLY_KIT && path.resolve(ROOT, env.DESIGN_ASSEMBLY_KIT),
+  "design-floor/dist/ui.mjs",
+);
+const noKit = KIT === null;
 
 test(
   "the acceptance kit's plan check takes the manifest: right names pass, wrong ones are caught",

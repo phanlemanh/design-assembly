@@ -7,6 +7,8 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-18 — Kit nghiệm thu 3.0.0 dời các plugin vào `plugins/<tên>/`: ba bài kiểm đọc kit và `docs/trials/ladder.mjs` nay tìm tệp của kit ở gốc hoặc trong thư mục plugin (`plugins/design-assembly/tests/helpers/kit.mjs`), nên không còn lặng lẽ bỏ qua; `docs/HANDOFF.md` ghi tên chợ mới — [`test-kit-file.mjs`](../plugins/design-assembly/tests/test-kit-file.mjs)
+
 - 2026-11-17 — Plugin 0.7.1: trên bản sao nông, `decision-sheet` và `owner-calls` tự lấy nhánh chính và phần lịch sử còn thiếu từ `origin`, không lấy được thì vẫn đỏ; hai dòng giới hạn mới cho bộ đọc thẻ trong dữ liệu bài kiểm và bản sao cũ hơn thư mục mảnh — [0056](decisions/0056-a-shallow-checkout-fetches-the-history-the-two-checks-need.md)
 - 2026-11-17 — Bước 8.4: PR của repo kiểm chứng đã gộp sau khi chủ repo ký lại hồ sơ T3 với tiêu chí mới AC-11; mục 8.4 vẫn dở, chờ hai dòng của 8.3 ở plugin 0.7.1 — [trang thử](../docs/trials/upgrade-inventory-0-7-0.md), [phanlemanh/onehub-inventory#84](https://github.com/phanlemanh/onehub-inventory/pull/84)
 - 2026-11-17 — Giai đoạn 2 đóng: đo ba mức phục vụ trên bản sao của một repo ngoài họ, một repo cùng họ và repo kiểm chứng bằng plugin 0.7.0; 58 lần chạy lệnh của plugin không lần nào sập; repo nhiều gói bị audit đọc ra rỗng; sáu dòng giới hạn mở; thang bốn nấc thôi sập khi `adopt` từ chối một bước, và một dòng giới hạn mở rồi đóng; giai đoạn 8 thành giai đoạn đang mở — [trang thử](../docs/trials/breadth-on-two-repositories.md)
