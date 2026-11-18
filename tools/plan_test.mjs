@@ -48,7 +48,8 @@ test("a plan nobody approved, or with no way to say a stage is done, is a proble
 test("work in a later stage before the current one closes is a problem, unless it runs beside it", () => {
   // Named by its id: the file lists stages in the order they closed, which is not their numbers'.
   const ahead = copy((plan) => {
-    plan.stages.find((stage) => stage.id === 3).items[0].state = "doing";
+    const stage = plan.stages.find((each) => each.id === 3);
+    stage.items.find((item) => item.id === "3.1").state = "doing";
   });
   assert.match(planProblems(ahead).join("\n"), /item 3\.1 is doing while stage 0 is still open/);
   // Stage 2 runs beside stage 1: once stage 1 is the current one, work in stage 2 is in order.
