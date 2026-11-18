@@ -757,7 +757,7 @@ const KINDS = {
         return `${FILES.gate} does not run the check, or runs it in a way that cannot fail`;
       }
       // The gate itself must still run what the included files add to it.
-      if (!/^check:.*(\$\(CHECK_TARGETS\)|\bdesign-assembly\b)/m.test(state.makefile ?? "")) {
+      if (!checkReachesTargets(state.makefile ?? "")) {
         return "the Makefile's check target no longer runs CHECK_TARGETS, so make check does not run this";
       }
       return null;
@@ -769,6 +769,34 @@ const KINDS = {
 };
 
 const lintKey = (id, check) => `${id}:${check.rule}`;
+
+// Whether `make check` runs CHECK_TARGETS (or design-assembly itself), directly or through the
+// targets it depends on: repo-setup 0.9.0 writes `check: check-quick check-heavy` and
+// `check-quick: $(CHECK_TARGETS)`. Only prerequisites count, not a comment after `##` or `#`.
+function checkReachesTargets(makefile) {
+  const prerequisites = new Map();
+  for (const line of makefile.split("\n")) {
+    const rule = /^([A-Za-z0-9_.-]+)\s*::?(?!=)(.*)$/.exec(line);
+    if (!rule) continue;
+    const words = rule[2]
+      .split("#")[0]
+      .split(/\s+/)
+      .filter((word) => word && word !== "|");
+    prerequisites.set(rule[1], [...(prerequisites.get(rule[1]) ?? []), ...words]);
+  }
+  const seen = new Set();
+  const queue = ["check"];
+  while (queue.length > 0) {
+    const target = queue.shift();
+    if (seen.has(target)) continue;
+    seen.add(target);
+    for (const word of prerequisites.get(target) ?? []) {
+      if (word === "$(CHECK_TARGETS)" || word === "design-assembly") return true;
+      queue.push(word);
+    }
+  }
+  return false;
+}
 
 // A branch that adds nothing, for a changed copy to add to.
 const emptyBranch = () => ({

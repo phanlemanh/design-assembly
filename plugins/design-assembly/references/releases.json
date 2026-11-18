@@ -48,6 +48,12 @@
       "templates": "b678e5c268d923660bac7eacb88f87d2a7a7ed5e",
       "scripts": "d1ef019fbfbd210b0fed2f314927771529e3072a",
       "tool": "2da4cc56de55b9805b50baf46731151f12428f63"
+    },
+    {
+      "version": "0.7.2",
+      "templates": "23d3826068d860038c23e2808b6282ec8f6f9859",
+      "scripts": "d1ef019fbfbd210b0fed2f314927771529e3072a",
+      "tool": "a181fdc48436ecbac29ebf77f6a339a43da9b69b"
     }
   ]
 }
