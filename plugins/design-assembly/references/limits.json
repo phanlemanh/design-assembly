@@ -3002,6 +3002,50 @@
       "where": ["d0055", "d0056", "trials"],
       "status": "open",
       "note": "A ledger kept as one file per entry has a one-file copy outside git for the repository's own readers. The copy is written by the gate and by the tool's own command. A fragment edited since then leaves the copy older than the folder, and a reader that prefers the copy reads the old values with nothing to say they are old. Seen on the reference repository, where one reader preferred the copy and another read the folder."
+    },
+    {
+      "id": "state-words-present-before-the-state",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-18",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The browser test waits for a state's words to be on the page and never asks that they were absent before its steps, so a state listed with words the page always shows, as a row's waiting state may be since the row's actions button puts none on the page, passes before the state is reached."
+    },
+    {
+      "id": "row-waiting-words-need-a-second-clock",
+      "area": "rules",
+      "kind": "conflict",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-18",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The rules page says the row's actions button keeps each row's clock so a screen writes no timer of its own, while the button tells the screen nothing of when it starts to say it waits and the browser test needs words on the page for that state, so a screen that lists it writes a second one-second clock beside the button's."
+    },
+    {
+      "id": "empty-state-link-fails-the-gate",
+      "area": "rules",
+      "kind": "conflict",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-18",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The rules page lets an empty state carry one link inside its words to where items come from, while the gate fails any screen that links to another screen of the application, so the one link the rule allows cannot point to the screen where items come from."
+    },
+    {
+      "id": "unused-words-unflagged",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-18",
+      "where": ["trials"],
+      "status": "open",
+      "note": "Nothing reports a word of the repository's words file that no code uses any more; three sample words of the reference application are unused today and every check passes."
     }
   ]
 }

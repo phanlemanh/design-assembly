@@ -563,9 +563,12 @@ or `origin/master`, the first git knows), with what is not committed yet.
   remote named `origin`: the main branch (`main`, else `master`, or the one named; never the branch
   the remote's `HEAD` points at, which in a working folder used as a remote is the branch under
   check), then more history on both sides, 50 commits first and the step doubled for five rounds,
-  then the whole history. The gate says when it fetched. Fetching writes the remote's ref of that
-  branch and the depth of the checkout, so a shallow clone on a person's machine is deepened too.
-  Each call to the remote gives up after two minutes and never waits on a prompt. A shallow
+  then the whole history. The gate says when it fetched, as work done, not as a debt. Fetching
+  writes the remote's ref of that branch and the depth of the checkout, so a shallow clone on a
+  person's machine is deepened too. Each call to the remote gives up after two minutes, and git
+  never asks for a password. Where the machine names no ssh command of its own, ssh is told never
+  to ask either; one it names (`GIT_SSH_COMMAND`, `GIT_SSH` or `core.sshCommand`, such as the key a
+  checkout of continuous integration sets) is used as it is. A shallow
   checkout with no `origin`, a remote with neither `main` nor `master` and none named, or a fetch
   that fails, fails both with what git said. A main branch of another name is named with
   `"main": "<name>"` on either check. Of several main branches git knows, the base is the newest place this branch left one, so

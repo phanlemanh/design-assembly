@@ -1,6 +1,7 @@
 # Bàn giao phiên làm việc
 
-Viết lại ngày 2026-11-16, lúc chủ kho chuyển sang máy Mac Studio. Trang này đủ để một phiên Claude Code mới tiếp tục mà
+Viết lại ngày 2026-11-16, lúc chủ kho chuyển sang máy Mac Studio; phần trạng thái và việc kế sửa lại ngày 2026-11-18,
+sau khi giai đoạn 8 đóng. Trang này đủ để một phiên Claude Code mới tiếp tục mà
 không cần bản ghi của phiên cũ. Phiên mới không thấy cuộc trò chuyện cũ, không có thư mục tạm và bộ nhớ của máy cũ, và
 **không thừa hưởng quyền nào chủ kho đã cho bằng lời**.
 
@@ -40,12 +41,12 @@ Rồi:
 2. `AGENTS.md` và `CLAUDE.md` ở gốc kho: lệnh, luật, ngôn ngữ.
 3. `make plan`: kế hoạch chính thức (`docs/plan/plan.json`, quyết định 0040), giai đoạn đang mở, việc của nó và việc chờ
    chủ kho.
-4. `docs/trials/upgrade-inventory.md`: lần lên đời Inventory, việc đang dở.
+4. `docs/trials/stage-8-done-when.md`: ba dòng «done when» của giai đoạn 8 và lần chạy thử 11, giai đoạn đóng gần nhất.
 5. `wiki/index.md` khi cần lý do của một quyết định.
 
 ## Kho này là gì
 
-Một plugin Claude Code (`plugins/design-assembly/`, bản 0.1.0) dẫn người dùng tới một design system chuẩn hoá nằm ngay
+Một plugin Claude Code (`plugins/design-assembly/`, bản 0.7.3) dẫn người dùng tới một design system chuẩn hoá nằm ngay
 trong kho của họ, để Claude Code dựng màn mà không phải đoán. Ứng dụng React ở gốc kho là bản cài đặt đối chứng: plugin
 sinh gì thì hiện ở đó và được `make check` chấm.
 
@@ -66,28 +67,29 @@ Số bản plugin do cổng giữ: sửa `templates/` hay `scripts/` thì chạy
 
 - **Nhánh chính** ở GitHub: xem `git log origin/main`. Trang này vào nhánh chính cùng bản ghi lần lên đời và dòng giới
   hạn mới.
-- **Giai đoạn 0** đóng ngày 2026-11-16, chứng cứ ghi trong `plan.json`.
-- **Giai đoạn 1** «Cài được, lên đời được» đóng ngày 2026-11-16, chứng cứ ghi trong `plan.json`.
-- **Giai đoạn 2** «Đo độ rộng» là giai đoạn đang mở, chưa bắt đầu: chờ chủ kho chỉ định hai repo.
-- **Giai đoạn 8** «Gỡ va chạm cho ba kho» chạy song song: mục 8.1 đang dở, plugin đã lên bản 0.2.0.
+- **Đã đóng**, chứng cứ ghi ở `closed` của từng giai đoạn trong `plan.json`: giai đoạn 0 và 1 ngày 2026-11-16, giai
+  đoạn 2 «Đo độ rộng» ngày 2026-11-17, giai đoạn 8 «Gỡ va chạm cho ba kho» ngày 2026-11-18.
+- **Giai đoạn 3** «Kho dùng lại» là giai đoạn đang mở, chưa mục nào bắt đầu; `make plan` in năm mục của nó.
+- **Plugin ở bản 0.7.3.** Repo kiểm chứng chạy bản 0.7.1 trên nhánh chính của nó.
 - **25 câu của hàng chờ** đã được chủ kho đáp «Giữ hết» ngày 2026-11-16; `make design-decide` báo không còn câu nào.
 
-### Mục 1.4: lên đời Inventory, đã xong
+### Mục 1.4: lên đời Inventory lần đầu, đã xong
 
 - PR [phanlemanh/onehub-inventory#72](https://github.com/phanlemanh/onehub-inventory/pull/72) gộp ngày 2026-11-16 ở
   `7bc5f69`, theo khe giám sát đợt `dieu-phoi-nen` của Inventory xếp, sau khi gộp nhánh chính `a66e005` vào nhánh, ghim
   lại bằng chứng và CI xanh 9/9.
 - Lượt ghim đầu đỏ vì một bài kiểm hai chiều của hồ sơ dựng bản phá thử từ sổ linh kiện đang có trên nhánh, không từ sổ
   của commit lên đời. Đã sửa bài kiểm (sản phẩm và phép đo không đổi), ghi một dòng `fix` ở sổ quyết định của hồ sơ.
-- Inventory chạy đúng cây công cụ của bản 0.1.0. Plugin nay ở bản 0.2.0: `make design-status-reference` và
-  `make design-upgrade-reference` (với `REFERENCE_LEDGER=$HOME/dev/onehub-inventory`) báo hai tệp công cụ sẽ đổi. Lần lên
-  đời đó là mục 8.4, cần chủ kho cho phép riêng.
+- Lần lên đời ấy đưa Inventory lên bản 0.1.0. Mục 8.4 đưa nó lên bản 0.7.0, và ngày 2026-11-18 nó lên bản 0.7.1;
+  `make design-status-reference` (với `REFERENCE_LEDGER=$HOME/dev/onehub-inventory`) nói nó đang chạy bản nào và lệnh
+  nên chạy kế. Mỗi lần lên đời cần chủ kho cho phép riêng.
 
 ## Việc kế
 
-1. Giai đoạn 2: chờ chủ kho chỉ định hai repo để rà soát chỉ đọc (một repo web ngoài họ, một repo cùng họ khác Inventory).
-2. Dòng giới hạn mới cần sửa ở plugin: `upgrade-blames-ledger-for-missing-dependencies`. Lỗi «nhận không ghi gì khi repo
-   không có Makefile» (`adopt-without-makefile-writes-nothing`) đã để dành, sửa khi giai đoạn 2 gặp loại repo ấy.
+1. Giai đoạn 3: mục 3.1, hình dạng sổ nguồn ngoài (sổ nhập kho đã chốt ở quyết định 0052). Chạy `make plan` để thấy
+   mục và điều kiện đóng.
+2. Việc để dành nằm ở `parked` của `plan.json` và ở các dòng mở của `plugins/design-assembly/references/limits.json`;
+   chỉ làm khi một giai đoạn đụng tới.
 
 ## Quyền và cổng
 

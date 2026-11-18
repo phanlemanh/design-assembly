@@ -383,7 +383,7 @@
   "parked": [
     {
       "on": "2026-11-15",
-      "what": "Mười bảy giới hạn mức nặng đang mở",
+      "what": "Mười chín giới hạn mức nặng đang mở (đếm ngày 2026-11-18)",
       "stage": 5,
       "why_not_now": "Chỉ sửa khi một repo thật đụng tới"
     },
@@ -413,7 +413,7 @@
     },
     {
       "on": "2026-11-18",
-      "what": "Điều tác tử của lần chạy thử 11 báo chưa được kiểm từng điều và chưa thành dòng sổ giới hạn: RowActions lúc chờ không đưa chữ lên trang, luật một liên kết trong trạng thái trống ngược với cổng, và 3 trên 9 chỗ phải đoán không vào hàng chờ",
+      "what": "Bảy điều tác tử của lần chạy thử 11 báo đã được kiểm ngày 2026-11-18, cả bảy đứng vững, và mỗi điều đã nằm ở một dòng sổ giới hạn: bốn dòng mới (state-words-present-before-the-state, row-waiting-words-need-a-second-clock, empty-state-link-fails-the-gate, unused-words-unflagged) và bốn dòng đã có (spoken-only-state-unlisted, row-change-logic-not-shipped, post-action-rules-uncheck, decide-ask-trusts-the-agent-to-ask); chưa điều nào được sửa",
       "stage": 5,
       "why_not_now": "Không chặn điều kiện đóng của giai đoạn 8; thuộc việc dựng màn không phải đoán"
     }

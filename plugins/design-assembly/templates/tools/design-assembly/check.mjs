@@ -71,6 +71,7 @@ import { buildTheme, readBlock, renderBlock, withoutBlock } from "./theme.mjs";
 import { tokensProblem } from "./tokens.mjs";
 import {
   branchFacts,
+  branchDone,
   branchNotes,
   sheetProblem,
   taggedTests,
@@ -714,6 +715,7 @@ const KINDS = {
       });
     },
     notes: (state) => branchNotes(state.branch ?? null),
+    done: (state) => branchDone(state.branch ?? null),
     // The branch writes a judgment of its own, and nobody is asked.
     change(state) {
       const row = {
@@ -738,6 +740,7 @@ const KINDS = {
       return wallProblem({ branch: state.branch ?? null, waiting: state.waiting });
     },
     notes: (state) => branchNotes(state.branch ?? null),
+    done: (state) => branchDone(state.branch ?? null),
     // The branch adds a page of a kind of screen that nobody asked the owner about.
     change(state) {
       const branch = state.branch && !state.branch.problem ? state.branch : emptyBranch();
@@ -1083,6 +1086,8 @@ export function runChecks(state) {
     const problems = [];
     // What a check lists on every run without failing, such as work planned for later.
     const notes = [];
+    // What a check did to reach its answer, such as history it fetched: work done, not a debt.
+    const done = [];
     let seenFailing = true;
     for (const check of checks) {
       const kind = KINDS[check.kind];
@@ -1093,6 +1098,7 @@ export function runChecks(state) {
       const problem = kind.run(state, check, id);
       if (problem) problems.push(problem);
       if (kind.notes) notes.push(...kind.notes(state, check, id));
+      if (kind.done) done.push(...kind.done(state, check, id));
       if (kind.run(kind.change(state, check, id), check, id) === null) seenFailing = false;
     }
     return {
@@ -1101,8 +1107,17 @@ export function runChecks(state) {
       seenFailing,
       held: problems.length === 0 && seenFailing,
       notes,
+      done,
     };
   });
+}
+
+// The lines a passing gate prints for its results: what a check did, then what it leaves as a debt.
+export function noteLines(results) {
+  return results.flatMap((r) => [
+    ...(r.done ?? []).map((line) => `  ${r.id}: ${line}`),
+    ...r.notes.map((note) => `  ${r.id}, debt: ${note}`),
+  ]);
 }
 
 // The ledger and this tool must agree in both directions.
@@ -1202,7 +1217,7 @@ function main() {
     for (const line of problems) stderr.write(`  ${line}\n`);
     exit(1);
   }
-  for (const r of results) for (const note of r.notes) stdout.write(`  ${r.id}, debt: ${note}\n`);
+  for (const line of noteLines(results)) stdout.write(`${line}\n`);
   const count = results.reduce((sum, r) => sum + state.theme.checks[r.id].length, 0);
   stdout.write(
     `design-assembly: ${results.length} decisions held by ${count} checks, each seen failing on a changed copy\n`,

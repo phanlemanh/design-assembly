@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-18 — Dọn nợ sau giai đoạn 8, ngoài kế hoạch: bảy điều của lần chạy thử 11 đã kiểm, cả bảy đứng vững, thành bốn dòng sổ giới hạn mới và bốn dòng đã có; plugin 0.7.3 giữ lệnh ssh máy đã cấu hình khi bản sao nông lấy lịch sử (đúng mục 3 của quyết định 0056) và in lần lấy ấy là việc đã làm, không là nợ; trang bàn giao và con số giới hạn mức nặng (19) đúng lại — [stage-8-done-when](../docs/trials/stage-8-done-when.md), [0056](decisions/0056-a-shallow-checkout-fetches-the-history-the-two-checks-need.md), `plugins/design-assembly/references/limits.json`.
 - 2026-11-18 — Giai đoạn 8 «Gỡ va chạm cho ba kho» đóng theo lời chủ repo, với bằng chứng của ba dòng «done when» và hai điều còn biết ghi ngay trong lời đóng; giai đoạn 3 «Kho dùng lại» thành giai đoạn đang mở; điều lần thử 11 báo vào mục để sau — [`plan.json`](../docs/plan/plan.json)
 
 - 2026-11-18 — Chạy thử lần 11, vai dựng màn, lần đầu có hàng chờ: không dừng hỏi, 6 câu vào `design/waiting/`, cổng xanh, 9 chỗ phải đoán trong đó 3 chỗ không được xếp; cả ba dòng «done when» của giai đoạn 8 nay có lệnh chứng, việc đóng giai đoạn chờ chủ repo — [`stage-8-done-when.md`](../docs/trials/stage-8-done-when.md)
