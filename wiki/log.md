@@ -9,6 +9,8 @@ Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
 - 2026-11-18 — Plugin 0.7.2: luật `checks-in-gate` lần theo các đích tiên quyết của `check`, nên `Makefile` hai tầng của repo-setup 0.9.0 (`check: check-quick check-heavy`, `check-quick: $(CHECK_TARGETS)`) không còn bị báo nhầm; chữ `CHECK_TARGETS` chỉ nằm trong chú thích thì không tính. Thấy khi chạy thử repo-setup 0.9.0 trên repo kiểm chứng — ba bài mới trong `plugins/design-assembly/tests/test-apply.mjs`
 
+- 2026-11-18 — Ba dòng «done when» của giai đoạn 8 chạy bằng lệnh trên ứng dụng mẫu và một bản sao repo kiểm chứng: dòng 2 chứng được, dòng 1 và dòng 3 mỗi dòng một nửa, nên giai đoạn 8 chưa đóng; thêm lệnh so màn hợp đồng khai với màn `affected` chọn trên các PR đã gộp — [`stage-8-done-when.md`](../docs/trials/stage-8-done-when.md)
+
 - 2026-11-18 — Mục 8.4 của kế hoạch đóng: repo kiểm chứng lên plugin 0.7.1 và sổ quyết định của nó có thêm hai dòng `decision-sheet` và `owner-calls`; giai đoạn 8 còn mở tới khi ba dòng «done when» được chứng bằng lệnh — [onehub-inventory#86](https://github.com/phanlemanh/onehub-inventory/pull/86)
 
 - 2026-11-18 — Kit nghiệm thu 3.0.0 dời các plugin vào `plugins/<tên>/`: ba bài kiểm đọc kit và `docs/trials/ladder.mjs` nay tìm tệp của kit ở gốc hoặc trong thư mục plugin (`plugins/design-assembly/tests/helpers/kit.mjs`), nên không còn lặng lẽ bỏ qua; `docs/HANDOFF.md` ghi tên chợ mới — [`test-kit-file.mjs`](../plugins/design-assembly/tests/test-kit-file.mjs)
