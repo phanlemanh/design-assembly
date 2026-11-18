@@ -1,8 +1,8 @@
 # Ba dòng «done when» của giai đoạn 8, chạy bằng lệnh
 
 Chạy ngày 2026-11-18, sau khi mục 8.4 đóng. Kế hoạch chỉ cho đóng giai đoạn 8 khi mỗi dòng «done when» được chứng bằng
-một lệnh. Trang này ghi lệnh nào đã chạy và mỗi dòng đứng ở đâu. Kết luận: dòng 2 chứng được, dòng 1 và dòng 3 mỗi
-dòng mới chứng được một nửa, nên giai đoạn 8 chưa đóng.
+một lệnh. Trang này ghi lệnh nào đã chạy và mỗi dòng đứng ở đâu. Kết luận: dòng 1 và dòng 2 chứng được, dòng 3 mới
+chứng được một nửa, nên giai đoạn 8 chưa đóng. Nửa sau của dòng 1 chứng bằng một phép phát lại, thêm cùng ngày.
 
 ## Chạy trên gì
 
@@ -13,7 +13,7 @@ dòng mới chứng được một nửa, nên giai đoạn 8 chưa đóng.
 
 | Dòng «done when»                                                                 | Kết quả                                |
 | -------------------------------------------------------------------------------- | -------------------------------------- |
-| 1. Số PR chạm hai sổ về 0, và mỗi PR chỉ chạm mảnh sổ của chính nó               | Nửa đầu đạt; nửa sau chưa có PR để đo  |
+| 1. Số PR chạm hai sổ về 0, và mỗi PR chỉ chạm mảnh sổ của chính nó               | Đạt; nửa sau bằng phép phát lại        |
 | 2. Lệnh bản đồ màn chọn đúng màn bị ảnh hưởng, và trả trọn bộ khi không lần được | Đạt                                    |
 | 3. Một lượt dựng màn không hỏi giữa chừng; tường chặn tới khi có lời đáp         | Tường đạt; lượt dựng màn chưa được thử |
 
@@ -25,10 +25,36 @@ commit gộp của 40 PR gần nhất.
 - **Về 0, đạt.** Sổ linh kiện (`design/component-registry.json`) và bảng vai × màn × nút
   (`design/role-screen-buttons.md`) không còn trong git và nằm trong `.gitignore`. Hai PR gộp sau lần nhận 0.7.0 (PR 85
   và 86) chạm 0 tệp trong hai tệp ấy. Trong 37 PR gộp trước lần nhận, 20 PR có chạm ít nhất một tệp.
-- **Mảnh của chính nó, chưa chứng được.** Hai PR ấy không chạm mảnh nào trong `design/screens/` hay `design/intake/`.
-  Từ lúc tách mảnh chưa có PR dựng màn nào gộp, nên chưa có gì để đếm.
+- **Mảnh của chính nó, trên PR thật: chưa có gì để đếm.** Hai PR ấy không chạm mảnh nào trong `design/screens/` hay
+  `design/intake/`. Từ lúc tách mảnh chưa có PR dựng màn nào gộp. Phép phát lại ở dưới chứng nửa này.
 - **Một PR đang mở cắt từ trước lần nhận** (PR 83, gốc `ea774a0f`) còn sửa sổ linh kiện. Khi gộp nhánh chính vào, nó
   gặp việc xoá tệp ấy một lần. Đây là điều giới hạn `screen-fragments-git-left-to-a-person` đã nêu.
+
+### Phát lại: hai nhánh, mỗi nhánh thêm một màn
+
+Trên bản sao, hai nhánh cắt từ cùng một commit. Mỗi nhánh thêm một màn chỉ dùng lúc phát triển: một thư mục trang chép
+từ màn mẫu `proto/bo-nut-theo-quyen` sang đường dẫn mới, và mục sổ màn của nó. Rồi gộp hai nhánh vào nhau theo cả hai
+thứ tự bằng `git merge`. Phép này chạy hai lần: trên bố cục mảnh ở `bd32d73e`, và để đối chứng trên bố cục sổ một tệp
+ở `ea774a0f` (trước lần nhận 0.7.0, công cụ bản 0.1.0).
+
+| Đo gì                                            | Sổ một tệp, `ea774a0f`                            | Sổ theo mảnh, `bd32d73e`            |
+| ------------------------------------------------ | ------------------------------------------------- | ----------------------------------- |
+| Tệp trong `design/` mỗi nhánh chạm               | 2 tệp chung: sổ màn và bảng vai × màn × nút       | 1 tệp: mảnh của chính màn ấy        |
+| Tệp xung đột khi gộp nhánh thứ hai               | 2: `design/screens.yaml`, `design/vai-man-nut.md` | 0, ở cả hai thứ tự                  |
+| Cổng của công cụ và phép kiểm sổ màn sau khi gộp | không chạy: phải gỡ xung đột bằng tay trước       | xanh; sổ màn ghép lại có cả hai màn |
+
+Trên bố cục mảnh, từng nhánh và cả hai kết quả gộp đều qua ba lệnh: `node tools/design-assembly/derived.mjs`,
+`node tools/design-assembly/check.mjs` (19 quyết định, 27 phép kiểm) và `python3 tools/coverage_matrix/check.py`
+(11 màn, 10 trang sau khi gộp). Các tệp dẫn xuất được ghi lại mà git không thấy thay đổi nào. Lệnh bản đồ màn trả đúng
+màn mới cho tệp trang của mỗi nhánh.
+
+Hai điều cần biết về phép phát lại:
+
+- Hai màn là màn dựng cho phép thử, chép từ một màn mẫu, không phải việc thật của repo kiểm chứng. Chúng không thêm
+  thao tác, thực thể hay bài trình duyệt, nên phép này không nói gì về các tệp ấy.
+- Ở bố cục cũ, mục sổ màn mới được thêm vào cuối tệp, sau màn đứng cuối. Hai mục thêm vào hai chỗ xa nhau của tệp
+  có thể không xung đột, nên con số 2 là của cách thêm này. Sổ linh kiện không đổi ở cả hai nhánh cũ, vì thư mục trang
+  chép sang không thêm linh kiện nào vào sổ.
 
 ## Dòng 2: lệnh bản đồ màn
 
@@ -93,9 +119,9 @@ vào hàng chờ (giới hạn `decide-ask-trusts-the-agent-to-ask`), nên khôn
 
 ## Còn thiếu gì để đóng giai đoạn 8
 
-- **Dòng 1:** một PR dựng màn thật ở repo kiểm chứng sau khi tách mảnh, hoặc một phép phát lại trên bản sao gộp hai
-  nhánh, mỗi nhánh thêm một màn. Phép phát lại ấy cũng là điều
-  [`ledgers-on-a-reference-copy.md`](ledgers-on-a-reference-copy.md) ghi là chưa thử.
+- **Dòng 1:** không còn thiếu về lệnh. Phép phát lại ở trên là điều
+  [`ledgers-on-a-reference-copy.md`](ledgers-on-a-reference-copy.md) ghi là chưa thử. Một PR dựng màn thật ở repo kiểm
+  chứng vẫn là bằng chứng mạnh hơn, khi có.
 - **Dòng 3:** một lần chạy thử vai dựng màn bằng tác tử độc lập, trên bản sao, đếm số lần nó hỏi giữa chừng và số câu
   nó đưa vào hàng chờ. Lần chạy thử tốn token, nên hỏi chủ repo trước.
 
