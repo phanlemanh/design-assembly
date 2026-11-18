@@ -17,7 +17,7 @@ const text = (value) => (typeof value === "string" ? value : undefined);
 
 // The items of a catalog, each with its name, kind, title, description, and where it can be seen.
 // A catalog lists its items, or keeps them in groups: an item in a group takes the group's kind,
-// name and category, and the group's page when it has none of its own.
+// group and category, and the group's page when it has none of its own.
 export function catalogItems(catalog) {
   const item = (entry, group = {}) => {
     const read = {
@@ -40,7 +40,19 @@ export function catalogItems(catalog) {
   return [...flat, ...grouped].filter((entry) => entry.name);
 }
 
-const readJson = (root, file) => JSON.parse(readFileSync(path.join(root, file), "utf8"));
+// A path a source names, inside the repository, or null when it leads out of it.
+function inside(root, file) {
+  const full = path.resolve(root, String(file));
+  const relative = path.relative(path.resolve(root), full);
+  return relative.startsWith("..") || path.isAbsolute(relative) ? null : full;
+}
+
+// Why a path a source names cannot be read, or null.
+const outside = (root, file, what) =>
+  inside(root, file) === null ? `${file}, ${what}, is outside the repository` : null;
+
+const isFile = (full) => existsSync(full) && statSync(full).isFile();
+const readJson = (root, file) => JSON.parse(readFileSync(inside(root, file), "utf8"));
 
 // Why the snapshot a pin names differs from it, or null when every file matches. What could not
 // be compared is said in `blind`.
@@ -49,14 +61,18 @@ function snapshotProblem(root, source, pin, blind) {
     blind.push(`${source.id} is pinned by a version, so no snapshot of it is compared`);
     return null;
   }
-  if (!source.snapshot) {
+  if (source.snapshot === undefined) {
     blind.push(`${source.id} names no snapshot folder, so its pinned files are not compared`);
     return null;
   }
+  if (typeof source.snapshot !== "string") return `its snapshot is not the path of a folder`;
   for (const entry of pin.files) {
-    const file = path.join(source.snapshot, String(entry?.file));
-    const full = path.join(root, file);
+    const file = path.posix.join(source.snapshot, String(entry?.file ?? ""));
+    const away = outside(root, file, "a file of its pin");
+    if (away) return away;
+    const full = inside(root, file);
     if (!existsSync(full)) return `${file}, a file of its pin, is not there`;
+    if (!isFile(full)) return `${file}, a file of its pin, cannot be read as a file`;
     const hash = createHash("sha256").update(readFileSync(full)).digest("hex");
     if (hash !== entry.sha256) {
       return `${file} is not the file it was pinned with: its sha256 differs from the pin`;
@@ -94,6 +110,14 @@ function readSource(root, name) {
     install: text(source.install) ?? null,
     licence: text(source.licence) ?? null,
   };
+  for (const [key, what] of [
+    ["pin_file", "the file its pin is kept in"],
+    ["snapshot", "its snapshot"],
+    ["catalog", "its catalog"],
+  ]) {
+    const away = typeof source[key] === "string" ? outside(root, source[key], what) : null;
+    if (away) return { ...said, ...unreadable(away) };
+  }
   let pin = isMap(source.pin) ? source.pin : null;
   if (!pin && source.pin_file) {
     try {
@@ -124,7 +148,7 @@ export function readPinnedSources(root) {
   const folder = path.join(root, SOURCES_FOLDER);
   if (!existsSync(folder) || !statSync(folder).isDirectory()) return [];
   return readdirSync(folder)
-    .filter((name) => name.endsWith(".json"))
+    .filter((name) => name.endsWith(".json") && isFile(path.join(folder, name)))
     .sort()
     .map((name) => readSource(root, name))
     .sort(

@@ -238,3 +238,32 @@ test("the gate's shape check holds the source files, and is seen failing", () =>
   writeFileSync(path.join(dir, `${SOURCES_FOLDER}/kit.json`), json({ ...kit, pin: undefined }));
   assert.match(shapes().problem, /design\/sources\/kit\.json\.pin/);
 });
+
+test("a pin or a folder that cannot be read as files makes the source unreadable, never an error", () => {
+  const dir = healthy();
+  const write = (data) => writeFileSync(path.join(dir, `${SOURCES_FOLDER}/kit.json`), json(data));
+  const kitOf = () => readPinnedSources(dir).find((source) => source.id === "kit");
+  write({ ...kit, pin: { ...kit.pin, files: [{ file: "", sha256: kit.pin.files[0].sha256 }] } });
+  assert.match(kitOf().unreadable, /cannot be read as a file/);
+  write({ ...kit, snapshot: 5 });
+  assert.match(kitOf().unreadable, /snapshot/);
+  write(kit);
+  mkdirSync(path.join(dir, `${SOURCES_FOLDER}/folder.json`));
+  assert.deepEqual(
+    readPinnedSources(dir).map((source) => source.id),
+    ["pack", "kit"],
+  );
+  assert.ok(readState(dir).ledgerFolders[SOURCES_FOLDER]);
+});
+
+test("a source that names a file outside the repository is unreadable", () => {
+  const dir = healthy();
+  const write = (data) => writeFileSync(path.join(dir, `${SOURCES_FOLDER}/kit.json`), json(data));
+  const kitOf = () => readPinnedSources(dir).find((source) => source.id === "kit");
+  write({ ...kit, catalog: "../outside.json" });
+  assert.match(kitOf().unreadable, /outside the repository/);
+  write({ ...kit, snapshot: "../snapshot" });
+  assert.match(kitOf().unreadable, /outside the repository/);
+  write({ ...kit, pin: undefined, pin_file: "../../pin.json" });
+  assert.match(kitOf().unreadable, /outside the repository/);
+});

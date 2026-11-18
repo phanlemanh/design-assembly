@@ -34,6 +34,20 @@ export const INTAKE_KEYS = [
   "why",
 ];
 
+// The keys added for the reusable store. A repository that wrote its ledger before them may spell
+// an older key with one of their names, such as `keys: { source: from }`: such a new key then has
+// no spelling there, and the ledger reads as it did, until the repository spells it.
+const LATER_KEYS = [
+  "from",
+  "taken",
+  "changed",
+  "retired",
+  "merged_into",
+  "before",
+  "values",
+  "why",
+];
+
 // The value of `source` that says a block was made by hand, unless the repository writes it its
 // own way under `values`.
 export const BY_HAND = "by-hand";
@@ -47,10 +61,12 @@ const PLAIN_KEY = /^[\w-]+$/;
 // where it gives one the reader cannot read as a key.
 export function spellingOf(data) {
   const own = isMap(data?.keys) ? data.keys : {};
+  const readable = (key) => typeof own[key] === "string" && PLAIN_KEY.test(own[key]);
+  const taken = new Set(INTAKE_KEYS.filter(readable).map((key) => own[key]));
   return Object.fromEntries(
     INTAKE_KEYS.map((key) => [
       key,
-      typeof own[key] === "string" && PLAIN_KEY.test(own[key]) ? own[key] : key,
+      readable(key) ? own[key] : LATER_KEYS.includes(key) && taken.has(key) ? null : key,
     ]),
   );
 }
@@ -67,7 +83,9 @@ export function spellingProblems(data) {
   );
   const spelled = spellingOf(data);
   const seen = new Map();
-  for (const key of INTAKE_KEYS) seen.set(spelled[key], [...(seen.get(spelled[key]) ?? []), key]);
+  for (const key of INTAKE_KEYS.filter((each) => spelled[each] !== null)) {
+    seen.set(spelled[key], [...(seen.get(spelled[key]) ?? []), key]);
+  }
   for (const [as, keys] of seen) {
     if (keys.length > 1) {
       problems.push(
@@ -92,7 +110,11 @@ export function readIntakeLedger(text) {
   if (text === null || text === undefined) return null;
   const data = readYaml(text);
   const spelled = spellingOf(data);
-  const back = Object.fromEntries(Object.entries(spelled).map(([key, own]) => [own, key]));
+  const back = Object.fromEntries(
+    Object.entries(spelled)
+      .filter(([, own]) => own !== null)
+      .map(([key, own]) => [own, key]),
+  );
   // An entry in the contract's keys; the reason inside a change or a retirement is one of them.
   const named = (entry) =>
     isMap(entry)
@@ -104,7 +126,14 @@ export function readIntakeLedger(text) {
         )
       : entry;
   const inKeys = (list) => (Array.isArray(list) ? list.map(named) : list);
-  const { [spelled.blocks]: blocks, [spelled.before]: before, ...others } = data;
+  const hasBefore = spelled.before !== null && spelled.before in data;
+  const blocks = data[spelled.blocks];
+  const before = hasBefore ? data[spelled.before] : undefined;
+  const others = Object.fromEntries(
+    Object.entries(data).filter(
+      ([key]) => key !== spelled.blocks && !(hasBefore && key === spelled.before),
+    ),
+  );
   // The other keys beside the blocks, kept as written but for `values`, named as the contract
   // names it.
   const rest = Object.fromEntries(
@@ -114,7 +143,7 @@ export function readIntakeLedger(text) {
   const listed = inKeys(blocks);
   return {
     ...rest,
-    ...(spelled.before in data ? { before: inKeys(before) } : {}),
+    ...(hasBefore ? { before: inKeys(before) } : {}),
     ...(version === undefined
       ? {}
       : { version: /^\d+$/.test(version) ? Number(version) : version }),
@@ -136,7 +165,9 @@ export function isByHand(ledger, block) {
 // The repository's spelling as the one line a fragment is read with, or nothing when it spells
 // every key the contract's way.
 export function keysLine(spelled) {
-  const own = Object.entries(spelled ?? {}).filter(([key, value]) => key !== value);
+  const own = Object.entries(spelled ?? {}).filter(
+    ([key, value]) => value !== null && key !== value,
+  );
   if (own.length === 0) return "";
   return `keys: { ${own.map(([key, value]) => `${key}: ${value}`).join(", ")} }\n`;
 }

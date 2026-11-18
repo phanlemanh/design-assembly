@@ -63,9 +63,9 @@
     },
     {
       "version": "0.8.0",
-      "templates": "61a923d5dced52796be85e4685b903f7898c89ba",
+      "templates": "960b879e828e157c151bd52411f8558dc4030d0b",
       "scripts": "d1ef019fbfbd210b0fed2f314927771529e3072a",
-      "tool": "256823f50a30c6dbcf7d5d015f6fb11366d0dbe1"
+      "tool": "bbb9a774a5efbdd9f97da08a646d034f25d1521a"
     }
   ]
 }

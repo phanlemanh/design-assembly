@@ -59,6 +59,9 @@ cho nghỉ chưa, và những gì repo làm trước khi có sổ.
      `{ by-hand: <chữ của repo> }`).
    - Mọi khoá ấy, kể cả `why`, viết theo cách riêng được qua `keys`. `why` bên trong `changed` và `retired` cũng được đọc
      theo cách viết ấy.
+   - Repo viết sổ trước các khoá này có thể đã dùng tên của một khoá mới làm cách viết cho khoá cũ, như
+     `keys: { source: from }`. Khi ấy khoá mới không có cách viết nào ở repo đó, và sổ đọc y như trước, cho tới khi repo
+     tự khai cách viết cho nó.
    - `isByHand` nói một khối có phải tạo tay không, theo chữ `by-hand` của hợp đồng hoặc chữ repo khai ở `values`.
 5. **Bảng từ vựng thêm mười tên:** `interface inventory` (nguồn đã đọc ngày 2026-11-19), `vendoring` (chỉ đọc được bản
    tóm tắt của mục ấy, nên ghi `summary`), `pin`, `catalog`, `starter kit`, `deprecation`, `drift` (thói quen của
@@ -66,8 +69,11 @@ cho nghỉ chưa, và những gì repo làm trước khi có sổ.
    chữ phải tránh, để không ai gọi sổ linh kiện là danh mục. Nay «catalog» là tên của danh mục một nguồn ngoài, đúng
    chữ repo kiểm chứng dùng, và nghĩa của nó nói rõ nó không phải sổ linh kiện. Vì vậy sổ linh kiện chỉ còn tránh
    «catalogue». Đổi lại, bài kiểm từ vựng không còn bắt được một trang gọi sổ linh kiện là «catalog».
-6. **Một dòng giới hạn mới,** `sources-never-fetched`: plugin không ghim lại nguồn, nên bản ghim cũ chỉ được báo; và
-   bản chụp chỉ được so khi nguồn nêu thư mục của nó.
+6. **Bộ đọc không bao giờ ném lỗi vì một tệp nguồn.** Đường dẫn dẫn ra ngoài repo (`catalog`, `pin_file`, `snapshot`,
+   tệp của bản ghim), `snapshot` không phải chữ, tệp của bản ghim là một thư mục: nguồn ấy «không đọc được», kèm lý do.
+   Thư mục con mang đuôi `.json` trong `design/sources/` bị bỏ qua, ở bộ đọc lẫn ở cổng.
+7. **Hai dòng giới hạn mới.** `sources-never-fetched`: plugin không ghim lại nguồn, nên bản ghim cũ chỉ được báo; và bản
+   chụp chỉ được so khi nguồn nêu thư mục của nó. `intake-new-keys-taken-by-own-keys`: xem mục Consequences.
 
 Lệch với đề bài 0006:
 
@@ -80,16 +86,32 @@ Lệch với đề bài 0006:
 
 ## Consequences
 
-- Repo không có `design/sources/` và không dùng khoá mới thì không thấy gì đổi: mọi bài kiểm có trước vẫn xanh, trừ hai
-  bài khẳng định điều cũ (sổ nguồn ngoài «chưa chốt», và trang hợp đồng kê sổ), đã sửa theo.
+- Repo không có `design/sources/` và không có khoá nào mang tên của bảy khoá mới thì không thấy gì đổi: sổ nhập kho của
+  nó đọc ra đúng như công cụ bản 0.7.3 đọc, có bài kiểm so hai bộ đọc. Mọi bài kiểm có trước vẫn xanh, trừ hai bài khẳng
+  định điều cũ (sổ nguồn ngoài «chưa chốt», và trang hợp đồng kê sổ), đã sửa theo.
+- **Repo đã có một khoá riêng mang đúng tên một khoá mới** (`from`, `taken`, `changed`, `retired`, `merged_into` trên
+  khối; `before`, `values` cạnh danh sách) mà giá trị khác hình dạng mới thì cổng đỏ khi lên đời, và nêu khoá ấy.
+  `upgrade` nói trước điều đó và dừng, như mọi lần lên đời làm cổng đỏ. Lối ra là đổi tên khoá riêng ấy. Không repo nào
+  máy biết đang ở trường hợp này: repo kiểm chứng viết khoá bằng tiếng Việt. Dòng giới hạn
+  `intake-new-keys-taken-by-own-keys` ghi điều đó.
 - Một sổ nhập kho có đủ khoá mới qua phép kiểm hình dạng của công cụ bản 0.7.3, lấy từ git ở `03e2a99`, vẫn xanh: công
   cụ cũ đọc chúng như khoá riêng của repo. Bài kiểm chạy đúng công cụ ấy.
 - `adopt` và dẫn dắt không đếm sổ nguồn ngoài trong câu «N sổ đúng hình dạng» của chúng, vì chúng chỉ duyệt các sổ có
   một tệp; cổng vẫn giữ sổ ấy.
-- Bài kiểm mới: 10 ở `test-sources-ledger.mjs`, 6 ở `test-intake-keys.mjs`. Cả hai tệp được thấy đỏ trước khi có mã. Năm
+- Bài kiểm mới: 12 ở `test-sources-ledger.mjs`, 9 ở `test-intake-keys.mjs`. Cả hai tệp được thấy đỏ trước khi có mã. Năm
   chỗ chính được thấy đỏ bằng cách tạm làm hỏng mã rồi trả lại: so `sha256`, tên tệp bằng `id`, `before` theo cách
   viết riêng, cổng đọc thư mục nguồn, và `why` lồng trong `retired`. Chỗ cuối không bài nào bắt ở lần đầu; một câu kiểm
   được thêm, thấy đỏ, rồi xanh.
+- Một tác tử độc lập đọc lại thay đổi và tìm ra hai lỗi nặng, một lỗi vừa, hai điểm nhẹ; máy kiểm lại cả năm trên mã, cả
+  năm đúng. Mỗi điều có bài kiểm, thấy đỏ trước khi sửa:
+  - **Nặng:** cách viết `keys: { source: from }` của một sổ cũ làm `source` và `from` trùng tên, cổng đỏ trên sổ đúng.
+    Nay đã sửa (mục 4).
+  - **Nặng:** khoá riêng mang tên khoá mới làm cổng đỏ, trái với câu «không thấy gì đổi» của bản đầu quyết định này.
+    Không sửa được mà không bỏ hình dạng của khoá mới; nay là một giới hạn đã nói rõ (ở trên).
+  - **Vừa:** bộ đọc nguồn và cổng ném lỗi ở tệp ghim rỗng, `snapshot` không phải chữ, thư mục con đuôi `.json`. Đã sửa
+    (mục 6).
+  - **Nhẹ:** đường dẫn ra ngoài repo. Đã sửa (mục 6).
+  - **Nhẹ:** chú thích của bộ đọc tả sai một khoá của nhóm trong danh mục. Đã sửa.
 - **Chưa đo trên repo thật.** Lệnh đo trên bản sao của repo kiểm chứng (một tệp nguồn trỏ vào tệp ghim và danh mục của
   nó) bị từ chối lúc chạy, nên không chạy. Điều «`pin_file` trỏ thẳng được vào tệp ghim ấy» dựa trên việc đọc tệp ấy
   ngày 2026-11-19 và trên bài kiểm dùng đúng các khoá đó, chưa trên chính tệp.

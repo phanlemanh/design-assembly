@@ -987,7 +987,7 @@ function readLedgerFolder(root, folder, ending) {
   if (!existsSync(full) || !statSync(full).isDirectory()) return {};
   return Object.fromEntries(
     readdirSync(full)
-      .filter((name) => name.endsWith(ending))
+      .filter((name) => name.endsWith(ending) && statSync(path.join(full, name)).isFile())
       .sort()
       .map((name) => [`${folder}/${name}`, readFileSync(path.join(full, name), "utf8")]),
   );

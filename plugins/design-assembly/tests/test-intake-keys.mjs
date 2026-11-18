@@ -16,6 +16,7 @@ import {
   BY_HAND,
   INTAKE_KEYS,
   isByHand,
+  keysLine,
   readIntakeLedger,
 } from "../templates/tools/design-assembly/intake-ledger.mjs";
 
@@ -165,4 +166,75 @@ test("the tool of version 0.7.3 holds a ledger with the new keys, as keys of the
   assert.equal(untar.status, 0, String(untar.stderr));
   const old = await import(pathToFileURL(path.join(dir, TOOL, "contract.mjs")).href);
   assert.deepEqual(old.shapeProblems("intake", WITH_NEW_KEYS), []);
+});
+
+// Taken from the old tool, to read a ledger exactly as it read it before these keys.
+async function oldIntakeReader() {
+  const dir = mkdtempSync(path.join(tmpdir(), "design-assembly-old-reader-"));
+  made.push(dir);
+  const archive = spawnSync("git", ["-C", ROOT, "archive", BEFORE, TOOL], { maxBuffer: 1 << 26 });
+  spawnSync("tar", ["-x", "-C", dir], { input: archive.stdout });
+  return import(pathToFileURL(path.join(dir, TOOL, "intake-ledger.mjs")).href);
+}
+
+const withoutSpelling = (ledger) =>
+  Object.fromEntries(Object.entries(ledger).filter(([key]) => key !== "spelled"));
+
+test("a ledger without the new keys reads as the tool of 0.7.3 read it, in either spelling", async () => {
+  const old = await oldIntakeReader();
+  const ledgers = [
+    "version: 1\nblocks:\n  - name: A\n    file: a.tsx\n    source: kit-1\n    need: a-need\n    approved: 2026-11-12\n    owner_note: kept\nnotes: beside the blocks\n",
+    "version: 1\nkeys: { blocks: khoi, name: ten, need: nhu_cau, record: ho_so }\nkhoi_co_truoc:\n  - ten: FormDialog\nkhoi:\n  - ten: A\n    nhu_cau: a-need\n    ho_so: round-1\n",
+  ];
+  for (const text of ledgers) {
+    assert.deepEqual(
+      withoutSpelling(readIntakeLedger(text)),
+      withoutSpelling(old.readIntakeLedger(text)),
+    );
+  }
+});
+
+test("a repository that spells an older key with the name of a new one reads as before", async () => {
+  const old = await oldIntakeReader();
+  const text = [
+    "version: 1",
+    "keys: { source: from, description: why, name: before }",
+    "blocks:",
+    "  - before: DataRegion",
+    "    file: src/components/data-region.tsx",
+    "    from: data-grid-6",
+    "    need: many-rows",
+    "    why: Many rows to read",
+    "    approved: 2026-11-12",
+    "",
+  ].join("\n");
+  assert.deepEqual(shapeProblems("intake", text), []);
+  const ledger = readIntakeLedger(text);
+  assert.equal(ledger.blocks[0].source, "data-grid-6");
+  assert.equal(ledger.blocks[0].name, "DataRegion");
+  assert.equal(ledger.blocks[0].description, "Many rows to read");
+  assert.deepEqual(withoutSpelling(ledger), withoutSpelling(old.readIntakeLedger(text)));
+  // And the line a fragment is read with keeps only what the repository spelled.
+  assert.equal(
+    keysLine(ledger.spelled),
+    "keys: { name: before, source: from, description: why }\n",
+  );
+});
+
+test("a key of the repository's own that bears a new key's name is named when it leaves the shape", () => {
+  const text = [
+    "version: 1",
+    "blocks:",
+    "  - name: A",
+    "    file: a.tsx",
+    "    source: kit-1",
+    "    need: a-need",
+    "    approved: 2026-11-12",
+    "    retired: true",
+    "",
+  ].join("\n");
+  assert.match(
+    shapeProblems("intake", text).join(),
+    /blocks\[0\]\.retired is string, the contract says object/,
+  );
 });

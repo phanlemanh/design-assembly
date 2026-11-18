@@ -4,7 +4,7 @@
 //
 // A shape is checked as data. Its `version` says which shape a file has: a reader of shape N reads
 // every file of shape N or older, and a writer that finds a newer shape writes nothing.
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 import { adapterOf } from "./adapters/index.mjs";
@@ -522,7 +522,7 @@ function intakeProblems(textOfFile, file) {
   const { spelled, ...data } = readIntakeLedger(textOfFile);
   const newer = newerProblem("intake", data);
   if (newer) return [newer];
-  const own = Object.entries(spelled).filter(([key, value]) => key !== value);
+  const own = Object.entries(spelled).filter(([key, value]) => value !== null && key !== value);
   const named = (line) =>
     own.reduce(
       (said, [key, value]) =>
@@ -584,7 +584,8 @@ export function presentLedgers(root) {
       const full = path.join(root, ledger.folder);
       if (existsSync(full)) {
         for (const name of readdirSync(full).sort()) {
-          if (name.endsWith(ledger.ending ?? ".md") && !NOT_A_KIND.includes(name)) {
+          const isFile = statSync(path.join(full, name)).isFile();
+          if (isFile && name.endsWith(ledger.ending ?? ".md") && !NOT_A_KIND.includes(name)) {
             files.push(`${ledger.folder}/${name}`);
           }
         }
