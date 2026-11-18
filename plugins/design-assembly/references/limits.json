@@ -3046,6 +3046,17 @@
       "where": ["trials"],
       "status": "open",
       "note": "Nothing reports a word of the repository's words file that no code uses any more; three sample words of the reference application are unused today and every check passes."
+    },
+    {
+      "id": "sources-never-fetched",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-19",
+      "where": ["d0057"],
+      "status": "open",
+      "note": "No tool of this plugin fetches a source or pins it again: a pin is read as the repository keeps it, so an old pin is only reported, never brought up to date. The snapshot of a source is compared with its pin only when the source names the folder it is kept in; a source pinned by a version, or one that names no snapshot, is read without that comparison, and the reader says so."
     }
   ]
 }

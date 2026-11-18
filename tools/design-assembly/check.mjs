@@ -2,7 +2,7 @@
 // the ledger that points at them.
 // Usage: node tools/design-assembly/check.mjs [--rate] [--target DIR]
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync, realpathSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
@@ -303,6 +303,13 @@ const KINDS = {
       if (check.pages) {
         for (const [file, text] of Object.entries(state.pages?.[check.pages] ?? {})) {
           problems.push(...shapeProblems("screen-kinds", text, file));
+        }
+      }
+      // A ledger kept as one file per entry and no single file, the sources, entry by entry.
+      for (const [kind, ledger] of Object.entries(LEDGERS)) {
+        if (!ledger.ending) continue;
+        for (const [file, text] of Object.entries(state.ledgerFolders?.[ledger.folder] ?? {})) {
+          problems.push(...shapeProblems(kind, text, file));
         }
       }
       if (problems.length === 0) return null;
@@ -974,6 +981,18 @@ export function gitFacts(root, files) {
   };
 }
 
+// Every file of a folder that ends as its ledger's files do, by its path, as it is on disk.
+function readLedgerFolder(root, folder, ending) {
+  const full = path.join(root, folder);
+  if (!existsSync(full) || !statSync(full).isDirectory()) return {};
+  return Object.fromEntries(
+    readdirSync(full)
+      .filter((name) => name.endsWith(ending))
+      .sort()
+      .map((name) => [`${folder}/${name}`, readFileSync(path.join(full, name), "utf8")]),
+  );
+}
+
 export function readState(root) {
   const read = (file) => {
     const full = path.join(root, file);
@@ -1063,6 +1082,12 @@ export function readState(root) {
     ),
     folders: Object.fromEntries(folders),
     pages: Object.fromEntries(pages),
+    // The ledgers kept only as a folder of files, the sources, file by file.
+    ledgerFolders: Object.fromEntries(
+      Object.values(LEDGERS)
+        .filter((ledger) => ledger.ending)
+        .map((ledger) => [ledger.folder, readLedgerFolder(root, ledger.folder, ledger.ending)]),
+    ),
     sources: Object.fromEntries(sources),
     models: Object.fromEntries(models),
     // The column type each field of the data model names.

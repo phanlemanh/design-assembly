@@ -20,7 +20,23 @@ export const INTAKE_KEYS = [
   "approved",
   "approved_by",
   "pin",
+  // For the reusable store: the pinned source a block came from, the hash of its file when it was
+  // taken in, a change made on purpose, a block retired or merged into another need; beside the
+  // blocks, what was made before the ledger, and how the repository writes a value of the
+  // contract. `why` is the reason inside `changed`, `retired` and each entry of `before`.
+  "from",
+  "taken",
+  "changed",
+  "retired",
+  "merged_into",
+  "before",
+  "values",
+  "why",
 ];
+
+// The value of `source` that says a block was made by hand, unless the repository writes it its
+// own way under `values`.
+export const BY_HAND = "by-hand";
 
 const isMap = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 
@@ -77,25 +93,44 @@ export function readIntakeLedger(text) {
   const data = readYaml(text);
   const spelled = spellingOf(data);
   const back = Object.fromEntries(Object.entries(spelled).map(([key, own]) => [own, key]));
-  const { [spelled.blocks]: blocks, ...rest } = data;
+  // An entry in the contract's keys; the reason inside a change or a retirement is one of them.
+  const named = (entry) =>
+    isMap(entry)
+      ? Object.fromEntries(
+          Object.entries(entry).map(([key, value]) => {
+            const contract = back[key] ?? key;
+            return [contract, NESTED.includes(contract) ? named(value) : value];
+          }),
+        )
+      : entry;
+  const inKeys = (list) => (Array.isArray(list) ? list.map(named) : list);
+  const { [spelled.blocks]: blocks, [spelled.before]: before, ...others } = data;
+  // The other keys beside the blocks, kept as written but for `values`, named as the contract
+  // names it.
+  const rest = Object.fromEntries(
+    Object.entries(others).map(([key, value]) => [back[key] === "values" ? "values" : key, value]),
+  );
   const version = rest.version;
-  const listed = Array.isArray(blocks)
-    ? blocks.map((block) =>
-        isMap(block)
-          ? Object.fromEntries(
-              Object.entries(block).map(([key, value]) => [back[key] ?? key, value]),
-            )
-          : block,
-      )
-    : blocks;
+  const listed = inKeys(blocks);
   return {
     ...rest,
+    ...(spelled.before in data ? { before: inKeys(before) } : {}),
     ...(version === undefined
       ? {}
       : { version: /^\d+$/.test(version) ? Number(version) : version }),
     ...(spelled.blocks in data ? { blocks: listed } : {}),
     spelled,
   };
+}
+
+// The keys of a block that hold an object whose own keys are named by the contract too.
+const NESTED = ["changed", "retired"];
+
+// Whether a block of a ledger read in the contract's keys was made by hand: its source is the
+// contract's word for that, or the one the ledger gives under `values`.
+export function isByHand(ledger, block) {
+  const own = isMap(ledger?.values) ? ledger.values[BY_HAND] : undefined;
+  return block?.source === (typeof own === "string" ? own : BY_HAND);
 }
 
 // The repository's spelling as the one line a fragment is read with, or nothing when it spells

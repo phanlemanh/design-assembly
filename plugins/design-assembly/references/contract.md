@@ -32,6 +32,7 @@ a screen kind, must have its shape.
 | `parts`        | `design/parts.json`              | The parts of the code from the top down                          | A person                                   | 1     |
 | `screens`      | `design/screens.yaml`            | Which screens exist, of which kind, with which states            | A person or an agent, with each new screen | 1     |
 | `intake`       | `design/intake.yaml`             | Which need got which block, from where, approved by whom, when   | The round that takes the block in, once    | 1     |
+| `sources`      | `design/sources/<id>.json`       | Which outside libraries blocks are picked from, at which pin     | A person, or the repository's pinning tool | 1     |
 | `screen-kinds` | `design/patterns/<kind>.md`      | How a screen of each kind is built                               | A person                                   | none  |
 
 ### decisions
@@ -151,6 +152,40 @@ written by one round, once, its approval included, so each file has one writer.
 `node tools/design-assembly/screen-fragments.mjs --ledger intake` takes every flag the screens take,
 and `checks.md` says what each does.
 
+A block may also say, for the reusable store: `from`, the id of the pinned source it came from,
+which a repository with one source may leave out; `taken`, the `sha256` of its file when it was
+taken in; `changed`, `{ on, why }`, when the repository changed it on purpose since; `retired`,
+`{ on, by, why }`, when it was retired; and `merged_into`, the need whose block took its place.
+Beside the blocks, `before` lists what the repository made before it kept this ledger, each with
+`name` and `why` and maybe `file` and `record`; and `values` says how the repository writes a value
+of the contract, today one: `{ by-hand: <its word> }` for the source of a block made by hand, which
+the contract writes `by-hand`. Every one of these keys may be spelled the repository's way under
+`keys`, `why` included. All are optional, so the shape stays 1: an older tool reads them as keys of
+the repository's own.
+
+### sources
+
+One file per pinned source, `design/sources/<id>.json`, so that pinning one source again writes
+that file alone; there is no single-file shape. A source has `version`, `id` (small letters and
+dashes, the name of its file) and `catalog` (the path, in the repository, of the list of what it
+offers), and may have `title`, `order` (a number: sources are looked through the smallest first,
+then by id) and `licence` (what taking an item in needs, in a sentence, never a key), and `install`,
+how one item is taken in, with `{name}` where its name goes. It names its pin in one of two ways: as
+`pin`, or as `pin_file`, the path of a file the repository already keeps it in. A pin holds the
+`files` the source was read from, each with `file` and `sha256` and maybe `url` and `bytes`, and
+maybe `fetched_at`; or a `version`. `snapshot` names the folder those files are kept in. Keys of the
+repository's own are kept.
+
+A catalog lists `items`, or keeps them in `groups`; an item has `name`, and may have `kind`,
+`title`, `description`, `group`, `category` and `page`; an item of a group takes the group's
+`kind`, `group` and `category`, and its `base` as its page. A catalog holds no code.
+
+No tool of this plugin fetches. Each reader compares the files of the snapshot with the hashes of
+the pin: a source whose snapshot differs, whose pin file or catalog cannot be read, or of a newer
+shape, is unreadable, says why, and offers nothing. A source pinned by a version has no snapshot to
+compare, and says so. Whether a catalog is kept in git is the repository's choice, as with every
+derived file.
+
 ### screen-kinds
 
 One page per kind of screen, with the front matter the acceptance kit defines. Eight keys are
@@ -167,10 +202,3 @@ decisions, the audit does not count them, and their shape is stated in `waiting.
 `contract.mjs`. They are kept as one file per question, `design/waiting/<id>.json`, or in the older
 shared file `design/waiting-list.json`; never both. The gate reads them for two rows of the
 decisions ledger, `decision-sheet` and `owner-calls`, and `checks.md` says how.
-
-## Not settled yet
-
-One ledger has no one shape yet:
-
-- `sources`: which outside libraries blocks come from, in what order, at which pin. One repository
-  keeps one so far.

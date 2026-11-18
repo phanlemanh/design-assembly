@@ -232,8 +232,8 @@
         {
           "id": "3.1",
           "what": "Hình dạng sổ nhập kho và sổ nguồn ngoài; tên ngành vào bảng từ vựng",
-          "state": "todo",
-          "ref": "sổ nhập kho đã chốt ở quyết định 0052 (bước 8.1c); còn sổ nguồn ngoài"
+          "state": "done",
+          "ref": "quyết định 0057; sổ nhập kho ở quyết định 0052 (bước 8.1c); plugins/design-assembly/tests/test-sources-ledger.mjs, test-intake-keys.mjs"
         },
         {
           "id": "3.2",

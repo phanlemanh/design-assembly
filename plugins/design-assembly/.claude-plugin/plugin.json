@@ -1,6 +1,6 @@
 {
   "name": "design-assembly",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "description": "Audits a repository's design system against the standard decisions, adopts the values and proofs it already has, and guides a person through the decision layers, leaving checks that can fail.",
   "author": {
     "name": "phanlemanh"

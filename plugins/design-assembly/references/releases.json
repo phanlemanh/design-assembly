@@ -60,6 +60,12 @@
       "templates": "736f0194a2ecb242d1bdadb1a3e29b955575db80",
       "scripts": "d1ef019fbfbd210b0fed2f314927771529e3072a",
       "tool": "59154c6b4877adc12a76e3e4048eea3cd3efac3e"
+    },
+    {
+      "version": "0.8.0",
+      "templates": "61a923d5dced52796be85e4685b903f7898c89ba",
+      "scripts": "d1ef019fbfbd210b0fed2f314927771529e3072a",
+      "tool": "256823f50a30c6dbcf7d5d015f6fb11366d0dbe1"
     }
   ]
 }

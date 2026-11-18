@@ -537,6 +537,67 @@
       "meaning": "A choice the machine never makes on the owner's behalf: here a new kind of screen and the brand colour. A branch that makes one fails the gate until the owner's answer keeps that very item.",
       "source": "The specification of the ledgers that stop riding pull requests, 2026-11-16; the trade speaks of a design review or an approval gate",
       "trust": "coined"
+    },
+    {
+      "term": "interface inventory",
+      "meaning": "Gathering every piece an interface is made of and setting the treatments of each kind side by side, so that duplicates and unintended inconsistencies show. The inventory command takes the store of a repository this way, from its ledgers and its code rather than from screenshots.",
+      "source": "Brad Frost, Interface Inventory, bradfrost.com, 10 July 2013 (read 2026-11-19)",
+      "trust": "source"
+    },
+    {
+      "term": "sources ledger",
+      "meaning": "The ledger of the outside libraries a repository picks blocks from: for each, its pin, the order it is looked through in, where its catalog is kept, and how an item is taken in. One file per source.",
+      "source": "The specification of the reusable store, 2026-11-19",
+      "trust": "coined"
+    },
+    {
+      "term": "external source",
+      "meaning": "A library made by someone else that a repository picks blocks from. It is not a store of the repository's: what is taken from it is copied in and recorded in the intake ledger.",
+      "source": "The specification of the reusable store, 2026-11-19, after the owner's architecture document for the meta layer",
+      "trust": "coined"
+    },
+    {
+      "term": "pin",
+      "meaning": "The exact files or the exact version of a source a repository took, recorded so that any reader can tell whether it still has them. What a lockfile does for packages.",
+      "source": "Common practice in package managers",
+      "trust": "practice"
+    },
+    {
+      "term": "catalog",
+      "meaning": "The list of what a source offers, each item by name, kind, title and description, kept in the repository so that it can be searched without the network. It holds no code.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "vendoring",
+      "meaning": "Copying the code taken from a source into the repository, instead of depending on it, so that the build fetches nothing. Blocks taken in from a source are vendored.",
+      "source": "Go Modules Reference, Vendoring (read 2026-11-19, the section only as a summary)",
+      "trust": "summary"
+    },
+    {
+      "term": "reuse ladder",
+      "meaning": "The three rungs a need goes down, and only when the rung above has nothing that fits: the repository's own store, then a pinned source, then made by hand.",
+      "source": "The owner's architecture document for the meta layer, section on the intake path, 2026-11-13",
+      "trust": "coined"
+    },
+    {
+      "term": "starter kit",
+      "meaning": "The few pieces this plugin ships ready for a new repository on a floor it knows, such as the table with typed columns and the record panel.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "deprecation",
+      "meaning": "Marking a thing of the store as on its way out, with why and what replaces it, while the screens that still use it keep working. The Vietnamese of the documents says cho nghỉ.",
+      "source": "Common practice in the change policies of design systems",
+      "trust": "practice",
+      "avoid": ["removal"]
+    },
+    {
+      "term": "drift",
+      "meaning": "A thing taken from a source that no longer matches it: its pin differs from the source's current pin, or its file differs from what was taken in.",
+      "source": "Common practice",
+      "trust": "practice"
     }
   ]
 }

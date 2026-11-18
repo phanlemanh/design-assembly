@@ -62,7 +62,9 @@ adopting names the text.
 
 Every ledger above has one shape, stated in `contract.md`, so this plugin, the acceptance kit and
 the agent that builds a screen read it alike. The `ledger-shapes` row holds it: the gate fails when
-a ledger present, or a page of a screen kind, leaves its shape. A ledger that says it has a newer
+a ledger present, a page of a screen kind, or a file of `design/sources/`, leaves its shape. It
+reads every file of `design/sources/` whatever its check names, so a repository that pins a source
+is held from the first file. A ledger that says it has a newer
 shape than the plugin knows is never written over: the guide and adopt stop, and say to update the
 plugin.
 
