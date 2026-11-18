@@ -162,9 +162,65 @@
       }
     },
     {
+      "id": 8,
+      "name": "Gỡ va chạm cho ba kho",
+      "state": "done",
+      "parallel": [2],
+      "added": {
+        "by": "Manh Phan",
+        "on": "2026-11-16",
+        "words": "Duyệt kế hoạch"
+      },
+      "items": [
+        {
+          "id": "8.0",
+          "what": "Đề bài chi tiết cho cả giai đoạn, chủ repo duyệt",
+          "state": "done",
+          "ref": "wiki/specs/0005-ledgers-stop-riding-pull-requests.md"
+        },
+        {
+          "id": "8.1",
+          "what": "Sổ thôi đi theo PR: vật dẫn xuất thôi commit, sổ ghi tay tách mỗi mục một mảnh",
+          "state": "done",
+          "ref": "8.1a: quyết định 0049; 8.1b: quyết định 0050; vật dẫn xuất vẽ trước bên đọc: quyết định 0051; 8.1c: quyết định 0052"
+        },
+        {
+          "id": "8.2",
+          "what": "Lệnh nói tệp đổi ảnh hưởng màn nào, bài trình duyệt nào, ở khổ màn nào",
+          "state": "done",
+          "ref": "quyết định 0053; phép đo trên 30 PR của repo kiểm chứng: docs/trials/affected-on-a-reference-copy.md"
+        },
+        {
+          "id": "8.3",
+          "what": "Sổ quyết định đứng thay trưởng thiết kế: hàng chờ theo mảnh, phép so tổng, tường cho khuôn mới và màu thương hiệu",
+          "state": "done",
+          "ref": "quyết định 0054; 8.3a: plugins/design-assembly/tests/test-waiting.mjs; 8.3b: plugins/design-assembly/tests/test-owner-calls.mjs"
+        },
+        {
+          "id": "8.4",
+          "what": "Repo kiểm chứng nhận 8.1 đến 8.3 bằng upgrade",
+          "state": "done",
+          "ref": "quyết định 0055; docs/trials/upgrade-inventory-0-7-0.md; phanlemanh/onehub-inventory#84 (gộp ngày 2026-11-17, commit 8925e8f, sau lần ký lại thêm AC-11); plugin 0.7.1: quyết định 0056; phanlemanh/onehub-inventory#86 (gộp ngày 2026-11-18, commit bd32d73e): repo kiểm chứng lên 0.7.1, sổ quyết định có thêm hai dòng decision-sheet và owner-calls của 8.3"
+        }
+      ],
+      "done_when": [
+        "Trên repo kiểm chứng, số PR chạm sổ linh kiện và bảng vai × màn × nút về 0, và mỗi PR chỉ chạm mảnh sổ của chính nó",
+        "Lệnh bản đồ màn chọn đúng màn bị ảnh hưởng trên ứng dụng mẫu và trên repo kiểm chứng, và trả trọn bộ khi không lần được",
+        "Một lượt dựng màn không hỏi chủ repo giữa chừng: câu mới nằm ở hàng chờ, khuôn mới và màu thương hiệu bị chặn tới khi có lời đáp"
+      ],
+      "needs_owner": [
+        "Quyết tên tiếng Anh cho hai sổ đang mang tên tiếng Việt ở repo kiểm chứng",
+        "Cho phép sửa ở repo kiểm chứng, từng bước"
+      ],
+      "closed": {
+        "on": "2026-11-18",
+        "evidence": "Ba dòng «done when» chạy bằng lệnh, ghi ở docs/trials/stage-8-done-when.md. Dòng 1: trên Inventory ở bd32d73e, sổ linh kiện và bảng vai × màn × nút không còn trong git, và hai PR gộp sau lần nhận 0.7.0 (85, 86) chạm 0 tệp trong hai tệp ấy; phép phát lại trên bản sao gộp hai nhánh, mỗi nhánh thêm một màn, theo cả hai thứ tự: 0 xung đột, mỗi nhánh chỉ chạm mảnh sổ của chính nó, trong khi bố cục sổ một tệp ở ea774a0f xung đột ở 2 tệp. Dòng 2: affected.mjs trả đúng màn trên các phép thử ở ứng dụng mẫu và ở bản sao Inventory, và trả trọn bộ khi không lần được; node docs/trials/declared-against-chosen.mjs trên 40 PR đã gộp thoát 0, không PR nào thiếu màn đã khai, và không PR nào được thu hẹp. Dòng 3: trên bản sao Inventory, cổng đỏ ở owner-calls khi thêm một kiểu màn mới hay đổi màu gốc, và xanh lại khi hàng chờ có lời đáp giữ; chạy thử lần 11 (vai dựng màn, đề chuẩn, docs/trials/results.tsv): 0 lần dừng hỏi, 6 câu vào design/waiting/, cổng xanh. Điều còn biết lúc đóng: hai màn của phép phát lại là màn dựng cho phép thử, chưa phải PR thật; 3 trên 9 chỗ phải đoán của lần 11 không vào hàng chờ và không phép kiểm nào bắt (giới hạn decide-ask-trusts-the-agent-to-ask). Chủ repo bảo đóng ngày 2026-11-18."
+      }
+    },
+    {
       "id": 3,
       "name": "Kho dùng lại",
-      "state": "later",
+      "state": "current",
       "parallel": [],
       "items": [
         {
@@ -322,58 +378,6 @@
       ],
       "done_when": ["Repo thứ hai không bị hỏi lại câu đã trả lời, và dùng lại ít nhất một khối"],
       "needs_owner": ["Tạo repo cho lõi"]
-    },
-    {
-      "id": 8,
-      "name": "Gỡ va chạm cho ba kho",
-      "state": "current",
-      "parallel": [2],
-      "added": {
-        "by": "Manh Phan",
-        "on": "2026-11-16",
-        "words": "Duyệt kế hoạch"
-      },
-      "items": [
-        {
-          "id": "8.0",
-          "what": "Đề bài chi tiết cho cả giai đoạn, chủ repo duyệt",
-          "state": "done",
-          "ref": "wiki/specs/0005-ledgers-stop-riding-pull-requests.md"
-        },
-        {
-          "id": "8.1",
-          "what": "Sổ thôi đi theo PR: vật dẫn xuất thôi commit, sổ ghi tay tách mỗi mục một mảnh",
-          "state": "done",
-          "ref": "8.1a: quyết định 0049; 8.1b: quyết định 0050; vật dẫn xuất vẽ trước bên đọc: quyết định 0051; 8.1c: quyết định 0052"
-        },
-        {
-          "id": "8.2",
-          "what": "Lệnh nói tệp đổi ảnh hưởng màn nào, bài trình duyệt nào, ở khổ màn nào",
-          "state": "done",
-          "ref": "quyết định 0053; phép đo trên 30 PR của repo kiểm chứng: docs/trials/affected-on-a-reference-copy.md"
-        },
-        {
-          "id": "8.3",
-          "what": "Sổ quyết định đứng thay trưởng thiết kế: hàng chờ theo mảnh, phép so tổng, tường cho khuôn mới và màu thương hiệu",
-          "state": "done",
-          "ref": "quyết định 0054; 8.3a: plugins/design-assembly/tests/test-waiting.mjs; 8.3b: plugins/design-assembly/tests/test-owner-calls.mjs"
-        },
-        {
-          "id": "8.4",
-          "what": "Repo kiểm chứng nhận 8.1 đến 8.3 bằng upgrade",
-          "state": "done",
-          "ref": "quyết định 0055; docs/trials/upgrade-inventory-0-7-0.md; phanlemanh/onehub-inventory#84 (gộp ngày 2026-11-17, commit 8925e8f, sau lần ký lại thêm AC-11); plugin 0.7.1: quyết định 0056; phanlemanh/onehub-inventory#86 (gộp ngày 2026-11-18, commit bd32d73e): repo kiểm chứng lên 0.7.1, sổ quyết định có thêm hai dòng decision-sheet và owner-calls của 8.3"
-        }
-      ],
-      "done_when": [
-        "Trên repo kiểm chứng, số PR chạm sổ linh kiện và bảng vai × màn × nút về 0, và mỗi PR chỉ chạm mảnh sổ của chính nó",
-        "Lệnh bản đồ màn chọn đúng màn bị ảnh hưởng trên ứng dụng mẫu và trên repo kiểm chứng, và trả trọn bộ khi không lần được",
-        "Một lượt dựng màn không hỏi chủ repo giữa chừng: câu mới nằm ở hàng chờ, khuôn mới và màu thương hiệu bị chặn tới khi có lời đáp"
-      ],
-      "needs_owner": [
-        "Quyết tên tiếng Anh cho hai sổ đang mang tên tiếng Việt ở repo kiểm chứng",
-        "Cho phép sửa ở repo kiểm chứng, từng bước"
-      ]
     }
   ],
   "parked": [
@@ -406,6 +410,12 @@
       "what": "Sáu giới hạn mở từ lượt đo độ rộng, đứng đầu là repo nhiều gói mà audit đọc ra rỗng (audit-workspace-reads-top-src-only)",
       "stage": 7,
       "why_not_now": "Không chặn điều kiện đóng của giai đoạn 2; chặn mục 7.3 nếu repo cùng họ thứ hai là một repo nhiều gói"
+    },
+    {
+      "on": "2026-11-18",
+      "what": "Điều tác tử của lần chạy thử 11 báo chưa được kiểm từng điều và chưa thành dòng sổ giới hạn: RowActions lúc chờ không đưa chữ lên trang, luật một liên kết trong trạng thái trống ngược với cổng, và 3 trên 9 chỗ phải đoán không vào hàng chờ",
+      "stage": 5,
+      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 8; thuộc việc dựng màn không phải đoán"
     }
   ]
 }

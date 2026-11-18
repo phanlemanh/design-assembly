@@ -709,6 +709,15 @@ còn phạm đều là luật cổng chưa giữ: khái niệm mới vào mô h�
 hoàn tác, và câu hoàn tác thất bại nói mục ở đâu. Nghiệm thu đạt; bước kế theo cùng cách là đưa luật
 toast thứ hai vào bài kiểm trình duyệt. Chi tiết ở `docs/trials/control-arm.md`.
 
+### Chạy thử lần mười một (2026-11-18)
+
+Chỉ vai dựng màn, đề chuẩn nguyên văn, để chứng dòng «done when» thứ ba của giai đoạn 8: lần đầu một lượt dựng màn
+chạy khi đã có hàng chờ. Tác tử không dừng hỏi lần nào, xếp 6 câu vào `design/waiting/` và không ghi lời đáp nào thay
+chủ repo; cổng xanh. Nó khai 18 chỗ tự quyết; sau khi kiểm còn 9 chỗ phải đoán, trong đó 6 chỗ nằm ở hàng chờ và 3 chỗ
+nó tự quyết lặng lẽ. Bản sao khác các lần trước ở ba chỗ (bỏ phần kế hoạch, có lối chạy lệnh của plugin, đề nói «một
+màn» khi kho đã có hai), nên số 9 không so thẳng với chuỗi 12, 12, 13, 11. Các điều tác tử báo chưa được kiểm từng điều
+và chưa thành dòng sổ giới hạn. Chi tiết ở `docs/trials/stage-8-done-when.md`.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.
