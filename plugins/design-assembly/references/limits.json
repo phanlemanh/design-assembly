@@ -254,8 +254,65 @@
       "plan": "fix",
       "opened": "2026-11-12",
       "where": ["d0019", "d0020", "d0022"],
+      "status": "closed",
+      "note": "Pictures can only be drawn in a repository built with Vite that carries the floor's test browser; elsewhere the sheet and the book fall back to words.",
+      "closed": "2026-11-20",
+      "closed_by": "pictures are drawn in a repository built with either of two builds, the one whose packages it names, with the floor's test browser; the second runs the repository's own development server (adapters/nextjs-build.mjs), and the book draws a sample application of it at both widths; held by tests/test-next-build.mjs. What the second build cannot draw is limit second-build-draws-screens-as-they-open"
+    },
+    {
+      "id": "second-build-draws-screens-as-they-open",
+      "area": "book",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["d0066"],
       "status": "open",
-      "note": "Pictures can only be drawn in a repository built with Vite that carries the floor's test browser; elsewhere the sheet and the book fall back to words."
+      "note": "On the second build the handoff book draws each screen of the ledger of screens once, as it opens at its route, and puts the picture under the first state the ledger names; how to reach the other states is written only in a screen list the first build loads, so they are listed without pictures. A screen that opens behind a sign-in is drawn as the sign-in page."
+    },
+    {
+      "id": "second-build-draws-no-components",
+      "area": "book",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["d0066"],
+      "status": "open",
+      "note": "The second build's server runs apart from the plugin, so it serves no page of the plugin's own: the handoff book draws no component there and says so, and the record section of the specimen sheet, which changes a module as it is served, is not drawn."
+    },
+    {
+      "id": "second-build-sheet-not-tried",
+      "area": "specimen",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["d0066"],
+      "status": "open",
+      "note": "The specimen sheet's sections that only lay values over a page, the directions, colour, type and corners, open a stage the same way on the second build, but no test draws them there: the sample application keeps a plain stylesheet, not the floor's."
+    },
+    {
+      "id": "second-build-writes-its-build-folder",
+      "area": "book",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-20",
+      "where": ["d0066"],
+      "status": "open",
+      "note": "The second build's development server writes its build folder into the repository, as it does when a person runs it, and may write the files it writes on a first run, such as its type declarations; the other drawing writes only into the folder for build output."
+    },
+    {
+      "id": "second-build-not-stopped-on-windows",
+      "area": "book",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-20",
+      "where": ["d0066"],
+      "status": "open",
+      "note": "The second build's development server and its workers are stopped as one group of processes, which macOS and Linux have and Windows does not: there the server is left running once the drawing ends, and nothing says so."
     },
     {
       "id": "record-panel-header-bar",

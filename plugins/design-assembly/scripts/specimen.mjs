@@ -17,7 +17,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { FILES } from "../templates/tools/design-assembly/check.mjs";
 import { directionsFor } from "./directions.mjs";
-import { openStage } from "./stage.mjs";
+import { buildOf, openStage } from "./stage.mjs";
 import {
   asWritten,
   clipChroma,
@@ -602,6 +602,12 @@ async function draw(target, plan, out) {
 // changed as the panel is served, never on disk. Returns why it could not.
 async function drawRecord(target, plan, out) {
   const section = plan.sections.find((item) => item.id === "record");
+  // The arrangement is changed as the panel is served: a build that cannot do that draws none,
+  // and is known to before its server is started.
+  const { serves } = buildOf(target);
+  if (!serves.transform || !serves.load) {
+    return { problem: "this build cannot change a module as it is served" };
+  }
   const stage = await openStage(target, {
     transform: (code) =>
       RECORD_LINE.test(code)

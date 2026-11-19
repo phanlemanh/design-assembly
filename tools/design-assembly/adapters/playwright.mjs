@@ -7,4 +7,13 @@ export const adapter = {
   accessibilityPackage: "@axe-core/playwright",
   // A browser from the repository's own packages: `require` resolves from the repository.
   launch: (require) => require("@playwright/test").chromium.launch(),
+  // Whether the repository has it, without starting it.
+  installed: (require) => {
+    try {
+      require.resolve("@playwright/test");
+      return true;
+    } catch {
+      return false;
+    }
+  },
 };

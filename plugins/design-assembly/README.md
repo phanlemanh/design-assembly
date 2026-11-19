@@ -120,15 +120,22 @@ The core works with the ledgers. Whatever must know one kind of repository lives
 under `templates/tools/design-assembly/adapters/`: one per library or build tool, each saying its
 kind and the names it owns.
 
-| Kind         | Does                                                                            | Today      |
-| ------------ | ------------------------------------------------------------------------------- | ---------- |
-| `build`      | Opens a screen of the repository in a browser                                   | Vite       |
-| `browser`    | Drives the browser the repository tests its pages with                          | Playwright |
-| `values`     | Reads and writes the design values                                              | Tailwind 4 |
-| `components` | Knows the component library's folder, and how a component declares its variants | shadcn     |
-| `source`     | Reads screens and components to check words, states and controls                | React      |
-| `lint`       | Runs the repository's own lint on a text, to see which of its rules reject it   | ESLint     |
-| `routes`     | Knows which files draw the screen at a route, where the folders say it          | Next.js    |
+| Kind         | Does                                                                            | Today         |
+| ------------ | ------------------------------------------------------------------------------- | ------------- |
+| `build`      | Opens a screen of the repository in a browser                                   | Vite, Next.js |
+| `browser`    | Drives the browser the repository tests its pages with                          | Playwright    |
+| `values`     | Reads and writes the design values                                              | Tailwind 4    |
+| `components` | Knows the component library's folder, and how a component declares its variants | shadcn        |
+| `source`     | Reads screens and components to check words, states and controls                | React         |
+| `lint`       | Runs the repository's own lint on a text, to see which of its rules reject it   | ESLint        |
+| `routes`     | Knows which files draw the screen at a route, where the folders say it          | Next.js       |
+
+A repository is drawn with the build its packages name, and with the first build when they name
+none. A build adapter says what its server does (`serves`): the Next.js one runs the repository's
+own development server apart from the plugin, so it serves no page of the plugin's own and loads no
+module for it. There the book draws each screen of the ledger of screens as it opens at its route,
+and says that the components and the other states are not drawn; the record section of the
+sheet is not drawn.
 
 `tests/test-adapters.mjs` fails when the core code names a library or build tool an adapter owns.
 A new kind of repository needs its own adapters, not changes to the core. Beyond names, the core

@@ -3,6 +3,7 @@
 // how to reach it. A test fails when a name an adapter declares appears in the core.
 import { adapter as eslint } from "./eslint.mjs";
 import { adapter as nextjs } from "./nextjs.mjs";
+import { adapter as nextjsBuild } from "./nextjs-build.mjs";
 import { adapter as playwright } from "./playwright.mjs";
 import { adapter as react } from "./react.mjs";
 import { adapter as shadcn } from "./shadcn.mjs";
@@ -21,7 +22,8 @@ export const ADAPTER_KINDS = {
   routes: "knows which files draw the screen at a route, where the folders of the source say it",
 };
 
-export const ADAPTERS = [vite, playwright, tailwind, shadcn, react, eslint, nextjs];
+// The first build is the one a repository whose packages name none is drawn with.
+export const ADAPTERS = [vite, playwright, tailwind, shadcn, react, eslint, nextjs, nextjsBuild];
 
 // The adapter of a kind.
 export const adapterOf = (kind) => ADAPTERS.find((adapter) => adapter.kind === kind);
