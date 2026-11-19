@@ -29,6 +29,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 
 ## Decisions
 
+- [0059 Lệnh find tra kho từ gần tới xa, dừng ở tầng đầu tiên trả lời](decisions/0059-find-searches-the-store-nearest-first.md) — `plugins/design-assembly/scripts/find.mjs`; mục 3.2; plugin 0.10.0
 - [0058 Script của audit mang tên lệnh của nó; tên cũ từ chối mọi lời gọi cho tới lệnh kiểm kê](decisions/0058-the-audit-script-takes-its-command-name.md) — `plugins/design-assembly/scripts/audit.mjs`; phần một của mục 3.4; plugin 0.9.0
 - [0057 Sổ nguồn ngoài vào hợp đồng, mỗi nguồn một tệp; sổ nhập kho thêm khoá tuỳ chọn cho kho dùng lại](decisions/0057-the-sources-ledger-joins-the-contract-one-file-per-source.md) — bộ đọc ở `plugins/design-assembly/templates/tools/design-assembly/sources-ledger.mjs`; mục 3.1; plugin 0.8.0
 - [0001 Record decisions in the wiki](decisions/0001-record-decisions-in-the-wiki.md)

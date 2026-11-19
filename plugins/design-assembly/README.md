@@ -21,6 +21,10 @@ scale, shape). Density, elevation, motion and iconography are not.
   owner with a recommendation and what it rests on, whether the repository's copy of the tool is
   the installed plugin's, and the command to run next. `--json` gives the same to another plugin.
   What waits is read from the ledgers and from the waiting list, `design/waiting/`.
+- `/design-assembly:find` says whether the store already answers a need before anything new is
+  built: the repository's own blocks, components and kinds of screen first, then the starter kit
+  (`references/starter.json`), then the outside sources it pinned under `design/sources/`, stopping
+  at the first that answers. It matches words, never meaning, calls no model and fetches nothing.
 - `status` and `audit` each hand their answer over as a document: `--out DIR` writes the status
   report or the design audit report into that folder, as one page that needs nothing else, and
   `--format pdf` prints it too. Every document is set on one frame of six parts (the cover, one

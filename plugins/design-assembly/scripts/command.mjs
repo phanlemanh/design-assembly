@@ -21,13 +21,20 @@ const COMMON = { "--target": "value", "--json": "switch", "--help": "switch", "-
 // Reads a call against the flags a command declares, beside the common ones. Gives the target,
 // whether the answer is for a machine, whether help was asked, and the command's own flags; or
 // `problem`, one line, when the call is wrong: a flag the command does not have, a flag with no
-// value, or a target that is not a folder.
-export function readCall(args, flags = {}) {
+// value, or a target that is not a folder. A command that takes words, as what to search for, says
+// so with `words`: every argument that is neither a flag nor a flag's value is then one of them, in
+// order; anything that starts with a dash is still read as a flag.
+export function readCall(args, flags = {}, { words: takesWords = false } = {}) {
   const known = { ...COMMON, ...flags };
   const found = {};
+  const words = [];
   for (let index = 0; index < args.length; index += 1) {
     const flag = args[index];
-    const kind = known[flag];
+    const kind = Object.hasOwn(known, flag) ? known[flag] : undefined;
+    if (!kind && takesWords && !flag.startsWith("-")) {
+      words.push(flag);
+      continue;
+    }
     if (!kind) return { problem: `${flag} is not a flag of this command` };
     if (kind === "switch") {
       found[flag] = true;
@@ -49,6 +56,7 @@ export function readCall(args, flags = {}) {
     json: found["--json"] === true,
     help: found["--help"] === true || found["-h"] === true,
     flags: own,
+    ...(takesWords ? { words } : {}),
   };
 }
 

@@ -56,6 +56,17 @@ const COMMANDS = [
     ],
   },
   {
+    name: "find",
+    script: "find.mjs",
+    // What every call searches the store for. Words go before the flags.
+    args: ["many", "rows"],
+    keys: ["matches", "near", "searched"],
+    cases: [
+      { on: "stocked", exit: EXIT.done, why: "the intake ledger keeps a block for that need" },
+      { on: "answered", exit: EXIT.work, why: "no store answers the need" },
+    ],
+  },
+  {
     name: "new",
     script: "apply.mjs",
     writes: true,
@@ -130,7 +141,10 @@ const empty = () => {
 };
 const script = (name) => path.join(PLUGIN, "scripts", name);
 const run = (command, args, options = {}) =>
-  spawnSync(execPath, [script(command.script), ...args], { encoding: "utf8", ...options });
+  spawnSync(execPath, [script(command.script), ...(command.args ?? []), ...args], {
+    encoding: "utf8",
+    ...options,
+  });
 
 // The throwaway repositories, each built once and copied for the call that may change it.
 const BUILD = {
@@ -155,6 +169,16 @@ const BUILD = {
     put(dir, file, `${text(dir, file)}// older\n`);
     const tree = treeHash(path.join(dir, "tools/design-assembly"));
     put(dir, "design/tool-stamp.json", `${JSON.stringify({ version: "0.0.1", tree })}\n`);
+    return dir;
+  },
+  // The same as answered, with an intake ledger that keeps one block.
+  stocked() {
+    const dir = apply(blueprint("user"));
+    put(
+      dir,
+      "design/intake.yaml",
+      "version: 1\nblocks:\n  - name: DataRegion\n    file: src/components/data-region.tsx\n    source: by-hand\n    need: many-rows\n    approved: 2026-11-12\n",
+    );
     return dir;
   },
   // The same as answered, with one file of source that writes a space around the scale.
@@ -338,4 +362,27 @@ test("a call is read against the flags a command declares, and the target defaul
   assert.match(readCall(["--out", "--json"], flags).problem, /--out needs a value/);
   assert.match(readCall(["somewhere"], flags).problem, /somewhere is not a flag/);
   assert.match(readCall(["--target", path.join(dir, "none")], flags).problem, /is not a folder/);
+});
+
+test("a command that takes words reads every one that is not a flag or a flag's value, in order", () => {
+  const dir = empty();
+  const flags = { "--kind": "value" };
+  const read = readCall(["many", "--kind", "block", "rows", "--target", dir], flags, {
+    words: true,
+  });
+  assert.deepEqual(read, {
+    target: dir,
+    json: false,
+    help: false,
+    flags: { "--kind": "block" },
+    words: ["many", "rows"],
+  });
+  assert.deepEqual(readCall(["--kind", "block"], flags, { words: true }).words, []);
+  // A word that looks like a flag is still a flag the command does not have.
+  assert.match(readCall(["-x"], flags, { words: true }).problem, /-x is not a flag/);
+  // A word is never taken for a flag because an object has a key of that name.
+  for (const word of ["constructor", "toString", "__proto__", "hasOwnProperty"]) {
+    assert.deepEqual(readCall([word], flags, { words: true }).words, [word]);
+    assert.match(readCall([word], flags).problem, new RegExp(`${word} is not a flag`));
+  }
 });
