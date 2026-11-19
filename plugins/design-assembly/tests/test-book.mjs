@@ -470,10 +470,16 @@ test("when nothing could be drawn, the book says the reason, not always the brow
 
 test("a repository that keeps its screens elsewhere is told so, not that it lacks a browser", () => {
   const dir = guided();
+  // With no screen list the book reads the ledger of screens; with neither, it has no screen.
   rmSync(path.join(dir, "src/screens.ts"));
+  rmSync(path.join(dir, "design/screens.yaml"), { force: true });
+  rmSync(path.join(dir, "design/screens"), { recursive: true, force: true });
   const drawn = run(BOOK, "--target", dir);
   assert.equal(drawn.status, 1, drawn.stderr);
-  assert.match(drawn.stdout, /note: no picture was drawn: there is no src\/screens\.ts/);
+  assert.match(
+    drawn.stdout,
+    /note: no picture was drawn: there is no src\/screens\.ts or ledger of screens/,
+  );
   const page = readFileSync(path.join(dir, "coverage/design-book/book.html"), "utf8");
   assert.ok(page.includes(WORDS.noPicturesScreens));
   assert.ok(!page.includes(WORDS.noPictures));

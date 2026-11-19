@@ -9,11 +9,32 @@ export const adapter = {
   id: "vite",
   kind: "build",
   names: ["vite", "@vitejs"],
+  // Its server runs inside this process: it serves a module of the plugin's own, loads one of the
+  // repository's, and changes one as it is served.
+  serves: { modules: true, load: true, transform: true },
+  detect,
   // A module imported by an address only known while the page runs.
   importExpression: (address) => `import(/* @vite-ignore */ ${address})`,
   entries,
   serve,
 };
+
+// How surely the repository builds with Vite: 2 when it keeps Vite's settings file or its own
+// development command runs Vite, 1 when its packages only name it, 0 when they do not. A file of
+// Vite's test runner says nothing: an application built another way may test with it.
+function detect(root) {
+  let data;
+  try {
+    data = JSON.parse(readFileSync(path.join(root, "package.json"), "utf8"));
+  } catch {
+    return 0;
+  }
+  if (!(data.dependencies?.vite ?? data.devDependencies?.vite)) return 0;
+  const settings = ["js", "mjs", "cjs", "ts", "mts", "cts"].some((ext) =>
+    existsSync(path.join(root, `vite.config.${ext}`)),
+  );
+  return settings || /^vite\b/.test(String(data.scripts?.dev ?? "")) ? 2 : 1;
+}
 
 // The files the application starts from: each module its page loads, as index.html names it, by
 // path from the repository root. None when there is no such page, or it loads none of the

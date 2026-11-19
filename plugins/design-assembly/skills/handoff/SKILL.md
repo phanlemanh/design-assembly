@@ -69,6 +69,12 @@ It prints where the book is, the three numbers, and a `note:` for every pair of 
 that does not reach the contrast ratio of the conformance level. Where the repository has no
 browser to draw with, the states are listed without pictures and the script says so.
 
+The book draws with the build the repository's packages name. Where the repository keeps no
+screen list its build can load (`src/screens.ts`), the screens come from its ledger of screens, and
+each is drawn once, as it opens at its route, under the first state the ledger names; the other
+states are listed without pictures. Where the build serves no page of the plugin's own, the
+components are not drawn, and a `note:` says so: read it out, and do not draw them another way.
+
 It ends with `0` when the book is whole; with `1` when it was written without every picture, or
 in fewer formats than asked: the book is there, and the `note:` says what is missing; with `2` on
 a wrong call or a repository it cannot read, and then nothing is written. `--json` gives one

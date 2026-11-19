@@ -18,6 +18,7 @@ import { contrast, parseColor } from "../templates/tools/design-assembly/color.m
 import { REGISTRY as COMPONENTS } from "../templates/tools/design-assembly/components.mjs";
 import { readSources } from "../templates/tools/design-assembly/governance.mjs";
 import { REGISTRY } from "../templates/tools/design-assembly/patterns.mjs";
+import { ledgerText } from "../templates/tools/design-assembly/screen-fragments.mjs";
 import { toPx, toRatio } from "../templates/tools/design-assembly/scale.mjs";
 import {
   readKinds,
@@ -310,7 +311,12 @@ export function collectFacts(target) {
       min_height: entry.min_height ?? null,
     })),
     kinds,
-    screens: screenFiles(read(REGISTRY) ?? "", readSources(target)).map((screen) => ({
+    // The screen list of the application, or, where it keeps none, its ledger of screens.
+    screens: screenFiles(
+      read(REGISTRY) ?? "",
+      readSources(target),
+      read(REGISTRY) === null ? ledgerText(target) : null,
+    ).map((screen) => ({
       path: screen.path,
       file: screen.file,
       states: screen.states,
@@ -1122,20 +1128,45 @@ export function staleParts(html, facts) {
     .sort();
 }
 
+// The screens as the ledger lists them, when the application has no screen list its build can
+// load: each opened at its route, which shows the first state the ledger names. How to reach the
+// others is written only in a screen list, so they are not drawn.
+// How long a screen opened at its route may take to show its main region once its page has
+// settled: the server has built it by then.
+const MAIN_MS = 5000;
+const openedScreens = (facts) =>
+  facts.screens.map((screen) => ({
+    path: screen.path,
+    states: screen.states.slice(0, 1).map((name) => ({ name, shows: null })),
+  }));
+
 // Draws every state of every screen at the narrowest and the widest of the widths, the way a
 // person reaches it. Returns the pictures as data, and how each state was reached.
 async function drawStates(target, facts) {
-  if (!existsSync(path.join(target, REGISTRY))) {
-    return { problem: `there is no ${REGISTRY} to read the screens from`, why: "screens" };
+  const listed = existsSync(path.join(target, REGISTRY));
+  if (!listed && facts.screens.length === 0) {
+    return {
+      problem: `there is no ${REGISTRY} or ledger of screens to read the screens from`,
+      why: "screens",
+    };
   }
   const stage = await openStage(target, { modules: { [HARNESS]: HARNESS_CODE } });
   if (stage.problem) return { problem: stage.problem, why: "browser" };
   const images = {};
   const how = {};
   let components;
-  let partial = null;
+  // What was left out, each said once: the book is written all the same.
+  const left = [];
   try {
-    const { SCREENS } = await stage.load(`/${REGISTRY}`);
+    const loaded = listed && stage.can.load;
+    if (listed && !loaded) {
+      left.push(
+        `${REGISTRY} cannot be loaded on this build, so each screen is drawn as it opens at its route`,
+      );
+    }
+    const { SCREENS } = loaded
+      ? await stage.load(`/${REGISTRY}`)
+      : { SCREENS: openedScreens(facts) };
     const widths = facts.widths.length > 0 ? facts.widths : [1440];
     const shown = [...new Set([Math.min(...widths), Math.max(...widths)])];
     for (const width of shown) {
@@ -1158,8 +1189,25 @@ async function drawStates(target, facts) {
               await page.getByRole("button", { name: step.press, exact: true }).click();
             } else await page.getByLabel(step.fill, { exact: true }).fill(step.text);
           }
-          // The state is on the page once its own text is.
-          await page.getByText(state.shows, { exact: false }).first().waitFor({ timeout: 8000 });
+          // The state is on the page once its own text is; a screen opened at its route, once its
+          // main region is. One that shows none is left out, and said, not the whole book.
+          if (state.shows) {
+            await page.getByText(state.shows, { exact: false }).first().waitFor({ timeout: 8000 });
+          } else {
+            const shown = await page
+              .locator("main")
+              .first()
+              .waitFor({ timeout: MAIN_MS })
+              .then(() => true)
+              .catch(() => false);
+            if (!shown) {
+              const why = `${screen.path} was not drawn: it shows no main region`;
+              if (!left.includes(why)) left.push(why);
+              delete how[`${screen.path}|${state.name}`];
+              await page.close();
+              continue;
+            }
+          }
           await page.waitForTimeout(350);
           const picture = await page.screenshot();
           images[`${screen.path}|${state.name}|${width}`] =
@@ -1173,6 +1221,15 @@ async function drawStates(target, facts) {
     await stage.close();
     return { problem: `drawing stopped: ${error.message.split("\n")[0]}`, why: "stopped" };
   }
+  // The components are drawn on a page of the plugin's own, served beside the repository's: a
+  // build that serves none draws none, and the book says so.
+  if (!stage.can.modules) {
+    await stage.close();
+    left.push(
+      "the components are not drawn: this build serves no module of the plugin's own beside the repository's",
+    );
+    return { images, how, components: null, partial: left };
+  }
   // The components are drawn apart: when they fail, the pictures of the states are kept. The
   // development server may load the page again while it prepares a package for the first time, so
   // one more try is made.
@@ -1184,11 +1241,11 @@ async function drawStates(target, facts) {
     }
   } catch (error) {
     components = null;
-    partial = `the components could not be drawn: ${error.message.split("\n")[0]}`;
+    left.push(`the components could not be drawn: ${error.message.split("\n")[0]}`);
   } finally {
     await stage.close();
   }
-  return { images, how, components, partial };
+  return { images, how, components, partial: left };
 }
 
 // The same book as a file to print, or as one picture per sheet for slides. Gives the files it
@@ -1297,7 +1354,7 @@ async function main(args) {
   const words = existsSync(wordsFile) ? JSON.parse(readFileSync(wordsFile, "utf8")) : {};
   const drawn = await drawStates(target, facts);
   if (drawn.problem) lines.push(`note: no picture was drawn: ${drawn.problem}`);
-  if (drawn.partial) lines.push(`note: ${drawn.partial}`);
+  for (const what of drawn.partial ?? []) lines.push(`note: ${what}`);
   const files = [changeOf(target, file)];
   mkdirSync(path.resolve(target, out), { recursive: true });
   writeFileSync(
@@ -1331,7 +1388,7 @@ async function main(args) {
   }
   // A book with no picture, or with some missing, or in fewer formats than asked, is a book all
   // the same: it is written, and the call says work is left.
-  return end(files, Boolean(drawn.problem || drawn.partial || exported.problem));
+  return end(files, Boolean(drawn.problem || drawn.partial?.length || exported.problem));
 }
 
 await start(import.meta.url, main);
