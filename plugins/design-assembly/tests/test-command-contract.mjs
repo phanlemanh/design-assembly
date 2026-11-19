@@ -90,6 +90,17 @@ const COMMANDS = [
     ],
   },
   {
+    name: "change",
+    script: "change.mjs",
+    writes: true,
+    // What every call asks to retire.
+    args: ["many-rows", "--retire", "--why", "Not needed"],
+    keys: ["impact", "edits", "waiting", "files"],
+    cases: [
+      { on: "stocked", exit: EXIT.work, real: EXIT.work, why: "a question waits on the owner" },
+    ],
+  },
+  {
     name: "new",
     script: "apply.mjs",
     writes: true,

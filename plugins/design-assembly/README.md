@@ -37,6 +37,12 @@ scale, shape). Density, elevation, motion and iconography are not.
   and writes one row with the owner's name and day. It never runs an install line and never writes
   a person's name before that person answered. `--before` lists what screens used before the ledger
   was kept, once the owner keeps it.
+- `/design-assembly:change` retires a block of the store, or merges it into the block of another
+  need. It says the impact first: the screens that reach the block's file (every screen when that
+  cannot be traced), the frame, the components that import it, the checks that name its file, and
+  each import line to fix. Then it asks the owner once on the waiting list, and after the answer
+  writes `retired` (and `merged_into`) into the block's entry, with the owner's name and day. It
+  never removes a file and never changes a screen's code.
 - `status` and `audit` each hand their answer over as a document: `--out DIR` writes the status
   report or the design audit report into that folder, as one page that needs nothing else, and
   `--format pdf` prints it too. Every document is set on one frame of six parts (the cover, one

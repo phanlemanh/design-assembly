@@ -84,6 +84,30 @@ const COMMANDS = [
     areas: ["inventory", "document"],
   },
   {
+    name: "change",
+    script: "change.mjs",
+    // What the call asks to retire: as a preview, it writes no question beside the page.
+    args: ["list-load-retry-filter", "--retire", "--why", "Not needed", "--dry-run"],
+    writes: true,
+    file: "change-report",
+    title: "Change report",
+    areas: ["change", "document"],
+    // The block it asks about, in every repository the test makes for it, as this repository keeps it.
+    keeps: (dir) =>
+      put(
+        dir,
+        "design/intake.yaml",
+        "version: 1\nblocks:\n  - name: useList\n    file: src/lib/list.ts\n    source: useList\n    from: starter\n    need: list-load-retry-filter\n    approved: 2026-11-19\n",
+      ),
+    // The same block retired already, where a test needs the call to end with 0: nothing is left.
+    stock: (dir) =>
+      put(
+        dir,
+        "design/intake.yaml",
+        "version: 1\nblocks:\n  - name: useList\n    file: src/lib/list.ts\n    source: useList\n    from: starter\n    need: list-load-retry-filter\n    approved: 2026-11-19\n    retired: { on: 2026-11-19, by: the owner, why: Not needed }\n",
+      ),
+  },
+  {
     name: "intake",
     script: "intake.mjs",
     // What the call takes a block in for. A throwaway repository has no block for it, and the
@@ -431,10 +455,16 @@ test("nothing a document is given is taken as markup, and no value is left unpri
 // ---- the two commands -----------------------------------------------------------------------------
 
 for (const command of COMMANDS) {
+  // A repository as the command needs it to have something to say: the block a command that changes
+  // the store is asked about, put there as the repository is made, before any snapshot is taken.
+  const prepared = (dir) => {
+    command.keeps?.(dir);
+    return dir;
+  };
   const page = `${command.file}.html`;
 
   test(`${command.name} --out writes one page inside the folder and nothing anywhere else`, () => {
-    const dir = applied("proposed");
+    const dir = prepared(applied("proposed"));
     const out = path.join(empty(), "handed", "over");
     const before = snapshot(dir);
     const plain = run(command, ["--target", dir]);
@@ -460,7 +490,7 @@ for (const command of COMMANDS) {
   });
 
   test(`${command.name}: the document has the six parts in order, a basis under every recommendation, and its own blind spots`, () => {
-    for (const dir of [applied("proposed"), bypassed(), empty()]) {
+    for (const dir of [prepared(applied("proposed")), prepared(bypassed()), prepared(empty())]) {
       const out = empty();
       run(command, ["--target", dir, "--out", out]);
       const html = text(out, page);
@@ -494,7 +524,7 @@ for (const command of COMMANDS) {
     // A repository with something broken has findings and recommendations; they are not empty.
     if (!command.broken) return;
     const out = empty();
-    run(command, ["--target", bypassed(), "--out", out]);
+    run(command, ["--target", prepared(bypassed()), "--out", out]);
     const parts = Object.fromEntries(partsOf(text(out, page)).map((part) => [part.id, part.empty]));
     assert.equal(parts.findings, false);
     assert.equal(parts.recommendations, false);
@@ -504,7 +534,7 @@ for (const command of COMMANDS) {
   });
 
   test(`${command.name}: the same call twice gives the same page, byte for byte, dated by the last commit`, (t) => {
-    const dir = applied("proposed");
+    const dir = prepared(applied("proposed"));
     const committed = commit(dir);
     const one = empty();
     const two = empty();
@@ -542,7 +572,7 @@ for (const command of COMMANDS) {
   });
 
   test(`${command.name}: without --out no file is written, and a relative --out is read from where the command is run`, () => {
-    const dir = applied("user");
+    const dir = prepared(applied("user"));
     const before = snapshot(dir);
     run(command, ["--target", dir]);
     run(command, ["--target", dir, "--json"]);
@@ -555,7 +585,7 @@ for (const command of COMMANDS) {
   });
 
   test(`${command.name}: a wrong call for a document ends with 2 and writes nothing`, () => {
-    const dir = applied("user");
+    const dir = prepared(applied("user"));
     const before = snapshot(dir);
     const out = path.join(empty(), "none");
     const wrong = [
@@ -578,7 +608,7 @@ for (const command of COMMANDS) {
   });
 
   test(`${command.name} --format pdf, where the repository has no browser: the page is written, the pdf is not, and the call says so`, () => {
-    const dir = applied("user");
+    const dir = prepared(applied("user"));
     command.stock?.(dir);
     const out = empty();
     const plain = run(command, ["--target", dir]);

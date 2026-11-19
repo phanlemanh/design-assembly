@@ -1,4 +1,4 @@
-// find, inventory and intake, measured on throwaway copies of real repositories. Never writes to a
+// find, inventory, intake and change, measured on throwaway copies of real repositories. Never writes to a
 // repository it is given:
 // each one is cloned into a temporary folder, find runs on the clone, and the clone is removed
 // unless --keep is given. On each clone it checks that every call ends with 0 or 1 and no stack
@@ -8,6 +8,7 @@
 // the snapshot to see the source become unreadable. Last, on each clone, intake is asked for three
 // needs and for what came before the ledger, first as a preview, then for real: the files the
 // preview named must be the files the real call changed, and nothing outside the waiting list.
+// change is then asked to retire the first block the ledger keeps, the same way: it may only ask.
 // Usage: node docs/trials/reusable-store-on-copies.mjs [--app] [--reference DIR] [--web DIR]
 //        [--workspace DIR] [--keep]
 import { spawnSync } from "node:child_process";
@@ -33,6 +34,10 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const FIND = path.join(ROOT, "plugins/design-assembly/scripts/find.mjs");
 const INVENTORY = path.join(ROOT, "plugins/design-assembly/scripts/inventory.mjs");
 const INTAKE = path.join(ROOT, "plugins/design-assembly/scripts/intake.mjs");
+const CHANGE = path.join(ROOT, "plugins/design-assembly/scripts/change.mjs");
+const { readIntake, readTheme } = await import(
+  path.join(ROOT, "plugins/design-assembly/scripts/store.mjs")
+);
 const arg = (name) => (argv.includes(name) ? path.resolve(argv[argv.indexOf(name) + 1]) : null);
 const keep = argv.includes("--keep");
 
@@ -91,6 +96,14 @@ const inventory = (dir) => {
   });
   return { ...call, ms: Math.round(performance.now() - started) };
 };
+const changeCall = (dir, args) => {
+  const started = performance.now();
+  const call = spawnSync(execPath, [CHANGE, ...args, "--target", dir, "--json"], {
+    encoding: "utf8",
+    maxBuffer: 1 << 28,
+  });
+  return { ...call, ms: Math.round(performance.now() - started) };
+};
 const intake = (dir, args) => {
   const started = performance.now();
   const call = spawnSync(execPath, [INTAKE, ...args, "--target", dir, "--json"], {
@@ -125,6 +138,7 @@ const tally = (list, keyOf) =>
 const rows = [];
 const stock = [];
 const taken = [];
+const changes = [];
 const notes = [];
 const folders = [];
 for (const [role, repository] of given) {
@@ -236,6 +250,56 @@ for (const [role, repository] of given) {
     else if (said?.notes?.length)
       notes.push(`${role}, intake ${args[1] ?? args[0]}: ${said.notes.join("; ")}`);
   }
+  // change asks to retire the first block the ledger keeps that is not retired.
+  {
+    let ledger = null;
+    try {
+      ledger = readIntake(copy, readTheme(copy));
+    } catch (error) {
+      notes.push(`${role}, change: the ledger cannot be read: ${error.message}`);
+    }
+    const target = ledger?.blocks.find((entry) => !entry.retired && !entry.merged_into);
+    const named = target ? String(target.need) : "no-block";
+    const args = [named, "--retire", "--why", "Measured on a copy"];
+    const was = snapshot(copy);
+    const preview = changeCall(copy, [...args, "--dry-run"]);
+    const again = changeCall(copy, [...args, "--dry-run"]);
+    const real = changeCall(copy, args);
+    const written = changedFiles(was, snapshot(copy));
+    const said = real.status !== 2 ? JSON.parse(real.stdout) : null;
+    const planned = preview.status === 2 ? [] : JSON.parse(preview.stdout).files.map((f) => f.path);
+    changes.push({
+      role,
+      asked: named,
+      exit: real.status,
+      same: again.stdout === preview.stdout,
+      screens: said ? (said.impact.all ? "all" : said.impact.screens.join(", ") || "none") : "-",
+      components: said ? said.impact.components.length : "-",
+      checks: said ? said.impact.checks.length : "-",
+      edits: said ? said.edits.length : "-",
+      files: written.join(", ") || "none",
+      preview: JSON.stringify(planned.sort()) === JSON.stringify(written) ? "yes" : "no",
+      outside: written.some((file) => !file.startsWith("design/waiting/")) ? "yes" : "no",
+      ms: real.ms,
+    });
+    if (real.status === 2) notes.push(`${role}, change ${named}: ${real.stderr.trim()}`);
+    // A tool too old for the question hides the impact: on the copy only, the stamp is set aside for
+    // one preview, so the impact can be read, and put back.
+    const stamp = path.join(copy, "design/tool-stamp.json");
+    if (real.status === 2 && /upgrade/.test(real.stderr) && existsSync(stamp)) {
+      const held = readFileSync(stamp);
+      rmSync(stamp);
+      const seen = changeCall(copy, [...args, "--dry-run"]);
+      writeFileSync(stamp, held);
+      if (seen.status !== 2) {
+        const { impact, edits } = JSON.parse(seen.stdout);
+        notes.push(
+          `${role}, change ${named}, previewed with the stamp set aside on the copy: ${impact.all ? `every screen (${impact.why[0]})` : `screens ${impact.screens.join(", ") || "none"}`}; ${impact.components.length} component(s) import it (${impact.components.join(", ") || "none"}); ${impact.checks.length} check(s) name its file; ${edits.length} import line(s): ${edits.map((edit) => `${edit.file}:${edit.line}`).join(", ")}`,
+        );
+      }
+    } else if (said?.impact.all)
+      notes.push(`${role}, change ${named}: every screen, ${said.impact.why[0]}`);
+  }
 }
 
 stdout.write(
@@ -259,6 +323,13 @@ stdout.write(
     ...taken.map(
       (row) =>
         `| ${row.role} | ${row.asked} | ${row.exit} | ${row.same ? "yes" : "no"} | ${row.rung} | ${row.candidates} | ${row.files} | ${row.preview} | ${row.outside} | ${row.ms} |`,
+    ),
+    "",
+    "| Repository | change asked | Exit | Preview same twice | Screens | Components | Checks | Import lines | Files changed | Preview named them | Outside the waiting list | ms |",
+    "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+    ...changes.map(
+      (row) =>
+        `| ${row.role} | ${row.asked} | ${row.exit} | ${row.same ? "yes" : "no"} | ${row.screens} | ${row.components} | ${row.checks} | ${row.edits} | ${row.files} | ${row.preview} | ${row.outside} | ${row.ms} |`,
     ),
     "",
     ...notes.map((note) => `- ${note}`),

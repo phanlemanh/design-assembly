@@ -259,8 +259,9 @@
         {
           "id": "3.5",
           "what": "Lệnh change",
-          "state": "todo",
-          "command": "change"
+          "state": "done",
+          "command": "change",
+          "ref": "quyết định 0063; plugins/design-assembly/scripts/change.mjs, scripts/asking.mjs, tests/test-change.mjs; docs/trials/reusable-store-on-copies.md"
         }
       ],
       "done_when": [

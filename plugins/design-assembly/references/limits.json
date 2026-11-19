@@ -7,6 +7,7 @@
     "find": "The read-only search of the store, nearest store first, before something new is built.",
     "inventory": "The read-only inventory of the store: what each store holds, the state of each piece, six kinds of finding, and what it could not look at.",
     "intake": "The command that takes a block into the store for a need, by the ladder of three rungs, every choice the owner's on the decision sheet.",
+    "change": "The command that retires a block of the store, or merges it into the block of another need, after saying what it reaches, on the owner's answer.",
     "status": "The read-only report on what waits on the owner and what to run next.",
     "decide": "The sheet of every question that waits on the owner, and the answers written back.",
     "document": "The document a command hands over, set on the frame every document shares.",
@@ -2236,9 +2237,11 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-15",
-      "where": ["d0043"],
-      "status": "open",
-      "note": "Decide does not read a proposed change or retirement that needs a person, because the command that changes what a repository has is not built, so nothing of that kind reaches the sheet."
+      "where": ["d0043", "d0063"],
+      "status": "closed",
+      "note": "Decide does not read a proposed change or retirement that needs a person, because the command that changes what a repository has is not built, so nothing of that kind reaches the sheet.",
+      "closed": "2026-11-19",
+      "closed_by": "decide lists the block: question that change queues, with the impact in its basis and the change as its one candidate, and change carries it out only once the owner kept it (tests/test-change.mjs)"
     },
     {
       "id": "decide-upgrade-proposals-not-read",
@@ -3161,6 +3164,39 @@
       "where": ["d0062", "d0060"],
       "status": "open",
       "note": "The candidates are what find matches by words: a need written in the repository's language finds no item of a catalog written in English, and is offered only by hand."
+    },
+    {
+      "id": "change-lists-the-import-lines-and-edits-none",
+      "area": "change",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-19",
+      "where": ["d0063", "spec"],
+      "status": "open",
+      "note": "The change command lists each import line that names a retired block's file and changes none of them: a screen keeps importing the block, and the inventory reports it as retired and still in use, until a person or an agent fixes those lines as a change of its own."
+    },
+    {
+      "id": "change-impact-by-imports-only",
+      "area": "change",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-19",
+      "where": ["d0063", "d0053"],
+      "status": "open",
+      "note": "The impact of retiring a block is what the change map traces through imports, and the checks whose data names the block's file: a file reached another way, such as a path built while the code runs, is not seen beyond what makes the impact every screen."
+    },
+    {
+      "id": "change-to-and-migrate-not-built",
+      "area": "change",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-19",
+      "where": ["d0063", "spec"],
+      "status": "open",
+      "note": "The change command retires and merges blocks only: changing a decision of the decision ledger (--to) and moving a screen to the values of the system (--migrate), which specification 0004 gave it, are set aside for stage 4 (specification 0006, question 8)."
     }
   ]
 }

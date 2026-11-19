@@ -472,3 +472,10 @@ test("the sheet shows the candidates of a question, to a person and to a machine
     ["filter-bar", "list-filter", "by-hand"],
   );
 });
+
+test("a question can name the block of a need that is to be retired or merged", () => {
+  assert.equal(itemProblem("block:many-rows"), null);
+  for (const bad of ["block:", "block:Many", "block:a/b"])
+    assert.notEqual(itemProblem(bad), null, bad);
+  assert.equal(mustAsk("block:many-rows"), false);
+});

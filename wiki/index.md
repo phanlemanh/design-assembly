@@ -31,6 +31,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 
 - [0061 Lệnh inventory kiểm kê kho, và chỉ báo điều nó thấy được](decisions/0061-inventory-reports-only-what-it-can-see.md) — `plugins/design-assembly/scripts/inventory.mjs`; phần hai của mục 3.4; plugin 0.11.0
 - [0062 Lệnh intake nhập một khối vào kho, và chỉ ghi dòng sổ sau lời đáp của chủ repo](decisions/0062-intake-takes-a-block-in-only-on-the-owners-answer.md) — `plugins/design-assembly/scripts/intake.mjs`; mục 3.3; khối đầu tiên của ứng dụng mẫu; plugin 0.12.0
+- [0063 Lệnh change cho nghỉ hoặc gộp một khối, nói tác động trước, và chỉ ghi sau lời đáp của chủ repo](decisions/0063-change-retires-a-block-only-on-the-owners-answer.md) — `plugins/design-assembly/scripts/change.mjs`; mục 3.5; plugin 0.13.0
 - [0060 Lệnh find tra kho từ gần tới xa, dừng ở tầng đầu tiên trả lời](decisions/0060-find-searches-the-store-nearest-first.md) — `plugins/design-assembly/scripts/find.mjs`; mục 3.2; plugin 0.10.0
 - [0059 Kho công khai trên GitHub, theo giấy phép MIT](decisions/0059-the-repository-is-public-under-the-mit-licence.md) — `LICENSE`; ngoài kế hoạch, chủ repo quyết
 - [0058 Script của audit mang tên lệnh của nó; tên cũ từ chối mọi lời gọi cho tới lệnh kiểm kê](decisions/0058-the-audit-script-takes-its-command-name.md) — `plugins/design-assembly/scripts/audit.mjs`; phần một của mục 3.4; plugin 0.9.0
