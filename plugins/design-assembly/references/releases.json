@@ -96,6 +96,12 @@
       "templates": "3a4c090c1eda4ede6bb714c7fd523ccd93264cf0",
       "scripts": "7368bdf2dbc783cf9903faa87425c9afd84e6952",
       "tool": "61a8bbcf9a9159b5c6659df8092822690a1e0d20"
+    },
+    {
+      "version": "0.14.0",
+      "templates": "0722eaef030c740eea29cd8110bb766691c68834",
+      "scripts": "b8d7c4c7222c12074c3037eb1d168a8dfc542850",
+      "tool": "b518999b3085c3d30399793ed1dd7e0d2822070a"
     }
   ]
 }

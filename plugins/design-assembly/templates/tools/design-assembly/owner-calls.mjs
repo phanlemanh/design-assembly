@@ -344,6 +344,14 @@ function unanswered(row, { waiting, blueprint }) {
   if (String(row.source ?? "").includes("blueprint") && layer?.status === "decided") {
     if (layer.source === "user" || (layer.confirmed ?? []).includes(key)) return null;
   }
+  // A design principle the guide writes is the owner's when the blueprint lists it as theirs.
+  const context = blueprint?.layers?.context;
+  const principle = (Array.isArray(context?.principles) ? context.principles : []).find(
+    (item) => `principle-${item?.id}` === id,
+  );
+  if (String(row.source ?? "").includes("blueprint") && context?.status === "decided") {
+    if (principle?.source === "user") return null;
+  }
   return `${id}: a judgment this branch writes, which no person answered and no question asks; ask the owner with decide --ask --item decision:${id}, or say in its note that a person has not confirmed it`;
 }
 

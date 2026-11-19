@@ -104,9 +104,8 @@ const COMMANDS = [
     name: "new",
     script: "apply.mjs",
     writes: true,
-    keys: ["blueprint", "files"],
+    keys: ["blueprint", "principles", "recommendations", "files"],
     later: {
-      principles: "new-json-without-principles",
       directions: "new-json-without-directions",
     },
     cases: [

@@ -597,6 +597,12 @@
       "meaning": "A thing taken from a source that no longer matches it: its pin differs from the source's current pin, or its file differs from what was taken in.",
       "source": "Common practice",
       "trust": "practice"
+    },
+    {
+      "term": "design principle",
+      "meaning": "A short statement of what the design favours when two good options pull different ways, fixed by the owner before any value is chosen, so a recommendation can say which principle it rests on. The Vietnamese of the documents says nguyên tắc thiết kế.",
+      "source": "Common practice of design studios and design systems",
+      "trust": "practice"
     }
   ]
 }

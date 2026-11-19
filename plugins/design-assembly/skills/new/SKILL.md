@@ -1,6 +1,6 @@
 ---
 name: new
-description: Guide a person through the decision layers of a design system for their repository — product context and foundations today — with a recommendation at each layer, then generate the design tokens, the checks that hold them and the ledger rows that record them, so Claude Code can build screens without guessing. Use when the user wants to create, set up or start a design system in a repository that has no brand values of its own yet, choose a brand colour, type scale or corner radius for a repository, or when the audit's `next:` line names this skill. For a repository that already has its own brand values, use the adopt skill instead.
+description: Guide a person through the decision layers of a design system for their repository — product context, the three to five design principles the owner fixes first, and foundations today — with a recommendation at each layer that says which principle or standard it rests on, then generate the design tokens, the checks that hold them and the ledger rows that record them, so Claude Code can build screens without guessing. Use when the user wants to create, set up or start a design system in a repository that has no brand values of its own yet, choose a brand colour, type scale or corner radius for a repository, or when the audit's `next:` line names this skill. For a repository that already has its own brand values, use the adopt skill instead.
 ---
 
 # Guide a person to a design system Claude Code can build from
@@ -76,6 +76,9 @@ The blueprint is the only file you write by hand. Its shape:
 }
 ```
 
+The context layer also lists the design principles, once they are fixed (step 4):
+`"principles": [{ "id": "<catalog id or own id>", "source": "user | proposed", "text": "only for own words" }]`.
+
 Every layer of `references/layers.json` has an entry. A built layer starts as `pending`; a layer
 with `built: false` is `{"status": "planned"}`. `source`, `choice`, `why` and `rejected` are written
 when the layer is decided. Choice keys are listed at the end of each layer page.
@@ -120,6 +123,33 @@ For each layer with `built: true`, read `references/layers/<id>.md` and run this
 
 A layer with only one sensible answer gets one line, no question. A layer with `built: false` is
 recorded as `{"status": "planned"}`.
+
+### Design principles first
+
+Right after the product type and the conformance level, and before any value is shown, the owner
+fixes three to five design principles: short statements of what the design favours when two good
+options pull different ways. They come from `references/principles.json`. Offer first the ones
+whose `suits` lists the product type, each with its statement and what it favours, in one list;
+the person picks three to five, or writes one of their own. A principle in their own words gets an
+id of lowercase words joined by hyphens and its `text`; it is recorded and can be cited, but no
+option follows from it. A catalog principle whose wording they want changed keeps its id and gets
+`text`, as long as the meaning stays: otherwise it is their own.
+
+Write them to `layers.context.principles`, in the order the person gives them. `source` is `user`
+for each the person picked or wrote, `proposed` for each you put forward that they did not answer.
+In **hand it to Claude**, propose three that suit the product type, record them as `proposed`, and
+put them first in the final review: they become rows of the ledger that say a person has not
+confirmed them, and wait on the decision sheet. Never write `user` for a principle the person did
+not pick.
+
+From here on every recommendation you give rests on something, and you say what:
+`apply.mjs --target <repo> --dry-run --json` gives `recommendations`, one per choice the guide
+recommends, each with the option and its `basis`. A basis of kind `principle` names the principles
+it rests on; quote them. A basis of kind `standard` says no principle the owner fixed speaks to the
+choice, or that two of them pull different ways (`conflict` lists them): say so, and let the person
+choose. Only a principle with `source: user` settles anything. The preview prints a `hint:` for
+each value of the blueprint that goes against a principle the owner fixed: read it out; the person
+may keep the value knowingly.
 
 Five answers belong to the person, because they are taste or brand: the product type, when the
 repository does not already record it; the source color; the type scale; the corner radius; and
@@ -194,6 +224,7 @@ answer and is recorded as `source: user`; a value they did not look at stays `pr
 
 Then run the preview again, `apply.mjs --target <repo> --dry-run`, and show:
 
+- the design principles, each with its source, and any `hint:` that a value goes against one;
 - one line per layer: what was chosen and where it came from (`user`, `proposed`, `repo`);
 - the primary for light and dark and the contrast ratio each reaches, and any note that the source
   color had to move;
