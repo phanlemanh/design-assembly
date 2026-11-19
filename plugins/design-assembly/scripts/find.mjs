@@ -9,28 +9,14 @@
 //        [--limit N] [--target DIR] [--json] [--out DIR [--format html|pdf]]
 // Exit: 0 something answers; 1 nothing does, or the document was written in fewer formats than
 // asked; 2 a wrong call, or a repository that cannot be read.
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import path from "node:path";
 import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { adapterOf } from "../templates/tools/design-assembly/adapters/index.mjs";
 import { screensOf } from "../templates/tools/design-assembly/affected.mjs";
-import {
-  libraryFolders,
-  ownFolder,
-  readComponents,
-  readFolder,
-  regenerated,
-} from "../templates/tools/design-assembly/components.mjs";
-import { newerProblem } from "../templates/tools/design-assembly/contract.mjs";
-import {
-  INTAKE_LEDGER,
-  isByHand,
-  readIntakeLedger,
-} from "../templates/tools/design-assembly/intake-ledger.mjs";
-import { ledgerText, readFragments } from "../templates/tools/design-assembly/screen-fragments.mjs";
-import { fragmentsFolder } from "../templates/tools/design-assembly/screen-ledger.mjs";
+import { isByHand } from "../templates/tools/design-assembly/intake-ledger.mjs";
 import {
   frontMatter,
   KINDS_FOLDER,
@@ -41,10 +27,10 @@ import {
   readPinnedSources,
   SOURCES_FOLDER,
 } from "../templates/tools/design-assembly/sources-ledger.mjs";
-import { readYaml } from "../templates/tools/design-assembly/yaml.mjs";
 import { finish, readCall, Refusal, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { VERSION } from "./stamp.mjs";
+import { componentsOf, fileOf, pinOf, readIntake, readTheme, text } from "./store.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const json = (file) => JSON.parse(readFileSync(path.join(PLUGIN, file), "utf8"));
@@ -130,42 +116,8 @@ const shown = (piece) =>
 const ofKind = (piece, kind) =>
   kind === null || piece.kind === kind || (kind === "component" && Boolean(piece.component));
 
-const isMap = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
-// A value a person wrote as words: a string, or a number or a yes and no written bare. A list or a
-// map is not words, and is left out rather than printed as such.
-const text = (value) =>
-  typeof value === "string"
-    ? value
-    : typeof value === "number" || typeof value === "boolean"
-      ? String(value)
-      : null;
-// A file a ledger names, written the way the components are: forward slashes, no `./`.
-const fileOf = (value) => {
-  const said = text(value);
-  return said ? path.posix.normalize(said.replaceAll("\\", "/")) : null;
-};
-// Whether a path the tool data names stays inside the repository.
-const insideRoot = (root, file) => {
-  const relative = path.relative(path.resolve(root), path.resolve(root, file));
-  return !relative.startsWith("..") && !path.isAbsolute(relative);
-};
 // A name an install line may carry to a shell as it is. Any other name gets no install line.
 const SAFE_NAME = /^[\w@./:-]+$/;
-
-// The file the intake ledger is kept at: the one the shapes check names, else the usual one.
-function intakeFileOf(theme) {
-  const named = Object.values(theme?.checks ?? {})
-    .flat()
-    .map((check) => check?.ledgers?.intake)
-    .find((file) => typeof file === "string");
-  return named ?? INTAKE_LEDGER;
-}
-
-function readTheme(root) {
-  const file = path.join(root, "design/theme.json");
-  // A theme that is not JSON is a repository that cannot be read: the call ends with 2.
-  return existsSync(file) ? JSON.parse(readFileSync(file, "utf8")) : null;
-}
 
 // Which screens reach each file, or null when it is not known, with why.
 function usersOf(root, theme) {
@@ -183,30 +135,6 @@ function usersOf(root, theme) {
   } catch (error) {
     return { of: () => [], why: `which screens use a piece is not known: ${error.message}` };
   }
-}
-
-// The components of the repository, as the tool's manifest would list them now; where the tool
-// data names no manifest, read through the components adapter from the library's folder and the
-// repository's own beside it.
-function componentsOf(root) {
-  let made;
-  try {
-    made = regenerated(root);
-  } catch (error) {
-    return {
-      read: null,
-      problem: `the component-manifest check of design/theme.json cannot be read: ${error.message}`,
-      components: [],
-    };
-  }
-  if (made) return { read: made.read, components: made.data.components };
-  const folders = libraryFolders(root);
-  const read = ownFolder(folders[0]) ?? folders[0];
-  if (!existsSync(path.join(root, read))) return { read: null, missing: read, components: [] };
-  return {
-    read,
-    components: readComponents(readFolder(root, read), { library: folders }).components,
-  };
 }
 
 // The reference page of a block taken from a pinned source: the page its catalog gives.
@@ -228,33 +156,10 @@ function ownStore(root, theme) {
   const cache = {};
   const entries = [];
 
-  const file = intakeFileOf(theme);
-  const ledgerTextFound = ledgerText(root, file, "intake");
-  const kept = readFragments(root, file, "intake") ? `${fragmentsFolder(file)}/` : file;
-  let blocks = [];
-  let ledger = null;
-  const intake = { store: "intake", read: null, items: null, why: null, pieces: [] };
-  const notes = [];
-  if (!insideRoot(root, file)) {
-    intake.why = `${file}, the intake ledger the tool data names, is outside the repository`;
-  } else if (ledgerTextFound === null) {
-    intake.why = `no intake ledger at ${file}`;
-  } else {
-    intake.read = [kept];
-    const newer = newerProblem("intake", readYaml(ledgerTextFound), kept);
-    if (newer) intake.why = newer;
-    else {
-      ledger = readIntakeLedger(ledgerTextFound);
-      const listed = ledger.blocks ?? [];
-      if (!Array.isArray(listed)) notes.push(`${kept}: its blocks are not a list`);
-      const entries = Array.isArray(listed) ? listed : [];
-      blocks = entries.filter(isMap);
-      const odd = entries.length - blocks.length;
-      if (odd > 0) {
-        notes.push(`${plural(odd, "entry is not a block", "entries are not blocks")}, left out`);
-      }
-    }
-  }
+  const found = readIntake(root, theme);
+  const { ledger, blocks } = found;
+  const notes = [...found.notes];
+  const intake = { store: "intake", read: found.read, items: null, why: found.why, pieces: [] };
   const { read, missing, problem, components } = componentsOf(root);
   const byFile = new Map(components.map((component) => [component.file, component]));
   const live = blocks.filter((block) => !block.retired && !block.merged_into);
@@ -395,9 +300,6 @@ function starterStore(root) {
 const familyStore = () => [
   { store: "family", read: null, items: null, why: "no family store exists yet", pieces: [] },
 ];
-
-// What a pin says, in a few words: the day it was fetched, or its version.
-const pinOf = (pin) => text(pin?.fetched_at) ?? text(pin?.version) ?? null;
 
 // The outside sources the repository pinned, tier 4, in their order.
 function sourcesStore(root) {

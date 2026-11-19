@@ -322,21 +322,6 @@ test("every report says where this plugin is blind, and names the limits that ca
   for (const limit of high) assert.ok(printed.includes(limit.id), limit.id);
 });
 
-// The audit's script was named inventory.mjs until the inventory command of the reusable store
-// needed that name. The old name answers no call in the meantime, so that nobody reads a report of
-// one command as the other's.
-test("the old name of the script refuses every call and names the new one", () => {
-  const dir = empty();
-  for (const args of [[], ["--json"], ["--help"], ["--target", dir, "--json"], ["--all"]]) {
-    const run = spawnSync(execPath, [path.join(PLUGIN, "scripts/inventory.mjs"), ...args], {
-      encoding: "utf8",
-    });
-    assert.equal(run.status, 2, args.join(" "));
-    assert.equal(run.stdout, "", args.join(" "));
-    assert.match(run.stderr, /scripts\/inventory\.mjs is now scripts\/audit\.mjs/, args.join(" "));
-  }
-});
-
 // The last commit before the rename. The old script reads this plugin's references as they are now,
 // so that a row added to the limits ledger since is not taken for a change of the rename.
 const BEFORE_RENAME = "1754568";

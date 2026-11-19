@@ -78,6 +78,12 @@
       "templates": "cc1af78c5c9bece3f035570646fa4efb96c92a92",
       "scripts": "be1f766337a0d215b21eace6d7d5c08cc96befbb",
       "tool": "6bcebc648cd92ef58f90f615da423ef98542403e"
+    },
+    {
+      "version": "0.11.0",
+      "templates": "100ef55162d26a74178ce25b580ff61a46ef0d98",
+      "scripts": "479a44e975168e53d37cc6320b113f0e3a8eb640",
+      "tool": "7f3c4d3b5dc05fac4b9431142a5b756d1a842c6f"
     }
   ]
 }

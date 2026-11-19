@@ -5,6 +5,7 @@
     "adopt": "The skill that records what a repository already has, without changing it.",
     "audit": "The read-only report on how far a repository has got.",
     "find": "The read-only search of the store, nearest store first, before something new is built.",
+    "inventory": "The read-only inventory of the store: what each store holds, the state of each piece, six kinds of finding, and what it could not look at.",
     "status": "The read-only report on what waits on the owner and what to run next.",
     "decide": "The sheet of every question that waits on the owner, and the answers written back.",
     "document": "The document a command hands over, set on the frame every document shares.",
@@ -2910,9 +2911,9 @@
       "severity": "high",
       "plan": "fix",
       "opened": "2026-11-17",
-      "where": ["trials", "d0060"],
+      "where": ["trials", "d0060", "d0061"],
       "status": "open",
-      "note": "In a workspace repository whose screens live under apps/NAME/ and whose stylesheet lives under packages/NAME/src/styles/, the audit and status read only the src/ folder at the top: they print no stylesheet and 0 source files, the audit's next line says there is nothing to read, and status ends with 0 and nothing to run, while the UI package alone, given as --target, has a stylesheet with a primary colour of its own and 35 places that go around four scales; find reads the components of the same folders, so in such a repository it finds none of them unless the package is given as --target."
+      "note": "In a workspace repository whose screens live under apps/NAME/ and whose stylesheet lives under packages/NAME/src/styles/, the audit and status read only the src/ folder at the top: they print no stylesheet and 0 source files, the audit's next line says there is nothing to read, and status ends with 0 and nothing to run, while the UI package alone, given as --target, has a stylesheet with a primary colour of its own and 35 places that go around four scales; find and inventory read the components and screens of the same folders, so in such a repository find finds none of them and inventory counts none of them unless the package is given as --target."
     },
     {
       "id": "audit-undecided-with-nothing-read",
@@ -3080,6 +3081,50 @@
       "where": ["d0060", "spec"],
       "status": "open",
       "note": "Find matches the words of a need against the words of each piece, never their meaning: a need written in the repository's own language does not match a catalog written in English, and a piece described in other words than the ones asked for is near or not found at all."
+    },
+    {
+      "id": "inventory-duplicates-by-name-and-source-only",
+      "area": "inventory",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-19",
+      "where": ["d0061", "spec"],
+      "status": "open",
+      "note": "The inventory finds one thing taken twice only when two blocks name the same item of the same source, two files hold the same bytes, or two files of the repository export the same name: two different ways of answering one need, written in other words, are not found."
+    },
+    {
+      "id": "inventory-promotion-within-one-repository",
+      "area": "inventory",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-19",
+      "where": ["d0061", "spec"],
+      "status": "open",
+      "note": "The inventory proposes a component for the store of its repository when screens of that repository import it from inside one screen; a piece two repositories of the family both make is not seen until a family store exists."
+    },
+    {
+      "id": "modified-needs-the-hash-taken-at-intake",
+      "area": "inventory",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-19",
+      "where": ["d0061", "spec"],
+      "status": "open",
+      "note": "A block taken from an outside source is reported changed only when the ledger keeps the hash of its file taken when it came in: a block recorded before that key existed is named among what the inventory could not look at, never reported."
+    },
+    {
+      "id": "inventory-unused-silenced-by-one-untraced-import",
+      "area": "inventory",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-19",
+      "where": ["d0061", "spec"],
+      "status": "open",
+      "note": "The inventory reports nothing unused in a repository where one import cannot be followed, or where no entry of the frame of the application is found, because a piece only that import or that frame reaches would be called unused: one such import hides every unused piece of the repository, and the blind spots name it."
     }
   ]
 }

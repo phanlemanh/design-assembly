@@ -1,4 +1,4 @@
-// find, measured on throwaway copies of real repositories. Never writes to a repository it is given:
+// find and inventory, measured on throwaway copies of real repositories. Never writes to a repository it is given:
 // each one is cloned into a temporary folder, find runs on the clone, and the clone is removed
 // unless --keep is given. On each clone it checks that every call ends with 0 or 1 and no stack
 // trace, that the same call twice gives the same answer, and that the tree, ignored files and all,
@@ -28,6 +28,7 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const FIND = path.join(ROOT, "plugins/design-assembly/scripts/find.mjs");
+const INVENTORY = path.join(ROOT, "plugins/design-assembly/scripts/inventory.mjs");
 const arg = (name) => (argv.includes(name) ? path.resolve(argv[argv.indexOf(name) + 1]) : null);
 const keep = argv.includes("--keep");
 
@@ -78,7 +79,26 @@ const find = (dir, words) => {
   return { ...call, ms: Math.round(performance.now() - started) };
 };
 
+const inventory = (dir) => {
+  const started = performance.now();
+  const call = spawnSync(execPath, [INVENTORY, "--target", dir, "--json"], {
+    encoding: "utf8",
+    maxBuffer: 1 << 28,
+  });
+  return { ...call, ms: Math.round(performance.now() - started) };
+};
+const tally = (list, keyOf) =>
+  Object.entries(
+    list.reduce(
+      (counts, item) => ({ ...counts, [keyOf(item)]: (counts[keyOf(item)] ?? 0) + 1 }),
+      {},
+    ),
+  )
+    .map(([key, count]) => `${key} ${count}`)
+    .join(", ") || "none";
+
 const rows = [];
+const stock = [];
 const notes = [];
 const folders = [];
 for (const [role, repository] of given) {
@@ -123,9 +143,33 @@ for (const [role, repository] of given) {
       ms: first.ms,
     });
   }
+  const first = inventory(copy);
+  const second = inventory(copy);
+  const clean = first.status === 0 && !/\n\s+at /.test(first.stderr);
+  const result = clean ? JSON.parse(first.stdout) : null;
+  stock.push({
+    role,
+    exit: first.status,
+    same: second.stdout === first.stdout,
+    items: result ? tally(result.items, (item) => item.state ?? "unknown") : "-",
+    findings: result ? tally(result.findings, (finding) => finding.kind) : first.stderr.trim(),
+    blind: result
+      ? [...new Set(result.blind.map((entry) => entry.kind))].join(", ") || "none"
+      : "-",
+    ms: first.ms,
+  });
+  if (result) {
+    for (const entry of result.blind)
+      notes.push(`${role}, inventory did not look at ${entry.kind}: ${entry.why}`);
+    for (const finding of result.findings) {
+      notes.push(
+        `${role}, inventory found ${finding.kind}: ${finding.items.map((item) => item.file ?? item.name).join(", ")} (${finding.evidence[0]})`,
+      );
+    }
+  }
   const same = JSON.stringify(snapshot(copy)) === JSON.stringify(before);
   notes.push(
-    `${role}: the tree is ${same ? "the same" : "NOT the same"} after ${ASKED.length * 2} calls`,
+    `${role}: the tree is ${same ? "the same" : "NOT the same"} after ${ASKED.length * 2 + 2} calls`,
   );
   if (pinned) {
     const pin = JSON.parse(readFileSync(path.join(copy, REFERENCE_SOURCE.pin_file), "utf8"));
@@ -148,6 +192,13 @@ stdout.write(
     ...rows.map(
       (row) =>
         `| ${row.role} | ${row.words} | ${row.exit} | ${row.same ? "yes" : "no"} | ${row.answer} | ${row.matches} | ${row.near} | ${row.read} | ${row.ms} |`,
+    ),
+    "",
+    "| Repository | inventory exit | Same twice | Pieces by state | Findings | Not looked at | ms |",
+    "| --- | --- | --- | --- | --- | --- | --- |",
+    ...stock.map(
+      (row) =>
+        `| ${row.role} | ${row.exit} | ${row.same ? "yes" : "no"} | ${row.items} | ${row.findings} | ${row.blind} | ${row.ms} |`,
     ),
     "",
     ...notes.map((note) => `- ${note}`),
