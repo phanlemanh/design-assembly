@@ -83,6 +83,14 @@ function withEntries(text, key, entries, spelled) {
 
 // Two lists of entries are the same when they hold the same entries, whatever their order: a ledger
 // kept as one file per block reads its blocks in the order of their files' names.
+// A text edited line by line, written back with the line ending it had: a ledger written with CRLF
+// keeps CRLF on the lines added.
+function keepingEndings(text, edit) {
+  const ending = text.includes("\r\n") ? "\r\n" : "\n";
+  const edited = edit(text.replace(/\r\n/g, "\n"));
+  return ending === "\n" ? edited : edited.replace(/\n/g, ending);
+}
+
 const same = (a, b) => {
   const lines = (list) => list.map((entry) => JSON.stringify(entry)).sort();
   return JSON.stringify(lines(a)) === JSON.stringify(lines(b));
@@ -135,7 +143,9 @@ export function ledgerWith(root, file, part, entries, spelled) {
       return { [name]: content };
     }
     const shared = `${fragmentsFolder(file)}/${FRAGMENTS_SHARED}`;
-    const content = withEntries(found.shared, listKey, entries, spelled);
+    const content = keepingEndings(found.shared, (said) =>
+      withEntries(said, listKey, entries, spelled),
+    );
     if (!readsBack(joined, joinFound({ ...found, shared: content }), part, entries))
       throw refused();
     return { [shared]: content };
@@ -144,7 +154,117 @@ export function ledgerWith(root, file, part, entries, spelled) {
   const start =
     before ??
     [...HEADER, "version: 1", part === "blocks" ? "blocks:" : "blocks: []", ""].join("\n");
-  const content = withEntries(start, listKey, entries, spelled);
+  const content = keepingEndings(start, (said) => withEntries(said, listKey, entries, spelled));
   if (!readsBack(before, content, part, entries)) throw refused();
+  return { [file]: content };
+}
+
+// The lines of keys added to one entry, at the indent of the entry's own keys: a key whose value is
+// a map writes it one key per line beneath it, its keys spelled as the ledger spells them.
+function addedLines(added, spelled, indent) {
+  return Object.entries(added).flatMap(([key, value]) => {
+    const own = spelled[key];
+    if (own === null || own === undefined) {
+      throw new Refusal(
+        `the intake ledger gives no spelling for ${key}: add one under keys, then ask again`,
+      );
+    }
+    if (value === null || typeof value !== "object")
+      return [`${indent}${own}: ${yamlValue(value)}`];
+    return [
+      `${indent}${own}:`,
+      ...Object.entries(value).map(
+        ([inner, said]) => `${indent}  ${spelled[inner] ?? inner}: ${yamlValue(said)}`,
+      ),
+    ];
+  });
+}
+
+// The text of a one-file ledger with keys added to the entry at `index` of its list of blocks.
+function withAddedKeys(text, listKey, index, added, spelled) {
+  const lines = text.split("\n");
+  const at = lines.findIndex((line) => new RegExp(`^${listKey}:\\s*$`).test(line));
+  if (at === -1)
+    throw new Refusal(`the intake ledger has no list ${listKey} written one entry per line`);
+  const first = lines.slice(at + 1).find((line) => /^\s*-(\s|$)/.test(line));
+  if (!first) throw new Refusal(`the list ${listKey} of the intake ledger has no entry`);
+  const dash = /^(\s*)-/.exec(first)[1];
+  // Where each entry starts, and where the list ends: the first line at the list's own depth that
+  // is neither an entry nor blank nor a note.
+  const starts = [];
+  let end = lines.length;
+  for (let line = at + 1; line < lines.length; line += 1) {
+    const said = lines[line];
+    if (said.trim() === "" || said.trim().startsWith("#")) continue;
+    const depth = said.search(/\S/);
+    if (depth === dash.length && /^\s*-(\s|$)/.test(said)) starts.push(line);
+    else if (depth <= dash.length && !/^\s*-(\s|$)/.test(said)) {
+      end = line;
+      break;
+    } else if (depth < dash.length) {
+      end = line;
+      break;
+    }
+  }
+  if (index >= starts.length) throw new Refusal("the intake ledger's entry cannot be found");
+  const stop = index + 1 < starts.length ? starts[index + 1] : end;
+  let last = starts[index];
+  for (let line = starts[index]; line < stop; line += 1) {
+    if (lines[line].trim() !== "" && !lines[line].trim().startsWith("#")) last = line;
+  }
+  const keys = addedLines(added, spelled, `${dash}  `);
+  return [...lines.slice(0, last + 1), ...keys, ...lines.slice(last + 1)].join("\n");
+}
+
+// Whether a ledger text reads back as the one before with keys added to the block of `need`, and
+// everything else as it was.
+function readsBackChanged(before, after, need, added) {
+  const was = readIntakeLedger(before);
+  const now = readIntakeLedger(after);
+  if (!Array.isArray(now.blocks) || now.blocks.length !== was.blocks.length) return false;
+  return (
+    now.blocks.every((entry, index) => {
+      const old = was.blocks[index];
+      const target = old?.need === need;
+      return JSON.stringify(entry) === JSON.stringify(target ? { ...old, ...added } : old);
+    }) && JSON.stringify(now.before ?? []) === JSON.stringify(was.before ?? [])
+  );
+}
+
+// The files to write so that the block of `need` in the ledger at `file` holds the keys `added`,
+// such as `retired` and `merged_into`, and nothing else changes. A ledger kept as one file per
+// block changes the block's own file.
+export function ledgerWithChange(root, file, need, added, spelled) {
+  const refused = () =>
+    new Refusal(
+      `the intake ledger would not read back with the change to ${need} and every other entry as it was, so nothing was written`,
+    );
+  const found = readFragments(root, file, "intake");
+  if (found) {
+    // The block's own file: the one whose entry answers the need, whatever its name.
+    const fragment = found.fragments.find(
+      (item) =>
+        readIntakeLedger(joinFound({ ...found, fragments: [item] })).blocks?.[0]?.need === need,
+    );
+    if (!fragment)
+      throw new Refusal(`no file of ${fragmentsFolder(file)} holds the block of ${need}`);
+    const content = keepingEndings(fragment.text, (said) => {
+      const lines = said.replace(/\n+$/, "").split("\n");
+      return `${[...lines, ...addedLines(added, spelled, "")].join("\n")}\n`;
+    });
+    const fragments = found.fragments.map((item) =>
+      item.name === fragment.name ? { ...item, text: content } : item,
+    );
+    if (!readsBackChanged(joinFound(found), joinFound({ ...found, fragments }), need, added)) {
+      throw refused();
+    }
+    return { [fragment.file]: content };
+  }
+  const before = read(root, file);
+  const index = readIntakeLedger(before).blocks.findIndex((entry) => entry?.need === need);
+  const content = keepingEndings(before, (said) =>
+    withAddedKeys(said, spelled.blocks, index, added, spelled),
+  );
+  if (!readsBackChanged(before, content, need, added)) throw refused();
   return { [file]: content };
 }

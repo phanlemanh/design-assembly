@@ -90,6 +90,12 @@
       "templates": "71c2b5aad6b4be85648cc81ababc7051415847eb",
       "scripts": "77b81b336567903779c37323c261e015096cc70c",
       "tool": "621a7de06ecf982f8379216ff3b2ee6d3c5a0b96"
+    },
+    {
+      "version": "0.13.0",
+      "templates": "3a4c090c1eda4ede6bb714c7fd523ccd93264cf0",
+      "scripts": "7368bdf2dbc783cf9903faa87425c9afd84e6952",
+      "tool": "61a8bbcf9a9159b5c6659df8092822690a1e0d20"
     }
   ]
 }

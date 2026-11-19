@@ -21,25 +21,16 @@ import path from "node:path";
 import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
-import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
-import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
-import { BY_HAND, spellingOf } from "../templates/tools/design-assembly/intake-ledger.mjs";
-import { readYaml } from "../templates/tools/design-assembly/yaml.mjs";
-import {
-  picked,
-  questionFile,
-  readWaiting,
-  rowProblems,
-  WAITING_LIST,
-} from "../templates/tools/design-assembly/waiting.mjs";
+import { picked, questionFile } from "../templates/tools/design-assembly/waiting.mjs";
 import { ownedFileOf, writeFiles, writtenFiles } from "./apply.mjs";
 import { finish, readCall, Refusal, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { find, wordsOf } from "./find.mjs";
+import { answerOf, questionFiles, readStore, rowOf, rowsOf, today, writable } from "./asking.mjs";
 import { ledgerWith, yamlValue } from "./intake-write.mjs";
 import { inventory } from "./inventory.mjs";
-import { readStamp, VERSION } from "./stamp.mjs";
-import { componentsOf, fileOf, insideRoot, readIntake, readTheme, text } from "./store.mjs";
+import { VERSION } from "./stamp.mjs";
+import { componentsOf, fileOf, insideRoot, text } from "./store.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const LIMITS = JSON.parse(readFileSync(path.join(PLUGIN, "references/limits.json"), "utf8")).limits;
@@ -57,85 +48,11 @@ const storeWords = (store) =>
   STORES[store] ?? `the outside source ${store.replace(/^sources\//, "")}`;
 
 const sha = (content) => createHash("sha256").update(content).digest("hex");
-const today = () => {
-  const now = new Date();
-  const two = (value) => String(value).padStart(2, "0");
-  return `${now.getFullYear()}-${two(now.getMonth() + 1)}-${two(now.getDate())}`;
-};
-const older = (version, than) => {
-  const parts = (value) => String(value).split(".").map(Number);
-  const [a, b] = [parts(version), parts(than)];
-  for (let index = 0; index < 3; index += 1) {
-    if ((a[index] || 0) !== (b[index] || 0)) return (a[index] || 0) < (b[index] || 0);
-  }
-  return false;
-};
-
 // ---- what the repository holds --------------------------------------------------------------------
 
-// The intake ledger and what stands around it, read once. A ledger that cannot be read stops the
-// call before anything is written. The waiting list is read only past rung one: a block the ledger
-// keeps is the answer whatever the waiting list holds.
-function readState(root) {
-  const theme = readTheme(root);
-  const intake = readIntake(root, theme);
-  const none = intake.why !== null && intake.why.startsWith("no intake ledger");
-  if (!intake.ledger && !none) throw new Refusal(`${intake.why}. Nothing was written`);
-  const spelled = intake.ledger?.spelled ?? spellingOf(readYaml(""));
-  const byHand = text(intake.ledger?.values?.[BY_HAND]) ?? BY_HAND;
-  return { root, theme, intake, spelled, byHand, stamp: readStamp(root) };
-}
-
-// The waiting list, read once when a question is read or written. One kept as one shared file
-// stops the call: a question would change that file.
-function waitingOf(state) {
-  if (state.waiting === undefined) {
-    const ledgerIds = (readLedger(state.root) ?? []).map((row) => String(row.id));
-    state.waiting = readWaiting(state.root, ledgerIds);
-  }
-  if (state.waiting?.shape === "file") {
-    throw new Refusal(
-      `the waiting list is one shared file, ${WAITING_LIST}, and a question would change it: split it first, with decide --split. Nothing was written`,
-    );
-  }
-  return state.waiting;
-}
-
-// The ledger as one that can take a new entry: its blocks are a list.
-function writable(state) {
-  if (!Array.isArray(state.intake.ledger?.blocks ?? [])) {
-    throw new Refusal(`${state.intake.kept}: its blocks are not a list. Nothing was written`);
-  }
-}
-
-// Why a question cannot be written to this repository, or null.
-function questionProblem(state) {
-  if (state.stamp && older(state.stamp.version, QUESTIONS_SINCE)) {
-    return `the tool of this repository is ${state.stamp.version}, which reads a question with candidates as broken: bring it up with upgrade first, then ask again. Nothing was written`;
-  }
-  return null;
-}
-
-// The questions the waiting list asks about an item, the last asked last.
-const rowsOf = (state, item) => (waitingOf(state)?.rows ?? []).filter((row) => row.item === item);
-const rowOf = (state, item) => rowsOf(state, item).at(-1);
-
-// A question as one file of the waiting list, checked as the gate checks it.
-function questionFiles(root, state, row) {
-  const problem = questionProblem(state);
-  if (problem) throw new Refusal(problem);
-  const clash = (waitingOf(state)?.rows ?? []).find(
-    (other) => other.id.toLowerCase() === row.id.toLowerCase(),
-  );
-  if (clash) {
-    throw new Refusal(
-      `the waiting list has a question ${clash.id} about something else: take it away or answer it first. Nothing was written`,
-    );
-  }
-  const problems = rowProblems(row, row.id);
-  if (problems.length > 0) throw new Refusal(`${problems.join("; ")}. Nothing was written`);
-  return { [questionFile(row.id)]: renderJson(row, lineWidth(root)) };
-}
+// The intake ledger and what stands around it, read once. The waiting list is read only past rung
+// one: a block the ledger keeps is the answer whatever the waiting list holds.
+const readState = (root) => readStore(root, { since: QUESTIONS_SINCE });
 
 // ---- rung two: the candidates ---------------------------------------------------------------------
 
@@ -360,11 +277,6 @@ function rowFor(root, state, { need, question, chosen, named }) {
 
 // ---- the need -------------------------------------------------------------------------------------
 
-const answerOf = (row) =>
-  row.answer === "refuse"
-    ? `refused by ${row.by} on ${row.on}${row.said ? `: ${row.said}` : ""}`
-    : `answered by ${row.by} on ${row.on}`;
-
 function needCall(root, state, options) {
   const { need, words, kind, byHand, why, named } = options;
   const base = { need, rung: null, candidates: [], near: [], waiting: null, chosen: null };
@@ -410,7 +322,7 @@ function needCall(root, state, options) {
       notes: fresh.notes,
       row: null,
       next: `asked the owner in ${questionFile(row.id)}: go on with ${row.recommendation}; the row is written once the owner answers on the decision sheet, and this is called again`,
-      writes: questionFiles(root, state, row),
+      writes: questionFiles(state, row),
       work: true,
     };
   }
@@ -570,7 +482,7 @@ function beforeCall(root, state) {
       question: "asked",
       before: [],
       next: `asked the owner in ${questionFile(row.id)}: the list is written once the owner answers on the decision sheet, and this is called again`,
-      writes: questionFiles(root, state, row),
+      writes: questionFiles(state, row),
       work: true,
     };
   }

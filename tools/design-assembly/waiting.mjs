@@ -48,14 +48,16 @@ export const STAMP =
 
 // The items a question can name, each written `kind:which`. A row of the decision ledger, a page of
 // a kind of screen (its file name, without .md), the root colour line (its value, as written), a
-// need a block is taken in for (its key), or what a ledger lists as made before it (the ledger's
-// name). Pattern and colour are the owner's calls: an agent that asks one does not go on.
+// need a block is taken in for (its key), what a ledger lists as made before it (the ledger's
+// name), or the block of a need that is retired or merged (the need's key). Pattern and colour are
+// the owner's calls: an agent that asks one does not go on.
 export const ITEMS = {
   decision: { which: /^[a-z0-9][a-z0-9-]*$/, owners: false },
   pattern: { which: /^[a-z0-9][a-z0-9._-]*$/i, owners: true },
   "source-color": { which: /^\S(?:.*\S)?$/, owners: true },
   need: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: false },
   before: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: false },
+  block: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: false },
 };
 
 // How a value answers a question with candidates, by the kind of its item: the name of one

@@ -131,3 +131,33 @@ Bản sao của ứng dụng mẫu lấy từ commit `dbf0595` của nhánh mụ
     nhu cầu ghi đúng một câu chờ.
   - Lệnh ghi kèm một ghi chú: không cổng nào giữ sổ nhập kho và hàng chờ cho tới khi repo nhận plugin.
   - `--before` không đề xuất gì, vì hai repo ấy không có sổ màn, nên lệnh không biết màn nào dùng linh kiện nào.
+
+## Lệnh `change`
+
+Đo ngày 2026-11-19, trên cùng các bản sao, sau `intake`. Chủ repo cho đo trên ba repo ngoài kho này: «Cho cả ba». Trên mỗi
+bản sao, lệnh được hỏi cho nghỉ khối đầu tiên còn dùng trong sổ nhập kho: xem trước hai lần, rồi chạy thật. Lệnh chỉ có
+thể hỏi; không ai trả lời thay chủ repo.
+
+| Repo              | Khối hỏi cho nghỉ        | Thoát | Màn                    | Linh kiện nhập nó | Phép kiểm nêu tệp | Dòng `import` | Tệp đổi trên bản sao                                | Xem trước kê đúng | Ngoài hàng chờ |
+| ----------------- | ------------------------ | ----- | ---------------------- | ----------------- | ----------------- | ------------- | --------------------------------------------------- | ----------------- | -------------- |
+| Ứng dụng mẫu      | `list-load-retry-filter` | 1     | `overdue`, `reference` | 1 (`ItemList`)    | 0                 | 3             | `design/waiting/change-list-load-retry-filter.json` | có                | không          |
+| Repo kiểm chứng   | `bang-nhieu-dong`        | 2     | -                      | -                 | -                 | -             | không                                               | có                | không          |
+| Repo web ngoài họ | không có khối            | 2     | -                      | -                 | -                 | -             | không                                               | có                | không          |
+| Repo nhiều gói    | không có khối            | 2     | -                      | -                 | -                 | -             | không                                               | có                | không          |
+
+Bản sao của ứng dụng mẫu lấy từ commit `c02edd5` của nhánh mục 3.5. Ba repo kia ở đúng các commit của mục `find`.
+
+- **Ứng dụng mẫu:** cho nghỉ `useList` chạm tới hai màn, `overdue` và `reference`. Linh kiện `ItemList` nhập nó. Ba dòng
+  `import` phải sửa: `src/components/item-list.tsx:18`, `src/example/OverdueScreen.tsx:9`,
+  `src/example/ReferenceScreen.tsx:21`. Lệnh chỉ ghi một câu chờ vào bản sao; sổ nhập kho và `src/` không đổi.
+- **Ở mọi bản sao:** hai lần xem trước cho cùng JSON. Các tệp mà bản xem trước kê đúng là các tệp lần chạy thật ghi, và
+  không tệp nào nằm ngoài `design/waiting/`.
+- **Repo kiểm chứng thoát 2 và không ghi gì,** vì công cụ của nó là bản 0.7.1, đọc câu về một khối thành lỗi. Trên bản sao,
+  dấu bản công cụ được tạm bỏ cho một lần xem trước rồi đặt lại, để đọc được tác động. Đó là bước dựng của phép đo, không
+  phải điều lệnh làm. Kết quả:
+  - cho nghỉ khối `bang-nhieu-dong` chạm tới bảy màn: `inventory`, `members`, `proto`, `proto-bo-nut`, `sent`, `today`,
+    `tuy-chinh-san`;
+  - có 25 dòng `import` nêu tệp của khối, phần lớn ở `src/modules/listings/ui/` và `src/modules/sharing/ui/`;
+  - không phép kiểm nào nêu tệp ấy;
+  - không linh kiện nào ở thư mục linh kiện nhập nó. Những tệp nhập nó nằm ở `src/modules/` và `src/app/`.
+- **Hai repo của giai đoạn 2** chưa có sổ nhập kho, nên không có khối nào để đổi. Lệnh thoát 2 và nói vì sao.
