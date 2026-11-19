@@ -20,7 +20,7 @@ import {
   staleParts,
   WORDS,
 } from "../scripts/book.mjs";
-import { inventory } from "../scripts/inventory.mjs";
+import { audit } from "../scripts/audit.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -79,8 +79,8 @@ test("the facts are read from the repository, and are the same on every reading"
   assert.equal(facts.source.color, "#ffee00");
   // A yellow cannot be the primary on a white page: the facts say it moved.
   assert.equal(facts.source.moved.light, true);
-  const audit = inventory(dir);
-  assert.deepEqual(facts.coverage, audit.coverage);
+  const audited = audit(dir);
+  assert.deepEqual(facts.coverage, audited.coverage);
   assert.deepEqual(
     facts.screens.map((screen) => [screen.path, screen.states]),
     [["/", ["ready", "loading"]]],

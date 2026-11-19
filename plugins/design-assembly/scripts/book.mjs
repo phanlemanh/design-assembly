@@ -44,7 +44,7 @@ import {
   start,
 } from "./command.mjs";
 import { escape, familyStyles, originOf } from "./family.mjs";
-import { inventory } from "./inventory.mjs";
+import { audit } from "./audit.mjs";
 import { openStage, printPdf, stageAdapters } from "./stage.mjs";
 
 export const OUT = "coverage/design-book";
@@ -258,8 +258,8 @@ export function collectFacts(target) {
   });
   const unit = toPx(value("--spacing"));
 
-  const audit = inventory(target);
-  const core = audit.decisions.filter((decision) => decision.core);
+  const audited = audit(target);
+  const core = audited.decisions.filter((decision) => decision.core);
   const pages = readPages(target);
   // What the page of a kind says after its front matter: its words, kept as written.
   const bodyOf = (file) =>
@@ -293,15 +293,15 @@ export function collectFacts(target) {
     })),
     spacing: unit,
     target: theme.checks?.["target-size"]?.[0]?.min ?? null,
-    coverage: audit.coverage,
+    coverage: audited.coverage,
     unconfirmed: core
       .filter((d) => d.state === "recorded" && /has not (confirmed|reviewed)/.test(d.note ?? ""))
       .map((d) => d.id),
-    tiers: audit.tiers.map((tier) => ({ id: tier.id, state: tier.state })),
+    tiers: audited.tiers.map((tier) => ({ id: tier.id, state: tier.state })),
     open: core
       .filter((d) => !["held", "claimed", "recorded"].includes(d.state))
       .map((d) => ({ id: d.id, question: d.question })),
-    slips: audit.slips,
+    slips: audited.slips,
     components: (json(COMPONENTS)?.components ?? []).map((entry) => ({
       name: entry.name,
       file: entry.file,

@@ -61,9 +61,7 @@ if (existsSync(path.join(reference, "node_modules"))) {
 }
 
 function measure() {
-  const audit = JSON.parse(
-    node(path.join(PLUGIN, "inventory.mjs"), "--target", copy, "--json").stdout,
-  );
+  const audit = JSON.parse(node(path.join(PLUGIN, "audit.mjs"), "--target", copy, "--json").stdout);
   const shaped = audit.contract.filter((item) => item.differs.length === 0).length;
   let tier = "kit not given";
   if (kit) {

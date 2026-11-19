@@ -48,7 +48,7 @@ const COMMANDS = [
   },
   {
     name: "audit",
-    script: "inventory.mjs",
+    script: "audit.mjs",
     keys: ["decisions", "tier", "missing", "blind"],
     cases: [
       { on: "answered", exit: EXIT.done, why: "no decision is unheld or gone around" },

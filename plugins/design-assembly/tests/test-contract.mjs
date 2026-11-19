@@ -249,7 +249,7 @@ test(
 );
 
 const ADOPT = path.join(PLUGIN, "scripts/adopt.mjs");
-const AUDIT = path.join(PLUGIN, "scripts/inventory.mjs");
+const AUDIT = path.join(PLUGIN, "scripts/audit.mjs");
 const own = (file) => readFileSync(path.join(ROOT, file), "utf8");
 
 // A repository with values of its own and no ledger yet, as adopting meets one.

@@ -18,7 +18,7 @@ import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
 import { finish, readCall, refuse, start } from "./command.mjs";
 import { sheet, WAITING_FOLDER, WAITING_LIST } from "./decide.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
-import { AUDIT, DECIDE, inventory, PERSON_CALLS, UNCONFIRMED } from "./inventory.mjs";
+import { audit, AUDIT, DECIDE, PERSON_CALLS, UNCONFIRMED } from "./audit.mjs";
 import {
   installedTree,
   readStamp,
@@ -272,10 +272,10 @@ function nextOf(audit, waiting, broken, tool) {
 
 // Everything status reads from the ledgers, read once.
 function readLedgers(root) {
-  const audit = inventory(root);
+  const audited = audit(root);
   const rows = readLedger(root) ?? [];
-  const broken = audit.decisions.filter((d) => ["failing", "bypassed"].includes(d.state));
-  return { audit, broken, waiting: waitingOf(audit, rows), tool: toolOf(root) };
+  const broken = audited.decisions.filter((d) => ["failing", "bypassed"].includes(d.state));
+  return { audit: audited, broken, waiting: waitingOf(audited, rows), tool: toolOf(root) };
 }
 
 function resultOf({ audit, broken, tool }, waiting) {

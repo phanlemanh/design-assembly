@@ -14,7 +14,7 @@ folder two levels above this file).
 
 ## 1. Run it
 
-`node ${CLAUDE_PLUGIN_ROOT}/scripts/inventory.mjs --target <repo>`. Without `--target` it reads the
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/audit.mjs --target <repo>`. Without `--target` it reads the
 folder it is run from. Add `--all` to list every core decision, not only the open ones, and
 `--json` for the data; another plugin calls it that way. Beside what the report prints, the data
 has `tier` (the tier reached, its state, and the next one), `missing` (what the next tier lacks:
@@ -106,7 +106,7 @@ Before that line:
 
 ## 6. The design audit report, a document to hand over
 
-`node ${CLAUDE_PLUGIN_ROOT}/scripts/inventory.mjs --target <repo> --out <folder>` writes
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/audit.mjs --target <repo> --out <folder>` writes
 `design-audit-report.html` into that folder: the same audit on the frame every document of this
 plugin shares. Without `--out` no file is written. A relative folder is read from where the
 command is run, never against the repository. With `--json`, `files` lists what was written.

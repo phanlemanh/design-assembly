@@ -250,8 +250,9 @@
         {
           "id": "3.4",
           "what": "Lệnh inventory",
-          "state": "todo",
-          "command": "inventory"
+          "state": "doing",
+          "command": "inventory",
+          "ref": "phần một: quyết định 0058, script của audit đổi tên để tên inventory trống cho lệnh này"
         },
         {
           "id": "3.5",

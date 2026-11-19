@@ -154,3 +154,7 @@ version, and when a version main has released is recorded again with other trees
 change, run `make plugin-version VERSION=x.y.z` with the next version (or with the current one, while
 main has not released it): it writes both manifests, the record, and this repository's own tool
 stamp.
+
+Renamed in 0.9.0: the audit runs from `scripts/audit.mjs`, and its function is `audit`. Until the
+inventory command of the reusable store is built, `scripts/inventory.mjs` refuses every call with
+exit `2` and names the new script; that command will then take the name.

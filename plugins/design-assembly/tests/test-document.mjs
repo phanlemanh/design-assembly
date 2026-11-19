@@ -53,7 +53,7 @@ const COMMANDS = [
   },
   {
     name: "audit",
-    script: "inventory.mjs",
+    script: "audit.mjs",
     file: "design-audit-report",
     title: "Design audit report",
     areas: ["audit", "document"],
