@@ -89,3 +89,27 @@ ba»). Ứng dụng mẫu ở commit `67603ba`; ba repo kia ở cùng commit nh�
   cùng một mục khi danh mục của một nguồn đọc được thật sự có mục ấy (quyết định 0061).
 - **Repo web ngoài họ và repo nhiều gói** không có sổ màn và không có sổ nhập kho, nên lệnh chỉ đếm. Không có linh kiện
   nào ở `src/components/` tầng trên cùng: dòng giới hạn `audit-workspace-reads-top-src-only` nay nói cả `inventory`.
+
+## Lệnh `intake`
+
+Đo ngày 2026-11-19, trên cùng các bản sao, sau `find` và `inventory`, vì `intake` ghi: lệnh chỉ ghi vào bản sao. Chủ repo
+cho đo trên ba repo ngoài kho này: «Cho cả ba». Mỗi bản sao được hỏi bốn lần, lần nào cũng xem trước hai lần rồi mới chạy
+thật:
+
+- ba nhu cầu: `many-rows`, `bang-nhieu-dong` (chữ của repo kiểm chứng), `gantt-chart` (chỉ một danh mục ngoài có);
+- những gì có trước sổ: `--before`.
+
+<!-- intake-table -->
+
+- **Ở mọi bản sao:** mọi lần gọi thoát 0, 1 hoặc 2, không có dấu vết ngăn xếp. Hai lần xem trước cho cùng JSON. Các tệp
+  lần xem trước kê đúng là các tệp lần chạy thật ghi, và không tệp nào nằm ngoài `design/waiting/`.
+- **Repo kiểm chứng trả lời bậc 1 qua chữ của chính nó.** `bang-nhieu-dong` là khoá nhu cầu của một khối trong sổ khối của
+  repo ấy, nên lệnh in khối ấy, không ghi gì và thoát 0.
+- **Repo kiểm chứng không nhận câu hỏi nào:** công cụ của nó là bản 0.7.1. Công cụ ấy đọc câu có ứng viên thành lỗi, nên
+  cổng của repo sẽ đỏ. Lệnh thoát 2, không ghi gì, và bảo `upgrade` trước. Lên đời repo ấy là việc của chủ repo, chỉ khi
+  chủ repo cho phép.
+- **Hai repo của giai đoạn 2 chưa nhận plugin.**
+  - Bộ khởi đầu không áp dụng ở đó, và không có nguồn ngoài nào được ghim. Vì vậy mỗi nhu cầu chỉ có «by-hand», và mỗi
+    nhu cầu ghi đúng một câu chờ.
+  - Lệnh ghi kèm một ghi chú: không cổng nào giữ sổ nhập kho và hàng chờ cho tới khi repo nhận plugin.
+  - `--before` không đề xuất gì, vì hai repo ấy không có sổ màn, nên lệnh không biết màn nào dùng linh kiện nào.

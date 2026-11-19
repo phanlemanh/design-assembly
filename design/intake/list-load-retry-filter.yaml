@@ -1,0 +1,10 @@
+name: useList
+file: src/lib/list.ts
+source: useList
+from: starter
+pin: design-assembly 0.12.0
+need: list-load-retry-filter
+description: "What every list screen does the same way: load the items, try again after a failure, filter by name, and change one item in place."
+approved: 2026-11-19
+approved_by: Manh Phan
+taken: c63c0993ed1064a522c3b4c9a07f7ee7160a95df648b23f715161016960181f2

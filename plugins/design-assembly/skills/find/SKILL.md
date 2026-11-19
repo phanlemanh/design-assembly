@@ -52,8 +52,8 @@ It stops at the first store that answers, and says so for every store it did not
 - A **near** piece holds only some of the words. It is listed, and it never stops the search.
 - `searched` names every store: what was read, how many pieces, whether it answered, and why it
   could not be read or was not reached.
-- `next` says what to do: use the piece, install it, or take a new block in and record it in the
-  intake ledger.
+- `next` says what to do: use the piece, or take a block in with `intake --need KEY`, which asks
+  the owner and records it in the intake ledger.
 
 Words in one language do not match a catalog written in another. When nothing answers, try the
 words a catalog would use before deciding that nothing exists.

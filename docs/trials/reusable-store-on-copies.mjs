@@ -1,10 +1,13 @@
-// find and inventory, measured on throwaway copies of real repositories. Never writes to a repository it is given:
+// find, inventory and intake, measured on throwaway copies of real repositories. Never writes to a
+// repository it is given:
 // each one is cloned into a temporary folder, find runs on the clone, and the clone is removed
 // unless --keep is given. On each clone it checks that every call ends with 0 or 1 and no stack
 // trace, that the same call twice gives the same answer, and that the tree, ignored files and all,
 // is the same afterwards. On the reference repository it also pins the catalog that repository
 // already keeps as an outside source, pointing at its own pin file, and then changes one byte of
-// the snapshot to see the source become unreadable.
+// the snapshot to see the source become unreadable. Last, on each clone, intake is asked for three
+// needs and for what came before the ledger, first as a preview, then for real: the files the
+// preview named must be the files the real call changed, and nothing outside the waiting list.
 // Usage: node docs/trials/reusable-store-on-copies.mjs [--app] [--reference DIR] [--web DIR]
 //        [--workspace DIR] [--keep]
 import { spawnSync } from "node:child_process";
@@ -29,6 +32,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const FIND = path.join(ROOT, "plugins/design-assembly/scripts/find.mjs");
 const INVENTORY = path.join(ROOT, "plugins/design-assembly/scripts/inventory.mjs");
+const INTAKE = path.join(ROOT, "plugins/design-assembly/scripts/intake.mjs");
 const arg = (name) => (argv.includes(name) ? path.resolve(argv[argv.indexOf(name) + 1]) : null);
 const keep = argv.includes("--keep");
 
@@ -87,6 +91,27 @@ const inventory = (dir) => {
   });
   return { ...call, ms: Math.round(performance.now() - started) };
 };
+const intake = (dir, args) => {
+  const started = performance.now();
+  const call = spawnSync(execPath, [INTAKE, ...args, "--target", dir, "--json"], {
+    encoding: "utf8",
+    maxBuffer: 1 << 28,
+  });
+  return { ...call, ms: Math.round(performance.now() - started) };
+};
+// The needs intake is asked for: one a repository may keep a block for, one in the reference
+// repository's own words, one only an outside catalog holds; then what came before the ledger.
+const NEEDS = [
+  ["--need", "many-rows", "many", "rows"],
+  ["--need", "bang-nhieu-dong", "bảng", "nhiều", "dòng"],
+  ["--need", "gantt-chart", "gantt"],
+  ["--before"],
+];
+const changedFiles = (was, now) =>
+  now
+    .filter((line) => !line.endsWith("/") && !was.includes(line))
+    .map((line) => line.slice(0, line.lastIndexOf(" ")))
+    .sort();
 const tally = (list, keyOf) =>
   Object.entries(
     list.reduce(
@@ -99,6 +124,7 @@ const tally = (list, keyOf) =>
 
 const rows = [];
 const stock = [];
+const taken = [];
 const notes = [];
 const folders = [];
 for (const [role, repository] of given) {
@@ -183,6 +209,33 @@ for (const [role, repository] of given) {
     );
     writeFileSync(file, kept);
   }
+  // intake writes, so it comes last, and only ever to this copy.
+  for (const args of NEEDS) {
+    const was = snapshot(copy);
+    const preview = intake(copy, [...args, "--dry-run"]);
+    const again = intake(copy, [...args, "--dry-run"]);
+    const real = intake(copy, args);
+    const now = snapshot(copy);
+    const clean = [0, 1, 2].includes(real.status) && !/\n\s+at /.test(real.stderr);
+    const said = clean && real.status !== 2 ? JSON.parse(real.stdout) : null;
+    const planned = preview.status === 2 ? [] : JSON.parse(preview.stdout).files.map((f) => f.path);
+    const written = changedFiles(was, now);
+    taken.push({
+      role,
+      asked: args.filter((word) => !word.startsWith("--") || word === "--before").join(" "),
+      exit: real.status,
+      same: again.stdout === preview.stdout,
+      rung: said?.rung ?? "-",
+      candidates: said ? said.candidates.map((item) => item.name).join(", ") || "none" : "-",
+      files: written.join(", ") || "none",
+      preview: JSON.stringify(planned.sort()) === JSON.stringify(written) ? "yes" : "no",
+      outside: written.some((file) => !file.startsWith("design/waiting/")) ? "yes" : "no",
+      ms: real.ms,
+    });
+    if (real.status === 2) notes.push(`${role}, intake ${args.join(" ")}: ${real.stderr.trim()}`);
+    else if (said?.notes?.length)
+      notes.push(`${role}, intake ${args[1] ?? args[0]}: ${said.notes.join("; ")}`);
+  }
 }
 
 stdout.write(
@@ -199,6 +252,13 @@ stdout.write(
     ...stock.map(
       (row) =>
         `| ${row.role} | ${row.exit} | ${row.same ? "yes" : "no"} | ${row.items} | ${row.findings} | ${row.blind} | ${row.ms} |`,
+    ),
+    "",
+    "| Repository | intake asked | Exit | Preview same twice | Rung | Candidates | Files changed | Preview named them | Outside the waiting list | ms |",
+    "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+    ...taken.map(
+      (row) =>
+        `| ${row.role} | ${row.asked} | ${row.exit} | ${row.same ? "yes" : "no"} | ${row.rung} | ${row.candidates} | ${row.files} | ${row.preview} | ${row.outside} | ${row.ms} |`,
     ),
     "",
     ...notes.map((note) => `- ${note}`),

@@ -1,0 +1,41 @@
+# The intake ledger: one entry per block the repository took in, with the need it answers, where
+# it came from and at which pin, and who approved it on which day. intake writes an entry once the
+# owner answered for it.
+version: 1
+# blocks: one file per entry beside this one, each named after its need
+before:
+  - name: AppFrame
+    file: src/components/app-frame.tsx
+    why: made before the intake ledger was kept
+    approved: 2026-11-19
+    approved_by: Manh Phan
+  - name: HeldLabel
+    file: src/components/held-label.tsx
+    why: made before the intake ledger was kept
+    approved: 2026-11-19
+    approved_by: Manh Phan
+  - name: ItemList
+    file: src/components/item-list.tsx
+    why: made before the intake ledger was kept
+    approved: 2026-11-19
+    approved_by: Manh Phan
+  - name: ItemRecord
+    file: src/components/item-record.tsx
+    why: made before the intake ledger was kept
+    approved: 2026-11-19
+    approved_by: Manh Phan
+  - name: ItemTable
+    file: src/components/item-table.tsx
+    why: made before the intake ledger was kept
+    approved: 2026-11-19
+    approved_by: Manh Phan
+  - name: Notice
+    file: src/components/notice.tsx
+    why: made before the intake ledger was kept
+    approved: 2026-11-19
+    approved_by: Manh Phan
+  - name: WithRecord
+    file: src/components/record-panel.tsx
+    why: made before the intake ledger was kept
+    approved: 2026-11-19
+    approved_by: Manh Phan

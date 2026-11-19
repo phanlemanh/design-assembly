@@ -774,6 +774,10 @@ const PAGE_COMMIT = "100eb310cebad864d83cfc59c67f6a03ab8f76b9";
 const PAGE = "docs/review-queue.md";
 // The rows of B and C whose recommendation was written again on 2026-11-15.
 const REFRESHED = ["B1", "B5", "C1", "C3", "C6"];
+// The questions that came from the page, by their ids; any other was asked by a command since, about
+// an item of its own.
+const fromPage = (row) => /^[A-D]\d+$/.test(row.id);
+const PAGE_ITEMS = /^(need|before):/;
 // The rows of every table of the page, in order: the section heading, then the cells of the row.
 function pageRows(page) {
   const rows = [];
@@ -791,7 +795,12 @@ function pageRows(page) {
 }
 
 test("this repository's waiting list is data: 25 questions and 2 permissions, and an answer there names a person", () => {
-  const rows = readWaiting(ROOT).rows;
+  const all = readWaiting(ROOT).rows;
+  const rows = all.filter(fromPage);
+  // Every other question was asked by a command since, about a block to take in.
+  for (const row of all.filter((item) => !fromPage(item))) {
+    assert.match(String(row.item), PAGE_ITEMS, row.id);
+  }
   const expected = [
     ...Array.from({ length: 13 }, (_, index) => `A${index + 1}`),
     ...Array.from({ length: 5 }, (_, index) => `B${index + 1}`),
@@ -801,9 +810,10 @@ test("this repository's waiting list is data: 25 questions and 2 permissions, an
   ];
   assert.deepEqual(ids(rows), expected);
   const result = sheet(ROOT);
-  assert.equal(result.questions.length + result.answered.length, 25);
+  const page = (list) => list.filter(fromPage);
+  assert.equal(page(result.questions).length + page(result.answered).length, 25);
   assert.deepEqual(
-    [...ids(result.questions), ...ids(result.answered)].sort(),
+    [...ids(page(result.questions)), ...ids(page(result.answered))].sort(),
     expected.slice(0, 25).sort(),
   );
   assert.deepEqual(ids(result.permissions), ["D2", "D3"]);
@@ -826,7 +836,7 @@ test("no row of the page was lost when the list became data: every cell is in th
   if (shown.status !== 0) return t.skip("the history that holds the page is not in this checkout");
   const page = pageRows(shown.stdout);
   assert.equal(page.length, 27);
-  const rows = readWaiting(ROOT).rows;
+  const rows = readWaiting(ROOT).rows.filter(fromPage);
   assert.equal(rows.length, page.length);
   // Which fields hold the cells of a row, by the section of the page the row was in. The page's
   // recommendation is the third cell of a row of B or C; it is checked apart, below.
@@ -856,7 +866,9 @@ test("no row of the page was lost when the list became data: every cell is in th
 
 test("every question of this repository's waiting list is ready to be decided: a basis, what refusing costs, and whether it is hard to undo", () => {
   const result = sheet(ROOT);
-  const rows = readWaiting(ROOT).rows.filter((row) => row.kind !== "permission");
+  const rows = readWaiting(ROOT)
+    .rows.filter(fromPage)
+    .filter((row) => row.kind !== "permission");
   assert.equal(rows.length, 25);
   for (const row of rows) {
     assert.ok(String(row.basis ?? "").trim().length > 40, `${row.id}: no basis`);

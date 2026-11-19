@@ -78,6 +78,18 @@ const COMMANDS = [
     ],
   },
   {
+    name: "intake",
+    script: "intake.mjs",
+    writes: true,
+    // What every call takes a block in for.
+    args: ["--need", "many-rows"],
+    keys: ["rung", "candidates", "waiting", "chosen", "row", "install", "files"],
+    cases: [
+      { on: "stocked", exit: EXIT.done, real: EXIT.done, why: "the ledger keeps a block for it" },
+      { on: "answered", exit: EXIT.work, real: EXIT.work, why: "a question waits on the owner" },
+    ],
+  },
+  {
     name: "new",
     script: "apply.mjs",
     writes: true,

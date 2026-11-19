@@ -687,7 +687,8 @@ a decision is failing or bypassed, and `2` on a wrong call or a repository it ca
 
 ## How every command is called and how it ends
 
-The seven commands that exist (`status`, `audit`, `new`, `decide`, `adopt`, `upgrade`, `handoff`)
+The ten commands that exist (`status`, `audit`, `find`, `inventory`, `intake`, `new`, `decide`,
+`adopt`, `upgrade`, `handoff`)
 share one contract, written once in `scripts/command.mjs` and held by
 `tests/test-command-contract.mjs`.
 
@@ -696,8 +697,8 @@ share one contract, written once in `scripts/command.mjs` and held by
   cannot give yet is left out, and a row of `references/limits.json` says so.
 - `status`, `audit`, `find` and `inventory` only read: the tree is the same afterwards, byte for byte. With `--out DIR`
   they also write one document into that folder, and nowhere else (see the next section). `new`, `decide`,
-  `adopt`, `upgrade` and `handoff` take `--dry-run`, which lists the files the real run writes and
-  writes nothing.
+  `adopt`, `upgrade`, `handoff` and `intake` take `--dry-run`, which lists the files the real run writes
+  and writes nothing.
 - A flag the command does not have is a wrong call, not something to pass over.
 
 | Ends with | Means                                                                                                                     |
@@ -714,7 +715,8 @@ What makes each command end with `1`:
 | `audit`         | A decision is not held, failing or bypassed                                                        |
 | `find`          | No store answers the words asked for                                                               |
 | `inventory`     | With `--strict`: something is found                                                                |
-| any of the four | With `--out`: the document was written in fewer formats than asked                                 |
+| `intake`        | A question waits on the owner, a file waits to be made, or the owner refused                       |
+| any of the five | With `--out`: the document was written in fewer formats than asked                                 |
 | `new`           | A built layer is not decided yet, or the preview shows a write that would be refused               |
 | `decide`        | A question waits on the owner, or a call only a person can make that another command records       |
 | `adopt`         | `needs a person` lists a question                                                                  |
@@ -727,7 +729,7 @@ fails them. `make design-status` and `make design-decide` pass the `1` on.
 ## The document a command hands over
 
 Every command has one document to hand over, and every document is set on one frame, written once
-in `scripts/document.mjs` and held by `tests/test-document.mjs`. Five commands hand theirs over
+in `scripts/document.mjs` and held by `tests/test-document.mjs`. Six commands hand theirs over
 today.
 
 | Command     | Document            | File                       |
@@ -736,6 +738,7 @@ today.
 | `audit`     | Design audit report | `design-audit-report.html` |
 | `find`      | Find report         | `find-report.html`         |
 | `inventory` | Inventory report    | `inventory-report.html`    |
+| `intake`    | Intake report       | `intake-report.html`       |
 | `upgrade`   | Release notes       | `release-notes.html`       |
 
 - `--out DIR` writes the document into that folder, and nothing anywhere else. Without `--out` no

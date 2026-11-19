@@ -30,6 +30,13 @@ scale, shape). Density, elevation, motion and iconography are not.
   use), six kinds of finding (`unused`, `unrecorded`, `duplicate`, `outdated`, `modified`,
   `promote`), each with its evidence, and what it could not look at and why. Read-only; `--strict`
   ends with 1 on a finding.
+- `/design-assembly:intake` takes a block into the store for a need, by three rungs: the block the
+  intake ledger keeps for that need; else up to three candidates from the starter kit or the pinned
+  sources, put to the owner as one question of the waiting list; else made by hand, with why. Once
+  the owner answers on the decision sheet, it copies the starter kit's files or takes the file named,
+  and writes one row with the owner's name and day. It never runs an install line and never writes
+  a person's name before that person answered. `--before` lists what screens used before the ledger
+  was kept, once the owner keeps it.
 - `status` and `audit` each hand their answer over as a document: `--out DIR` writes the status
   report or the design audit report into that folder, as one page that needs nothing else, and
   `--format pdf` prints it too. Every document is set on one frame of six parts (the cover, one
