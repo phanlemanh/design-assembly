@@ -72,6 +72,12 @@
       "templates": "960b879e828e157c151bd52411f8558dc4030d0b",
       "scripts": "550f4274a9281155a8f8160e208b1b8cee6701d1",
       "tool": "bbb9a774a5efbdd9f97da08a646d034f25d1521a"
+    },
+    {
+      "version": "0.10.0",
+      "templates": "cc1af78c5c9bece3f035570646fa4efb96c92a92",
+      "scripts": "be1f766337a0d215b21eace6d7d5c08cc96befbb",
+      "tool": "6bcebc648cd92ef58f90f615da423ef98542403e"
     }
   ]
 }

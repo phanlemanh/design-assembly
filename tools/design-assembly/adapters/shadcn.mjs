@@ -1,12 +1,20 @@
 // The components adapter for a shadcn component library: its settings file, the folder it installs
 // components into, the class-variance helper its components declare variants with, and the toast
 // component it installs.
+import { existsSync } from "node:fs";
+import path from "node:path";
+
+const SETTINGS = "components.json";
+const FOLDER = "src/components/ui";
+
 export const adapter = {
   id: "shadcn",
   kind: "components",
+  // Whether the repository installed the library: its settings file, or its folder, is there.
+  present: (root) => existsSync(path.join(root, SETTINGS)) || existsSync(path.join(root, FOLDER)),
   names: ["shadcn", "class-variance-authority", "cva"],
-  settingsFile: "components.json",
-  folder: "src/components/ui",
+  settingsFile: SETTINGS,
+  folder: FOLDER,
   // The stylesheet the settings name, or null.
   stylesheetIn: (settings) => settings?.tailwind?.css ?? null,
   // The folder of the library the settings name, or null.

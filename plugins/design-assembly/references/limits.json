@@ -4,6 +4,7 @@
     "guide": "The skill that walks a person through the layers of a new design system.",
     "adopt": "The skill that records what a repository already has, without changing it.",
     "audit": "The read-only report on how far a repository has got.",
+    "find": "The read-only search of the store, nearest store first, before something new is built.",
     "status": "The read-only report on what waits on the owner and what to run next.",
     "decide": "The sheet of every question that waits on the owner, and the answers written back.",
     "document": "The document a command hands over, set on the frame every document shares.",
@@ -2909,9 +2910,9 @@
       "severity": "high",
       "plan": "fix",
       "opened": "2026-11-17",
-      "where": ["trials"],
+      "where": ["trials", "d0060"],
       "status": "open",
-      "note": "In a workspace repository whose screens live under apps/NAME/ and whose stylesheet lives under packages/NAME/src/styles/, the audit and status read only the src/ folder at the top: they print no stylesheet and 0 source files, the audit's next line says there is nothing to read, and status ends with 0 and nothing to run, while the UI package alone, given as --target, has a stylesheet with a primary colour of its own and 35 places that go around four scales."
+      "note": "In a workspace repository whose screens live under apps/NAME/ and whose stylesheet lives under packages/NAME/src/styles/, the audit and status read only the src/ folder at the top: they print no stylesheet and 0 source files, the audit's next line says there is nothing to read, and status ends with 0 and nothing to run, while the UI package alone, given as --target, has a stylesheet with a primary colour of its own and 35 places that go around four scales; find reads the components of the same folders, so in such a repository it finds none of them unless the package is given as --target."
     },
     {
       "id": "audit-undecided-with-nothing-read",
@@ -3068,6 +3069,17 @@
       "where": ["d0057"],
       "status": "open",
       "note": "An intake ledger that already kept a key of its own named from, taken, changed, retired or merged_into on a block, or before or values beside the blocks, with a value of another shape, fails the gate once the tool of 0.8.0 is in, and the gate names that key. Upgrade says so before it writes and stops. Renaming the key of the repository's own removes it; no repository known to this project is in that case."
+    },
+    {
+      "id": "find-matches-words-not-meaning",
+      "area": "find",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-19",
+      "where": ["d0060", "spec"],
+      "status": "open",
+      "note": "Find matches the words of a need against the words of each piece, never their meaning: a need written in the repository's own language does not match a catalog written in English, and a piece described in other words than the ones asked for is near or not found at all."
     }
   ]
 }

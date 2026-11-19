@@ -50,6 +50,7 @@ const COMMANDS = [
     file: "status-report",
     title: "Status report",
     areas: ["status", "document"],
+    broken: ["High", "type-scale"],
   },
   {
     name: "audit",
@@ -57,6 +58,23 @@ const COMMANDS = [
     file: "design-audit-report",
     title: "Design audit report",
     areas: ["audit", "document"],
+    broken: ["High", "type-scale"],
+  },
+  {
+    name: "find",
+    script: "find.mjs",
+    // What the call searches the store for: no throwaway repository answers it.
+    args: ["many", "rows"],
+    file: "find-report",
+    title: "Find report",
+    areas: ["find", "document"],
+    // A block the intake ledger keeps for that need, where a test needs the call to end with 0.
+    stock: (dir) =>
+      put(
+        dir,
+        "design/intake.yaml",
+        "version: 1\nblocks:\n  - name: DataRegion\n    file: src/components/data-region.tsx\n    source: by-hand\n    need: many-rows\n    approved: 2026-11-12\n",
+      ),
   },
 ];
 
@@ -155,10 +173,14 @@ function snapshot(dir, at = "") {
     });
 }
 const run = (command, args, options = {}) =>
-  spawnSync(execPath, [path.join(PLUGIN, "scripts", command.script), ...args], {
-    encoding: "utf8",
-    ...options,
-  });
+  spawnSync(
+    execPath,
+    [path.join(PLUGIN, "scripts", command.script), ...(command.args ?? []), ...args],
+    {
+      encoding: "utf8",
+      ...options,
+    },
+  );
 // The words of a page as a person reads them: no markup, no style.
 const wordsOf = (html) =>
   html
@@ -443,6 +465,7 @@ for (const command of COMMANDS) {
       assert.doesNotMatch(words, /[{}]|":/);
     }
     // A repository with something broken has findings and recommendations; they are not empty.
+    if (!command.broken) return;
     const out = empty();
     run(command, ["--target", bypassed(), "--out", out]);
     const parts = Object.fromEntries(partsOf(text(out, page)).map((part) => [part.id, part.empty]));
@@ -450,7 +473,7 @@ for (const command of COMMANDS) {
     assert.equal(parts.recommendations, false);
     assert.equal(parts.next, false);
     const broken = wordsOf(text(out, page));
-    assert.ok(broken.includes("High") && broken.includes("type-scale"));
+    for (const word of command.broken) assert.ok(broken.includes(word), word);
   });
 
   test(`${command.name}: the same call twice gives the same page, byte for byte, dated by the last commit`, (t) => {
@@ -526,6 +549,7 @@ for (const command of COMMANDS) {
 
   test(`${command.name} --format pdf, where the repository has no browser: the page is written, the pdf is not, and the call says so`, () => {
     const dir = applied("user");
+    command.stock?.(dir);
     const out = empty();
     const plain = run(command, ["--target", dir]);
     assert.equal(plain.status, 0, plain.stderr);

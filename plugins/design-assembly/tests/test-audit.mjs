@@ -2,7 +2,7 @@
 // bypassed, another team's ledger, and one the guide has been applied to.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { execPath } from "node:process";
@@ -337,7 +337,8 @@ test("the old name of the script refuses every call and names the new one", () =
   }
 });
 
-// The last commit before the rename.
+// The last commit before the rename. The old script reads this plugin's references as they are now,
+// so that a row added to the limits ledger since is not taken for a change of the rename.
 const BEFORE_RENAME = "1754568";
 
 const withoutVersions = (value) =>
@@ -361,6 +362,9 @@ test("the renamed script gives the same facts as the script before the rename, b
   assert.equal(archive.status, 0, String(archive.stderr));
   const untar = spawnSync("tar", ["-x", "-C", old], { input: archive.stdout });
   assert.equal(untar.status, 0, String(untar.stderr));
+  cpSync(path.join(PLUGIN, "references"), path.join(old, "plugins/design-assembly/references"), {
+    recursive: true,
+  });
   for (const dir of [empty(), floor(), applied()]) {
     const json = (script) => {
       const run = spawnSync(execPath, [script, "--target", dir, "--json"], {

@@ -1,0 +1,73 @@
+{
+  "about": "The starter kit: the code this plugin can give a repository, each piece with the need it answers, its kind, the files of templates/owned it is made of, and the kinds of adapter it needs. find offers a piece only where the repository has every adapter it needs. A component is one part a screen draws; a block is a few files that give a screen a whole way of working. The guide installs these files on the floor when its conditions hold; this table says what each one is for.",
+  "items": [
+    {
+      "name": "TypedTable",
+      "need": "table-by-column-type",
+      "kind": "component",
+      "description": "Table parts that take alignment, width and row height from the column type of a data field, so no screen sets them itself.",
+      "files": ["typed-table.tsx.template", "typed-table.test.tsx.template"],
+      "needs": ["components", "source"]
+    },
+    {
+      "name": "TableActions",
+      "need": "row-actions-column",
+      "kind": "component",
+      "description": "The column that holds a row's actions and no data, and stays in view while a wide table scrolls sideways.",
+      "files": ["table-actions.tsx.template", "table-actions.test.tsx.template"],
+      "needs": ["components", "source"]
+    },
+    {
+      "name": "RowActions",
+      "need": "several-row-actions",
+      "kind": "component",
+      "description": "One button on a row that opens two or more of its actions as a list of buttons, the same at every width.",
+      "files": ["row-actions.tsx.template", "row-actions.test.tsx.template"],
+      "needs": ["components", "source"]
+    },
+    {
+      "name": "HeldLabel",
+      "need": "label-while-action-waits",
+      "kind": "component",
+      "description": "The words on a control while its action waits, keeping the control's width so nothing beside it moves.",
+      "files": ["held-label.tsx.template", "held-label.test.tsx.template"],
+      "needs": ["source"]
+    },
+    {
+      "name": "WithRecord",
+      "need": "open-one-record",
+      "kind": "block",
+      "description": "How one record of a list opens, beside the list or over it, with the open record kept in the address so a link opens it and Back closes it.",
+      "files": [
+        "record-panel.tsx.template",
+        "open-record.ts.template",
+        "record-panel.test.tsx.template"
+      ],
+      "needs": ["components", "source"]
+    },
+    {
+      "name": "useList",
+      "need": "list-load-retry-filter",
+      "kind": "block",
+      "description": "What every list screen does the same way: load the items, try again after a failure, filter by name, and change one item in place.",
+      "files": ["list.ts.template", "list.test.tsx.template"],
+      "needs": ["source"]
+    },
+    {
+      "name": "AppFrame",
+      "need": "application-frame",
+      "kind": "block",
+      "description": "The application's frame: the one region a person moves between screens from, drawn once around every screen.",
+      "files": ["app-frame.tsx.template", "app-frame.test.tsx.template"],
+      "needs": ["components", "source"]
+    },
+    {
+      "name": "notifyDone",
+      "need": "tell-what-an-action-did",
+      "kind": "block",
+      "description": "The one way a screen tells a person what an action did: a short message, through one module, so no screen calls the message library itself.",
+      "files": ["notify.ts.template", "sonner.tsx.template"],
+      "needs": ["components", "source"]
+    }
+  ]
+}
