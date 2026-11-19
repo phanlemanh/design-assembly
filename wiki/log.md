@@ -7,6 +7,7 @@ title: Change log of the wiki and notable code changes
 
 Newest first. One line each: `YYYY-MM-DD — what changed — link`.
 
+- 2026-11-19 — Kho công khai trên GitHub; giấy phép đổi từ Proprietary sang MIT — [0059](decisions/0059-the-repository-is-public-under-the-mit-licence.md).
 - 2026-11-19 — Phần một của mục 3.4: script của `audit` đổi tên từ `scripts/inventory.mjs` thành `scripts/audit.mjs`, hàm `inventory` thành `audit`; tên cũ từ chối mọi lời gọi với thoát 2 và nêu tên mới, cho tới lệnh kiểm kê; trên repo này script mới cho đúng dữ kiện của script trước khi đổi tên; plugin 0.9.0 — [0058](decisions/0058-the-audit-script-takes-its-command-name.md), [spec 0006](specs/0006-the-reusable-store.md).
 - 2026-11-19 — Mục 3.1: sổ nguồn ngoài thành sổ thứ mười ba của hợp đồng, mỗi nguồn một tệp ở `design/sources/`, đọc không dùng mạng và so bản chụp với bản ghim; sổ nhập kho thêm bảy khoá tuỳ chọn; mười tên vào bảng từ vựng; plugin 0.8.0 — [0057](decisions/0057-the-sources-ledger-joins-the-contract-one-file-per-source.md), [spec 0006](specs/0006-the-reusable-store.md).
 - 2026-11-19 — Đề bài chi tiết cho giai đoạn 3 «Kho dùng lại», chủ repo duyệt cùng ngày và đáp cả mười câu hỏi theo khuyến nghị («Duyệt cả mười»); kế hoạch thêm mục 3.0 cho đề bài và để `change --to`, `--migrate` sang giai đoạn 4: hình dạng sổ nguồn ngoài, khoá tuỳ chọn mới của sổ nhập kho, bốn lệnh `find`, `inventory`, `intake`, `change`, sáu loại phát hiện của kiểm kê, thứ tự dựng, và tên script của `audit` — [spec 0006](specs/0006-the-reusable-store.md).

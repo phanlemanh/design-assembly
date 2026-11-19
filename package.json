@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "A lab that assembles a design system with Claude Code on real screens: people decide top-down, the machine builds and checks bottom-up.",
   "private": true,
-  "license": "UNLICENSED",
+  "license": "MIT",
   "type": "module",
   "engines": {
     "node": ">=22"
