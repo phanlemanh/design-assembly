@@ -220,7 +220,7 @@
     {
       "id": 3,
       "name": "Kho dùng lại",
-      "state": "current",
+      "state": "done",
       "parallel": [],
       "items": [
         {
@@ -268,12 +268,16 @@
         "Một khối mới vào ứng dụng mẫu qua lệnh; lần hai cùng nhu cầu không gọi người",
         "Kiểm kê báo đủ sáu loại phát hiện trên repo thử, và không báo gì trên repo lành"
       ],
-      "needs_owner": ["Cho phép áp vào một repo thật"]
+      "needs_owner": ["Cho phép áp vào một repo thật"],
+      "closed": {
+        "on": "2026-11-19",
+        "evidence": "Trên nhánh chính af6f1b8, plugin 0.13.0. Dòng một: khối useList vào ứng dụng mẫu qua lệnh (quyết định 0062) — lần đầu intake --need list-load-retry-filter thoát 1 và chỉ thêm design/waiting/intake-list-load-retry-filter.json, chủ repo đáp «useList» qua decide, gọi lại thì ghi design/intake/list-load-retry-filter.yaml mang tên Manh Phan và ngày 2026-11-19; nay gọi lại thoát 0 ở bậc store, không câu chờ mới, git status rỗng; node --test plugins/design-assembly/tests/test-intake.mjs 27 bài xanh. Dòng hai: node --test plugins/design-assembly/tests/test-inventory-findings.mjs 10 bài xanh (repo thử lành không báo gì, mỗi chỗ cài hiện đúng một mã, gỡ thì mất, cài cả sáu cho đủ sáu mã); node plugins/design-assembly/scripts/inventory.mjs --target . --strict thoát 0, 0 phát hiện. Việc «cho phép áp vào một repo thật» không cần để đóng (câu hỏi 9 của đề bài 0006): repo kiểm chứng ở công cụ 0.7.1, nên intake và change bảo upgrade trước; lên đời ở đó chờ lời chủ repo."
+      }
     },
     {
       "id": 4,
       "name": "Dẫn dắt kiểu studio",
-      "state": "later",
+      "state": "current",
       "parallel": [],
       "items": [
         {
