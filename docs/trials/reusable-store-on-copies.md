@@ -54,7 +54,7 @@ mục, kể cả tệp git bỏ qua, không đổi. Chủ repo cho sao chép ba 
   đọc. «data table» không khớp vì không tên linh kiện nào có chữ «data»; năm linh kiện gần khớp được kê.
 - **Ở lần đo đầu, «data table» trên ứng dụng mẫu đưa `TableActions` của bộ khởi đầu** (mô tả của nó có cả hai chữ), trong
   khi ứng dụng mẫu đã cài `table-actions.tsx`. Đã sửa trước lần đo này: mục bộ khởi đầu mà repo đã có linh kiện cùng tên
-  thì không đưa ra (quyết định 0059, mục 5).
+  thì không đưa ra (quyết định 0060, mục 5).
 - **Repo web ngoài họ và repo nhiều gói** không có linh kiện ở `src/components/` tầng trên cùng, như `audit` đã thấy ở giai
   đoạn 2: dòng giới hạn `audit-workspace-reads-top-src-only` nay nói cả `find`. Repo nhiều gói có một trang kiểu màn; không
   lời tra nào khớp nó. Bộ khởi đầu không đưa mục nào ở hai repo này vì chúng thiếu bộ chuyển `components` ở chỗ nó tìm.

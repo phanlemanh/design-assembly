@@ -2910,7 +2910,7 @@
       "severity": "high",
       "plan": "fix",
       "opened": "2026-11-17",
-      "where": ["trials", "d0059"],
+      "where": ["trials", "d0060"],
       "status": "open",
       "note": "In a workspace repository whose screens live under apps/NAME/ and whose stylesheet lives under packages/NAME/src/styles/, the audit and status read only the src/ folder at the top: they print no stylesheet and 0 source files, the audit's next line says there is nothing to read, and status ends with 0 and nothing to run, while the UI package alone, given as --target, has a stylesheet with a primary colour of its own and 35 places that go around four scales; find reads the components of the same folders, so in such a repository it finds none of them unless the package is given as --target."
     },
@@ -3077,7 +3077,7 @@
       "severity": "low",
       "plan": "keep",
       "opened": "2026-11-19",
-      "where": ["d0059", "spec"],
+      "where": ["d0060", "spec"],
       "status": "open",
       "note": "Find matches the words of a need against the words of each piece, never their meaning: a need written in the repository's own language does not match a catalog written in English, and a piece described in other words than the ones asked for is near or not found at all."
     }

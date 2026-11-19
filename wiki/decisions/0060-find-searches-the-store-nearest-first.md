@@ -18,7 +18,7 @@ sources:
   - "chủ repo, 2026-11-19: «Làm 3.2»; cho sao chép ba repo để đo: «Cho cả ba»"
 ---
 
-# 0059 Lệnh find tra kho từ gần tới xa, dừng ở tầng đầu tiên trả lời
+# 0060 Lệnh find tra kho từ gần tới xa, dừng ở tầng đầu tiên trả lời
 
 ## Status
 

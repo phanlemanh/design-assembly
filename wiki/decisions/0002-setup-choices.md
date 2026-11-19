@@ -12,6 +12,8 @@ sources: [setup-blueprint.yaml]
 Proposed. Máy chọn hết theo khuyến nghị của `repo-setup` ngày 2026-11-11 và dựng luôn vì kho mới,
 trống, chỉ nằm trên máy, xoá là xong. Chủ kho chưa duyệt và có thể bác từng dòng.
 
+Dòng giấy phép đã được thay ngày 2026-11-19: kho công khai, giấy phép MIT — quyết định 0059.
+
 ## Context
 
 Chủ kho muốn thử ý tưởng «quyết từ trên xuống, dựng từ dưới lên» cho hệ design ở một kho riêng, để

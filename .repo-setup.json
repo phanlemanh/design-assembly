@@ -15,7 +15,7 @@
     "project_name": "design-assembly",
     "description": "A lab that assembles a design system with Claude Code on real screens: people decide top-down, the machine builds and checks bottom-up.",
     "owner": "phanlemanh",
-    "license": "Proprietary",
+    "license": "MIT",
     "design_surface": "tool",
     "locale": "vi-VN",
     "currency": "VND"

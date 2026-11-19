@@ -5,6 +5,6 @@
   "author": {
     "name": "phanlemanh"
   },
-  "license": "UNLICENSED",
+  "license": "MIT",
   "keywords": ["design-system", "determinism", "tokens", "components", "claude-code"]
 }
