@@ -46,4 +46,4 @@ Copy `.env.example` to `.env` and fill in the values. Never commit `.env`.
 
 ## License
 
-See [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).

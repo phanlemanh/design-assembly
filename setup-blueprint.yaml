@@ -15,10 +15,10 @@ layers:
     why: "The owner asked for a separate repository so the experiment does not touch acceptance-gate-kit. Local only: no GitHub repository yet, so CI is dormant and checks run with make check. No deadline or regulated data. Owner taken from the owner's other repositories, since this one has no remote."
   repo:
     status: decided
-    source: proposed
+    source: user
     automation: automated
-    choice: { license: Proprietary }
-    why: "One experiment, one person, one app. Private work, so not MIT."
+    choice: { license: MIT }
+    why: "One experiment, one person, one app. Proprietary at first; the owner made the repository public and chose MIT on 2026-11-19 (decision 0059)."
     rejected:
       - { option: monorepo, why: "Only one package" }
       - { option: several repos, why: "Nothing ships independently" }
