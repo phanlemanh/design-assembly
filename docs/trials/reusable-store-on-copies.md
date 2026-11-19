@@ -99,8 +99,26 @@ thật:
 - ba nhu cầu: `many-rows`, `bang-nhieu-dong` (chữ của repo kiểm chứng), `gantt-chart` (chỉ một danh mục ngoài có);
 - những gì có trước sổ: `--before`.
 
-<!-- intake-table -->
+| Repo              | Hỏi                        | Thoát | Bậc     | Ứng viên        | Tệp đổi trên bản sao                         | Xem trước kê đúng | Ngoài hàng chờ |
+| ----------------- | -------------------------- | ----- | ------- | --------------- | -------------------------------------------- | ----------------- | -------------- |
+| Ứng dụng mẫu      | `many-rows`                | 1     | by-hand | by-hand         | `design/waiting/intake-many-rows.json`       | có                | không          |
+| Ứng dụng mẫu      | `bang-nhieu-dong`          | 1     | by-hand | by-hand         | `design/waiting/intake-bang-nhieu-dong.json` | có                | không          |
+| Ứng dụng mẫu      | `gantt-chart`              | 1     | by-hand | by-hand         | `design/waiting/intake-gantt-chart.json`     | có                | không          |
+| Ứng dụng mẫu      | `--before`                 | 0     | before  | bảy, đã được kê | không                                        | có                | không          |
+| Repo kiểm chứng   | `many-rows`, `gantt-chart` | 2     | -       | -               | không                                        | có                | không          |
+| Repo kiểm chứng   | `bang-nhieu-dong`          | 0     | store   | -               | không                                        | có                | không          |
+| Repo kiểm chứng   | `--before`                 | 2     | -       | -               | không                                        | có                | không          |
+| Repo web ngoài họ | ba nhu cầu                 | 1     | by-hand | by-hand         | một câu chờ cho mỗi nhu cầu                  | có                | không          |
+| Repo web ngoài họ | `--before`                 | 1     | before  | không           | không                                        | có                | không          |
+| Repo nhiều gói    | ba nhu cầu                 | 1     | by-hand | by-hand         | một câu chờ cho mỗi nhu cầu                  | có                | không          |
+| Repo nhiều gói    | `--before`                 | 1     | before  | không           | không                                        | có                | không          |
 
+Bản sao của ứng dụng mẫu lấy từ commit `dbf0595` của nhánh mục 3.3, nơi ứng dụng mẫu đã có sổ nhập kho. Ba repo kia ở
+đúng các commit của mục `find`.
+
+- **Ứng dụng mẫu:** `--before` không còn gì để kê, vì bảy linh kiện đã ở `before` qua lời đáp của chủ repo. Ba nhu cầu
+  mới chỉ có «by-hand», vì bộ khởi đầu không có mảnh nào cho chúng. Kiểm kê trên cùng bản sao không có phát hiện nào, và
+  không còn loại nào ở «không xét».
 - **Ở mọi bản sao:** mọi lần gọi thoát 0, 1 hoặc 2, không có dấu vết ngăn xếp. Hai lần xem trước cho cùng JSON. Các tệp
   lần xem trước kê đúng là các tệp lần chạy thật ghi, và không tệp nào nằm ngoài `design/waiting/`.
 - **Repo kiểm chứng trả lời bậc 1 qua chữ của chính nó.** `bang-nhieu-dong` là khoá nhu cầu của một khối trong sổ khối của
