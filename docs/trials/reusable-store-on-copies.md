@@ -58,3 +58,34 @@ mục, kể cả tệp git bỏ qua, không đổi. Chủ repo cho sao chép ba 
 - **Repo web ngoài họ và repo nhiều gói** không có linh kiện ở `src/components/` tầng trên cùng, như `audit` đã thấy ở giai
   đoạn 2: dòng giới hạn `audit-workspace-reads-top-src-only` nay nói cả `find`. Repo nhiều gói có một trang kiểu màn; không
   lời tra nào khớp nó. Bộ khởi đầu không đưa mục nào ở hai repo này vì chúng thiếu bộ chuyển `components` ở chỗ nó tìm.
+
+## Lệnh `inventory`
+
+Chạy ngày 2026-11-19, trong lúc dựng mục 3.4, bằng cùng lệnh đo: trên mỗi bản sao, sau năm lời tra của `find`, lệnh đo
+gọi `inventory --json` hai lần. Chủ repo cho sao chép lại ba repo ngoài kho này cho phép đo này ngày 2026-11-19 («Cho cả
+ba»). Ứng dụng mẫu ở commit `67603ba`; ba repo kia ở cùng commit như trên.
+
+| Repo              | Thoát | Hai lần như nhau | Mảnh theo trạng thái    | Phát hiện                      | Không xét                                                              | ms  |
+| ----------------- | ----- | ---------------- | ----------------------- | ------------------------------ | ---------------------------------------------------------------------- | --- |
+| Ứng dụng mẫu      | 0     | có               | 47 đang dùng, 18 không  | không                          | `unrecorded`, `duplicate`, `outdated`, `modified`                      | 57  |
+| Repo kiểm chứng   | 0     | có               | 232 đang dùng, 66 không | 12 `unrecorded`, 1 `duplicate` | `outdated`, `modified`                                                 | 270 |
+| Repo web ngoài họ | 0     | có               | không có mảnh nào       | không                          | `unused`, `unrecorded`, `promote`, `duplicate`, `outdated`, `modified` | 36  |
+| Repo nhiều gói    | 0     | có               | không có mảnh nào       | không                          | `unused`, `unrecorded`, `promote`, `duplicate`, `outdated`, `modified` | 36  |
+
+- Cả bốn bản sao giữ nguyên cây thư mục sau mười hai lần gọi.
+- **Ứng dụng mẫu lành:** không phát hiện nào, và `inventory --target . --strict` thoát 0 (tiêu chí 9). Mười tám mảnh không
+  dùng đều là linh kiện của thư viện, chỉ được đếm. `AppFrame` chỉ có khung với tới (`index.html` tải `src/main.tsx`,
+  tệp ấy nhập `App.tsx`), và được tính là đang dùng. Ứng dụng mẫu chưa có sổ nhập kho, nên bốn loại cần sổ được kê ở
+  «không xét».
+- **Repo kiểm chứng:**
+  - **12 `unrecorded`** là mười hai tệp ở `src/components/candidate/` và `src/components/templates/` mà các màn đang
+    dùng, chẳng hạn `app-shell.tsx`, `nav-menu.tsx`, `region-state.tsx`. Sổ khối không có dòng cho chúng, và
+    `khoi_co_truoc` không kê chúng. Đây là điều lệnh đo được về repo ấy, không phải một phép đạt; chủ repo đọc và quyết.
+  - **1 `duplicate`:** `listing-record.tsx` và `listing-record-full.tsx` cùng ghi là mục `solution-crm-4` của nguồn
+    `reui`.
+  - **`outdated` và `modified` không xét được,** vì khối của repo ấy chưa có `pin` và `taken`.
+- **Lần đo đầu bắt được một lỗi, đã sửa có bài kiểm.** Repo kiểm chứng viết «tạo tay» là `tao-tay` và chưa khai bằng
+  `values`, nên chín khối tạo tay bị gom thành một nhóm «cùng lấy mục `tao-tay` hai lần». Nay hai khối chỉ được coi là
+  cùng một mục khi danh mục của một nguồn đọc được thật sự có mục ấy (quyết định 0061).
+- **Repo web ngoài họ và repo nhiều gói** không có sổ màn và không có sổ nhập kho, nên lệnh chỉ đếm. Không có linh kiện
+  nào ở `src/components/` tầng trên cùng: dòng giới hạn `audit-workspace-reads-top-src-only` nay nói cả `inventory`.

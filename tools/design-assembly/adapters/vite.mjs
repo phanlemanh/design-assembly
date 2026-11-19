@@ -1,7 +1,7 @@
 // The build adapter for Vite: the repository's own development server, taken from its packages,
 // serving extra modules beside the repository's and changing a module as it is served, never on
 // disk.
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -11,8 +11,30 @@ export const adapter = {
   names: ["vite", "@vitejs"],
   // A module imported by an address only known while the page runs.
   importExpression: (address) => `import(/* @vite-ignore */ ${address})`,
+  entries,
   serve,
 };
+
+// The files the application starts from: each module its page loads, as index.html names it, by
+// path from the repository root. None when there is no such page, or it loads none of the
+// repository's own.
+function entries(root) {
+  const file = path.join(root, "index.html");
+  if (!existsSync(file)) return [];
+  // A script inside a comment is not loaded.
+  const page = readFileSync(file, "utf8").replace(/<!--[\s\S]*?-->/g, "");
+  const found = [];
+  for (const [, attributes] of page.matchAll(/<script\b([^>]*)>/gi)) {
+    if (!/\btype\s*=\s*["']module["']/i.test(attributes)) continue;
+    // `src` itself, not an attribute that ends with it; the query or anchor of the address is no part
+    // of the file.
+    const src = /(?:^|\s)src\s*=\s*["']([^"']+)["']/i.exec(attributes)?.[1]?.replace(/[?#].*$/, "");
+    if (!src || /^[a-z][a-z0-9+.-]*:|^\/\//i.test(src)) continue;
+    const own = path.posix.normalize(src.replace(/^\//, ""));
+    if (!own.startsWith("..") && !found.includes(own)) found.push(own);
+  }
+  return found;
+}
 
 // Opens the server: `require` resolves from the repository. Returns the origin, a way to load one of
 // its modules as its build would, and a way to close.

@@ -76,6 +76,13 @@ const COMMANDS = [
         "version: 1\nblocks:\n  - name: DataRegion\n    file: src/components/data-region.tsx\n    source: by-hand\n    need: many-rows\n    approved: 2026-11-12\n",
       ),
   },
+  {
+    name: "inventory",
+    script: "inventory.mjs",
+    file: "inventory-report",
+    title: "Inventory report",
+    areas: ["inventory", "document"],
+  },
 ];
 
 const made = [];

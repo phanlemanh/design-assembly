@@ -160,7 +160,14 @@ export function screensOf(root, theme = themeOf(root)) {
       ...importClosure(pages, sources, aliases, exists),
     };
   });
-  return { ledger, screens, served };
+  // The frame of the application: what its page starts from, as the build adapter reads it, and
+  // everything that imports. Null when no entry is found.
+  const started = (adapterOf("build").entries?.(root) ?? []).filter((file) => file in sources);
+  const frame =
+    started.length > 0
+      ? { entries: started, ...importClosure(started, sources, aliases, exists) }
+      : null;
+  return { ledger, screens, served, routed: byFolders, frame };
 }
 
 // What a change reaches, as data: whether everything must run and why, each screen it reaches with

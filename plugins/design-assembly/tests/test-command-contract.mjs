@@ -67,6 +67,17 @@ const COMMANDS = [
     ],
   },
   {
+    name: "inventory",
+    script: "inventory.mjs",
+    // With --strict a finding ends the call with 1.
+    args: ["--strict"],
+    keys: ["stores", "items", "findings", "blind"],
+    cases: [
+      { on: "answered", exit: EXIT.done, why: "nothing is found" },
+      { on: "drifted", exit: EXIT.work, why: "a block's file is not the one taken in" },
+    ],
+  },
+  {
     name: "new",
     script: "apply.mjs",
     writes: true,
@@ -178,6 +189,17 @@ const BUILD = {
       dir,
       "design/intake.yaml",
       "version: 1\nblocks:\n  - name: DataRegion\n    file: src/components/data-region.tsx\n    source: by-hand\n    need: many-rows\n    approved: 2026-11-12\n",
+    );
+    return dir;
+  },
+  // The same as stocked, with the block's file there and changed since the hash taken when it came in.
+  drifted() {
+    const dir = BUILD.stocked();
+    put(dir, "src/components/data-region.tsx", "export const DataRegion = () => null;\n");
+    put(
+      dir,
+      "design/intake.yaml",
+      `${text(dir, "design/intake.yaml")}    taken: ${"0".repeat(64)}\n`,
     );
     return dir;
   },

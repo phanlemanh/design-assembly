@@ -25,6 +25,11 @@ scale, shape). Density, elevation, motion and iconography are not.
   built: the repository's own blocks, components and kinds of screen first, then the starter kit
   (`references/starter.json`), then the outside sources it pinned under `design/sources/`, stopping
   at the first that answers. It matches words, never meaning, calls no model and fetches nothing.
+- `/design-assembly:inventory` takes stock of the store: how many pieces each store and each kind
+  holds, the state of each piece of the repository (in use, unused, retired, retired and still in
+  use), six kinds of finding (`unused`, `unrecorded`, `duplicate`, `outdated`, `modified`,
+  `promote`), each with its evidence, and what it could not look at and why. Read-only; `--strict`
+  ends with 1 on a finding.
 - `status` and `audit` each hand their answer over as a document: `--out DIR` writes the status
   report or the design audit report into that folder, as one page that needs nothing else, and
   `--format pdf` prints it too. Every document is set on one frame of six parts (the cover, one
@@ -159,6 +164,6 @@ change, run `make plugin-version VERSION=x.y.z` with the next version (or with t
 main has not released it): it writes both manifests, the record, and this repository's own tool
 stamp.
 
-Renamed in 0.9.0: the audit runs from `scripts/audit.mjs`, and its function is `audit`. Until the
-inventory command of the reusable store is built, `scripts/inventory.mjs` refuses every call with
-exit `2` and names the new script; that command will then take the name.
+Renamed in 0.9.0: the audit runs from `scripts/audit.mjs`, and its function is `audit`. In 0.9.0
+`scripts/inventory.mjs` refused every call with exit `2` and named the new script; from 0.11.0 it is
+the inventory command of the reusable store, which answers the same flags differently.

@@ -251,9 +251,9 @@
         {
           "id": "3.4",
           "what": "Lệnh inventory",
-          "state": "doing",
+          "state": "done",
           "command": "inventory",
-          "ref": "phần một: quyết định 0058, script của audit đổi tên để tên inventory trống cho lệnh này"
+          "ref": "quyết định 0058 (đổi tên script của audit) và 0061; plugins/design-assembly/scripts/inventory.mjs, tests/test-inventory.mjs, tests/test-inventory-findings.mjs; docs/trials/reusable-store-on-copies.md"
         },
         {
           "id": "3.5",
