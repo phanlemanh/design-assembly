@@ -102,6 +102,12 @@
       "templates": "0722eaef030c740eea29cd8110bb766691c68834",
       "scripts": "b8d7c4c7222c12074c3037eb1d168a8dfc542850",
       "tool": "b518999b3085c3d30399793ed1dd7e0d2822070a"
+    },
+    {
+      "version": "0.15.0",
+      "templates": "0722eaef030c740eea29cd8110bb766691c68834",
+      "scripts": "df1f81a59e71f0aae4ea47198eb60a4c2c50e840",
+      "tool": "b518999b3085c3d30399793ed1dd7e0d2822070a"
     }
   ]
 }

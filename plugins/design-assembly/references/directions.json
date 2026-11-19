@@ -1,0 +1,88 @@
+{
+  "about": "The whole directions the guide shows before any single value is asked: a colour, a type scale and a corner radius that go together, as a studio would present them. `values` uses the choice keys of layers.json. `character` says what the type and the shape do, `colour` what its own colour does, said only where the direction brings it. `follows` lists the principles of principles.json the direction is drawn from: every option those principles favour among its values is the one it has. The guide shows the three that agree best with the principles the owner fixed, the ones that suit the product type first; where the owner gave a colour of their own, every direction keeps it and differs only in type and shape.",
+  "show": 3,
+  "directions": [
+    {
+      "id": "workbench",
+      "name": "workbench",
+      "character": "A tool for working all day: dense rows, close steps of type, small corners.",
+      "colour": "one clear blue for what acts",
+      "suits": ["application"],
+      "values": {
+        "source_color": "oklch(0.52 0.2 262)",
+        "type_scale": "modular",
+        "type_ratio": "major-second",
+        "corner_radius": "small"
+      },
+      "follows": ["dense-and-scannable"]
+    },
+    {
+      "id": "precise-instrument",
+      "name": "precise instrument",
+      "character": "Exact and quiet: nearly square corners, headings that step up clearly.",
+      "colour": "a cool teal",
+      "suits": ["application"],
+      "values": {
+        "source_color": "oklch(0.55 0.11 195)",
+        "type_scale": "modular",
+        "type_ratio": "minor-third",
+        "corner_radius": "extra-small"
+      },
+      "follows": ["precise-and-technical", "clear-hierarchy"]
+    },
+    {
+      "id": "familiar",
+      "name": "familiar",
+      "character": "Looks and behaves the way people already know: the standard sizes, the floor's corner.",
+      "colour": "a calm violet",
+      "suits": ["application", "content-site"],
+      "values": {
+        "source_color": "oklch(0.52 0.2 300)",
+        "type_scale": "standard",
+        "corner_radius": "floor"
+      },
+      "follows": ["familiar-over-novel"]
+    },
+    {
+      "id": "friendly-service",
+      "name": "friendly service",
+      "character": "Soft and approachable: large rounded corners, the sizes people know.",
+      "colour": "a warm green",
+      "suits": ["application", "content-site"],
+      "values": {
+        "source_color": "oklch(0.55 0.15 150)",
+        "type_scale": "standard",
+        "corner_radius": "large"
+      },
+      "follows": ["soft-and-approachable"]
+    },
+    {
+      "id": "editorial",
+      "name": "editorial",
+      "character": "Made for reading: strong steps of type, square corners.",
+      "colour": "a red that marks only what acts",
+      "suits": ["content-site"],
+      "values": {
+        "source_color": "oklch(0.55 0.2 27)",
+        "type_scale": "modular",
+        "type_ratio": "major-third",
+        "corner_radius": "none"
+      },
+      "follows": ["reading-comes-first"]
+    },
+    {
+      "id": "clear-guide",
+      "name": "clear guide",
+      "character": "The order of importance is seen at once: clear steps of type, medium corners.",
+      "colour": "a bright amber",
+      "suits": ["application", "content-site"],
+      "values": {
+        "source_color": "oklch(0.62 0.14 70)",
+        "type_scale": "modular",
+        "type_ratio": "minor-third",
+        "corner_radius": "medium"
+      },
+      "follows": ["clear-hierarchy"]
+    }
+  ]
+}

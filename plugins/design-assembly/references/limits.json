@@ -2183,8 +2183,32 @@
       "plan": "fix",
       "opened": "2026-11-15",
       "where": ["d0044", "spec"],
+      "status": "closed",
+      "note": "The specification lists the whole directions shown to the person among the keys the guide gives a machine, and the guide still asks value by value, so the key is left out and a caller that counts on the specification finds nothing there.",
+      "closed": "2026-11-19",
+      "closed_by": "the guide gives a machine the three directions it would show (apply.mjs --json, key directions), each with its values, the principles it follows, how it stands with the fixed ones and what each value rests on, and the sheet draws them on the repository's own screen in light and dark (specimen.mjs --section direction); held by tests/test-directions.mjs and the command contract"
+    },
+    {
+      "id": "directions-are-colour-type-and-shape",
+      "area": "guide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-19",
+      "where": ["d0065"],
       "status": "open",
-      "note": "The specification lists the whole directions shown to the person among the keys the guide gives a machine, and the guide still asks value by value, so the key is left out and a caller that counts on the specification finds nothing there."
+      "note": "A direction holds a colour, a type scale and a corner radius only. Density, elevation, motion and iconography are not built layers, and how a record opens is a pattern asked on its own, so no direction says anything of them; and the conformance level stays the one the context layer decided."
+    },
+    {
+      "id": "directions-from-a-closed-catalog",
+      "area": "guide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-19",
+      "where": ["d0065"],
+      "status": "open",
+      "note": "The directions come from a catalog of six in the plugin, ranked by the principles the owner fixed; no direction is made for one repository. Where the owner keeps a colour of their own, two directions may differ only in a type ratio or a corner step, which a screen with little text shows faintly."
     },
     {
       "id": "new-preview-lists-no-files-before-layers-are-decided",

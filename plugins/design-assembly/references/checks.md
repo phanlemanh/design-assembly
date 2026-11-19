@@ -762,6 +762,9 @@ today.
   until it is kept on the decision sheet. The status report rests the call on a row of a choice
   such a principle speaks to on that principle; where two fixed principles favour two options, the
   standard stands and the disagreement is named.
+- A direction of the guide (`references/directions.json`) gives each of its values a reason: a
+  principle the owner fixed that favours it, the catalog principle the direction follows, or its
+  character; a fixed principle that favours another option is named in that reason.
 - A document is made from the facts of `--json` and from nothing else. It reads no clock: the date
   on the cover is the day of the repository's last commit, and the revision beside it carries a
   mark when work was not yet committed. The same repository gives the same page, byte for byte.

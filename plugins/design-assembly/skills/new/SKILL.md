@@ -1,6 +1,6 @@
 ---
 name: new
-description: Guide a person through the decision layers of a design system for their repository — product context, the three to five design principles the owner fixes first, and foundations today — with a recommendation at each layer that says which principle or standard it rests on, then generate the design tokens, the checks that hold them and the ledger rows that record them, so Claude Code can build screens without guessing. Use when the user wants to create, set up or start a design system in a repository that has no brand values of its own yet, choose a brand colour, type scale or corner radius for a repository, or when the audit's `next:` line names this skill. For a repository that already has its own brand values, use the adopt skill instead.
+description: Guide a person through the decision layers of a design system for their repository — product context, the three to five design principles the owner fixes first, whole design directions drawn on the repository's own screen in light and dark, and foundations today — with a recommendation at each layer that says which principle or standard it rests on, then generate the design tokens, the checks that hold them and the ledger rows that record them, so Claude Code can build screens without guessing. Use when the user wants to create, set up or start a design system in a repository that has no brand values of its own yet, choose a brand colour, type scale or corner radius for a repository, or when the audit's `next:` line names this skill. For a repository that already has its own brand values, use the adopt skill instead.
 ---
 
 # Guide a person to a design system Claude Code can build from
@@ -159,10 +159,35 @@ conformance level is theirs too when a contract or a regulator sets it; otherwis
 `source: proposed`, and put them first in the final review so the person can replace them. Never
 ask about anything a layer page says the machine derives.
 
+### Directions first
+
+Before any single value of the foundations is asked, the person sees whole directions: a colour,
+a type scale and a corner radius that go together, drawn on the repository's own screen in light
+and in dark. Run `node ${CLAUDE_PLUGIN_ROOT}/scripts/specimen.mjs --target <repo> --section direction`
+(add `--color <colour>` when the person has a colour of their own). It shows the three directions
+of `references/directions.json` that agree best with the principles the owner fixed, the best
+first, and prints for each what it follows, which fixed principle it goes against, and what each
+value rests on.
+
+- Put the sheet in front of the person as below, and ask one question: which direction is the
+  product's. Recommend A, and give its reasons as the sheet prints them; say which fixed principle
+  a direction goes against.
+- **A letter is the person's answer for all three values.** `choices.json` gives, for that letter,
+  `direction` and the choice keys: write `direction` to `layers.foundations.direction` and the
+  rest to `layers.foundations.choice`, with `source: user`.
+- A colour of the owner's own is kept in every direction: the directions then differ in type and
+  shape only. A colour the guide proposed is not the owner's, and each direction brings its own.
+- Then refine: only the values the person wants changed are asked one by one, on the sheets
+  below. A value they change keeps the direction named; say that the foundations are now the
+  direction with that change.
+
+In **hand it to Claude**, take direction A, record `source: proposed` with `direction`, and show
+the direction sheet at the final review.
+
 ### Show, then ask
 
-The choices of foundations are things a person sees, so they are shown, not described. Before the
-foundations stop, run `node ${CLAUDE_PLUGIN_ROOT}/scripts/specimen.mjs --target <repo>`. It draws
+The choices of foundations are things a person sees, so they are shown, not described. To refine
+a value of the direction the person picked, or where no direction was asked, run `node ${CLAUDE_PLUGIN_ROOT}/scripts/specimen.mjs --target <repo>`. It draws
 the repository's own screen once per option, in light and in dark, on one sheet, and prints where
 the sheet is, where one picture of the whole sheet is, and what each letter stands for.
 
