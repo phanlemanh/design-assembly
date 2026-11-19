@@ -11,6 +11,15 @@ import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
+import {
+  principleLines,
+  principleProblems,
+  principleRecord,
+  principleRows,
+  principlesOf,
+  recommendations,
+  ROW_PREFIX,
+} from "./principles.mjs";
 import { STAMP, stampText } from "./stamp.mjs";
 import { FILES, heldHere } from "../templates/tools/design-assembly/check.mjs";
 import { contrast, formatOklch, parseColor } from "../templates/tools/design-assembly/color.mjs";
@@ -192,6 +201,7 @@ export function blueprintProblems(blueprint, { preview = false } = {}) {
       'status must be "approved" before applying (a preview with --dry-run does not need it)',
     );
   }
+  found.push(...principleProblems(blueprint, { preview }));
   for (const layer of LAYERS) {
     const entry = blueprint.layers?.[layer.id];
     if (!entry) {
@@ -1301,6 +1311,8 @@ function decisions(blueprint, theme, foundations) {
   const rows = [
     call("product-type", "context", "product_type"),
     call("conformance-level", "context", "conformance_level"),
+    // The owner's design principles: one judgment row each, a proposal saying so.
+    ...principleRows(blueprint),
     call("source-color", "foundations", "source_color"),
     {
       id: "tonal-palette",
@@ -1380,7 +1392,7 @@ function decisions(blueprint, theme, foundations) {
 }
 
 // One page per decided layer: what was chosen, why, what was turned down, what the machine holds.
-function record(layer, entry, rows, values) {
+function record(layer, entry, rows, values, blueprint) {
   const lines = [`# ${layer.title[0].toUpperCase()}${layer.title.slice(1)}`, ""];
   lines.push(`Status: decided (${entry.source}).`, "", "## Choice", "");
   for (const choice of layer.choices.filter((c) => applies(c, values))) {
@@ -1388,6 +1400,7 @@ function record(layer, entry, rows, values) {
     const note = chosen ? "" : " (not asked: the floor's value)";
     lines.push(`- ${choice.name}: \`${values[choice.key]}\`${note}`);
   }
+  if (layer.id === "context") lines.push(...principleRecord(blueprint));
   lines.push("", "## Why", "", entry.why.trim(), "", "## Rejected", "");
   const rejected = entry.rejected ?? [];
   if (rejected.length === 0) lines.push("Nothing was turned down.");
@@ -1557,13 +1570,21 @@ export function plan(target, blueprint) {
   files[FILES.theme] = renderJson(data, lineWidth(target));
   files[RULES_PAGE] = rulesPage(checks, (file) => file in files || read(file) !== null);
   // The ledger may hold rows this plugin did not write: they are kept exactly as they are.
-  files[FILES.ledger] = mergeLedger(read(FILES.ledger), rows);
+  // A principle the blueprint no longer lists leaves the ledger with it; a row another hand wrote
+  // under the same prefix names another source and stays.
+  const ledgerBefore = read(FILES.ledger);
+  const gone = (ledgerBefore === null ? [] : parseLedger(ledgerBefore))
+    .filter((row) => String(row.id).startsWith(ROW_PREFIX))
+    .filter((row) => String(row.source ?? "") === BLUEPRINT)
+    .map((row) => String(row.id))
+    .filter((id) => !rows.some((row) => row.id === id));
+  files[FILES.ledger] = mergeLedger(ledgerBefore, rows, gone);
   for (const layer of LAYERS.filter((l) => l.built)) {
     const entry = blueprint.layers[layer.id];
     if (entry.status !== "decided") continue;
     const values = layer.id === "foundations" ? foundations.choice : entry.choice;
     const listed = [...rows, ...templates.known];
-    files[`design/decisions/${layer.id}.md`] = record(layer, entry, listed, values);
+    files[`design/decisions/${layer.id}.md`] = record(layer, entry, listed, values, blueprint);
   }
   return {
     files: { ...files, ...vendored() },
@@ -1717,7 +1738,7 @@ function main(args) {
       `the floor is in place. ${BLUEPRINT} is not there yet: write it, in the shape the guide's first step gives, then run this again.`,
     );
     // No layer is decided yet: that is work for a person.
-    return end({ blueprint: null }, true);
+    return end({ blueprint: null, principles: [], recommendations: [] }, true);
   }
   if (!existsSync(blueprintPath)) {
     stop(
@@ -1739,6 +1760,8 @@ function main(args) {
   }
   const facts = {
     blueprint: blueprintFacts(blueprint),
+    principles: principlesOf(blueprint),
+    recommendations: recommendations(blueprint),
     // The preview of a write this command would refuse: said to a machine as it is to a person.
     ...(own ? { refused: own } : {}),
   };
@@ -1749,6 +1772,7 @@ function main(args) {
   const foundations = themeInputs(blueprint);
   const theme = buildTheme(foundations.inputs, css);
   for (const line of themeSummary(theme)) say(line);
+  for (const line of principleLines(blueprint)) say(line);
   if (own) {
     say(`note: ${own}. Writing will be refused: adopt the values, or pass --replace.`);
   }

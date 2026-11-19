@@ -56,3 +56,16 @@ Choice keys:
 - `conformance_level`: `AA` or `AAA`.
 
 Both become rows of the ledger, of kind judgment.
+
+## Design principles
+
+Asked after the two answers above and before the foundations: three to five statements of what
+the design favours, picked from `references/principles.json` or written in the owner's own words
+(see "Design principles first" in the guide). Write them to `layers.context.principles`, each
+`{ "id", "source" }`, with `text` for the owner's own words. Each becomes a row of the ledger,
+`principle-<id>`, of kind judgment, and is listed on the layer's record page. A principle whose
+`source` is `proposed` says in its row that a person has not confirmed it; keeping it on the
+decision sheet makes it the owner's.
+
+A blueprint that lists no principles was decided before they existed and is still applied: the
+preview says so in a `hint:` line.

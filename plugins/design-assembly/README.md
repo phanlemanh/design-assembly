@@ -73,6 +73,10 @@ scale, shape). Density, elevation, motion and iconography are not.
   already runs (`references/known-proofs.json`), and a check around each value its stylesheet holds
   today. It changes no value, no lint rule, no test and no existing row.
 - `/design-assembly:new` guides a person through the built layers and records each decision.
+- Before any value, the owner fixes three to five design principles, picked from
+  `references/principles.json` or written in their own words. Each is a row of the ledger, and
+  every recommendation of the guide says what it rests on: a principle the owner fixed, or a
+  standard (`scripts/principles.mjs`).
 - `scripts/specimen.mjs` shows the choices of foundations instead of describing them: it draws
   the repository's own screen once per option, in light and in dark, on one sheet, and a person
   answers with a letter. The options come from closed lists and the same functions that write the

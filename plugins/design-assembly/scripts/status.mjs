@@ -8,7 +8,7 @@
 // Exit: 0 nothing waits; 1 something waits on a person, the tool differs, or a decision is failing
 // or gone around, or the document was written in fewer formats than asked; 2 a wrong call, or a
 // repository that cannot be read.
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 import { SLIPS_FILE } from "../templates/tools/design-assembly/governance.mjs";
 import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
 import { finish, readCall, refuse, start } from "./command.mjs";
+import { principleCall } from "./principles.mjs";
 import { sheet, WAITING_FOLDER, WAITING_LIST } from "./decide.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { audit, AUDIT, DECIDE, PERSON_CALLS, UNCONFIRMED } from "./audit.mjs";
@@ -41,6 +42,10 @@ const UPGRADE = "/design-assembly:upgrade";
 // How many waiting answers a person is shown in full. The rest are named, and --json has them all.
 const SHOWN = 5;
 const MEASURED = "a measurement on this repository: ";
+const PRINCIPLED = "a design principle the owner fixed: ";
+// A basis as status writes it, from the kind and the text a recommendation of the guide gives.
+const PREFIXES = { measurement: MEASURED, principle: PRINCIPLED, standard: "a standard: " };
+const written = (basis) => `${PREFIXES[basis.kind]}${basis.text}`;
 
 // The repository's copy of the tool against the installed plugin's. Content decides, not the
 // version number: two folders with the same tree are the same tool. The stamp says where the copy
@@ -125,9 +130,22 @@ function recommend(row, decision) {
   };
 }
 
+// The question and the recommendation for a row: a principle speaks first where it can, the
+// standard decisions and the measurements otherwise.
+function fromPrinciple(row, decision, blueprint) {
+  const question = decision?.question ?? `Does the repository's own decision "${row.id}" stand?`;
+  const call = blueprint ? principleCall(blueprint, row.id) : null;
+  if (!call) return { question, ...recommend(row, decision) };
+  return {
+    question: call.question ?? question,
+    recommendation: call.recommendation,
+    basis: written(call.basis),
+  };
+}
+
 // What waits on the owner in the ledgers: every row that says nobody has confirmed it, then every
 // call only a person can make that a ledger has no row for. Each is a question, never an answer.
-function waitingOf(audit, rows) {
+function waitingOf(audit, rows, blueprint) {
   const decisionOf = (id) => audit.decisions.find((decision) => decision.id === id);
   const proposals = rows
     .filter((row) => UNCONFIRMED.test(row.note ?? ""))
@@ -136,8 +154,7 @@ function waitingOf(audit, rows) {
       return {
         id: row.id,
         source: "ledger",
-        question: decision?.question ?? `Does the repository's own decision "${row.id}" stand?`,
-        ...recommend(row, decision),
+        ...fromPrinciple(row, decision, blueprint),
         // The decision sheet writes a person's answer into the row, with their name and the date.
         answer: DECIDE,
       };
@@ -270,12 +287,29 @@ function nextOf(audit, waiting, broken, tool) {
   return next;
 }
 
+// The blueprint of the guide, or null. One that does not parse is the guide's to refuse: status
+// reads the ledgers without it.
+function readBlueprint(root) {
+  const file = path.join(root, "design/blueprint.json");
+  if (!existsSync(file)) return null;
+  try {
+    return JSON.parse(readFileSync(file, "utf8"));
+  } catch {
+    return null;
+  }
+}
+
 // Everything status reads from the ledgers, read once.
 function readLedgers(root) {
   const audited = audit(root);
   const rows = readLedger(root) ?? [];
   const broken = audited.decisions.filter((d) => ["failing", "bypassed"].includes(d.state));
-  return { audit: audited, broken, waiting: waitingOf(audited, rows), tool: toolOf(root) };
+  return {
+    audit: audited,
+    broken,
+    waiting: waitingOf(audited, rows, readBlueprint(root)),
+    tool: toolOf(root),
+  };
 }
 
 function resultOf({ audit, broken, tool }, waiting) {
@@ -485,10 +519,13 @@ export function documentOf(result, origin) {
   ].filter(Boolean);
 
   // A basis is written "what it rests on: the fact". The two kinds status ever gives.
-  const basisOf = (line) =>
-    line.startsWith(MEASURED)
-      ? { kind: "measurement", text: line.slice(MEASURED.length) }
-      : { kind: "standard", text: line.replace(/^a standard: /, "") };
+  const basisOf = (line) => {
+    const [kind, prefix] = Object.entries(PREFIXES).find(([, lead]) => line.startsWith(lead)) ?? [
+      "standard",
+      "",
+    ];
+    return { kind, text: line.slice(prefix.length) };
+  };
   const recommendations = [
     broken && {
       what: "Fix what is failing or gone around before anything is confirmed",

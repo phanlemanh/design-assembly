@@ -1,0 +1,152 @@
+{
+  "about": "The design principles the guide offers before any value is chosen. The owner fixes three to five, from this list or in words of their own. A principle here says which option of a layer's choice it favours and why, so a recommendation can rest on it without a model: `choice` is a choice key of layers.json and `option` one of its options. `suits` lists the product types the guide offers it for first; any principle may be picked for any product. A principle in the owner's own words is recorded and can be cited, but no option follows from it.",
+  "principles": [
+    {
+      "id": "dense-and-scannable",
+      "name": "dense and scannable",
+      "statement": "A screen shows as much as a person can scan at once: space goes to content, and the steps of type stay close.",
+      "suits": ["application"],
+      "favours": [
+        {
+          "choice": "type_scale",
+          "option": "modular",
+          "why": "related steps let headings stay close to the body text without blurring"
+        },
+        {
+          "choice": "type_ratio",
+          "option": "major-second",
+          "why": "gentle steps keep many levels of heading on one working screen"
+        },
+        {
+          "choice": "corner_radius",
+          "option": "small",
+          "why": "small corners keep tight rows and cells from looking crowded"
+        }
+      ]
+    },
+    {
+      "id": "context-stays-in-view",
+      "name": "context stays in view",
+      "statement": "Where a person came from stays in view: opening a record never hides the list it came from.",
+      "suits": ["application"],
+      "favours": [
+        {
+          "choice": "record_panel",
+          "option": "beside",
+          "why": "the record opens next to the list, so the list stays where it was"
+        }
+      ]
+    },
+    {
+      "id": "one-task-at-a-time",
+      "name": "one task at a time",
+      "statement": "A screen asks for one task at a time: what is open takes the whole view.",
+      "suits": ["application", "content-site"],
+      "favours": [
+        {
+          "choice": "record_panel",
+          "option": "in-place",
+          "why": "the record takes the place of the list, so nothing else competes with it"
+        }
+      ]
+    },
+    {
+      "id": "clear-hierarchy",
+      "name": "clear hierarchy",
+      "statement": "The order of importance is seen before it is read: each level of heading steps up clearly.",
+      "suits": ["application", "content-site"],
+      "favours": [
+        {
+          "choice": "type_scale",
+          "option": "modular",
+          "why": "every size comes from one ratio, so each step is a visible step"
+        },
+        {
+          "choice": "type_ratio",
+          "option": "minor-third",
+          "why": "clear steps that still fit a working screen"
+        }
+      ]
+    },
+    {
+      "id": "reading-comes-first",
+      "name": "reading comes first",
+      "statement": "Long text reads easily: generous steps of type, and nothing pulls the eye away from the words.",
+      "suits": ["content-site"],
+      "favours": [
+        {
+          "choice": "type_scale",
+          "option": "modular",
+          "why": "a scale from one ratio gives long text a rhythm of headings"
+        },
+        {
+          "choice": "type_ratio",
+          "option": "major-third",
+          "why": "strong steps suit pages with few levels of heading"
+        },
+        {
+          "choice": "record_panel",
+          "option": "in-place",
+          "why": "a text opened in place has the whole width to be read in"
+        }
+      ]
+    },
+    {
+      "id": "soft-and-approachable",
+      "name": "soft and approachable",
+      "statement": "Shapes feel soft and friendly: rounded corners, nothing sharp.",
+      "suits": ["application", "content-site"],
+      "favours": [
+        {
+          "choice": "corner_radius",
+          "option": "large",
+          "why": "large corners read as soft at every size of control"
+        }
+      ]
+    },
+    {
+      "id": "precise-and-technical",
+      "name": "precise and technical",
+      "statement": "Shapes are exact and quiet: corners are square or nearly so.",
+      "suits": ["application"],
+      "favours": [
+        {
+          "choice": "corner_radius",
+          "option": "extra-small",
+          "why": "nearly square corners read as exact without looking unfinished"
+        }
+      ]
+    },
+    {
+      "id": "readable-for-everyone",
+      "name": "readable for everyone",
+      "statement": "Everyone can read it: text and controls stay clear for people with low vision, even where that costs the brand colour.",
+      "suits": ["application", "content-site"],
+      "favours": [
+        {
+          "choice": "conformance_level",
+          "option": "AAA",
+          "why": "text needs a contrast ratio of 7:1 instead of 4.5:1"
+        }
+      ]
+    },
+    {
+      "id": "familiar-over-novel",
+      "name": "familiar over novel",
+      "statement": "Familiar beats novel: the screens look and behave the way people already know.",
+      "suits": ["application", "content-site"],
+      "favours": [
+        {
+          "choice": "type_scale",
+          "option": "standard",
+          "why": "the sizes people have met in many products already"
+        },
+        {
+          "choice": "corner_radius",
+          "option": "floor",
+          "why": "the corner the floor's components were drawn with"
+        }
+      ]
+    }
+  ]
+}

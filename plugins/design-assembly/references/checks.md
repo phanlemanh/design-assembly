@@ -756,6 +756,12 @@ today.
 - A recommendation rests on a design principle the owner fixed, a standard, or a measurement on
   the repository. The frame refuses to draw a recommendation that names none of the three, a
   finding with no evidence, or more than three things on the page for the person.
+- A design principle is one the owner fixed in the guide: a row `principle-<id>` of the context
+  layer whose blueprint entry has `source: user` (`references/principles.json` holds the ones the
+  guide offers, each with the options it favours). A principle the guide proposed settles nothing
+  until it is kept on the decision sheet. The status report rests the call on a row of a choice
+  such a principle speaks to on that principle; where two fixed principles favour two options, the
+  standard stands and the disagreement is named.
 - A document is made from the facts of `--json` and from nothing else. It reads no clock: the date
   on the cover is the day of the repository's last commit, and the revision beside it carries a
   mark when work was not yet committed. The same repository gives the same page, byte for byte.

@@ -40,6 +40,7 @@ import {
 } from "../templates/tools/design-assembly/waiting.mjs";
 import { writeFiles, writtenFiles } from "./apply.mjs";
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
+import { principleOfRow } from "./principles.mjs";
 import { status } from "./status.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -278,6 +279,14 @@ function restamp(text, id, stamp) {
 // blueprint says "proposal" again on its next run unless the blueprint lists the choice.
 function confirmInBlueprint(blueprint, row) {
   if (!String(row.source ?? "").startsWith(BLUEPRINT)) return null;
+  // A design principle is the owner's once the blueprint says they gave it.
+  const principle = principleOfRow(blueprint, row.id);
+  if (principle) {
+    if (principle.confirmed || blueprint.layers.context.status !== "decided") return null;
+    const entry = blueprint.layers.context.principles.find((item) => item.id === principle.id);
+    entry.source = "user";
+    return `context lists the principle ${principle.id} as the owner's, so the guide keeps it`;
+  }
   const key = String(row.id).replaceAll("-", "_");
   const layer = LAYERS.find((item) => (item.choices ?? []).some((choice) => choice.key === key));
   const entry = layer ? blueprint?.layers?.[layer.id] : null;

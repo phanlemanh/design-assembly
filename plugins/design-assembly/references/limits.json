@@ -2170,8 +2170,10 @@
       "plan": "fix",
       "opened": "2026-11-15",
       "where": ["d0044", "spec"],
-      "status": "open",
-      "note": "The specification lists the design principles among the keys the guide gives a machine, and the guide does not ask for principles yet, so the key is left out and a caller that counts on the specification finds nothing there."
+      "status": "closed",
+      "note": "The specification lists the design principles among the keys the guide gives a machine, and the guide does not ask for principles yet, so the key is left out and a caller that counts on the specification finds nothing there.",
+      "closed": "2026-11-19",
+      "closed_by": "the guide gives a machine the principles of the blueprint, each with its source and what it favours (apply.mjs --json, key principles), and the recommendation of every choice it recommends with what it rests on (key recommendations); held by tests/test-principles.mjs and the command contract"
     },
     {
       "id": "new-json-without-directions",
@@ -2438,8 +2440,43 @@
       "plan": "fix",
       "opened": "2026-11-15",
       "where": ["d0046", "spec"],
+      "status": "closed",
+      "note": "No recommendation of a document rests on a design principle yet, because no command records the principles an owner fixed, so every reason given is a measurement or a standard.",
+      "closed": "2026-11-19",
+      "closed_by": "the guide records the principles the owner fixed as rows of the context layer, and the status report rests the call on a row a fixed principle speaks to on that principle, of the kind A design principle the owner fixed; held by tests/test-principles.mjs"
+    },
+    {
+      "id": "principles-speak-to-five-choices",
+      "area": "guide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-19",
+      "where": ["d0064"],
       "status": "open",
-      "note": "No recommendation of a document rests on a design principle yet, because no command records the principles an owner fixed, so every reason given is a measurement or a standard."
+      "note": "A design principle of the catalog favours an option of five choices only: the conformance level, the type scale, the modular scale, the corner radius and how a record opens. The source color is the owner's brand, and the layers that are not built have no choice to favour, so no recommendation for them rests on a principle."
+    },
+    {
+      "id": "own-principle-favours-nothing",
+      "area": "guide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-19",
+      "where": ["d0064"],
+      "status": "open",
+      "note": "A principle in the owner's own words is recorded and can be cited, but no command reads an option out of words without a model, so no recommendation rests on it; and a catalog principle whose wording the owner changed keeps what the catalog says it favours, whether or not the new words still mean it."
+    },
+    {
+      "id": "only-status-rests-a-document-on-a-principle",
+      "area": "document",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-19",
+      "where": ["d0064", "spec"],
+      "status": "open",
+      "note": "Of the documents, only the status report rests a recommendation on a principle, and only for a row of a choice a fixed principle speaks to; the audit, find, intake, inventory and change reports rest theirs on measurements and standards, because what they measure is not a choice a principle favours. The design direction document of the guide, which would rest most of its recommendations on principles, is not built yet."
     },
     {
       "id": "status-report-writes-out-five-questions",
