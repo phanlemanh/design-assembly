@@ -603,6 +603,12 @@
       "meaning": "A short statement of what the design favours when two good options pull different ways, fixed by the owner before any value is chosen, so a recommendation can say which principle it rests on. The Vietnamese of the documents says nguyên tắc thiết kế.",
       "source": "Common practice of design studios and design systems",
       "trust": "practice"
+    },
+    {
+      "term": "design direction",
+      "meaning": "A whole proposal of how the product looks, its colour, type and shape chosen to go together and shown on the product's own screens, so a person picks a direction before tuning any single value. The Vietnamese of the documents says hướng đi.",
+      "source": "Common practice of design studios",
+      "trust": "practice"
     }
   ]
 }

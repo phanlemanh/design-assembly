@@ -77,6 +77,10 @@ scale, shape). Density, elevation, motion and iconography are not.
   `references/principles.json` or written in their own words. Each is a row of the ledger, and
   every recommendation of the guide says what it rests on: a principle the owner fixed, or a
   standard (`scripts/principles.mjs`).
+- Then whole design directions, from `references/directions.json`: three, each a colour, a type
+  scale and a corner radius that go together, drawn on the repository's own screen in light and
+  dark, the ones that agree best with the owner's principles first (`scripts/directions.mjs`,
+  `specimen.mjs --section direction`). One letter sets all three; each value can be refined after.
 - `scripts/specimen.mjs` shows the choices of foundations instead of describing them: it draws
   the repository's own screen once per option, in light and in dark, on one sheet, and a person
   answers with a letter. The options come from closed lists and the same functions that write the

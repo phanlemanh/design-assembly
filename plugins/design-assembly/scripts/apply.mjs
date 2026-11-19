@@ -11,6 +11,7 @@ import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
+import { directionProblem, directionsFor } from "./directions.mjs";
 import {
   principleLines,
   principleProblems,
@@ -202,6 +203,8 @@ export function blueprintProblems(blueprint, { preview = false } = {}) {
     );
   }
   found.push(...principleProblems(blueprint, { preview }));
+  const direction = directionProblem(blueprint);
+  if (direction) found.push(direction);
   for (const layer of LAYERS) {
     const entry = blueprint.layers?.[layer.id];
     if (!entry) {
@@ -1401,6 +1404,14 @@ function record(layer, entry, rows, values, blueprint) {
     lines.push(`- ${choice.name}: \`${values[choice.key]}\`${note}`);
   }
   if (layer.id === "context") lines.push(...principleRecord(blueprint));
+  if (layer.id === "foundations" && entry.direction) {
+    lines.push(
+      "",
+      "## Direction",
+      "",
+      `Drawn from the direction \`${entry.direction}\` of the guide.`,
+    );
+  }
   lines.push("", "## Why", "", entry.why.trim(), "", "## Rejected", "");
   const rejected = entry.rejected ?? [];
   if (rejected.length === 0) lines.push("Nothing was turned down.");
@@ -1738,7 +1749,7 @@ function main(args) {
       `the floor is in place. ${BLUEPRINT} is not there yet: write it, in the shape the guide's first step gives, then run this again.`,
     );
     // No layer is decided yet: that is work for a person.
-    return end({ blueprint: null, principles: [], recommendations: [] }, true);
+    return end({ blueprint: null, principles: [], recommendations: [], directions: [] }, true);
   }
   if (!existsSync(blueprintPath)) {
     stop(
@@ -1762,6 +1773,7 @@ function main(args) {
     blueprint: blueprintFacts(blueprint),
     principles: principlesOf(blueprint),
     recommendations: recommendations(blueprint),
+    directions: directionsFor(blueprint),
     // The preview of a write this command would refuse: said to a machine as it is to a person.
     ...(own ? { refused: own } : {}),
   };
@@ -1773,6 +1785,11 @@ function main(args) {
   const theme = buildTheme(foundations.inputs, css);
   for (const line of themeSummary(theme)) say(line);
   for (const line of principleLines(blueprint)) say(line);
+  for (const direction of facts.directions) {
+    say(`direction ${direction.id}: ${direction.character}`);
+  }
+  const followed = blueprint.layers?.foundations?.direction;
+  if (followed) say(`direction: the foundations were drawn from ${followed}`);
   if (own) {
     say(`note: ${own}. Writing will be refused: adopt the values, or pass --replace.`);
   }

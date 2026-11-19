@@ -6,7 +6,9 @@
 // the repository's sources: the sheet goes to a folder for build output.
 // The record section shows how a record opens from a list instead: the same screen and state,
 // once per arrangement of the list-detail layout.
-// Usage: node specimen.mjs --target DIR [--section color|around|type|radius|review|record|all]
+// The direction section is asked first, on its own: whole directions, each a colour, a type scale
+// and a corner radius drawn together, before any single value is asked.
+// Usage: node specimen.mjs --target DIR [--section direction|color|around|type|radius|review|record|all]
 //          [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -14,6 +16,7 @@ import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { FILES } from "../templates/tools/design-assembly/check.mjs";
+import { directionsFor } from "./directions.mjs";
 import { openStage } from "./stage.mjs";
 import {
   asWritten,
@@ -236,6 +239,10 @@ export function specimenPlan(target, options = {}) {
       options: letter(built.filter((item) => !item.dropped)),
     });
   };
+  // Directions are asked before any value, on a sheet of their own: the default run is for refining.
+  if (wanted === "direction") {
+    sections.push(directionSection(blueprint, state, css, options, dropped));
+  }
   if (want("color")) {
     const { shown, problems } = colorCandidates(state, options.colors ?? []);
     dropped.push(...problems);
@@ -369,6 +376,61 @@ export function specimenPlan(target, options = {}) {
     }
   }
   return { state, sections, dropped };
+}
+
+// The direction section: each direction the guide would show, drawn whole. Its colour is solved as
+// the guide would write it, with its own type scale and corner radius on the same page.
+function directionSection(blueprint, state, css, options, dropped) {
+  for (const colour of (options.colors ?? []).filter((item) => !parseColor(String(item)))) {
+    dropped.push(`${colour}: not a colour written as #rrggbb or oklch(L C H), so it is not kept`);
+  }
+  const built = directionsFor(blueprint, { colors: options.colors ?? [] }).map((direction) => {
+    const { values } = direction;
+    const drawn = colorOption(
+      values.source_color,
+      direction.name,
+      {
+        ...state,
+        typeScale: values.type_scale,
+        typeRatio: values.type_ratio ?? null,
+        cornerRadius: values.corner_radius,
+      },
+      css,
+    );
+    if (drawn.dropped) return drawn;
+    const type =
+      values.type_scale === "modular" ? `modular, ${values.type_ratio}` : values.type_scale;
+    return {
+      ...drawn,
+      value: direction.id,
+      label: `${direction.name}: ${values.source_color}, ${type}, corner radius ${values.corner_radius}`,
+      choice: { direction: direction.id, ...values },
+      notes: [
+        direction.character,
+        `follows: ${direction.follows.join(", ")}`,
+        ...(direction.fit.disagrees.length > 0
+          ? [`goes against principles the owner fixed: ${direction.fit.disagrees.join(", ")}`]
+          : []),
+        ...(direction.fit.mixed.length > 0
+          ? [`follows in part principles the owner fixed: ${direction.fit.mixed.join(", ")}`]
+          : []),
+        ...direction.reasons.map((item) => `${item.key} ${item.value}: ${item.basis.text}`),
+        ...drawn.notes,
+      ],
+    };
+  });
+  dropped.push(...built.filter((item) => item.dropped).map((item) => item.dropped));
+  return {
+    id: "direction",
+    key: "direction",
+    title: "design direction",
+    question:
+      "Which direction is the product's? Each is a colour, a type scale and a corner radius that go together: one letter sets all three, and each can be changed after.",
+    shots: ["ready", "empty"],
+    options: built
+      .filter((item) => !item.dropped)
+      .map((item, index) => ({ letter: LETTERS[index], ...item })),
+  };
 }
 
 // The first screen of the registry and, for each state a shot needs, how to reach it.
@@ -659,7 +721,7 @@ async function main() {
   const all = (flag) => args.flatMap((arg, index) => (arg === flag ? [args[index + 1]] : []));
   if (!value("--target")) {
     stderr.write(
-      "usage: node specimen.mjs --target DIR [--section color|around|type|radius|review|record|all] [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]\n",
+      "usage: node specimen.mjs --target DIR [--section direction|color|around|type|radius|review|record|all] [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]\n",
     );
     exit(2);
   }

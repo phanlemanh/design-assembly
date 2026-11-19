@@ -12,6 +12,12 @@ person knows it. Spacing always has one answer in this version: say it in one li
 
 ## The questions
 
+**First, whole directions.** Before any value below is asked, the person picks a direction from
+the sheet `scripts/specimen.mjs --section direction` draws: a colour, a type scale and a corner
+radius together, from `references/directions.json` (see "Directions first" in the guide). The
+direction's id goes to `layers.foundations.direction`, its values to `choice`. The questions
+below then refine it, one value at a time, only where the person wants a change.
+
 Show before asking: `scripts/specimen.mjs` draws every option of this layer on the repository's
 own screen, and the person answers with a letter (see "Show, then ask" in the guide). The words
 below are for explaining a letter, not for choosing by.
@@ -138,5 +144,8 @@ Choice keys:
   `major-third` or `perfect-fourth`.
 - `spacing_unit`: `4px`.
 - `corner_radius`: `floor`, `none`, `extra-small`, `small`, `medium` or `large`.
+
+Beside the choice keys, `direction` names the direction of `references/directions.json` the
+values were drawn from, when the person picked one.
 
 A blueprint decided before these keys existed keeps the floor's values; the preview says so.

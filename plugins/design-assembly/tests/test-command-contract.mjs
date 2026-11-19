@@ -104,10 +104,7 @@ const COMMANDS = [
     name: "new",
     script: "apply.mjs",
     writes: true,
-    keys: ["blueprint", "principles", "recommendations", "files"],
-    later: {
-      directions: "new-json-without-directions",
-    },
+    keys: ["blueprint", "principles", "recommendations", "directions", "files"],
     cases: [
       { on: "decided", exit: EXIT.done, real: EXIT.done, why: "every built layer is decided" },
       // With no blueprint no layer is decided, and the files cannot be listed yet.
