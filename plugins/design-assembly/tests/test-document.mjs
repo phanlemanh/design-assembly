@@ -83,6 +83,24 @@ const COMMANDS = [
     title: "Inventory report",
     areas: ["inventory", "document"],
   },
+  {
+    name: "intake",
+    script: "intake.mjs",
+    // What the call takes a block in for. A throwaway repository has no block for it, and the
+    // first call asks the owner: as a preview, it writes no question beside the page.
+    args: ["--need", "many-rows", "--dry-run"],
+    writes: true,
+    file: "intake-report",
+    title: "Intake report",
+    areas: ["intake", "document"],
+    // A block the intake ledger keeps for that need, where a test needs the call to end with 0.
+    stock: (dir) =>
+      put(
+        dir,
+        "design/intake.yaml",
+        "version: 1\nblocks:\n  - name: DataRegion\n    file: src/components/data-region.tsx\n    source: by-hand\n    need: many-rows\n    approved: 2026-11-12\n",
+      ),
+  },
 ];
 
 const made = [];
@@ -432,8 +450,10 @@ for (const command of COMMANDS) {
     const data = run(command, ["--target", dir, "--json", "--out", out]);
     assert.equal(data.status, plain.status, data.stderr);
     const result = JSON.parse(data.stdout);
-    assert.ok(!("files" in without), "a call that writes nothing lists files");
-    assert.deepEqual(result.files, [{ path: path.join(out, page), change: "update" }]);
+    // A command that writes lists the files it would write; the page comes after them.
+    const own = command.writes ? without.files : [];
+    if (!command.writes) assert.ok(!("files" in without), "a call that writes nothing lists files");
+    assert.deepEqual(result.files, [...own, { path: path.join(out, page), change: "update" }]);
     assert.deepEqual({ ...result, files: undefined }, { ...without, files: undefined });
     assert.deepEqual(readdirSync(out), [page]);
     assert.deepEqual(snapshot(dir), before, "the repository changed");
@@ -506,10 +526,13 @@ for (const command of COMMANDS) {
       snapshot(dir).filter((line) => !before.includes(line)),
       ["handed-over/", `handed-over/${page} ${createHash("sha256").update(first).digest("hex")}`],
     );
-    assert.deepEqual(
-      JSON.parse(run(command, ["--target", dir, "--out", inside, "--json"]).stdout).files,
-      [{ path: `handed-over/${page}`, change: "update" }],
-    );
+    const handed = JSON.parse(run(command, ["--target", dir, "--out", inside, "--json"]).stdout);
+    assert.deepEqual(handed.files.at(-1), { path: `handed-over/${page}`, change: "update" });
+    // Before the page, a command that writes lists what it would write, as it does without one.
+    const own = command.writes
+      ? JSON.parse(run(command, ["--target", dir, "--json"]).stdout).files
+      : [];
+    assert.deepEqual(handed.files.slice(0, -1), own);
     const words = wordsOf(first);
     assert.ok(words.includes("throwaway-shop"));
     if (!committed) return t.skip("git is not here, so no commit dates the cover");
@@ -586,7 +609,12 @@ for (const command of COMMANDS) {
       return t.skip("the browser package is installed and its browser is not downloaded");
     }
     assert.equal(called.status, plain.status, called.stderr);
+    // A command that writes lists what it would write first, as it does without a document.
+    const own = command.writes
+      ? JSON.parse(run(command, ["--target", ROOT, "--json"]).stdout).files
+      : [];
     assert.deepEqual(result.files, [
+      ...own,
       { path: path.join(out, page), change: "create" },
       { path: path.join(out, `${command.file}.pdf`), change: "create" },
     ]);

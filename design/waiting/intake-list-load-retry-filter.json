@@ -1,0 +1,34 @@
+{
+  "id": "intake-list-load-retry-filter",
+  "group": "blocks to take in",
+  "question": "Which block answers the need list-load-retry-filter?",
+  "recommendation": "useList, from the starter kit of this plugin",
+  "basis": "its need is list-load-retry-filter",
+  "hard_to_undo": false,
+  "where": "design/intake.yaml",
+  "if_refused": "no block is taken in for list-load-retry-filter; ask again with other words, or make it by hand with --by-hand --why",
+  "item": "need:list-load-retry-filter",
+  "asked_on": "2026-11-19",
+  "candidates": [
+    {
+      "name": "useList",
+      "kind": "block",
+      "store": "starter",
+      "source": "useList",
+      "description": "What every list screen does the same way: load the items, try again after a failure, filter by name, and change one item in place.",
+      "pin": "design-assembly 0.12.0",
+      "why": "its need is list-load-retry-filter",
+      "from": "starter",
+      "files": ["templates/owned/list.ts.template", "templates/owned/list.test.tsx.template"],
+      "to": ["src/lib/list.ts", "tests/list.test.tsx"]
+    },
+    {
+      "name": "by-hand",
+      "store": "by-hand",
+      "why": "nothing in starter answers \"list load retry filter\""
+    }
+  ],
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-19"
+}

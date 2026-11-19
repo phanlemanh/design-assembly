@@ -285,7 +285,8 @@
           "states": "design/states.json",
           "screen-sizes": "design/screen-sizes.json",
           "parts": "design/parts.json",
-          "screens": "design/screens.yaml"
+          "screens": "design/screens.yaml",
+          "intake": "design/intake.yaml"
         },
         "pages": "design/patterns"
       },
@@ -293,6 +294,12 @@
         "kind": "screen-fragments",
         "file": "design/screens.yaml",
         "fragments": "design/screens"
+      },
+      {
+        "kind": "screen-fragments",
+        "of": "intake",
+        "file": "design/intake.yaml",
+        "fragments": "design/intake"
       }
     ],
     "target-size": [

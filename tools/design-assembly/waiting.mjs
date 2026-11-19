@@ -28,6 +28,9 @@ export const ROW_KEYS = [
   "item",
   // The day an agent asked it.
   "asked_on",
+  // What the owner picks from, when the question is a choice among named things, the one the
+  // recommendation names first. See CHOICES.
+  "candidates",
   "answer",
   "said",
   "by",
@@ -44,13 +47,63 @@ export const STAMP =
   /(?:^|; )(confirmed|refused|answered) by (.+?) on (\d{4}-\d{2}-\d{2})(?:: (.*))?$/;
 
 // The items a question can name, each written `kind:which`. A row of the decision ledger, a page of
-// a kind of screen (its file name, without .md), or the root colour line (its value, as written).
-// The last two are the owner's calls: an agent that asks one does not go on.
+// a kind of screen (its file name, without .md), the root colour line (its value, as written), a
+// need a block is taken in for (its key), or what a ledger lists as made before it (the ledger's
+// name). Pattern and colour are the owner's calls: an agent that asks one does not go on.
 export const ITEMS = {
   decision: { which: /^[a-z0-9][a-z0-9-]*$/, owners: false },
   pattern: { which: /^[a-z0-9][a-z0-9._-]*$/i, owners: true },
   "source-color": { which: /^\S(?:.*\S)?$/, owners: true },
+  need: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: false },
+  before: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: false },
 };
+
+// How a value answers a question with candidates, by the kind of its item: the name of one
+// candidate for a need, the made-by-hand choice included; for what came before a ledger, the names
+// of some of them, a comma between each.
+const MANY = ["before"];
+const kindOf = (item) => (typeof item === "string" ? item.split(":")[0] : null);
+
+// Whether a value may pick several of the candidates of a question.
+export const takesMany = (row) => MANY.includes(kindOf(row?.item));
+
+// The names a value picks, for a question with candidates: one, or several split at commas.
+export function picked(row, said) {
+  const words = String(said ?? "").trim();
+  if (!takesMany(row)) return words === "" ? [] : [words];
+  return words
+    .split(",")
+    .map((name) => name.trim())
+    .filter(Boolean);
+}
+
+// Why a value does not answer a question with candidates, or null: it picks at least one, and each
+// name it picks is one of them.
+export function answerProblem(row, said) {
+  if (!Array.isArray(row?.candidates)) return null;
+  const names = row.candidates.map((candidate) => candidate?.name);
+  const chosen = picked(row, said);
+  if (chosen.length === 0) return "the answer names no candidate";
+  const strangers = chosen.filter((name) => !names.includes(name));
+  if (strangers.length === 0) return null;
+  return `${strangers.join(", ")} ${strangers.length === 1 ? "is" : "are"} not among its candidates: ${names.join(", ")}`;
+}
+
+// Why the candidates of a question cannot be read, or null: a list of things, each with a name of
+// its own.
+function candidatesProblem(candidates) {
+  if (!Array.isArray(candidates) || candidates.length === 0) {
+    return "candidates is a list of the things to pick from, at least one";
+  }
+  const names = candidates.map((candidate) =>
+    candidate && typeof candidate === "object" && !Array.isArray(candidate) ? candidate.name : null,
+  );
+  if (names.some((name) => typeof name !== "string" || name.trim() === "")) {
+    return "each of the candidates is a thing with a name";
+  }
+  const twice = names.filter((name, index) => names.indexOf(name) !== index);
+  return twice.length > 0 ? `candidates names ${twice[0]} twice` : null;
+}
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
 export const isDay = (value) =>
@@ -98,6 +151,8 @@ export function rowProblems(row, at) {
   if (row.item !== undefined && itemProblem(row.item)) {
     found.push(`${at}: item: ${itemProblem(row.item)}`);
   }
+  const candidates = row.candidates === undefined ? null : candidatesProblem(row.candidates);
+  if (candidates) found.push(`${at}: ${candidates}`);
   if (row.asked_on !== undefined && !isDay(row.asked_on)) {
     found.push(`${at}: asked_on is a day written YYYY-MM-DD`);
   }
@@ -118,6 +173,10 @@ export function rowProblems(row, at) {
     }
     if (row.answer === "value" && row.said === undefined) {
       found.push(`${at}: a value with no words`);
+    }
+    if (row.answer === "value" && row.said !== undefined && row.candidates && !candidates) {
+      const problem = answerProblem(row, row.said);
+      if (problem) found.push(`${at}: ${problem}`);
     }
   }
   return found;

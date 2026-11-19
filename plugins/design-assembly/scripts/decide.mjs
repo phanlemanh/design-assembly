@@ -23,7 +23,9 @@ import { LEDGERS, newerLedgers } from "../templates/tools/design-assembly/contra
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { LEDGER, readLedger } from "../templates/tools/design-assembly/ledger.mjs";
 import {
+  answerProblem,
   folderRows,
+  takesMany,
   ID,
   isDay,
   itemProblem,
@@ -159,6 +161,8 @@ function sheetOf({ rows, waiting, list }) {
         hard_to_undo: row.hard_to_undo ?? null,
         where: row.where ?? null,
         if_refused: row.if_refused ?? null,
+        // A choice among named things: what the owner picks from, the recommended one first.
+        ...(row.candidates ? { item: row.item ?? null, candidates: row.candidates } : {}),
       });
     }
   }
@@ -311,6 +315,12 @@ function record(root, state, answers, { by, on, only }) {
     if (find("questions", id)) throw new Error(`${id} is not one of the questions --only names`);
     throw new Error(`${id} is not a question of this sheet`);
   }
+  // A question with candidates is answered by naming one of them, or the ones it lets be picked.
+  for (const { id, answer, said } of answers) {
+    const row = state.list?.rows.find((item) => item.id === id);
+    const problem = answer === "value" && row ? answerProblem(row, said) : null;
+    if (problem) throw new Error(`${id}: ${problem}`);
+  }
 
   const files = {};
   const changes = {};
@@ -412,6 +422,20 @@ export function report(result) {
       `      because: ${item.basis ?? "the waiting list gives no basis apart from the recommendation"}`,
     );
     if (item.source !== "ledger" && item.where) lines.push(`      where: ${item.where}`);
+    if (item.candidates) {
+      lines.push(
+        takesMany(item)
+          ? "      candidates: keep takes them all; or answer with the names to take, a comma between them"
+          : "      candidates: keep takes the first; or answer with the name of another",
+      );
+      for (const [index, candidate] of item.candidates.entries()) {
+        const about = [candidate.store, candidate.pin, candidate.file].filter(Boolean).join(", ");
+        lines.push(
+          `        ${index + 1}. ${candidate.name}${about ? ` (${about})` : ""}${candidate.why ? `: ${candidate.why}` : ""}`,
+        );
+        if (candidate.reference) lines.push(`           see ${candidate.reference}`);
+      }
+    }
     if (item.if_refused) lines.push(`      if refused: ${item.if_refused}`);
   }
   if (elsewhere.length > 0) {

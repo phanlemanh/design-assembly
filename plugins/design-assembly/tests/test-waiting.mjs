@@ -371,3 +371,104 @@ test("asking again about an item the owner answered says what the answer was, no
     /waits on the owner/,
   );
 });
+
+// A question the command that takes a block in queues: the need it is about, and the candidates
+// the owner picks from, the recommended one first and "by-hand" last.
+const NEED_QUESTION = {
+  id: "intake-narrow-list",
+  question: "Which block answers the need narrow-list?",
+  recommendation: "filter-bar, from the outside source kit",
+  basis: "filter-bar holds every word of narrow list",
+  hard_to_undo: false,
+  item: "need:narrow-list",
+  asked_on: "2026-11-19",
+  candidates: [
+    { name: "filter-bar", store: "sources/kit", why: "holds every word" },
+    { name: "list-filter", store: "sources/kit", why: "holds every word" },
+    { name: "by-hand", store: "by-hand", why: "made in the repository" },
+  ],
+};
+
+test("a question can name a need, or what came before a ledger, and carry the candidates to pick from", () => {
+  assert.equal(itemProblem("need:narrow-list"), null);
+  assert.equal(itemProblem("before:intake"), null);
+  for (const bad of ["need:", "need:Narrow", "need:a--b", "before:", "before:a/b"]) {
+    assert.notEqual(itemProblem(bad), null, bad);
+  }
+  // Neither is the owner's alone: an agent that asks one goes on.
+  assert.equal(mustAsk("need:narrow-list"), false);
+  const dir = empty();
+  put(dir, `${WAITING_FOLDER}/${NEED_QUESTION.id}.json`, JSON.stringify(NEED_QUESTION));
+  assert.deepEqual(ids(readWaiting(dir).rows), [NEED_QUESTION.id]);
+  // Candidates are a list of named things, each named once.
+  for (const candidates of [[], "filter-bar", [{ store: "x" }], [{ name: "a" }, { name: "a" }]]) {
+    put(
+      dir,
+      `${WAITING_FOLDER}/${NEED_QUESTION.id}.json`,
+      JSON.stringify({ ...NEED_QUESTION, candidates }),
+    );
+    assert.throws(() => readWaiting(dir), /candidates/, JSON.stringify(candidates));
+  }
+});
+
+test("an answer to a question with candidates names one of them, or by-hand; any other value is refused", () => {
+  const dir = empty();
+  const file = `${WAITING_FOLDER}/${NEED_QUESTION.id}.json`;
+  put(dir, file, JSON.stringify(NEED_QUESTION));
+  const answers = path.join(empty(), "answers.txt");
+  const answer = (line) => {
+    writeFileSync(answers, `${line}\n`);
+    return cli("--target", dir, "--answers", answers, ...WHO, "--json");
+  };
+  const before = snapshot(dir);
+  const stranger = answer(`${NEED_QUESTION.id} data-grid-9`);
+  assert.equal(stranger.status, 2, stranger.stdout);
+  assert.match(stranger.stderr, /data-grid-9.*filter-bar, list-filter, by-hand/);
+  assert.deepEqual(snapshot(dir), before);
+  const other = answer(`${NEED_QUESTION.id} list-filter`);
+  assert.equal(other.status, 0, other.stderr);
+  assert.equal(data(dir, file).answer, "value");
+  assert.equal(data(dir, file).said, "list-filter");
+  // The gate reads the same rule: a value no candidate has cannot be read.
+  put(dir, file, JSON.stringify({ ...data(dir, file), said: "data-grid-9" }));
+  assert.throws(() => readWaiting(dir), /data-grid-9/);
+});
+
+test("an answer to what came before a ledger names some of its candidates, by a comma between them", () => {
+  const dir = empty();
+  const file = `${WAITING_FOLDER}/intake-before.json`;
+  const question = {
+    id: "intake-before",
+    question: "List these components as made before the intake ledger?",
+    recommendation: "list all of them",
+    basis: "screens use them and no block records them",
+    hard_to_undo: false,
+    item: "before:intake",
+    candidates: [{ name: "AppFrame" }, { name: "Notice" }, { name: "ItemList" }],
+  };
+  put(dir, file, JSON.stringify(question));
+  const answers = path.join(empty(), "answers.txt");
+  writeFileSync(answers, "intake-before AppFrame, Ghost\n");
+  const wrong = cli("--target", dir, "--answers", answers, ...WHO);
+  assert.equal(wrong.status, 2);
+  assert.match(wrong.stderr, /Ghost/);
+  writeFileSync(answers, "intake-before AppFrame, Notice\n");
+  const right = cli("--target", dir, "--answers", answers, ...WHO);
+  assert.equal(right.status, 0, right.stderr);
+  assert.equal(data(dir, file).said, "AppFrame, Notice");
+});
+
+test("the sheet shows the candidates of a question, to a person and to a machine", () => {
+  const dir = empty();
+  put(dir, `${WAITING_FOLDER}/${NEED_QUESTION.id}.json`, JSON.stringify(NEED_QUESTION));
+  const shown = cli("--target", dir);
+  assert.equal(shown.status, 1, shown.stderr);
+  assert.match(shown.stdout, /candidates:/);
+  assert.match(shown.stdout, /1\. filter-bar \(sources\/kit\)/);
+  assert.match(shown.stdout, /3\. by-hand/);
+  const machine = JSON.parse(cli("--target", dir, "--json").stdout);
+  assert.deepEqual(
+    machine.questions[0].candidates.map((item) => item.name),
+    ["filter-bar", "list-filter", "by-hand"],
+  );
+});

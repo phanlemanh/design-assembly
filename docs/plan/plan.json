@@ -245,8 +245,9 @@
         {
           "id": "3.3",
           "what": "Lệnh intake",
-          "state": "todo",
-          "command": "intake"
+          "state": "done",
+          "command": "intake",
+          "ref": "quyết định 0062; plugins/design-assembly/scripts/intake.mjs, scripts/intake-write.mjs, tests/test-intake.mjs; design/intake/; docs/trials/reusable-store-on-copies.md"
         },
         {
           "id": "3.4",

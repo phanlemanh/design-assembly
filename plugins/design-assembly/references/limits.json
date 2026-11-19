@@ -6,6 +6,7 @@
     "audit": "The read-only report on how far a repository has got.",
     "find": "The read-only search of the store, nearest store first, before something new is built.",
     "inventory": "The read-only inventory of the store: what each store holds, the state of each piece, six kinds of finding, and what it could not look at.",
+    "intake": "The command that takes a block into the store for a need, by the ladder of three rungs, every choice the owner's on the decision sheet.",
     "status": "The read-only report on what waits on the owner and what to run next.",
     "decide": "The sheet of every question that waits on the owner, and the answers written back.",
     "document": "The document a command hands over, set on the frame every document shares.",
@@ -2222,9 +2223,11 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-15",
-      "where": ["d0043"],
-      "status": "open",
-      "note": "Decide does not read candidates that wait to be chosen for a new block, because the command that takes a block in is not built, so nothing of that kind reaches the sheet."
+      "where": ["d0043", "d0062"],
+      "status": "closed",
+      "note": "Decide does not read candidates that wait to be chosen for a new block, because the command that takes a block in is not built, so nothing of that kind reaches the sheet.",
+      "closed": "2026-11-19",
+      "closed_by": "decide lists the candidates of a need: question that intake queues, the recommended one first, and takes an answer only when it names one of them or by-hand (tests/test-waiting.mjs)"
     },
     {
       "id": "decide-change-proposals-not-read",
@@ -3125,6 +3128,39 @@
       "where": ["d0061", "spec"],
       "status": "open",
       "note": "The inventory reports nothing unused in a repository where one import cannot be followed, or where no entry of the frame of the application is found, because a piece only that import or that frame reaches would be called unused: one such import hides every unused piece of the repository, and the blind spots name it."
+    },
+    {
+      "id": "intake-candidates-without-pictures",
+      "area": "intake",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-19",
+      "where": ["d0062", "spec"],
+      "status": "open",
+      "note": "The candidates of a need are given to the owner as words, with the page of each in its source, never as a picture: drawing an item of an outside source needs the network and a browser, and waits for the second build stack."
+    },
+    {
+      "id": "intake-file-of-an-outside-item-named-by-the-caller",
+      "area": "intake",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-19",
+      "where": ["d0062"],
+      "status": "open",
+      "note": "After an item of an outside source is kept, the block's file is the one the caller names with --file: intake never runs the install line, so it cannot tell that file is what the line put there; the hash under taken is of the file as named."
+    },
+    {
+      "id": "intake-matches-words-not-meaning",
+      "area": "intake",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-19",
+      "where": ["d0062", "d0060"],
+      "status": "open",
+      "note": "The candidates are what find matches by words: a need written in the repository's language finds no item of a catalog written in English, and is offered only by hand."
     }
   ]
 }

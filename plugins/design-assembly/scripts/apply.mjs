@@ -465,6 +465,21 @@ const RECORD_PARTS = {
   "record-panel.test.tsx.template": () => "tests/record-panel.test.tsx",
 };
 const RECORD_TEMPLATE = "record-panel.tsx.template";
+// The toast and the one module screens tell results through, with the frame that draws the toaster.
+const TOAST_PARTS = (folder) => ({
+  [library.toast.template]: `${folder}/${library.toast.file}`,
+  "notify.ts.template": "src/lib/notify.ts",
+  "app-frame.tsx.template": `${path.posix.dirname(folder)}/app-frame.tsx`,
+  "app-frame.test.tsx.template": "tests/frame.test.tsx",
+});
+
+// Where a template of the starter kit goes in a repository: the place the guide writes it, from
+// the folder of its components. Null for a template the guide does not place.
+export function ownedFileOf(target, template) {
+  const folder = componentsFolder(target);
+  const placed = { ...OWNED, ...ROW_PARTS, ...RECORD_PARTS }[template];
+  return placed ? placed(folder) : (TOAST_PARTS(folder)[template] ?? null);
+}
 
 // The data table layer: the repository's column types, the file code reads, the rows and checks
 // that hold alignment, width and density, and the table parts that apply them. `starter` writes
@@ -735,12 +750,7 @@ export function patternsPlan(target, { starter, code = false }) {
     if (library.toast.package in uses) {
       // The frame comes with them: it draws the toaster once, and clears a screen's toasts when a
       // person moves on.
-      const owned = {
-        [library.toast.template]: `${folder}/${library.toast.file}`,
-        "notify.ts.template": "src/lib/notify.ts",
-        "app-frame.tsx.template": `${path.posix.dirname(folder)}/app-frame.tsx`,
-        "app-frame.test.tsx.template": "tests/frame.test.tsx",
-      };
+      const owned = TOAST_PARTS(folder);
       for (const [name, file] of Object.entries(owned)) {
         if (read(file) === null) {
           files[file] = readFileSync(path.join(PLUGIN, "templates/owned", name), "utf8");

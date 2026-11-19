@@ -269,6 +269,8 @@ test("a repository with nothing, not in git, is searched in every store and ends
   assert.match(by.family.why, /no family store/);
   assert.match(by.sources.why, /no outside source is pinned/);
   assert.match(result.next, /intake ledger/);
+  // The command that takes a block in is named, now that it exists.
+  assert.match(result.next, /intake --need/);
   const shown = run(dir, "many", "rows");
   assert.equal(shown.status, 1);
   assert.match(shown.stdout, /searched/i);

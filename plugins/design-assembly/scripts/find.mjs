@@ -357,8 +357,9 @@ const entryOf = ({ store, tier, read, items, found, why }) => ({
 });
 
 // The answer for a machine: what matches, from the nearest store that has anything; what is near,
-// from every store read; and every store, with what was read and why it was not.
-export function find(root, { words, kind = null, limit = LIMIT }) {
+// from every store read; and every store, with what was read and why it was not. `from` leaves out
+// the nearer tiers: taking a block in asks the stores beyond the repository's own.
+export function find(root, { words, kind = null, limit = LIMIT, from = 1 }) {
   const asked = String(words ?? "").trim();
   if (kind === "behaviour") {
     return {
@@ -394,7 +395,7 @@ export function find(root, { words, kind = null, limit = LIMIT }) {
   const matched = [];
   const near = [];
   let answered = false;
-  for (const { tier, read, unread } of tiers) {
+  for (const { tier, read, unread } of tiers.filter((each) => each.tier >= from)) {
     if (answered) {
       for (const store of unread) {
         searched.push({ store, tier, read: null, items: null, found: false, why: NEARER });
@@ -427,13 +428,13 @@ export function find(root, { words, kind = null, limit = LIMIT }) {
 function nextOf(matches) {
   const [first] = matches;
   if (!first) {
-    return "nothing in the store answers this: take a block in for the need and record it in the intake ledger, design/intake.yaml, with who approved it and when";
+    return "nothing in the store answers this: take a block in for the need with intake --need KEY, which asks the owner and records it in the intake ledger with who approved it and when";
   }
   if (first.tier === 1) return `use ${first.name}, ${first.file ?? "already in the repository"}`;
   if (first.tier === 2) {
-    return `${first.name} is in the starter kit: copy ${first.files.join(", ")} from this plugin, see what its own file imports, and record it in the intake ledger`;
+    return `${first.name} is in the starter kit: take it in with intake --need ${first.need}, which asks the owner, copies ${first.files.join(", ")} from this plugin, and records it in the intake ledger`;
   }
-  return `take ${first.name} in${first.install ? ` with ${first.install}` : ""}, then record it in the intake ledger, design/intake.yaml`;
+  return `take ${first.name} in with intake --need KEY, which asks the owner, gives its install line${first.install ? ` (${first.install})` : ""} without running it, and records it in the intake ledger`;
 }
 
 // ---- for a person ---------------------------------------------------------------------------------

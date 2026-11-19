@@ -89,3 +89,45 @@ ba»). Ứng dụng mẫu ở commit `67603ba`; ba repo kia ở cùng commit nh�
   cùng một mục khi danh mục của một nguồn đọc được thật sự có mục ấy (quyết định 0061).
 - **Repo web ngoài họ và repo nhiều gói** không có sổ màn và không có sổ nhập kho, nên lệnh chỉ đếm. Không có linh kiện
   nào ở `src/components/` tầng trên cùng: dòng giới hạn `audit-workspace-reads-top-src-only` nay nói cả `inventory`.
+
+## Lệnh `intake`
+
+Đo ngày 2026-11-19, trên cùng các bản sao, sau `find` và `inventory`, vì `intake` ghi: lệnh chỉ ghi vào bản sao. Chủ repo
+cho đo trên ba repo ngoài kho này: «Cho cả ba». Mỗi bản sao được hỏi bốn lần, lần nào cũng xem trước hai lần rồi mới chạy
+thật:
+
+- ba nhu cầu: `many-rows`, `bang-nhieu-dong` (chữ của repo kiểm chứng), `gantt-chart` (chỉ một danh mục ngoài có);
+- những gì có trước sổ: `--before`.
+
+| Repo              | Hỏi                        | Thoát | Bậc     | Ứng viên        | Tệp đổi trên bản sao                         | Xem trước kê đúng | Ngoài hàng chờ |
+| ----------------- | -------------------------- | ----- | ------- | --------------- | -------------------------------------------- | ----------------- | -------------- |
+| Ứng dụng mẫu      | `many-rows`                | 1     | by-hand | by-hand         | `design/waiting/intake-many-rows.json`       | có                | không          |
+| Ứng dụng mẫu      | `bang-nhieu-dong`          | 1     | by-hand | by-hand         | `design/waiting/intake-bang-nhieu-dong.json` | có                | không          |
+| Ứng dụng mẫu      | `gantt-chart`              | 1     | by-hand | by-hand         | `design/waiting/intake-gantt-chart.json`     | có                | không          |
+| Ứng dụng mẫu      | `--before`                 | 0     | before  | bảy, đã được kê | không                                        | có                | không          |
+| Repo kiểm chứng   | `many-rows`, `gantt-chart` | 2     | -       | -               | không                                        | có                | không          |
+| Repo kiểm chứng   | `bang-nhieu-dong`          | 0     | store   | -               | không                                        | có                | không          |
+| Repo kiểm chứng   | `--before`                 | 2     | -       | -               | không                                        | có                | không          |
+| Repo web ngoài họ | ba nhu cầu                 | 1     | by-hand | by-hand         | một câu chờ cho mỗi nhu cầu                  | có                | không          |
+| Repo web ngoài họ | `--before`                 | 1     | before  | không           | không                                        | có                | không          |
+| Repo nhiều gói    | ba nhu cầu                 | 1     | by-hand | by-hand         | một câu chờ cho mỗi nhu cầu                  | có                | không          |
+| Repo nhiều gói    | `--before`                 | 1     | before  | không           | không                                        | có                | không          |
+
+Bản sao của ứng dụng mẫu lấy từ commit `dbf0595` của nhánh mục 3.3, nơi ứng dụng mẫu đã có sổ nhập kho. Ba repo kia ở
+đúng các commit của mục `find`.
+
+- **Ứng dụng mẫu:** `--before` không còn gì để kê, vì bảy linh kiện đã ở `before` qua lời đáp của chủ repo. Ba nhu cầu
+  mới chỉ có «by-hand», vì bộ khởi đầu không có mảnh nào cho chúng. Kiểm kê trên cùng bản sao không có phát hiện nào, và
+  không còn loại nào ở «không xét».
+- **Ở mọi bản sao:** mọi lần gọi thoát 0, 1 hoặc 2, không có dấu vết ngăn xếp. Hai lần xem trước cho cùng JSON. Các tệp
+  lần xem trước kê đúng là các tệp lần chạy thật ghi, và không tệp nào nằm ngoài `design/waiting/`.
+- **Repo kiểm chứng trả lời bậc 1 qua chữ của chính nó.** `bang-nhieu-dong` là khoá nhu cầu của một khối trong sổ khối của
+  repo ấy, nên lệnh in khối ấy, không ghi gì và thoát 0.
+- **Repo kiểm chứng không nhận câu hỏi nào:** công cụ của nó là bản 0.7.1. Công cụ ấy đọc câu có ứng viên thành lỗi, nên
+  cổng của repo sẽ đỏ. Lệnh thoát 2, không ghi gì, và bảo `upgrade` trước. Lên đời repo ấy là việc của chủ repo, chỉ khi
+  chủ repo cho phép.
+- **Hai repo của giai đoạn 2 chưa nhận plugin.**
+  - Bộ khởi đầu không áp dụng ở đó, và không có nguồn ngoài nào được ghim. Vì vậy mỗi nhu cầu chỉ có «by-hand», và mỗi
+    nhu cầu ghi đúng một câu chờ.
+  - Lệnh ghi kèm một ghi chú: không cổng nào giữ sổ nhập kho và hàng chờ cho tới khi repo nhận plugin.
+  - `--before` không đề xuất gì, vì hai repo ấy không có sổ màn, nên lệnh không biết màn nào dùng linh kiện nào.

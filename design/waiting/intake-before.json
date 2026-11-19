@@ -1,0 +1,52 @@
+{
+  "id": "intake-before",
+  "group": "blocks to take in",
+  "question": "List these components in the intake ledger as made before it was kept: AppFrame, HeldLabel, ItemList, ItemRecord, ItemTable, Notice, WithRecord?",
+  "recommendation": "list all of them",
+  "basis": "screens or the frame use them, and no block of the ledger records them",
+  "hard_to_undo": false,
+  "where": "design/intake.yaml",
+  "if_refused": "each is reported as unrecorded until a block is taken in for it with --need",
+  "item": "before:intake",
+  "asked_on": "2026-11-19",
+  "candidates": [
+    {
+      "name": "AppFrame",
+      "file": "src/components/app-frame.tsx",
+      "used_by": ["the frame"]
+    },
+    {
+      "name": "HeldLabel",
+      "file": "src/components/held-label.tsx",
+      "used_by": ["reference"]
+    },
+    {
+      "name": "ItemList",
+      "file": "src/components/item-list.tsx",
+      "used_by": ["overdue", "reference"]
+    },
+    {
+      "name": "ItemRecord",
+      "file": "src/components/item-record.tsx",
+      "used_by": ["overdue", "reference"]
+    },
+    {
+      "name": "ItemTable",
+      "file": "src/components/item-table.tsx",
+      "used_by": ["overdue", "reference"]
+    },
+    {
+      "name": "Notice",
+      "file": "src/components/notice.tsx",
+      "used_by": ["overdue", "reference"]
+    },
+    {
+      "name": "WithRecord",
+      "file": "src/components/record-panel.tsx",
+      "used_by": ["overdue", "reference"]
+    }
+  ],
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-19"
+}
