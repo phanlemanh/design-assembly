@@ -57,7 +57,7 @@ function ledgerFiles(root) {
       const full = path.join(root, ledger.folder);
       if (!existsSync(full)) continue;
       for (const name of readdirSync(full).sort()) {
-        if (name.endsWith(".md") && !["README.md", "lech-lot.md"].includes(name)) {
+        if (name.endsWith(ledger.ending ?? ".md") && !["README.md", "lech-lot.md"].includes(name)) {
           found.push([kind, `${ledger.folder}/${name}`]);
         }
       }

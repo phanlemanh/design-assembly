@@ -129,7 +129,7 @@ const drop = (ledger, line) =>
     .filter((item) => item !== line)
     .join("\n");
 
-test("the intake ledger is a ledger of the contract, and the sources ledger is still unsettled", () => {
+test("the intake ledger is a ledger of the contract, and no ledger the contract names is unsettled", () => {
   assert.equal(LEDGERS.intake.file, INTAKE_LEDGER);
   assert.equal(INTAKE_LEDGER, "design/intake.yaml");
   assert.equal(LEDGERS.intake.version, 1);
@@ -139,7 +139,7 @@ test("the intake ledger is a ledger of the contract, and the sources ledger is s
     named_by: "need",
   });
   assert.ok(!("intake" in UNSETTLED));
-  assert.ok("sources" in UNSETTLED);
+  assert.deepEqual(UNSETTLED, {});
 });
 
 test("a ledger of that shape holds, in the contract's keys and in a repository's own", () => {

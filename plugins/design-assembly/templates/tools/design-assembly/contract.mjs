@@ -4,7 +4,7 @@
 //
 // A shape is checked as data. Its `version` says which shape a file has: a reader of shape N reads
 // every file of shape N or older, and a writer that finds a newer shape writes nothing.
-import { existsSync, readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 import { adapterOf } from "./adapters/index.mjs";
@@ -15,6 +15,7 @@ import {
   spellingProblems,
 } from "./intake-ledger.mjs";
 import { readYaml } from "./yaml.mjs";
+import { SOURCES_FOLDER } from "./sources-ledger.mjs";
 import { parseLedger } from "./ledger.mjs";
 import { ledgerText, readFragments } from "./screen-fragments.mjs";
 import { FRAGMENTS_SHARED, fragmentsFolder, readScreenLedger } from "./screen-ledger.mjs";
@@ -26,6 +27,9 @@ const text = { type: "string" };
 const number = { type: "number" };
 const list = (items) => ({ type: "array", items });
 const required = (spec) => ({ ...spec, required: true });
+// A day, `YYYY-MM-DD`; a key in small letters and dashes, as a need or the id of a source is.
+const day = { ...text, pattern: "^\\d{4}-\\d{2}-\\d{2}$" };
+const dashed = { ...text, pattern: "^[a-z0-9]+(-[a-z0-9]+)*$" };
 
 // The token types the format names, the acceptance kit's list included.
 export const TOKEN_TYPES = [
@@ -251,6 +255,22 @@ export const LEDGERS = {
             record: text,
             approved: required({ ...text, pattern: "^\\d{4}-\\d{2}-\\d{2}$" }),
             approved_by: text,
+            // The pinned source it came from, the hash of its file when it was taken in, a change
+            // the repository made on purpose and why, and whether it was retired or merged into
+            // the block of another need.
+            from: dashed,
+            taken: { ...text, pattern: "^[0-9a-f]{64}$" },
+            changed: {
+              type: "object",
+              fields: { on: required(day), why: required(text) },
+              open: true,
+            },
+            retired: {
+              type: "object",
+              fields: { on: required(day), by: required(text), why: required(text) },
+              open: true,
+            },
+            merged_into: dashed,
           },
           // A repository may keep keys of its own on a block.
           open: true,
@@ -258,6 +278,59 @@ export const LEDGERS = {
       ),
       // The repository's own spelling of these keys, such as `{ blocks: <its list>, need: … }`.
       keys: { type: "object", open: true },
+      // What the repository made before it kept this ledger, each with why it has no block.
+      before: list({
+        type: "object",
+        fields: { name: required(text), why: required(text), file: text, record: text },
+        open: true,
+      }),
+      // How the repository writes a value of the contract, such as `{ by-hand: <its word> }`.
+      values: { type: "object", fields: { "by-hand": text }, open: true },
+    },
+    open: true,
+  },
+  sources: {
+    folder: SOURCES_FOLDER,
+    ending: ".json",
+    question: "which outside libraries blocks are picked from, in what order, at which pin",
+    writer: "a person, or the repository's own tool that pins a source; one file per source",
+    version: 1,
+    format: "json-sources",
+    root: {
+      version: required({ type: "number|string" }),
+      // The name of its file, without `.json`.
+      id: required(dashed),
+      title: text,
+      // Sources are looked through by this number, the smallest first, then by id.
+      order: number,
+      // The pin itself, or the file the repository already keeps it in; one of the two.
+      pin: {
+        type: "object",
+        fields: {
+          fetched_at: text,
+          files: list({
+            type: "object",
+            fields: {
+              file: required(text),
+              url: text,
+              bytes: number,
+              sha256: required({ ...text, pattern: "^[0-9a-f]{64}$" }),
+            },
+            open: true,
+          }),
+          version: text,
+        },
+        open: true,
+      },
+      pin_file: text,
+      // The folder the pinned files are kept in, where they are compared with their hashes.
+      snapshot: text,
+      // The list of what the source offers, kept in the repository.
+      catalog: required(text),
+      // How one item is taken in, with `{name}` where its name goes.
+      install: text,
+      // What taking an item in needs, in a sentence; never a key.
+      licence: text,
     },
     open: true,
   },
@@ -291,10 +364,7 @@ export const LEDGERS = {
 };
 
 // Ledgers the contract names whose one shape is not settled yet, and why.
-export const UNSETTLED = {
-  sources:
-    "which outside libraries blocks come from, in what order, at which pin: one repository keeps one so far",
-};
+export const UNSETTLED = {};
 
 const typeOf = (value) => (value === null ? "null" : Array.isArray(value) ? "array" : typeof value);
 
@@ -349,11 +419,11 @@ export function versionOf(data) {
 
 // Why a file is of a newer shape than this tool knows, or null. A newer file is never written over:
 // the tool that reads it is older than the one that wrote it.
-export function newerProblem(kind, data) {
+export function newerProblem(kind, data, file = LEDGERS[kind]?.file ?? LEDGERS[kind]?.folder) {
   const known = LEDGERS[kind]?.version;
   const found = versionOf(data);
   if (known === null || known === undefined || found === null || found <= known) return null;
-  return `${LEDGERS[kind].file} has shape ${found} and this tool knows shape ${known}: update the design-assembly plugin before it writes here`;
+  return `${file} has shape ${found} and this tool knows shape ${known}: update the design-assembly plugin before it writes here`;
 }
 
 // Every ledger of a repository that a newer tool wrote: the reasons, empty when there is none. A
@@ -419,6 +489,7 @@ export function shapeProblems(kind, textOfFile, file = LEDGERS[kind]?.file) {
     );
   }
   if (ledger.format === "yaml-intake") return intakeProblems(textOfFile, file);
+  if (ledger.format === "json-sources") return sourceProblems(textOfFile, file);
   let data;
   if (ledger.format === "yaml-screens") {
     const { screens, ...rest } = readScreenLedger(textOfFile);
@@ -451,7 +522,7 @@ function intakeProblems(textOfFile, file) {
   const { spelled, ...data } = readIntakeLedger(textOfFile);
   const newer = newerProblem("intake", data);
   if (newer) return [newer];
-  const own = Object.entries(spelled).filter(([key, value]) => key !== value);
+  const own = Object.entries(spelled).filter(([key, value]) => value !== null && key !== value);
   const named = (line) =>
     own.reduce(
       (said, [key, value]) =>
@@ -467,6 +538,39 @@ function intakeProblems(textOfFile, file) {
   ];
 }
 
+// One file of the ledger of sources: its shape, a name that is its id, and a pin, kept in the file
+// or in the one it names, that says which files or which version it holds.
+function sourceProblems(textOfFile, file) {
+  let data;
+  try {
+    data = JSON.parse(textOfFile);
+  } catch {
+    return [`${file} is not valid JSON`];
+  }
+  if (typeOf(data) !== "object") return [`${file} is ${typeOf(data)}, the contract says object`];
+  const newer = newerProblem("sources", data, file);
+  if (newer) return [newer];
+  const problems = objectProblems(data, LEDGERS.sources.root, LEDGERS.sources.open, file);
+  const name = path.basename(file);
+  if (typeof data.id === "string" && name !== `${data.id}.json`) {
+    problems.push(
+      `${file} is named ${name} and its id is ${data.id}: a source's file is named after its id`,
+    );
+  }
+  if (!("pin" in data) && !("pin_file" in data)) {
+    problems.push(
+      `${file}.pin is missing: a source holds its pin, or names the file it is kept in under pin_file`,
+    );
+  }
+  if (typeof data.install === "string" && !data.install.includes("{name}")) {
+    problems.push(`${file}.install has no {name}, where the name of the item to take in goes`);
+  }
+  if (typeOf(data.pin) === "object" && !("files" in data.pin) && !("version" in data.pin)) {
+    problems.push(`${file}.pin names neither the files it was read from nor a version`);
+  }
+  return problems;
+}
+
 // Files in the folder of screen kinds that are not a kind of screen.
 const NOT_A_KIND = ["README.md", "lech-lot.md"];
 
@@ -480,7 +584,8 @@ export function presentLedgers(root) {
       const full = path.join(root, ledger.folder);
       if (existsSync(full)) {
         for (const name of readdirSync(full).sort()) {
-          if (name.endsWith(".md") && !NOT_A_KIND.includes(name)) {
+          const isFile = statSync(path.join(full, name)).isFile();
+          if (isFile && name.endsWith(ledger.ending ?? ".md") && !NOT_A_KIND.includes(name)) {
             files.push(`${ledger.folder}/${name}`);
           }
         }
