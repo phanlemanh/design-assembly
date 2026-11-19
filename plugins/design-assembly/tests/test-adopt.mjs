@@ -10,7 +10,7 @@ import { execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { inventory } from "../scripts/inventory.mjs";
+import { audit } from "../scripts/audit.mjs";
 import { parseColor } from "../templates/tools/design-assembly/color.mjs";
 import { parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
@@ -388,7 +388,7 @@ test("the guide does not write over a primary color role that has a hue of its o
 
 test("the audit and adopting give one answer about the same repository", () => {
   const dir = floor();
-  const before = inventory(dir);
+  const before = audit(dir);
   // Nothing has a row yet, so nothing is answered: the audit says what it sees and what to do.
   assert.equal(before.coverage.answered, 0);
   assert.match(
@@ -413,7 +413,7 @@ test("the audit and adopting give one answer about the same repository", () => {
       id,
     );
   for (const id of claimed) assert.ok(seen.includes(id), id);
-  const after = inventory(dir);
+  const after = audit(dir);
   for (const id of claimed) {
     assert.equal(after.decisions.find((d) => d.id === id).state, "claimed", id);
   }
@@ -424,7 +424,7 @@ test("the audit and adopting give one answer about the same repository", () => {
 test("a repository with a brand colour of its own is sent to adopting, never to the guide", () => {
   const dir = folder(BRAND);
   assert.match(
-    inventory(dir).next,
+    audit(dir).next,
     /^\/design-assembly:adopt, .*Not the guide: the stylesheet has a primary color role of its own \(var\(--brand-blue\)\)/,
   );
 });
@@ -470,7 +470,7 @@ test("what cannot be read is said on every run, not only the first", () => {
     /cannot be read here:\n\s+color-contrast: dark: .*color-mix.*Not checked/,
   );
   // And the audit says what the held row covers.
-  const held = inventory(dir).decisions.find((d) => d.id === "color-contrast");
+  const held = audit(dir).decisions.find((d) => d.id === "color-contrast");
   assert.equal(held.state, "held");
   assert.match(held.note, /light mode; the pairs that could not be read are not checked/);
 });
@@ -531,7 +531,7 @@ test("a row of the repository's own that has no check is named, and pointed only
   });
 
   // The audit sees the proof the row does not point at.
-  const seen = inventory(dir).decisions.find((d) => d.id === "undo-or-confirm");
+  const seen = audit(dir).decisions.find((d) => d.id === "undo-or-confirm");
   assert.equal(seen.state, "not-held");
   assert.match(seen.seen, /a proof the row does not point at, test:tests\/change\.test\.tsx/);
 

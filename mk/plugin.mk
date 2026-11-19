@@ -19,7 +19,7 @@ done-or-work = || [ $$? -eq 1 ]
 .PHONY: plugin-version plugin-version-check design-upgrade design-upgrade-plan design-upgrade-reference design-decide design-status design-ladder design-screen-actions-reference design-screen-fragments-reference plugin-test design-specimen design-book design-apply design-plan design-audit design-adopt design-adopt-plan design-adopt-reference
 
 design-audit: ## Audit this repository: each standard decision's state, and the tier it has reached
-	@node plugins/design-assembly/scripts/inventory.mjs --target . $(done-or-work)
+	@node plugins/design-assembly/scripts/audit.mjs --target . $(done-or-work)
 
 design-status: ## Say what waits on the owner here, the tier reached, and the command to run next. Ends with 1 when something waits or is left to fix
 	@node plugins/design-assembly/scripts/status.mjs --target .

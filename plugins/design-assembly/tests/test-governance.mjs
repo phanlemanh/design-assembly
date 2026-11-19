@@ -30,7 +30,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
 const ROOT = path.resolve(PLUGIN, "../..");
 const APPLY = path.join(PLUGIN, "scripts/apply.mjs");
-const AUDIT = path.join(PLUGIN, "scripts/inventory.mjs");
+const AUDIT = path.join(PLUGIN, "scripts/audit.mjs");
 const LAYERS = JSON.parse(readFileSync(path.join(PLUGIN, "references/layers.json"), "utf8")).layers;
 
 const made = [];

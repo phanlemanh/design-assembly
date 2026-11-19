@@ -9,7 +9,7 @@ import { execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { inventory, report } from "../scripts/inventory.mjs";
+import { audit, report } from "../scripts/audit.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -70,7 +70,7 @@ const state = (result, id) => result.decisions.find((row) => row.id === id).stat
 const tier = (result, id) => result.tiers.find((entry) => entry.id === id);
 
 test("a folder with nothing in it: nothing is answered and no tier is reached", () => {
-  const result = inventory(empty());
+  const result = audit(empty());
   assert.equal(result.decisions.length, STANDARD.decisions.length);
   assert.deepEqual([...new Set(result.decisions.map((row) => row.state))].sort(), [
     "no-row",
@@ -84,7 +84,7 @@ test("a folder with nothing in it: nothing is answered and no tier is reached", 
 });
 
 test("a floor with no ledger and no lint: nothing is answered, and what is seen is not an answer", () => {
-  const result = inventory(floor());
+  const result = audit(floor());
   for (const id of ["color-role", "type-scale", "spacing", "radius"]) {
     assert.equal(state(result, id), "no-row", id);
   }
@@ -105,7 +105,7 @@ test("a floor with no ledger and no lint: nothing is answered, and what is seen 
 
 test("after the guide is applied its checks are re-run, and those decisions count as held", () => {
   const dir = applied();
-  const result = inventory(dir);
+  const result = audit(dir);
   for (const id of [
     "tonal-palette",
     "color-contrast",
@@ -122,7 +122,7 @@ test("after the guide is applied its checks are re-run, and those decisions coun
 
   // A rule that breaks a decision turns "held" into "failing": the checks are run, not trusted.
   put(dir, "src/index.css", `${text(dir, "src/index.css")}\n:root {\n  --radius: 3rem;\n}\n`);
-  assert.equal(state(inventory(dir), "radius-value"), "failing");
+  assert.equal(state(audit(dir), "radius-value"), "failing");
 });
 
 test("values written around the system are counted, and vendor components are left out", () => {
@@ -131,7 +131,7 @@ test("values written around the system are counted, and vendor components are le
     'export const Bad = () => <p className="text-[13px] bg-[#123456] rounded-[7px] p-[5px]" />;\n';
   put(dir, "src/Bad.tsx", bad);
   put(dir, "src/components/ui/vendor.tsx", bad);
-  const result = inventory(dir);
+  const result = audit(dir);
   for (const id of ["color-role", "type-scale", "spacing", "radius"]) {
     const row = result.decisions.find((entry) => entry.id === id);
     assert.equal(row.state, "bypassed", id);
@@ -179,7 +179,7 @@ test("another team's ledger: a row that names a check is claimed, a broken point
     "",
   ].join("\n");
   put(dir, "design/decisions.yaml", ledger);
-  const result = inventory(dir);
+  const result = audit(dir);
   assert.equal(state(result, "color-role"), "claimed");
   assert.equal(state(result, "radius"), "not-held");
   assert.equal(state(result, "raw-controls"), "failing");
@@ -206,7 +206,7 @@ test("another team's ledger: a row that names a check is claimed, a broken point
 
 test("a tier is reached only with every core decision answered and its artifact in place", () => {
   const dir = applied();
-  const before = tier(inventory(dir), "foundations");
+  const before = tier(audit(dir), "foundations");
   assert.equal(before.state, "missing");
   const open = before.needs.find((need) => need.missing !== undefined);
   assert.ok(open.missing.length > 0);
@@ -228,7 +228,7 @@ test("a tier is reached only with every core decision answered and its artifact 
   put(dir, "design/decisions.yaml", `${text(dir, "design/decisions.yaml")}${rows.join("")}`);
   // The guide wrote the design tokens file, so nothing is missing. Five decisions rest on lint
   // rules the audit did not run: claimed, not reached.
-  const answered = tier(inventory(dir), "foundations");
+  const answered = tier(audit(dir), "foundations");
   assert.deepEqual(
     answered.needs.filter((need) => !need.ok),
     [],
@@ -238,7 +238,7 @@ test("a tier is reached only with every core decision answered and its artifact 
   // The artifact is part of the tier: without the file the tier is not reached.
   rmSync(path.join(dir, "design/tokens.json"));
   assert.deepEqual(
-    tier(inventory(dir), "foundations")
+    tier(audit(dir), "foundations")
       .needs.filter((need) => !need.ok)
       .map((need) => need.what.split(" (")[0]),
     ["design/tokens.json"],
@@ -246,29 +246,29 @@ test("a tier is reached only with every core decision answered and its artifact 
 
   put(dir, "_acceptance/config.yaml", "design_floor:\n  tokens: design/brand.tokens.json\n");
   assert.deepEqual(
-    tier(inventory(dir), "foundations")
+    tier(audit(dir), "foundations")
       .needs.filter((need) => !need.ok)
       .map((need) => need.what.split(" (")[0]),
     ["design/brand.tokens.json"],
   );
   put(dir, "design/brand.tokens.json", "{}\n");
-  assert.equal(tier(inventory(dir), "foundations").state, "claimed");
-  assert.equal(tier(inventory(dir), "core-components").state, "missing");
+  assert.equal(tier(audit(dir), "foundations").state, "claimed");
+  assert.equal(tier(audit(dir), "core-components").state, "missing");
 });
 
 test("the same repository gives the same report, and the audit writes nothing", () => {
   const dir = applied();
   spawnSync("git", ["-C", dir, "init", "-q"]);
   spawnSync("git", ["-C", dir, "add", "-A"]);
-  const first = JSON.stringify(inventory(dir));
+  const first = JSON.stringify(audit(dir));
   const run = spawnSync(
     execPath,
-    [path.join(PLUGIN, "scripts/inventory.mjs"), "--target", dir, "--json"],
+    [path.join(PLUGIN, "scripts/audit.mjs"), "--target", dir, "--json"],
     { encoding: "utf8" },
   );
   assert.equal(run.status, 0, run.stderr);
   assert.equal(JSON.stringify(JSON.parse(run.stdout)), first);
-  assert.equal(JSON.stringify(inventory(dir)), first);
+  assert.equal(JSON.stringify(audit(dir)), first);
   const changed = spawnSync("git", ["-C", dir, "status", "--porcelain"], {
     encoding: "utf8",
   }).stdout;
@@ -312,7 +312,7 @@ test("tiers, layers and standard decisions are one consistent set, named with vo
 });
 
 test("every report says where this plugin is blind, and names the limits that can hide a fault", () => {
-  const printed = report(inventory(empty()));
+  const printed = report(audit(empty()));
   const ledger = reference("limits.json").limits;
   const open = ledger.filter((limit) => limit.status === "open");
   const high = open.filter((limit) => limit.severity === "high");
@@ -320,4 +320,59 @@ test("every report says where this plugin is blind, and names the limits that ca
   // A limit that can leave a check green while the thing it holds is broken is named, not counted:
   // the reader of a green gate has to be able to look it up.
   for (const limit of high) assert.ok(printed.includes(limit.id), limit.id);
+});
+
+// The audit's script was named inventory.mjs until the inventory command of the reusable store
+// needed that name. The old name answers no call in the meantime, so that nobody reads a report of
+// one command as the other's.
+test("the old name of the script refuses every call and names the new one", () => {
+  const dir = empty();
+  for (const args of [[], ["--json"], ["--help"], ["--target", dir, "--json"], ["--all"]]) {
+    const run = spawnSync(execPath, [path.join(PLUGIN, "scripts/inventory.mjs"), ...args], {
+      encoding: "utf8",
+    });
+    assert.equal(run.status, 2, args.join(" "));
+    assert.equal(run.stdout, "", args.join(" "));
+    assert.match(run.stderr, /scripts\/inventory\.mjs is now scripts\/audit\.mjs/, args.join(" "));
+  }
+});
+
+// The last commit before the rename.
+const BEFORE_RENAME = "1754568";
+
+const withoutVersions = (value) =>
+  Array.isArray(value)
+    ? value.map(withoutVersions)
+    : value !== null && typeof value === "object"
+      ? Object.fromEntries(
+          Object.entries(value)
+            .filter(([key]) => key !== "version")
+            .map(([key, inner]) => [key, withoutVersions(inner)]),
+        )
+      : value;
+
+test("the renamed script gives the same facts as the script before the rename, but the version", () => {
+  const old = empty();
+  const archive = spawnSync(
+    "git",
+    ["-C", ROOT, "archive", BEFORE_RENAME, "plugins/design-assembly"],
+    { maxBuffer: 1 << 28 },
+  );
+  assert.equal(archive.status, 0, String(archive.stderr));
+  const untar = spawnSync("tar", ["-x", "-C", old], { input: archive.stdout });
+  assert.equal(untar.status, 0, String(untar.stderr));
+  for (const dir of [empty(), floor(), applied()]) {
+    const json = (script) => {
+      const run = spawnSync(execPath, [script, "--target", dir, "--json"], {
+        encoding: "utf8",
+        maxBuffer: 1 << 26,
+      });
+      assert.ok([0, 1].includes(run.status), run.stderr);
+      return { status: run.status, facts: withoutVersions(JSON.parse(run.stdout)) };
+    };
+    assert.deepEqual(
+      json(path.join(PLUGIN, "scripts/audit.mjs")),
+      json(path.join(old, "plugins/design-assembly/scripts/inventory.mjs")),
+    );
+  }
 });

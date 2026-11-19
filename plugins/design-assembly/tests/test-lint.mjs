@@ -20,7 +20,7 @@ import { after, test } from "node:test";
 import { clearTimeout, setTimeout } from "node:timers";
 import { fileURLToPath } from "node:url";
 
-import { inventory } from "../scripts/inventory.mjs";
+import { audit } from "../scripts/audit.mjs";
 import { heldHere } from "../templates/tools/design-assembly/check.mjs";
 import { askLint } from "../templates/tools/design-assembly/lint.mjs";
 
@@ -138,8 +138,8 @@ test(
     assert.equal(theme.checks["whole-class-names"], undefined);
 
     // The audit counts the row as held, and the other as claimed.
-    const audit = inventory(dir);
-    const state = (id) => audit.decisions.find((decision) => decision.id === id);
+    const audited = audit(dir);
+    const state = (id) => audited.decisions.find((decision) => decision.id === id);
     assert.equal(state("raw-table").state, "held");
     assert.match(state("raw-table").by, /re-run by this plugin's tool/);
     assert.equal(state("whole-class-names").state, "claimed");
