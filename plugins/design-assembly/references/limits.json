@@ -3495,8 +3495,54 @@
       "plan": "fix",
       "opened": "2026-11-20",
       "where": ["spec", "d0071"],
+      "status": "closed",
+      "note": "No eye has looked at the pictures a review draws: the design review socket draws a screen and measures two things on it, and it calls no reviewer skill and harvests no finding of one until the second slice of the review command is built.",
+      "closed": "2026-11-20",
+      "closed_by": "the review skill hands the pictures and the pack to the reviewer skill the socket board names, writes its findings into the findings file, and the review command reads that file in one fixed shape and harvests each finding by what it rests on (decision 0072); held by tests/test-review-harvest.mjs. What stays open is the row capability-design-review-eye-unheld"
+    },
+    {
+      "id": "capability-design-review-eye-unheld",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0072"],
       "status": "open",
-      "note": "No eye has looked at the pictures a review draws: the design review socket draws a screen and measures two things on it, and it calls no reviewer skill and harvests no finding of one until the second slice of the review command is built."
+      "note": "No check holds what an eye says: the harvest sorts an eye's findings by what they rest on and cannot tell whether one is right, nor what the eye missed; the agent writes the findings file from what the reviewer skill said, so what it leaves out or adds is not seen; and where the session lists no reviewer skill no eye looks, and the review ends with the two measures alone."
+    },
+    {
+      "id": "review-eye-and-measure-not-merged",
+      "area": "review",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0073"],
+      "status": "open",
+      "note": "A finding an eye gives of the same fault the measure found is a second finding with its own number, and the harvest prints a second line for the ledger of escapes for one fault: in the trial of decision 0073 the pale words of the empty state stood twice."
+    },
+    {
+      "id": "review-rule-line-held-read-from-its-section",
+      "area": "review",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0073"],
+      "status": "open",
+      "note": "Whether the gate holds a line of the rules page is read from the section the line stands under, so a line outside the section no check holds counts as held even where no check can judge it, as the words an error message says, and a finding resting on it is printed as an escape where a question for the owner would fit."
+    },
+    {
+      "id": "review-eye-contrast-not-checked-against-the-measure",
+      "area": "review",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0073"],
+      "status": "open",
+      "note": "An eye's finding that text is too faint, resting on the contrast row, is harvested as an escape even where the measure read the same text at or above the level asked: in the trial of decision 0073 both such findings of the eye were of text the measure read at 4.5:1 and 5.3:1, where 4.5:1 is asked."
     },
     {
       "id": "review-ground-read-from-the-elements-around",

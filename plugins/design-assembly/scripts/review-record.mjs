@@ -1,12 +1,14 @@
 // The design review record: what a review found on one drawn screen, set on the frame every
 // document of this plugin shares. The pictures carry numbered notes, one for each finding; the
-// findings stand by severity; and the last part says what was not seen, first of all that no eye
-// has looked at the pictures. Built from the facts of the answer for a machine and from nothing
-// else, so the same facts give the same page.
+// findings stand by severity, the machine's and an eye's alike, each with what becomes of it; and
+// the last part says what was not seen: that no eye has looked at the pictures, or what the words
+// of the eye that did cannot tell. Built from the facts of the answer for a machine and from
+// nothing else, so the same facts give the same page.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { SLIPS_FILE } from "../templates/tools/design-assembly/governance.mjs";
 import { SIZES_FILE } from "../templates/tools/design-assembly/screens.mjs";
 import { readCapabilities } from "./capabilities.mjs";
 import { plural, SEVERITIES } from "./document.mjs";
@@ -36,7 +38,9 @@ const TITLE = {
     `A word broken in its middle: ${quoted(where.text)} is laid on ${measured.lines} lines`,
   "cut-off": ({ where, measured }) =>
     `Text cut off by its box: ${quoted(where.text)} loses ${measured.hidden}px ${measured.axis === "x" ? "across" : "down"}`,
+  seen: ({ by, where }) => `Seen by ${by}: ${where.text}`,
 };
+export const titleOf = (finding) => TITLE[finding.kind](finding);
 const MEASURED = {
   contrast: ({ measured, places }) =>
     `Text ${measured.text} on ${measured.ground}, at ${measured.size}px${measured.bold ? " bold" : ""}: ${measured.ratio}:1, and the level asks ${measured.needed}:1. The same two colours stand at ${plural(places, "place", "places")} of the screen.`,
@@ -44,16 +48,70 @@ const MEASURED = {
     `The word has no break of the writer's own and stands on ${measured.lines} lines.`,
   "cut-off": ({ measured }) =>
     `${measured.hidden}px of the text lie outside the box that hides what does not fit, ${measured.axis === "x" ? "across" : "down"} the page.`,
+  seen: ({ by }) => `${by} saw this on the picture, in its own words; no machine measured it.`,
 };
-const restsOn = ({ rests_on: on }) =>
-  on.kind === "ledger-row"
-    ? `Rests on row ${on.id} of ${on.ledger}${on.check ? `, held by ${on.check}` : ", which no check holds"}.`
-    : `Rests on nothing this repository has decided: ${on.note}.`;
+function restsOn({ rests_on: on }) {
+  if (on.kind === "ledger-row") {
+    return `Rests on row ${on.id} of ${on.ledger}${on.check ? `, held by ${on.check}` : ", which no check holds"}.`;
+  }
+  if (on.kind === "rule-line") {
+    return `Rests on line ${on.line} of ${on.file}, ${quoted(on.text)}, under ${quoted(on.section)}${on.held ? ", which the gate holds" : ", which no check holds"}.`;
+  }
+  if (on.kind === "principle") {
+    return `Rests on the principle ${on.id} the owner fixed: ${quoted(on.statement)}.`;
+  }
+  return `Rests on nothing this repository has decided: ${on.note}.`;
+}
+// What becomes of a finding, in one sentence of its evidence.
+function harvestWords(entry) {
+  if (entry.group === "escape") {
+    // The line as it reads on any day: the record reads no clock, and the line is dated the day
+    // it is added.
+    const { what, layer, done } = entry.slip;
+    return `A check let it through: add a line to ${entry.file} before the fix, dated the day it is added: ${quoted(what)}; layer ${layer ?? "left for the person who adds it, since the rules page names none"}; ${quoted(done)}.`;
+  }
+  if (entry.group === "question") {
+    const where = entry.queued?.file
+      ? `it is on the waiting list, as ${entry.queued.id}`
+      : entry.queued?.waits
+        ? `it waits on the owner already, as ${entry.queued.waits}`
+        : entry.queued?.answered
+          ? `the owner answered it already, in ${entry.queued.answered}`
+          : "the review with --queue puts it on the waiting list";
+    return `A question for the owner, since no check holds what it rests on: ${where}.`;
+  }
+  return "For a person's eye: it rests on nothing, and no question is asked until someone takes it up.";
+}
 const pictureOf = (shots, id) => shots.find((shot) => shot.id === id);
+// What a recommendation to fix a finding rests on: what was measured, the principle or the rule
+// an eye named, or, for an eye's finding that rests on nothing, no recommendation at all.
+function basisOf(finding) {
+  if (finding.kind !== "seen")
+    return { kind: "measurement", text: MEASURED[finding.kind](finding) };
+  const on = finding.rests_on;
+  if (on.kind === "principle") return { kind: "principle", text: `${on.id}: ${on.statement}` };
+  if (on.kind === "nothing") return null;
+  return { kind: "standard", text: restsOn(finding) };
+}
 const named = (shot) => shot.file ?? shot.id;
 
-function findingOf(finding, shots) {
+// Where on its picture a finding's note is, in words: the place measured or named, or the whole
+// picture where an eye named none.
+function placeWords(finding, shot) {
   const { x, y, width, height } = finding.position;
+  const whole =
+    finding.kind === "seen" &&
+    x === 0 &&
+    y === 0 &&
+    width === shot?.page?.width &&
+    height === shot?.page?.height;
+  if (whole)
+    return `Note ${finding.number} on ${named(shot)}, over the whole picture: the eye named no place.`;
+  const what = finding.where.path ?? "the place the eye named";
+  return `Note ${finding.number} on ${named(shot)}, at ${x}, ${y} of the page (${width} × ${height} px): ${what}.`;
+}
+
+function findingOf(finding, shots, entry) {
   return {
     number: finding.number,
     severity: finding.severity,
@@ -61,9 +119,10 @@ function findingOf(finding, shots) {
     detail: finding.low_because ? `Low because it is ${finding.low_because}.` : null,
     evidence: [
       MEASURED[finding.kind](finding),
-      `Note ${finding.number} on ${named(pictureOf(shots, finding.picture))}, at ${x}, ${y} of the page (${width} × ${height} px): ${finding.where.path}.`,
+      placeWords(finding, pictureOf(shots, finding.picture)),
       `Seen on ${finding.seen_in.length} of ${plural(shots.length, "picture", "pictures")}: ${finding.seen_in.join(", ")}.`,
       restsOn(finding),
+      ...(entry ? [harvestWords(entry)] : []),
     ],
   };
 }
@@ -101,19 +160,37 @@ const UNJUDGED_NOTE = {
   "no-dark-theme": (item) => item.note,
 };
 
-// What the record did not see: that no eye looked, what on this screen could not be measured or
-// drawn, and the open limits of the review and of every document.
-function blindOf(unjudged) {
+// What the record did not see: that no eye looked, or what the words of the eye that did cannot
+// tell; what on this screen could not be measured or drawn, and the findings that rest on nothing;
+// and the open limits of the review and of every document.
+function blindOf(result) {
+  const { unjudged, eye: looked, findings, harvest } = result;
   const eye = eyeLimit();
   const open = (area) => LIMITS.filter((row) => row.area === area && row.status === "open");
   const group = (title, rows) => rows.map(({ id, note }) => ({ group: title, id, note }));
+  const person = "On this screen, for a person's eye";
   return [
-    ...(eye ? group("No eye yet", [eye]) : []),
+    ...(looked.looked
+      ? group(`What the words of ${looked.by} cannot tell`, eye ? [eye] : [])
+      : group("No eye yet", [
+          { id: "no-eye", note: `No eye has looked at the pictures: ${looked.why}.` },
+          ...(eye ? [eye] : []),
+        ])),
     ...unjudged.map((item) => ({
-      group: "On this screen, for a person's eye",
+      group: person,
       id: item.kind,
       note: UNJUDGED_NOTE[item.kind](item),
     })),
+    ...harvest
+      .filter((entry) => entry.group === "person")
+      .map((entry) => {
+        const finding = findings.find((item) => item.number === entry.finding);
+        return {
+          group: person,
+          id: `finding-${entry.finding}`,
+          note: `Finding ${entry.finding}, ${titleOf(finding)}: it rests on nothing, and no question is asked until someone takes it up.`,
+        };
+      }),
     ...group("What the two measures never see", open("review")),
     ...group("Of every document", open("document")),
   ];
@@ -135,6 +212,11 @@ function scopeOf(result) {
   const states = [...new Set(shots.map((shot) => shot.state))];
   return [
     `The screen ${screen.id}, opened at ${screen.route}${screen.file ? ` and drawn by ${screen.file}` : ""}`,
+    ...(result.eye.looked
+      ? [
+          `Looked at by ${result.eye.by}, a reviewer the socket board names, with the pictures and the pack: ${plural(result.eye.findings, "finding", "findings")} of its own`,
+        ]
+      : []),
     `Drawn ${widths.join(", ")} pixels wide: ${declared ? `the widths of ${SIZES_FILE}` : `the two widths every floor starts from, since the repository has no ${SIZES_FILE}`}`,
     `In light${dark.drawn ? " and in dark" : ""}; of dark: ${dark.how}`,
     `In ${plural(states.length, "state", "states")}: ${states.join(", ")}`,
@@ -148,34 +230,48 @@ function scopeOf(result) {
 // The record as data for the frame. `origin` is where the page comes from: the repository's name,
 // its last commit and that commit's day.
 export function recordOf(result, origin) {
-  const { screen, findings, shots, unjudged } = result;
-  const shown = findings.map((finding) => findingOf(finding, shots));
-  const unheld = findings.filter((finding) => finding.rests_on.kind === "nothing");
+  const { screen, findings, shots, harvest, eye } = result;
+  const entryOf = (finding) => harvest.find((entry) => entry.finding === finding.number);
+  const shown = findings.map((finding) => findingOf(finding, shots, entryOf(finding)));
+  // What no check holds: a question for the owner, or a finding for a person's eye.
+  const open = findings.filter((finding) =>
+    ["question", "person"].includes(entryOf(finding)?.group),
+  );
+  const escaped = harvest.filter((entry) => entry.group === "escape");
+  const unasked = harvest.filter((entry) => entry.group === "question" && !entry.queued);
+  const asked = harvest.filter((entry) => entry.group === "question" && entry.queued);
   const again = `${REVIEW} ${screen.id}`;
+  const looked = eye.looked
+    ? `${eye.by} looked at the pictures; ${plural(eye.findings, "finding is", "findings are")} its own.`
+    : "No eye has looked at the pictures yet.";
   return {
     kind: "design-review",
     title: "Design review record",
-    lede: "One screen as it is drawn, what a machine measured on it, and what still waits for an eye.",
+    lede: eye.looked
+      ? "One screen as it is drawn, what a machine measured on it and what an eye saw, and what becomes of each finding."
+      : "One screen as it is drawn, what a machine measured on it, and what still waits for an eye.",
     origin,
     version: VERSION,
     scope: scopeOf(result),
     decision: {
       conclusion:
         findings.length === 0
-          ? `The two measures found nothing on ${screen.id}; no eye has looked at it yet.`
-          : `${plural(findings.length, "finding", "findings")} on ${screen.id}: ${tallyOf(findings)}. No eye has looked at the pictures yet.`,
+          ? eye.looked
+            ? `Neither the two measures nor ${eye.by} found anything on ${screen.id}.`
+            : `The two measures found nothing on ${screen.id}; no eye has looked at it yet.`
+          : `${plural(findings.length, "finding", "findings")} on ${screen.id}: ${tallyOf(findings)}. ${looked}`,
       figures: [
         { value: String(findings.length), label: "findings, one numbered note each" },
         { value: String(shots.length), label: "pictures drawn and measured" },
-        { value: String(unheld.length), label: "findings no rule of this repository holds" },
+        { value: String(open.length), label: "findings no check of this repository holds" },
       ],
       attention: shown.slice(0, 3).map((item) => ({
         title: item.title,
         detail: item.evidence[1],
       })),
-      decide: unheld.map((finding) => ({
+      decide: open.map((finding) => ({
         what: `Finding ${finding.number}: make it a rule, or leave it?`,
-        detail: `${TITLE[finding.kind](finding)}. ${restsOn(finding)}`,
+        detail: `${titleOf(finding)}. ${restsOn(finding)} ${harvestWords(entryOf(finding))}`,
       })),
     },
     findings: shown,
@@ -194,22 +290,48 @@ export function recordOf(result, origin) {
           .join(", ") || "none",
       ]),
     },
-    recommendations: findings.map((finding) => ({
-      about: `Finding ${finding.number}`,
-      what: finding.fix,
-      basis: { kind: "measurement", text: MEASURED[finding.kind](finding) },
-      action:
-        "Change the screen, or the design system where the break comes from it, then draw and measure the screen again.",
-      command: again,
-    })),
+    recommendations: findings
+      .filter((finding) => basisOf(finding) !== null)
+      .map((finding) => ({
+        about: `Finding ${finding.number}`,
+        what: finding.fix,
+        basis: basisOf(finding),
+        action:
+          "Change the screen, or the design system where the break comes from it, then draw and measure the screen again.",
+        command: again,
+      })),
     next:
       findings.length === 0
         ? []
         : [
+            ...(escaped.length > 0
+              ? [
+                  {
+                    command: null,
+                    why: `Add the line of each finding a check let through to ${SLIPS_FILE}, before the fix: ${plural(escaped.length, "line", "lines")}.`,
+                  },
+                ]
+              : []),
             { command: null, why: "Fix what the findings name, the heaviest first." },
+            ...(unasked.length > 0
+              ? [
+                  {
+                    command: `${again} --queue`,
+                    why: `Put ${plural(unasked.length, "question", "questions")} for the owner on the waiting list: the review writes one new file each and nothing else.`,
+                  },
+                ]
+              : []),
+            ...(asked.length > 0
+              ? [
+                  {
+                    command: "/design-assembly:decide",
+                    why: "The owner answers the questions on the decision sheet: a rule, or left as it is.",
+                  },
+                ]
+              : []),
             { command: again, why: "Draw and measure again: a finding that is gone is fixed." },
           ],
-    blind: blindOf(unjudged),
+    blind: blindOf(result),
     empty: {
       findings:
         "The two measures found nothing on this screen. That is not a pass: no eye has looked.",

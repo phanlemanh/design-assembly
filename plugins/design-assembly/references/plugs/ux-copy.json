@@ -1,6 +1,7 @@
 {
   "id": "ux-copy",
   "about": "A skill that writes and reviews the words of an interface.",
+  "kind": "skill",
   "sockets": ["content"],
   "names": ["ux-copy"],
   "needs": []

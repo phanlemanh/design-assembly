@@ -449,7 +449,8 @@
       "socket": {
         "writes": [],
         "outputs": [
-          "findings, each with its picture and the ledger row it rests on, or that it rests on none",
+          "findings, measured or seen by an eye, each with its picture and what it rests on: a row of the decisions ledger, a line of the rules page, a principle the owner fixed, or nothing",
+          "for each finding, the line for the ledger of escapes, the question for the waiting list, or that it is for a person's eye",
           "pictures of a screen and a pack for a reviewer"
         ],
         "checks": ["/design-assembly:review", "make design-assembly"],
@@ -480,7 +481,7 @@
       ],
       "layers": ["governance"],
       "tiers": ["governance"],
-      "limit": "capability-design-review-no-eye-on-the-picture"
+      "limit": "capability-design-review-eye-unheld"
     },
     {
       "id": "accessibility-report",
