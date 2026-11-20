@@ -277,7 +277,7 @@
     {
       "id": 4,
       "name": "Dẫn dắt kiểu studio",
-      "state": "current",
+      "state": "done",
       "parallel": [],
       "items": [
         {
@@ -312,12 +312,16 @@
         "new trình ít nhất hai hướng trên màn thật, sáng và tối",
         "Cuốn hướng dẫn vẽ được trên một repo dùng nền dựng thứ hai"
       ],
-      "needs_owner": ["Xem từng mẫu tài liệu một lần"]
+      "needs_owner": ["Xem từng mẫu tài liệu một lần"],
+      "closed": {
+        "on": "2026-11-20",
+        "evidence": "Trên nhánh chính 8ea2120, plugin 0.18.0. Dòng một: node --test plugins/design-assembly/tests/test-directions.mjs 8 bài xanh, không bài nào bị bỏ qua; bài cuối vẽ ba hướng đi trọn vẹn (màu, thang chữ, bo góc) trên màn thật của kho này, mỗi hướng một ảnh sáng và một ảnh tối (quyết định 0065). Dòng hai: node --test plugins/design-assembly/tests/test-next-build.mjs 9 bài xanh, không bài nào bị bỏ qua; cuốn hướng dẫn vẽ hai màn của một ứng dụng Next.js trên máy chủ phát triển của chính nó, ở 390 và 1280 px, và sau lần vẽ không máy chủ nào còn chạy (quyết định 0066). Việc cần chủ repo, xem từng mẫu tài liệu một lần: chủ repo đã nhận ảnh bảng hướng đi và ảnh tờ 07 «Nên và không nên» của cuốn hướng dẫn, và đóng giai đoạn theo lời mình. Nguyên tắc thiết kế (0064) và nguồn linh kiện thứ hai (0067) không thuộc hai dòng «xong khi»; chúng có lệnh chứng riêng ở test-principles.mjs và test-library-package.mjs."
+      }
     },
     {
       "id": 5,
       "name": "Dựng màn không phải đoán",
-      "state": "later",
+      "state": "current",
       "parallel": [],
       "items": [
         {

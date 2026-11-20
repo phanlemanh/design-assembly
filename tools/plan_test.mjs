@@ -124,7 +124,7 @@ test("a branch says which item it serves, or that it is off the plan and why", (
   assert.deepEqual(commitProblems(plan, ["feat: x\n\nPlan: off-plan — the owner asked today"]), []);
   // An item of a stage that is not open yet is named as such.
   assert.match(
-    commitProblems(plan, ["feat: x\n\nPlan: 5.1"]).join("\n"),
-    /Plan: 5\.1 is an item of stage 5, which is not open/,
+    commitProblems(plan, ["feat: x\n\nPlan: 6.1"]).join("\n"),
+    /Plan: 6\.1 is an item of stage 6, which is not open/,
   );
 });
