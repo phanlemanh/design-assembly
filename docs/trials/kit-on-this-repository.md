@@ -307,3 +307,16 @@ không ai sửa tay.
 
 Cái giá của bộ kit ở repo này, đo được ở trên: sáu lượt người tới trước Cổng Bằng chứng; mười chín va chạm; và ba lượt
 chấm cùng gặp một giới hạn có sẵn của bộ bài kiểm mà `make check` chạy riêng không gặp.
+
+## Sau khi thu phạm vi
+
+Chủ repo chọn lối 1 («thu phạm vi»): tiêu chí 7 cũ ra Known limits, lệnh suite của lượt chấm là hai bài kiểm của mục,
+ký lại Cổng Phạm vi. Lượt chấm 4 ra PENDING-JUDGMENT, không phép đo nào đỏ; E11 chờ chủ repo chấm ở Cổng Bằng chứng.
+
+### 20. Bước mở PR của bộ kit coi trang lộ trình nó tự vẽ là vật đổi sau lượt chấm
+
+- **Bộ kit muốn:** `pr-san-sang.mjs` mở PR khi hồ sơ đã chấm; nó từ chối nếu vật đổi sau lượt chấm.
+- **Đã gặp:** nó từ chối vì `LO-TRINH.html`, trang chính bộ kit vẽ lại khi ghi hồ sơ, dù trang ấy nằm trong
+  `t1_skip_globs` của chính bộ kit.
+- **Đã làm:** mở PR bằng `gh` theo quy trình của repo.
+- **Chủ repo quyết:** không cần quyết; đây là việc của bộ kit.
