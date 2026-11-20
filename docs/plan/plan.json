@@ -341,7 +341,7 @@
           "id": "5.2",
           "what": "Lệnh review",
           "state": "doing",
-          "ref": "wiki/specs/0009-review-a-drawn-screen.md; chủ repo duyệt đề bài và đáp cả năm câu hỏi theo khuyến nghị ngày 2026-11-20 («Duyệt cả năm»); hai lát, chưa dựng",
+          "ref": "wiki/specs/0009-review-a-drawn-screen.md; chủ repo duyệt đề bài và đáp cả năm câu hỏi theo khuyến nghị ngày 2026-11-20 («Duyệt cả năm»); hai lát; lát 1 (phích mặc định: chụp, gói soát, hai phép đo, biên bản, bảng năng lực; tiêu chí 1, 2, 3, 6, 7, 9) đã dựng, wiki/decisions/0071-the-review-command-draws-and-measures-before-any-eye.md; lát 2 (mắt soát và phần gặt; tiêu chí 4, 5, 8, 10) chưa dựng",
           "command": "review"
         },
         {

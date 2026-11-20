@@ -113,3 +113,38 @@ export async function openStage(target, { modules = {}, transform = null } = {})
     can: { ...build.serves },
   };
 }
+
+// How long a screen opened at its route may take to show its main region once its page has
+// settled: the server has built it by then.
+export const MAIN_MS = 5000;
+const SHOWS_MS = 8000;
+
+// Brings a page to one state of a screen the way a person reaches it: the screen is opened, with
+// the scenario its data source answers by, then each step is taken, a button pressed by its name
+// or a field filled by its label. The state is on the page once its own text is; a state that
+// names no text, as a screen opened at its route, once the main region is. Gives whether it is
+// shown; a state whose own text never comes throws, and the caller says which state it was.
+export async function reachState(page, origin, screen, state) {
+  const url = state.scenario ? `${screen.path}?scenario=${state.scenario}` : screen.path;
+  await page.goto(`${origin}${url}`, { waitUntil: "networkidle" });
+  for (const step of state.steps ?? []) {
+    if ("press" in step) {
+      await page.getByRole("button", { name: step.press, exact: true }).click();
+    } else await page.getByLabel(step.fill, { exact: true }).fill(step.text);
+  }
+  if (state.shows) {
+    await page.getByText(state.shows, { exact: false }).first().waitFor({ timeout: SHOWS_MS });
+    return true;
+  }
+  return page
+    .locator("main")
+    .first()
+    .waitFor({ timeout: MAIN_MS })
+    .then(() => true)
+    .catch(() => false);
+}
+
+// Puts a page in dark or back in light the way the floor's stylesheet reads it: a class on the
+// root element.
+export const setDark = (page, dark) =>
+  page.locator("html").evaluate((node, on) => node.classList.toggle("dark", on), dark);

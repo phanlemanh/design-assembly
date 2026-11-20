@@ -18,7 +18,8 @@
     "reference-app": "The example application this repository carries as its proof.",
     "trials": "The runs by independent agents that test the plugin.",
     "upgrade": "The command that brings the installed tool into a repository, the stamp it writes, and the version it compares.",
-    "capabilities": "The table of what a user of a design system needs done, its sockets and plugs, and the checks that hold it."
+    "capabilities": "The table of what a user of a design system needs done, its sockets and plugs, and the checks that hold it.",
+    "review": "The read-only review of one drawn screen: its pictures, the two things it measures on them, the pack it writes for a reviewer and the record it hands over."
   },
   "kinds": {
     "partial-check": "A check holds less than the ledger row it proves claims.",
@@ -2490,7 +2491,7 @@
       "opened": "2026-11-15",
       "where": ["d0046", "spec"],
       "status": "open",
-      "note": "A finding of a document carries its evidence in words only, while the specification asks for a picture wherever one can be drawn, so a reader cannot see the place a finding speaks of."
+      "note": "A finding of every document but the design review record carries its evidence in words only, while the specification asks for a picture wherever one can be drawn, so a reader cannot see the place a finding speaks of."
     },
     {
       "id": "audit-document-without-accessibility-chapter",
@@ -3459,8 +3460,10 @@
       "plan": "fix",
       "opened": "2026-11-20",
       "where": ["spec", "d0069"],
-      "status": "open",
-      "note": "The design review socket is held by the gate alone, which reads code and ledgers and never looks at a drawn screen."
+      "status": "closed",
+      "note": "The design review socket is held by the gate alone, which reads code and ledgers and never looks at a drawn screen.",
+      "closed": "2026-11-20",
+      "closed_by": "the review command is the default plug of the design review socket: it draws a screen at every declared width, in light and in dark, and measures the contrast of text and text broken or cut off on what was drawn; held by tests/test-review.mjs. What stays open is the row capability-design-review-no-eye-on-the-picture"
     },
     {
       "id": "capability-writes-check-is-static",
@@ -3483,6 +3486,116 @@
       "where": ["spec", "d0070"],
       "status": "open",
       "note": "The lines of the rules page that say the owner's principles and direction are held by no check: nothing in a repository compares the page with the blueprint between two runs of the guide or of adopting, so a blueprint or a page changed by hand leaves them apart, and nothing tells whether a builder rested an open choice on them."
+    },
+    {
+      "id": "capability-design-review-no-eye-on-the-picture",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0071"],
+      "status": "open",
+      "note": "No eye has looked at the pictures a review draws: the design review socket draws a screen and measures two things on it, and it calls no reviewer skill and harvests no finding of one until the second slice of the review command is built."
+    },
+    {
+      "id": "review-ground-read-from-the-elements-around",
+      "area": "review",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0071"],
+      "status": "open",
+      "note": "The contrast of a text is measured against the grounds of the elements it stands inside, so a text laid over another element by position is measured against the wrong ground, and a text on a picture or a gradient is not measured and is only named for a person's eye."
+    },
+    {
+      "id": "review-resting-state-only",
+      "area": "review",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0071"],
+      "status": "open",
+      "note": "A review measures a screen as it rests and as its picture shows it: the contrast of a hover, focus or pressed state, of a placeholder, of the value typed in a field and of words a stylesheet adds is not measured, neither is the contrast of anything that is not text, nor any text scrolled out of view inside a box that scrolls on its own."
+    },
+    {
+      "id": "review-states-need-the-screen-list",
+      "area": "review",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0071"],
+      "status": "open",
+      "note": "A review draws every state of a screen only where the application keeps a screen list that says how each is reached and the build can load it; elsewhere it draws the one state the screen opens in and names the others as not drawn."
+    },
+    {
+      "id": "review-dark-reach-read-from-source",
+      "area": "review",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0071"],
+      "status": "open",
+      "note": "Whether a user can reach dark is told by drawing the screen as the system asks for dark and by reading the application's source for a line that sets dark, so a switch written another way is not seen, and a finding seen only in dark is then ranked low though users meet it; and a dark theme turned on any other way than the system setting or a dark class on the root is not drawn at all."
+    },
+    {
+      "id": "review-word-break-knows-no-hyphenation",
+      "area": "review",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0071"],
+      "status": "open",
+      "note": "A word the browser hyphenates by its own rules is counted as broken in its middle, and text in a script written without spaces is never counted, so the count of broken words is right only where no hyphenation is at work."
+    },
+    {
+      "id": "review-build-cache-in-the-packages-folder",
+      "area": "review",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0071"],
+      "status": "open",
+      "note": "A review writes nothing in the repository itself, but the development server of the repository's own build keeps what it prepared in the packages folder as on any run, so the tree is the same before and after only with that folder left out."
+    },
+    {
+      "id": "review-record-look-unseen-by-the-owner",
+      "area": "review",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0071"],
+      "status": "open",
+      "note": "How a design review record looks and reads has no test, and the owner has not looked at one yet."
+    },
+    {
+      "id": "review-run-on-no-real-product",
+      "area": "review",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0071"],
+      "status": "open",
+      "note": "The review has been run on a throwaway application and on the example application of this repository, and on no repository of a real product, so what its two measures report on real screens is not known."
+    },
+    {
+      "id": "review-cut-off-cannot-tell-purpose",
+      "area": "review",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0071"],
+      "status": "open",
+      "note": "A text a box hides part of on purpose, as a card that peeks in from the edge of a row, is counted as cut off, and a text its box shortens with an ellipsis or a limit of lines is not counted and is only named for a person's eye, so neither says whether a reader misses anything."
     }
   ]
 }

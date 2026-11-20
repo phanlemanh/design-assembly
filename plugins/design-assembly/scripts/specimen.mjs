@@ -17,7 +17,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { FILES } from "../templates/tools/design-assembly/check.mjs";
 import { directionsFor } from "./directions.mjs";
-import { buildOf, openStage } from "./stage.mjs";
+import { buildOf, openStage, reachState, setDark } from "./stage.mjs";
 import {
   asWritten,
   clipChroma,
@@ -562,14 +562,10 @@ async function draw(target, plan, out) {
         await page.waitForSelector("main");
         // Let the screen's own data arrive: a state is what the screen shows once it has settled.
         await page.waitForTimeout(700);
-        const root = page.locator("html");
         for (const option of section.options) {
           const tag = option.css ? await page.addStyleTag({ content: option.css }) : null;
           for (const mode of shot === "ready" ? option.modes : ["light"]) {
-            await root.evaluate(
-              (node, dark) => node.classList.toggle("dark", dark),
-              mode === "dark",
-            );
+            await setDark(page, mode === "dark");
             await page.waitForTimeout(80);
             const file = `${section.id}-${option.letter}-${shot}-${mode}.png`;
             // Only the screen's own content: empty space says nothing about a choice.
@@ -579,7 +575,7 @@ async function draw(target, plan, out) {
               .screenshot({ path: path.resolve(target, out, file) });
             (images[section.id][option.letter] ??= []).push({ file, what: `${shot}, ${mode}` });
           }
-          await root.evaluate((node) => node.classList.remove("dark"));
+          await setDark(page, false);
           if (tag) await tag.evaluate((node) => node.remove());
         }
       }
@@ -626,16 +622,7 @@ async function drawRecord(target, plan, out) {
       ? (JSON.parse(readFileSync(path.join(target, SIZES), "utf8")).widths ?? [])
       : [];
     const widths = sizes.length > 0 ? [Math.max(...sizes), Math.min(...sizes)] : [1440, 390];
-    const reach = async (page, screen, state) => {
-      const url = state.scenario ? `${screen.path}?scenario=${state.scenario}` : screen.path;
-      await page.goto(`${stage.origin}${url}`, { waitUntil: "networkidle" });
-      for (const step of state.steps ?? []) {
-        if ("press" in step) {
-          await page.getByRole("button", { name: step.press, exact: true }).click();
-        } else await page.getByLabel(step.fill, { exact: true }).fill(step.text);
-      }
-      await page.getByText(state.shows, { exact: false }).first().waitFor({ timeout: 8000 });
-    };
+    const reach = (page, screen, state) => reachState(page, stage.origin, screen, state);
     // The state that opens a record: the first one whose page then shows the record panel.
     const look = await stage.browser.newContext({ viewport: { width: 1440, height: 640 } });
     let found = null;

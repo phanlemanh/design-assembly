@@ -108,6 +108,10 @@ function reasonFor(direction, key, value, fixed, own) {
   return { kind: "standard", text: `${text}${against}` };
 }
 
+// The direction the owner took, as the catalog has it, or null where the blueprint names none.
+export const directionOf = (blueprint) =>
+  DIRECTIONS.find((item) => item.id === blueprint?.layers?.foundations?.direction) ?? null;
+
 // The directions to show, best first: the ones that agree most with the principles the owner
 // fixed, then the ones that suit the product type, then the catalog's order.
 export function directionsFor(blueprint, { colors = [] } = {}) {

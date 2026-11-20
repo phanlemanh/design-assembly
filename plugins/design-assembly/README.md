@@ -43,6 +43,15 @@ scale, shape). Density, elevation, motion and iconography are not.
   each import line to fix. Then it asks the owner once on the waiting list, and after the answer
   writes `retired` (and `merged_into`) into the block's entry, with the owner's name and day. It
   never removes a file and never changes a screen's code.
+- `/design-assembly:review` reviews one screen that is already built, by its picture. It draws the
+  screen at every declared width, in light and in dark (and in every state with `--states`), and
+  measures on what was drawn, with no model called, the contrast of text on its ground and text
+  broken inside a word or cut off. Each finding has a number, its picture and place, how heavy it
+  is, a way to fix it and the ledger row it rests on, or that it rests on none; a finding seen only
+  in a theme no user can reach yet is low, and says why. Read-only: with `--out DIR` it writes the
+  pictures, a pack for a reviewer (`review-pack.json`) and the design review record, where each
+  finding is a numbered note on a picture, into that folder and nowhere else. No eye looks at the
+  pictures yet, and every answer says so.
 - `status` and `audit` each hand their answer over as a document: `--out DIR` writes the status
   report or the design audit report into that folder, as one page that needs nothing else, and
   `--format pdf` prints it too. Every document is set on one frame of six parts (the cover, one
