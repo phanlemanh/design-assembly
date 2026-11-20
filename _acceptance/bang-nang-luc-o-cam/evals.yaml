@@ -105,8 +105,8 @@ evals:
   - id: E7
     criterion: AC-7
     executor: test
-    cmd: config:executors.test.plugin
-    expected: "exit 0; plugin tests: every test passes, the passing count is not lower than the 770 of the baseline"
+    cmd: config:executors.test.api
+    expected: "exit 0; make check passes, and its line «plugin tests: N passed» has N not lower than the 770 of the baseline and no failing test; run once, as the suite command, so the plugin tests never run twice at the same time in one checkout"
     evidence_required:
       - run_id
       - exit_code
