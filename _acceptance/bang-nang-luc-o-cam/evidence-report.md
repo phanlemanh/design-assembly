@@ -1,14 +1,14 @@
 ---
 schema_version: 2
 feature_slug: bang-nang-luc-o-cam
-verdict: PENDING-JUDGMENT
+verdict: PASS
 failed_evals: []
 reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
 verified_commit: d2776b0eff63b6bfd2bb4684a44d675c9a1568bb
-human_signoff:
+human_signoff: Phan Le Manh 2026-11-20
 ---
 
 # Evidence Report: bang-nang-luc-o-cam
@@ -107,7 +107,7 @@ Bảy eval máy E1-E6 và E9 là carry-forward: delta của vòng 4 không chạ
   rationale: cả ba lens UNCERTAIN trên cùng một điểm — "tám chỗ chưa có phích" của spec 0008 so với bảy mảng plugs rỗng trong capabilities.json; con số này cần người chốt cách đọc.
   required_evidence:
     - Một ruling trong spec wiki/specs/0008-capabilities-sockets-and-plugs.md (dòng sau bảng danh mục nói "tám chỗ chưa có phích", hoặc ghi chú dưới bảng) hoặc trong hợp đồng AC-1, nêu tám capability nào được tính là chưa có phích và design-review (phích gate mặc định cộng giới hạn capability-design-review-sees-no-picture) có nằm trong đó không. Nếu có, JSON phải để plugs của design-review rỗng và phán quyết thành FAIL; nếu ổ thứ tám chỉ là thiếu một phần thì spec cần sửa số thành bảy và phán quyết thành PASS.
-  human_override:  # chi nguoi ghi
+  human_override: Phan Le Manh 2026-11-20 — Đạt
 
 ### Lệnh suite (hồi quy)
 

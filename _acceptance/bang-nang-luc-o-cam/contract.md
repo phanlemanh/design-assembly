@@ -5,7 +5,7 @@ slug: bang-nang-luc-o-cam
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: verified
+status: signed-off
 approved_by: Phan Le Manh
 approved_at: 2026-11-20T08:46:15Z
 design_doc: docs/superpowers/specs/2026-11-20-bang-nang-luc-o-cam-design.md
@@ -55,3 +55,7 @@ docs/plan/lo-trinh.json.
 - Phép dò «script ghi sổ» ở AC-3 là tĩnh: một lời gọi ghi cùng một đường dẫn sổ trong một tệp. Ghi qua tầng gián tiếp
   thì nó không thấy; giới hạn ấy có một dòng trong `references/limits.json`.
 - Ô cơ hội khai «Không đo được» ở Cổng Đáng, nên hồ sơ không có mục «Đường đo».
+- Known limits — chọn ở Cổng Bằng chứng 2026-11-20:
+  - Ngoài-2: thẻ Cổng Phạm vi ký lại còn hiện hai câu hỏi về tiêu chí 7 đã bỏ.
+  - Ngoài-3: trang bằng chứng của lượt 3 trong lịch sử commit là ảnh chụp cũ, trước khi thu phạm vi.
+  - Ngoài-4: khối quyết định của thẻ ký lại còn liệt các lượt sửa của tiêu chí 7 như lựa chọn đang sống.
