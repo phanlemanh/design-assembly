@@ -22,6 +22,7 @@ sources:
   - plugins/design-assembly/references/capabilities.json
   - plugins/design-assembly/references/limits.json
   - "chủ repo, 2026-11-20: «Duyệt cả năm», đáp câu «Duyệt đề bài 0009 theo cả năm khuyến nghị?»"
+  - "chủ repo, 2026-11-20: «Giữ «cần mắt người»», đáp câu «Chữ bị hộp rút gọn bằng dấu ba chấm: để ở «cần mắt người», hay tính là phát hiện?»"
 ---
 
 # 0071 Lệnh review chụp và đo trước khi có con mắt nào
@@ -57,8 +58,8 @@ mặc định: chúng phải chạy được khi không cài thêm gì.
    - chữ bị bẻ giữa từ (một từ nằm trên hai dòng mà không có chỗ ngắt do người viết đặt; ngắt sau gạch nối, gạch
      dài hay dấu gạch chéo là chỗ ngắt của người viết) và chữ bị cắt (một phần chữ nằm ngoài hộp giấu phần không
      vừa, mà không có dấu nào báo). Chữ được hộp rút gọn có báo, bằng dấu ba chấm hay giới hạn số dòng, không thành
-     phát hiện: nó được nêu ở mục «cần mắt người». Đề bài không nói rõ điểm này; đây là lựa chọn của lát 1, chủ
-     repo đổi được.
+     phát hiện: nó được nêu ở mục «cần mắt người». Đề bài không nói rõ điểm này; chủ repo chốt ngày 2026-11-20:
+     giữ ở «cần mắt người».
 4. **Một chỗ phạm là một phát hiện.** Cùng một cặp màu ở nhiều chỗ, nhiều bề rộng là một phát hiện; cùng một từ bị bẻ
    ở mọi ảnh là một phát hiện. Mỗi phát hiện có số, ảnh mang chú thích của nó, vị trí, mức, số đo, cách sửa, và
    `rests_on`: dòng `color-contrast` của sổ quyết định khi repo có dòng ấy, còn không thì nói thẳng là không dựa vào
