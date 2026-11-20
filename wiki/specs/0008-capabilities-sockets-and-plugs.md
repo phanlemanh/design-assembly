@@ -21,13 +21,18 @@ sources:
   - "chủ repo, 2026-11-20: «Cách Design Assembly làm nên như là một mô hình, framework,...chuẩn hóa năng lực, ổ cắm và phích cắm,...đảm bảo không lủng và trùng lắp. […] Design Assembly cũng sẽ làm nếu việc đấy chúng ta làm tốt hơn và có lợi cho người dùng hơn.»"
   - "chủ repo, 2026-11-20: «Duyệt cả sáu», đáp câu «Duyệt cả sáu khuyến nghị của mô hình ổ cắm và phích cắm?»"
   - "chủ repo, 2026-11-20: «Duyệt cả hai», đáp câu «Nhận năm năng lực mới và bỏ luật «mỗi lệnh một năng lực»?»"
+  - "chủ repo, 2026-11-20: «Có 2 đối tượng mà cần bàn giao: vùng người nhận được xem được, quyết định được; vùng claude code, biến từ những bất định sang tất định để claude code không phải đoán.»"
+  - "chủ repo, 2026-11-20: «Nhận, ghi vào 0008», đáp câu «Nhận hai bộ tiêu chí bàn giao này và ghi vào đề bài 0008?»"
+  - plugins/design-assembly/references/checks.md
+  - docs/trials/results.tsv
 ---
 
 # 0008 Năng lực, ổ cắm và phích cắm — Design Assembly giữ lõi, ai làm tốt hơn thì cắm vào
 
 Máy viết ngày 2026-11-20. Chủ repo duyệt sáu khuyến nghị của mô hình cùng ngày («Duyệt cả sáu»). Sau lời duyệt, một
 lượt quét cho đủ đã chạy như khuyến nghị 2 hẹn; nó thêm năm năng lực và sửa một luật. Chủ repo duyệt cả hai điều ấy
-cùng ngày («Duyệt cả hai»). Danh mục đóng là hai mươi năng lực.
+cùng ngày («Duyệt cả hai»). Danh mục đóng là hai mươi năng lực. Cũng trong ngày, chủ repo nêu hai vùng bàn giao và
+nhận hai bộ tiêu chí cho chúng («Nhận, ghi vào 0008»); chúng nằm ở mục «Hai vùng bàn giao».
 
 ## Intent
 
@@ -141,6 +146,69 @@ Phán quyết đầu tiên đã có số đo: ở năng lực **nền**, lập t
 nấc bo góc; Stitch ra văn xuôi không lệnh nào kiểm được; `adopt` giữ nguyên giá trị và đặt lệnh kiểm quanh. Nền là
 việc Design Assembly tự làm. Các năng lực khác chưa có số đo.
 
+### Hai vùng bàn giao: người quyết được, Claude Code không phải đoán
+
+Lời chủ repo ngày 2026-11-20: có hai bên nhận bàn giao. Người nhận phải xem được và quyết được. Claude Code phải nhận
+thứ đã từ bất định thành tất định, để không phải đoán.
+
+Hai vùng là hai đầu của một con đường một chiều. Mọi điều cần biết để dựng giao diện phải kết thúc ở đúng một trong
+hai chỗ: một câu hỏi người thấy và quyết được, hoặc một luật máy kiểm được.
+
+1. Điều chưa ai quyết (bất định).
+2. Vùng người: được bày ra, được quyết.
+3. Một dòng quyết định có tên và ngày.
+4. Vùng Claude Code: thành luật, có lệnh kiểm (tất định).
+
+**Bốn trạng thái của một điều**, theo tên repo đang dùng ở `references/checks.md`. Số là của `audit` trên kho này
+ngày 2026-11-20.
+
+| Trạng thái                  | Nghĩa                                             | Thuộc vùng     | Hôm nay  |
+| --------------------------- | ------------------------------------------------- | -------------- | -------- |
+| `held`                      | đã quyết, có lệnh kiểm từng đỏ                    | Claude Code    | 39       |
+| `claimed`, `recorded`       | đã quyết, lệnh kiểm chưa chạy ở đây hoặc không có | lưng chừng     | 12 và 6  |
+| một câu trong hàng chờ      | chưa quyết, đã thành câu hỏi cho người            | người          | từng lúc |
+| không có dòng sổ (`no-row`) | chưa quyết và chưa ai hỏi: chỗ tác tử phải đoán   | không vùng nào | 20       |
+
+**Tiêu chí bàn giao cho vùng người: xem được, quyết được.**
+
+1. Thấy bằng hình: điều cần quyết được vẽ trên màn thật của repo, sáng và tối, không tả bằng chữ.
+2. Lựa chọn đóng: mỗi câu có vài phương án cụ thể, khuyến nghị đứng đầu, kèm căn cứ và điều xảy ra nếu từ chối.
+3. Một chạm: trả lời được mà không phải viết văn hay đọc mã.
+4. Chỉ hỏi điều của người: gu, ưu tiên, thương hiệu, rủi ro. Điều máy tự xác định được thì không hỏi.
+5. Có dấu vết: lời đáp ghi tên, ngày và lý do.
+
+Tiêu chí 2 và 5 kiểm được bằng máy: tệp câu hỏi ở `design/waiting/` đã có các trường `question`, `recommendation`,
+`basis`, `where`, `if_refused`. Tiêu chí 1 và 3 chưa có cách đo bằng máy; hôm nay chỉ đếm được qua lượt thử có người.
+
+**Tiêu chí bàn giao cho vùng Claude Code: không phải đoán.**
+
+1. Một câu trả lời: với mỗi lựa chọn khi dựng màn, có đúng một đáp án.
+2. Một chỗ để tìm: đáp án nằm ở trang tác tử được bảo đọc, theo thứ tự đọc cố định.
+3. Kiểm được: làm sai thì một lệnh đỏ. Luật chưa có lệnh kiểm phải ghi rõ là chưa được giữ.
+4. Chạy lại ra cùng kết quả: lệnh không gọi mô hình, không dùng mạng.
+5. Có lối thoát: gặp điều chưa ai quyết thì tác tử đưa vào hàng chờ và cổng đỏ tới khi có lời đáp, không tự chọn.
+
+**Hai lối rò**, mỗi vùng một lối, đo được ở lần chạy thử 11 (`docs/trials/results.tsv`):
+
+| Lối rò     | Nghĩa                               | Lần 11           |
+| ---------- | ----------------------------------- | ---------------- |
+| Đoán       | điều chưa quyết lọt tới tay tác tử  | 9 chỗ            |
+| Quyết thay | tác tử tự chọn điều lẽ ra của người | 3 trong 9 chỗ đó |
+
+**Mục tiêu bàn giao: «không đoán, không quyết thay».**
+
+- Quyết thay bằng 0: mọi điều chưa quyết mà tác tử gặp đều vào hàng chờ.
+- Số chỗ đoán giảm qua từng lượt thử, khởi điểm là 9.
+- Không còn điều lưng chừng trên đường dựng màn: dòng `claimed` và `no-row` mà đề bài dựng màn đụng tới phải thành
+  `held` hoặc thành câu hỏi.
+
+Kế hoạch không đổi: dòng «xong khi» của giai đoạn 5 vẫn là thước của giai đoạn ấy. Hai con số «quyết thay» và «lưng
+chừng» là thước thêm của đề bài này.
+
+**Gắn vào ổ cắm.** Mỗi ổ cắm khai hai mặt: mặt người (bày gì, hỏi gì) và mặt máy (điều gì thành luật, lệnh nào
+giữ). Một năng lực bàn giao xong khi cả hai mặt đạt tiêu chí. Ở «hướng đi», mặt người là ba hướng vẽ trên màn thật
+kèm lý lẽ; mặt máy là giá trị đã chọn nằm trong stylesheet cùng phép kiểm tương phản.
+
 ### Sáu khuyến nghị chủ repo đã duyệt
 
 1. Nhận mô hình ba tầng, ổ cắm luôn thuộc Design Assembly.
@@ -164,6 +232,8 @@ Cho mục 5.0. Mỗi dòng chứng bằng một lệnh.
 5. Mỗi tầng của `layers.json` và mỗi bậc của `tiers.json` được ít nhất một năng lực với tới; có bài kiểm.
 6. `status` in bảng ổ cắm của repo đang đứng: phích nào đang cắm ở ổ nào, ổ nào còn trống.
 7. Hành vi các lệnh đang có không đổi: bộ bài kiểm của plugin xanh, đầu ra chỉ khác ở phần mới của `status`.
+8. Mỗi ổ cắm trong bảng năng lực khai hai mặt, mặt người và mặt máy; một bài kiểm đỏ khi một ổ cắm thiếu một mặt mà
+   không ghi lý do.
 
 ## Domain impact
 
