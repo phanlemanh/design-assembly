@@ -1,7 +1,7 @@
 ---
 type: spec
 title: Mở rộng ở ba chỗ — cửa vào, bề rộng của hệ, và ý đồ thiết kế tới tay tác tử
-status: needs-approval
+status: approved
 tier: 1
 links:
   - wiki/specs/0001-design-system-for-claude-code.md
@@ -30,6 +30,7 @@ sources:
   - "hai phiên điều tra chỉ đọc ngày 2026-11-20: một về Claude Design, một về stitch-skills; mỗi phiên hai báo cáo"
   - "chủ repo, 2026-11-20: «Tổng hợp […] thành một khuyến nghị hoàn chỉnh cho Design Assembly với lý do rõ ràng.»"
   - "chủ repo, 2026-11-20: «Có, ghi vào wiki»"
+  - "chủ repo, 2026-11-20: «Duyệt cả bốn», đáp câu «Duyệt bốn câu còn mở của đề bài 0007 theo khuyến nghị?»"
   - docs/trials/outside-tools-hands-on.md
   - "chủ repo, 2026-11-20: «Tôi muốn bạn có trải nghiệm thử dùng trên chính cả claude design và stitch-skills sau đó viết báo cáo đánh giá.»"
 ---
@@ -37,8 +38,9 @@ sources:
 # 0007 Mở rộng ở ba chỗ — cửa vào, bề rộng của hệ, và ý đồ thiết kế tới tay tác tử
 
 Máy viết ngày 2026-11-20 theo lời chủ repo, tổng hợp hai bản điều tra chỉ đọc: cách Claude Design giúp người dùng lập
-design system, và bộ `stitch-skills` của Google Labs. Đây là một khuyến nghị chờ chủ repo duyệt. Nó chưa đổi kế hoạch
-(`docs/plan/plan.json`) và chưa dựng gì. Các số liệu về kho này đọc trên `main` tại `b9fb8e9`.
+design system, và bộ `stitch-skills` của Google Labs. Lúc viết, đây là một khuyến nghị chờ duyệt. Chủ repo đã đáp
+cả năm câu hỏi ngày 2026-11-20 («Duyệt cả bốn» cho bốn câu đầu), và kế hoạch (`docs/plan/plan.json`) đổi theo như mục
+Plan ghi. Chưa việc nào trong sáu việc được dựng. Các số liệu về kho này đọc trên `main` tại `b9fb8e9`.
 
 ## Intent
 
@@ -139,7 +141,15 @@ lựa chọn vào tầng nền và dựng hai tầng mới; hình dạng của c
 
 ## Plan
 
-Chưa có gì vào `docs/plan/plan.json`. Khi chủ repo duyệt, máy đề nghị:
+Lúc viết, máy đề nghị năm điều dưới đây. Sau lời «Duyệt cả bốn» ngày 2026-11-20, kế hoạch đã đổi theo bốn lời đáp:
+
+- việc 1 thành mục 5.5 của giai đoạn 5 (câu 3);
+- mục để sang bên của `change --migrate` và `--to` dời từ giai đoạn 4 sang giai đoạn 5 (câu 2; giai đoạn 4 đã đóng
+  trước khi câu này được đáp);
+- việc 5 thành giai đoạn 9 «Nền đủ mảng», đứng sau giai đoạn 5 (câu 4);
+- cửa vào cho repo không có sàn ghi ở mục để sang bên, chờ giai đoạn 6 (câu 1).
+
+Điều 3 và điều 5 dưới đây chưa được hỏi thành câu, nên chưa vào kế hoạch.
 
 1. Việc 1 làm ngay sau mục 4.5, một PR.
 2. Chốt chỗ của `change --migrate` và `--to`: thành mục 4.6, hoặc dời mục để sang bên sang giai đoạn 5, trước khi đóng
@@ -162,16 +172,18 @@ dịch vụ ngoài, không nằm trong đề bài này.
 
 ## Open questions
 
-Mỗi câu kèm một khuyến nghị. Chủ repo đã đáp câu 5 ngày 2026-11-20 bằng việc cho thử; bốn câu đầu chưa đáp.
+Mỗi câu kèm một khuyến nghị. Chủ repo đáp cả năm ngày 2026-11-20: câu 5 bằng việc cho thử, bốn câu đầu theo khuyến
+nghị («Duyệt cả bốn»).
 
 1. **Repo không có sàn: từ chối, tự đặt sàn tối thiểu, hay phục vụ ở mức «Chỉ luật»?** Khuyến nghị: phục vụ ở mức
    «Chỉ luật» và nói rõ điều còn thiếu để lên mức kế, vì cách này không ghi gì vào repo của người khác. Đề bài 0001
-   còn để mở câu này.
+   còn để mở câu này. Đã nhận: phục vụ ở mức «Chỉ luật».
 2. **`change --migrate` và `--to` thành mục 4.6, hay dời sang giai đoạn 5?** Khuyến nghị: dời sang giai đoạn 5, để
-   giai đoạn 4 đóng theo hai dòng «done when» đã có.
+   giai đoạn 4 đóng theo hai dòng «done when» đã có. Đã nhận: dời sang giai đoạn 5.
 3. **Việc 1 làm ngay ngoài kế hoạch, hay chờ `brief`?** Khuyến nghị: làm ngay, vì nó nhỏ và `brief` sẽ dùng lại.
+   Đã nhận: làm ngay; ghi thành mục 5.5 để kế hoạch còn là một nguồn.
 4. **Nền đủ mảng có thành một giai đoạn mới không?** Khuyến nghị: có, sau giai đoạn 5, bắt đầu bằng kiểu chữ và các
-   vai màu còn lại.
+   vai màu còn lại. Đã nhận: giai đoạn 9.
 5. **Có thử tay một lần với Claude Design không?** Việc đó tạo artifact trên tài khoản của chủ repo. Khuyến nghị: có,
    một lần, trước khi viết đề bài cho việc 6. Đã thử ngày 2026-11-20 theo lời chủ repo, trên cả Claude Design lẫn
    `stitch-skills` ở mức không khoá; xem [trang đo](../../docs/trials/outside-tools-hands-on.md).
