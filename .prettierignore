@@ -9,3 +9,9 @@ contracts/openapi.json
 .claude/worktrees/
 # Drawn by the acceptance kit, which checks it byte for byte (product-map.mjs --check)
 LO-TRINH.html
+# Written by the acceptance kit and read back by its own line readers and re-checks
+_acceptance/**/evidence-report.md
+_acceptance/**/review-findings.md
+_acceptance/**/usage-report.md
+_acceptance/**/s4-args*.json
+_acceptance/**/evidence-page.html
