@@ -1071,6 +1071,8 @@ export const OWNER_CALLS = {
 // repository, and the command to run after each kind of change. Written from what is installed, so
 // it never names a rule that is not held or a file that is not there.
 export const RULES_PAGE = ".claude/rules/design-assembly.md";
+// The section of the rules page whose lines no check holds: a person reviews them.
+export const UNHELD_SECTION = "No check holds these: a person reviews them";
 
 // What the owner fixed before any value, as the lines of the rules page: each principle that is
 // theirs, the direction they took, and how an agent uses them. A principle the owner did not fix
@@ -1266,7 +1268,7 @@ export function rulesPage(checks, has, blueprint = null) {
     held("owner-calls") &&
       `A new kind of screen and the brand colour are the owner's alone. Before you add a page of a new kind of screen, \`${KINDS_FOLDER}/<kind>.md\`, or change the \`--primary\` line of \`:root\`, ask with \`--item pattern:NAME\` or \`--item source-color:VALUE\`, and stop there: the gate fails on the branch until the owner keeps that very item.`,
   ]);
-  section("No check holds these: a person reviews them", [
+  section(UNHELD_SECTION, [
     has("ontology/glossary.md") &&
       "A screen that needs a concept or an action the data model does not name adds it to `ontology/` first, in the same change, and says in the change's description that the data model changed and a person reviews it before it merges. Only where the repository forbids an agent to change the data model does the agent stop and ask. It never names the concept in a screen alone.",
     "A row of `design/decisions.yaml` is for a rule a second screen must follow. A choice that only one screen makes stays in that screen.",

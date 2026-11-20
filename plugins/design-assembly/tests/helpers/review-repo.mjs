@@ -200,6 +200,23 @@ const RULES = [
   "",
 ].join("\n");
 
+// A section of the rules page no check holds, for a finding that rests on one of its lines.
+const UNHELD = [
+  "## No check holds these: a person reviews them",
+  "",
+  "- An empty state says why it is empty and how items get there.",
+  "",
+].join("\n");
+
+// A row of the decisions ledger no check holds yet.
+const UNCHECKED = [
+  "  - id: empty-state-words",
+  "    layer: patterns",
+  "    kind: judgment",
+  '    source: "design/blueprint.json"',
+  "",
+].join("\n");
+
 const BLUEPRINT = {
   version: 1,
   status: "approved",
@@ -229,7 +246,9 @@ const BLUEPRINT = {
 // that break a measurement; `toggle` gives the application a switch to dark of its own; `follows`
 // makes it take the dark of the system; `dark: false` leaves it with no dark theme; `ownPage`
 // leaves every colour to the browser; `listed: false` leaves it with no screen list, so nothing
-// says how a state is reached; `ledger` keeps a decisions ledger with the contrast row. The copy is
+// says how a state is reached; `ledger` keeps a decisions ledger with the contrast row; `unheld`
+// adds a section of the rules page no check holds, and `unchecked` a row of the ledger with no
+// check. The copy is
 // a repository of its own with no commit, so a record made of it is the same whatever state the
 // repository around it is in.
 export function reviewRepository({
@@ -240,6 +259,8 @@ export function reviewRepository({
   ownPage = false,
   listed = true,
   ledger = true,
+  unheld = false,
+  unchecked = false,
 } = {}) {
   mkdirSync(PARENT, { recursive: true });
   const dir = mkdtempSync(path.join(PARENT, "app-"));
@@ -284,8 +305,8 @@ export function reviewRepository({
     }),
     "design/screen-sizes.json": `${JSON.stringify({ version: 1, widths: WIDTHS }, null, 2)}\n`,
     "design/blueprint.json": `${JSON.stringify(BLUEPRINT, null, 2)}\n`,
-    ".claude/rules/design-assembly.md": RULES,
-    ...(ledger ? { "design/decisions.yaml": LEDGER } : {}),
+    ".claude/rules/design-assembly.md": `${RULES}${unheld ? UNHELD : ""}`,
+    ...(ledger ? { "design/decisions.yaml": `${LEDGER}${unchecked ? UNCHECKED : ""}` } : {}),
   };
   for (const [file, text] of Object.entries(files)) {
     mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });

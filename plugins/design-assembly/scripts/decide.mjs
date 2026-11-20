@@ -75,7 +75,7 @@ const read = (root, file) =>
 
 // Everything the sheet is made from, read once: the rows of the ledger, what the status says waits
 // in them, and the waiting list.
-function readState(root) {
+export function readState(root) {
   const rows = readLedger(root) ?? [];
   const waiting = status(root).waiting;
   const list = readWaiting(
@@ -518,7 +518,8 @@ function nameFromGit(root) {
   return name === "" ? null : name;
 }
 
-const today = () => {
+// The day as a waiting list writes it, YYYY-MM-DD, by the clock of this machine.
+export const today = () => {
   const now = new Date();
   const two = (value) => String(value).padStart(2, "0");
   return `${now.getFullYear()}-${two(now.getMonth() + 1)}-${two(now.getDate())}`;
@@ -585,44 +586,56 @@ const slug = (words) =>
 
 // The id of an asked question: the one given, else made from its item, else from its words. Made
 // from its words, two agents that ask two questions on two branches write two files.
-function askedId(call) {
-  const given = call.flags["--id"];
-  if (given !== undefined) return given;
-  const item = call.flags["--item"];
+export function askedIdOf({ question, item, id }) {
+  if (id !== undefined) return id;
   if (item !== undefined) return slug(item) || `q-${hash(item)}`;
-  return `q-${hash(call.flags["--ask"].normalize("NFC").trim())}`;
+  return `q-${hash(question.normalize("NFC").trim())}`;
 }
 const hash = (words) => createHash("sha256").update(words).digest("hex").slice(0, 8);
 
-// A question an agent asks, as one new file of the waiting list. Refused, and nothing written,
-// when the question is not whole, when the list is one shared file, or when its id waits already.
+// A question asked with --ask, from the flags of the call.
 function askCall(root, state, call) {
-  const refused = (why) => new Refusal(`${why}. Nothing was written`);
   const flags = call.flags;
-  const hard = flags["--hard-to-undo"] === true;
-  const easy = flags["--easy-to-undo"] === true;
-  if (hard === easy) {
+  return askOf(root, state, {
+    question: flags["--ask"],
+    recommend: flags["--recommend"],
+    because: flags["--because"],
+    hard: flags["--hard-to-undo"] === true,
+    easy: flags["--easy-to-undo"] === true,
+    item: flags["--item"],
+    id: flags["--id"],
+    on: flags["--on"],
+  });
+}
+
+// A question an agent asks, as one new file of the waiting list, made in memory: its file, what
+// the file holds, the list once it is in, and the sheet after. Refused, and nothing written, when
+// the question is not whole, when the list is one shared file, or when its id waits already. The
+// review command asks its questions through here too, so a question reads the same whoever asks.
+export function askOf(root, state, ask) {
+  const refused = (why) => new Refusal(`${why}. Nothing was written`);
+  if (ask.hard === ask.easy) {
     throw refused(
       "say whether the answer is hard to undo: --hard-to-undo or --easy-to-undo, one of them",
     );
   }
-  for (const [flag, what] of [
-    ["--recommend", "what the agent recommends, and goes on with"],
-    ["--because", "what the recommendation rests on"],
+  for (const [key, flag, what] of [
+    ["recommend", "--recommend", "what the agent recommends, and goes on with"],
+    ["because", "--because", "what the recommendation rests on"],
   ]) {
-    if (typeof flags[flag] !== "string" || flags[flag].trim() === "") {
+    if (typeof ask[key] !== "string" || ask[key].trim() === "") {
       throw refused(`a question is asked with ${flag}: ${what}`);
     }
   }
-  if (flags["--item"] !== undefined && itemProblem(flags["--item"])) {
-    throw refused(`--item: ${itemProblem(flags["--item"])}`);
+  if (ask.item !== undefined && itemProblem(ask.item)) {
+    throw refused(`--item: ${itemProblem(ask.item)}`);
   }
   if (state.list?.shape === "file") {
     throw refused(
       `the waiting list is one shared file, ${WAITING_LIST}, and asking would change it: split it first, with --split`,
     );
   }
-  const id = askedId(call);
+  const id = askedIdOf(ask);
   if (!ID.test(id)) {
     throw refused(
       `${id} cannot be the id of a question: no space, comma or slash, and no dot first`,
@@ -632,20 +645,18 @@ function askCall(root, state, call) {
   if (ledgerIds.includes(id))
     throw refused(`${id} is the id of a row of ${LEDGER}: give another --id`);
   // The same item asked before, or the same id: the answer, or the wait, is already there.
-  const item = flags["--item"];
-  const before = (state.list?.rows ?? []).find(
-    (row) => (item !== undefined && row.item === item) || row.id.toLowerCase() === id.toLowerCase(),
-  );
+  const item = ask.item;
+  const before = askedIn(state, { id, item });
   if (before) throw refused(askedBefore(before, item));
-  const on = flags["--on"] ?? today();
+  const on = ask.on ?? today();
   if (!isDay(on)) throw refused(`--on takes a day written YYYY-MM-DD, and ${on} is not one`);
   const row = {
     id,
-    question: flags["--ask"].trim(),
-    recommendation: flags["--recommend"].trim(),
-    basis: flags["--because"].trim(),
-    hard_to_undo: hard,
-    ...(flags["--item"] !== undefined ? { item: flags["--item"] } : {}),
+    question: ask.question.trim(),
+    recommendation: ask.recommend.trim(),
+    basis: ask.because.trim(),
+    hard_to_undo: ask.hard,
+    ...(item !== undefined ? { item } : {}),
     asked_on: on,
   };
   const problems = rowProblems(row, id);
@@ -660,6 +671,7 @@ function askCall(root, state, call) {
     file,
     content: renderJson(row, lineWidth(root)),
     asked: { id, file, item: row.item ?? null, may_go_on: !mustAsk(row.item) },
+    state: { ...state, list },
     after: sheetOf({
       ...state,
       list: {
@@ -669,6 +681,12 @@ function askCall(root, state, call) {
     }),
   };
 }
+
+// The question of the waiting list that has this id or is about this item, or null.
+export const askedIn = (state, { id, item }) =>
+  (state.list?.rows ?? []).find(
+    (row) => (item !== undefined && row.item === item) || row.id.toLowerCase() === id.toLowerCase(),
+  ) ?? null;
 
 // Why a question is not asked again: what the owner answered, or that it waits.
 function askedBefore(row, item) {

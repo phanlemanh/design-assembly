@@ -340,8 +340,8 @@
         {
           "id": "5.2",
           "what": "Lệnh review",
-          "state": "doing",
-          "ref": "wiki/specs/0009-review-a-drawn-screen.md; chủ repo duyệt đề bài và đáp cả năm câu hỏi theo khuyến nghị ngày 2026-11-20 («Duyệt cả năm»); hai lát; lát 1 (phích mặc định: chụp, gói soát, hai phép đo, biên bản, bảng năng lực; tiêu chí 1, 2, 3, 6, 7, 9) đã dựng, wiki/decisions/0071-the-review-command-draws-and-measures-before-any-eye.md; lát 2 (mắt soát và phần gặt; tiêu chí 4, 5, 8, 10) chưa dựng",
+          "state": "done",
+          "ref": "wiki/specs/0009-review-a-drawn-screen.md; chủ repo duyệt đề bài và đáp cả năm câu hỏi theo khuyến nghị ngày 2026-11-20 («Duyệt cả năm»); hai lát, cả mười tiêu chí: lát 1 (tiêu chí 1, 2, 3, 6, 7, 9), wiki/decisions/0071-the-review-command-draws-and-measures-before-any-eye.md, chứng bằng plugins/design-assembly/tests/test-review.mjs; lát 2 (tiêu chí 4, 5, 8), wiki/decisions/0072-an-eye-is-a-plug-the-harvest-belongs-to-the-socket.md, chứng bằng plugins/design-assembly/tests/test-review-harvest.mjs; tiêu chí 10, wiki/decisions/0073-the-review-socket-plugs-an-outside-eye.md, một lượt thử chủ repo cho chạy ngày 2026-11-20 («Cho chạy»), docs/trials/review-eye-on-a-planted-copy.md",
           "command": "review"
         },
         {
