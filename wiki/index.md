@@ -20,6 +20,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 
 ## Specs
 
+- [0008 Năng lực, ổ cắm và phích cắm — Design Assembly giữ lõi, ai làm tốt hơn thì cắm vào](specs/0008-capabilities-sockets-and-plugs.md) — chủ repo duyệt 2026-11-20, sáu khuyến nghị rồi hai câu sau lượt quét; danh mục đóng hai mươi năng lực; dựng theo mục 5.0 của kế hoạch
 - [0007 Mở rộng ở ba chỗ — cửa vào, bề rộng của hệ, và ý đồ thiết kế tới tay tác tử](specs/0007-widen-the-entry-the-system-and-the-intent.md) — khuyến nghị chờ chủ repo duyệt, tổng hợp hai bản điều tra Claude Design và stitch-skills ngày 2026-11-20; sáu việc theo thứ tự, năm câu hỏi còn mở; chưa đổi kế hoạch
 - [0006 Kho dùng lại — sổ nguồn ngoài, và bốn lệnh tra kho, kiểm kê kho, nhập kho, đổi](specs/0006-the-reusable-store.md) — đề bài của giai đoạn 3, chủ repo duyệt 2026-11-19 và đáp cả mười câu hỏi theo khuyến nghị; dựng theo mục 3.1 đến 3.5 của kế hoạch
 - [0005 Sổ thiết kế thôi đi theo PR, bản đồ màn tới bài kiểm, và sổ quyết định đứng thay trưởng thiết kế](specs/0005-ledgers-stop-riding-pull-requests.md) — đã duyệt 2026-11-16, kèm luật «mọi repo, mọi giai đoạn»; dựng theo mục 8.1 đến 8.4 của kế hoạch
