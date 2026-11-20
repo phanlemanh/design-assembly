@@ -1,0 +1,7 @@
+{
+  "id": "stitch",
+  "about": "A design tool that generates screens and a design description from a prompt.",
+  "sockets": ["direction", "foundations"],
+  "names": ["Stitch"],
+  "needs": ["account", "network"]
+}

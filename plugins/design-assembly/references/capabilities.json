@@ -1,0 +1,613 @@
+{
+  "about": "The closed catalogue of what a user of a design system needs done. Each capability has one socket this plugin keeps, and plugs that fill it. A socket says which ledgers of the contract only it may write (keys of LEDGERS in templates/tools/design-assembly/contract.mjs), what it hands out, which commands hold it, who decides, and its two faces: what a person is shown and asked, and what becomes a rule a machine holds. A plug here is this plugin's own; a plug from outside is one file in references/plugs/ that names the socket it fills, so this file names no outside tool. A capability with no default plug points to an open row of references/limits.json. A route is a command that leads a person through several sockets; it is not a plug. `reads` on a plug names ledgers its scripts read and do not write. `unseen_writes` names ledgers whose writers the static check cannot see, each with the limit row that says so. A socket marked `closed` takes no plug from outside: it is the core.",
+  "stages": [
+    "know",
+    "decide",
+    "build-the-system",
+    "use-the-system",
+    "hand-over",
+    "keep-and-change"
+  ],
+  "routes": [
+    {
+      "id": "new",
+      "script": "scripts/apply.mjs",
+      "through": [
+        "discovery",
+        "decision",
+        "foundations",
+        "components",
+        "interaction-patterns",
+        "screen-kinds",
+        "screen-build"
+      ]
+    },
+    {
+      "id": "adopt",
+      "script": "scripts/adopt.mjs",
+      "through": ["decision", "foundations", "screen-build"]
+    },
+    {
+      "id": "change",
+      "script": "scripts/change.mjs",
+      "through": ["components", "upgrade-and-change"]
+    }
+  ],
+  "unseen_writes": {
+    "intake": "capability-writes-check-is-static"
+  },
+  "capabilities": [
+    {
+      "id": "audit",
+      "stage": "know",
+      "name": "audit",
+      "socket": {
+        "writes": [],
+        "outputs": ["the audit report and the tier reached"],
+        "checks": ["/design-assembly:audit", "/design-assembly:status"],
+        "decides": "machine",
+        "human": {
+          "shows": "each decision's state and the tier the repository has reached"
+        },
+        "machine": {
+          "rules": "a decision counts as held only when a check that can fail holds it",
+          "held_by": "make design-rate"
+        }
+      },
+      "plugs": [
+        {
+          "id": "audit",
+          "kind": "command",
+          "default": true,
+          "scripts": ["scripts/audit.mjs"]
+        },
+        {
+          "id": "status",
+          "kind": "command",
+          "default": false,
+          "scripts": ["scripts/status.mjs"]
+        }
+      ],
+      "layers": ["context", "foundations", "governance"],
+      "tiers": ["audit"]
+    },
+    {
+      "id": "inventory",
+      "stage": "know",
+      "name": "store inventory",
+      "socket": {
+        "writes": [],
+        "outputs": ["findings of the store, by ledger"],
+        "checks": ["/design-assembly:inventory", "/design-assembly:find"],
+        "decides": "machine",
+        "human": {
+          "shows": "what each store holds, the state of each piece, and what was not looked at"
+        },
+        "machine": {
+          "rules": "a finding names the ledger row it comes from",
+          "held_by": "/design-assembly:inventory"
+        }
+      },
+      "plugs": [
+        {
+          "id": "inventory",
+          "kind": "command",
+          "default": true,
+          "scripts": ["scripts/inventory.mjs"]
+        },
+        {
+          "id": "find",
+          "kind": "command",
+          "default": false,
+          "scripts": ["scripts/find.mjs"]
+        }
+      ],
+      "layers": ["components"],
+      "tiers": ["audit"]
+    },
+    {
+      "id": "discovery",
+      "stage": "decide",
+      "name": "discovery",
+      "socket": {
+        "writes": [],
+        "outputs": ["the design principles and the product context"],
+        "checks": ["/design-assembly:new"],
+        "decides": "owner",
+        "human": {
+          "shows": "the principles proposed for this product",
+          "asks": "which principles the owner fixes, before any value"
+        },
+        "machine": {
+          "rules": "every recommendation says what it rests on",
+          "held_by": "/design-assembly:decide"
+        }
+      },
+      "plugs": [
+        {
+          "id": "principles",
+          "kind": "command",
+          "default": true,
+          "scripts": ["scripts/principles.mjs"]
+        }
+      ],
+      "layers": ["context"],
+      "tiers": ["foundations"]
+    },
+    {
+      "id": "reference",
+      "stage": "decide",
+      "name": "reference",
+      "socket": {
+        "writes": ["sources"],
+        "outputs": ["a row of the sources ledger, pinned"],
+        "checks": ["make design-assembly"],
+        "decides": "owner",
+        "human": {
+          "shows": "the references gathered for a choice",
+          "asks": "which reference the owner keeps"
+        },
+        "machine": {
+          "rules": "a source is pinned to the version or date it was fetched at",
+          "held_by": "make design-assembly"
+        }
+      },
+      "plugs": [],
+      "limit": "capability-reference-has-no-plug",
+      "layers": ["context", "foundations"],
+      "tiers": ["foundations"]
+    },
+    {
+      "id": "direction",
+      "stage": "decide",
+      "name": "direction",
+      "socket": {
+        "writes": [],
+        "outputs": ["candidate directions, drawn on the repository's own screen"],
+        "checks": ["/design-assembly:new"],
+        "decides": "owner",
+        "human": {
+          "shows": "three whole directions on a real screen, light and dark",
+          "asks": "which direction the owner takes"
+        },
+        "machine": {
+          "rules": "the chosen values reach the stylesheet with a contrast check",
+          "held_by": "make design-assembly"
+        }
+      },
+      "plugs": [
+        {
+          "id": "directions",
+          "kind": "command",
+          "default": true,
+          "scripts": ["scripts/directions.mjs", "scripts/specimen.mjs"],
+          "reads": ["blueprint", "screen-sizes"]
+        }
+      ],
+      "layers": ["foundations"],
+      "tiers": ["foundations"]
+    },
+    {
+      "id": "decision",
+      "stage": "decide",
+      "name": "decision",
+      "socket": {
+        "writes": ["decisions", "blueprint"],
+        "outputs": ["a decision row with a name and a date"],
+        "checks": ["/design-assembly:decide", "make design-assembly"],
+        "decides": "owner",
+        "human": {
+          "shows": "every question that waits, each with a recommendation and what it rests on",
+          "asks": "the owner's answer, in one touch"
+        },
+        "machine": {
+          "rules": "only the owner's answer is written as a decision",
+          "held_by": "make design-assembly"
+        },
+        "closed": true
+      },
+      "plugs": [
+        {
+          "id": "decide",
+          "kind": "core",
+          "default": true,
+          "scripts": ["scripts/decide.mjs"]
+        }
+      ],
+      "layers": ["context", "foundations"],
+      "tiers": ["foundations", "core-components"]
+    },
+    {
+      "id": "foundations",
+      "stage": "build-the-system",
+      "name": "foundations",
+      "socket": {
+        "writes": ["tokens"],
+        "outputs": ["the stylesheet, the design tokens, and the checks around them"],
+        "checks": ["make design-tokens", "make design-assembly"],
+        "decides": "machine",
+        "human": {
+          "reason": "the values are the owner's, asked at the direction and decision sockets"
+        },
+        "machine": {
+          "rules": "no raw colour, size, distance or radius outside the stylesheet",
+          "held_by": "make design-assembly"
+        }
+      },
+      "plugs": [
+        {
+          "id": "tokens",
+          "kind": "command",
+          "default": true,
+          "scripts": ["templates/tools/design-assembly/tokens.mjs"]
+        }
+      ],
+      "layers": ["foundations"],
+      "tiers": ["foundations"]
+    },
+    {
+      "id": "brand-assets",
+      "stage": "build-the-system",
+      "name": "brand assets",
+      "socket": {
+        "writes": [],
+        "outputs": ["the logo, the fonts and the icon set, recorded through the reference socket"],
+        "checks": ["make design-assembly"],
+        "decides": "owner",
+        "human": {
+          "shows": "the assets the repository holds",
+          "asks": "which logo, fonts and icons the product uses"
+        },
+        "machine": {
+          "rules": "a screen uses only the assets that are recorded",
+          "held_by": "make design-assembly"
+        }
+      },
+      "plugs": [],
+      "limit": "capability-brand-assets-has-no-plug",
+      "layers": ["foundations"],
+      "tiers": ["foundations"]
+    },
+    {
+      "id": "components",
+      "stage": "build-the-system",
+      "name": "components",
+      "socket": {
+        "writes": ["intake", "components"],
+        "outputs": ["a row of the intake ledger, and the component manifest"],
+        "checks": ["/design-assembly:intake", "make design-components"],
+        "decides": "owner",
+        "human": {
+          "shows": "the ladder of three rungs for a need",
+          "asks": "which block the repository takes in"
+        },
+        "machine": {
+          "rules": "a screen uses the component the manifest names, with a variant it declares",
+          "held_by": "make design-assembly"
+        }
+      },
+      "plugs": [
+        {
+          "id": "intake",
+          "kind": "command",
+          "default": true,
+          "scripts": ["scripts/intake.mjs", "scripts/intake-write.mjs"]
+        },
+        {
+          "id": "component-manifest",
+          "kind": "command",
+          "default": false,
+          "scripts": ["templates/tools/design-assembly/components.mjs"]
+        }
+      ],
+      "layers": ["components"],
+      "tiers": ["core-components"]
+    },
+    {
+      "id": "interaction-patterns",
+      "stage": "build-the-system",
+      "name": "interaction patterns",
+      "socket": {
+        "writes": ["states", "screen-sizes", "parts"],
+        "outputs": ["the behaviours page and the table of states"],
+        "checks": ["make design-assembly"],
+        "decides": "owner",
+        "human": {
+          "shows": "what each state of a screen shows",
+          "asks": "which states and widths the product keeps"
+        },
+        "machine": {
+          "rules": "every screen draws each state it declares, at the narrowest and the widest width",
+          "held_by": "make design-assembly"
+        }
+      },
+      "plugs": [
+        {
+          "id": "behaviours",
+          "kind": "page",
+          "default": true,
+          "scripts": ["scripts/apply.mjs"]
+        }
+      ],
+      "layers": ["patterns"],
+      "tiers": ["patterns-and-content"]
+    },
+    {
+      "id": "content",
+      "stage": "build-the-system",
+      "name": "content",
+      "socket": {
+        "writes": [],
+        "outputs": ["the table of terms"],
+        "checks": ["make design-assembly"],
+        "decides": "owner",
+        "human": {
+          "shows": "the words a screen uses for each thing",
+          "asks": "which word the product uses"
+        },
+        "machine": {
+          "rules": "a screen uses the term the table gives",
+          "held_by": "make design-assembly"
+        }
+      },
+      "plugs": [],
+      "limit": "capability-content-has-no-plug",
+      "layers": ["content"],
+      "tiers": ["patterns-and-content"]
+    },
+    {
+      "id": "screen-kinds",
+      "stage": "build-the-system",
+      "name": "screen kinds",
+      "socket": {
+        "writes": ["screen-kinds"],
+        "outputs": ["the page of one kind of screen"],
+        "checks": ["make design-assembly"],
+        "decides": "owner",
+        "human": {
+          "shows": "the model screen of a kind",
+          "asks": "what a screen of this kind must hold"
+        },
+        "machine": {
+          "rules": "a screen of a kind is built from its model",
+          "held_by": "make design-assembly"
+        }
+      },
+      "plugs": [],
+      "limit": "capability-screen-kinds-has-no-plug",
+      "layers": ["templates"],
+      "tiers": ["templates"]
+    },
+    {
+      "id": "screen-brief",
+      "stage": "use-the-system",
+      "name": "screen brief",
+      "socket": {
+        "writes": [],
+        "outputs": ["the data of one screen about to be built"],
+        "checks": ["make design-assembly"],
+        "decides": "machine",
+        "human": {
+          "reason": "the brief carries what the owner already decided; it asks nothing new"
+        },
+        "machine": {
+          "rules": "a builder has one answer for each choice, in the brief it is given",
+          "held_by": "make design-assembly"
+        }
+      },
+      "plugs": [],
+      "limit": "capability-screen-brief-has-no-plug",
+      "layers": ["templates"],
+      "tiers": ["templates"]
+    },
+    {
+      "id": "screen-build",
+      "stage": "use-the-system",
+      "name": "screen build",
+      "socket": {
+        "writes": ["screens", "columns", "column-types"],
+        "outputs": ["code that passes the gate"],
+        "checks": ["make design-assembly", "make design-columns"],
+        "decides": "machine",
+        "human": {
+          "reason": "the builder asks nothing; what is not decided goes to the waiting list"
+        },
+        "machine": {
+          "rules": "a screen is built only from the rules page, and the gate holds every rule it names",
+          "held_by": "make design-assembly"
+        }
+      },
+      "plugs": [
+        {
+          "id": "rules-page",
+          "kind": "page",
+          "default": true,
+          "scripts": ["scripts/apply.mjs"]
+        },
+        {
+          "id": "columns",
+          "kind": "command",
+          "default": false,
+          "scripts": ["templates/tools/design-assembly/columns.mjs"]
+        },
+        {
+          "id": "screen-fragments",
+          "kind": "command",
+          "default": false,
+          "scripts": ["templates/tools/design-assembly/screen-fragments.mjs"]
+        }
+      ],
+      "layers": ["components", "patterns", "templates"],
+      "tiers": ["templates"]
+    },
+    {
+      "id": "design-review",
+      "stage": "use-the-system",
+      "name": "design review",
+      "socket": {
+        "writes": [],
+        "outputs": ["findings, each pointing at a ledger row"],
+        "checks": ["make design-assembly"],
+        "decides": "machine",
+        "human": {
+          "shows": "the findings a check cannot settle",
+          "asks": "whether a finding becomes a rule or waits"
+        },
+        "machine": {
+          "rules": "a finding that names a ledger row is held by that row's check",
+          "held_by": "make design-assembly"
+        }
+      },
+      "plugs": [
+        {
+          "id": "gate",
+          "kind": "gate",
+          "default": true,
+          "scripts": ["templates/tools/design-assembly/check.mjs"]
+        }
+      ],
+      "layers": ["governance"],
+      "tiers": ["governance"],
+      "limit": "capability-design-review-sees-no-picture"
+    },
+    {
+      "id": "accessibility-report",
+      "stage": "use-the-system",
+      "name": "accessibility report",
+      "socket": {
+        "writes": [],
+        "outputs": ["a conformance report"],
+        "checks": ["make design-assembly"],
+        "decides": "machine",
+        "human": {
+          "shows": "the conformance level and what is not met"
+        },
+        "machine": {
+          "rules": "each criterion of the level names the check that measures it",
+          "held_by": "make design-assembly"
+        }
+      },
+      "plugs": [],
+      "limit": "audit-document-without-accessibility-chapter",
+      "layers": ["governance"],
+      "tiers": ["governance"]
+    },
+    {
+      "id": "handoff",
+      "stage": "hand-over",
+      "name": "showcase and hand-over",
+      "socket": {
+        "writes": [],
+        "outputs": ["the handoff book and the release notes"],
+        "checks": ["/design-assembly:handoff"],
+        "decides": "machine",
+        "human": {
+          "shows": "the system drawn from the repository, with a do and a don't for each rule"
+        },
+        "machine": {
+          "rules": "the book is drawn from the ledgers and says when it no longer matches them",
+          "held_by": "/design-assembly:handoff"
+        }
+      },
+      "plugs": [
+        {
+          "id": "handoff",
+          "kind": "command",
+          "default": true,
+          "scripts": ["scripts/book.mjs", "scripts/examples.mjs"]
+        }
+      ],
+      "layers": [
+        "context",
+        "foundations",
+        "components",
+        "patterns",
+        "content",
+        "templates",
+        "governance"
+      ],
+      "tiers": ["patterns-and-content"]
+    },
+    {
+      "id": "cross-repo",
+      "stage": "hand-over",
+      "name": "shared across repositories",
+      "socket": {
+        "writes": [],
+        "outputs": ["decision records and blocks raised to a shared store"],
+        "checks": ["/design-assembly:find"],
+        "decides": "owner",
+        "human": {
+          "shows": "the blocks two repositories keep alike",
+          "asks": "which block is raised to the shared store"
+        },
+        "machine": {
+          "rules": "a repository takes a shared block in through the intake ledger",
+          "held_by": "make design-assembly"
+        }
+      },
+      "plugs": [],
+      "limit": "capability-cross-repo-has-no-plug",
+      "layers": ["governance"],
+      "tiers": ["governance"]
+    },
+    {
+      "id": "upgrade-and-change",
+      "stage": "keep-and-change",
+      "name": "upgrade and change",
+      "socket": {
+        "writes": [],
+        "outputs": ["the ledgers changed in step, and a green gate"],
+        "checks": ["/design-assembly:upgrade", "/design-assembly:change"],
+        "decides": "owner",
+        "human": {
+          "shows": "what a change reaches before it is made",
+          "asks": "whether the change is made"
+        },
+        "machine": {
+          "rules": "nothing is written when an entry would be lost or the gate would be red",
+          "held_by": "/design-assembly:upgrade"
+        }
+      },
+      "plugs": [
+        {
+          "id": "upgrade",
+          "kind": "command",
+          "default": true,
+          "scripts": ["scripts/upgrade.mjs"]
+        }
+      ],
+      "layers": ["governance"],
+      "tiers": ["governance"]
+    },
+    {
+      "id": "governance",
+      "stage": "keep-and-change",
+      "name": "governance",
+      "socket": {
+        "writes": [],
+        "outputs": ["the limits ledger and the ledger of escapes"],
+        "checks": ["make design-assembly"],
+        "decides": "machine",
+        "human": {
+          "shows": "every known limit and every escape, with its plan"
+        },
+        "machine": {
+          "rules": "a limit written only in prose is a row of the limits ledger",
+          "held_by": "make design-assembly"
+        },
+        "closed": true
+      },
+      "plugs": [
+        {
+          "id": "governance",
+          "kind": "core",
+          "default": true,
+          "scripts": ["templates/tools/design-assembly/governance.mjs"]
+        }
+      ],
+      "layers": ["governance"],
+      "tiers": ["governance"]
+    }
+  ]
+}

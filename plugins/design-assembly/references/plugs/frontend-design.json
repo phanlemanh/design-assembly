@@ -1,0 +1,7 @@
+{
+  "id": "frontend-design",
+  "about": "A skill that builds an interface with a deliberate visual direction.",
+  "sockets": ["screen-build"],
+  "names": ["frontend-design"],
+  "needs": []
+}
