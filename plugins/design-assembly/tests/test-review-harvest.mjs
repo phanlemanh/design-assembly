@@ -24,7 +24,10 @@ import { fileURLToPath } from "node:url";
 
 import { readCapabilities } from "../scripts/capabilities.mjs";
 import { EXIT } from "../scripts/command.mjs";
-import { partsOf } from "../scripts/document.mjs";
+import { partsOf, renderDocument } from "../scripts/document.mjs";
+import { originOf } from "../scripts/family.mjs";
+import { review } from "../scripts/review.mjs";
+import { recordOf } from "../scripts/review-record.mjs";
 import { factsOf } from "../scripts/review-pack.mjs";
 import {
   eyesOf,
@@ -246,6 +249,32 @@ test("criterion 4: a finding with no picture, no severity or no rests_on is refu
   assert.deepEqual(pictureProblems(read, shotsOf(facts)), [
     "finding 1: orders-ready-640-light is not a picture this review drew",
   ]);
+});
+
+test("criterion 4: a finding whose place lies outside the page of its picture is refused, once the page is known", () => {
+  const dir = sample();
+  const facts = factsOf(dir, "orders");
+  const shots = shotsOf(facts).map((shot) => ({
+    ...shot,
+    page: { width: shot.id.includes("-320-") ? 320 : 1280, height: 600 },
+  }));
+  const placed = (place) =>
+    readFindings(
+      eyeFile(facts, (f) => [f[0], { ...f[2], picture: PICTURE, place }]),
+      facts,
+    );
+  // Inside the page, to its very edge: taken.
+  assert.deepEqual(pictureProblems(placed({ x: 0, y: 0, width: 320, height: 600 }), shots), []);
+  // Past its right edge, or below its foot: refused, naming the finding.
+  for (const place of [
+    { x: 300, y: 10, width: 40, height: 20 },
+    { x: 10, y: 590, width: 40, height: 20 },
+    { x: 400, y: 10, width: 10, height: 10 },
+  ]) {
+    assert.deepEqual(pictureProblems(placed(place), shots), [
+      `finding 2: its place (${place.x}, ${place.y}, ${place.width} × ${place.height}) lies outside ${PICTURE}, which is 320 × 600 pixels`,
+    ]);
+  }
 });
 
 test("the findings of an eye and those the machine measured read the same way, numbered together, the heaviest first", () => {
@@ -568,6 +597,17 @@ test("criterion 4: a findings file that cannot be harvested ends with 2 before a
   assert.equal(called.status, EXIT.wrong, called.stdout);
   assert.equal(called.stdout, "");
   assert.match(called.stderr, /finding 2: .*no severity/);
+  // The refusal names the file the caller gave, whatever it is called.
+  assert.ok(called.stderr.startsWith(`design-assembly: ${file}: `), called.stderr);
+  const named = path.join(folder(), "findings-bad.json");
+  writeFileSync(
+    named,
+    eyeFile(facts, (f) => [{ ...f[0], picture: undefined }]),
+  );
+  const other = run(["orders", "--target", dir, "--findings", named, "--json"]);
+  assert.equal(other.status, EXIT.wrong, other.stdout);
+  assert.ok(other.stderr.startsWith(`design-assembly: ${named}: finding 1: `), other.stderr);
+  assert.doesNotMatch(other.stderr, /review-findings\.json/);
   assert.deepEqual(tree(dir), before);
   assert.deepEqual(readdirSync(path.dirname(into)), []);
   // --findings names a file; --queue alone is a call of its own, and wrong words are refused.
@@ -702,6 +742,44 @@ test("criterion 8: the skill hands the pictures and the pack to the eye the sock
     for (const name of eye.names) assert.ok(!skill.includes(name), name);
   }
   assert.match(skill, /no eye has looked/i);
+});
+
+test("the same repository reviewed on two different days gives the same record, byte for byte", async (t) => {
+  if (!drawn(t)) return;
+  const dir = sample();
+  const facts = factsOf(dir, "orders");
+  const findings = eyeFile(facts, (f) => [f[0], f[1]]);
+  const origin = originOf(dir);
+  const pages = [];
+  let lines;
+  try {
+    const days = ["2026-11-20", "2026-12-24"];
+    const done = [];
+    for (const on of days)
+      done.push(await review(dir, "orders", { all: true, keep: true, findings, on }));
+    for (const { result } of done) pages.push(renderDocument(recordOf(result, origin)));
+    lines = done.map(({ result }) => result.harvest.filter((entry) => entry.group === "escape"));
+  } catch (error) {
+    if (/Executable doesn't exist|browserType\.launch/.test(error.message)) {
+      t.skip("the browser of this machine is not installed");
+      return;
+    }
+    throw error;
+  }
+  assert.ok(lines[0].length > 0, "the sample gives lines for the ledger of escapes");
+  assert.equal(pages[1], pages[0]);
+  assert.doesNotMatch(pages[0], /2026-11-20|2026-12-24/);
+  // The answer for a machine still dates each line with the day it was run, to be pasted that day.
+  assert.ok(
+    lines[0].every(
+      (entry) => entry.day === "2026-11-20" && entry.line.startsWith("| 2026-11-20 |"),
+    ),
+  );
+  assert.ok(
+    lines[1].every(
+      (entry) => entry.day === "2026-12-24" && entry.line.startsWith("| 2026-12-24 |"),
+    ),
+  );
 });
 
 test("the limit of the socket is narrowed to what an eye still leaves open", () => {

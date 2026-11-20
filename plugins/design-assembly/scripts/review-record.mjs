@@ -65,7 +65,10 @@ function restsOn({ rests_on: on }) {
 // What becomes of a finding, in one sentence of its evidence.
 function harvestWords(entry) {
   if (entry.group === "escape") {
-    return `A check let it through: add this line to ${entry.file} before the fix: ${entry.line}`;
+    // The line as it reads on any day: the record reads no clock, and the line is dated the day
+    // it is added.
+    const { what, layer, done } = entry.slip;
+    return `A check let it through: add a line to ${entry.file} before the fix, dated the day it is added: ${quoted(what)}; layer ${layer ?? "left for the person who adds it, since the rules page names none"}; ${quoted(done)}.`;
   }
   if (entry.group === "question") {
     const where = entry.queued?.file

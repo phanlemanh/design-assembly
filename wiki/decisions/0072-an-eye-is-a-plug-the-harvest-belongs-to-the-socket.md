@@ -44,9 +44,10 @@ soát, và một quy tắc nói mỗi phát hiện đi về đâu.
    (`high`, `medium`, `low`), `saw` (điều mắt thấy, bằng lời của nó), `rests_on`, và có thể có `fix`, `place`.
    `review <màn> --findings TỆP` đọc tệp trước khi vẽ gì. Một phát hiện thiếu ảnh, thiếu mức, thiếu `rests_on`, có
    khoá lạ, hay trỏ tới điều repo không có (một dòng sổ không tồn tại, một dòng không có trên trang luật, một nguyên
-   tắc chủ repo chưa chốt) làm cả tệp bị từ chối với mã 2; lời từ chối nêu từng phát hiện và điều nó thiếu, và không
-   gì được ghi. Ảnh chỉ biết được sau khi vẽ (một trạng thái không tới được, một giao diện tối ứng dụng không có thì
-   không có ảnh), nên phát hiện trỏ tới ảnh không vẽ bị từ chối ngay sau bước vẽ, vẫn trước mọi lần ghi.
+   tắc chủ repo chưa chốt) làm cả tệp bị từ chối với mã 2; lời từ chối mở đầu bằng tên tệp người gọi đưa, nêu từng
+   phát hiện và điều nó thiếu, và không gì được ghi. Ảnh và cỡ trang của từng ảnh chỉ biết được sau khi vẽ (một trạng
+   thái không tới được, một giao diện tối ứng dụng không có thì không có ảnh), nên phát hiện trỏ tới ảnh không vẽ, hay
+   có `place` nằm ngoài trang của ảnh nó, bị từ chối ngay sau bước vẽ, vẫn trước mọi lần ghi.
 2. **`rests_on` có bốn loại, đọc như nhau ở hai nguồn.** Một dòng của sổ quyết định (`ledger-row`, kèm phép kiểm và
    tầng của dòng), một dòng của trang luật (`rule-line`, kèm mục và việc cổng có giữ nó không), một nguyên tắc chủ repo
    đã chốt (`principle`, kèm lời của nó), hoặc không gì (`nothing`, kèm lý do). Phát hiện của mắt soát mang `kind:
@@ -97,6 +98,16 @@ soát, và một quy tắc nói mỗi phát hiện đi về đâu.
   dán vào) là lựa chọn của chủ repo, nên giữ; bài kiểm nay chứng đúng điều ấy thay vì chỉ kiểm hình dạng dòng. Hai điểm
   vừa đã sửa: tệp hàng chờ được ghi sau biên bản, và lệnh không ghi đè một tệp đã có. Thêm một điều nhỏ cũng sửa: không
   có `--queue`, câu đã ở hàng chờ không được in thành lời gọi sẽ bị từ chối.
+- Một lượt soát độc lập thứ hai, sau khi PR mở, nêu ba điểm; chủ repo cho sửa ngay trong PR («Có, gửi sửa»), cả ba có
+  bài kiểm thấy đỏ trước khi sửa:
+  - Biên bản đổi theo ngày chạy, vì dòng sổ lỗi lọt mang ngày của đồng hồ. Nay biên bản không đọc đồng hồ: nó nói dòng
+    cần thêm bằng phần không đổi theo ngày (điều lọt, tầng, việc đã làm) và dặn ghi ngày lúc thêm. Câu trả lời cho
+    người và `--json` vẫn có dòng ghi sẵn ngày chạy (`day`, `line`), để dán ngay hôm ấy. Chọn cách này thay vì ngày
+    của commit cuối như trang bìa: dòng sổ lỗi lọt ghi ngày lỗi được tìm ra, không phải ngày màn được commit. Bài kiểm
+    soát cùng repo với hai ngày khác nhau và thấy hai biên bản trùng từng byte.
+  - Lời từ chối luôn nêu `review-findings.json` dù tệp mang tên khác. Nay nó nêu đúng tên người gọi đưa.
+  - Một `place` nằm ngoài trang của ảnh được nhận, rồi chú thích bị ép vào mép ảnh. Nay phát hiện ấy bị từ chối, nêu
+    phát hiện, vị trí và cỡ trang.
 - Phần gặt không nói được: một phát hiện của mắt có đúng không, mắt đã bỏ sót gì, và tác tử có chép đúng lời skill vào
   tệp không. Nó chỉ nói phát hiện ấy dựa vào đâu và vì thế đi về đâu. Số đo cho các điều ấy đến từ lượt thử của bản
   quyết định cắm phích.

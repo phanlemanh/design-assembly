@@ -112,8 +112,10 @@ Show the user the record, or the pictures with the findings beside them. Do not 
 `harvest` has one entry for each finding, by its number, in one of three groups:
 
 - `escape`: it rests on a row a check holds, or on a line of the rules page the gate holds. The
-  check let it through. The entry gives the `line` to add to `design/escapes.md`; the command adds
-  nothing. Where the rules page names no layer the layer cell is empty, and whoever adds the line
+  check let it through. The entry gives the `line` to add to `design/escapes.md`, dated `day`, the
+  day the command ran by this machine's clock (in the terminal and in `--json` alike); the command
+  adds nothing. The record reads no clock: it says what the line holds and leaves the day to
+  whoever adds it. Where the rules page names no layer the layer cell is empty, and whoever adds the line
   writes the layer that should have caught it.
 - `question`: it rests on a line of the rules page no check holds, a principle the owner fixed, or
   a row no check holds. The entry gives the question, and `call`, the very call of the decision

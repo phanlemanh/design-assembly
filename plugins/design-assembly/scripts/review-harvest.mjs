@@ -213,14 +213,23 @@ export function readFindings(text, facts, { eyes = eyesOf(), file = FINDINGS_FIL
 }
 
 // The findings that name a picture this review did not draw, one line each.
+// The findings that name a picture this review did not draw, or a place that lies outside the
+// page of their picture, one line each. Both are known only once the pictures are drawn.
 export function pictureProblems(read, shots) {
-  const drawn = new Set(shots.map((shot) => shot.id));
-  return read.findings
-    .map((finding, index) => [index, finding.picture])
-    .filter(([, picture]) => !drawn.has(picture))
-    .map(
-      ([index, picture]) => `finding ${index + 1}: ${picture} is not a picture this review drew`,
-    );
+  return read.findings.flatMap((finding, index) => {
+    const at = `finding ${index + 1}`;
+    const shot = shots.find((candidate) => candidate.id === finding.picture);
+    if (!shot) return [`${at}: ${finding.picture} is not a picture this review drew`];
+    const { place } = finding;
+    const page = shot.page;
+    if (!place || !page) return [];
+    const inside = place.x + place.width <= page.width && place.y + place.height <= page.height;
+    return inside
+      ? []
+      : [
+          `${at}: its place (${place.x}, ${place.y}, ${place.width} × ${place.height}) lies outside ${finding.picture}, which is ${page.width} × ${page.height} pixels`,
+        ];
+  });
 }
 
 // An eye's findings in the shape of the findings the machine measures. One the eye placed nowhere
@@ -284,33 +293,30 @@ function basisOf(on) {
   return `the principle ${on.id} the owner fixed («${on.statement}»), which no check holds`;
 }
 
+// A finding a check let through: what the line of the ledger of escapes says (`slip`, the same on
+// any day), and the line itself, dated `day`, the day the review ran, to be pasted that day.
 function escapeOf(finding, screen, on, day) {
-  const slipped = `On the screen ${screen.id} (${screen.route}): ${saidOf(finding)}; found by ${finderOf(finding)} on the picture ${finding.picture}`;
-  if (on.kind === "ledger-row") {
-    return {
-      group: "escape",
-      file: SLIPS_FILE,
-      layer: on.layer,
-      line: slipLine([
-        day,
-        slipped,
-        on.layer ?? "",
-        `Not fixed yet: the check ${on.check} of the row ${on.id} let it through`,
-      ]),
-      why: `the row ${on.id} of ${LEDGER} has a check, ${on.check}, and it let this through`,
-    };
-  }
+  const what = `On the screen ${screen.id} (${screen.route}): ${saidOf(finding)}; found by ${finderOf(finding)} on the picture ${finding.picture}`;
+  const held =
+    on.kind === "ledger-row"
+      ? {
+          layer: on.layer,
+          done: `Not fixed yet: the check ${on.check} of the row ${on.id} let it through`,
+          why: `the row ${on.id} of ${LEDGER} has a check, ${on.check}, and it let this through`,
+        }
+      : {
+          layer: null,
+          done: `Not fixed yet: the gate holds line ${on.line} of ${RULES_PAGE} and let it through`,
+          why: `the gate holds line ${on.line} of ${RULES_PAGE}, under «${on.section}», and let this through; the rules page names no layer, so whoever adds the line writes the layer that should have caught it`,
+        };
   return {
     group: "escape",
     file: SLIPS_FILE,
-    layer: null,
-    line: slipLine([
-      day,
-      slipped,
-      "",
-      `Not fixed yet: the gate holds line ${on.line} of ${RULES_PAGE} and let it through`,
-    ]),
-    why: `the gate holds line ${on.line} of ${RULES_PAGE}, under «${on.section}», and let this through; the rules page names no layer, so whoever adds the line writes the layer that should have caught it`,
+    layer: held.layer,
+    slip: { what, layer: held.layer, done: held.done },
+    day,
+    line: slipLine([day, what, held.layer ?? "", held.done]),
+    why: held.why,
   };
 }
 

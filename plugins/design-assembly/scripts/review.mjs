@@ -85,18 +85,21 @@ const eyeOf = (read) => ({
 // the findings, what becomes of each, and what could not be judged. `keep` says whether the
 // pictures are taken as well as read; they come back as bytes, each under the name its file would
 // have. `findings` is the text of an eye's findings file: it is read before anything is drawn, and
-// a file that cannot be harvested is refused then. Nothing is written.
+// a file that cannot be harvested is refused then, by `file`, the name the caller gave it. `on` is
+// the day each line for the ledger of escapes is dated with in the answers; the record leaves it
+// out. Nothing is written.
 export async function review(
   target,
   id,
-  { all = false, keep = false, findings = null, on = today() } = {},
+  { all = false, keep = false, findings = null, file = undefined, on = today() } = {},
 ) {
   const facts = factsOf(target, id);
-  const read = findings === null ? null : readFindings(findings, facts);
+  const read = findings === null ? null : readFindings(findings, facts, { file });
   const drawn = await drawScreen(target, facts.screen, { widths: facts.widths, all, keep });
   // Which pictures there are is known only once they are drawn: a state the screen list does not
-  // say how to reach, or a dark theme the application lacks, draws none. So a finding on a
-  // picture that is not there is refused here, still before anything is written.
+  // say how to reach, or a dark theme the application lacks, draws none; and a picture's page size
+  // is known only then. So a finding on a picture that is not there, or placed outside its page,
+  // is refused here, still before anything is written.
   if (read) {
     const lost = pictureProblems(read, drawn.shots);
     if (lost.length > 0) throw new Refusal(`${lost.join("; ")}. Nothing was harvested`);
@@ -312,6 +315,7 @@ async function main(args) {
     all: call.flags["--states"] === true,
     keep: out !== null,
     findings,
+    file: call.flags["--findings"],
   });
   const { pack, left, pictures } = reviewed;
   // The questions are made before anything is written: a question that cannot be asked leaves
