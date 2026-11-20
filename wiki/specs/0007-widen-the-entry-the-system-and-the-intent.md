@@ -30,6 +30,8 @@ sources:
   - "hai phiên điều tra chỉ đọc ngày 2026-11-20: một về Claude Design, một về stitch-skills; mỗi phiên hai báo cáo"
   - "chủ repo, 2026-11-20: «Tổng hợp […] thành một khuyến nghị hoàn chỉnh cho Design Assembly với lý do rõ ràng.»"
   - "chủ repo, 2026-11-20: «Có, ghi vào wiki»"
+  - docs/trials/outside-tools-hands-on.md
+  - "chủ repo, 2026-11-20: «Tôi muốn bạn có trải nghiệm thử dùng trên chính cả claude design và stitch-skills sau đó viết báo cáo đánh giá.»"
 ---
 
 # 0007 Mở rộng ở ba chỗ — cửa vào, bề rộng của hệ, và ý đồ thiết kế tới tay tác tử
@@ -110,8 +112,13 @@ Vì vậy đề bài này không đề nghị sinh hướng đi bằng mô hình
   19 mở mức nặng), các mục kế hoạch, bảng đo trên hai repo thật.
 - Đã cho đọc lại bốn trang của Anthropic kê ở phần nguồn; đầu nhánh, giấy phép và số skill của `stitch-skills` đọc qua
   GitHub.
-- Chưa kiểm: phần mô tả từng skill của `stitch-skills`, và phần đọc từ bộ chỉ dẫn của loại Design System.
-- Chưa có một lần thử tay nào với Claude Design hay Stitch. `new` sau giai đoạn 4 chưa có lượt thử độc lập nào.
+- Đã thử tay ngày 2026-11-20, sau khi đề bài này viết xong: lập hệ, dựng màn theo đề chuẩn, đổi một quyết định và
+  phạm một luật, trên Claude Design và trên bốn skill không cần khoá của `stitch-skills`. Kết quả ở
+  [trang đo](../../docs/trials/outside-tools-hands-on.md). Lần thử không lật nhận định nào ở trên; nó thêm hai điều:
+  bản chép của hệ ở cả hai công cụ không đổi theo khi hệ đổi, và hai cặp màu của ứng dụng mẫu đo được dưới 4,5:1.
+- Chưa thử: dịch vụ Stitch (12 trên 16 skill), lối dựng linh kiện thật và `/design-sync` của Claude Design. Hai bộ
+  kiểm của `stitch-skills` mới được đọc mã, chưa chạy.
+- `new` sau giai đoạn 4 chưa có lượt thử độc lập nào.
 
 ## Acceptance criteria
 
@@ -155,7 +162,7 @@ dịch vụ ngoài, không nằm trong đề bài này.
 
 ## Open questions
 
-Mỗi câu kèm một khuyến nghị. Chủ repo chưa đáp câu nào.
+Mỗi câu kèm một khuyến nghị. Chủ repo đã đáp câu 5 ngày 2026-11-20 bằng việc cho thử; bốn câu đầu chưa đáp.
 
 1. **Repo không có sàn: từ chối, tự đặt sàn tối thiểu, hay phục vụ ở mức «Chỉ luật»?** Khuyến nghị: phục vụ ở mức
    «Chỉ luật» và nói rõ điều còn thiếu để lên mức kế, vì cách này không ghi gì vào repo của người khác. Đề bài 0001
@@ -166,4 +173,5 @@ Mỗi câu kèm một khuyến nghị. Chủ repo chưa đáp câu nào.
 4. **Nền đủ mảng có thành một giai đoạn mới không?** Khuyến nghị: có, sau giai đoạn 5, bắt đầu bằng kiểu chữ và các
    vai màu còn lại.
 5. **Có thử tay một lần với Claude Design không?** Việc đó tạo artifact trên tài khoản của chủ repo. Khuyến nghị: có,
-   một lần, trước khi viết đề bài cho việc 6.
+   một lần, trước khi viết đề bài cho việc 6. Đã thử ngày 2026-11-20 theo lời chủ repo, trên cả Claude Design lẫn
+   `stitch-skills` ở mức không khoá; xem [trang đo](../../docs/trials/outside-tools-hands-on.md).
