@@ -5,7 +5,7 @@ slug: bang-nang-luc-o-cam
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: approved
+status: implemented
 approved_by: Phan Le Manh
 approved_at: 2026-11-20T07:16:40Z
 design_doc: docs/superpowers/specs/2026-11-20-bang-nang-luc-o-cam-design.md
