@@ -544,9 +544,10 @@ const USAGE = `usage: node decide.mjs [--target DIR] [--only ID[,ID]] [--answers
              (--because) and whether it is hard to undo. The agent then goes on with its own
              recommendation, except for a call that is the owner's alone (see --item).
   --item     What the question is about, when it is one item: decision:ID (a row of the ledger),
-             pattern:NAME (a new page of a kind of screen) or source-color:VALUE (the root colour).
-             A new kind of screen and the brand colour are the owner's calls: the agent stops,
-             and the gate stays red until the owner keeps it.
+             pattern:NAME (a new page of a kind of screen), source-color:VALUE (the root colour)
+             or screen:ID:SLOT (one slot of the brief of one screen). A new kind of screen and
+             the brand colour are the owner's calls: the agent stops, and the gate stays red
+             until the owner keeps it.
   --id       The question's id, and the name of its file. Without it, made from the item, or
              from the words of the question.
   --split    Turn a waiting list kept as one shared file, ${WAITING_LIST}, into one file per

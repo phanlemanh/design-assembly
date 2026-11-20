@@ -206,6 +206,27 @@ export const FILES = {
   ),
 };
 
+// What takes the source of one slot away from the built screen of the sample, by the slot's id: the
+// slot is then open. The two slots no ledger holds have none: they are open as they stand.
+export const DROPS = {
+  kind: { "design/patterns/list.md": null },
+  shows: { "design/screens.yaml": (text) => text.replace("    shows:\n      - Order\n", "") },
+  actions: {
+    "design/screens.yaml": (text) =>
+      text.replace("    entry: listOrders\n    actions:\n      - cancelOrder\n", ""),
+  },
+  states: { "design/screens.yaml": (text) => text.replace("      - error\n", "") },
+  components: { "design/component-registry.json": null },
+  words: {
+    "design/decisions.yaml": (text) => text.replaceAll("layer: content", "layer: patterns"),
+  },
+  rules: { ".claude/rules/design-assembly.md": null },
+  principles: { "design/blueprint.json": null },
+  "widths-and-checks": { "design/screen-sizes.json": null },
+  "model-changes": { "ontology/actions.yaml": null },
+  navigation: { "src/screens.ts": null },
+};
+
 // Writes a fresh copy and gives its folder, with a way to remove it. `change` names files by
 // path: a text replaces the file, a function is given the file's text and returns the new one, and
 // null leaves the file out. The copy is a repository of its own with no commit.

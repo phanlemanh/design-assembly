@@ -1,8 +1,10 @@
 // The screen brief as a document: the twelve slots of one screen set on the frame every document
-// of this plugin shares. The page for the person who decides lists the slots that are still open,
-// one thing to decide each; the slots stand in a table, each with its state and where every answer
-// was read; and the last part says what the sheet does not see. Built from the facts of the answer
-// for a machine and from nothing else, so the same facts give the same page.
+// of this plugin shares. The page for the person who decides lists the slots that are open or
+// asked, one thing to decide each; each open slot's recommendation stands with what it rests on;
+// the slots stand in a table, each with its state and where every answer was read; and the last
+// part says what the sheet does not see. Built from the facts of the answer for a machine and from
+// nothing else, so the same facts give the same page. The call that asks a slot names folders of
+// this machine, so the page gives the command to run and leaves the call to the terminal.
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -14,6 +16,8 @@ import { VERSION } from "./stamp.mjs";
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const LIMITS = JSON.parse(readFileSync(path.join(PLUGIN, "references/limits.json"), "utf8")).limits;
 const AREA = "brief";
+export const BRIEF = "/design-assembly:brief";
+export const DECIDE = "/design-assembly:decide";
 
 const capital = (text) => `${text.charAt(0).toUpperCase()}${text.slice(1)}`;
 const sentence = (text) => `${capital(text)}.`;
@@ -21,7 +25,7 @@ const sentence = (text) => `${capital(text)}.`;
 // How many rows of a ledger a source names one by one before it counts the rest.
 const ROWS_NAMED = 3;
 // Where in its file an answer was read, in a few words: the row, the key and the line it names.
-function placeWords({ row, rows, key, line, section, note }) {
+function placeWords({ row, rows, key, line, section, note, by, on }) {
   const many =
     rows === undefined
       ? null
@@ -34,6 +38,7 @@ function placeWords({ row, rows, key, line, section, note }) {
     key !== undefined ? `\`${key}\`` : null,
     line !== undefined ? `line ${line}` : null,
     section !== undefined ? `under «${section}»` : null,
+    by !== undefined ? `answered by ${by} on ${on}` : null,
     note ?? null,
   ]
     .filter(Boolean)
@@ -45,8 +50,22 @@ export const sourceWords = (source) => [source.file, placeWords(source)].filter(
 // The open limits of the brief, which the sheet says it does not see.
 export const briefLimits = () => LIMITS.filter((row) => row.area === AREA && row.status === "open");
 
-const openOf = (result) => result.slots.filter((slot) => slot.state !== "settled");
+const inState = (result, state) => result.slots.filter((slot) => slot.state === state);
 const titleOf = (slot) => `Slot ${slot.number}, ${slot.name}`;
+// Whether a builder goes on with the recommendation of a question that waits: only where the
+// question recommends something and says that it is easy to undo.
+export function standOf(asked) {
+  if (asked.recommendation === null) {
+    return "nothing to go on with: do not build on it until the owner answers";
+  }
+  if (asked.hard_to_undo === true)
+    return "hard to undo: do not build on it until the owner answers";
+  if (asked.hard_to_undo !== false) {
+    return "the question does not say whether it is hard to undo: do not build on it until the owner answers";
+  }
+  return "go on with the recommendation until the owner answers; the answer then stands in its place";
+}
+const goOn = (asked) => sentence(standOf(asked));
 
 // What was examined, for the cover.
 function scopeOf(result) {
@@ -65,7 +84,7 @@ function scopeOf(result) {
 function registerOf(result) {
   return {
     title: "The twelve slots, each with where its answers were read",
-    lede: "A settled slot gives the file and the row or line of every answer. An open slot says why nothing answers it.",
+    lede: "A settled slot gives the file and the row or line of every answer, or the owner's answer with their name and the day. An asked slot gives the question that waits. An open slot says why nothing answers it.",
     columns: ["Read from", "What the repository says"],
     groups: result.slots.map((slot) => ({
       title: `${slot.number} · ${capital(slot.name)}`,
@@ -75,7 +94,18 @@ function registerOf(result) {
           { code: item.source.file, text: placeWords(item.source) },
           item.says,
         ]),
-        ...slot.why.map((reason) => ["Nothing", `Open: ${reason}`]),
+        ...(slot.asked
+          ? [
+              [
+                { code: slot.asked.file, text: `row ${slot.asked.id}` },
+                `Asked: ${slot.asked.question} Recommended: ${slot.asked.recommendation ?? "nothing"}`,
+              ],
+            ]
+          : []),
+        ...slot.why.map((reason) => [
+          "Nothing",
+          `${slot.state === "open" ? "Open" : "Not said by the repository"}: ${reason}`,
+        ]),
       ],
     })),
   };
@@ -93,16 +123,26 @@ function blindOf() {
   ];
 }
 
-// The steps after the sheet, in order: settle what is open, build, run what grades the screen.
+// The steps after the sheet, in order: put what is open to the owner, have what is asked
+// answered, build, run what grades the screen.
 function nextOf(result) {
   const { screen, reference, checks } = result;
-  const open = openOf(result);
+  const open = inState(result, "open").filter((slot) => slot.ask);
+  const asked = inState(result, "asked");
   return [
     ...(open.length > 0
       ? [
           {
-            command: null,
-            why: `Settle ${plural(open.length, "open slot", "open slots")} with the owner before the screen is built: the sheet names them and asks nothing.`,
+            command: `${BRIEF} ${screen.id} --queue`,
+            why: `Put ${plural(open.length, "open slot", "open slots")} to the owner: each becomes one question of the waiting list, with its recommendation. The sheet asks nothing until then.`,
+          },
+        ]
+      : []),
+    ...(asked.length > 0
+      ? [
+          {
+            command: DECIDE,
+            why: `${plural(asked.length, "question waits", "questions wait")} on the owner: answered there, each slot is settled by the answer.`,
           },
         ]
       : []),
@@ -123,57 +163,120 @@ function nextOf(result) {
   ];
 }
 
-// The sheet as data for the frame. `origin` is where the page comes from: the repository's name,
-// its last commit and that commit's day.
-export function sheetOf(result, origin) {
-  const { screen, slots } = result;
-  const open = openOf(result);
-  const settled = slots.length - open.length;
-  return {
-    kind: "screen-brief",
-    title: "Screen brief",
-    lede: "One screen, and every choice its builder meets: what the repository has settled, with where it says so, and what is still open.",
-    origin,
-    version: VERSION,
-    scope: scopeOf(result),
-    decision: {
-      conclusion:
-        open.length === 0
-          ? `All ${slots.length} slots of ${screen.id} are settled: the repository says something for each.`
-          : `${settled} of ${slots.length} slots of ${screen.id} are settled; ${plural(open.length, "is", "are")} open, and a builder would have to guess there.`,
-      figures: [
-        { value: String(settled), of: String(slots.length), label: "slots the repository settles" },
-        { value: String(open.length), label: "slots still open" },
-        { value: String(result.rules.length), label: "rules that apply to the screen" },
-      ],
-      attention: open.slice(0, 3).map((slot) => ({
-        title: sentence(titleOf(slot)).slice(0, -1),
-        detail: slot.why.length > 0 ? sentence(slot.why[0]) : slot.question,
-      })),
-      decide: open.map((slot) => ({
-        what: `${titleOf(slot)}: ${slot.question}`,
-        detail: slot.why.map(sentence).join(" "),
-      })),
-    },
-    findings: open.map((slot) => ({
+// The one sentence of the page for the person: how the slots stand.
+function conclusionOf({ screen, summary }) {
+  const { slots, settled, asked, open, settled_waiting: waiting } = summary;
+  const held =
+    waiting > 0
+      ? `, and ${waiting} of them ${waiting === 1 ? "holds" : "hold"} a line that waits on another slot`
+      : "";
+  if (settled === slots) {
+    return `All ${slots} slots of ${screen.id} are settled${held}: the repository or the owner says something for each.`;
+  }
+  const left = [
+    open > 0 ? `${plural(open, "is", "are")} open, and a builder would have to guess there` : null,
+    asked > 0 ? `${plural(asked, "is", "are")} asked and wait on the owner` : null,
+  ].filter(Boolean);
+  return `${settled} of ${slots} slots of ${screen.id} are settled${held}; ${left.join("; ")}.`;
+}
+
+// What the owner must decide: one thing for each slot that is open or asked.
+function decideOf(result) {
+  return [
+    ...inState(result, "open").map((slot) => ({
+      what: `${titleOf(slot)}: ${slot.question}`,
+      detail: [
+        ...slot.why.map(sentence),
+        slot.ask
+          ? `Recommended: ${slot.ask.recommendation}`
+          : sentence(`It cannot be asked as it stands: ${slot.cannot_ask}`),
+      ].join(" "),
+    })),
+    ...inState(result, "asked").map((slot) => ({
+      what: `${titleOf(slot)}: asked, and waiting on your answer`,
+      detail: `${slot.asked.question} Recommended: ${slot.asked.recommendation ?? "nothing"} ${goOn(slot.asked)}`,
+    })),
+  ];
+}
+
+// The slots that are not settled, as findings: an open one a builder would guess at, an asked one
+// that waits.
+function findingsOf(result) {
+  return [
+    ...inState(result, "open").map((slot) => ({
       severity: "medium",
       title: `${titleOf(slot)} is open`,
       detail: slot.question,
       evidence: [
         ...slot.why.map(sentence),
         ...slot.answer.map((item) => `${item.says} (${sourceWords(item.source)}).`),
+        ...(slot.cannot_ask
+          ? [sentence(`It cannot be asked as it stands: ${slot.cannot_ask}`)]
+          : []),
       ],
     })),
+    ...inState(result, "asked").map((slot) => ({
+      severity: "low",
+      title: `${titleOf(slot)} is asked and waits on the owner`,
+      detail: slot.asked.question,
+      evidence: [
+        `Asked as ${slot.asked.id}, in ${slot.asked.file}.`,
+        `Recommended: ${slot.asked.recommendation ?? "nothing"}`,
+        goOn(slot.asked),
+        ...slot.why.map(sentence),
+      ],
+    })),
+  ];
+}
+
+// What the sheet recommends for each open slot, with what it rests on.
+function recommendationsOf(result) {
+  return inState(result, "open")
+    .filter((slot) => slot.ask)
+    .map((slot) => ({
+      what: `${titleOf(slot)}: ${slot.ask.recommendation}`,
+      basis: slot.ask.basis,
+      action: `Ask the owner with ${BRIEF} ${result.screen.id} --queue, and go on with this until the answer comes.`,
+    }));
+}
+
+// The sheet as data for the frame. `origin` is where the page comes from: the repository's name,
+// its last commit and that commit's day.
+export function sheetOf(result, origin) {
+  const { summary } = result;
+  const unsettled = [...inState(result, "open"), ...inState(result, "asked")];
+  return {
+    kind: "screen-brief",
+    title: "Screen brief",
+    lede: "One screen, and every choice its builder meets: what is settled, with where it says so, what waits on the owner, and what is still open.",
+    origin,
+    version: VERSION,
+    scope: scopeOf(result),
+    decision: {
+      conclusion: conclusionOf(result),
+      figures: [
+        { value: String(summary.settled), of: String(summary.slots), label: "slots settled" },
+        { value: String(summary.asked), label: "slots asked, waiting on the owner" },
+        { value: String(summary.open), label: "slots still open" },
+        { value: String(result.rules.length), label: "rules that apply to the screen" },
+      ],
+      attention: unsettled.slice(0, 3).map((slot) => ({
+        title: sentence(titleOf(slot)).slice(0, -1),
+        detail: slot.why.length > 0 ? sentence(slot.why[0]) : slot.question,
+      })),
+      decide: decideOf(result),
+    },
+    findings: findingsOf(result),
     register: registerOf(result),
-    recommendations: [],
+    recommendations: recommendationsOf(result),
     next: nextOf(result),
     blind: blindOf(),
     empty: {
       findings:
-        "Every slot is settled: the repository says something for each. Whether it says enough is for the builder and the owner to judge.",
+        "Every slot is settled: the repository or the owner says something for each. Whether it says enough is for the builder and the owner to judge.",
       decide: "Nothing waits on your decision: every slot of this sheet is settled.",
       recommendations:
-        "No recommendation: the sheet carries what is decided and names what is not, and recommends nothing of its own.",
+        "No recommendation of the sheet's own: no slot is open. A question that waits carries its recommendation on the decision sheet.",
     },
   };
 }
