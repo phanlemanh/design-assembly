@@ -340,7 +340,8 @@
         {
           "id": "5.2",
           "what": "Lệnh review",
-          "state": "todo",
+          "state": "doing",
+          "ref": "wiki/specs/0009-review-a-drawn-screen.md; chủ repo duyệt đề bài và đáp cả năm câu hỏi theo khuyến nghị ngày 2026-11-20 («Duyệt cả năm»); hai lát, chưa dựng",
           "command": "review"
         },
         {
