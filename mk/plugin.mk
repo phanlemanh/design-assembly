@@ -1,12 +1,20 @@
 CHECK_TARGETS += plugin-test plugin-version-check
 
+# The two checkouts below are looked for beside this repository's main checkout. A git worktree is
+# kept somewhere else, where ".." is another folder and both would be missed without a word; git
+# names the main checkout's .git folder with its full path there, and with a plain ".git" in the
+# main checkout itself, whose ".." stays spelled as it was. Held by tools/reference_paths_test.mjs.
+GIT_COMMON_DIR := $(shell git rev-parse --git-common-dir 2>/dev/null)
+MAIN_CHECKOUT := $(if $(filter 1,$(words $(GIT_COMMON_DIR))),$(patsubst %/.git,%,$(filter %/.git,$(GIT_COMMON_DIR))))
+BESIDE := $(if $(MAIN_CHECKOUT),$(MAIN_CHECKOUT)/..,..)
+
 # A repository on this machine that already keeps a design ledger and its own checker. When it is
 # there, the plugin's reader is tested against the real file; when it is not, that test is skipped
 # and the count below says so.
-REFERENCE_LEDGER ?= ../onehub-inventory
+REFERENCE_LEDGER ?= $(BESIDE)/onehub-inventory
 # A checkout of the acceptance kit on this machine. When it is there, the design tokens file the
 # plugin writes is given to the kit's own reader; when it is not, that test is skipped too.
-ACCEPTANCE_KIT ?= ../delivery-loop
+ACCEPTANCE_KIT ?= $(BESIDE)/delivery-loop
 # How the reference repository spells the keys of its ledger of screens that join it with its model.
 REFERENCE_SCREEN_KEYS ?= entry=vao,actions=nut,frame=khung
 
@@ -53,6 +61,7 @@ design-decide: ## Print every question that waits on the owner here as one sheet
 	@node plugins/design-assembly/scripts/decide.mjs --target . $(DECIDE_ARGS)
 
 plugin-test: ## Run the plugin's own tests: the colour maths, the ledger, and the whole guide on a throwaway repository
+	@node --test tools/reference_paths_test.mjs > /dev/null 2>&1 || (node --test tools/reference_paths_test.mjs; exit 1)
 	@mkdir -p coverage
 	@DESIGN_ASSEMBLY_REFERENCE_LEDGER=$(REFERENCE_LEDGER) DESIGN_ASSEMBLY_KIT=$(ACCEPTANCE_KIT) node --test --test-reporter=spec "plugins/design-assembly/tests/*.mjs" > coverage/plugin-test.log 2>&1 || (cat coverage/plugin-test.log; exit 1)
 	@echo "plugin tests: $$(grep -c '^✔' coverage/plugin-test.log) passed, $$(grep -c '^﹣' coverage/plugin-test.log) skipped"
