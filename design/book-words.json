@@ -89,5 +89,54 @@
   "partsTitle": "Các phần",
   "partsLede": "Những phần này chỉ dùng được bên trong một linh kiện khác. Chúng hiện ở nơi được dùng, trên các màn.",
   "noPicturesScreens": "Cuốn sổ này không vẽ được hình nào: nó vẽ màn và linh kiện bên trong chính ứng dụng của repo, bắt đầu từ danh sách màn ở `src/screens.ts`, còn repo này giữ danh sách đó ở chỗ khác.",
-  "noPicturesStopped": "Không vẽ được hình ở đây: việc vẽ dừng giữa chừng."
+  "noPicturesStopped": "Không vẽ được hình ở đây: việc vẽ dừng giữa chừng.",
+  "examplesTitle": "Nên và không nên",
+  "examplesQuestion": "Giữ từng luật trông thế nào, và phá nó trông thế nào",
+  "examplesLede": "Mỗi luật sổ quyết định đang giữ, một lần giữ và một lần phá. Mẫu nhỏ được vẽ bằng chính giá trị của sản phẩm này; khi vẽ được màn của sản phẩm, màn ấy hiện như đang có, bên cạnh cùng màn chỉ bị phá đúng luật ấy.",
+  "doLabel": "Nên",
+  "dontLabel": "Không nên",
+  "onScreen": "Trên chính màn của sản phẩm",
+  "keptScreen": "như đang có",
+  "brokenScreen": "khi luật này bị phá",
+  "noExamples": "Chưa luật nào sổ quyết định giữ có ví dụ trong cuốn này.",
+  "examples": {
+    "color-contrast": {
+      "title": "Chữ nổi rõ trên nền của nó",
+      "why": "Dưới tỉ lệ mà mức tuân thủ đòi, người nhìn kém hay người dùng màn chói không đọc được.",
+      "label": "Lưu"
+    },
+    "type-scale-values": {
+      "title": "Mọi cỡ chữ là một bậc của thang chữ",
+      "why": "Cỡ nằm giữa các bậc làm nhoè thứ bậc quan trọng, và mỗi màn rồi có cỡ riêng của nó.",
+      "heading": "Báo cáo tháng",
+      "body": "Ba mục đang chờ trả lời.",
+      "note": "Cập nhật hôm nay"
+    },
+    "spacing-values": {
+      "title": "Mọi khoảng cách là bội của đơn vị khoảng cách",
+      "why": "Khoảng cách lệch đơn vị tạo ra những mép gần thẳng hàng, nhìn như một chỗ sai."
+    },
+    "radius-value": {
+      "title": "Một bo góc, đúng bo góc đã quyết",
+      "why": "Bo góc khác nhau giữa các hình làm một sản phẩm trông như nhiều sản phẩm."
+    },
+    "target-size": {
+      "title": "Nút đủ lớn cho ngón tay và con trỏ",
+      "why": "Nút nhỏ hơn cỡ bấm mà mức tuân thủ đòi dễ bị bấm trượt, và bấm nhầm nút bên cạnh.",
+      "label": "Xoá"
+    },
+    "error-copy": {
+      "title": "Lời báo lỗi nói chuyện gì đã xảy ra, rồi nói phải làm gì",
+      "why": "Một lời chỉ nói có lỗi thì người dùng chẳng còn gì để làm ngoài thử lại y như cũ.",
+      "doText": "Chưa lưu được mục này. Kiểm tra kết nối, rồi lưu lại.",
+      "dontText": "Lỗi."
+    },
+    "notification-channel": {
+      "title": "Kết quả được báo ở đúng chỗ của sản phẩm",
+      "why": "Hộp thoại riêng của trình duyệt chặn mọi việc, không đổi được kiểu, và đọc như lời cảnh báo của chính trình duyệt.",
+      "doText": "Đã lưu mục này.",
+      "dontText": "localhost cho biết: Đã lưu",
+      "ok": "OK"
+    }
+  }
 }

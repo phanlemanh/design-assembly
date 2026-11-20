@@ -49,6 +49,10 @@ scale, shape). Density, elevation, motion and iconography are not.
   page for the person who decides, the findings with their evidence, the recommendations with
   what each rests on, the next steps, and what the document does not see), in the look of the
   repository and of the handoff book. Without `--out` no file is written.
+- The handoff book (`/design-assembly:handoff`) has a sheet of dos and don'ts: for each rule the
+  ledger holds that has a picture, a small example that keeps it and one that breaks it, drawn
+  with the repository's own values (`scripts/examples.mjs`), and, where its screens can be drawn,
+  its first screen as it is beside the same screen with only that rule broken by a stylesheet.
 - `/design-assembly:decide` puts every question that waits on the owner on one sheet, each with
   one recommendation and what it rests on, and takes the answers in one go: a row of the ledger
   nobody confirmed, and the questions of the waiting list when the repository keeps one. It
