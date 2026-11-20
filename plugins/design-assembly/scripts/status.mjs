@@ -20,6 +20,7 @@ import { principleCall } from "./principles.mjs";
 import { sheet, WAITING_FOLDER, WAITING_LIST } from "./decide.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { audit, AUDIT, DECIDE, PERSON_CALLS, UNCONFIRMED } from "./audit.mjs";
+import { socketsOf } from "./capabilities.mjs";
 import {
   installedTree,
   readStamp,
@@ -309,10 +310,11 @@ function readLedgers(root) {
     broken,
     waiting: waitingOf(audited, rows, readBlueprint(root)),
     tool: toolOf(root),
+    sockets: socketsOf(root),
   };
 }
 
-function resultOf({ audit, broken, tool }, waiting) {
+function resultOf({ audit, broken, tool, sockets }, waiting) {
   return {
     tier: audit.tier,
     // Core decisions only, as the audit counts them. Two numbers: a claim was not run again here.
@@ -322,6 +324,8 @@ function resultOf({ audit, broken, tool }, waiting) {
     waiting,
     tool,
     next: nextOf(audit, waiting, broken, tool),
+    // The socket board: which plug fills each socket of the capability table, and which is empty.
+    sockets,
   };
 }
 
@@ -357,6 +361,25 @@ const TIER_NOTE = {
   reached: "reached",
   claimed: "claimed: complete, but it rests on checks that were not re-run here",
 };
+
+// The socket board on the screen, in one or two lines: how many sockets have a default plug, which
+// are empty, and the plugs from outside that are plugged in here. The whole board is in --json.
+function boardLines(sockets) {
+  const empty = sockets.filter((socket) => socket.state === "empty").map((socket) => socket.id);
+  const plugged = sockets.length - empty.length;
+  const here = new Map();
+  for (const socket of sockets) {
+    for (const plug of socket.outside.filter((candidate) => candidate.here)) {
+      here.set(plug.id, [...(here.get(plug.id) ?? []), socket.id]);
+    }
+  }
+  return [
+    `sockets: ${plugged} of ${sockets.length} with a default plug${empty.length > 0 ? `; empty: ${empty.join(", ")} (${LIMITS_FILE})` : ""}`,
+    ...(here.size > 0
+      ? [`  plugged in here: ${[...here].map(([id, at]) => `${id} (${at.join(", ")})`).join(", ")}`]
+      : []),
+  ];
+}
 
 export function report(result) {
   const { tier, waiting, tool, next } = result;
@@ -395,6 +418,7 @@ export function report(result) {
   if (tool.differs && tool.copy !== null) {
     lines.push(`  ${UPGRADE} --dry-run says what bringing the installed tool in would change`);
   }
+  lines.push(...boardLines(result.sockets));
   // Where this report is blind, so that "nothing waits" does not read as more than it is.
   const blind = LIMITS.filter((limit) => limit.area === "status" && limit.status === "open");
   lines.push(
@@ -579,7 +603,23 @@ export function documentOf(result, origin) {
     register: {
       title: "Each rhythm of the repository's life, as read now",
       columns: ["Rhythm", "What the repository says"],
-      rows: result.rhythms.map((rhythm) => [rhythm.name, rhythm.says]),
+      groups: [
+        {
+          title: null,
+          note: null,
+          rows: result.rhythms.map((rhythm) => [rhythm.name, rhythm.says]),
+        },
+        {
+          title: "Each socket of the capability table",
+          note: boardLines(result.sockets)[0],
+          rows: result.sockets.map((socket) => [
+            socket.name,
+            socket.state === "plugged"
+              ? `plugged: ${socket.plug}${socket.limit ? `, with the limit ${socket.limit}` : ""}`
+              : `empty: ${socket.limit}`,
+          ]),
+        },
+      ],
     },
     recommendations,
     next: next.map((step) => ({ command: step.command, why: step.why })),

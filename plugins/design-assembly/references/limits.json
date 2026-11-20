@@ -17,7 +17,8 @@
     "book": "The handoff book drawn from the repository.",
     "reference-app": "The example application this repository carries as its proof.",
     "trials": "The runs by independent agents that test the plugin.",
-    "upgrade": "The command that brings the installed tool into a repository, the stamp it writes, and the version it compares."
+    "upgrade": "The command that brings the installed tool into a repository, the stamp it writes, and the version it compares.",
+    "capabilities": "The table of what a user of a design system needs done, its sockets and plugs, and the checks that hold it."
   },
   "kinds": {
     "partial-check": "A check holds less than the ledger row it proves claims.",
@@ -3383,6 +3384,94 @@
       "where": ["d0063", "spec"],
       "status": "open",
       "note": "The change command retires and merges blocks only: changing a decision of the decision ledger (--to) and moving a screen to the values of the system (--migrate), which specification 0004 gave it, are set aside for stage 4 (specification 0006, question 8)."
+    },
+    {
+      "id": "capability-reference-has-no-plug",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0069"],
+      "status": "open",
+      "note": "The reference socket has no plug of this plugin, so nothing gathers or pins a reference before a choice is made."
+    },
+    {
+      "id": "capability-brand-assets-has-no-plug",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0069"],
+      "status": "open",
+      "note": "The brand assets socket has no plug, so a logo, a font or an icon set has no place to be recorded and no check that a screen uses only recorded assets."
+    },
+    {
+      "id": "capability-content-has-no-plug",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0069"],
+      "status": "open",
+      "note": "The content socket has no plug, so no table of terms says which word a screen uses for each thing."
+    },
+    {
+      "id": "capability-screen-kinds-has-no-plug",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0069"],
+      "status": "open",
+      "note": "The screen kinds socket has no plug of its own: the page of a kind of screen is written by hand with a person."
+    },
+    {
+      "id": "capability-screen-brief-has-no-plug",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0069"],
+      "status": "open",
+      "note": "The screen brief socket has no plug until the brief command is built, so a builder is not handed the data of the one screen it builds."
+    },
+    {
+      "id": "capability-cross-repo-has-no-plug",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0069"],
+      "status": "open",
+      "note": "The socket for what repositories share has no plug, so a block two repositories keep alike cannot be raised to a shared store."
+    },
+    {
+      "id": "capability-design-review-sees-no-picture",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0069"],
+      "status": "open",
+      "note": "The design review socket is held by the gate alone, which reads code and ledgers and never looks at a drawn screen."
+    },
+    {
+      "id": "capability-writes-check-is-static",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0069"],
+      "status": "open",
+      "note": "The check that a script writes only the ledgers of its sockets reads the text of each script, so a script that reaches a ledger through a helper of another file is not seen."
     }
   ]
 }

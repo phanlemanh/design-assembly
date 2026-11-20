@@ -1,0 +1,143 @@
+schema_version: 1
+feature_slug: bang-nang-luc-o-cam
+evals:
+  - id: E1
+    criterion: AC-1
+    executor: test
+    cmd: config:executors.test.capabilities
+    expected: "exit 0; test «the table has twenty capabilities, each socket with its four fields and plugs that point to scripts» green on the real table; red, each with a pinned message, on copies where (a) one socket has no checks (names the capability), (b) a plug points to a script that does not exist (names the capability and the path), (c) writes holds a key that is not a ledger of LEDGERS (names the key), (d) checks names a make target the Makefile and mk files do not define (names the target)"
+    paths:
+      - plugins/design-assembly/references/capabilities.json
+      - plugins/design-assembly/scripts/capabilities.mjs
+      - plugins/design-assembly/tests/test-capabilities.mjs
+    evidence_required:
+      - run_id
+      - exit_code
+      - verifier
+      - verified_at
+      - output
+
+  - id: E2
+    criterion: AC-2
+    executor: test
+    cmd: config:executors.test.capabilities
+    expected: "exit 0; test «no gap» green on the real table, and red on a copy where one capability loses its default plug and names no open limit, the message naming that capability; a copy pointing at a closed limit row is red too"
+    paths:
+      - plugins/design-assembly/references/capabilities.json
+      - plugins/design-assembly/references/limits.json
+      - plugins/design-assembly/scripts/capabilities.mjs
+      - plugins/design-assembly/tests/test-capabilities.mjs
+    evidence_required:
+      - run_id
+      - exit_code
+      - verifier
+      - verified_at
+      - output
+
+  - id: E3
+    criterion: AC-3
+    executor: test
+    cmd: config:executors.test.capabilities
+    expected: "exit 0; test «no overlap» green on the real table and scripts; the detector run on the real scripts returns a non-empty list of writes that includes adopt writing the decisions ledger, and every ledger in the writes of a socket is written by at least one real script or has an open limit row; red on a copy where two sockets declare the same ledger (message names the ledger and both sockets), and red on a copy of a real script, taken from disk and changed to write another ledger (message names the script and the ledger)"
+    paths:
+      - plugins/design-assembly/references/capabilities.json
+      - plugins/design-assembly/scripts/**
+      - plugins/design-assembly/tests/test-capabilities.mjs
+    evidence_required:
+      - run_id
+      - exit_code
+      - verifier
+      - verified_at
+      - output
+
+  - id: E4
+    criterion: AC-4
+    executor: test
+    cmd: config:executors.test.capabilities
+    expected: "exit 0; test «clean core» green on the real plugin; red, each naming the file and the name, when an outside plug name is put into a copy of capabilities.json, into a copy of a skills/ file, and into a copy of one file of each core folder of the adapters test (scripts, templates/tools/design-assembly, templates/mk); a word that only contains the name is not a match"
+    paths:
+      - plugins/design-assembly/references/capabilities.json
+      - plugins/design-assembly/references/plugs/**
+      - plugins/design-assembly/scripts/**
+      - plugins/design-assembly/skills/**
+      - plugins/design-assembly/templates/**
+      - plugins/design-assembly/tests/test-capabilities.mjs
+    evidence_required:
+      - run_id
+      - exit_code
+      - verifier
+      - verified_at
+      - output
+
+  - id: E5
+    criterion: AC-5
+    executor: test
+    cmd: config:executors.test.capabilities
+    expected: "exit 0; test «every layer and tier is reached» green on the real table, and red on a copy where no capability lists one layer (message names the layer) and on one where no capability lists one tier (message names the tier)"
+    paths:
+      - plugins/design-assembly/references/capabilities.json
+      - plugins/design-assembly/references/layers.json
+      - plugins/design-assembly/references/tiers.json
+      - plugins/design-assembly/tests/test-capabilities.mjs
+    evidence_required:
+      - run_id
+      - exit_code
+      - verifier
+      - verified_at
+      - output
+
+  - id: E6
+    criterion: AC-6
+    executor: test
+    cmd: config:executors.test.status
+    expected: "exit 0; status --json ends with the key sockets, one entry per capability with plug or empty and its limit; the printed report names the count of plugged sockets and each empty socket and stays within 40 lines on both one-screen fixtures; should-not-fire: on a table where every socket has a default plug the report prints no empty-socket line, and on a repository without the file an outside plug detects that plug is not shown as here; a fixture repository holding that file shows the plug as here"
+    paths:
+      - plugins/design-assembly/scripts/status.mjs
+      - plugins/design-assembly/scripts/capabilities.mjs
+      - plugins/design-assembly/tests/test-status.mjs
+    evidence_required:
+      - run_id
+      - exit_code
+      - verifier
+      - verified_at
+      - output
+
+  - id: E9
+    criterion: AC-8
+    executor: test
+    cmd: config:executors.test.capabilities
+    expected: "exit 0; test «two faces» green on the real table, and red on a copy where one socket loses its machine face with no reason, the message naming the socket and the face"
+    paths:
+      - plugins/design-assembly/references/capabilities.json
+      - plugins/design-assembly/scripts/capabilities.mjs
+      - plugins/design-assembly/tests/test-capabilities.mjs
+    evidence_required:
+      - run_id
+      - exit_code
+      - verifier
+      - verified_at
+      - output
+
+  - id: E10
+    criterion: AC-8
+    executor: judgment
+    question: "Does each socket of the capability table give a human face (what is shown, what is asked) and a machine face (what becomes a rule, which check holds it) that match the capability's row in the catalogue and the two hand-over zones of spec 0008, with no face filled by a placeholder?"
+    inputs:
+      - wiki/specs/0008-capabilities-sockets-and-plugs.md
+      - plugins/design-assembly/references/capabilities.json
+    evidence_required:
+      - judged_by
+      - verdict
+      - rationale
+
+  - id: E11
+    criterion: AC-1
+    executor: judgment
+    question: "Does the capability table hold the twenty capabilities of the closed catalogue of spec 0008, each with the stage, the socket and the default plug the catalogue gives, and are exactly the eight capabilities the catalogue marks as having no plug the ones left empty?"
+    inputs:
+      - wiki/specs/0008-capabilities-sockets-and-plugs.md
+      - plugins/design-assembly/references/capabilities.json
+    evidence_required:
+      - judged_by
+      - verdict
+      - rationale

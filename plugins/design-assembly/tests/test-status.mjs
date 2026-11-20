@@ -21,6 +21,7 @@ import { execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { readCapabilities, socketsOf } from "../scripts/capabilities.mjs";
 import { fullStatus, report, STAMP, status, treeHash } from "../scripts/status.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
 
@@ -119,6 +120,7 @@ test("the machine gets the keys the specification lists, and nothing it cannot r
     "waiting",
     "tool",
     "next",
+    "sockets",
   ]);
   assert.deepEqual(result.tier, { id: "audit", state: "reached", next: "foundations" });
   // Held and claimed are two numbers, never one: a claim was not run again here.
@@ -138,6 +140,9 @@ test("the machine gets the keys the specification lists, and nothing it cannot r
   }
   assert.deepEqual(Object.keys(result.tool), ["recorded", "installed", "copy", "differs", "says"]);
   for (const step of result.next) assert.deepEqual(Object.keys(step), ["command", "why"]);
+  for (const socket of result.sockets) {
+    assert.deepEqual(Object.keys(socket), ["id", "name", "plug", "state", "limit", "outside"]);
+  }
 });
 
 test("a folder with nothing in it: no tier, nothing waiting, nothing to compare", () => {
@@ -557,4 +562,70 @@ test("the skill of the command exists and calls the script", () => {
   const skill = readFileSync(path.join(PLUGIN, "skills/status/SKILL.md"), "utf8");
   assert.match(skill, /^---\nname: status\ndescription: \S/);
   assert.match(skill, /scripts\/status\.mjs --target/);
+});
+
+test("the socket board: each capability with its plug or its limit, on two lines that keep one screen", () => {
+  const result = status(applied("proposed"));
+  const { table } = readCapabilities();
+  assert.deepEqual(
+    result.sockets.map((socket) => socket.id),
+    table.capabilities.map((item) => item.id),
+  );
+  const empty = result.sockets.filter((socket) => socket.state === "empty");
+  assert.ok(empty.length > 0);
+  for (const socket of empty) assert.equal(socket.plug, null, socket.id);
+  for (const socket of empty) assert.ok(socket.limit, socket.id);
+  const printed = report(result);
+  const plugged = result.sockets.length - empty.length;
+  assert.match(
+    printed,
+    new RegExp(
+      `^sockets: ${plugged} of ${result.sockets.length} with a default plug; empty: ${empty.map((s) => s.id).join(", ")} \\(references/limits\\.json of this plugin\\)$`,
+      "m",
+    ),
+  );
+  assert.ok(printed.split("\n").length <= 40, "more than one screen");
+  // A fixture repository holds nothing an outside plug detects: no plug is plugged in here.
+  assert.doesNotMatch(printed, /plugged in here/);
+  assert.ok(result.sockets.every((socket) => socket.outside.every((plug) => !plug.here)));
+});
+
+test("a board with no empty socket prints no empty part, and a plug is here only where its file is", () => {
+  const read = readCapabilities();
+  const full = JSON.parse(JSON.stringify(read.table));
+  for (const item of full.capabilities) {
+    if (!item.plugs.some((plug) => plug.default)) {
+      item.plugs = [{ id: "stand-in", kind: "core", default: true, scripts: [] }];
+    }
+  }
+  const dir = empty();
+  const board = socketsOf(dir, { table: full, plugs: read.plugs });
+  const printed = report({ ...status(applied("user")), sockets: board });
+  assert.match(printed, /^sockets: 20 of 20 with a default plug$/m);
+  assert.doesNotMatch(printed, /empty:/);
+
+  // The same board, on a repository that depends on the package one plug detects.
+  const detecting = read.plugs.find((plug) => plug.detect?.package);
+  put(
+    dir,
+    "package.json",
+    JSON.stringify({ devDependencies: { [detecting.detect.package]: "1.0.0" } }),
+  );
+  const here = socketsOf(dir, { table: full, plugs: read.plugs });
+  const marked = here.flatMap((socket) =>
+    socket.outside.filter((plug) => plug.here).map((plug) => plug.id),
+  );
+  assert.deepEqual([...new Set(marked)], [detecting.id]);
+  assert.match(
+    report({ ...status(applied("user")), sockets: here }),
+    new RegExp(`^  plugged in here: ${detecting.id} \\(`, "m"),
+  );
+
+  // A repository whose package file cannot be read plugs nothing in.
+  put(dir, "package.json", "{ not json");
+  assert.ok(
+    socketsOf(dir, { table: full, plugs: read.plugs }).every((s) =>
+      s.outside.every((plug) => !plug.here),
+    ),
+  );
 });

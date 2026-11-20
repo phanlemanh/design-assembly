@@ -1,0 +1,67 @@
+# 2-space indentation REQUIRED — the kit's hook parses this file line-by-line.
+# Comments stand on their own lines above each key, so the repository's formatter (Prettier) leaves
+# every key and its value on one line (docs/trials/kit-on-this-repository.md, mục 7).
+schema_version: 1
+# strict | warn | off
+enforcement: strict
+# Luật phản biện context sạch ở pre-merge check: required | advisory | off.
+# `advisory` (mặc định khi khoá vắng) in NOTE khi một slug T2/T3 trong diff PR thiếu gap-probe.md và
+# thiếu entry descope; `required` chặn merge.
+gap_probe: advisory
+# CI re-check of COMMITTED evidence: strict | warn | off. strict is safe for a fresh repo.
+recheck: strict
+# Hai ổ cắm thiết kế — khai khi repo có bề mặt người dùng, bỏ trống thì không chặn.
+# Để trống: plugin của repo này chưa cài trong phiên của chính nó, nên chưa có tên skill để khai
+# (docs/trials/kit-on-this-repository.md, mục 6).
+#   feature_loop.ui_standards_skill: <skill chuẩn plugin/DS của repo>
+#   design_pass.ds_skill: <skill chuẩn DS của repo>
+executors:
+  test:
+    # suy từ: Makefile, .github/workflows/ci.yml
+    api: "make check"
+    capabilities: "node --test plugins/design-assembly/tests/test-capabilities.mjs"
+    status: "node --test plugins/design-assembly/tests/test-status.mjs"
+    plugin: "make plugin-test"
+  script:
+    # suy từ: mk/plan.mk
+    cli: "make plan"
+    product_map: "node /Users/manh-macmini/.claude/plugins/cache/delivery-loop/acceptance-gate/3.0.0/scripts/product-map.mjs --root . --check"
+    same_outputs: "bash _acceptance/bang-nang-luc-o-cam/rang/same-outputs.sh"
+  # suy từ: src/ là ứng dụng web; jsdom có trong package.json
+  design:
+    # script tier (a11y/slop)
+    gate: "node /Users/manh-macmini/.claude/plugins/cache/delivery-loop/acceptance-gate/3.0.0/scripts/design-gate.mjs"
+    # browser tier (authoritative P0)
+    ui_check: "/Users/manh-macmini/.claude/plugins/cache/delivery-loop/acceptance-gate/3.0.0/scripts/design-scan.js"
+risk_tiers:
+  t1_skip_globs:
+    - "docs/**"
+    - "wiki/**"
+    - "README.md"
+    # Bản đồ sản phẩm — máy sinh, và /acceptance-gate:approve + /acceptance-gate:signoff commit nó CÙNG commit
+    # chữ ký. Thiếu dòng này thì chính commit chữ ký làm evidence stale và
+    # pre-merge chặn merge, thành vòng không thoát (ADR 0007). Miễn trừ CHỈ an
+    # toàn khi repo cũng chạy `executors.script.product_map` trong CI của mình —
+    # cổng đó là thứ duy nhất canh bản đồ sau khi nó ra khỏi tầm stale-check.
+    - "PRODUCT-MAP.md"
+    - "LO-TRINH.html"
+  t3_paths:
+    # suy từ: AGENTS.md — đổi ontology/ cần người duyệt
+    - "ontology/**"
+    # suy từ: .claude/settings.json cấm sửa
+    - ".github/workflows/**"
+signoff:
+  # tiers that pre-merge-check requires signoff for
+  required_for: [T2, T3]
+  # approvers: informational — this key is NOT enforced by the gate. Signatures ARE still checked:
+  # human_signoff must not be empty and must not be an English placeholder.
+  # Chữ ký Cổng 2: người phát ngôn, máy ghi hộ và commit một lượt; trách nhiệm đọc ở forge.
+  approvers: ["Phan Le Manh"]
+dev_server:
+  # suy từ: package.json, và cổng mặc định của Vite
+  start: "npm run dev"
+  url: "http://localhost:5173"
+lo_trinh:
+  tep: docs/plan/lo-trinh.json
+feature_loop:
+  suite_keys: [executors.test.capabilities, executors.test.status]

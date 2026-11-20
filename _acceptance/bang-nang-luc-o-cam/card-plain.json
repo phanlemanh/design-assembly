@@ -1,0 +1,10 @@
+{
+  "feature_plain": "Chủ repo nhìn một lệnh là biết mỗi việc của hệ thiết kế do ai làm, chỗ nào còn trống, và máy đỏ ngay khi bảng ấy nói sai.",
+  "decisions": [
+    {
+      "id": "E11",
+      "q": "Bảy ổ trống cộng ổ soát thiết kế chỉ có phích một phần, có đúng «tám chỗ» đề bài nói không?",
+      "why": "Đề bài đếm tám chỗ chưa có phích; bảng để trống bảy ổ và ghi ổ soát thiết kế là có phích nhưng thiếu phần nhìn."
+    }
+  ]
+}

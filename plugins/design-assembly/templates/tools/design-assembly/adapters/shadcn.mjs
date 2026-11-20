@@ -31,6 +31,9 @@ export const adapter = {
   // Whether the repository installed the library: its settings file, or its folder, is there.
   present: (root) => existsSync(path.join(root, SETTINGS)) || existsSync(path.join(root, FOLDER)),
   names: ["shadcn", "class-variance-authority", "cva"],
+  // The folders under `components/` that vendors install their components into, by their usual
+  // names: this library's own, and the registry beside it. Code the repository did not write.
+  vendorFolders: ["ui", "reui"],
   // The components its registry offers, by the name a file of the library takes. Where the
   // library shares a folder with the repository's own components, a file of one of these names is
   // the library's.

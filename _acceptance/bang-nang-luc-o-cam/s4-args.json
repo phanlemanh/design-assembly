@@ -1,0 +1,608 @@
+{
+  "generated_at": "2026-11-20T08:46:39Z",
+  "generated_sha": "d2776b0eff63b6bfd2bb4684a44d675c9a1568bb",
+  "mainBranchInfo": {
+    "branch": "main",
+    "source": "remote"
+  },
+  "slug": "bang-nang-luc-o-cam",
+  "round": 4,
+  "riskTier": "T2",
+  "evals": [
+    {
+      "id": "E1",
+      "criterion": "AC-1",
+      "cmd": "node --test plugins/design-assembly/tests/test-capabilities.mjs",
+      "expected": "\"exit 0; test «the table has twenty capabilities, each socket with its four fields and plugs that point to scripts» green on the real table; red, each with a pinned message, on copies where (a) one socket has no checks (names the capability), (b) a plug points to a script that does not exist (names the capability and the path), (c) writes holds a key that is not a ledger of LEDGERS (names the key), (d) checks names a make target the Makefile and mk files do not define (names the target)\"",
+      "executor": "test",
+      "expectedExit": 0,
+      "paths": [
+        "plugins/design-assembly/references/capabilities.json",
+        "plugins/design-assembly/scripts/capabilities.mjs",
+        "plugins/design-assembly/tests/test-capabilities.mjs"
+      ],
+      "evidence_required": [
+        "run_id",
+        "exit_code",
+        "verifier",
+        "verified_at",
+        "output"
+      ],
+      "ref": "config:executors.test.capabilities"
+    },
+    {
+      "id": "E2",
+      "criterion": "AC-2",
+      "cmd": "node --test plugins/design-assembly/tests/test-capabilities.mjs",
+      "expected": "\"exit 0; test «no gap» green on the real table, and red on a copy where one capability loses its default plug and names no open limit, the message naming that capability; a copy pointing at a closed limit row is red too\"",
+      "executor": "test",
+      "expectedExit": 0,
+      "paths": [
+        "plugins/design-assembly/references/capabilities.json",
+        "plugins/design-assembly/references/limits.json",
+        "plugins/design-assembly/scripts/capabilities.mjs",
+        "plugins/design-assembly/tests/test-capabilities.mjs"
+      ],
+      "evidence_required": [
+        "run_id",
+        "exit_code",
+        "verifier",
+        "verified_at",
+        "output"
+      ],
+      "ref": "config:executors.test.capabilities"
+    },
+    {
+      "id": "E3",
+      "criterion": "AC-3",
+      "cmd": "node --test plugins/design-assembly/tests/test-capabilities.mjs",
+      "expected": "\"exit 0; test «no overlap» green on the real table and scripts; the detector run on the real scripts returns a non-empty list of writes that includes adopt writing the decisions ledger, and every ledger in the writes of a socket is written by at least one real script or has an open limit row; red on a copy where two sockets declare the same ledger (message names the ledger and both sockets), and red on a copy of a real script, taken from disk and changed to write another ledger (message names the script and the ledger)\"",
+      "executor": "test",
+      "expectedExit": 0,
+      "paths": [
+        "plugins/design-assembly/references/capabilities.json",
+        "plugins/design-assembly/scripts/**",
+        "plugins/design-assembly/tests/test-capabilities.mjs"
+      ],
+      "evidence_required": [
+        "run_id",
+        "exit_code",
+        "verifier",
+        "verified_at",
+        "output"
+      ],
+      "ref": "config:executors.test.capabilities"
+    },
+    {
+      "id": "E4",
+      "criterion": "AC-4",
+      "cmd": "node --test plugins/design-assembly/tests/test-capabilities.mjs",
+      "expected": "\"exit 0; test «clean core» green on the real plugin; red, each naming the file and the name, when an outside plug name is put into a copy of capabilities.json, into a copy of a skills/ file, and into a copy of one file of each core folder of the adapters test (scripts, templates/tools/design-assembly, templates/mk); a word that only contains the name is not a match\"",
+      "executor": "test",
+      "expectedExit": 0,
+      "paths": [
+        "plugins/design-assembly/references/capabilities.json",
+        "plugins/design-assembly/references/plugs/**",
+        "plugins/design-assembly/scripts/**",
+        "plugins/design-assembly/skills/**",
+        "plugins/design-assembly/templates/**",
+        "plugins/design-assembly/tests/test-capabilities.mjs"
+      ],
+      "evidence_required": [
+        "run_id",
+        "exit_code",
+        "verifier",
+        "verified_at",
+        "output"
+      ],
+      "ref": "config:executors.test.capabilities"
+    },
+    {
+      "id": "E5",
+      "criterion": "AC-5",
+      "cmd": "node --test plugins/design-assembly/tests/test-capabilities.mjs",
+      "expected": "\"exit 0; test «every layer and tier is reached» green on the real table, and red on a copy where no capability lists one layer (message names the layer) and on one where no capability lists one tier (message names the tier)\"",
+      "executor": "test",
+      "expectedExit": 0,
+      "paths": [
+        "plugins/design-assembly/references/capabilities.json",
+        "plugins/design-assembly/references/layers.json",
+        "plugins/design-assembly/references/tiers.json",
+        "plugins/design-assembly/tests/test-capabilities.mjs"
+      ],
+      "evidence_required": [
+        "run_id",
+        "exit_code",
+        "verifier",
+        "verified_at",
+        "output"
+      ],
+      "ref": "config:executors.test.capabilities"
+    },
+    {
+      "id": "E6",
+      "criterion": "AC-6",
+      "cmd": "node --test plugins/design-assembly/tests/test-status.mjs",
+      "expected": "\"exit 0; status --json ends with the key sockets, one entry per capability with plug or empty and its limit; the printed report names the count of plugged sockets and each empty socket and stays within 40 lines on both one-screen fixtures; should-not-fire: on a table where every socket has a default plug the report prints no empty-socket line, and on a repository without the file an outside plug detects that plug is not shown as here; a fixture repository holding that file shows the plug as here\"",
+      "executor": "test",
+      "expectedExit": 0,
+      "paths": [
+        "plugins/design-assembly/scripts/status.mjs",
+        "plugins/design-assembly/scripts/capabilities.mjs",
+        "plugins/design-assembly/tests/test-status.mjs"
+      ],
+      "evidence_required": [
+        "run_id",
+        "exit_code",
+        "verifier",
+        "verified_at",
+        "output"
+      ],
+      "ref": "config:executors.test.status"
+    },
+    {
+      "id": "E9",
+      "criterion": "AC-8",
+      "cmd": "node --test plugins/design-assembly/tests/test-capabilities.mjs",
+      "expected": "\"exit 0; test «two faces» green on the real table, and red on a copy where one socket loses its machine face with no reason, the message naming the socket and the face\"",
+      "executor": "test",
+      "expectedExit": 0,
+      "paths": [
+        "plugins/design-assembly/references/capabilities.json",
+        "plugins/design-assembly/scripts/capabilities.mjs",
+        "plugins/design-assembly/tests/test-capabilities.mjs"
+      ],
+      "evidence_required": [
+        "run_id",
+        "exit_code",
+        "verifier",
+        "verified_at",
+        "output"
+      ],
+      "ref": "config:executors.test.capabilities"
+    },
+    {
+      "id": "E10",
+      "criterion": "AC-8",
+      "question": "\"Does each socket of the capability table give a human face (what is shown, what is asked) and a machine face (what becomes a rule, which check holds it) that match the capability's row in the catalogue and the two hand-over zones of spec 0008, with no face filled by a placeholder?\"",
+      "executor": "judgment",
+      "expectedExit": 0,
+      "inputs": [
+        "/Users/manh-macmini/design-assembly/.claude/worktrees/kit-trial-5-0/wiki/specs/0008-capabilities-sockets-and-plugs.md",
+        "/Users/manh-macmini/design-assembly/.claude/worktrees/kit-trial-5-0/plugins/design-assembly/references/capabilities.json"
+      ],
+      "evidence_required": [
+        "judged_by",
+        "verdict",
+        "rationale"
+      ],
+      "inputsHash": "29b426d022b5339113f1f79d22a7c572cdde5f01d2af6ad96d14249252293d42"
+    },
+    {
+      "id": "E11",
+      "criterion": "AC-1",
+      "question": "\"Does the capability table hold the twenty capabilities of the closed catalogue of spec 0008, each with the stage, the socket and the default plug the catalogue gives, and are exactly the eight capabilities the catalogue marks as having no plug the ones left empty?\"",
+      "executor": "judgment",
+      "expectedExit": 0,
+      "inputs": [
+        "/Users/manh-macmini/design-assembly/.claude/worktrees/kit-trial-5-0/wiki/specs/0008-capabilities-sockets-and-plugs.md",
+        "/Users/manh-macmini/design-assembly/.claude/worktrees/kit-trial-5-0/plugins/design-assembly/references/capabilities.json"
+      ],
+      "evidence_required": [
+        "judged_by",
+        "verdict",
+        "rationale"
+      ],
+      "inputsHash": "df5f10cab0f4483c32a1312a2b17578647213ede5fc5134517ad818cb452cbd7"
+    }
+  ],
+  "suiteCommands": [
+    "node --test plugins/design-assembly/tests/test-capabilities.mjs",
+    "node --test plugins/design-assembly/tests/test-status.mjs"
+  ],
+  "diffBase": "ae8d9dd3a53203262c2cda0af0971c31f3a4c094",
+  "repoRoot": "/Users/manh-macmini/design-assembly/.claude/worktrees/kit-trial-5-0",
+  "personasPath": "/Users/manh-macmini/.claude/plugins/cache/delivery-loop/acceptance-gate/3.0.0/skills/acceptance/references/judge-personas.md",
+  "templatePath": "/Users/manh-macmini/.claude/plugins/cache/delivery-loop/acceptance-gate/3.0.0/skills/acceptance/references/evidence-report-template.md",
+  "toolKillRule": "# TOOL-KILL-RULE — lệnh bị công cụ ngắt KHÔNG phải lệnh fail\n\n**Nguồn duy nhất** của luật «hết giờ không phải trượt» cho MỌI đường chạy lệnh\nkiểm của kit. Hai đường tiêu thụ, cùng đọc khối marker dưới đây, không chép tay:\n\n- **Vòng lặp tính năng** (plugin feature-loop): skill `feature-loop` đọc file này\n  (resolve qua `resolve-plugin.mjs --require skills/acceptance/references/tool-kill-rule.md`)\n  và truyền NGUYÊN VĂN vào `args.toolKillRule` của workflow\n  `acceptance-verify.js`; workflow rút khối marker và nội suy vào prompt của mọi\n  agent chạy lệnh (machine · ui-check · baseline). Thiếu args hoặc không rút\n  được marker → workflow trả BLOCKED có tên, không chạy không luật.\n- **Đường VERIFY độc lập** (skill `acceptance` Phase 3): phiên điều phối chép khối\n  marker VERBATIM vào prompt của phiên tươi VERIFY, cùng nếp «Network truth».\n\nVì sao có luật: verifier chạy lệnh qua Bash tool có trần thời gian mặc định\n(~120 s) NGẮN hơn nhiều suite; lệnh bị công cụ giết trả exit code CỦA CÔNG CỤ,\nkhông phải của lệnh (vấp thật release-2-2-0 S4 r5: suite 108 s đơn lẻ, dưới tải\nbị giết ở 118 s → REJECT giả 4 eval). Nhận diện là việc AGENT (nó thấy tool\nresult thật); phần máy chỉ phòng thủ trên field cấu trúc `killedByTool` —\nKHÔNG grep nội dung output trong engine (chuỗi tổng kết là của suite từng repo).\n\nLệnh dài hơn trần 600 s của công cụ thì KHÔNG bị giết: công cụ **đẩy nó sang\nnền** và nó chạy tiếp. Tệp đầu ra nền trống tới phút chót, vì khung bọc lệnh của\nkit chỉ in khi lệnh xong — đọc trống thành «bị giết» là đúng sự cố crm 07/10/2026\n(hồ sơ `lenh-dai-chay-rieng`: hai lượt BLOCKED giả). Dòng «chuyển sang nền» trong\nkhối dưới là lối LỜI cho mọi lệnh. Lối MÁY: eval khai `long_running: <phút>`\ntrong `evals.yaml` thì lượt chấm feature-loop tự chạy lệnh nền, ghi nhật ký ở\n`.acceptance-runs/<slug>/s4-lenh-dai/` và chờ bằng lệnh nó sinh ra\n(`eval-executors.md`, mục `long_running`).\n\n<!-- <<<TOOL-KILL-RULE -->\nTRAN THOI GIAN CONG CU: khi goi Bash chay lenh, LUON dat tham so timeout >= 600000 (ms) — tran mac dinh cua cong cu (~120s) NGAN hon nhieu suite; lenh vuot tran se bi CONG CU giet va exit code luc do la cua cong cu, KHONG phai cua lenh. Neu lenh van bi cong cu dung (tool result bao timeout/killed, hoac output bi CAT giua chung truoc dong tong ket cuoi cua lenh) → DO KHONG PHAI ket qua that: khai cannotRun=true + killedByTool=true + reason \"bi cong cu giet o <so giay> giay\" kem dau hieu (timeout tool / output cat). TUYET DOI khong bao exitCode nhu the lenh tu fail va khong doan PASS/FAIL tu output cut.\nDAU RA DAI: harness co the CAT DAU RA RA TEP (\"Output too large … saved to <tep>\") va chi hien doan DAU — do KHONG phai bi cong cu giet: doc DUOI tep do (tail) de lay dong tong ket va ma thoat; chi khai killedByTool khi tool result bao timeout/killed that.\nCHUYEN SANG NEN KHONG PHAI BI GIET: tool result bao lenh chua xong trong timeout va da duoc CHUYEN SANG NEN (\"moved to the background\", kem ID + tep dau ra) → lenh VAN DANG CHAY: KHONG khai killedByTool, KHONG ket luan tu tep dau ra luc do. Tep dau ra nen TRONG la binh thuong — khung boc lenh chi in duoi dau ra + dong __EXIT=<n> khi lenh XONG. Cho bang lenh Bash co gioi han (moi lan goi ≤ 100 giay, duoi tran mac dinh 120 giay cua cong cu; vd vong lap kiem tep do co dong __EXIT= chua, sleep vai giay, het 100 giay thi thoat) va goi lai toi khi tep co dong __EXIT=<n> → doc ma tu dong do nhu binh thuong. Tong thoi gian cho toi da = so phut eval khai o long_running (vang thi 30 phut), tinh tu luc chay lenh; qua ma chua co dong __EXIT → cannotRun=true + reason \"lenh chay qua <so> phut chua xong — khai long_running: <phut> cho eval trong evals.yaml\" (KHONG killedByTool), va dung tac vu nen neu cong cu cho phep.\n<!-- TOOL-KILL-RULE>>> -->\n\n## Hồ sơ cho lượt bị ngắt (đường độc lập)\n\nPhiên tươi VERIFY gặp lệnh bị công cụ ngắt thì:\n\n- dòng run-log của eval đó: `\"exit_code\": null, \"killed_by_tool\": true` (không\n  ghi mã thoát của công cụ như mã thoát của lệnh);\n- verdict báo cáo `BLOCKED`, `reason: bi cong cu giet o <so giay> giay — <eval ids>`\n  (kèm dấu hiệu: timeout tool / output cắt trước dòng tổng kết); `failed_evals`\n  rỗng — người đọc hồ sơ thấy đây là sự cố hạ tầng, chữa bằng chạy lại với trần\n  công cụ đủ dài, không phải sửa sản phẩm.\n\nLệnh bị đẩy sang nền rồi QUÁ trần chờ (`long_running`, vắng thì 30 phút) cũng\nlà sự cố hạ tầng chứ không phải lệnh hỏng: dòng run-log `\"exit_code\": null`,\n`\"cannot_run\": true` (KHÔNG `killed_by_tool` — công cụ không giết nó), verdict\n`BLOCKED`, reason gọi tên việc cần làm (khai `long_running: <phút>` cho eval).\n",
+  "contractPath": "/Users/manh-macmini/design-assembly/.claude/worktrees/kit-trial-5-0/_acceptance/bang-nang-luc-o-cam/contract.md",
+  "invokedAt": "2026-11-20T08:46:39Z",
+  "invokedSha": "d2776b0eff63b6bfd2bb4684a44d675c9a1568bb",
+  "vungVat": [
+    ".claude-plugin/marketplace.json",
+    ".claude/settings.json",
+    ".prettierignore",
+    "_acceptance/README.md",
+    "_acceptance/bang-nang-luc-o-cam/card-plain.json",
+    "_acceptance/bang-nang-luc-o-cam/card.html",
+    "_acceptance/bang-nang-luc-o-cam/du-bao.json",
+    "_acceptance/bang-nang-luc-o-cam/evals.yaml",
+    "_acceptance/bang-nang-luc-o-cam/evidence-page.html",
+    "_acceptance/bang-nang-luc-o-cam/khuon-nap.json",
+    "_acceptance/bang-nang-luc-o-cam/rang/same-outputs.sh",
+    "_acceptance/bang-nang-luc-o-cam/s4-args.json",
+    "_acceptance/config.yaml",
+    "design/tool-stamp.json",
+    "plugins/design-assembly/.claude-plugin/plugin.json",
+    "plugins/design-assembly/references/capabilities.json",
+    "plugins/design-assembly/references/limits.json",
+    "plugins/design-assembly/references/plugs/accessibility-review.json",
+    "plugins/design-assembly/references/plugs/axe.json",
+    "plugins/design-assembly/references/plugs/claude-design.json",
+    "plugins/design-assembly/references/plugs/design-critique.json",
+    "plugins/design-assembly/references/plugs/frontend-design.json",
+    "plugins/design-assembly/references/plugs/mobbin.json",
+    "plugins/design-assembly/references/plugs/reui.json",
+    "plugins/design-assembly/references/plugs/stitch.json",
+    "plugins/design-assembly/references/plugs/ux-copy.json",
+    "plugins/design-assembly/references/releases.json",
+    "plugins/design-assembly/scripts/capabilities.mjs",
+    "plugins/design-assembly/scripts/status.mjs",
+    "plugins/design-assembly/skills/status/SKILL.md",
+    "plugins/design-assembly/templates/tools/design-assembly/adapters/shadcn.mjs",
+    "plugins/design-assembly/templates/tools/design-assembly/components.mjs",
+    "plugins/design-assembly/tests/test-capabilities.mjs",
+    "plugins/design-assembly/tests/test-status.mjs",
+    "tools/design-assembly/adapters/shadcn.mjs",
+    "tools/design-assembly/components.mjs"
+  ],
+  "ngoaiVatGlobs": [
+    "docs/**",
+    "wiki/**",
+    "README.md",
+    "PRODUCT-MAP.md",
+    "LO-TRINH.html",
+    "_acceptance/*/**/*.md",
+    "_acceptance/*/**/*.jsonl"
+  ],
+  "ngoaiVatFiles": [
+    "LO-TRINH.html",
+    "PRODUCT-MAP.md",
+    "_acceptance/bang-nang-luc-o-cam/contract.md",
+    "_acceptance/bang-nang-luc-o-cam/decisions.jsonl",
+    "_acceptance/bang-nang-luc-o-cam/duong-nen.md",
+    "_acceptance/bang-nang-luc-o-cam/evidence-report.md",
+    "_acceptance/bang-nang-luc-o-cam/figures/index.md",
+    "_acceptance/bang-nang-luc-o-cam/gap-probe.md",
+    "_acceptance/bang-nang-luc-o-cam/opportunity.md",
+    "_acceptance/bang-nang-luc-o-cam/review-findings.md",
+    "_acceptance/bang-nang-luc-o-cam/run-log.jsonl",
+    "_acceptance/bang-nang-luc-o-cam/usage-report.md",
+    "docs/plan/lo-trinh.json",
+    "docs/plan/pham-vi-5-0.md",
+    "docs/plan/plan.json",
+    "docs/superpowers/plans/2026-11-20-bang-nang-luc-o-cam.md",
+    "docs/superpowers/specs/2026-11-20-bang-nang-luc-o-cam-design.md",
+    "docs/trials/kit-on-this-repository.md",
+    "wiki/decisions/0069-the-capability-table-and-its-checks.md",
+    "wiki/index.md",
+    "wiki/log.md"
+  ],
+  "diffFiles": [
+    ".claude-plugin/marketplace.json",
+    ".claude/settings.json",
+    ".prettierignore",
+    "LO-TRINH.html",
+    "PRODUCT-MAP.md",
+    "_acceptance/README.md",
+    "_acceptance/bang-nang-luc-o-cam/card-plain.json",
+    "_acceptance/bang-nang-luc-o-cam/card.html",
+    "_acceptance/bang-nang-luc-o-cam/contract.md",
+    "_acceptance/bang-nang-luc-o-cam/decisions.jsonl",
+    "_acceptance/bang-nang-luc-o-cam/du-bao.json",
+    "_acceptance/bang-nang-luc-o-cam/duong-nen.md",
+    "_acceptance/bang-nang-luc-o-cam/evals.yaml",
+    "_acceptance/bang-nang-luc-o-cam/evidence-page.html",
+    "_acceptance/bang-nang-luc-o-cam/evidence-report.md",
+    "_acceptance/bang-nang-luc-o-cam/figures/index.md",
+    "_acceptance/bang-nang-luc-o-cam/gap-probe.md",
+    "_acceptance/bang-nang-luc-o-cam/khuon-nap.json",
+    "_acceptance/bang-nang-luc-o-cam/opportunity.md",
+    "_acceptance/bang-nang-luc-o-cam/rang/same-outputs.sh",
+    "_acceptance/bang-nang-luc-o-cam/review-findings.md",
+    "_acceptance/bang-nang-luc-o-cam/run-log.jsonl",
+    "_acceptance/bang-nang-luc-o-cam/s4-args.json",
+    "_acceptance/bang-nang-luc-o-cam/usage-report.md",
+    "_acceptance/config.yaml",
+    "design/tool-stamp.json",
+    "docs/plan/lo-trinh.json",
+    "docs/plan/pham-vi-5-0.md",
+    "docs/plan/plan.json",
+    "docs/superpowers/plans/2026-11-20-bang-nang-luc-o-cam.md",
+    "docs/superpowers/specs/2026-11-20-bang-nang-luc-o-cam-design.md",
+    "docs/trials/kit-on-this-repository.md",
+    "plugins/design-assembly/.claude-plugin/plugin.json",
+    "plugins/design-assembly/references/capabilities.json",
+    "plugins/design-assembly/references/limits.json",
+    "plugins/design-assembly/references/plugs/accessibility-review.json",
+    "plugins/design-assembly/references/plugs/axe.json",
+    "plugins/design-assembly/references/plugs/claude-design.json",
+    "plugins/design-assembly/references/plugs/design-critique.json",
+    "plugins/design-assembly/references/plugs/frontend-design.json",
+    "plugins/design-assembly/references/plugs/mobbin.json",
+    "plugins/design-assembly/references/plugs/reui.json",
+    "plugins/design-assembly/references/plugs/stitch.json",
+    "plugins/design-assembly/references/plugs/ux-copy.json",
+    "plugins/design-assembly/references/releases.json",
+    "plugins/design-assembly/scripts/capabilities.mjs",
+    "plugins/design-assembly/scripts/status.mjs",
+    "plugins/design-assembly/skills/status/SKILL.md",
+    "plugins/design-assembly/templates/tools/design-assembly/adapters/shadcn.mjs",
+    "plugins/design-assembly/templates/tools/design-assembly/components.mjs",
+    "plugins/design-assembly/tests/test-capabilities.mjs",
+    "plugins/design-assembly/tests/test-status.mjs",
+    "tools/design-assembly/adapters/shadcn.mjs",
+    "tools/design-assembly/components.mjs",
+    "wiki/decisions/0069-the-capability-table-and-its-checks.md",
+    "wiki/index.md",
+    "wiki/log.md"
+  ],
+  "fileDoTrongDiff": [
+    "_acceptance/bang-nang-luc-o-cam/card-plain.json",
+    "_acceptance/bang-nang-luc-o-cam/card.html",
+    "_acceptance/bang-nang-luc-o-cam/du-bao.json",
+    "_acceptance/bang-nang-luc-o-cam/evals.yaml",
+    "_acceptance/bang-nang-luc-o-cam/evidence-page.html",
+    "_acceptance/bang-nang-luc-o-cam/khuon-nap.json",
+    "_acceptance/bang-nang-luc-o-cam/rang/same-outputs.sh",
+    "_acceptance/bang-nang-luc-o-cam/s4-args.json",
+    "_acceptance/config.yaml",
+    "plugins/design-assembly/references/capabilities.json",
+    "plugins/design-assembly/references/limits.json",
+    "plugins/design-assembly/references/plugs/accessibility-review.json",
+    "plugins/design-assembly/references/plugs/axe.json",
+    "plugins/design-assembly/references/plugs/claude-design.json",
+    "plugins/design-assembly/references/plugs/design-critique.json",
+    "plugins/design-assembly/references/plugs/frontend-design.json",
+    "plugins/design-assembly/references/plugs/mobbin.json",
+    "plugins/design-assembly/references/plugs/reui.json",
+    "plugins/design-assembly/references/plugs/stitch.json",
+    "plugins/design-assembly/references/plugs/ux-copy.json",
+    "plugins/design-assembly/scripts/capabilities.mjs",
+    "plugins/design-assembly/scripts/status.mjs",
+    "plugins/design-assembly/skills/status/SKILL.md",
+    "plugins/design-assembly/templates/tools/design-assembly/adapters/shadcn.mjs",
+    "plugins/design-assembly/templates/tools/design-assembly/components.mjs",
+    "plugins/design-assembly/tests/test-capabilities.mjs",
+    "plugins/design-assembly/tests/test-status.mjs"
+  ],
+  "coverageFiles": [
+    "plugins/design-assembly/references/capabilities.json",
+    "plugins/design-assembly/references/limits.json",
+    "plugins/design-assembly/references/plugs/accessibility-review.json",
+    "plugins/design-assembly/references/plugs/axe.json",
+    "plugins/design-assembly/references/plugs/claude-design.json",
+    "plugins/design-assembly/references/plugs/design-critique.json",
+    "plugins/design-assembly/references/plugs/frontend-design.json",
+    "plugins/design-assembly/references/plugs/mobbin.json",
+    "plugins/design-assembly/references/plugs/reui.json",
+    "plugins/design-assembly/references/plugs/stitch.json",
+    "plugins/design-assembly/references/plugs/ux-copy.json",
+    "plugins/design-assembly/scripts/capabilities.mjs",
+    "plugins/design-assembly/scripts/status.mjs",
+    "plugins/design-assembly/skills/status/SKILL.md",
+    "plugins/design-assembly/templates/tools/design-assembly/adapters/shadcn.mjs",
+    "plugins/design-assembly/templates/tools/design-assembly/components.mjs",
+    "plugins/design-assembly/tests/test-capabilities.mjs",
+    "plugins/design-assembly/tests/test-status.mjs"
+  ],
+  "coEvalPaths": true,
+  "evalsHash": "c29b3451219a390e548be333db7c0dfe4360420d5cf1f0e0593353c3408a1c96",
+  "runBaseline": true,
+  "carriedEvals": [
+    {
+      "id": "E1",
+      "runId": "minted-bang-nang-luc-o-cam-E1-r3",
+      "fromRound": 3,
+      "verifiedAt": "2026-11-20T07:52:53Z",
+      "cmd": "node --test plugins/design-assembly/tests/test-capabilities.mjs"
+    },
+    {
+      "id": "E2",
+      "runId": "minted-bang-nang-luc-o-cam-E2-r3",
+      "fromRound": 3,
+      "verifiedAt": "2026-11-20T07:52:53Z",
+      "cmd": "node --test plugins/design-assembly/tests/test-capabilities.mjs"
+    },
+    {
+      "id": "E3",
+      "runId": "minted-bang-nang-luc-o-cam-E3-r3",
+      "fromRound": 3,
+      "verifiedAt": "2026-11-20T07:52:53Z",
+      "cmd": "node --test plugins/design-assembly/tests/test-capabilities.mjs"
+    },
+    {
+      "id": "E4",
+      "runId": "minted-bang-nang-luc-o-cam-E4-r3",
+      "fromRound": 3,
+      "verifiedAt": "2026-11-20T07:52:53Z",
+      "cmd": "node --test plugins/design-assembly/tests/test-capabilities.mjs"
+    },
+    {
+      "id": "E5",
+      "runId": "minted-bang-nang-luc-o-cam-E5-r3",
+      "fromRound": 3,
+      "verifiedAt": "2026-11-20T07:52:53Z",
+      "cmd": "node --test plugins/design-assembly/tests/test-capabilities.mjs"
+    },
+    {
+      "id": "E6",
+      "runId": "minted-bang-nang-luc-o-cam-E6-r1",
+      "fromRound": 1,
+      "verifiedAt": "2026-11-20T07:35:09Z",
+      "cmd": "node --test plugins/design-assembly/tests/test-status.mjs"
+    },
+    {
+      "id": "E9",
+      "runId": "minted-bang-nang-luc-o-cam-E9-r3",
+      "fromRound": 3,
+      "verifiedAt": "2026-11-20T07:52:53Z",
+      "cmd": "node --test plugins/design-assembly/tests/test-capabilities.mjs"
+    }
+  ],
+  "carriedFindings": [
+    {
+      "file": "plugins/design-assembly/references/capabilities.json",
+      "title": "New `unheld` and `step_of` fields are reference fields that nothing validates, which breaks the table's own pattern",
+      "severity": "medium",
+      "plain": "Two new notes in the capability table, one saying a capability is not held by any check and one saying which route it belongs to, are not checked by anything. A typo there would still pass the checks and show a slightly wrong table, though the data is correct today.",
+      "can_cu": "The consequence is mild: only an internal reference table could drift, nothing is lost for the user, and it is easy to notice and correct later.",
+      "proposal": "known-limits",
+      "fromRound": 2,
+      "tepDoi": false
+    },
+    {
+      "file": "plugins/design-assembly/scripts/capabilities.mjs",
+      "title": "Nothing validates the new `unheld` and `step_of` fields, so a wrong limit row or route id passes without an error",
+      "severity": "low",
+      "plain": "If someone later points the new 'not held' note at a wrong or closed limit entry, or names a route that does not exist, the checks stay green. The status board could then show a slightly misleading reason for an empty socket.",
+      "can_cu": "Impact is light and recoverable: values are correct now, a wrong entry would only mislabel a reason on the board, and a fix can be made at any time without data loss.",
+      "proposal": "known-limits",
+      "fromRound": 2,
+      "tepDoi": false
+    },
+    {
+      "file": "_acceptance/config.yaml",
+      "title": "Kit executors pinned to the owner's absolute home path in a committed, public config",
+      "severity": "medium",
+      "plain": "Người khác tải repo công khai về sẽ không chạy lại được các bước kiểm nghiệm vì chúng trỏ vào thư mục riêng trên máy của chủ repo. Sản phẩm cho người dùng cuối không bị ảnh hưởng.",
+      "can_cu": "Chỉ ảnh hưởng người dựng lại bằng chứng trên máy khác, không mất dữ liệu, và chủ repo tự đổi được sau khi thử nghiệm xong.",
+      "proposal": "known-limits",
+      "fromRound": 1,
+      "tepDoi": true
+    },
+    {
+      "file": ".claude/settings.json",
+      "title": "Project settings enable plugins from a marketplace the repo never declares",
+      "severity": "low",
+      "plain": "Ai tải repo về sẽ thấy bật các tiện ích mà máy họ không tìm được nguồn, nên có thể gặp cảnh báo hoặc thiếu tiện ích. Người dùng cuối không bị ảnh hưởng.",
+      "can_cu": "Hậu quả nhẹ, chỉ là cảnh báo cấu hình cho người đóng góp, và gỡ hoặc chuyển sang cấu hình cá nhân rất rẻ.",
+      "proposal": "known-limits",
+      "fromRound": 1,
+      "tepDoi": false
+    },
+    {
+      "file": "_acceptance/bang-nang-luc-o-cam/rang/same-outputs.sh",
+      "title": "same-outputs guard compares only `status --json`, not the printed board lines it claims to allow",
+      "severity": "low",
+      "plain": "Bài đối chiếu đầu ra cũ và mới có thể bỏ sót một thay đổi ngoài ý muốn ở bản in cho người đọc của lệnh status. Người dùng chỉ gặp rủi ro nếu có thay đổi lạ thật sự lọt qua.",
+      "can_cu": "Là lỗ hổng của công cụ kiểm chứ không phải lỗi sản phẩm, chưa thấy thay đổi lạ nào, và có thể bổ sung phép so sánh sau.",
+      "proposal": "known-limits",
+      "fromRound": 1,
+      "tepDoi": false
+    },
+    {
+      "file": "plugins/design-assembly/references/capabilities.json",
+      "title": "Machine faces of sockets with no plug claim a rule is held by `make design-assembly` when no check holds it",
+      "severity": "medium",
+      "plain": "Bảng năng lực nói một số quy tắc đã có kiểm tra trong khi thực tế chưa có, nên người hoặc tác tử đọc bảng có thể tin rằng quy tắc được giữ. Lỗi lọt qua mà không ai báo.",
+      "can_cu": "Gây hiểu nhầm về độ an toàn nhưng không mất dữ liệu; chữa cần định nghĩa lại cách bảng khai quy tắc chưa được giữ, nên đáng làm thành việc riêng.",
+      "proposal": "new-contract",
+      "fromRound": 1,
+      "tepDoi": false
+    },
+    {
+      "file": "plugins/design-assembly/scripts/capabilities.mjs",
+      "title": "Status drops plug-file read problems without saying so",
+      "severity": "low",
+      "plain": "Nếu một tệp khai phích bị hỏng, bảng ổ cắm trong status chỉ lặng lẽ không hiện phích đó thay vì cảnh báo. Người dùng có thể tưởng ổ đó chưa có phích.",
+      "can_cu": "Hậu quả nhẹ và chỉ xảy ra khi tệp bị hỏng, bộ kiểm của plugin vẫn bắt được, và sửa lại thì đơn giản.",
+      "proposal": "known-limits",
+      "fromRound": 1,
+      "tepDoi": false
+    },
+    {
+      "file": "_acceptance/bang-nang-luc-o-cam/rang/same-outputs.sh",
+      "title": "same-outputs.sh crashes on the status check if the base status output is not JSON",
+      "severity": "low",
+      "plain": "Khi đầu ra của lệnh status ở bản gốc không đọc được, bài đối chiếu báo lỗi sai nguyên nhân thay vì nêu rõ. Người dùng cuối không bị ảnh hưởng.",
+      "can_cu": "Chỉ làm thông báo lỗi của công cụ kiểm khó hiểu hơn, chạy lại là thấy, và công cụ này dùng một lần cho mục này.",
+      "proposal": "wont-fix",
+      "fromRound": 1,
+      "tepDoi": false
+    },
+    {
+      "file": "plugins/design-assembly/tests/test-status.mjs",
+      "title": "Hình dạng 3: kiểm \"chuỗi có mặt\" trong khi lời hứa là QUAN HỆ giữa ô cắm và bảng năng lực",
+      "severity": "medium",
+      "plain": "Bài kiểm bảng ổ cắm chưa chặt, nên nếu sau này status gán nhầm trạng thái hay giới hạn cho một ổ thì bài kiểm vẫn xanh. Hiện chưa thấy hiển thị sai.",
+      "can_cu": "Rủi ro chỉ nảy sinh khi có thay đổi sau này, không ảnh hưởng người dùng hôm nay, và siết bài kiểm sau rất rẻ.",
+      "proposal": "known-limits",
+      "fromRound": 1,
+      "tepDoi": false
+    },
+    {
+      "file": "plugins/design-assembly/tests/test-status.mjs",
+      "title": "Hình dạng 4: assertion âm tính đứng một mình cho nhánh detect.file (reui), không có đối chứng dương",
+      "severity": "medium",
+      "plain": "Chưa có bài kiểm xác nhận status nhận ra phích ngoài khi nó nằm dưới dạng một tệp trong repo, nên nếu cách nhận này hỏng thì không ai biết. Hiện chưa thấy nhận sai.",
+      "can_cu": "Chỉ là lỗ hổng độ phủ của bài kiểm, không mất dữ liệu, và thêm một ca kiểm sau là xong.",
+      "proposal": "known-limits",
+      "fromRound": 1,
+      "tepDoi": false
+    },
+    {
+      "file": "plugins/design-assembly/tests/test-capabilities.mjs",
+      "title": "Hình dạng 2: fixture viết tay đúng khuôn bên đọc cho bộ dò ghi sổ (stray ledger)",
+      "severity": "low",
+      "plain": "Bộ dò chuyện một script ghi nhầm sổ khác chỉ được thử với một cách viết quen thuộc, nên cách viết lạ có thể lọt qua. Giới hạn này đã được ghi nhận từ trước.",
+      "can_cu": "Hợp đồng đã nhận trước giới hạn của phép dò tĩnh này, hậu quả nhẹ và không mất dữ liệu.",
+      "proposal": "known-limits",
+      "fromRound": 1,
+      "tepDoi": false
+    }
+  ],
+  "deltaFiles": [
+    "_acceptance/bang-nang-luc-o-cam/card-plain.json",
+    "_acceptance/bang-nang-luc-o-cam/card.html",
+    "_acceptance/bang-nang-luc-o-cam/evals.yaml",
+    "_acceptance/bang-nang-luc-o-cam/evidence-page.html",
+    "_acceptance/bang-nang-luc-o-cam/s4-args.json",
+    "_acceptance/config.yaml"
+  ],
+  "thuocChup": {
+    "sha": "d2776b0eff63b6bfd2bb4684a44d675c9a1568bb",
+    "n": 33,
+    "digest": "fb2b5f09e735083e858b07a33fd0c68d1ff30d17474af968a0373178fe1083aa",
+    "tep": {
+      "_acceptance/bang-nang-luc-o-cam/evals.yaml": "c29b3451219a390e548be333db7c0dfe4360420d5cf1f0e0593353c3408a1c96",
+      "_acceptance/bang-nang-luc-o-cam/rang/same-outputs.sh": "7f201eeeb963dee35664b8017076ebdf3db4bf40d25e8982535ec786819b9042",
+      "_acceptance/config.yaml": "ecf39cc399dd3da611a8cbf8320cba38eef5ccd7d7e0c755b8ac9b7e258eb317",
+      "plugins/design-assembly/templates/owned/app-frame.test.tsx.template": "a56bc34cb204e8b0b7d2fe91e4b3f69fec998d95f75c36d4020726302c23f631",
+      "plugins/design-assembly/templates/owned/held-label.test.tsx.template": "9f7ef6f5fc16be8986ab3a03c7009280e1b46260d3296607615fdaab65261277",
+      "plugins/design-assembly/templates/owned/list.test.tsx.template": "6deceb3a11c823db0188a6d3853e46b81b524b3df4fc741ac341b2049cf525fe",
+      "plugins/design-assembly/templates/owned/record-panel.test.tsx.template": "1073f2f329f8049e0e57f4ac057b73144cbc3e7c17f91220ecbed7417c9b42bc",
+      "plugins/design-assembly/templates/owned/row-actions.test.tsx.template": "da69df369b08d62291bc08c0c5fb3750b812cdeb16fcd857333fe28eee85690b",
+      "plugins/design-assembly/templates/owned/screens-ledger.test.ts.template": "948d63e60853b6e50653b43bb9988a1d0d366771bd80c077a406b71f5aa51946",
+      "plugins/design-assembly/templates/owned/table-actions.test.tsx.template": "52ac4e77aa7defb28ab120e28c61e3e31e2197acaa31a2783f6f7546df38fffd",
+      "plugins/design-assembly/templates/owned/templates.spec.ts.template": "68d28594742286b8757548cf1b61ac9f192f48c3514a3d96337785b4b1685ad8",
+      "plugins/design-assembly/templates/owned/typed-table.test.tsx.template": "09a881481c37084ed993657f180f534510eaaf28b7ea930f0eb241474cc0b36a",
+      "tests/App.test.tsx": "649b378d81da02c68a28f453fd646dfdd968a12b529a787330cc41fef07eb4a0",
+      "tests/app-frame.test.tsx": "4eb8191dfedaaa9da3143eb4c7c586853148a5ac358f527dc057778fa7ce7921",
+      "tests/e2e/floor.spec.ts": "c97fc624e06c12f7cfb0bfac1258affcb80cc836ac630b9d2a465fdd583c39bf",
+      "tests/e2e/frame.spec.ts": "3594f35b55127643369e2e7d083e403ab6d1146f36a88b0755868ced443abcb9",
+      "tests/e2e/routes.ts": "b31bb065a7f11dbdf564755d712b6bfbace69b4c24932009d80b9e093f5a1663",
+      "tests/e2e/templates.spec.ts": "68d28594742286b8757548cf1b61ac9f192f48c3514a3d96337785b4b1685ad8",
+      "tests/failed-action.test.tsx": "5963e103db29905da4803b30e0d08c88e090491ea297859665d8c70b5e7b2a34",
+      "tests/focus-after-action.test.tsx": "d48a152eddb79d4250f441b0b269b22e156dedd9718996d631245af63bed4d97",
+      "tests/frame.test.tsx": "a56bc34cb204e8b0b7d2fe91e4b3f69fec998d95f75c36d4020726302c23f631",
+      "tests/greet.test.ts": "63fac740e2783644e3b61731a47ea7dbc410c3289645c4fc434cd565f53f9f4a",
+      "tests/held-label.test.tsx": "9f7ef6f5fc16be8986ab3a03c7009280e1b46260d3296607615fdaab65261277",
+      "tests/list.test.tsx": "6deceb3a11c823db0188a6d3853e46b81b524b3df4fc741ac341b2049cf525fe",
+      "tests/plugin-manifest.test.ts": "ea7329730aafbcbd47b16116fd6a4bcefd3513c8e4e10f6afa8daa42a859676a",
+      "tests/plugin-vocabulary.test.ts": "96a2f5e9b148e700d6fc10a52f774b95df3a19e6ea2a9357e4f630154d371ed6",
+      "tests/record-panel.test.tsx": "1073f2f329f8049e0e57f4ac057b73144cbc3e7c17f91220ecbed7417c9b42bc",
+      "tests/row-actions.test.tsx": "da69df369b08d62291bc08c0c5fb3750b812cdeb16fcd857333fe28eee85690b",
+      "tests/screens-ledger.test.ts": "948d63e60853b6e50653b43bb9988a1d0d366771bd80c077a406b71f5aa51946",
+      "tests/setup.ts": "f6dacd0c48caa5c15c870a23f157a9801eea0c792f9c6e4d9a29374fa10b3e39",
+      "tests/table-actions.test.tsx": "52ac4e77aa7defb28ab120e28c61e3e31e2197acaa31a2783f6f7546df38fffd",
+      "tests/typed-table.test.tsx": "09a881481c37084ed993657f180f534510eaaf28b7ea930f0eb241474cc0b36a",
+      "tests/undo-or-confirm.test.tsx": "dc19f0c8cd5d41ec35862c02a3bf64fa93ef7942d28938a3202b7455d3f9765b"
+    }
+  },
+  "cayChup": {
+    "sha": "d2776b0eff63b6bfd2bb4684a44d675c9a1568bb",
+    "ban": {},
+    "chuaTheoDoi": []
+  }
+}

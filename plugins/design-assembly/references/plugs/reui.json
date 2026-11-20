@@ -1,0 +1,10 @@
+{
+  "id": "reui",
+  "about": "A registry of components installed into the components folder beside the base library.",
+  "sockets": ["components"],
+  "names": ["ReUI"],
+  "needs": [],
+  "detect": {
+    "file": "src/components/reui"
+  }
+}
