@@ -3596,6 +3596,17 @@
       "where": ["spec", "d0071"],
       "status": "open",
       "note": "A text a box hides part of on purpose, as a card that peeks in from the edge of a row, is counted as cut off, and a text its box shortens with an ellipsis or a limit of lines is not counted and is only named for a person's eye, so neither says whether a reader misses anything."
+    },
+    {
+      "id": "review-needs-the-repository-build-and-browser",
+      "area": "review",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0071"],
+      "status": "open",
+      "note": "The review command is the default plug of the design review socket, and it draws with the repository's own build and browser: where a repository has neither installed it ends with 2 and reviews nothing, while the gate, the default plug before it, ran in every repository. The gate is still a plug of the socket and still runs there."
     }
   ]
 }
