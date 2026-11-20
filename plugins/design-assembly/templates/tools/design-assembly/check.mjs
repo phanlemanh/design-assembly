@@ -9,7 +9,14 @@ import { fileURLToPath } from "node:url";
 
 import { contrast } from "./color.mjs";
 import { cellProblems, columnsProblem, readDisplays, typesProblem } from "./columns.mjs";
-import { componentsProblem, readFolder, targetProblem, UNTRACKED } from "./components.mjs";
+import {
+  componentsProblem,
+  keepsSettings,
+  libraryParts,
+  readFolder,
+  targetProblem,
+  UNTRACKED,
+} from "./components.mjs";
 import { LEDGERS, shapeProblems } from "./contract.mjs";
 import {
   LAYER_ALIASES,
@@ -273,7 +280,8 @@ const KINDS = {
       const read = check.own ?? check.folder;
       const files = state.folders?.[read] ?? {};
       return componentsProblem(state.files?.[check.file], files, check.file, read, {
-        library: [check.folder, ...(check.libraries ?? [])],
+        // Where the library shares its folder, the guide listed its parts one by one.
+        library: check.library ?? [check.folder, ...(check.libraries ?? [])],
         pages: check.pages ? (state.pages?.[check.pages] ?? {}) : {},
       });
     },
@@ -370,7 +378,7 @@ const KINDS = {
   // No screen sets on a table what the column type decides.
   cells: {
     run(state, check) {
-      return cellProblems(state.folders?.[check.folder] ?? {}, check.rule, check.skip);
+      return cellProblems(state.folders?.[check.folder] ?? {}, check.rule, liveSkip(state, check));
     },
     change(state, check) {
       const added = `${check.folder}/changed-copy.tsx`;
@@ -522,7 +530,7 @@ const KINDS = {
   // No screen writes its own words.
   words: {
     run(state, check) {
-      return wordsProblem(state.folders?.[check.folder] ?? {}, check.skip);
+      return wordsProblem(state.folders?.[check.folder] ?? {}, liveSkip(state, check));
     },
     change(state, check) {
       const added = `${check.folder}/changed-copy.tsx`;
@@ -536,7 +544,7 @@ const KINDS = {
     run(state, check) {
       // Every source file where the check names them; the screens alone in an older setting.
       const files = state.sources?.[check.sources] ?? state.folders?.[check.folder] ?? {};
-      return channelsProblem(files, check.skip);
+      return channelsProblem(files, liveSkip(state, check));
     },
     change(state, check) {
       const added = `${check.folder}/changed-copy.tsx`;
@@ -555,7 +563,7 @@ const KINDS = {
   // No empty state dresses a link as a button.
   "empty-state": {
     run(state, check) {
-      return emptyStateProblem(state.sources?.[check.sources] ?? {}, check.skip);
+      return emptyStateProblem(state.sources?.[check.sources] ?? {}, liveSkip(state, check));
     },
     change(state, check) {
       const added = `${check.sources}/changed-copy.tsx`;
@@ -569,7 +577,11 @@ const KINDS = {
   "screen-links": {
     run(state, check) {
       const paths = screenPaths(state.files?.[check.registry], state.files?.[check.ledger] ?? null);
-      return screenLinksProblem(state.sources?.[check.sources] ?? {}, paths, check.skip);
+      return screenLinksProblem(
+        state.sources?.[check.sources] ?? {},
+        paths,
+        liveSkip(state, check),
+      );
     },
     change(state, check) {
       const to =
@@ -583,7 +595,7 @@ const KINDS = {
   // Every error message a screen shows says what happened and what to do next.
   "error-copy": {
     run(state, check) {
-      return errorCopyProblem(state.folders?.[check.folder] ?? {}, check.skip);
+      return errorCopyProblem(state.folders?.[check.folder] ?? {}, liveSkip(state, check));
     },
     change(state, check) {
       const added = `${check.folder}/changed-copy.tsx`;
@@ -719,6 +731,9 @@ const KINDS = {
         blueprint,
         sources: state.sources?.[check.sources] ?? {},
         tagged: state.tagged ?? [],
+        // The component library's files, read from its settings now: a component added to a
+        // folder the library shares is told apart without running the guide again.
+        library: state.library ?? undefined,
       });
     },
     notes: (state) => branchNotes(state.branch ?? null),
@@ -1067,6 +1082,8 @@ export function readState(root) {
   const testsOf = asking.find((check) => check.tests)?.tests;
   return {
     root,
+    // The component library's parts, read from its settings now, where it keeps them.
+    library: keepsSettings(root) ? libraryParts(root) : null,
     theme: data,
     ledger: rows,
     // What the repository's own lint rejects, for the decisions it holds.
@@ -1106,6 +1123,13 @@ export function readState(root) {
 
 // For every decision this tool holds: what is wrong, or null, and whether each of its checks was
 // seen failing on a changed copy.
+// The files a check leaves out: the list the guide wrote into the tool data, and the component
+// library's parts read from its settings now, so a library file installed after the guide ran is
+// left out too.
+export function liveSkip(state, check) {
+  return [...new Set([...(check.skip ?? []), ...(state.library ?? [])])];
+}
+
 export function runChecks(state) {
   return Object.entries(state.theme?.checks ?? {}).map(([id, checks]) => {
     const problems = [];

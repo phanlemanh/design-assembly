@@ -31,10 +31,8 @@ import {
 } from "../templates/tools/design-assembly/governance.mjs";
 import { readKinds, readPages } from "../templates/tools/design-assembly/screens.mjs";
 import { readBlock } from "../templates/tools/design-assembly/theme.mjs";
-import {
-  bypasses as sourceBypasses,
-  VENDOR,
-} from "../templates/tools/design-assembly/owner-calls.mjs";
+import { libraryTest } from "../templates/tools/design-assembly/components.mjs";
+import { bypasses as sourceBypasses } from "../templates/tools/design-assembly/owner-calls.mjs";
 import { UNCONFIRMED } from "../templates/tools/design-assembly/waiting.mjs";
 import { finish, readCall, refuse, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
@@ -283,8 +281,9 @@ function departures(root) {
   // In the repository's own source: a component library it took in is not its departure.
   // An exception says why after `--`; one that does not is counted apart: it is not shown to be on
   // purpose.
+  const library = libraryTest(root);
   const exceptions = Object.entries(readSources(root))
-    .filter(([file]) => !VENDOR.test(file))
+    .filter(([file]) => !library(file))
     .flatMap(([, text]) => text.match(LINT.exception) ?? []);
   const lint = exceptions.length;
   const unexplained = exceptions.filter((line) => !/\s--\s*\S/.test(line)).length;
@@ -340,7 +339,8 @@ function slips(root) {
 
 export function audit(root) {
   const sheets = walk(root, "src", (file) => file.endsWith(".css"));
-  const sources = walk(root, "src", (file) => /\.[jt]sx$/.test(file) && !VENDOR.test(file));
+  const library = libraryTest(root);
+  const sources = walk(root, "src", (file) => /\.[jt]sx$/.test(file) && !library(file));
   const rows = readLedger(root) ?? [];
   const facts = {
     declared: declarations(root, sheets),

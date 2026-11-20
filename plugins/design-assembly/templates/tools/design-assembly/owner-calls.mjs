@@ -17,6 +17,7 @@ import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { env } from "node:process";
 
+import { inLibrary, VENDOR } from "./components.mjs";
 import { parseLedger } from "./ledger.mjs";
 import { NOT_A_KIND } from "./screens.mjs";
 import { colourItem, STAMP, UNCONFIRMED } from "./waiting.mjs";
@@ -30,15 +31,17 @@ export const BYPASS = {
   radius: /\brounded(?:-[a-z]{1,2})?-\[[^\]]+\]/g,
 };
 // Code the repository did not write: a vendor's components are not the repository's decisions.
-export const VENDOR = /(^|\/)components\/(ui|reui)\//;
+export { VENDOR };
 const MARKUP = /\.[jt]sx$/;
+const vendor = (file) => VENDOR.test(file);
 
 // For each decision of BYPASS, how many places in source go around it and in which files.
-// `sources` maps a file to its text.
-export function bypasses(sources) {
+// `sources` maps a file to its text; `isLibrary` says which files are a component library's, by
+// the usual folders when not given.
+export function bypasses(sources, isLibrary = vendor) {
   const result = Object.fromEntries(Object.keys(BYPASS).map((id) => [id, { count: 0, files: [] }]));
   for (const [file, text] of Object.entries(sources ?? {})) {
-    if (!MARKUP.test(file) || VENDOR.test(file)) continue;
+    if (!MARKUP.test(file) || isLibrary(file)) continue;
     for (const [id, pattern] of Object.entries(BYPASS)) {
       const hits = (text ?? "").match(pattern)?.length ?? 0;
       if (hits > 0) {
@@ -362,7 +365,9 @@ const waitingProblem = (waiting) =>
 // what this branch adds (null outside git), `waiting` the waiting list as { rows } or { problem },
 // `blueprint` the blueprint as data, `sources` the repository's source by file, `tagged` its
 // tests that name a decision.
-export function sheetProblem({ ledger, branch, waiting, blueprint, sources, tagged }) {
+// `library` is the parts of the repository that are a component library's, as libraryParts gives
+// them; without it, the usual folders.
+export function sheetProblem({ ledger, branch, waiting, blueprint, sources, tagged, library }) {
   const rows = ledger ?? [];
   const problems = [];
   const unread = waitingProblem(waiting);
@@ -375,7 +380,9 @@ export function sheetProblem({ ledger, branch, waiting, blueprint, sources, tagg
     if (why) problems.push(why);
   }
   const decided = new Set(rows.map((row) => String(row.id)));
-  for (const [id, around] of Object.entries(bypasses(sources))) {
+  // The usual folders always, and the parts the settings give where they are known.
+  const isLibrary = (file) => vendor(file) || inLibrary(file, library ?? []);
+  for (const [id, around] of Object.entries(bypasses(sources, isLibrary))) {
     if (decided.has(id) && around.count > 0) {
       problems.push(
         `${id}: ${around.count} place(s) in source go around it: ${around.files.slice(0, 5).join(", ")}`,
