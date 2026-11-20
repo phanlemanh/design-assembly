@@ -11,6 +11,10 @@
 //   next              the next steps in order, each with the command to run
 //   blind             what this document does not see
 //
+// A document may show pictures above its findings, each a file beside the page with numbered notes
+// laid over it. A note's number is its finding's: a page whose notes are not its findings, one
+// each, is refused.
+//
 // A part with nothing to show says so in one line. A recommendation that does not say what it
 // rests on is refused: the page is not drawn. Nothing here reads a clock or calls a model, so the
 // same facts give the same page, byte for byte.
@@ -123,6 +127,7 @@ export function documentProblems(doc) {
       found.push(`${at}: no evidence`);
     }
   }
+  found.push(...pictureProblems(doc));
   for (const [index, item] of list(doc?.recommendations).entries()) {
     const at = `recommendation ${index + 1}`;
     if (!written(item?.what)) found.push(`${at}: it recommends nothing`);
@@ -140,6 +145,37 @@ export function documentProblems(doc) {
     if (!written(item?.id) || !written(item?.note)) {
       found.push(`blind spot ${index + 1}: no id or no sentence`);
     }
+  }
+  return found;
+}
+
+// Why the pictures of a document cannot be drawn, one line each: a picture with no file or no
+// words for a reader who cannot see it, a note outside its picture, and notes that are not the
+// findings, one note for each finding and no other. A document with no pictures has none of these.
+function pictureProblems(doc) {
+  if (doc?.pictures === undefined) return [];
+  const found = [];
+  const inside = (value) => typeof value === "number" && value >= 0 && value <= 100;
+  const noted = [];
+  for (const [index, picture] of list(doc.pictures).entries()) {
+    const at = `picture ${index + 1}`;
+    if (!written(picture?.file)) found.push(`${at}: no file`);
+    if (!written(picture?.alt)) found.push(`${at}: no words for a reader who cannot see it`);
+    for (const note of list(picture?.notes)) {
+      noted.push(note?.number);
+      if (!inside(note?.x) || !inside(note?.y)) {
+        found.push(`${at}: note ${note?.number} is not on the picture`);
+      }
+    }
+  }
+  const numbers = list(doc.findings).map((item) => item?.number);
+  const once = (values) => values.every(Number.isInteger) && new Set(values).size === values.length;
+  const same =
+    once(numbers) && once(noted) && [...numbers].sort().join() === [...noted].sort().join();
+  if (!same) {
+    found.push(
+      `the notes on the pictures (${noted.join(", ") || "none"}) are not the findings (${numbers.join(", ") || "none"}), one note each`,
+    );
   }
   return found;
 }
@@ -269,6 +305,35 @@ function register(table) {
   </div>`;
 }
 
+// The pictures a document shows, each with its notes laid over it where the finding is: a frame
+// around the place and the finding's number at its corner. A place is given in hundredths of the
+// picture, so the notes stay put at any size the picture is shown.
+const pin = (number) => `<b class="pin">${escape(number)}</b>`;
+const hundredths = (value) => `${Number(value).toFixed(2)}%`;
+function pictures(doc) {
+  const figures = list(doc.pictures)
+    .map((picture) => {
+      const notes = list(picture.notes)
+        .map((note) => {
+          const at = `left:${hundredths(note.x)};top:${hundredths(note.y)}`;
+          const frame =
+            note.width > 0 && note.height > 0
+              ? `<span class="place" style="${at};width:${hundredths(note.width)};height:${hundredths(note.height)}"></span>`
+              : "";
+          return `${frame}<b class="pin" data-note="${escape(note.number)}" style="${at}">${escape(note.number)}</b>`;
+        })
+        .join("");
+      const size =
+        picture.width > 0 && picture.height > 0
+          ? ` width="${Number(picture.width)}" height="${Number(picture.height)}"`
+          : "";
+      const shown = picture.width > 0 ? ` style="width:${Number(picture.width)}px"` : "";
+      return `<figure class="picture"${shown}><div class="frame"><img src="${escape(picture.file)}" alt="${escape(picture.alt)}"${size} />${notes}</div>${written(picture.caption) ? `<figcaption>${escape(picture.caption)}</figcaption>` : ""}</figure>`;
+    })
+    .join("");
+  return figures ? `<div class="pictures">${figures}</div>` : "";
+}
+
 function findings(doc, w, emptyOf) {
   // The heaviest first; within one severity, the order the command gave.
   const sorted = SEVERITIES.flatMap((severity) =>
@@ -281,10 +346,12 @@ function findings(doc, w, emptyOf) {
   }).join("");
   const items = sorted
     .map(
-      (item) => `<li class="finding">
+      (
+        item,
+      ) => `<li class="finding"${Number.isInteger(item.number) ? ` data-finding="${item.number}"` : ""}>
       <p class="severity">${mark(item.severity)}${escape(w.severity[item.severity][0])}</p>
       <div>
-        <h4>${escape(item.title)}</h4>
+        <h4>${Number.isInteger(item.number) ? pin(item.number) : ""}${escape(item.title)}</h4>
         ${written(item.detail) ? `<p>${escape(item.detail)}</p>` : ""}
         <p class="label">${escape(w.evidence)}</p>
         <ul class="evidence">${item.evidence.map((line) => `<li>${escape(line)}</li>`).join("")}</ul>
@@ -299,8 +366,8 @@ function findings(doc, w, emptyOf) {
     empty: sorted.length === 0,
     body: `${
       sorted.length === 0
-        ? emptyLine(emptyOf("findings"))
-        : `<ul class="tally">${tally}</ul><ol class="findings">${items}</ol>`
+        ? `${emptyLine(emptyOf("findings"))}${pictures(doc)}`
+        : `<ul class="tally">${tally}</ul>${pictures(doc)}<ol class="findings">${items}</ol>`
     }${register(doc.register)}`,
   });
 }
@@ -420,6 +487,15 @@ const STYLES = `
   .severity { margin: 2px 0 0; font-size: var(--xs); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
   .finding p { margin: 6px 0 0; max-width: 72ch; }
   .evidence li { padding: 4px 0 4px 14px; border-left: 2px solid var(--line); max-width: 80ch; overflow-wrap: anywhere; }
+  .pictures { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 32px 24px; margin: 40px 0 16px; }
+  .picture { margin: 0; max-width: 100%; break-inside: avoid; }
+  .frame { position: relative; border: 1px solid var(--line); background: var(--surface); }
+  .frame img { display: block; width: 100%; height: auto; }
+  .picture figcaption { margin-top: 8px; font-size: var(--xs); color: var(--muted); overflow-wrap: anywhere; }
+  .place { position: absolute; outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; pointer-events: none; }
+  .pin { display: inline-block; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--accent); color: var(--on-accent); font-size: 12px; font-weight: 650; line-height: 22px; letter-spacing: 0; text-align: center; font-variant-numeric: tabular-nums; }
+  .frame .pin { position: absolute; transform: translate(-60%, -60%); box-shadow: 0 0 0 2px var(--bg); }
+  h4 .pin { margin-right: 10px; vertical-align: 1px; }
   .register { margin-top: 48px; }
   .scroll { margin-top: 12px; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
   .scroll:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }

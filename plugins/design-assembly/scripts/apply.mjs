@@ -11,8 +11,9 @@ import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
-import { directionProblem, DIRECTIONS, directionsFor } from "./directions.mjs";
+import { directionOf, directionProblem, directionsFor } from "./directions.mjs";
 import {
+  FIXED_SECTION,
   principleLines,
   principleProblems,
   principleRecord,
@@ -1083,9 +1084,7 @@ function fixedFirst(blueprint, asks) {
   );
   const theirs = principles.filter((principle) => principle.confirmed);
   const unfixed = principles.filter((principle) => !principle.confirmed);
-  const direction = DIRECTIONS.find(
-    (item) => item.id === blueprint?.layers?.foundations?.direction,
-  );
+  const direction = directionOf(blueprint);
   if (principles.length === 0 && !direction) return [];
   const named = (list) => list.map((principle) => `\`${ROW_PREFIX}${principle.id}\``).join(", ");
   return [
@@ -1132,7 +1131,7 @@ export function rulesPage(checks, has, blueprint = null) {
     const shown = items.filter(Boolean);
     if (shown.length > 0) lines.push("", `## ${title}`, "", ...shown.map((item) => `- ${item}`));
   };
-  section("What the owner fixed before any value", fixedFirst(blueprint, held("decision-sheet")));
+  section(FIXED_SECTION, fixedFirst(blueprint, held("decision-sheet")));
   const typed = has("src/components/ui/typed-table.tsx");
   section("A table of data", [
     held("display-kind") &&

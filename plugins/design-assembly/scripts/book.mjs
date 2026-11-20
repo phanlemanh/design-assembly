@@ -47,7 +47,7 @@ import {
 import { breakingCss, EXAMPLE_RULES, examplePairs, exampleRules } from "./examples.mjs";
 import { escape, familyStyles, originOf } from "./family.mjs";
 import { audit } from "./audit.mjs";
-import { openStage, printPdf, stageAdapters } from "./stage.mjs";
+import { MAIN_MS, openStage, printPdf, reachState, stageAdapters } from "./stage.mjs";
 
 export const OUT = "coverage/design-book";
 // A repository's own words for the book, in the language its documents are written in.
@@ -1249,9 +1249,6 @@ export function staleParts(html, facts) {
 // The screens as the ledger lists them, when the application has no screen list its build can
 // load: each opened at its route, which shows the first state the ledger names. How to reach the
 // others is written only in a screen list, so they are not drawn.
-// How long a screen opened at its route may take to show its main region once its page has
-// settled: the server has built it by then.
-const MAIN_MS = 5000;
 const openedScreens = (facts) =>
   facts.screens.map((screen) => ({
     path: screen.path,
@@ -1356,31 +1353,14 @@ async function drawStates(target, facts) {
           const page = await context.newPage();
           const steps = state.steps ?? [];
           how[`${screen.path}|${state.name}`] = { scenario: state.scenario ?? null, steps };
-          const url = state.scenario ? `${screen.path}?scenario=${state.scenario}` : screen.path;
-          await page.goto(`${stage.origin}${url}`, { waitUntil: "networkidle" });
-          for (const step of steps) {
-            if ("press" in step) {
-              await page.getByRole("button", { name: step.press, exact: true }).click();
-            } else await page.getByLabel(step.fill, { exact: true }).fill(step.text);
-          }
-          // The state is on the page once its own text is; a screen opened at its route, once its
+          // A state that names no text, as a screen opened at its route, is on the page once its
           // main region is. One that shows none is left out, and said, not the whole book.
-          if (state.shows) {
-            await page.getByText(state.shows, { exact: false }).first().waitFor({ timeout: 8000 });
-          } else {
-            const shown = await page
-              .locator("main")
-              .first()
-              .waitFor({ timeout: MAIN_MS })
-              .then(() => true)
-              .catch(() => false);
-            if (!shown) {
-              const why = `${screen.path} was not drawn: it shows no main region`;
-              if (!left.includes(why)) left.push(why);
-              delete how[`${screen.path}|${state.name}`];
-              await page.close();
-              continue;
-            }
+          if (!(await reachState(page, stage.origin, screen, state))) {
+            const why = `${screen.path} was not drawn: it shows no main region`;
+            if (!left.includes(why)) left.push(why);
+            delete how[`${screen.path}|${state.name}`];
+            await page.close();
+            continue;
           }
           await page.waitForTimeout(350);
           const picture = await page.screenshot();

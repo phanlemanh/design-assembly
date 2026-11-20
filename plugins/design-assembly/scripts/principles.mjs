@@ -15,6 +15,8 @@ export const CATALOG = reference("principles.json").principles;
 const LAYERS = reference("layers.json").layers;
 const BLUEPRINT = "design/blueprint.json";
 export const ROW_PREFIX = "principle-";
+// The section of the rules page that says what the owner fixed, by its heading.
+export const FIXED_SECTION = "What the owner fixed before any value";
 export const FEWEST = 3;
 export const MOST = 5;
 const SOURCES = ["user", "proposed"];

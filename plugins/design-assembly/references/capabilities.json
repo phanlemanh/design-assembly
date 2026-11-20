@@ -448,8 +448,11 @@
       "name": "design review",
       "socket": {
         "writes": [],
-        "outputs": ["findings, each pointing at a ledger row"],
-        "checks": ["make design-assembly"],
+        "outputs": [
+          "findings, each with its picture and the ledger row it rests on, or that it rests on none",
+          "pictures of a screen and a pack for a reviewer"
+        ],
+        "checks": ["/design-assembly:review", "make design-assembly"],
         "decides": "machine",
         "human": {
           "shows": "the findings a check cannot settle",
@@ -462,15 +465,22 @@
       },
       "plugs": [
         {
+          "id": "review",
+          "kind": "command",
+          "default": true,
+          "scripts": ["scripts/review.mjs"],
+          "reads": ["screens", "decisions", "screen-sizes", "blueprint"]
+        },
+        {
           "id": "gate",
           "kind": "gate",
-          "default": true,
+          "default": false,
           "scripts": ["templates/tools/design-assembly/check.mjs"]
         }
       ],
       "layers": ["governance"],
       "tiers": ["governance"],
-      "limit": "capability-design-review-sees-no-picture"
+      "limit": "capability-design-review-no-eye-on-the-picture"
     },
     {
       "id": "accessibility-report",
