@@ -85,7 +85,7 @@ mặc định: chúng phải chạy được khi không cài thêm gì.
 
 - Chạy trên màn mẫu của chính kho này với `--states` (48 ảnh), lệnh ra ba phát hiện, cả ba chỉ ở giao diện tối và
   mang mức thấp vì ứng dụng mẫu chưa có công tắc tối. Hai trong ba là đúng hai chỗ kế hoạch đang gác lại: mô tả của
-  toast lỗi 1,7:1 và nút «Xoá» trong hộp thoại xác nhận (lệnh đo 4,22:1, lượt dọn việc tồn đo 4,25:1). Chưa sửa chỗ
+  toast lỗi 1,7:1 và nút «Xoá» trong hộp thoại xác nhận (lệnh đo 4,25:1, bằng số của lượt dọn việc tồn; ba lượt chạy lại sau khi gộp cho cùng số ấy). Chưa sửa chỗ
   nào: `review` không sửa màn.
 - Lượt chạy thử ấy cũng bắt được một lỗi của chính lệnh trước khi nó vào PR: đo ngay sau khi bật giao diện tối cho ra
   phát hiện giả, vì màu còn đang chuyển. Từ đó có bước chờ chuyển động ở quyết định 2.
