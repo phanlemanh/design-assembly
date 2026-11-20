@@ -18,7 +18,7 @@ import { catalogueProblems, READERS, readCatalogue, SLOT_STATES } from "../scrip
 import { EXIT } from "../scripts/command.mjs";
 import { PARTS, partsOf } from "../scripts/document.mjs";
 import { factsOf, PACK_FILE, packOf } from "../scripts/review-pack.mjs";
-import { BUILT, briefRepository, FILES, PLANNED, WIDTHS } from "./helpers/brief-repo.mjs";
+import { BUILT, briefRepository, DROPS, FILES, PLANNED, WIDTHS } from "./helpers/brief-repo.mjs";
 import { canDraw, reviewRepository } from "./helpers/review-repo.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -188,47 +188,42 @@ const SOURCED = [
     slot: "kind",
     says: /kind list/,
     edit: ["design/patterns/list.md", "Find one order", "Find one parcel"],
-    drop: { "design/patterns/list.md": null },
+    drop: DROPS.kind,
     why: /no page .* describes the kind list/,
   },
   {
     slot: "shows",
     says: /Order\.total: number, shown as the column type money/,
     edit: ["ontology/entities/Order.yaml", "display: money", "display: text"],
-    drop: { "design/screens.yaml": (text) => text.replace("    shows:\n      - Order\n", "") },
+    drop: DROPS.shows,
     why: /does not say what the screen shows/,
   },
   {
     slot: "actions",
     says: /cancelOrder .*manager/,
     edit: ["ontology/actions.yaml", "roles: [manager]", "roles: [clerk]"],
-    drop: {
-      "design/screens.yaml": (text) =>
-        text.replace("    entry: listOrders\n    actions:\n      - cancelOrder\n", ""),
-    },
+    drop: DROPS.actions,
     why: /does not say which action opens the screen/,
   },
   {
     slot: "states",
     says: /ready, loading, empty, error, no-results/,
     edit: ["design/states.json", '"no-results"', '"no-results", "ready"'],
-    drop: { "design/screens.yaml": (text) => text.replace("      - error\n", "") },
+    drop: DROPS.states,
     why: /requires error, which the row does not list/,
   },
   {
     slot: "components",
     says: /Button, TypedTable/,
     edit: ["design/component-registry.json", '"TypedTable"', '"DataTable"'],
-    drop: { "design/component-registry.json": null },
+    drop: DROPS.components,
     why: /no component ledger/,
   },
   {
     slot: "words",
     says: /src\/lib\/labels\.ts/,
     edit: ["design/decisions.yaml", "src/lib/labels.ts", "src/words.ts"],
-    drop: {
-      "design/decisions.yaml": (text) => text.replaceAll("layer: content", "layer: patterns"),
-    },
+    drop: DROPS.words,
     why: /no row of the content layer/,
   },
   {
@@ -239,35 +234,35 @@ const SOURCED = [
       "A screen writes no word itself.",
       "A screen takes every word from one place.",
     ],
-    drop: { ".claude/rules/design-assembly.md": null },
+    drop: DROPS.rules,
     why: /no rules page/,
   },
   {
     slot: "principles",
     says: /workbench/,
     edit: ["design/blueprint.json", '"direction": "workbench"', '"direction": "editorial"'],
-    drop: { "design/blueprint.json": null },
+    drop: DROPS.principles,
     why: /fixed no design principle/,
   },
   {
     slot: "widths-and-checks",
     says: /320, 1280/,
     edit: ["design/screen-sizes.json", "1280", "1440"],
-    drop: { "design/screen-sizes.json": null },
+    drop: DROPS["widths-and-checks"],
     why: /declares no widths/,
   },
   {
     slot: "model-changes",
     says: /names nothing the data model lacks/,
     edit: ["ontology/actions.yaml", "  - name: cancelOrder", "  - name: voidOrder"],
-    drop: { "ontology/actions.yaml": null },
+    drop: DROPS["model-changes"],
     why: /listOrders/,
   },
   {
     slot: "navigation",
     says: /first of 2/,
     edit: ["src/screens.ts", 'path: "/archive"', 'path: "/old"'],
-    drop: { "src/screens.ts": null },
+    drop: DROPS.navigation,
     why: /keeps no screen list/,
   },
 ];

@@ -386,19 +386,39 @@
       "name": "screen brief",
       "socket": {
         "writes": [],
-        "outputs": ["the data of one screen about to be built"],
-        "checks": ["make design-assembly"],
+        "outputs": [
+          "one sheet for one screen of the ledger of screens, built or declared ahead: twelve slots, each settled with where it says so, asked with the question that waits, or open with the call that asks it",
+          "with --queue, each open slot as one new question of the waiting list"
+        ],
+        "checks": ["/design-assembly:brief", "make design-assembly"],
         "decides": "machine",
         "human": {
-          "reason": "the brief carries what the owner already decided; it asks nothing new"
+          "shows": "the twelve slots of one screen: what is settled and where it says so, what waits on the owner, and what is still open",
+          "asks": "each open slot, as a question of the decision sheet with a recommendation and what it rests on; the brief asks none itself and answers none"
         },
         "machine": {
-          "rules": "a builder has one answer for each choice, in the brief it is given",
-          "unheld": "capability-screen-brief-has-no-plug"
+          "rules": "a builder has one answer for each choice of its screen: the command ends with 1 while a slot is asked or open, and with 0 once all twelve are settled",
+          "held_by": "/design-assembly:brief"
         }
       },
-      "plugs": [],
-      "limit": "capability-screen-brief-has-no-plug",
+      "plugs": [
+        {
+          "id": "brief",
+          "kind": "command",
+          "default": true,
+          "scripts": ["scripts/brief.mjs"],
+          "reads": [
+            "screens",
+            "decisions",
+            "blueprint",
+            "components",
+            "column-types",
+            "states",
+            "screen-sizes"
+          ]
+        }
+      ],
+      "limit": "brief-run-before-building-unheld",
       "layers": ["templates"],
       "tiers": ["templates"]
     },

@@ -9,6 +9,15 @@ the decision and what is wrong. `design/decisions.yaml` lists every design decis
 repository and what holds it. This page is written by the design-assembly scripts: do not edit
 it.
 
+Before you build or change a screen, run `/design-assembly:brief <screen id>`, with the screen's
+`id` in the ledger of screens; a screen that is not built yet is entered there first, with
+`status: planned`. It gives one sheet of twelve slots, every choice the screen's builder meets.
+A settled slot names the file and the line its answer comes from, or the owner's answer: build
+from it. An asked slot has a question that waits on the owner: go on with its recommendation,
+unless it says it is hard to undo. An open slot has nothing behind it: ask it before you choose
+alone, with the call the sheet gives, or all of them at once with `--queue`. Never answer a
+slot for the owner.
+
 ## A table of data
 
 - A column shows a field of the data model. The field names its column type once: a `display` key on its property in `ontology/entities/`, with a type listed in `design/column-types.json`.

@@ -43,6 +43,19 @@ scale, shape). Density, elevation, motion and iconography are not.
   each import line to fix. Then it asks the owner once on the waiting list, and after the answer
   writes `retired` (and `merged_into`) into the block's entry, with the owner's name and day. It
   never removes a file and never changes a screen's code.
+- `/design-assembly:brief` hands the builder of one screen one sheet, read once before the screen
+  is built or changed. The screen is one of the ledger of screens, built or declared ahead
+  (`status: planned`). The sheet has twelve slots, a closed list: the kind and the reference
+  screen, what the screen shows, its actions and roles, its states, its components, its words, the
+  rules that apply, the principles and the direction, the widths and the checks, changes to the
+  data model, its place in the navigation, and the other screens it touches. Each slot is settled,
+  with the file and the row or line the answer comes from, or the owner's answer with their name
+  and the day; asked, with the question that waits and its recommendation; or open, with the very
+  call of the decision sheet that asks it. It asks nothing itself and answers nothing: with
+  `--queue` each open slot becomes one new file of the waiting list (item
+  `screen:<screen id>:<slot>`), all of them or none, and nothing else is written. It ends with 0
+  once all twelve are settled. The rules page tells a builder to run it first, where the
+  repository has a ledger of screens.
 - `/design-assembly:review` reviews one screen that is already built, by its picture. It draws the
   screen at every declared width, in light and in dark (and in every state with `--states`), and
   measures on what was drawn, with no model called, the contrast of text on its ground and text

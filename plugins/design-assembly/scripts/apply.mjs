@@ -1102,6 +1102,19 @@ function fixedFirst(blueprint, asks) {
   ];
 }
 
+// What the rules page tells a builder to do before it builds or changes a screen: run the brief
+// of that screen and build from its sheet.
+const BRIEF_FIRST = [
+  "Before you build or change a screen, run `/design-assembly:brief <screen id>`, with the screen's",
+  "`id` in the ledger of screens; a screen that is not built yet is entered there first, with",
+  "`status: planned`. It gives one sheet of twelve slots, every choice the screen's builder meets.",
+  "A settled slot names the file and the line its answer comes from, or the owner's answer: build",
+  "from it. An asked slot has a question that waits on the owner: go on with its recommendation,",
+  "unless it says it is hard to undo. An open slot has nothing behind it: ask it before you choose",
+  "alone, with the call the sheet gives, or all of them at once with `--queue`. Never answer a",
+  "slot for the owner.",
+];
+
 export function rulesPage(checks, has, blueprint = null) {
   const held = (id) => id in checks;
   // Where a screen is entered in the ledger: its own file, or the one file every screen shares.
@@ -1128,6 +1141,9 @@ export function rulesPage(checks, has, blueprint = null) {
     "the decision and what is wrong. `design/decisions.yaml` lists every design decision of this",
     "repository and what holds it. This page is written by the design-assembly scripts: do not edit",
     "it.",
+    // Where the repository keeps a ledger of screens, a builder is handed one sheet for its screen.
+    // It stands before the rules, to be read first, and is no rule itself: no check holds it.
+    ...(held("screen-ledger") ? ["", ...BRIEF_FIRST] : []),
   ];
   const section = (title, items) => {
     const shown = items.filter(Boolean);

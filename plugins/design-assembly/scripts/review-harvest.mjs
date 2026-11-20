@@ -5,19 +5,19 @@
 // - A line of the rules page no check holds, a principle the owner fixed, or a row no check holds:
 //   a question for the owner, given as the very call of the decision sheet that asks it.
 // - Nothing: it is for a person's eye, and no question is asked.
-// Nothing here writes. The questions are made by the code of the decision sheet itself, in memory;
-// the review command writes them only when it is told to.
-import { existsSync } from "node:fs";
+// Nothing here writes. The questions are made by the code of the decision sheet itself, in memory
+// (queue.mjs, which the screen brief asks through too); the review command writes them only when
+// it is told to.
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { newerLedgers } from "../templates/tools/design-assembly/contract.mjs";
 import { SLIPS_FILE } from "../templates/tools/design-assembly/governance.mjs";
 import { LEDGER } from "../templates/tools/design-assembly/ledger.mjs";
 import { RULES_PAGE, UNHELD_SECTION } from "./apply.mjs";
 import { readCapabilities } from "./capabilities.mjs";
 import { Refusal } from "./command.mjs";
-import { askedIdOf, askedIn, askOf, readState } from "./decide.mjs";
+import { readState } from "./decide.mjs";
+import { askAll, callOf, standing } from "./queue.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const FINDINGS_FILE = "review-findings.json";
@@ -282,7 +282,6 @@ export const finderOf = (finding) =>
 // A cell of a line of the ledger of escapes: one line, and no bar that would split it.
 const cell = (text) => oneLine(text).replace(/\|/g, "\\|");
 const slipLine = (cells) => `| ${cells.map(cell).join(" | ")} |`;
-const quote = (text) => `'${String(text).replace(/'/g, "'\\''")}'`;
 
 // What a finding no check holds rests on, in words for the owner.
 function basisOf(on) {
@@ -330,21 +329,7 @@ function questionOf(finding, screen, on, target, plugin) {
     hard_to_undo: false,
     ...(on.kind === "ledger-row" ? { item: `decision:${on.id}` } : {}),
   };
-  const call = [
-    "node",
-    quote(path.join(plugin, "scripts/decide.mjs")),
-    "--target",
-    quote(target),
-    "--ask",
-    quote(ask.question),
-    "--recommend",
-    quote(ask.recommendation),
-    "--because",
-    quote(ask.basis),
-    "--easy-to-undo",
-    ...(ask.item ? ["--item", quote(ask.item)] : []),
-  ].join(" ");
-  return { group: "question", ask, call, queued: null };
+  return { group: "question", ask, call: callOf(ask, { target, plugin }), queued: null };
 }
 
 // What becomes of each finding, one entry for each, in the order of the findings. `on` is the day
@@ -377,14 +362,6 @@ export function harvestOf(findings, facts, { target, on: day, plugin = PLUGIN })
   });
 }
 
-// Where a question of the harvest stands on the waiting list already: it waits, or the owner
-// answered it; null where it is not there.
-function standing(state, ask) {
-  const before = askedIn(state, { id: askedIdOf(ask), item: ask.item });
-  if (!before) return null;
-  return before.answer ? { answered: before.id, answer: before.answer } : { waits: before.id };
-}
-
 // The harvest with each question that is on the waiting list already told so, read and nothing
 // written: a call that would only be refused as asked before is not offered. A waiting list that
 // cannot be read changes nothing here; asking is where it is refused.
@@ -407,32 +384,15 @@ export function listedOf(target, harvest) {
 // and nothing written, where one question cannot be asked, or where its file is there already and
 // the list does not read it: the review makes new files and never writes over one.
 export function queueOf(target, harvest, { on } = {}) {
-  const newer = newerLedgers(target);
-  if (newer.length > 0) throw new Refusal(`${newer.join("; ")}. Nothing was written`);
-  let state = readState(target);
-  const files = {};
-  const queued = harvest.map((entry) => {
-    if (entry.group !== "question") return entry;
-    const known = standing(state, entry.ask);
-    if (known) return { ...entry, queued: known };
-    const { question, recommendation, basis, item } = entry.ask;
-    const asked = askOf(target, state, {
-      question,
-      recommend: recommendation,
-      because: basis,
-      hard: false,
-      easy: true,
-      item,
-      on,
-    });
-    if (existsSync(path.join(target, asked.file))) {
-      throw new Refusal(
-        `${asked.file} is there already, and the waiting list does not read it as a question: the review writes no file over another. Nothing was written`,
-      );
-    }
-    state = asked.state;
-    files[asked.file] = asked.content;
-    return { ...entry, queued: { id: asked.asked.id, file: asked.file } };
-  });
-  return { files, harvest: queued };
+  const asked = askAll(
+    target,
+    harvest.map((entry) => (entry.group === "question" ? entry.ask : null)),
+    { on, who: "the review" },
+  );
+  return {
+    files: asked.files,
+    harvest: harvest.map((entry, index) =>
+      asked.queued[index] === null ? entry : { ...entry, queued: asked.queued[index] },
+    ),
+  };
 }

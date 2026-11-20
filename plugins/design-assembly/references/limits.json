@@ -3439,8 +3439,10 @@
       "plan": "fix",
       "opened": "2026-11-20",
       "where": ["spec", "d0069"],
-      "status": "open",
-      "note": "The screen brief socket has no plug until the brief command is built, so a builder is not handed the data of the one screen it builds."
+      "status": "closed",
+      "note": "The screen brief socket has no plug until the brief command is built, so a builder is not handed the data of the one screen it builds.",
+      "closed": "2026-11-21",
+      "closed_by": "the brief command is the default plug of the screen brief socket: one sheet of twelve slots for one screen, each settled, asked or open, and the rules page tells a builder to run it first (tests/test-brief.mjs, tests/test-brief-asks.mjs, tests/test-brief-plug.mjs); what is still open is said by the limits of the area brief, first of all that no check sees whether a builder ran it (brief-run-before-building-unheld)"
     },
     {
       "id": "capability-cross-repo-has-no-plug",
@@ -3663,8 +3665,10 @@
       "plan": "fix",
       "opened": "2026-11-21",
       "where": ["spec", "d0074"],
-      "status": "open",
-      "note": "An open slot is named on the sheet and nothing asks it: the sheet prints no call for the decision sheet and writes no question, so a builder who reads past it still decides alone, and no answer of the owner's settles a slot yet."
+      "status": "closed",
+      "note": "An open slot is named on the sheet and nothing asks it: the sheet prints no call for the decision sheet and writes no question, so a builder who reads past it still decides alone, and no answer of the owner's settles a slot yet.",
+      "closed": "2026-11-21",
+      "closed_by": "an open slot gives the very call of the decision sheet that asks it, with a recommendation and what it rests on, and --queue writes each open slot as one new file of the waiting list, all of them or none; a slot whose question waits is asked, and the owner's answer settles it, with their name and the day (tests/test-brief-asks.mjs)"
     },
     {
       "id": "brief-two-slots-held-by-no-ledger",
@@ -3674,8 +3678,10 @@
       "plan": "fix",
       "opened": "2026-11-21",
       "where": ["spec", "d0074"],
-      "status": "open",
-      "note": "No ledger holds where a screen that is not built yet goes in the navigation, or which other screens a screen changes, so the second of those slots is open on every sheet and no repository's sheet ends with 0 yet."
+      "status": "closed",
+      "note": "No ledger holds where a screen that is not built yet goes in the navigation, or which other screens a screen changes, so the second of those slots is open on every sheet and no repository's sheet ends with 0 yet.",
+      "closed": "2026-11-21",
+      "closed_by": "the two slots are still held by no ledger, and the owner's answer to a question of the waiting list, item screen:<screen id>:<slot>, settles each: a sheet then ends with 0, shown through the command itself (tests/test-brief-asks.mjs); that the answer is kept in the waiting list and in no ledger is limit brief-answer-kept-in-the-waiting-list"
     },
     {
       "id": "brief-settled-means-said-not-right",
@@ -3684,9 +3690,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-21",
-      "where": ["spec", "d0074"],
+      "where": ["spec", "d0074", "d0075"],
       "status": "open",
-      "note": "A slot is settled when its source is there and says something: the sheet does not judge whether the answer is right or enough for this screen, so a thin row of a ledger gives a settled slot, and a slot with a line that waits on another slot is still counted as settled, since one thing missing opens one slot."
+      "note": "A slot is settled when its source is there and says something: the sheet does not judge whether the answer is right or enough for this screen, so a thin row of a ledger gives a settled slot. A slot with a line that waits on another slot is still counted as settled, since one thing missing opens one slot; the summary says how many such slots a sheet has."
     },
     {
       "id": "brief-reads-where-the-floor-keeps-things",
@@ -3753,6 +3759,61 @@
       "where": ["spec", "d0074"],
       "status": "open",
       "note": "How a screen brief looks and reads has no test, and the owner has not looked at one yet."
+    },
+    {
+      "id": "brief-run-before-building-unheld",
+      "area": "brief",
+      "kind": "no-check",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0075"],
+      "status": "open",
+      "note": "The rules page tells a builder to run the brief before it builds or changes a screen. No check sees whether it did, or whether the screen was built from the sheet: a builder that skips it is not stopped."
+    },
+    {
+      "id": "brief-answer-kept-in-the-waiting-list",
+      "area": "brief",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0075"],
+      "status": "open",
+      "note": "A slot the owner answered is settled by a row of the waiting list and by no ledger: the gate, the review and the other commands do not read that answer, and where a ledger does hold the slot (what a screen shows, its states, its kind) no command writes the answer into it."
+    },
+    {
+      "id": "brief-any-answer-settles-a-slot",
+      "area": "brief",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0075"],
+      "status": "open",
+      "note": "A slot the owner answered is settled whatever the answer. A refusal with no words in its place tells a builder what not to do and not what to do; a kept recommendation that says to write the answer into a ledger first is settled before the ledger says it; and no command asks a slot a second time."
+    },
+    {
+      "id": "brief-one-recommendation-a-slot",
+      "area": "brief",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0075"],
+      "status": "open",
+      "note": "An open slot recommends the one text the list of slots has for that slot, whatever the reason the slot is open, with what the sheet read beside it. Only the two slots no ledger holds add a measure of their own, and for seven slots the recommendation says where the answer is written, not what it is: the sheet has no source to recommend one from."
+    },
+    {
+      "id": "brief-asks-through-an-older-tool",
+      "area": "brief",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0075"],
+      "status": "open",
+      "note": "The brief refuses to queue where the tool a repository copied is older than the one that reads a question about a slot of a screen. The call it prints for one slot is the decision sheet's own, which has no such refusal: run there, it writes a question that repository's gate reads as broken until the tool is upgraded."
     }
   ]
 }

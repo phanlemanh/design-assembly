@@ -334,8 +334,8 @@
         {
           "id": "5.1",
           "what": "Lệnh brief",
-          "state": "doing",
-          "ref": "wiki/specs/0010-the-screen-brief.md; chủ repo duyệt đề bài và đáp cả năm câu hỏi theo khuyến nghị ngày 2026-11-21 («Duyệt cả năm»); hai lát; lát 1 (tiêu chí 1, 2, 3, 6, 7, 8, 11) đã dựng: wiki/decisions/0074-the-brief-is-twelve-slots-each-read-or-said-open.md, chứng bằng plugins/design-assembly/tests/test-brief.mjs; lát 2 (tiêu chí 4, 5, 9, 10: phần hỏi qua decide, --queue, trang luật trỏ tới phiếu, bảng năng lực, trang skill) chưa dựng",
+          "state": "done",
+          "ref": "wiki/specs/0010-the-screen-brief.md; chủ repo duyệt đề bài và đáp cả năm câu hỏi theo khuyến nghị ngày 2026-11-21 («Duyệt cả năm»); hai lát, cả mười một tiêu chí: lát 1 (tiêu chí 1, 2, 3, 6, 7, 8, 11), wiki/decisions/0074-the-brief-is-twelve-slots-each-read-or-said-open.md, chứng bằng plugins/design-assembly/tests/test-brief.mjs; lát 2 (tiêu chí 4, 5, 9, 10: lời gọi decide --ask cho ô còn mở, --queue, ô đang hỏi và ô đã định bằng lời đáp, trang luật trỏ tới phiếu, bảng năng lực, trang skill), wiki/decisions/0075-an-open-slot-gives-its-question-and-an-answer-settles-it.md, chứng bằng plugins/design-assembly/tests/test-brief-asks.mjs và plugins/design-assembly/tests/test-brief-plug.mjs",
           "command": "brief"
         },
         {

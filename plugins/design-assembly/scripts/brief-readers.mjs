@@ -19,7 +19,11 @@ import {
   STATES_FILE,
 } from "../templates/tools/design-assembly/patterns.mjs";
 import { MODEL } from "../templates/tools/design-assembly/screen-actions.mjs";
-import { KINDS_FOLDER, SIZES_FILE } from "../templates/tools/design-assembly/screens.mjs";
+import {
+  KEY as PAGE,
+  KINDS_FOLDER,
+  SIZES_FILE,
+} from "../templates/tools/design-assembly/screens.mjs";
 import { Refusal } from "./command.mjs";
 import { plural } from "./document.mjs";
 import { ROW_PREFIX } from "./principles.mjs";
@@ -30,17 +34,6 @@ const ROLES = `${MODEL}/roles.yaml`;
 // The slots an answer of another slot may wait on, by their id in the catalogue.
 const KIND_SLOT = "kind";
 const MODEL_SLOT = "model-changes";
-// The keys of the page of a kind this command reads, in the language the page is kept in.
-const PAGE = {
-  kind: "nhom",
-  task: "nhan_viec",
-  reference: "mau_dang_chay",
-  frame: "khuon",
-  frameName: "ten",
-  frameImport: "nhap",
-  required: "khe_bat_buoc",
-  forbidden: "cam_ngoai_khuon",
-};
 
 // One line of an answer. `waits` is the number of the slot it waits on, where what it would say
 // is that slot's to settle: one thing missing opens one slot, and the others point at it.
@@ -716,6 +709,42 @@ function navigation({ screen, registry }) {
     ),
   ]);
 }
+
+// What the sheet measures for the recommendation of a slot no ledger holds, by the slot's id: one
+// sentence of what the ledgers that are there say, for the recommendation to rest on. A slot with
+// no measure rests on the catalogue's own words and on what its reader found.
+function navigationMeasure({ registry }) {
+  if (registry === null) return null;
+  const paths = readScreens(registry).map((item) => item.path);
+  if (paths.length === 0)
+    return `The screen list of the application (${REGISTRY}) names no screen.`;
+  return `The screen list of the application (${REGISTRY}) has ${plural(paths.length, "screen", "screens")}, the last at ${paths.at(-1)}.`;
+}
+
+function touchedMeasure({ row, keys, others }) {
+  if (others.length === 0) return "The ledger of screens has no other screen.";
+  const namesOf = (item) => [
+    ...list(item?.[keys.shows]),
+    ...[named(item?.[keys.entry])].filter(Boolean),
+    ...list(item?.[keys.actions]),
+  ];
+  const own = new Set(namesOf(row));
+  const sharing = others
+    .map((item) => ({
+      id: String(item.id),
+      shared: [...new Set(namesOf(item))].filter((name) => own.has(name)),
+    }))
+    .filter((item) => item.shared.length > 0);
+  const of = `Of the ${plural(others.length, "other screen", "other screens")} of the ledger`;
+  if (sharing.length === 0) return `${of}, none names an action or an entity this screen names.`;
+  const which = sharing.map((item) => `${item.id} (${item.shared.join(", ")})`).join("; ");
+  return `${of}, ${plural(sharing.length, "names", "name")} an action or an entity this screen names: ${which}. Those are the ones to look at before the recommendation is kept.`;
+}
+
+export const MEASURES = {
+  navigation: navigationMeasure,
+  "touched-screens": touchedMeasure,
+};
 
 // One reader for each slot a ledger holds, by the slot's id in the catalogue.
 export const READERS = {

@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 import { adapter as library } from "./adapters/shadcn.mjs";
 import { newerProblem } from "./contract.mjs";
 import { lineWidth, renderJson } from "./json.mjs";
-import { frontMatter, readPages } from "./screens.mjs";
+import { frontMatter, KEY, readPages } from "./screens.mjs";
 
 // The file a repository gets when nothing names another one, and the folder read by default.
 export const REGISTRY = "design/component-registry.json";
@@ -436,7 +436,7 @@ function levels(files) {
 export function templateNames(pages) {
   return new Set(
     Object.values(pages ?? {})
-      .map((text) => frontMatter(text)?.khuon?.ten)
+      .map((text) => frontMatter(text)?.[KEY.frame]?.[KEY.frameName])
       .filter((name) => typeof name === "string"),
   );
 }
