@@ -26,6 +26,7 @@ sources:
   - plugins/design-assembly/tests/test-brief-plug.mjs
   - plugins/design-assembly/tests/test-brief.mjs
   - "chủ repo, 2026-11-21: «Duyệt cả năm», đáp câu «Duyệt đề bài 0010 theo cả năm khuyến nghị?»"
+  - "chủ repo, 2026-11-21: «Giữ như vậy», đáp câu «Bảy ô không có nguồn nội dung: giữ khuyến nghị «ghi vào sổ trước khi dựng»?»"
 ---
 
 # 0075 Ô còn mở đưa đúng lời gọi hỏi nó, và lời đáp của chủ repo đóng ô
@@ -62,7 +63,7 @@ Mẫu gần nhất là phần gặt của `review` (quyết định 0072).
    đổi, có người soát (ô 10), đứng cuối danh sách màn (ô 11), không đổi màn nào khác (ô 12). Bảy ô còn lại (kiểu màn,
    màn cho thấy gì, thao tác, linh kiện, chữ, luật, nguyên tắc) chỉ chủ repo có câu trả lời; khuyến nghị ở đó nói
    **câu trả lời được ghi vào đâu trước khi dựng**, dựa trên luật của sàn rằng sổ ấy giữ điều ấy. Chủ repo vẫn đáp
-   được bằng lời của mình. Cả mười hai ô để `hard_to_undo: false`: trang luật của sàn đã dặn tác tử thêm khái niệm
+   được bằng lời của mình. Chủ repo nhận cách này ngày 2026-11-21 («Giữ như vậy»). Cả mười hai ô để `hard_to_undo: false`: trang luật của sàn đã dặn tác tử thêm khái niệm
    vào mô hình trong cùng thay đổi và báo người soát, nên phiếu không nói ngược lại.
 4. **Ô còn mở đưa đúng lời gọi `decide --ask`.** `open[]` và từng ô mở mang `ask` (mục, mã câu hỏi
    `screen-<mã màn>-<ô>`, câu hỏi có tên màn và lý do, khuyến nghị, căn cứ, khó đảo hay không) và `call`. Lời gọi có
