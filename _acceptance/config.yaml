@@ -64,4 +64,4 @@ dev_server:
 lo_trinh:
   tep: docs/plan/lo-trinh.json
 feature_loop:
-  suite_keys: [executors.test.capabilities, executors.test.status]
+  suite_keys: [executors.test.api]

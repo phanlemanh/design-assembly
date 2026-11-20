@@ -3,8 +3,16 @@
 // and the handoff book draws its screens there. What that server cannot do, serve a module of the
 // plugin's own beside the repository's, is said, never guessed around.
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { spawn, spawnSync } from "node:child_process";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import process, { execPath } from "node:process";
@@ -40,12 +48,29 @@ const packages = (dependencies, { scripts, files = [] } = {}) => {
   for (const file of files) writeFileSync(path.join(dir, file), "export default {};\n");
   return dir;
 };
-// The development servers of this plugin's runs still alive on this machine.
-const servers = () =>
-  spawnSync("pgrep", ["-f", "next/dist/bin/next dev --hostname 127.0.0.1"], { encoding: "utf8" })
+// The folder a process works in: read from /proc on Linux, asked of lsof elsewhere. Null when it
+// cannot be read, as for a process that has already ended.
+function workingFolder(pid) {
+  try {
+    return realpathSync(`/proc/${pid}/cwd`);
+  } catch {
+    const said = spawnSync("lsof", ["-a", "-p", pid, "-d", "cwd", "-Fn"], { encoding: "utf8" });
+    return /^n(.+)$/m.exec(said.stdout ?? "")?.[1] ?? null;
+  }
+}
+// The development servers still alive that work in one folder: the servers a run on that sample
+// started. Servers of other runs on this machine, another checkout or a check running at the same
+// time, work elsewhere and are not counted.
+const servers = (dir) => {
+  const own = realpathSync(dir);
+  return spawnSync("pgrep", ["-f", "next/dist/bin/next dev --hostname 127.0.0.1"], {
+    encoding: "utf8",
+  })
     .stdout.trim()
     .split("\n")
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter((pid) => workingFolder(pid) === own);
+};
 const installed = existsSync(path.join(ROOT, "node_modules/next/package.json"));
 
 test("each build adapter says how it knows a repository and what its server can do", () => {
@@ -193,7 +218,7 @@ test(
     assert.ok(picture("\\/") && picture("\\/items"));
     assert.notEqual(picture("\\/"), picture("\\/items"));
     // The development server stopped with the book.
-    assert.deepEqual(servers(), []);
+    assert.deepEqual(servers(dir), []);
   },
 );
 
@@ -282,4 +307,23 @@ test("a build's server that stops before it is ready says what it said last", as
   } finally {
     delete process.env.FAKE_BUILD;
   }
+});
+
+test("a server is counted only in the folder it works in, so a run elsewhere on the machine does not count", async (t) => {
+  const here = mkdtempSync(path.join(tmpdir(), "next-servers-here-"));
+  const elsewhere = mkdtempSync(path.join(tmpdir(), "next-servers-elsewhere-"));
+  // A stand-in for a development server: its command line reads like one, and it waits.
+  const standIn = spawn(
+    execPath,
+    ["-e", "setInterval(() => {}, 1000)", "next/dist/bin/next dev --hostname 127.0.0.1"],
+    { cwd: here, stdio: "ignore" },
+  );
+  t.after(() => {
+    standIn.kill();
+    rmSync(here, { recursive: true, force: true });
+    rmSync(elsewhere, { recursive: true, force: true });
+  });
+  await wait(300);
+  assert.deepEqual(servers(here), [String(standIn.pid)]);
+  assert.deepEqual(servers(elsewhere), []);
 });
