@@ -269,286 +269,416 @@
         <div>
           <div class="ft">
             Chủ repo nhìn một lệnh là biết mỗi việc của hệ thiết kế do ai làm, chỗ nào còn trống, và
-            máy đỏ ngay khi bảng ấy nói sai. Lần duyệt lại này chỉ bớt tiêu chí 7, theo lối 1 anh đã
-            chọn.
+            máy đỏ ngay khi bảng ấy nói sai.
           </div>
-          <div class="sub">Cổng 1 · duyệt tiêu chí TRƯỚC khi code</div>
+          <div class="sub">Cổng 2 · ký duyệt</div>
         </div>
-        <span class="chip amber">duyệt tiêu chí</span>
+        <span class="chip amber">cần bạn quyết</span>
       </div>
-      <div class="lab">Hệ thống SẼ làm</div>
-      <div class="grp gdo">
-        <p class="li">
-          Sẽ có một bảng máy đọc được gồm đúng hai mươi việc của hệ thiết kế; mỗi việc nói nó ghi sổ
-          nào, giao ra gì, lệnh nào giữ, ai quyết, và ai đang làm nó; bảng ghi sai một chỗ thì máy
-          đỏ và gọi tên việc ấy.
-        </p>
-        <p class="li">
-          Sẽ đỏ khi tên một công cụ bên ngoài lọt vào phần lõi của plugin, kể cả vào chính bảng và
-          các trang hướng dẫn.
-        </p>
-        <p class="li">Sẽ đỏ khi một tầng hay một bậc của hệ thiết kế không có việc nào với tới.</p>
-        <p class="li">
-          Sẽ cho lệnh xem tình hình nói thêm hai dòng: bao nhiêu việc đã có người làm trên tổng số,
-          và tên các việc còn trống; bản cho máy có trọn bảng.
-        </p>
-      </div>
-      <div class="lab">Sẽ KHÔNG làm / sẽ chặn</div>
+      <div class="lab">Ý định (nguyên văn Cổng Đáng)</div>
       <div class="grp gnot">
-        <p class="li">Chặn một việc không có ai làm mà cũng không được ghi vào sổ giới hạn.</p>
         <p class="li">
-          Chặn hai việc cùng ghi một sổ, và chặn một lệnh ghi vào sổ không thuộc việc của nó.
+          <b
+            >Bảng năng lực của plugin nói ổ cắm và phích của từng năng lực, năm bài kiểm giữ nó, và
+            status in bảng ổ cắm của repo đang đứng</b
+          >
+        </p>
+        <p class="li">Mở từ hàng 5.0 của «Lộ trình design-assembly» (docs/plan/lo-trinh.json).</p>
+        <p class="li">
+          Bảng năng lực của plugin nói ổ cắm và phích của từng năng lực, năm bài kiểm giữ nó, và
+          status in bảng ổ cắm của repo đang đứng
         </p>
         <p class="li">
-          Tóm phần hoãn/cắt: Năm điều vòng này cố ý để lại; tiêu chí 7 cũ nay nằm ở mục Known limits
-          của hợp đồng:
+          Vì sao: Mục 5.0 của kế hoạch chính thức (docs/plan/plan.json); đề bài 0008 đã duyệt ngày
+          2026-11-20. Cả tám tiêu chí cùng một kết quả: bảng có, được giữ, và được bày ra; không
+          chạm lớp khó đảo nào
         </p>
-        <p class="li">
-          Hoãn/cắt: Cắm một phích ngoài thật vào ổ nào, hay đo phích ngoài theo bốn thước (mục 5.2
-          trở đi).
+      </div>
+      <a
+        href="evidence-page.html"
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 10px;
+          background: #e6f1fb;
+          border: 1px solid #b5d4f4;
+          border-radius: 10px;
+          padding: 9px 13px;
+          margin: 11px 0 2px;
+          text-decoration: none;
+          color: #0c447c;
+          font-size: 13px;
+        "
+        ><b>Bằng chứng đầy đủ — ảnh chụp + chạy thật</b
+        ><span style="font-size: 12px; color: #185fa5; white-space: nowrap"
+          >đã mở trong trình duyệt</span
+        ></a
+      >
+      <div class="lab">PHÁN QUYẾT ĐỐI KHÁNG — máy thay mắt người ở phần vượt nhận thức</div>
+      <div class="grp gnot">
+        <p class="li">Phản biện context sạch: <b>findings</b> · P0 2 · P1 3 · P2 0 · đã sửa 5/5</p>
+        <p class="li">Rà soát đối kháng: 4 mục ngoài hợp đồng · 1 mục cần mắt người</p>
+        <p class="li">Vật +18/−10 · thước +1/−28 · nhát sửa thước 1 (lẫn 1)</p>
+      </div>
+      <div class="lab">Ngoài hợp đồng — bạn quyết (4)</div>
+      <div class="flag fwarn">
+        Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng —
+        bạn quyết; máy cố ý không sửa và không chấm thứ máy không được sửa.
+      </div>
+      <table class="ngoai">
+        <thead>
+          <tr>
+            <th>Mục</th>
+            <th>Người dùng gặp gì</th>
+            <th>Máy đề xuất</th>
+            <th>Căn cứ</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="nhom">
+            <td colspan="4">Cần anh quyết</td>
+          </tr>
+          <tr>
+            <td data-cot="Mục">Ngoài-1</td>
+            <td data-cot="Người dùng gặp gì">
+              Later features in this repo would be checked against only two small test sets instead
+              of the full repo check. A break elsewhere, like the one caught in round 2, could pass
+              unnoticed.
+            </td>
+            <td data-cot="Máy đề xuất">Máy đề xuất: tách thành một việc riêng.</td>
+            <td data-cot="Căn cứ">
+              Nothing is lost today and the setting can be changed back at any time, but every later
+              feature inherits a weaker safety net until someone fixes it, so it deserves its own
+              piece of work.
+            </td>
+          </tr>
+          <tr class="nhom">
+            <td colspan="4">Máy khuyên — chỉ đổi khi anh nghĩ khác</td>
+          </tr>
+          <tr>
+            <td data-cot="Mục">Ngoài-2</td>
+            <td data-cot="Người dùng gặp gì">
+              The approval card still shows two questions about a criterion that was dropped, so
+              someone reading it later may think the owner approved something that is no longer part
+              of the work.
+            </td>
+            <td data-cot="Máy đề xuất">Máy đề xuất: ghi vào hạn chế đã biết rồi ship.</td>
+            <td data-cot="Căn cứ">
+              It causes confusion only for readers of the record, not for product users, nothing is
+              lost, and a note on the card or a later redraw fixes it cheaply.
+            </td>
+          </tr>
+          <tr>
+            <td data-cot="Mục">Ngoài-3</td>
+            <td data-cot="Người dùng gặp gì">
+              The evidence page still shows eight criteria and a rejected verdict from before the
+              scope was narrowed, so a reader may take it as the current result.
+            </td>
+            <td data-cot="Máy đề xuất">Máy đề xuất: ghi vào hạn chế đã biết rồi ship.</td>
+            <td data-cot="Căn cứ">
+              It misleads only people reading the record, no user data or behaviour is affected, and
+              it can be regenerated or labelled as an old snapshot at any time.
+            </td>
+          </tr>
+          <tr>
+            <td data-cot="Mục">Ngoài-4</td>
+            <td data-cot="Người dùng gặp gì">
+              The signed scope card keeps questions and trade-offs about a dropped criterion, so
+              what the owner&#39;s approval covered no longer matches the contract.
+            </td>
+            <td data-cot="Máy đề xuất">Máy đề xuất: ghi vào hạn chế đã biết rồi ship.</td>
+            <td data-cot="Căn cứ">
+              The effect is limited to record readability, with no impact on product users, and the
+              fix is a cheap redraw or a note, so it can ship as it is with the limit written down.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="ai">
+        Mỗi mục: ghi Known limits · mở hợp đồng mới · nâng phạm vi sửa ngay — đổi bằng dòng lệnh ký.
+      </p>
+      <div class="lab">Việc chỉ mình bạn quyết được — 2 việc</div>
+      <div class="item">
+        <p class="q">
+          E11 (câu hỏi cần mắt người) · Bảy ổ trống cộng ổ soát thiết kế chỉ có phích một phần, có
+          đúng «tám chỗ» đề bài nói không?
         </p>
-        <p class="li">
-          Hoãn/cắt: Viết lại hay đổi hành vi của lệnh nào đang có; các lệnh chỉ được khai là phích.
+        <p class="ai">
+          Máy: chưa chắc — cả ba lens UNCERTAIN trên cùng một điểm — &quot;tám chỗ chưa có
+          phích&quot; của spec 0008 so với bảy mảng plugs rỗng trong capabilities.json; con số này
+          cần người chốt cách đọc.
         </p>
-        <p class="li">
-          Hoãn/cắt: Thêm một sổ mới vào hợp đồng sổ (contract.mjs); bảng năng lực là tệp tham chiếu
-          của plugin.
+        <p class="ai">
+          <b>Muốn máy đổi ý, cần:</b> Một ruling trong spec
+          wiki/specs/0008-capabilities-sockets-and-plugs.md (dòng sau bảng danh mục nói &quot;tám
+          chỗ chưa có phích&quot;, hoặc ghi chú dưới bảng) hoặc trong hợp đồng AC-1, nêu tám
+          capability nào được tính là chưa có phích và design-review (phích gate mặc định cộng giới
+          hạn capability-design-review-sees-no-picture) có nằm trong đó không. Nếu có, JSON phải để
+          plugs của design-review rỗng và phán quyết thành FAIL; nếu ổ thứ tám chỉ là thiếu một phần
+          thì spec cần sửa số thành bảy và phán quyết thành PASS.
         </p>
-        <p class="li">
-          Hoãn/cắt: Phát hiện phích ngoài bằng cách chạy công cụ ngoài hay dùng mạng; detect chỉ
-          nhìn tệp trong repo đích.
-        </p>
-        <p class="li">
-          Hoãn/cắt: Đổi chữ của references/layers.json hay tệp tham chiếu nào khác cho «lõi sạch»
+        <div class="btns">
+          <button class="b bn">Đạt</button><button class="b no">Chưa đạt</button>
+        </div>
+      </div>
+      <div class="item">
+        <p class="q">Xác nhận các phần đã cắt/hoãn ngoài phạm vi:</p>
+        <p class="ai">
+          Cắm một phích ngoài thật vào ổ nào, hay đo phích ngoài theo bốn thước (mục 5.2 trở đi). ·
+          Viết lại hay đổi hành vi của lệnh nào đang có; các lệnh chỉ được khai là phích. · Thêm một
+          sổ mới vào hợp đồng sổ (contract.mjs); bảng năng lực là tệp tham chiếu của plugin. · Phát
+          hiện phích ngoài bằng cách chạy công cụ ngoài hay dùng mạng; detect chỉ nhìn tệp trong
+          repo đích. · Đổi chữ của references/layers.json hay tệp tham chiếu nào khác cho «lõi sạch»
           phủ cả chúng.
         </p>
+        <div class="btns">
+          <button class="b bn">Đồng ý cắt</button><button class="b no">Không, kéo vào</button>
+        </div>
       </div>
-      <div class="lab">Câu chỉ anh trả lời được</div>
-      <div class="grp gdo">
-        <p class="li" data-cau-hoi="Hỏi-1">
-          <b>Hỏi-1</b> · Tám ổ trống được ghi bằng dòng mới ở references/limits.json, nên dòng
-          «known limits: N open» của audit tăng; tiêu chí 7 coi con số ấy là dữ liệu, không phải
-          hành vi — Tiêu chí 2 đòi mỗi ổ trống có một dòng sổ giới hạn, còn tiêu chí 7 đòi đầu ra
-          chỉ khác ở phần mới của status; hai dòng ấy chọi nhau ở đúng một con số của audit. — sai
-          thì tốn: Nếu chủ repo đọc tiêu chí 7 chặt, phải dời lý do của ổ trống vào chính bảng năng
-          lực và đổi chữ tiêu chí 2. — máy khuyên: Nhận con số giới hạn mở của audit tăng thêm đúng
-          số dòng mới; phép đo E8 cho phép đúng con số ấy khác. · lối khác: Để lý do của ổ trống
-          trong bảng năng lực, không thêm dòng giới hạn: đầu ra của audit giữ nguyên, nhưng tiêu chí
-          2 phải đổi chữ và ổ trống ra khỏi sổ giới hạn chung.
+      <div class="lab">Quyết định CHƯA duyệt — cần phê (ghi sau Gate 1)</div>
+      <div class="item">
+        <p class="q">
+          Treo-1 · Thu phạm vi: tiêu chí AC-7 (hành vi các lệnh đang có không đổi) ra khỏi hợp đồng
+          thành Known limits có tên; bỏ hai phép đo E7 và E8 của nó; ký lại Cổng Phạm vi — người
+          chọn ở Cổng Bằng chứng: «Lối 1», đáp ba lối ra của thẻ sau ba lượt chấm REJECT cùng ở E7 —
+          sai thì tốn: Tiêu chí ấy đi mà không có bằng chứng máy của lượt chấm; nếu một lệnh đang có
+          đổi hành vi thật, chỉ make check trên CI và phép đo same-outputs của hồ sơ còn giữ.
         </p>
-        <p class="li" data-cau-hoi="Hỏi-2">
-          <b>Hỏi-2</b> · Phép đo «đầu ra không đổi» là một script của riêng hồ sơ ở
-          _acceptance/bang-nang-luc-o-cam/rang/, kèm ca đối chứng dương của chính nó — Nó chỉ cần
-          chứng một lần cho vòng này; phản biện chỉ ra lối đặt ở tools/ không chết, nên đây là lựa
-          chọn của chủ repo. — sai thì tốn: Ở hồ sơ: vòng sau muốn so lại phải chép script ra. Ở
-          tools/: repo giữ thêm một công cụ và bài kiểm của nó. — máy khuyên: Để script trong hồ sơ,
-          kèm ca đối chứng dương; nó là bằng chứng của vòng này, không phải công cụ của repo. · lối
-          khác: Đặt ở tools/ kèm một bài kiểm chạy trong make check: dùng lại được cho vòng sau, đổi
-          lại repo giữ thêm một công cụ.
-        </p>
+        <p class="ai">gate2 · đề nghị KHÔNG làm</p>
+        <div class="btns">
+          <button class="b bn">Phê</button><button class="b no">Không phê</button>
+        </div>
       </div>
-      <div class="lab">Máy đã quyết ở bước thiết kế — anh lật được</div>
-      <div class="grp gnot">
-        <p class="li" data-may-quyet="d-20261120T070941Z-1">
-          <b>KHÔNG làm:</b> bỏ coverage-scan — phạm vi là tám dòng tiêu chí của đề bài 0008, chủ
-          repo đã duyệt, và danh mục hai mươi năng lực đã qua lượt quét cho đủ của chính đề bài; đổi
-          lại không có bằng chứng độ phủ — Đề bài 0008 nói «Cho mục 5.0. Mỗi dòng chứng bằng một
-          lệnh.» và liệt đúng tám dòng; quét lại sẽ đề xuất tiêu chí chủ repo chưa duyệt. — sai thì
-          tốn: Nếu tám dòng sót một điều, nó lộ ra ở Cổng Bằng chứng hay sau khi giao, và phải mở
-          một vòng mới. — căn cứ: «Cho mục 5.0. Mỗi dòng chứng bằng một lệnh.»
-          (wiki/specs/0008-capabilities-sockets-and-plugs.md)
+      <div class="item">
+        <p class="q">
+          Treo-2 · Phép đo E8 so audit theo cả ba chỗ nó liệt dòng giới hạn mở (con số, danh sách
+          mức nặng, danh sách dòng mở), mỗi chỗ phải bằng phía gốc cộng đúng tám dòng mới; và gọi
+          decide không có --dry-run, vì lệnh ấy không có cờ đó và vốn chỉ đọc — Đầu ra --json của
+          audit liệt các dòng mở ở ba chỗ, không chỉ con số; decide.mjs --help không có --dry-run. —
+          sai thì tốn: Nếu chủ repo chỉ nhận con số, hai danh sách kia của audit cũng là khác biệt
+          phải gỡ, bằng cách dời tám dòng khỏi sổ giới hạn.
         </p>
-        <p class="li" data-may-quyet="d-20261120T070941Z-2">
-          <b>KHÔNG làm:</b> bỏ đặc-tả-UX — mục 5.0 không có màn nào; status là đầu ra dòng lệnh và
-          một trang tài liệu — Bề mặt của hợp đồng là cli; không có tệp giao diện nào trong vùng của
-          hàng (plugins/design-assembly/references, scripts, tests). — sai thì tốn: Cấu trúc không
-          khai trước — owner thấy nó lần đầu trong code; ở đây là thấy bảng ổ cắm lần đầu trong đầu
-          ra của status. — lối khác chết vì: Đặc tả UX của kit tả màn, trạng thái và khổ; một đầu ra
-          dòng lệnh không có thứ nào trong ba thứ ấy.
-        </p>
-        <p class="li" data-may-quyet="d-20261120T070941Z-3">
-          Bảng năng lực là một tệp references/capabilities.json; mỗi phích ngoài là một tệp
-          references/plugs/&lt;id&gt;.json trỏ về ổ của nó, nên bảng không mang tên bên thứ ba nào —
-          Luật 5 của đề bài 0008 đặt tên bên thứ ba chỉ trong thư mục phích cắm; để phích ngoài
-          trong bảng thì bảng thành tệp lõi mang tên ấy. — sai thì tốn: Đổi chỗ để phích ngoài về
-          sau là dời vài tệp JSON và sửa một bộ đọc. — căn cứ: «5. Tên bên thứ ba chỉ nằm trong thư
-          mục phích cắm, như luật của bộ chuyển.»
-          (wiki/specs/0008-capabilities-sockets-and-plugs.md)
-        </p>
-        <p class="li" data-may-quyet="d-20261120T070941Z-5">
-          new và adopt được khai là lộ trình qua nhiều ổ (routes), không phải phích; phép dò «script
-          ghi sổ» là tĩnh và có một dòng giới hạn cho chỗ nó không thấy — Đề bài 0008 đã bỏ luật
-          «mỗi lệnh một năng lực»: một lệnh dẫn dắt là một lộ trình đi qua nhiều ổ cắm; adopt ghi cả
-          sổ quyết định lẫn khuôn. — sai thì tốn: Một script ghi sổ qua tầng gián tiếp lọt phép dò
-          cho tới khi có phép đo chạy thật. — căn cứ: «một lệnh dẫn dắt là một lộ trình đi qua nhiều
-          ổ cắm, không phải một phích.» (wiki/specs/0008-capabilities-sockets-and-plugs.md)
-        </p>
-        <p class="li" data-may-quyet="d-20261120T071323Z-8">
-          Bản cho người của status chỉ thêm hai dòng (số ổ có phích trên tổng, tên các ổ trống);
-          trọn bảng ở --json và trang tài liệu — Đo ngày 2026-11-20 ở commit 550e717: hai mẫu của
-          bài kiểm «vừa một màn» in 29 và 38 dòng; thêm trọn bảng hai mươi dòng thành 49 và 58, vượt
-          trần 40 dòng. — sai thì tốn: Người đọc phải mở --json hay trang tài liệu mới thấy phích
-          nào ở ổ nào. — lối khác chết vì: In trọn bảng thì bản cho người lên 49 và 58 dòng trên hai
-          mẫu của bài kiểm hiện có, vượt trần 40 dòng mà bài kiểm ấy giữ.
-        </p>
+        <p class="ai">S3 · fix</p>
+        <div class="btns">
+          <button class="b bn">Phê</button><button class="b no">Không phê</button>
+        </div>
       </div>
-      <div class="lab">Quyết định &amp; trade-off</div>
-      <div class="grp gnot">
-        <p class="li">
-          <b>KHÔNG làm:</b> Thu phạm vi: tiêu chí AC-7 (hành vi các lệnh đang có không đổi) ra khỏi
-          hợp đồng thành Known limits có tên; bỏ hai phép đo E7 và E8 của nó; ký lại Cổng Phạm vi —
-          người chọn ở Cổng Bằng chứng: «Lối 1», đáp ba lối ra của thẻ sau ba lượt chấm REJECT cùng
-          ở E7 — sai thì tốn: Tiêu chí ấy đi mà không có bằng chứng máy của lượt chấm; nếu một lệnh
-          đang có đổi hành vi thật, chỉ make check trên CI và phép đo same-outputs của hồ sơ còn
-          giữ.
-        </p>
-        <p class="li">
-          Phép đo E8 so audit theo cả ba chỗ nó liệt dòng giới hạn mở (con số, danh sách mức nặng,
-          danh sách dòng mở), mỗi chỗ phải bằng phía gốc cộng đúng tám dòng mới; và gọi decide không
-          có --dry-run, vì lệnh ấy không có cờ đó và vốn chỉ đọc — Đầu ra --json của audit liệt các
-          dòng mở ở ba chỗ, không chỉ con số; decide.mjs --help không có --dry-run. — sai thì tốn:
-          Nếu chủ repo chỉ nhận con số, hai danh sách kia của audit cũng là khác biệt phải gỡ, bằng
-          cách dời tám dòng khỏi sổ giới hạn.
-        </p>
-        <p class="li">
-          Phép đo E8 vẽ tệp dẫn xuất ở cả hai cây, và thay số phiên bản cùng mã băm cây công cụ của
-          mỗi bên bằng một chữ trước khi so — Lượt chạy đầu cho thấy cây gốc thiếu
+      <div class="item">
+        <p class="q">
+          Treo-3 · Phép đo E8 vẽ tệp dẫn xuất ở cả hai cây, và thay số phiên bản cùng mã băm cây
+          công cụ của mỗi bên bằng một chữ trước khi so — Lượt chạy đầu cho thấy cây gốc thiếu
           design/component-registry.json (ngoài git) nên một quyết định đọc là failing; và upgrade,
           status in mã băm cây mà mỗi bản phát hành mang riêng. — sai thì tốn: Một khác biệt thật
           nằm ngay trong số phiên bản hay mã băm cây thì phép đo không thấy.
         </p>
-        <p class="li">
-          E7 đo bằng chính lệnh suite make check, để bộ bài kiểm của plugin chạy một lần mỗi lượt
-          chấm — Lượt 1 chạy make plugin-test (E7) cùng lúc với make check, vốn cũng chạy
+        <p class="ai">S3 · fix</p>
+        <div class="btns">
+          <button class="b bn">Phê</button><button class="b no">Không phê</button>
+        </div>
+      </div>
+      <div class="item">
+        <p class="q">
+          Treo-4 · E7 đo bằng chính lệnh suite make check, để bộ bài kiểm của plugin chạy một lần
+          mỗi lượt chấm — Lượt 1 chạy make plugin-test (E7) cùng lúc với make check, vốn cũng chạy
           plugin-test; hai bản trong một thư mục giẫm lên nhau và test-next-build.mjs đỏ, đúng giới
           hạn kế hoạch đã ghi ở mục set aside; chạy riêng thì 780 bài qua. — sai thì tốn: Nếu chủ
           repo muốn E7 là một lệnh riêng, phải sửa giới hạn chạy song song của bộ bài kiểm trước.
         </p>
-        <p class="li">
-          Mặt máy của bảy ổ trống thôi khai held_by: chúng ghi unheld kèm dòng giới hạn; phích là
-          bước của một lộ trình thì ghi step_of — Hội đồng E10 chỉ ra tiêu chí 3 vùng Claude Code
-          của đề bài 0008: luật chưa có lệnh kiểm phải ghi rõ là chưa được giữ; hội đồng E11 cần
-          biết principles và tokens là bước của lộ trình new. — sai thì tốn: Phép kiểm hai mặt vẫn
-          chưa xét held_by có thật hay không; việc ấy là mục ngoài hợp đồng Ngoài của lượt 1, chờ
-          chủ repo định tuyến.
+        <p class="ai">S4-r1 · fix</p>
+        <div class="btns">
+          <button class="b bn">Phê</button><button class="b no">Không phê</button>
+        </div>
+      </div>
+      <div class="item">
+        <p class="q">
+          Treo-5 · Mặt máy của bảy ổ trống thôi khai held_by: chúng ghi unheld kèm dòng giới hạn;
+          phích là bước của một lộ trình thì ghi step_of — Hội đồng E10 chỉ ra tiêu chí 3 vùng
+          Claude Code của đề bài 0008: luật chưa có lệnh kiểm phải ghi rõ là chưa được giữ; hội đồng
+          E11 cần biết principles và tokens là bước của lộ trình new. — sai thì tốn: Phép kiểm hai
+          mặt vẫn chưa xét held_by có thật hay không; việc ấy là mục ngoài hợp đồng Ngoài của lượt
+          1, chờ chủ repo định tuyến.
         </p>
-        <p class="li">
-          Bỏ chữ catalogue mà lượt sửa 1 đưa vào câu giới thiệu của bảng năng lực, và chạy make
-          check trọn trước khi gửi lượt chấm 3 — Lượt 2 đỏ ở tests/plugin-vocabulary.test.ts:
+        <p class="ai">S4-r1 · fix</p>
+        <div class="btns">
+          <button class="b bn">Phê</button><button class="b no">Không phê</button>
+        </div>
+      </div>
+      <div class="item">
+        <p class="q">
+          Treo-6 · Bỏ chữ catalogue mà lượt sửa 1 đưa vào câu giới thiệu của bảng năng lực, và chạy
+          make check trọn trước khi gửi lượt chấm 3 — Lượt 2 đỏ ở tests/plugin-vocabulary.test.ts:
           «catalogue» là chữ phải tránh của bảng từ vựng; lượt sửa 1 đã không chạy make check trước
           khi gửi. — sai thì tốn: Lượt 3 là lượt cuối trong trần ba lượt; đỏ nữa thì vòng dừng và
           trình chủ repo ba lối ra.
         </p>
-        <p class="li">
-          Dừng vá sau lượt 3: lượt 1 và lượt 3 đỏ cùng một lớp lỗi, các lần chạy đồng thời giẫm lên
-          nhau (bài kiểm test-next-build.mjs coi mọi máy chủ Next.js đang chạy trên máy là sót lại,
-          mà lượt chấm chạy make check ở cây gốc cùng lúc); khuôn giải sai, không phải chi tiết sai
-          — Khoản dừng-vá của feature-loop: lượt sửa thứ hai còn cùng lớp lỗi với lượt một thì dừng
-          và trình người ba lối; lượt 3 cũng là trần ba lượt. make check chạy riêng ở commit 26dfebc
-          xanh, 780 bài qua. — sai thì tốn: Nếu đây là lỗi thật của sản phẩm chứ không phải của cách
-          chạy, giao mà chưa sửa thì bộ bài kiểm của plugin đỏ trên CI.
-        </p>
+        <p class="ai">S4-r2 · fix</p>
+        <div class="btns">
+          <button class="b bn">Phê</button><button class="b no">Không phê</button>
+        </div>
       </div>
-      <div class="lab">Độ phủ AC (bằng chứng "đủ")</div>
+      <div class="item">
+        <p class="q">
+          Treo-7 · Dừng vá sau lượt 3: lượt 1 và lượt 3 đỏ cùng một lớp lỗi, các lần chạy đồng thời
+          giẫm lên nhau (bài kiểm test-next-build.mjs coi mọi máy chủ Next.js đang chạy trên máy là
+          sót lại, mà lượt chấm chạy make check ở cây gốc cùng lúc); khuôn giải sai, không phải chi
+          tiết sai — Khoản dừng-vá của feature-loop: lượt sửa thứ hai còn cùng lớp lỗi với lượt một
+          thì dừng và trình người ba lối; lượt 3 cũng là trần ba lượt. make check chạy riêng ở
+          commit 26dfebc xanh, 780 bài qua. — sai thì tốn: Nếu đây là lỗi thật của sản phẩm chứ
+          không phải của cách chạy, giao mà chưa sửa thì bộ bài kiểm của plugin đỏ trên CI.
+        </p>
+        <p class="ai">S4-r3 · revisit</p>
+        <div class="btns">
+          <button class="b bn">Phê</button><button class="b no">Không phê</button>
+        </div>
+      </div>
+      <div class="lab">Đã duyệt từ Gate 1</div>
       <div class="grp gnot">
         <p class="li">
-          Bỏ coverage-scan — phạm vi là tám dòng «Acceptance criteria» của đề bài 0008, chủ repo đã
-          duyệt; danh mục hai mươi năng lực đã có lượt quét cho đủ của chính đề bài (entry «bỏ
-          coverage-scan» trong decisions.jsonl).
+          bỏ coverage-scan — phạm vi là tám dòng tiêu chí của đề bài 0008, chủ repo đã duyệt, và
+          danh mục hai mươi năng lực đã qua lượt quét cho đủ của chính đề bài; đổi lại không có bằng
+          chứng độ phủ — Đề bài 0008 nói «Cho mục 5.0. Mỗi dòng chứng bằng một lệnh.» và liệt đúng
+          tám dòng; quét lại sẽ đề xuất tiêu chí chủ repo chưa duyệt. — sai thì tốn: Nếu tám dòng
+          sót một điều, nó lộ ra ở Cổng Bằng chứng hay sau khi giao, và phải mở một vòng mới.
+        </p>
+        <p class="li">
+          bỏ đặc-tả-UX — mục 5.0 không có màn nào; status là đầu ra dòng lệnh và một trang tài liệu
+          — Bề mặt của hợp đồng là cli; không có tệp giao diện nào trong vùng của hàng
+          (plugins/design-assembly/references, scripts, tests). — sai thì tốn: Cấu trúc không khai
+          trước — owner thấy nó lần đầu trong code; ở đây là thấy bảng ổ cắm lần đầu trong đầu ra
+          của status.
+        </p>
+        <p class="li">
+          Bảng năng lực là một tệp references/capabilities.json; mỗi phích ngoài là một tệp
+          references/plugs/&lt;id&gt;.json trỏ về ổ của nó, nên bảng không mang tên bên thứ ba nào —
+          Luật 5 của đề bài 0008 đặt tên bên thứ ba chỉ trong thư mục phích cắm; để phích ngoài
+          trong bảng thì bảng thành tệp lõi mang tên ấy. — sai thì tốn: Đổi chỗ để phích ngoài về
+          sau là dời vài tệp JSON và sửa một bộ đọc.
+        </p>
+        <p class="li">
+          Bản cho người của status chỉ thêm hai dòng (số ổ có phích trên tổng, tên các ổ trống);
+          trọn bảng ở --json và trang tài liệu — Bài kiểm hiện có của status đòi bản cho người vừa
+          một màn; hai mươi dòng bảng sẽ vượt. — sai thì tốn: Người đọc phải mở --json hay trang tài
+          liệu mới thấy phích nào ở ổ nào.
+        </p>
+        <p class="li">
+          new và adopt được khai là lộ trình qua nhiều ổ (routes), không phải phích; phép dò «script
+          ghi sổ» là tĩnh và có một dòng giới hạn cho chỗ nó không thấy — Đề bài 0008 đã bỏ luật
+          «mỗi lệnh một năng lực»: một lệnh dẫn dắt là một lộ trình đi qua nhiều ổ cắm; adopt ghi cả
+          sổ quyết định lẫn khuôn. — sai thì tốn: Một script ghi sổ qua tầng gián tiếp lọt phép dò
+          cho tới khi có phép đo chạy thật.
+        </p>
+        <p class="li">
+          Tám ổ trống được ghi bằng dòng mới ở references/limits.json, nên dòng «known limits: N
+          open» của audit tăng; tiêu chí 7 coi con số ấy là dữ liệu, không phải hành vi — Tiêu chí 2
+          đòi mỗi ổ trống có một dòng sổ giới hạn, còn tiêu chí 7 đòi đầu ra chỉ khác ở phần mới của
+          status; hai dòng ấy chọi nhau ở đúng một con số của audit. — sai thì tốn: Nếu chủ repo đọc
+          tiêu chí 7 chặt, phải dời lý do của ổ trống vào chính bảng năng lực và đổi chữ tiêu chí 2.
+        </p>
+        <p class="li">
+          Phép đo «đầu ra không đổi» là một script của riêng hồ sơ ở
+          _acceptance/bang-nang-luc-o-cam/rang/, không phải công cụ của repo — Nó chỉ chứng một lần
+          cho vòng này; đặt ở tools/ thì repo phải giữ một công cụ không ai gọi lại, kèm bài kiểm
+          của nó. — sai thì tốn: Vòng sau muốn so đầu ra lại phải chép script ra khỏi hồ sơ.
+        </p>
+        <p class="li">
+          Bản cho người của status chỉ thêm hai dòng (số ổ có phích trên tổng, tên các ổ trống);
+          trọn bảng ở --json và trang tài liệu — Đo ngày 2026-11-20 ở commit 550e717: hai mẫu của
+          bài kiểm «vừa một màn» in 29 và 38 dòng; thêm trọn bảng hai mươi dòng thành 49 và 58, vượt
+          trần 40 dòng. — sai thì tốn: Người đọc phải mở --json hay trang tài liệu mới thấy phích
+          nào ở ổ nào.
+        </p>
+        <p class="li">
+          Phép đo «đầu ra không đổi» là một script của riêng hồ sơ ở
+          _acceptance/bang-nang-luc-o-cam/rang/, kèm ca đối chứng dương của chính nó — Nó chỉ cần
+          chứng một lần cho vòng này; phản biện chỉ ra lối đặt ở tools/ không chết, nên đây là lựa
+          chọn của chủ repo. — sai thì tốn: Ở hồ sơ: vòng sau muốn so lại phải chép script ra. Ở
+          tools/: repo giữ thêm một công cụ và bài kiểm của nó.
         </p>
       </div>
-      <div class="lab">Nền hạ tầng (máy kiểm trước khi vòng viết gì)</div>
-      <div class="grp gnot">
-        <p class="li">
-          Nền: <b>xanh</b> · công cụ xanh · bộ kiểm xanh · lưới như CI xanh · bộ máy xanh
-        </p>
+      <div class="lab">Lưu ý trước khi ký</div>
+      <div class="flag fwarn">
+        ⚠ Nhiều lỗi rơi ngoài vùng các bộ đo đang phủ — dừng và quyết: mở rộng hợp đồng hay rút phạm
+        vi. Chi tiết trong review-findings.md.
       </div>
-      <div class="lab">Ngưỡng nghiệm thu (đã khai ở Cổng Đáng)</div>
-      <div class="grp gnot">
-        <p class="li">
-          Không đo được — việc nội bộ của bộ công cụ, không có người dùng cuối; thước là tám tiêu
-          chí của đề bài 0008 (wiki/specs/0008-capabilities-sockets-and-plugs.md).
-        </p>
-        <p class="li">
-          Ô khai không đo được — vòng này không có phiên nghiệm thu; đã giao là đóng.
-        </p>
+      <div class="flag fok">
+        Cổng chạy thật, bằng chứng máy đầy đủ (run_id · exit 0 · verifier).
       </div>
-      <div class="lab">Phản biện context sạch</div>
-      <div class="grp gnot">
-        <p class="li">
-          <b>P0</b> · evals · E8 là phép đo duy nhất cho «đầu ra không đổi» của AC-7, nhưng nó chỉ
-          có một lần chạy xanh trên mã thật: không ca dương nào chứng nó bắt được một khác biệt, và
-          con số giới hạn mở được phép khác mà không ghim mức tăng. Căn cứ «một lối» của d-7 không
-          đứng, vì lối đặt ở tools/ không chết. — fixed: E8 đòi in commit gốc, ghim con số giới hạn
-          mở bằng số ở gốc cộng số dòng open mới của diff, và có ca đối chứng dương phải thoát 1;
-          d-7 thay bằng d-20261120T071323Z-9, thành câu hỏi cho chủ repo (đặt ở hồ sơ hay ở tools/)
-        </p>
-        <p class="li">
-          <b>P0</b> · design · d-4 trích trần 40 dòng của test-status làm căn cứ, nhưng không nêu
-          status đang in bao nhiêu dòng, nên câu trích không tự quyết được lựa chọn. — fixed: đo ở
-          commit 550e717, hai mẫu của bài kiểm in 29 và 38 dòng, thêm trọn bảng thành 49 và 58; d-4
-          thay bằng d-20261120T071323Z-8, căn cứ «một lối» kèm số đo
-        </p>
-        <p class="li">
-          <b>P1</b> · evals · Nửa «script ghi sổ» của E3 chỉ có ca đỏ viết tay đúng dạng bộ dò tìm;
-          không ca dương nào chứng bộ dò thấy lời ghi trong script thật. — fixed: E3 thêm cả ba điều
-          ấy
-        </p>
-        <p class="li">
-          <b>P1</b> · evals · E4 không ghim tên được chèn vào phần nào của lõi, và paths thiếu
-          capabilities.json. — fixed: E4 đòi ca đỏ cho từng phần của lõi, paths có capabilities.json
-        </p>
-        <p class="li">
-          <b>P1</b> · evals · E1 chỉ có ca đỏ «một ổ thiếu checks»; lời hứa phích chỉ tới script có
-          thật, khoá sổ thuộc LEDGERS, đích make có thật không có ca đỏ nào. — fixed: E1 thêm ba ca
-          đỏ (script không có, khoá không thuộc LEDGERS, đích make không có)
-        </p>
-      </div>
-      <div class="lab">Cần chú ý trước khi duyệt</div>
-      <div class="flag finfo">
-        AC-8 cần MẮT bạn chấm sau khi code (việc người, máy không chấm được).
-      </div>
+      <details style="margin-top: 14px">
+        <summary
+          style="
+            font-size: 11px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: #8a887f;
+            font-weight: 600;
+            cursor: pointer;
+          "
+        >
+          Máy đã lo (liếc qua, không cần làm gì)
+        </summary>
+        <div class="mach" style="margin-top: 8px">
+          <b>7/7 phép kiểm máy đều đạt</b> · bằng chứng đủ, không lỗi.
+        </div>
+      </details>
       <div class="lab">👉 VIỆC CỦA ANH</div>
       <div class="grp gdo">
         <p class="li">
-          <b>Duyệt hay trả hồ sơ này</b> — làm gì: đọc hai khối SẼ làm / KHÔNG làm và các cờ chú ý ở
-          trên; ở đâu: trả lời ngay trong phiên đang trình thẻ; trả lời dạng: «Duyệt» hoặc «Sửa: nêu
-          điều cần đổi».
+          <b>Chọn hướng cho Ngoài-1</b> — làm gì: đọc mục Ngoài-1 ở khối "Ngoài hợp đồng"; ở đâu:
+          trả lời trong phiên đang trình thẻ; trả lời dạng: «Ngoài-1: ghi Known limits» hoặc
+          «Ngoài-1: mở hợp đồng mới» hoặc «Ngoài-1: nâng phạm vi sửa ngay».
         </p>
         <p class="li">
-          <b>Hỏi-1</b> — Tám ổ trống được ghi bằng dòng mới ở references/limits.json, nên dòng
-          «known limits: N open» của audit tăng; tiêu chí 7 coi con số ấy là dữ liệu, không phải
-          hành vi: máy khuyên Nhận con số giới hạn mở của audit tăng thêm đúng số dòng mới; phép đo
-          E8 cho phép đúng con số ấy khác.; «duyệt» là nhận khuyến nghị, chọn lối khác thì trả lời
-          «sửa: Hỏi-1 = &lt;lối&gt;».
+          <b>Chọn hướng cho Ngoài-2</b> — làm gì: đọc mục Ngoài-2 ở khối "Ngoài hợp đồng"; ở đâu:
+          trả lời trong phiên đang trình thẻ; trả lời dạng: «Ngoài-2: ghi Known limits» hoặc
+          «Ngoài-2: mở hợp đồng mới» hoặc «Ngoài-2: nâng phạm vi sửa ngay».
         </p>
         <p class="li">
-          <b>Hỏi-2</b> — Phép đo «đầu ra không đổi» là một script của riêng hồ sơ ở
-          _acceptance/bang-nang-luc-o-cam/rang/, kèm ca đối chứng dương của chính nó: máy khuyên Để
-          script trong hồ sơ, kèm ca đối chứng dương; nó là bằng chứng của vòng này, không phải công
-          cụ của repo.; «duyệt» là nhận khuyến nghị, chọn lối khác thì trả lời «sửa: Hỏi-2 =
-          &lt;lối&gt;».
+          <b>Chọn hướng cho Ngoài-3</b> — làm gì: đọc mục Ngoài-3 ở khối "Ngoài hợp đồng"; ở đâu:
+          trả lời trong phiên đang trình thẻ; trả lời dạng: «Ngoài-3: ghi Known limits» hoặc
+          «Ngoài-3: mở hợp đồng mới» hoặc «Ngoài-3: nâng phạm vi sửa ngay».
         </p>
-        <p class="li">Trả lời mẫu (một dòng, điền vào chỗ trống): «duyệt hay sửa: ___»</p>
+        <p class="li">
+          <b>Chọn hướng cho Ngoài-4</b> — làm gì: đọc mục Ngoài-4 ở khối "Ngoài hợp đồng"; ở đâu:
+          trả lời trong phiên đang trình thẻ; trả lời dạng: «Ngoài-4: ghi Known limits» hoặc
+          «Ngoài-4: mở hợp đồng mới» hoặc «Ngoài-4: nâng phạm vi sửa ngay».
+        </p>
+        <p class="li">
+          <b>Chấm E11 (câu hỏi cần mắt người)</b> — làm gì: đọc câu hỏi mở đầu bằng "E11" ở khối
+          "Việc chỉ mình bạn quyết được"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng:
+          «E11 Đạt» hoặc «E11 Chưa đạt vì nêu lý do».
+        </p>
+        <p class="li">
+          <b>Phần cắt/hoãn — máy đã điền «đồng ý cắt»</b> — làm gì: đọc mục xác nhận phạm vi ở trên;
+          ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: sửa ô «cắt/hoãn» trong dòng lệnh
+          thành «kéo vào: nêu mục» nếu anh không đồng ý.
+        </p>
+        <p class="li">
+          <b>7 quyết định ghi sau Cổng 1 (Treo-1…Treo-7) — máy đã điền «phê hết»</b> — làm gì: đọc
+          khối "Quyết định CHƯA duyệt"; ở đâu: trả lời trong phiên đang trình thẻ; trả lời dạng: sửa
+          ô «Treo» trong dòng lệnh thành «không phê: Treo-số» nếu có mục anh không phê.
+        </p>
+        <p class="li">
+          <b>Ký hay trả</b> — làm gì: sau khi trả lời các mục trên, chốt hồ sơ; ở đâu: trả lời trong
+          phiên đang trình thẻ; trả lời dạng: «Ký» hoặc «Trả lại: nêu lý do».
+        </p>
+        <p class="li">
+          Trả lời mẫu (một dòng, điền vào chỗ trống): «Ngoài-1: ___; Ngoài-2: ___; Ngoài-3: ___;
+          Ngoài-4: ___; E11: ___; ký hay trả: ___»
+        </p>
       </div>
       <div class="mach">
-        Dòng lệnh đã điền sẵn khuyến nghị: <b>/acceptance-gate:approve bang-nang-luc-o-cam duyệt</b>
-      </div>
-      <div class="mach goal">
-        Sau khi trả lời (duyệt hay sửa), dán dòng này để đoạn máy chạy tới cổng kế:
+        Dòng lệnh đã điền sẵn khuyến nghị — sửa ô nào anh nghĩ khác:
         <b
-          >/goal Feature bang-nang-luc-o-cam: coi là HOÀN THÀNH chỉ khi transcript cho thấy phiên
-          chính đã trình thẻ Cổng Bằng chứng của vòng bang-nang-luc-o-cam, hoặc (làn V) đã mở PR ở
-          S5, hoặc đã dừng ở một cổng có tên — Cổng Phạm vi, Gate 1.5, trần 3 round, dừng-vá,
-          DỪNG-lỗi có tên. Lượt BLOCKED vì hạ tầng chưa thử lại cùng round = CHƯA hoàn thành: máy
-          thử lại, không hỏi. Chỉ neo vào việc phiên đã trình trong transcript, không neo vào trạng
-          thái tệp. Hoặc dừng sau 15 turns.</b
+          >/acceptance-gate:signoff bang-nang-luc-o-cam Ngoài-1: mở hợp đồng mới; Ngoài-2: ghi Known
+          limits; Ngoài-3: ghi Known limits; Ngoài-4: ghi Known limits; E11: ___; cắt/hoãn: đồng ý
+          cắt; Treo: phê hết; ký hay trả: ___</b
         >
       </div>
       <div class="foot">
-        <span class="rev">↻ Sửa 1 dòng tiêu chí GIỜ rẻ hơn 10× phát hiện sai sau khi code.</span>
+        <span class="rev">↻ Đảo ngược dễ: trả lại → quay về code, không mất gì.</span>
         <div class="btns">
-          <button class="b no">Sửa lại</button><button class="b yes">Duyệt, cho code</button>
+          <button class="b no">Trả lại</button><button class="b yes">Ký duyệt</button>
         </div>
       </div>
     </div>
