@@ -132,6 +132,12 @@
       "templates": "8c99a1cad292e9090e5dca623432c9498a4c1b12",
       "scripts": "b1361aaceb2f4bad86be581081070befba3d4fc0",
       "tool": "9825ac8ec448643621af50e7b4ae12307a60ac1e"
+    },
+    {
+      "version": "0.20.0",
+      "templates": "8c99a1cad292e9090e5dca623432c9498a4c1b12",
+      "scripts": "2e61168ba48459b6ac527014cbe01051a988fa1c",
+      "tool": "9825ac8ec448643621af50e7b4ae12307a60ac1e"
     }
   ]
 }

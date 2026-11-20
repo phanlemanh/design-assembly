@@ -3472,6 +3472,17 @@
       "where": ["spec", "d0069"],
       "status": "open",
       "note": "The check that a script writes only the ledgers of its sockets reads the text of each script, so a script that reaches a ledger through a helper of another file is not seen."
+    },
+    {
+      "id": "fixed-first-lines-unchecked",
+      "area": "guide",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-20",
+      "where": ["spec", "d0070"],
+      "status": "open",
+      "note": "The lines of the rules page that say the owner's principles and direction are held by no check: nothing in a repository compares the page with the blueprint between two runs of the guide or of adopting, so a blueprint or a page changed by hand leaves them apart, and nothing tells whether a builder rested an open choice on them."
     }
   ]
 }

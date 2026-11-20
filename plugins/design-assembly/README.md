@@ -102,7 +102,8 @@ scale, shape). Density, elevation, motion and iconography are not.
   no screen opens a browser dialog or calls a toast library itself.
 - A repository's own test that names a decision with `decision:<id>` is taken as a proof of it.
 - Both paths leave `.claude/rules/design-assembly.md`: the rules held in that repository, written
-  for the agent that builds the next screen.
+  for the agent that builds the next screen. It opens with the principles the owner fixed and
+  the direction they took, where the blueprint has them.
 - A row a repository already has, with no check, is named with what could hold it, and given its
   pointer only when a person says so.
 - Both paths leave `design/component-registry.json`: the component manifest, written from the

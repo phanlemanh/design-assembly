@@ -11,7 +11,7 @@ import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
-import { directionProblem, directionsFor } from "./directions.mjs";
+import { directionProblem, DIRECTIONS, directionsFor } from "./directions.mjs";
 import {
   principleLines,
   principleProblems,
@@ -134,7 +134,7 @@ import {
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
-const BLUEPRINT = "design/blueprint.json";
+export const BLUEPRINT = "design/blueprint.json";
 const LAYER_STATUSES = ["pending", "decided", "planned"];
 const SOURCES = ["user", "proposed", "repo"];
 
@@ -1071,7 +1071,37 @@ export const OWNER_CALLS = {
 // it never names a rule that is not held or a file that is not there.
 export const RULES_PAGE = ".claude/rules/design-assembly.md";
 
-export function rulesPage(checks, has) {
+// What the owner fixed before any value, as the lines of the rules page: each principle that is
+// theirs, the direction they took, and how an agent uses them. A principle the owner did not fix
+// is named apart, as settling nothing. Empty where the blueprint has neither.
+const oneLine = (words) => String(words).replace(/\s+/g, " ").trim();
+function fixedFirst(blueprint, asks) {
+  // A principle with no words cannot be said: the guide refuses such a blueprint, and here it is
+  // passed over.
+  const principles = principlesOf(blueprint).filter(
+    (principle) => oneLine(principle.statement) !== "",
+  );
+  const theirs = principles.filter((principle) => principle.confirmed);
+  const unfixed = principles.filter((principle) => !principle.confirmed);
+  const direction = DIRECTIONS.find(
+    (item) => item.id === blueprint?.layers?.foundations?.direction,
+  );
+  if (principles.length === 0 && !direction) return [];
+  const named = (list) => list.map((principle) => `\`${ROW_PREFIX}${principle.id}\``).join(", ");
+  return [
+    ...theirs.map(
+      (principle) => `\`${ROW_PREFIX}${principle.id}\`: ${oneLine(principle.statement)}`,
+    ),
+    direction &&
+      `The direction the owner took is \`${direction.id}\`: ${oneLine(direction.character)}`,
+    // Whoever wrote it there: only a principle the owner fixed is theirs.
+    unfixed.length > 0 &&
+      `In the blueprint but not fixed by the owner, so settling nothing: ${named(unfixed)}.`,
+    `No check holds these lines: they are what every other choice rests on. Where a choice is still open, take what they favour and say which line it rests on. Where they do not speak, or pull two ways, the choice is the owner's${asks ? ": ask it as the section on the owner's questions says" : ""}. Never add a line here or reword one: only the owner fixes a principle or takes a direction.`,
+  ];
+}
+
+export function rulesPage(checks, has, blueprint = null) {
   const held = (id) => id in checks;
   // Where a screen is entered in the ledger: its own file, or the one file every screen shares.
   const inFragments = Object.values(checks)
@@ -1102,6 +1132,7 @@ export function rulesPage(checks, has) {
     const shown = items.filter(Boolean);
     if (shown.length > 0) lines.push("", `## ${title}`, "", ...shown.map((item) => `- ${item}`));
   };
+  section("What the owner fixed before any value", fixedFirst(blueprint, held("decision-sheet")));
   const typed = has("src/components/ui/typed-table.tsx");
   section("A table of data", [
     held("display-kind") &&
@@ -1579,7 +1610,7 @@ export function plan(target, blueprint) {
     ...(before.affected ? { affected: before.affected } : {}),
   };
   files[FILES.theme] = renderJson(data, lineWidth(target));
-  files[RULES_PAGE] = rulesPage(checks, (file) => file in files || read(file) !== null);
+  files[RULES_PAGE] = rulesPage(checks, (file) => file in files || read(file) !== null, blueprint);
   // The ledger may hold rows this plugin did not write: they are kept exactly as they are.
   // A principle the blueprint no longer lists leaves the ledger with it; a row another hand wrote
   // under the same prefix names another source and stays.

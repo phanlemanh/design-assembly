@@ -356,8 +356,9 @@
         {
           "id": "5.5",
           "what": "Nguyên tắc và hướng đi đã chốt vào trang luật cho tác tử",
-          "state": "todo",
-          "ref": "wiki/specs/0007-widen-the-entry-the-system-and-the-intent.md, việc 1; chủ repo nhận làm ngay ngày 2026-11-20 («Duyệt cả bốn», câu 3)"
+          "state": "done",
+          "ref": "wiki/specs/0007-widen-the-entry-the-system-and-the-intent.md, việc 1; wiki/decisions/0070-the-rules-page-opens-with-what-the-owner-fixed.md; chủ repo nhận làm ngay ngày 2026-11-20 («Duyệt cả bốn», câu 3)",
+          "command": "new"
         }
       ],
       "done_when": [
