@@ -120,6 +120,12 @@
       "templates": "57e0f19ad96d5e12f16ef147bc60977f8b4762f5",
       "scripts": "0495d9ff0486b3f0c8533f99aecba46fc1ef246d",
       "tool": "2136dfab3ef00b492a63db799ea777b0790ebbda"
+    },
+    {
+      "version": "0.18.0",
+      "templates": "57e0f19ad96d5e12f16ef147bc60977f8b4762f5",
+      "scripts": "19dd06c5e7ce0597173ae24907d07eac8ce16075",
+      "tool": "2136dfab3ef00b492a63db799ea777b0790ebbda"
     }
   ]
 }

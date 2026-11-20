@@ -69,6 +69,14 @@ It prints where the book is, the three numbers, and a `note:` for every pair of 
 that does not reach the contrast ratio of the conformance level. Where the repository has no
 browser to draw with, the states are listed without pictures and the script says so.
 
+The seventh sheet shows a do and a don't for each rule the ledger holds that has a picture: the
+colour contrast, the type scale, the spacing unit, the corner radius, the target size, the words of
+an error and the channel a result is told in. The small examples are drawn with the repository's
+own values inside the book, so they are there with or without a browser. Where the screens could
+be drawn, the four rules a stylesheet can break are also shown on the repository's own first
+screen, as it is beside the same screen with only that rule broken. The words of the sheet are the
+book's words file's, `examples` included, one rule at a time.
+
 The book draws with the build the repository's packages name. Where the repository keeps no
 screen list its build can load (`src/screens.ts`), the screens come from its ledger of screens, and
 each is drawn once, as it opens at its route, under the first state the ledger names; the other

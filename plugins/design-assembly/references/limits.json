@@ -315,6 +315,39 @@
       "note": "The second build's development server and its workers are stopped as one group of processes, which macOS and Linux have and Windows does not: there the server is left running once the drawing ends, and nothing says so."
     },
     {
+      "id": "examples-for-seven-rules",
+      "area": "book",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-20",
+      "where": ["d0068"],
+      "status": "open",
+      "note": "The handoff book has a do and a don't for seven rules only: the colour contrast, the type scale, the spacing unit, the corner radius, the target size, the words of an error and the channel of a result. The other rules the ledger holds, the patterns of screens and the states among them, have none."
+    },
+    {
+      "id": "broken-screen-reads-floor-variables",
+      "area": "book",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["d0068"],
+      "status": "open",
+      "note": "The repository's screen is broken by setting the variables the floor's components read (the text colours, the type steps, the spacing unit) and the corners of buttons, fields, tables, cards and dialogs. A screen that reads none of them comes out the same, and that rule is left out and said; a screen that reads only some of them shows less than the rule allows, and nothing measures how much of it changed."
+    },
+    {
+      "id": "broken-screen-first-screen-only",
+      "area": "book",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-20",
+      "where": ["d0068"],
+      "status": "open",
+      "note": "Each rule is shown broken on one screen, the first state reached by opening its screen, at the widest width, in light: a rule that matters most on another screen, at a narrow width or in dark is not shown there."
+    },
+    {
       "id": "record-panel-header-bar",
       "area": "checks",
       "kind": "unproven",

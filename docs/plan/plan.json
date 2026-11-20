@@ -304,7 +304,7 @@
         {
           "id": "4.5",
           "what": "Ví dụ nên và không nên trong cuốn hướng dẫn",
-          "state": "todo",
+          "state": "done",
           "command": "handoff"
         }
       ],
