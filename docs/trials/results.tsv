@@ -25,3 +25,4 @@ trial	date	role	brief	coverage	gate	guesses	asks	escapes	note
 9	2026-11-13	screen	standard		green	13	0	1	Tác tử khai 19, bỏ 6; ba chỗ đoán của lần tám đã mất, bốn chỗ mới hiện ra.
 10	2026-11-13	screen	standard		green	11	0	0	Chạy làm nhánh có của nhánh đối chứng; chỉ vai dựng màn, vai dẫn dắt và vai nhận không chạy lần này.
 11	2026-11-18	screen	standard		green	9	0	1	Lần đầu có hàng chờ: tác tử khai 18, bỏ 9; 6 trên 9 chỗ vào hàng chờ, 3 chỗ tự quyết lặng lẽ. Bản sao bỏ thêm phần kế hoạch và có lối chạy lệnh của plugin, nên không so thẳng với lần 7 tới 10.
+12	2026-11-21	screen	standard		green	11	0	1	Lần đầu có lệnh brief: tác tử chạy nó ba lần, đều trước khi dựng; khai 22, bỏ 11; 2 trên 11 chỗ vào hàng chờ, 9 tự quyết lặng lẽ. Plugin đi từ bản của lần 11 lên 0.24.0 và bản sao bỏ thêm hồ sơ của bộ kit, nên không so thẳng với lần 11.

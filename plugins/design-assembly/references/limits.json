@@ -3745,9 +3745,9 @@
       "severity": "high",
       "plan": "fix",
       "opened": "2026-11-21",
-      "where": ["spec", "d0074"],
+      "where": ["spec", "d0074", "trials"],
       "status": "open",
-      "note": "No independent builder has built a screen from a sheet yet, so whether the sheet lowers the number of places a builder has to guess is not known."
+      "note": "One independent builder has built a screen from a sheet, once: it counted more places it had to guess than the last builder without a sheet, on copies that differ in more than the sheet. One run does not say whether the sheet lowers the number of places a builder has to guess."
     },
     {
       "id": "brief-sheet-look-unseen-by-the-owner",
@@ -3814,6 +3814,61 @@
       "where": ["spec", "d0075"],
       "status": "open",
       "note": "The brief refuses to queue where the tool a repository copied is older than the one that reads a question about a slot of a screen. The call it prints for one slot is the decision sheet's own, which has no such refusal: run there, it writes a question that repository's gate reads as broken until the tool is upgraded."
+    },
+    {
+      "id": "brief-sheet-narrows-what-the-builder-asks",
+      "area": "brief",
+      "kind": "wrong-signal",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["trials"],
+      "status": "open",
+      "note": "A builder that runs the brief queues the open slots of the sheet and may ask nothing else: in its one trial the builder queued the three open slots, asked no question of its own, and decided alone nine choices no page settled (the name and the shape of the new concept, its words, which other screen hides the new items, sample data, the look and the spoken name of the buttons in a row's list, a waiting state with no words, the kind of the new action). The sheet's ten settled slots read as nothing left to ask, and nothing sees what a builder chose outside the twelve slots."
+    },
+    {
+      "id": "brief-settled-by-rows-the-builder-wrote",
+      "area": "brief",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The sheet reads the ledger of screens and the data model as they stand in the working tree, so a row or an entity the builder wrote a minute earlier settles a slot as if it were the repository's: changes to the data model is settled once the builder has added the new field and actions, and the states slot by the states the builder listed. The sheet does not tell a source the builder wrote in this change from one already kept, and it asks nothing about the shape of what was added."
+    },
+    {
+      "id": "brief-touched-screens-recommends-no-change",
+      "area": "brief",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The other screens it touches recommends changing no other screen, even where the screen cannot work unless another one changes (a new action that is pressed on another screen, a list that must leave out what the new screen holds). Its measure names the screens that share an entity or an action and not what the change asks of them, so the question it queues carries a recommendation the builder may have to go against."
+    },
+    {
+      "id": "queued-recommendation-not-held-against-the-change",
+      "area": "decide",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["trials"],
+      "status": "open",
+      "note": "A builder that queues a question goes on with its recommendation, and nothing compares what it then builds with that recommendation. A builder that does the opposite leaves the waiting list saying what was not done: the owner reads the recommendation, keeps it, and the change already went the other way."
+    },
+    {
+      "id": "brief-kind-job-read-as-the-screens",
+      "area": "brief",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The kind slot gives what a person comes to a screen of the kind for, read from the page of the kind, as if it were the screen's own: the page of a kind describes its reference screen, so for a second screen of the kind with another job (a list a person cannot add to) the line says something untrue of that screen."
     }
   ]
 }

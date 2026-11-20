@@ -718,6 +718,16 @@ nó tự quyết lặng lẽ. Bản sao khác các lần trước ở ba chỗ (
 màn» khi kho đã có hai), nên số 9 không so thẳng với chuỗi 12, 12, 13, 11. Các điều tác tử báo chưa được kiểm từng điều
 và chưa thành dòng sổ giới hạn. Chi tiết ở `docs/trials/stage-8-done-when.md`.
 
+### Chạy thử lần mười hai (2026-11-21)
+
+Chỉ vai dựng màn, đề chuẩn nguyên văn, cho mục 5.4: lần đầu tác tử có lệnh `brief`. Tác tử tự tìm ra phiếu từ trang
+luật và chạy nó ba lần, cả ba trước khi dựng. Trước lần đầu, nó ghi màn mới vào sổ màn với `planned`. Nó xếp ba ô còn
+mở của phiếu vào hàng chờ, không dừng hỏi lần nào và không hỏi câu nào của riêng nó; cổng xanh. Nó khai 22 chỗ tự
+quyết. Sau khi kiểm còn 11 chỗ phải đoán, so với 9 của lần 11: 2 chỗ vào hàng chờ, 9 chỗ tự quyết lặng lẽ. Ô 11 bắt
+được chỗ của màn trong điều hướng. Ô 12 hỏi về màn khác nhưng khuyến nghị ngược với điều đã dựng. Ô 10 không bắt được
+hình dạng khái niệm mới. Plugin đã đi từ 0.7.1 lên 0.24.0 và bản sao bỏ thêm hồ sơ của bộ kit, nên con số không so
+thẳng với lần 11. Năm dòng sổ giới hạn mới; chi tiết ở `docs/trials/screen-trial-12-with-the-brief.md`.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.
