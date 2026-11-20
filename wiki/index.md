@@ -20,7 +20,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 
 ## Specs
 
-- [0008 Năng lực, ổ cắm và phích cắm — Design Assembly giữ lõi, ai làm tốt hơn thì cắm vào](specs/0008-capabilities-sockets-and-plugs.md) — chủ repo duyệt 2026-11-20, sáu khuyến nghị rồi hai câu sau lượt quét; danh mục đóng hai mươi năng lực; dựng theo mục 5.0 của kế hoạch
+- [0008 Năng lực, ổ cắm và phích cắm — Design Assembly giữ lõi, ai làm tốt hơn thì cắm vào](specs/0008-capabilities-sockets-and-plugs.md) — chủ repo duyệt 2026-11-20, sáu khuyến nghị rồi hai câu sau lượt quét; danh mục đóng hai mươi năng lực; mục 5.0 đã dựng (0069), plugin 0.19.0
 - [0007 Mở rộng ở ba chỗ — cửa vào, bề rộng của hệ, và ý đồ thiết kế tới tay tác tử](specs/0007-widen-the-entry-the-system-and-the-intent.md) — khuyến nghị chờ chủ repo duyệt, tổng hợp hai bản điều tra Claude Design và stitch-skills ngày 2026-11-20; sáu việc theo thứ tự, năm câu hỏi còn mở; chưa đổi kế hoạch
 - [0006 Kho dùng lại — sổ nguồn ngoài, và bốn lệnh tra kho, kiểm kê kho, nhập kho, đổi](specs/0006-the-reusable-store.md) — đề bài của giai đoạn 3, chủ repo duyệt 2026-11-19 và đáp cả mười câu hỏi theo khuyến nghị; dựng theo mục 3.1 đến 3.5 của kế hoạch
 - [0005 Sổ thiết kế thôi đi theo PR, bản đồ màn tới bài kiểm, và sổ quyết định đứng thay trưởng thiết kế](specs/0005-ledgers-stop-riding-pull-requests.md) — đã duyệt 2026-11-16, kèm luật «mọi repo, mọi giai đoạn»; dựng theo mục 8.1 đến 8.4 của kế hoạch
@@ -39,6 +39,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 - [0066 Next.js là nền dựng thứ hai plugin vẽ được, chạy bằng máy chủ phát triển của chính repo](decisions/0066-next-js-is-the-second-build-the-plugin-draws-with.md) — `plugins/design-assembly/templates/tools/design-assembly/adapters/nextjs-build.mjs`; mục 4.3; plugin 0.16.0
 - [0067 Thư viện linh kiện đặt trong một gói được đọc từ cấu hình của nó, theo từng tệp khi thư mục dùng chung](decisions/0067-a-component-library-kept-in-a-package-is-read-from-its-settings.md) — `plugins/design-assembly/templates/tools/design-assembly/components.mjs`; mục 4.4; plugin 0.17.0
 - [0068 Cuốn hướng dẫn có một ví dụ nên và một ví dụ không nên cho mỗi luật có hình](decisions/0068-the-handoff-book-shows-a-do-and-a-dont-for-each-rule.md) — `plugins/design-assembly/scripts/examples.mjs`; mục 4.5; plugin 0.18.0
+- [0069 Bảng năng lực của plugin, phích ngoài mỗi phích một tệp, và năm phép kiểm giữ bảng](decisions/0069-the-capability-table-and-its-checks.md) — `plugins/design-assembly/references/capabilities.json`; mục 5.0; plugin 0.19.0
 - [0060 Lệnh find tra kho từ gần tới xa, dừng ở tầng đầu tiên trả lời](decisions/0060-find-searches-the-store-nearest-first.md) — `plugins/design-assembly/scripts/find.mjs`; mục 3.2; plugin 0.10.0
 - [0059 Kho công khai trên GitHub, theo giấy phép MIT](decisions/0059-the-repository-is-public-under-the-mit-licence.md) — `LICENSE`; ngoài kế hoạch, chủ repo quyết
 - [0058 Script của audit mang tên lệnh của nó; tên cũ từ chối mọi lời gọi cho tới lệnh kiểm kê](decisions/0058-the-audit-script-takes-its-command-name.md) — `plugins/design-assembly/scripts/audit.mjs`; phần một của mục 3.4; plugin 0.9.0

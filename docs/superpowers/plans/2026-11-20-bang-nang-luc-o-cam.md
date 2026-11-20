@@ -61,7 +61,7 @@ Phục vụ E1, E2, E5, E9, E10, E11. `independent: false` (Task 2 và 3 dựng 
   `faceProblems(table) → string[]`. Mỗi chuỗi mở bằng id năng lực hay tên tệp.
 - Khoá của một năng lực: `id`, `stage`, `name`, `socket { writes[], outputs[], checks[], decides, human, machine }`,
   `plugs[] { id, kind, default, scripts[] }`, `layers[]`, `tiers[]`, `limit?`. Khoá cấp tệp: `routes[] { script,
-  through[] }`. `human`/`machine`: `{ shows?, asks? }` / `{ rules?, held_by? }`, hoặc `{ reason }`.
+through[] }`. `human`/`machine`: `{ shows?, asks? }` / `{ rules?, held_by? }`, hoặc `{ reason }`.
 - `checks` nhận `make <đích>` có trong `templates/mk/design-assembly.mk`, hoặc `/design-assembly:<skill>` có thư mục
   ở `skills/`.
 
