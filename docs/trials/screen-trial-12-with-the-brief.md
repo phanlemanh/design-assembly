@@ -237,8 +237,8 @@ Dòng ấy đòi: một tác tử độc lập dựng một màn chỉ từ brie
   (8 hoặc 9) thì mới «không tăng», và cách đọc ấy chọn sau khi đã thấy số. Đếm cách nào thì phần vào hàng chờ cũng giảm:
   từ 6 trên 9 xuống 2 trên 11.
 
-Mục 5.4 đã xong. Giai đoạn 5 chưa đóng. Còn lại là việc của chủ repo:
+Mục 5.4 đã xong. Giai đoạn 5 chưa đóng. Phiên điều phối đưa chủ repo ba hướng: coi dòng «done when» là chưa đạt, cho
+chạy thêm một lượt, hoặc đổi cách đo theo câu B3 đã giữ ngày 2026-11-16.
 
-- coi dòng «done when» là chưa đạt;
-- hoặc cho chạy thêm một lượt, chẳng hạn sau khi sửa các dòng mới ở sổ giới hạn;
-- hoặc đổi cách đo, theo câu B3 đã giữ ngày 2026-11-16: số chỗ đoán thành số phụ.
+**Chủ repo chọn ngày 2026-11-21: coi là chưa đạt** («Count it not met»). Giai đoạn 5 vẫn mở. Lời chọn không nói làm gì
+tiếp: sửa các dòng sổ giới hạn mới, chạy lượt khác hay đổi cách đo đều chưa được giao.
