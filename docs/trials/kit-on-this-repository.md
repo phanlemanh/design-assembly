@@ -216,10 +216,94 @@ Mỗi mục ghi rõ nó là **đã gặp** (có lệnh và đầu ra) hay **đo 
   của bộ kit so từng byte của nó (khác với `LO-TRINH.html`, mục 8). Mỗi lần dựng lại thẻ phải định dạng lại.
 - **Chủ repo quyết:** để vậy, hay thêm `_acceptance/**/*.html` vào `.prettierignore`.
 
+### 15. Skill viết kế hoạch của Superpowers xin người duyệt kế hoạch và chọn cách thi công; vòng T2 của bộ kit không dừng ở đó
+
+Đã gặp, ở bước S2.
+
+- **Skill con muốn:** người đọc kế hoạch, rồi chọn thi công bằng tác tử con hay ngay trong phiên.
+- **Bộ kit nói:** ở hạng T2, S2 xong thì vào S3 ngay; chỉ hạng T3 dừng ở Gate 1.5.
+- **Đã làm:** theo bộ kit, thi công ngay trong phiên, tuần tự, vì chỉ một việc của kế hoạch là độc lập.
+- **Chủ repo quyết:** không cần quyết.
+
+### 16. Lượt chấm S4 cần cây đứng yên, nên sổ va chạm không ghi được trong lúc chấm
+
+Đã gặp, ở bước S4.
+
+- **Bộ kit muốn:** giữa lúc sinh tham số chấm và lúc lượt chấm xong, không tệp nào được theo dõi trong vật hay thước
+  của repo đổi. Đổi thì lượt ấy bị bỏ (mã 6, «cây đổi trong lượt chấm»).
+- **Ảnh hưởng ở repo này:** `make check` chạy gần năm phút trong mỗi lượt. Trong lúc ấy không sửa được tệp nào, kể cả
+  trang tài liệu này. Một lần trước đó, ghi tệp ở gốc repo trong lúc `make check` chạy đã làm bài kiểm cuốn sổ đỏ oan.
+- **Đã làm:** soạn sổ ở thư mục tạm, chép vào repo sau khi lượt chấm xong.
+- **Chủ repo quyết:** không cần quyết.
+
+### 17. Bản ghi máy viết của bộ kit và tệp tham số chấm gặp Prettier
+
+Đã gặp, ở lượt chấm 1.
+
+- **Bộ kit muốn:** viết `s4-args.json` vào hồ sơ trước mỗi lượt chấm, rồi `evidence-report.md`, `review-findings.md`,
+  `usage-report.md` sau lượt; bộ kiểm lại bằng chứng của bộ kit đọc chúng theo dòng.
+- **Luật của repo:** `prettier --check .`. Lệnh suite `make check` của lượt 1 đỏ chỉ vì `s4-args.json` chưa định dạng;
+  sau lượt 1, `evidence-report.md` và `usage-report.md` cũng lệch khuôn.
+- **Đã làm:** thêm năm mẫu đường dẫn của bản ghi máy viết vào `.prettierignore`, kèm dòng chú thích. Không định dạng
+  chúng, vì Prettier sẽ viết lại các khối mà bộ kit đọc từng dòng.
+- **Chủ repo quyết:** nhận năm dòng bỏ qua này, cùng dòng `LO-TRINH.html` ở mục 8, hay không.
+
+### 18. Bộ bài kiểm của plugin không chạy song song được, mà lượt chấm chạy phép đo song song với suite
+
+Đã gặp, ở lượt chấm 1.
+
+- **Bộ kit muốn:** chạy các phép đo máy song song, và chạy lệnh suite (`make check`) cạnh chúng.
+- **Repo này có:** một giới hạn đã ghi ở mục «set aside» của kế hoạch: hai bản bài kiểm của plugin chạy cùng lúc trong
+  một thư mục làm việc thì xoá tệp của nhau. E7 (`make plugin-test`) và `make check` chạy cùng lúc, và
+  `test-next-build.mjs` đỏ. Chạy riêng thì 780 bài qua.
+- **Đã làm:** E7 đo bằng chính lệnh suite, nên bộ kit gộp hai lần chạy làm một. Một dòng `fix` ở sổ quyết định.
+- **Chủ repo quyết:** không cần quyết cho vòng này. Giới hạn chạy song song của bộ bài kiểm vẫn mở.
+
+### 19. Các làn chấm chạy đồng thời, mà một bài kiểm của plugin đếm máy chủ trên cả máy
+
+Đã gặp, ở lượt chấm 3. Đây là lý do vòng dừng.
+
+- **Bộ kit muốn:** trong một lượt chấm, chạy lệnh suite ở cây đang kiểm và chạy cùng lệnh ấy ở cây gốc (làn đối chứng),
+  song song.
+- **Repo này có:** bài kiểm `test-next-build.mjs` (dòng 196) đòi «không còn máy chủ phát triển Next.js nào chạy» sau khi
+  cuốn sổ vẽ xong. Nó đếm máy chủ trên cả máy, nên bản chạy ở cây gốc làm bản kia đỏ. Lượt 1 đỏ cùng lớp ấy (hai bản
+  chạy cùng lúc). Chạy riêng một bản thì xanh: 780 bài qua ở `26dfebc`.
+- **Đã làm:** dừng theo khoản «dừng vá» của bộ kit và trần ba lượt. Không sửa bài kiểm của repo, vì nó không thuộc mục
+  5.0 và sửa nó ở đây là nới một phép kiểm để qua cổng.
+- **Chủ repo quyết:** chọn một trong ba lối ra trên thẻ Cổng Bằng chứng. Việc thật cần làm là cho bài kiểm ấy chỉ đếm
+  máy chủ do chính nó mở, một việc riêng ngoài mục 5.0.
+
 ## Số đo
 
-Điền khi lượt thử chạy.
+Tính tới lượt chấm 3, ngày 2026-11-20.
+
+| Thước                            | Số                                                                                                           |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Lượt người trả lời hay gõ lệnh   | 6: gõ lệnh khởi tạo, duyệt bản nháp, Cổng Đáng, chọn lệnh suite, gõ lệnh duyệt Cổng Phạm vi, câu địa chỉ thư |
+| Lượt chấm S4                     | 3, cả ba REJECT; 9, 5 và 6 phút máy                                                                          |
+| Tác tử con của lượt chấm         | 18, 16 và 15; khoảng 2,2 triệu token                                                                         |
+| Hạn mức tuần đã dùng             | 44% lúc mở vòng, 47% sau lượt 1                                                                              |
+| make check ở 26dfebc, chạy riêng | xanh; 780 bài của plugin qua, 9 bỏ qua                                                                       |
+| Va chạm ghi được                 | 19                                                                                                           |
+
+Ba lượt đỏ không lượt nào vì sản phẩm. Lượt 1 và lượt 3: các lần chạy đồng thời giẫm lên nhau (mục 18 và 19). Lượt 2:
+một chữ phải tránh mà chính lượt sửa 1 đưa vào (bài kiểm từ vựng của repo bắt được).
 
 ## Khuyến nghị: tệp nào là kế hoạch duy nhất
 
-Viết khi lượt thử xong.
+Khuyến nghị: giữ `docs/plan/plan.json` là kế hoạch duy nhất. `docs/plan/lo-trinh.json` chỉ là bản chép cho bộ kit chạy,
+không ai sửa tay.
+
+- `plan.json` có thứ lộ trình không có: giai đoạn, dòng «xong khi», mục đã gác lại, và lời duyệt của chủ repo.
+  `make plan-check` giữ nó, kèm dòng `Plan:` của mỗi nhánh.
+- Lộ trình của bộ kit suy trạng thái từ hồ sơ, nên hai tệp sẽ lệch nhau ngay khi một tệp đổi mà tệp kia không
+  (mục 4). Lượt thử này giữ khớp bằng tay: mã hàng đặt bằng mã mục (`5.0`), và `plan.json` được đặt `done` trong
+  cùng thay đổi.
+- Nếu giữ bộ kit: thêm một công cụ của repo sinh các hàng của giai đoạn đang mở từ `plan.json` (một hàng mỗi mục, mã
+  bằng mã mục), và một phép kiểm đỏ khi lộ trình có hàng không thuộc mục nào. Khi ấy Cổng Đáng là thừa với mục đã duyệt
+  (mục 9); việc bỏ nó thuộc bộ kit.
+- Nếu không giữ: bỏ `roadmap` khỏi `.claude/settings.json`, bỏ khoá `lo_trinh`, và chạy vòng bằng một câu mô tả mục.
+  Bộ kit cho phép thế khi kho không bật luật chặn lộ trình.
+
+Cái giá của bộ kit ở repo này, đo được ở trên: sáu lượt người tới trước Cổng Bằng chứng; mười chín va chạm; và ba lượt
+chấm cùng gặp một giới hạn có sẵn của bộ bài kiểm mà `make check` chạy riêng không gặp.

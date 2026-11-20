@@ -1,84 +1,10 @@
 {
   "feature_plain": "Chủ repo nhìn một lệnh là biết mỗi việc của hệ thiết kế do ai làm, chỗ nào còn trống, và máy đỏ ngay khi bảng ấy nói sai.",
-  "will_do": [
+  "decisions": [
     {
-      "id": "AC-1",
-      "p": "Sẽ có một bảng máy đọc được gồm đúng hai mươi việc của hệ thiết kế; mỗi việc nói nó ghi sổ nào, giao ra gì, lệnh nào giữ, ai quyết, và ai đang làm nó; bảng ghi sai một chỗ thì máy đỏ và gọi tên việc ấy."
-    },
-    {
-      "id": "AC-4",
-      "p": "Sẽ đỏ khi tên một công cụ bên ngoài lọt vào phần lõi của plugin, kể cả vào chính bảng và các trang hướng dẫn; tên ấy chỉ được ở thư mục dành cho đồ cắm vào."
-    },
-    {
-      "id": "AC-5",
-      "p": "Sẽ đỏ khi một tầng hay một bậc của hệ thiết kế không có việc nào với tới."
-    },
-    {
-      "id": "AC-6",
-      "p": "Sẽ cho lệnh xem tình hình nói thêm hai dòng: bao nhiêu việc đã có người làm trên tổng số, và tên các việc còn trống; bản cho máy có trọn bảng."
-    },
-    {
-      "id": "AC-7",
-      "p": "Sẽ giữ nguyên mọi lệnh đang có: bộ bài kiểm vẫn xanh, và đầu ra chỉ khác ở hai dòng mới cùng một con số anh duyệt ở câu hỏi 1."
-    }
-  ],
-  "wont_do": [
-    {
-      "id": "AC-2",
-      "p": "Chặn một việc không có ai làm mà cũng không được ghi vào sổ giới hạn: không việc nào được trống im lặng."
-    },
-    {
-      "id": "AC-3",
-      "p": "Chặn hai việc cùng ghi một sổ, và chặn một lệnh ghi vào sổ không thuộc việc của nó."
-    },
-    {
-      "id": "OOS-1",
-      "p": "Sẽ KHÔNG cắm công cụ bên ngoài nào vào thật, cũng không đo công cụ ngoài nào; việc ấy bắt đầu từ mục 5.2."
-    },
-    {
-      "id": "OOS-2",
-      "p": "Sẽ KHÔNG viết lại hay đổi cách làm của lệnh nào đang có; các lệnh chỉ được ghi tên vào bảng."
-    },
-    {
-      "id": "OOS-3",
-      "p": "Sẽ KHÔNG thêm sổ mới nào vào bộ sổ của repo; bảng là tài liệu tham chiếu của plugin."
-    },
-    {
-      "id": "OOS-4",
-      "p": "Sẽ KHÔNG chạy công cụ ngoài hay lên mạng để biết repo đang dùng công cụ nào; máy chỉ nhìn tệp trong repo."
-    },
-    {
-      "id": "OOS-5",
-      "p": "Sẽ KHÔNG sửa chữ của các tài liệu tham chiếu khác để phép «lõi sạch» phủ cả chúng."
-    }
-  ],
-  "scope_plain": "Năm điều người duyệt có thể chờ đợi nhưng vòng này cố ý để lại:",
-  "coverage_plain": [
-    {
-      "i": 0,
-      "p": "Không quét thêm cho đủ: tám tiêu chí là đúng tám dòng anh đã duyệt trong đề bài 0008, và danh mục hai mươi việc đã được quét cho đủ ngay trong đề bài ấy."
-    }
-  ],
-  "gap_probe_plain": [
-    {
-      "i": 0,
-      "p": "Phép đo «đầu ra không đổi» chưa từng được thấy đỏ, và con số được phép khác chưa ghim. Đã sửa: phép đo phải tự chứng nó bắt được một khác biệt, ghim đúng con số tăng, và in commit đã so. Chỗ đặt phép đo thành câu hỏi 2."
-    },
-    {
-      "i": 1,
-      "p": "Lý do chỉ thêm hai dòng vào lệnh xem tình hình chưa có số. Đã đo: bản hiện tại in 29 và 38 dòng trên hai mẫu, in trọn bảng sẽ thành 49 và 58, quá trần 40 dòng."
-    },
-    {
-      "i": 2,
-      "p": "Phép «không trùng» có thể xanh một cách rỗng nếu không thấy lệnh thật nào ghi sổ. Đã sửa: nó phải thấy được các lệnh thật ghi sổ, và ca đỏ được chép từ một lệnh thật."
-    },
-    {
-      "i": 3,
-      "p": "Phép «lõi sạch» chưa chứng nó quét cả bảng và trang hướng dẫn. Đã sửa: mỗi phần của lõi có ca đỏ riêng."
-    },
-    {
-      "i": 4,
-      "p": "Bảng có thể trỏ tới lệnh hay sổ không có thật mà vẫn xanh. Đã sửa: thêm ca đỏ cho lệnh không có, sổ không có và đích kiểm không có."
+      "id": "E11",
+      "q": "Bảy ổ trống cộng ổ soát thiết kế chỉ có phích một phần, có đúng «tám chỗ» đề bài nói không?",
+      "why": "Đề bài đếm tám chỗ chưa có phích; bảng để trống bảy ổ và ghi ổ soát thiết kế là có phích nhưng thiếu phần nhìn."
     }
   ]
 }
