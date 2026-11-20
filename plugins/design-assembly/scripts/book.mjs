@@ -44,6 +44,7 @@ import {
   refuse,
   start,
 } from "./command.mjs";
+import { breakingCss, EXAMPLE_RULES, examplePairs, exampleRules } from "./examples.mjs";
 import { escape, familyStyles, originOf } from "./family.mjs";
 import { audit } from "./audit.mjs";
 import { openStage, printPdf, stageAdapters } from "./stage.mjs";
@@ -169,6 +170,56 @@ export const WORDS = {
   noPicturesScreens:
     "No picture could be drawn in this book: it draws screens and components inside the repository's own app, starting from its list of screens in `src/screens.ts`, and this repository keeps that list elsewhere.",
   noPicturesStopped: "No picture could be drawn here: the drawing stopped before it finished.",
+  examplesTitle: "Do and don't",
+  examplesQuestion: "What keeping each rule looks like, and what breaking it looks like",
+  examplesLede:
+    "Each rule the ledger holds, once kept and once broken. The small examples are drawn with this product's own values; where the product's screen could be drawn, it is shown as it is beside the same screen with only that rule broken.",
+  doLabel: "Do",
+  dontLabel: "Don't",
+  onScreen: "On this product's own screen",
+  keptScreen: "as it is",
+  brokenScreen: "with this rule broken",
+  noExamples: "No rule the ledger holds has an example in this book yet.",
+  examples: {
+    "color-contrast": {
+      title: "Text stands out from what it sits on",
+      why: "Below the ratio the conformance level asks, people with low vision, or on a bright screen, cannot read it.",
+      label: "Save",
+    },
+    "type-scale-values": {
+      title: "Every size is a step of the type scale",
+      why: "Sizes between the steps blur the order of importance, and each screen ends up with its own.",
+      heading: "Monthly report",
+      body: "Three items wait for a reply.",
+      note: "Updated today",
+    },
+    "spacing-values": {
+      title: "Every distance is a multiple of the spacing unit",
+      why: "Distances off the unit make edges that almost line up, which reads as a mistake.",
+    },
+    "radius-value": {
+      title: "One corner radius, the decided one",
+      why: "Corners that differ from shape to shape make one product look like several.",
+    },
+    "target-size": {
+      title: "A control is as large as a finger and a pointer need",
+      why: "A control below the target size the conformance level asks is missed, and the wrong one is pressed.",
+      label: "Remove",
+    },
+    "error-copy": {
+      title: "An error says what happened, then what to do",
+      why: "A message that only says something went wrong leaves the person nothing to do but try the same again.",
+      doText: "The item could not be saved. Check the connection, then save again.",
+      dontText: "Error.",
+    },
+    "notification-channel": {
+      title: "A result is told in the product's own place for it",
+      why: "The browser's own dialog stops everything, cannot be styled, and reads like a warning from the browser itself.",
+      doText: "The item was saved.",
+      dontText: "localhost says: Saved",
+      ok: "OK",
+    },
+  },
 };
 
 function ratio(text, ground) {
@@ -322,6 +373,10 @@ export function collectFacts(target) {
       states: screen.states,
     })),
     widths: json(SIZES_FILE)?.widths ?? [],
+    // The rules with a do and a don't that the ledger holds.
+    rules: audited.decisions
+      .filter((decision) => decision.in_ledger && EXAMPLE_RULES.includes(decision.id))
+      .map((decision) => decision.id),
   };
 }
 
@@ -949,13 +1004,48 @@ function statesSheet(facts, w, audience, drawn) {
   );
 }
 
+// A do and a don't for each rule the ledger holds that has a picture: the small examples, and the
+// product's own screen beside it broken where it could be drawn.
+function examplesSheet(facts, w, drawn) {
+  const pairs = examplePairs(facts, w);
+  if (pairs.length === 0) {
+    return sheet(
+      7,
+      w.examplesTitle,
+      w.examplesQuestion,
+      w.examplesLede,
+      `<p class="note">${escape(w.noExamples)}</p>`,
+    );
+  }
+  const kept = drawn?.kept ?? null;
+  const rows = pairs
+    .map((pair) => {
+      const broken = drawn?.broken?.[pair.rule];
+      const screen =
+        kept && broken
+          ? `<div class="ex-screen"><p class="label">${escape(w.onScreen)}</p><div class="two"><figure class="kept"><img src="${kept}" alt="${escape(w.keptScreen)}" /><figcaption>${escape(w.doLabel)} · ${escape(w.keptScreen)}</figcaption></figure><figure class="broken" data-rule="${escape(pair.rule)}"><img src="${broken}" alt="${escape(w.brokenScreen)}" /><figcaption>${escape(w.dontLabel)} · ${escape(w.brokenScreen)}</figcaption></figure></div></div>`
+          : "";
+      return `<article class="example" data-rule="${escape(pair.rule)}">
+        <h3>${escape(pair.title)}</h3>
+        <p class="muted">${escape(pair.why)}</p>
+        <div class="two">
+          <div class="ex-do"><p class="label">${escape(w.doLabel)}</p>${pair.do}</div>
+          <div class="ex-dont"><p class="label">${escape(w.dontLabel)}</p>${pair.dont}</div>
+        </div>
+        ${screen}
+      </article>`;
+    })
+    .join("");
+  return sheet(7, w.examplesTitle, w.examplesQuestion, w.examplesLede, rows);
+}
+
 function closing(w, audience) {
   const commands =
     audience === "builder"
       ? `<h3>${escape(w.commands)}</h3><ul class="plain mono"><li>make check</li><li>make design-assembly</li><li>make design-rate</li><li>make design-tokens</li></ul>`
       : "";
   return sheet(
-    7,
+    8,
     w.closeTitle,
     w.closeTitle,
     w.closeLede,
@@ -974,6 +1064,14 @@ export function renderBook(
     ...words,
     tierStates: { ...WORDS.tierStates, ...words.tierStates },
     questions: { ...WORDS.questions, ...words.questions },
+    // The words of each example, one rule at a time: a rule the repository's file names keeps
+    // every word it leaves out.
+    examples: Object.fromEntries(
+      Object.entries(WORDS.examples).map(([rule, said]) => [
+        rule,
+        { ...said, ...words.examples?.[rule] },
+      ]),
+    ),
   };
   // `unable` is why nothing was drawn, when nothing was: the sheets then say that reason.
   w.noPictures =
@@ -1086,6 +1184,25 @@ ${familyStyles(look)}
   figure img { display: block; width: 100%; border: 1px solid var(--line); border-radius: var(--radius); }
   figure.narrow { margin-top: 16px; width: 200px; }
   figcaption { margin-top: 6px; font-size: var(--xs); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .example { padding: 28px 0; border-top: 1px solid var(--line); break-inside: avoid; }
+  .example h3 { margin-top: 0; }
+  .ex-do, .ex-dont { padding: 20px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--card, var(--bg)); }
+  .ex-do .label { color: var(--accent); }
+  .ex-dont .label { color: var(--danger, #b42318); }
+  .ex-ratio { margin-left: 12px; font-variant-numeric: tabular-nums; color: var(--muted); }
+  .ex-line { height: 10px; background: color-mix(in oklab, var(--fg) 18%, var(--bg)); }
+  .ex-stack { background: color-mix(in oklab, var(--accent) 8%, var(--bg)); }
+  .ex-shapes { display: flex; gap: 16px; align-items: flex-end; }
+  .ex-card { width: 120px; height: 72px; background: color-mix(in oklab, var(--fg) 8%, var(--bg)); }
+  .ex-button { width: 72px; height: 32px; background: var(--accent); }
+  .ex-field { width: 120px; height: 32px; box-shadow: inset 0 0 0 1px var(--line); }
+  .ex-control { display: inline-flex; align-items: center; padding: 0 12px; font-size: var(--xs); box-shadow: inset 0 0 0 1px var(--line); border-radius: calc(var(--radius) * 0.7); }
+  .ex-alert { padding: 12px 14px; border-left: 3px solid var(--danger, #b42318); background: color-mix(in oklab, var(--danger, #b42318) 6%, var(--bg)); }
+  .ex-toast { display: inline-block; padding: 12px 16px; border-radius: var(--radius); box-shadow: 0 6px 24px rgb(0 0 0 / 0.14); background: var(--bg); }
+  .ex-dialog { max-width: 300px; padding: 14px 16px; border: 1px solid #c7c7c7; background: #f2f2f2; font: 13px system-ui, sans-serif; color: #222; }
+  .ex-dialog p { margin: 0 0 12px; }
+  .ex-dialog span { display: inline-block; padding: 3px 14px; border: 1px solid #9a9a9a; border-radius: 4px; background: #fff; }
+  .ex-screen { margin-top: 20px; }
   @media print { .book { padding: 0 24px; } .sheet { padding: 40px 0; } }
 </style>
 </head>
@@ -1098,6 +1215,7 @@ ${componentsSheet(facts, w, audience, drawn)}
 ${kindsSheet(facts, w, audience, drawn)}
 ${pathsSheet(facts, w, audience, drawn)}
 ${statesSheet(facts, w, audience, drawn)}
+${examplesSheet(facts, w, drawn)}
 ${closing(w, audience)}
 </main>
 <script type="application/json" id="${FACTS_ID}">${manifest}</script>
@@ -1139,6 +1257,62 @@ const openedScreens = (facts) =>
     path: screen.path,
     states: screen.states.slice(0, 1).map((name) => ({ name, shows: null })),
   }));
+
+// The repository's own screen, once as it is and once per rule with the stylesheet that breaks
+// that rule laid over it: the first state that is reached by opening its screen, drawn at the
+// widest width. Both pictures are drawn the same way, one after the other, so the only difference
+// is the rule. A rule whose picture comes out the same as the screen as it is, because the screen
+// reads none of what the stylesheet sets, is left out and said; one that fails to draw is left out
+// and said, and the others are kept.
+async function drawBroken(stage, facts, how) {
+  const width = facts.widths.length > 0 ? Math.max(...facts.widths) : 1440;
+  const opened = Object.entries(how).find(
+    ([, item]) => item.scenario === null && item.steps.length === 0,
+  );
+  const result = { kept: null, broken: {}, left: [] };
+  if (!opened) return result;
+  const route = opened[0].slice(0, opened[0].lastIndexOf("|"));
+  const context = await stage.browser.newContext({
+    viewport: { width, height: width < 600 ? 560 : 540 },
+    deviceScaleFactor: width < 600 ? 2 : 1.5,
+    reducedMotion: "reduce",
+  });
+  const draw = async (css) => {
+    const page = await context.newPage();
+    try {
+      await page.goto(`${stage.origin}${route}`, { waitUntil: "networkidle" });
+      await page.locator("main").first().waitFor({ timeout: MAIN_MS });
+      if (css) await page.addStyleTag({ content: css });
+      await page.waitForTimeout(350);
+      return await page.screenshot();
+    } finally {
+      await page.close();
+    }
+  };
+  try {
+    const kept = await draw(null);
+    result.kept = `data:image/png;base64,${kept.toString("base64")}`;
+    for (const rule of exampleRules(facts)) {
+      const css = breakingCss(rule, facts);
+      if (!css) continue;
+      try {
+        const broken = await draw(css);
+        if (broken.equals(kept)) {
+          result.left.push(
+            `${rule} is not shown broken on the screen: the screen looks the same with the stylesheet that breaks it`,
+          );
+        } else result.broken[rule] = `data:image/png;base64,${broken.toString("base64")}`;
+      } catch (error) {
+        result.left.push(
+          `${rule} is not shown broken on the screen: ${error.message.split("\n")[0]}`,
+        );
+      }
+    }
+  } finally {
+    await context.close();
+  }
+  return result;
+}
 
 // Draws every state of every screen at the narrowest and the widest of the widths, the way a
 // person reaches it. Returns the pictures as data, and how each state was reached.
@@ -1221,6 +1395,15 @@ async function drawStates(target, facts) {
     await stage.close();
     return { problem: `drawing stopped: ${error.message.split("\n")[0]}`, why: "stopped" };
   }
+  // Each rule a stylesheet can break, on the first screen as it opens: kept, and broken.
+  let examples = { kept: null, broken: {} };
+  try {
+    const drawn = await drawBroken(stage, facts, how);
+    left.push(...drawn.left);
+    examples = { kept: drawn.kept, broken: drawn.broken };
+  } catch (error) {
+    left.push(`the screens with a rule broken could not be drawn: ${error.message.split("\n")[0]}`);
+  }
   // The components are drawn on a page of the plugin's own, served beside the repository's: a
   // build that serves none draws none, and the book says so.
   if (!stage.can.modules) {
@@ -1228,7 +1411,7 @@ async function drawStates(target, facts) {
     left.push(
       "the components are not drawn: this build serves no module of the plugin's own beside the repository's",
     );
-    return { images, how, components: null, partial: left };
+    return { images, how, components: null, partial: left, ...examples };
   }
   // The components are drawn apart: when they fail, the pictures of the states are kept. The
   // development server may load the page again while it prepares a package for the first time, so
@@ -1245,7 +1428,7 @@ async function drawStates(target, facts) {
   } finally {
     await stage.close();
   }
-  return { images, how, components, partial: left };
+  return { images, how, components, partial: left, ...examples };
 }
 
 // The same book as a file to print, or as one picture per sheet for slides. Gives the files it
