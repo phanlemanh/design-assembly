@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "ten": "Lộ trình design-assembly",
+  "ghi_chu": "Thêm việc bằng skill cắt lượt (/acceptance-gate:scope-slice), hoặc viết hàng theo khuôn skills/acceptance/references/lo-trinh-template.json của gói acceptance-gate; mở vòng bằng /feature-loop:feature-loop <mã>.",
+  "moc": [],
+  "hang": [
+    {
+      "ma": "5.0",
+      "cau_giao": "«Bảng năng lực của plugin nói ổ cắm và phích của từng năng lực, năm bài kiểm giữ nó, và status in bảng ổ cắm của repo đang đứng»",
+      "vai": "nen",
+      "tieu_chi": 9,
+      "vi_sao": "Mục 5.0 của kế hoạch chính thức (docs/plan/plan.json); đề bài 0008 đã duyệt ngày 2026-11-20. Cả tám tiêu chí cùng một kết quả: bảng có, được giữ, và được bày ra; không chạm lớp khó đảo nào",
+      "hang": "T2",
+      "slug": "bang-nang-luc-o-cam",
+      "bat_khi": "Mỗi bài thử làm hỏng (bỏ phích mặc định, hai ổ cùng ghi một sổ, tên công cụ ngoài trong lõi, ổ thiếu một mặt, một tầng không ai với tới) làm cổng đỏ; bộ bài kiểm của plugin vẫn xanh",
+      "nhom": "o-cam",
+      "dot": "muc-5-0",
+      "phu": ["0008-1", "0008-2", "0008-3", "0008-4", "0008-5", "0008-6", "0008-7", "0008-8"],
+      "vung": [
+        "plugins/design-assembly/references/**",
+        "plugins/design-assembly/scripts/**",
+        "plugins/design-assembly/tests/**"
+      ]
+    }
+  ],
+  "chan_troi": [],
+  "da_bac": []
+}

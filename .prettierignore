@@ -7,3 +7,5 @@ src/generated/
 contracts/openapi.json
 .repo-setup.json
 .claude/worktrees/
+# Drawn by the acceptance kit, which checks it byte for byte (product-map.mjs --check)
+LO-TRINH.html

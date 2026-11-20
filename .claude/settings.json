@@ -28,5 +28,10 @@
       "Bash(git push origin HEAD:main:*)"
     ],
     "ask": ["Bash(gh pr review --approve:*)", "Bash(gh release create:*)"]
+  },
+  "enabledPlugins": {
+    "acceptance-gate@delivery-loop": true,
+    "feature-loop@delivery-loop": true,
+    "roadmap@delivery-loop": true
   }
 }
