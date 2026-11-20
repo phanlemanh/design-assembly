@@ -1,21 +1,23 @@
-# Review findings: bang-nang-luc-o-cam (round 2)
+# Review findings: bang-nang-luc-o-cam (round 3)
 
 ## Trong hợp đồng
 
-Không có finding nào map được vào AC.
+Không có finding nào.
 
 ## Ngoài hợp đồng — người quyết ở Gate 2
 
 Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm vi và CHƯA qua bác bỏ đối kháng — người quyết, máy không sửa và không chấm thứ máy không được sửa.
 
-- **New `unheld` and `step_of` fields are reference fields that nothing validates, which breaks the table's own pattern**
+Không có mục mới ở round này. Các mục mang từ round trước (11 mục, nhãn "(r<N>)") do máy tự chèn.
+
+- **New `unheld` and `step_of` fields are reference fields that nothing validates, which breaks the table's own pattern (r2 · tệp đã đổi)**
   Người dùng thấy gì: Two new notes in the capability table, one saying a capability is not held by any check and one saying which route it belongs to, are not checked by anything. A typo there would still pass the checks and show a slightly wrong table, though the data is correct today.
   Căn cứ: The consequence is mild: only an internal reference table could drift, nothing is lost for the user, and it is easy to notice and correct later.
   file: `plugins/design-assembly/references/capabilities.json`
   severity: medium
   Đề xuất: known-limits
 
-- **Nothing validates the new `unheld` and `step_of` fields, so a wrong limit row or route id passes without an error**
+- **Nothing validates the new `unheld` and `step_of` fields, so a wrong limit row or route id passes without an error (r2)**
   Người dùng thấy gì: If someone later points the new 'not held' note at a wrong or closed limit entry, or names a route that does not exist, the checks stay green. The status board could then show a slightly misleading reason for an empty socket.
   Căn cứ: Impact is light and recoverable: values are correct now, a wrong entry would only mislabel a reason on the board, and a fix can be made at any time without data loss.
   file: `plugins/design-assembly/scripts/capabilities.mjs`
@@ -84,5 +86,7 @@ Các lỗi dưới đây nằm ngoài phạm vi đã duyệt ở Cổng Phạm v
   file: `plugins/design-assembly/tests/test-capabilities.mjs`
   severity: low
   Đề xuất: known-limits
+
+## Chưa adversarial-verify (refuter chết)
 
 Cụm ngoài vùng phủ: cluster: n-a (không đo được — không eval nào khai paths, hoặc dưới ngưỡng cụm).

@@ -7,11 +7,13 @@ reason:
 verified_by: fresh-context verification subagent
 enforcement_mode: strict
 bypass_used: false
-verified_commit: f0e299380a3cd22128ee9a235561ecac9a59d3c1
+verified_commit: 26dfebcdf38b39875e52e0770e2d9ba4b087da5c
 human_signoff:
 ---
 
 # Evidence Report: bang-nang-luc-o-cam
+
+Round 3. E7 đỏ: lệnh `make check` dừng vì một test của plugin đỏ (test-next-build.mjs, dòng 136). Lệnh đỏ này đã gắn eval E7, nên không có lệnh đỏ nào không gắn eval.
 
 | Eval | Criterion | Executor | Verdict |
 |---|---|---|---|
@@ -27,59 +29,57 @@ human_signoff:
 | E10 | AC-8 | judgment | PASS (đề xuất của hội đồng, chờ người) |
 | E11 | AC-1 | judgment | UNCERTAIN |
 
-Lệnh fail không gắn eval: không có lệnh nào ngoài E7. Lệnh `make check` (gắn E7) đã chạy một lần và đỏ: một test của bộ plugin báo lỗi.
-
 ## Evidence
 
 - eval: E1
-  run_id: minted-bang-nang-luc-o-cam-E1-r2
+  run_id: minted-bang-nang-luc-o-cam-E1-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.capabilities
+  verified_at: 2026-11-20T07:52:53Z
   output: |
     node --test plugins/design-assembly/tests/test-capabilities.mjs
-    ℹ duration_ms 98.994416
-    (lệnh chạy một lần, phủ E1 E2 E3 E4 E5 E9; verified_at không có trong payload của round này)
+    duration_ms 120.183791
 
 - eval: E2
-  run_id: minted-bang-nang-luc-o-cam-E2-r2
+  run_id: minted-bang-nang-luc-o-cam-E2-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.capabilities
+  verified_at: 2026-11-20T07:52:53Z
   output: |
-    cùng lệnh test-capabilities.mjs với E1, xanh
+    node --test plugins/design-assembly/tests/test-capabilities.mjs
+    duration_ms 120.183791
 
 - eval: E3
-  run_id: minted-bang-nang-luc-o-cam-E3-r2
+  run_id: minted-bang-nang-luc-o-cam-E3-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.capabilities
+  verified_at: 2026-11-20T07:52:53Z
   output: |
-    cùng lệnh test-capabilities.mjs với E1, xanh
+    node --test plugins/design-assembly/tests/test-capabilities.mjs
+    duration_ms 120.183791
 
 - eval: E4
-  run_id: minted-bang-nang-luc-o-cam-E4-r2
+  run_id: minted-bang-nang-luc-o-cam-E4-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.capabilities
+  verified_at: 2026-11-20T07:52:53Z
   output: |
-    cùng lệnh test-capabilities.mjs với E1, xanh
+    node --test plugins/design-assembly/tests/test-capabilities.mjs
+    duration_ms 120.183791
 
 - eval: E5
-  run_id: minted-bang-nang-luc-o-cam-E5-r2
+  run_id: minted-bang-nang-luc-o-cam-E5-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.test.capabilities
+  verified_at: 2026-11-20T07:52:53Z
   output: |
-    cùng lệnh test-capabilities.mjs với E1, xanh
-
-- eval: E9
-  run_id: minted-bang-nang-luc-o-cam-E9-r2
-  exit_code: 0
-  baseline: n-a
-  verifier: config:executors.test.capabilities
-  output: |
-    cùng lệnh test-capabilities.mjs với E1, xanh
+    node --test plugins/design-assembly/tests/test-capabilities.mjs
+    duration_ms 120.183791
 
 - eval: E6
   run_id: minted-bang-nang-luc-o-cam-E6-r1
@@ -87,27 +87,64 @@ Lệnh fail không gắn eval: không có lệnh nào ngoài E7. Lệnh `make ch
   verifier: config:executors.test.status
   verified_at: 2026-11-20T07:35:09Z
   carried_from_round: 1
-  output: |
-    carry-forward tu round 1 — delta khong cham paths cua eval
+  # carry-forward tu round 1 — delta khong cham paths cua eval
 
 - eval: E7
-  run_id: minted-bang-nang-luc-o-cam-E7-r2
+  run_id: minted-bang-nang-luc-o-cam-E7-r3
+  exit_code: 2
   baseline: red
   verifier: config:executors.test.api
+  verified_at: 2026-11-20T07:52:53Z
   output: |
-    make check đỏ ở bước test (1 file test hỏng, 15 xanh; 1 test hỏng, 101 xanh trên 102)
-    FAIL tests/plugin-vocabulary.test.ts > plugin text uses the listed terms, not the words to avoid
-    AssertionError: expected [ Array(1) ] to deeply equal []
-    + "references/capabilities.json: \"catalogue\": use \"component manifest\""
-    make: *** [test] Error 1
+    make check: tests 789, pass 779, fail 1, skipped 9
+    failing test: plugins/design-assembly/tests/test-next-build.mjs:136
+    "the handoff book draws every screen of a Next.js application at its widths, and says what it did not draw"
+    AssertionError at test-next-build.mjs:196, deepStrictEqual: actual ['46208'], expected []
+    make stopped at the target plugin-test
 
 - eval: E8
-  run_id: minted-bang-nang-luc-o-cam-E8-r2
+  run_id: minted-bang-nang-luc-o-cam-E8-r3
   exit_code: 0
   baseline: n-a
   verifier: config:executors.script.same_outputs
+  verified_at: 2026-11-20T07:52:53Z
   output: |
     same-outputs: status matches
+
+- eval: E9
+  run_id: minted-bang-nang-luc-o-cam-E9-r3
+  exit_code: 0
+  baseline: n-a
+  verifier: config:executors.test.capabilities
+  verified_at: 2026-11-20T07:52:53Z
+  output: |
+    node --test plugins/design-assembly/tests/test-capabilities.mjs
+    duration_ms 120.183791
+
+### Judgment
+
+Đề xuất của hội đồng, để `human_override` trống cho người quyết ở Cổng 2.
+
+- eval: E10
+  judged_by: judge panel (domain-correctness, operational-feasibility, spec-alignment)
+  proposal: PASS
+  rationale: |
+    - domain-correctness: PASS — Cả 20 ô trong capabilities.json khớp 20 hàng danh mục của spec 0008. Mỗi ô có mặt người (shows/asks, hoặc lý do cụ thể khi không hỏi gì) và mặt máy (rules cộng held_by, hoặc unheld kèm hàng giới hạn). Hàng giới hạn nằm trong limits.json, không phải đầu vào nên chưa kiểm sự tồn tại.
+    - operational-feasibility: PASS — Cả 20 ô đủ hai mặt và khớp hàng danh mục, gồm 8 hàng không có phích mặc định và ô direction (3 hướng trên một màn thật cộng kiểm tương phản). Câu hỏi chỉ của chủ đi tới người; mỗi luật có kiểm có tên hoặc hàng giới hạn unheld rõ ràng.
+    - spec-alignment: PASS — Cả 20 ô đủ hai mặt, nội dung khớp danh mục spec 0008. Mỗi mặt người có shows, asks hoặc reason thật; mỗi mặt máy có rules cộng held_by hoặc unheld với hàng giới hạn. Ô direction khớp ví dụ của spec; các ô không hỏi gì (foundations, screen-brief, screen-build) nêu lý do hợp với tiêu chí chỉ hỏi điều của người.
+  human_override:  # chi nguoi ghi
+
+- eval: E11
+  judged_by: judge panel (domain-correctness, operational-feasibility, spec-alignment)
+  verdict: UNCERTAIN
+  rationale: |
+    - domain-correctness: UNCERTAIN — capabilities.json có 20 ô khớp bảng spec 0008, nhưng chỉ bảy ô có plugs rỗng (reference, brand-assets, content, screen-kinds, screen-brief, accessibility-report, cross-repo) trong khi spec nói "tám chỗ chưa có phích". Ô thứ tám là "Soát thiết kế" (design-review): JSON cho phích gate mặc định kèm hàng giới hạn, nên không rỗng. Chưa rõ "đúng tám ô rỗng" hiểu nghĩa đen hay tính cả phích một phần.
+    - operational-feasibility: UNCERTAIN — Bảng đủ 20 ô, stage, socket và phích mặc định khớp danh mục. Bảy ô rỗng, nhưng spec nói tám; ô thứ tám design-review có phích gate và chỉ phần nhìn là chưa có (ghi bằng một hàng giới hạn). Câu "đúng tám ô rỗng" đọc được theo hai cách.
+    - spec-alignment: UNCERTAIN — Cả 20 ô khớp danh mục về stage, socket và phích mặc định. Danh mục nói "tám chỗ chưa có phích" (dòng 110) nhưng bảng chỉ có bảy hàng cột phích hoàn toàn trống, khớp JSON. Hàng thứ tám design-review có phích "cổng kiểm; phần nhìn chưa có"; JSON cho phích gate cộng hàng giới hạn nên không rỗng.
+  required_evidence:
+    - Phán quyết của chủ repo hoặc dòng rõ trong wiki/specs/0008-capabilities-sockets-and-plugs.md, nói design-review (Soát thiết kế) có tính vào tám ô "không phích" không. Nếu tính, JSON cho design-review phải có plugs rỗng hoặc dấu thiếu một phần rõ; nếu không, câu "tám chỗ chưa có phích" sửa thành bảy và phán quyết đổi sang PASS.
+    - Một tiêu chí nghiệm thu hoặc test bảng năng lực nêu số ô rỗng mong đợi (7 hay 8) cho AC-1, từ test giữ AC-1 của plugins/design-assembly/references/capabilities.json; hoặc danh sách tám ô không phích ghi ngay trong spec 0008.
+  human_override:  # chi nguoi ghi
 
 ## Known limits
 
@@ -115,37 +152,14 @@ Lệnh fail không gắn eval: không có lệnh nào ngoài E7. Lệnh `make ch
 
 ## Analyst
 
-none — moi eval feature deu red tren baseline (co phan biet)
-
-Ghi chú: các eval có baseline n-a không đo được nên không thể kết luận "co phan biet" hay không; xem mục dưới.
-
-### Baseline khong do
+Baseline không đo:
 
 - node --test plugins/design-assembly/tests/test-capabilities.mjs: bo qua baseline: tep plugins/design-assembly/tests/test-capabilities.mjs co o cay dang kiem nhung chua co o merge-base ae8d9dd3a53203262c2cda0af0971c31f3a4c094 — eval moi, chay tren code cu khong phan biet gi
 - bash _acceptance/bang-nang-luc-o-cam/rang/same-outputs.sh: bo qua baseline: tep _acceptance/bang-nang-luc-o-cam/rang/same-outputs.sh co o cay dang kiem nhung chua co o merge-base ae8d9dd3a53203262c2cda0af0971c31f3a4c094 — eval moi, chay tren code cu khong phan biet gi
 
-## Judge panels (đề xuất, human_override để trống)
+Eval không phân biệt (xanh cả HEAD lẫn baseline): none — moi eval feature deu red tren baseline (co phan biet)
 
-- eval: E10
-  judged_by: hội đồng ba lens (domain-correctness, operational-feasibility, spec-alignment)
-  proposal: PASS
-  votes:
-    - domain-correctness: PASS — cả 20 ổ khớp danh mục spec 0008; mỗi ổ có mặt người và mặt máy, không chữ giữ chỗ. Judge không đọc limits.json hay các lệnh kiểm thật nên không xác nhận được hàng giới hạn và lệnh held_by tồn tại.
-    - operational-feasibility: PASS — mỗi ổ khai mặt người (shows/asks hoặc reason) và mặt máy (rules kèm held_by chạy được, hoặc unheld kèm dòng sổ giới hạn). Không kiểm được held_by có thật sự giữ luật.
-    - spec-alignment: PASS — 20 ổ khớp 20 dòng spec; các ổ chưa có phích khai unheld nhất quán; ổ direction khớp ví dụ của spec. Việc lệnh held_by tồn tại nằm ngoài input.
-  human_override:  # chi nguoi ghi
-
-- eval: E11
-  judged_by: hội đồng ba lens (domain-correctness, operational-feasibility, spec-alignment)
-  proposal: UNCERTAIN
-  votes:
-    - domain-correctness: UNCERTAIN — JSON chỉ để trống bảy ổ, spec nói "tám chỗ chưa có phích"; ổ thứ tám có thể là "Soát thiết kế" (có phích cổng kiểm, thiếu phần nhìn), nên có hai cách đọc.
-    - operational-feasibility: UNCERTAIN — cùng điểm lệch bảy so với tám; đề bài có hai cách đọc nên không phán PASS hay FAIL.
-    - spec-alignment: UNCERTAIN — bảng spec cũng chỉ đánh dấu "chưa có" đúng bảy dòng; ổ thứ tám không xác định được từ hai tệp.
-  required_evidence:
-    - Xác nhận của chủ repo, hoặc câu sửa trong wiki/specs/0008-capabilities-sockets-and-plugs.md dòng 110, về việc "tám chỗ chưa có phích" có tính "Soát thiết kế" hay không. Tính thì PASS; tám ổ hoàn toàn không phích thì FAIL vì JSON chỉ có bảy mục plugs rỗng.
-    - Hoặc một câu trong bảng spec (dòng 87-108) nêu rõ dòng thứ tám được đánh dấu "chưa có".
-  human_override:  # chi nguoi ghi
+Ghi chú: mục "none" ở trên đúng cho các eval có đo baseline; các eval baseline n-a (E1 đến E5, E8, E9) không đo được nên không đưa vào danh sách trên. E7 là lệnh suite `make check`, baseline red.
 
 ## Variance
 
@@ -153,5 +167,5 @@ none — every multi-run eval is uniform
 
 ## Iterations
 
-Round 1: E6 đã chạy và xanh (verified_at 2026-11-20T07:35:09Z), được carry-forward sang round 2 vì delta không chạm paths của eval.
-Round 2: E7 failed — make check đỏ vì test từ vựng plugin (tests/plugin-vocabulary.test.ts) bắt từ "catalogue" trong plugins/design-assembly/references/capabilities.json, phải dùng "component manifest". Returned to implementation.
+Round 3: E7 đỏ — `make check` dừng ở một test plugin (test-next-build.mjs:136, tên test về sách bàn giao vẽ mọi màn hình của ứng dụng Next.js) còn đúng một giá trị lạ ['46208'] thay vì rỗng; E1 đến E5, E8, E9 xanh; E6 mang từ round 1; E11 chờ người quyết. Trả về cho bước hiện thực.
+Rounds 1 và 2: lịch sử chi tiết không có trong payload của round này; E6 chạy lần cuối ở round 1 và được mang sang.
