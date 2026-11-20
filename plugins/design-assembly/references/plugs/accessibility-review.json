@@ -1,0 +1,7 @@
+{
+  "id": "accessibility-review",
+  "about": "A skill that reviews an interface against a conformance level.",
+  "sockets": ["accessibility-report"],
+  "names": ["accessibility-review"],
+  "needs": []
+}

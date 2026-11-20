@@ -29,8 +29,8 @@ export const COMPONENTS_DECISION = "component-manifest";
 const VERSION = "2";
 
 // Code the repository did not write, where it keeps no component settings: a vendor's components,
-// by the usual names of their folders, at any depth.
-export const VENDOR = /(^|\/)components\/(ui|reui)\//;
+// by the usual names of their folders, at any depth. The adapter names the folders.
+export const VENDOR = new RegExp(`(^|\\/)components\\/(${library.vendorFolders.join("|")})\\/`);
 
 // A JSON file of the repository, or null when it is not there or cannot be read.
 function jsonAt(root, file) {

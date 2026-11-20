@@ -1,0 +1,7 @@
+{
+  "id": "design-critique",
+  "about": "A skill that reviews a drawn screen and says what to change.",
+  "sockets": ["design-review"],
+  "names": ["design-critique"],
+  "needs": []
+}

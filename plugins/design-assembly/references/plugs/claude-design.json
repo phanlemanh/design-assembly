@@ -1,0 +1,7 @@
+{
+  "id": "claude-design",
+  "about": "A design tool that proposes directions and a system page from a brief or a repository.",
+  "sockets": ["direction", "foundations", "brand-assets", "handoff"],
+  "names": ["Claude Design"],
+  "needs": ["account", "network"]
+}

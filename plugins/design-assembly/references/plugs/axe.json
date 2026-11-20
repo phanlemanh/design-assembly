@@ -1,0 +1,10 @@
+{
+  "id": "axe",
+  "about": "An accessibility engine that tests a page in a browser.",
+  "sockets": ["design-review", "accessibility-report"],
+  "names": ["axe-core"],
+  "needs": [],
+  "detect": {
+    "package": "@axe-core/playwright"
+  }
+}
