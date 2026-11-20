@@ -20,6 +20,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 
 ## Specs
 
+- [0010 Lệnh brief — phiếu giao việc để tác tử dựng một màn mà không phải đoán](specs/0010-the-screen-brief.md) — đề bài của mục 5.1, chủ repo duyệt 2026-11-21 và đáp cả năm câu hỏi theo khuyến nghị; mười hai ô, ba trạng thái, mười một tiêu chí, hai lát; chưa dựng
 - [0009 Lệnh review — soát một màn đã dựng bằng hình, mắt soát là một phích cắm](specs/0009-review-a-drawn-screen.md) — đề bài của mục 5.2, chủ repo duyệt 2026-11-20 và đáp cả năm câu hỏi theo khuyến nghị; mười tiêu chí, hai lát; chưa dựng
 - [0008 Năng lực, ổ cắm và phích cắm — Design Assembly giữ lõi, ai làm tốt hơn thì cắm vào](specs/0008-capabilities-sockets-and-plugs.md) — chủ repo duyệt 2026-11-20, sáu khuyến nghị rồi hai câu sau lượt quét; danh mục đóng hai mươi năng lực; mục 5.0 đã dựng (0069), plugin 0.19.0
 - [0007 Mở rộng ở ba chỗ — cửa vào, bề rộng của hệ, và ý đồ thiết kế tới tay tác tử](specs/0007-widen-the-entry-the-system-and-the-intent.md) — chủ repo đáp cả năm câu hỏi 2026-11-20; kế hoạch đổi theo: mục 5.5, giai đoạn 9 «Nền đủ mảng», hai mục để sang bên; sáu việc chưa dựng
