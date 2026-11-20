@@ -311,7 +311,7 @@ chấm cùng gặp một giới hạn có sẵn của bộ bài kiểm mà `make
 ## Sau khi thu phạm vi
 
 Chủ repo chọn lối 1 («thu phạm vi»): tiêu chí 7 cũ ra Known limits, lệnh suite của lượt chấm là hai bài kiểm của mục,
-ký lại Cổng Phạm vi. Lượt chấm 4 ra PENDING-JUDGMENT, không phép đo nào đỏ; E11 chờ chủ repo chấm ở Cổng Bằng chứng.
+ký lại Cổng Phạm vi. Lượt chấm 4 ra PENDING-JUDGMENT, không phép đo nào đỏ; Chủ repo chấm E11 «Đạt» và ký Cổng Bằng chứng ngày 2026-11-20; lưới trước-gộp của bộ kit sạch. Tổng cộng chín lượt người: sáu lượt tới Cổng Phạm vi đầu, rồi lối ra, lệnh suite mới, ký lại, và ký Cổng Bằng chứng.
 
 ### 20. Bước mở PR của bộ kit coi trang lộ trình nó tự vẽ là vật đổi sau lượt chấm
 
