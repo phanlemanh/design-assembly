@@ -35,6 +35,9 @@ const THEME = "design/theme.json";
 // The rows of the decisions ledger the measurements of a review rest on.
 const MEASURED_ROWS = ["color-contrast"];
 
+// The states of a row of the ledger of screens a brief can be made of.
+const BRIEFED = ["built", "planned"];
+
 const read = (target, file) =>
   existsSync(path.join(target, file)) ? readFileSync(path.join(target, file), "utf8") : null;
 const json = (target, file) => {
@@ -48,9 +51,10 @@ const json = (target, file) => {
 };
 const oneLine = (words) => String(words).replace(/\s+/g, " ").trim();
 
-// The screen a review is asked for, as the ledger of screens has it, with the file its row is
-// kept in. A call that names no screen of the ledger, or one not built yet, is refused.
-export function screenOf(target, id) {
+// The screen a command is asked for, as the ledger of screens has it, with the file its row is
+// kept in. A call that names no screen of the ledger is refused, and so is one for a screen not
+// built yet, unless the caller reads a screen declared ahead too (`unbuilt`), as a brief does.
+export function screenOf(target, id, { unbuilt = false } = {}) {
   const text = ledgerText(target);
   if (text === null) {
     throw new Refusal(
@@ -64,8 +68,12 @@ export function screenOf(target, id) {
       `${id} is not a screen of the ledger; it has: ${screens.map((screen) => screen.id).join(", ")}`,
     );
   }
-  if ((row.status ?? "built") !== "built") {
-    throw new Refusal(`${id} is ${row.status}, not built: there is no screen to draw yet`);
+  const status = String(row.status ?? "built");
+  if (!unbuilt && status !== "built") {
+    throw new Refusal(`${id} is ${status}, not built: there is no screen to draw yet`);
+  }
+  if (unbuilt && !BRIEFED.includes(status)) {
+    throw new Refusal(`${id} is ${status}: a brief is of a screen that is built or planned`);
   }
   const own = `${fragmentsFolder(SCREEN_LEDGER)}/${id}.yaml`;
   return { row, ledger: existsSync(path.join(target, own)) ? own : SCREEN_LEDGER };
@@ -146,9 +154,10 @@ function fixedOf(target) {
   };
 }
 
-// Everything a review reads of the repository for one screen, as data.
-export function factsOf(target, id) {
-  const { row, ledger } = screenOf(target, id);
+// Everything a review reads of the repository for one screen, as data. A brief reads the same of
+// a screen declared ahead and not built yet, and asks for it with `unbuilt`.
+export function factsOf(target, id, { unbuilt = false } = {}) {
+  const { row, ledger } = screenOf(target, id, { unbuilt });
   const decisions = readLedger(target) ?? [];
   const file = fileOf(target, row.route);
   return {

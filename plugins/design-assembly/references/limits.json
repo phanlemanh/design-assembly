@@ -19,7 +19,8 @@
     "trials": "The runs by independent agents that test the plugin.",
     "upgrade": "The command that brings the installed tool into a repository, the stamp it writes, and the version it compares.",
     "capabilities": "The table of what a user of a design system needs done, its sockets and plugs, and the checks that hold it.",
-    "review": "The read-only review of one drawn screen: its pictures, the two things it measures on them, the pack it writes for a reviewer and the record it hands over."
+    "review": "The read-only review of one drawn screen: its pictures, the two things it measures on them, the pack it writes for a reviewer and the record it hands over.",
+    "brief": "The read-only brief of one screen: the twelve slots of its sheet, what reads each, and the sheet it hands over."
   },
   "kinds": {
     "partial-check": "A check holds less than the ledger row it proves claims.",
@@ -3653,6 +3654,105 @@
       "where": ["spec", "d0071"],
       "status": "open",
       "note": "The review command is the default plug of the design review socket, and it draws with the repository's own build and browser: where a repository has neither installed it ends with 2 and reviews nothing, while the gate, the default plug before it, ran in every repository. The gate is still a plug of the socket and still runs there."
+    },
+    {
+      "id": "brief-open-slot-not-asked",
+      "area": "brief",
+      "kind": "no-check",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0074"],
+      "status": "open",
+      "note": "An open slot is named on the sheet and nothing asks it: the sheet prints no call for the decision sheet and writes no question, so a builder who reads past it still decides alone, and no answer of the owner's settles a slot yet."
+    },
+    {
+      "id": "brief-two-slots-held-by-no-ledger",
+      "area": "brief",
+      "kind": "no-check",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0074"],
+      "status": "open",
+      "note": "No ledger holds where a screen that is not built yet goes in the navigation, or which other screens a screen changes, so the second of those slots is open on every sheet and no repository's sheet ends with 0 yet."
+    },
+    {
+      "id": "brief-settled-means-said-not-right",
+      "area": "brief",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0074"],
+      "status": "open",
+      "note": "A slot is settled when its source is there and says something: the sheet does not judge whether the answer is right or enough for this screen, so a thin row of a ledger gives a settled slot, and a slot with a line that waits on another slot is still counted as settled, since one thing missing opens one slot."
+    },
+    {
+      "id": "brief-reads-where-the-floor-keeps-things",
+      "area": "brief",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0074"],
+      "status": "open",
+      "note": "The slots are read where the floor of this plugin keeps their sources: the data model under ontology, the screen list of the application in src/screens.ts, the pages of kinds under design/patterns. A repository that keeps them elsewhere, or keeps none, gets those slots open and has no way to say where its own are."
+    },
+    {
+      "id": "brief-state-reach-named-not-read",
+      "area": "brief",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0074"],
+      "status": "open",
+      "note": "The states slot names the file where the way into each state is written and the states that file names by name; it does not read the scenario or the steps of a state, and it sees no state the screen list builds with a function."
+    },
+    {
+      "id": "brief-components-not-chosen-for-the-screen",
+      "area": "brief",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0074"],
+      "status": "open",
+      "note": "The components slot lists every component of the ledger and the frame of the kind; it does not say which of them this screen needs, and their props and variants are in the answer for a machine alone."
+    },
+    {
+      "id": "brief-words-and-checks-named-not-read",
+      "area": "brief",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0074"],
+      "status": "open",
+      "note": "The words slot gives the rows of the decisions ledger in the content layer and reads neither the file the words are kept in nor the words; the checks slot gives the checks those rows point to, not the command a builder runs to start each."
+    },
+    {
+      "id": "brief-not-tried-by-a-builder",
+      "area": "brief",
+      "kind": "unproven",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0074"],
+      "status": "open",
+      "note": "No independent builder has built a screen from a sheet yet, so whether the sheet lowers the number of places a builder has to guess is not known."
+    },
+    {
+      "id": "brief-sheet-look-unseen-by-the-owner",
+      "area": "brief",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-21",
+      "where": ["spec", "d0074"],
+      "status": "open",
+      "note": "How a screen brief looks and reads has no test, and the owner has not looked at one yet."
     }
   ]
 }

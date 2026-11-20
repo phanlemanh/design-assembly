@@ -1,0 +1,129 @@
+{
+  "about": "The slots of a screen brief (specification 0010): every choice a builder of one screen meets, as a closed list. `reads` says where the answer of a slot is read from; a slot with nothing to read from says so with `unheld`, whose `when` is `always`, or `planned` for a slot a ledger holds only once the screen is built. A slot is never dropped from a sheet: one with no answer is open and says why. Adding or removing a slot is the owner's call.",
+  "version": 1,
+  "states": {
+    "settled": "the repository answers it, and the sheet names the file and the row or line the answer comes from",
+    "asked": "a question about this slot of this screen waits on the owner",
+    "open": "nothing in the repository says, and the sheet says so"
+  },
+  "slots": [
+    {
+      "number": 1,
+      "id": "kind",
+      "name": "kind and reference screen",
+      "question": "Of which kind is the screen, and which screen is it built like?",
+      "reads": [
+        "the `family` of the screen's row in the ledger of screens",
+        "the page of that kind, and the reference screen the page names"
+      ]
+    },
+    {
+      "number": 2,
+      "id": "shows",
+      "name": "what the screen shows",
+      "question": "Which records does the screen show, with which fields?",
+      "reads": [
+        "the `shows` of the screen's row",
+        "the fields of each entity in the data model, and the column type each field names"
+      ]
+    },
+    {
+      "number": 3,
+      "id": "actions",
+      "name": "actions and roles",
+      "question": "Which action opens the screen, which actions does it offer, and who may run each?",
+      "reads": [
+        "the `entry` and the `actions` of the screen's row",
+        "the roles that hold each action in the data model"
+      ]
+    },
+    {
+      "number": 4,
+      "id": "states",
+      "name": "states",
+      "question": "Which states must the screen have, and where is the way into each written?",
+      "reads": [
+        "the `states` of the screen's row",
+        "the state table",
+        "the screen list of the application, which says how each state is reached"
+      ]
+    },
+    {
+      "number": 5,
+      "id": "components",
+      "name": "components",
+      "question": "Which components is the screen built from, and what may it not use?",
+      "reads": [
+        "the component ledger",
+        "the frame the page of the kind names, and what that page forbids outside the frame"
+      ]
+    },
+    {
+      "number": 6,
+      "id": "words",
+      "name": "words",
+      "question": "Where do the words of the screen come from, and which terms does it use?",
+      "reads": [
+        "the rows of the decisions ledger in the content layer",
+        "the `title` of the screen's row"
+      ]
+    },
+    {
+      "number": 7,
+      "id": "rules",
+      "name": "rules that apply",
+      "question": "Which rules does the screen follow?",
+      "reads": ["the lines of the rules page that apply to the screen, one rule a line"]
+    },
+    {
+      "number": 8,
+      "id": "principles",
+      "name": "principles and direction",
+      "question": "What did the owner fix before any value?",
+      "reads": [
+        "the principles the owner fixed and the direction they took, in the blueprint, through the reader the rules page and the review share"
+      ]
+    },
+    {
+      "number": 9,
+      "id": "widths-and-checks",
+      "name": "widths and checks",
+      "question": "At which widths is the screen checked, and what will grade it?",
+      "reads": [
+        "the widths the repository declares",
+        "the checks the rows of the decisions ledger name"
+      ]
+    },
+    {
+      "number": 10,
+      "id": "model-changes",
+      "name": "changes to the data model",
+      "question": "Does the screen need an action or an entity the data model does not have?",
+      "reads": [
+        "computed: each action and entity the screen's row names, looked up in the data model"
+      ]
+    },
+    {
+      "number": 11,
+      "id": "navigation",
+      "name": "place in the navigation",
+      "question": "Where does the screen stand among the screens of the application?",
+      "reads": ["the screen list of the application, for a screen that is built"],
+      "unheld": {
+        "when": "planned",
+        "why": "no ledger holds where a screen that is not built yet goes in the navigation"
+      }
+    },
+    {
+      "number": 12,
+      "id": "touched-screens",
+      "name": "other screens it touches",
+      "question": "Does another screen change because of this one?",
+      "reads": [],
+      "unheld": {
+        "when": "always",
+        "why": "no ledger holds which other screens a screen changes"
+      }
+    }
+  ]
+}
