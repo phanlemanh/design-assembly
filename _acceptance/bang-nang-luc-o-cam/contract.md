@@ -5,9 +5,9 @@ slug: bang-nang-luc-o-cam
 owner: phanlemanh@gmail.com
 risk_tier: T2
 surfaces: [cli]
-status: implemented
-approved_by: Phan Le Manh
-approved_at: 2026-11-20T07:16:40Z
+status: draft
+approved_by:
+approved_at:
 design_doc: docs/superpowers/specs/2026-11-20-bang-nang-luc-o-cam-design.md
 ---
 
@@ -31,7 +31,6 @@ docs/plan/lo-trinh.json.
 - AC-4: Given các tệp phích ngoài trong `references/plugs/`, When một tên trong `names` của chúng xuất hiện trong lõi của plugin (các thư mục lõi của bài kiểm bộ chuyển, tệp bảng năng lực, và `skills/`), Then bài kiểm «lõi sạch» đỏ và nêu tệp cùng tên; plugin thật thì xanh.
 - AC-5: Given `references/layers.json` và `references/tiers.json`, When một tầng hay một bậc không được năng lực nào với tới, Then bài kiểm đỏ và nêu tầng hay bậc ấy; bảng thật thì xanh.
 - AC-6: Given một repo đích, When chạy `status` của plugin, Then `--json` có thêm khoá `sockets` liệt mỗi năng lực với phích đang cắm hay trạng thái trống kèm dòng giới hạn, và các phích ngoài phát hiện được trong repo ấy; bản cho người nêu số ổ có phích trên tổng số và tên các ổ trống, vẫn vừa một màn (tối đa 40 dòng).
-- AC-7: Given plugin trước và sau mục này, When chạy bộ bài kiểm của plugin và chạy các lệnh đang có trên repo này ở gốc nhánh và ở HEAD, Then bộ bài kiểm xanh, và đầu ra chỉ khác ở phần mới của `status` (khoá `sockets`, các dòng bảng ổ cắm) cùng con số giới hạn mở mà chủ repo đã nhận ở Cổng Phạm vi.
 - AC-8: Given bảng năng lực, When một ổ cắm thiếu mặt người hay mặt máy mà không ghi `reason`, Then bài kiểm «hai mặt» đỏ và nêu tên ổ cùng mặt thiếu; bảng thật thì xanh. (judgment)
 
 ## Coverage
@@ -48,6 +47,8 @@ docs/plan/lo-trinh.json.
 - Đổi chữ của `references/layers.json` hay tệp tham chiếu nào khác cho «lõi sạch» phủ cả chúng.
 
 ## Notes
+
+- Known limits (chủ repo chọn ngày 2026-11-20 ở Cổng Bằng chứng, lối 1 «thu phạm vi»): tiêu chí cũ AC-7, «hành vi các lệnh đang có không đổi», ra khỏi hợp đồng và đi mà không có bằng chứng máy của lượt chấm. Ba lượt chấm đều đỏ ở `plugins/design-assembly/tests/test-next-build.mjs:196`, bài kiểm đếm máy chủ Next.js trên cả máy nên đỏ khi lượt chấm chạy hai bản cùng lúc; `make check` chạy riêng ở commit 26dfebc xanh, 780 bài qua, và phép đo `rang/same-outputs.sh` của hồ sơ xanh ở cả ba lượt. Sửa bài kiểm ấy là một việc riêng.
 
 - Không có màn nào: `status` là đầu ra dòng lệnh và một trang tài liệu. Không có đặc tả UX, không có design-pass
   (entry «bỏ đặc-tả-UX» trong decisions.jsonl).

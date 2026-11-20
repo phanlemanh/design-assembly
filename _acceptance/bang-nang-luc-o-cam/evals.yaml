@@ -102,33 +102,6 @@ evals:
       - verified_at
       - output
 
-  - id: E7
-    criterion: AC-7
-    executor: test
-    cmd: config:executors.test.api
-    expected: "exit 0; make check passes, and its line «plugin tests: N passed» has N not lower than the 770 of the baseline and no failing test; run once, as the suite command, so the plugin tests never run twice at the same time in one checkout"
-    evidence_required:
-      - run_id
-      - exit_code
-      - verifier
-      - verified_at
-      - output
-
-  - id: E8
-    criterion: AC-7
-    executor: script
-    cmd: config:executors.script.same_outputs
-    expected: "exit 0; the script prints the base commit it compared against; audit, inventory, find, decide --dry-run, upgrade --dry-run and status give the same output at that base and at HEAD, except the sockets key, the socket board lines, and the open-limits count of audit, which must equal the count at the base plus exactly the open rows the diff adds to limits.json; its own positive control, a run where HEAD output is changed outside the allowed places, exits 1 and names the command and the first differing line"
-    paths:
-      - plugins/design-assembly/scripts/**
-      - plugins/design-assembly/references/**
-    evidence_required:
-      - run_id
-      - exit_code
-      - verifier
-      - verified_at
-      - output
-
   - id: E9
     criterion: AC-8
     executor: test
