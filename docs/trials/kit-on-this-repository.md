@@ -140,6 +140,82 @@ Mỗi mục ghi rõ nó là **đã gặp** (có lệnh và đầu ra) hay **đo 
   trong `.repo-setup.json`, nên `repo-setup:doctor` sẽ thấy nó khác. `PRODUCT-MAP.md` hôm nay qua Prettier, nhưng
   cũng do bộ kit vẽ lại ở mỗi cổng, nên có thể gặp đúng chuyện này khi có hàng.
 
+### 9. Cổng Đáng hỏi lại điều kế hoạch của repo đã duyệt, mà không có thẻ hay lệnh nào để ký
+
+Đã gặp, ở bước S0 của vòng (`/feature-loop:feature-loop 5.0`).
+
+- **Bộ kit muốn:** mỗi hàng lộ trình mở thành một ô cơ hội (`_acceptance/bang-nang-luc-o-cam/opportunity.md`) rồi
+  dừng ở **Cổng Đáng**: người quyết «có làm việc này không» (`decision: build|iterate|park|kill`), chốt ngưỡng, ký
+  `decided_by`/`decided_at`. Thẻ của cổng này không dựng được: `gate-card.js --extract` thoát 2 («hồ sơ chưa có
+  contract.md»). Đây là giới hạn chính bộ kit đã khai: làn thẻ cho ô đang chờ Cổng Đáng đã bị gỡ ngày 2026-09-01.
+  Cũng không có lệnh nào của người ghi cổng này (`approve` là Cổng Phạm vi, `signoff` là Cổng Bằng chứng).
+- **Luật của repo:** mục 5.0 đã được chủ repo duyệt hai lần ngày 2026-11-20: đề bài 0008 («Duyệt cả sáu», «Duyệt cả
+  hai») và kế hoạch đặt nó ở trạng thái `doing`. Câu «có làm không» đã có lời đáp.
+- **Đã làm:** dừng ở Cổng Đáng như vòng đòi. Không tự điền `decision`. Trình chủ repo một câu đóng, kèm khuyến nghị.
+  Lời đáp sẽ được ghi vào ô cơ hội, kèm tên và ngày của chủ repo.
+- **Chủ repo quyết:** với một repo mà kế hoạch đã duyệt từng mục, Cổng Đáng là một lượt hỏi thừa. Muốn bỏ nó thì
+  phải sửa bộ kit (mở hàng thẳng vào S1 khi hàng trỏ một mục đã duyệt), không sửa ở repo này.
+
+### 10. Prettier viết danh sách của `evals.yaml` ra dạng mà bộ đọc của bộ kit không đọc
+
+Đã gặp, ở bước S1.
+
+- **Bộ kit muốn:** khuôn `evals.yaml` viết danh sách một dòng (`paths: [a, b]`). Bộ đọc danh sách của bộ kit
+  (`evalListsOf` trong `lib/evidence-core.cjs`) nhận danh sách một dòng hay danh sách gạch đầu dòng. Nó gọi tên và
+  bỏ qua dạng «mở ngoặc không đóng trên cùng dòng».
+- **Luật của repo:** `prettier --check .` phủ `.yaml`. Danh sách một dòng dài hơn 100 ký tự bị Prettier bẻ thành
+  ngoặc vuông nhiều dòng, đúng dạng bộ kit không đọc. Khi ấy lượt chấm S4 sẽ thiếu `paths` và `inputs`.
+- **Đã làm:** viết mọi danh sách thành dạng gạch đầu dòng. Prettier để yên dạng này. Đã kiểm `evalListsOf` đọc đủ
+  danh sách của cả mười một phép đo, không cảnh báo.
+- **Chủ repo quyết:** không cần quyết. Điều cần biết cho vòng sau: đừng viết danh sách một dòng trong hồ sơ của bộ
+  kit ở repo này.
+
+### 11. Skill nghĩ của Superpowers đòi người duyệt từng bước, còn vòng của bộ kit cấm hỏi ở bước ấy
+
+Đã gặp, ở bước S1.
+
+- **Bộ kit muốn:** S1 gọi `superpowers:brainstorming` để dựng phương án nhưng không hỏi người; mọi câu người lẽ ra
+  được hỏi thành một dòng sổ có căn cứ, hoặc một câu hỏi trên thẻ Cổng Phạm vi.
+- **Skill con nói:** người phải chọn cách làm, rồi duyệt bản thiết kế, trước khi có gì được dựng («HARD-GATE»).
+- **Đã làm:** theo bộ kit. Nó ghi rõ cổng của skill con và Cổng Phạm vi gộp làm một, nên bản thiết kế được duyệt ở
+  Cổng Phạm vi cùng hợp đồng và phép đo.
+- **Chủ repo quyết:** không cần quyết. Điều cần biết: ở Cổng Phạm vi, lời duyệt của anh phủ cả bản thiết kế ở
+  `docs/superpowers/specs/2026-11-20-bang-nang-luc-o-cam-design.md`.
+
+### 12. Bộ kit ghi thư điện tử của chủ repo vào tệp được commit của một repo công khai
+
+Đã gặp, ở bước S0 (`opportunity.md`) và S1 (`contract.md`).
+
+- **Bộ kit muốn:** trường `owner:` của ô cơ hội và hợp đồng là `git config user.email`; bộ chống trùng tên hồ sơ so
+  trường này khi mở lại.
+- **Luật của repo:** repo đã công khai (quyết định 0059). Thư điện tử ấy đã có sẵn trong siêu dữ liệu tác giả của mọi
+  commit, nên không lộ thêm gì mới, nhưng nay nó nằm trong nội dung tệp.
+- **Đã làm:** giữ như bộ kit ghi, không tự sửa trường ấy. Theo lời phiên điều phối ngày 2026-11-20, hai tệp mang địa
+  chỉ (`opportunity.md`, `contract.md` của hồ sơ) chưa được commit hay đẩy lên, và sẽ không được commit cho tới khi
+  chủ repo trả lời. Đã kiểm: không tệp nào đã commit trên nhánh mang địa chỉ ấy. Lệnh duyệt Cổng Phạm vi của bộ kit
+  tự commit hợp đồng, nên câu hỏi này phải được trả lời trước khi gõ lệnh duyệt.
+- **Chủ repo quyết:** ngày 2026-11-20, chủ repo chọn «Giữ như kit ghi». Hồ sơ được commit sau lời đáp ấy. Muốn đổi
+  về sau thì phải đổi bộ kit (cho phép một tên thay cho thư điện tử).
+
+### 13. Bộ kit đổi tên phiên làm việc
+
+Đã gặp, ở bước S0.
+
+- **Bộ kit muốn:** đặt tên phiên bằng `ten_phien` của hàng («5.0 · Bảng năng lực của plugin nói… (design-assembly)»).
+- **Ảnh hưởng:** phiên này được một phiên khác mở với tên «Thử kit Delivery Loop trên mục 5.0». Đổi tên không cắt
+  liên kết giữa hai phiên, nhưng người đọc thanh bên thấy tên khác với tên đã giao việc.
+- **Đã làm:** làm theo bộ kit, ghi ở đây.
+
+### 14. Thẻ quyết định của bộ kit nằm trong phạm vi kiểm của Prettier
+
+Đã gặp, ở Cổng Phạm vi.
+
+- **Bộ kit muốn:** dựng thẻ `_acceptance/<slug>/card.html` (về sau còn `evidence-page.html`) ngay trong hồ sơ.
+- **Luật của repo:** `prettier --check .` phủ `.html`; thẻ bộ kit vẽ ra lệch khuôn.
+- **Đã làm:** định dạng thẻ bằng Prettier của repo trước khi commit. Thẻ chỉ là lớp trình bày, không phép kiểm nào
+  của bộ kit so từng byte của nó (khác với `LO-TRINH.html`, mục 8). Mỗi lần dựng lại thẻ phải định dạng lại.
+- **Chủ repo quyết:** để vậy, hay thêm `_acceptance/**/*.html` vào `.prettierignore`.
+
 ## Số đo
 
 Điền khi lượt thử chạy.

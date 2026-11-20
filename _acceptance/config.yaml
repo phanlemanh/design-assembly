@@ -19,10 +19,14 @@ executors:
   test:
     # suy từ: Makefile, .github/workflows/ci.yml
     api: "make check"
+    capabilities: "node --test plugins/design-assembly/tests/test-capabilities.mjs"
+    status: "node --test plugins/design-assembly/tests/test-status.mjs"
+    plugin: "make plugin-test"
   script:
     # suy từ: mk/plan.mk
     cli: "make plan"
     product_map: "node /Users/manh-macmini/.claude/plugins/cache/delivery-loop/acceptance-gate/3.0.0/scripts/product-map.mjs --root . --check"
+    same_outputs: "bash _acceptance/bang-nang-luc-o-cam/rang/same-outputs.sh"
   # suy từ: src/ là ứng dụng web; jsdom có trong package.json
   design:
     # script tier (a11y/slop)
@@ -59,3 +63,5 @@ dev_server:
   url: "http://localhost:5173"
 lo_trinh:
   tep: docs/plan/lo-trinh.json
+feature_loop:
+  suite_keys: [executors.test.api]
