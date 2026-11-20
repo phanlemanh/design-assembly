@@ -325,6 +325,12 @@
       "parallel": [],
       "items": [
         {
+          "id": "5.0",
+          "what": "Bảng năng lực, ổ cắm và phích cắm; ba phép kiểm không lủng, không trùng, lõi sạch",
+          "state": "doing",
+          "ref": "wiki/specs/0008-capabilities-sockets-and-plugs.md; chủ repo duyệt sáu khuyến nghị («Duyệt cả sáu») và hai câu sau lượt quét («Duyệt cả hai») ngày 2026-11-20; bảng và phép kiểm chưa dựng"
+        },
+        {
           "id": "5.1",
           "what": "Lệnh brief",
           "state": "todo",
