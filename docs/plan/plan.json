@@ -334,7 +334,8 @@
         {
           "id": "5.1",
           "what": "Lệnh brief",
-          "state": "todo",
+          "state": "doing",
+          "ref": "wiki/specs/0010-the-screen-brief.md; chủ repo duyệt đề bài và đáp cả năm câu hỏi theo khuyến nghị ngày 2026-11-21 («Duyệt cả năm»); hai lát, chưa dựng",
           "command": "brief"
         },
         {
