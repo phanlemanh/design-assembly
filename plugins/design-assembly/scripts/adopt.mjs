@@ -62,6 +62,7 @@ import { COMPONENTS_DECISION, readFolder } from "../templates/tools/design-assem
 import { KINDS_FOLDER, readPages } from "../templates/tools/design-assembly/screens.mjs";
 import { TOKENS_DECISION } from "../templates/tools/design-assembly/tokens.mjs";
 import {
+  BLUEPRINT,
   columnsPlan,
   componentsPlan,
   gateProblem,
@@ -101,6 +102,19 @@ const RECORDABLE = ["source-color"];
 
 const read = (root, file) =>
   existsSync(path.join(root, file)) ? readFileSync(path.join(root, file), "utf8") : null;
+// The blueprint of a repository the guide ran in, so the rules page keeps what its owner fixed.
+// Adopting neither needs one nor writes one: none is not wrong, and one that cannot be read is
+// said, not refused.
+function blueprintOf(root) {
+  try {
+    return { blueprint: JSON.parse(read(root, BLUEPRINT) ?? "null") };
+  } catch {
+    return {
+      blueprint: null,
+      problem: `${BLUEPRINT} cannot be read as JSON, so the rules page goes without what the owner fixed in it`,
+    };
+  }
+}
 const layerOf = (id) => STANDARD.find((decision) => decision.id === id).layer;
 const declares = (css, name) => new RegExp(`(^|[\\s;{])${literally(name)}\\s*:`, "m").test(css);
 
@@ -659,9 +673,12 @@ export function adoption(
     Object.assign(result.files, vendored());
     // The page an agent reads first, written from every rule the tool now holds here.
     const all = { ...theme?.checks, ...checks };
+    const fixed = blueprintOf(root);
+    if (fixed.problem) result.unreadable.push({ id: "blueprint", why: fixed.problem });
     result.files[RULES_PAGE] = rulesPage(
       all,
       (file) => file in result.files || read(root, file) !== null,
+      fixed.blueprint,
     );
   }
   return result;

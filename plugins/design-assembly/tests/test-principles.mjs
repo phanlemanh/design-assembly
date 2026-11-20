@@ -11,6 +11,7 @@ import { execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { DIRECTIONS } from "../scripts/directions.mjs";
 import {
   CATALOG,
   principleCall,
@@ -503,4 +504,100 @@ test("the call on a principle in the owner's own words rests on the guide's stan
   assert.match(call.question, /"Colour only marks what acts\."/);
   assert.equal(call.basis.kind, "standard");
   assert.match(call.basis.text, /no option of a layer follows from them/);
+});
+
+// The rules page an agent reads before it touches a screen carries what the owner fixed first.
+const FIXED_HEADING = "## What the owner fixed before any value";
+const intentLines = (page) => {
+  const from = page.indexOf(FIXED_HEADING);
+  if (from < 0) return [];
+  const rest = page.slice(from + FIXED_HEADING.length);
+  const next = rest.indexOf("\n## ");
+  return (next < 0 ? rest : rest.slice(0, next))
+    .split("\n")
+    .filter((line) => line.startsWith("- "));
+};
+
+test("the rules page says each principle the owner fixed and the direction taken, one line each", async () => {
+  const { rulesPage } = await import("../scripts/apply.mjs");
+  const content = blueprint([
+    ...THREE.slice(0, 2),
+    { id: "familiar-over-novel", source: "proposed" },
+    { id: "quiet-colour", source: "user", text: "Colour only\nmarks what acts." },
+  ]);
+  content.layers.foundations.direction = "workbench";
+  const lines = intentLines(rulesPage({}, () => false, content));
+  const statement = (id) => CATALOG.find((principle) => principle.id === id).statement;
+  assert.deepEqual(lines.slice(0, 4), [
+    `- \`principle-context-stays-in-view\`: ${statement("context-stays-in-view")}`,
+    `- \`principle-soft-and-approachable\`: ${statement("soft-and-approachable")}`,
+    "- `principle-quiet-colour`: Colour only marks what acts.",
+    `- The direction the owner took is \`workbench\`: ${DIRECTIONS.find((d) => d.id === "workbench").character}`,
+  ]);
+  // A principle nobody fixed is named as that, and never as one of the owner's.
+  assert.ok(!lines.some((line) => line.startsWith("- `principle-familiar-over-novel`")));
+  assert.equal(
+    lines[4],
+    "- In the blueprint but not fixed by the owner, so settling nothing: `principle-familiar-over-novel`.",
+  );
+  // The last line says how they are used, and that no check holds them.
+  assert.match(lines.at(-1), /no check holds/i);
+  assert.equal(lines.length, 6);
+});
+
+test("the rules page has no such section where the owner fixed no principle and took no direction", async () => {
+  const { rulesPage } = await import("../scripts/apply.mjs");
+  const bare = rulesPage({}, () => false);
+  assert.ok(!bare.includes(FIXED_HEADING));
+  assert.equal(
+    rulesPage({}, () => false, blueprint()),
+    bare,
+  );
+  assert.equal(
+    rulesPage({}, () => false, blueprint([])),
+    bare,
+  );
+  // An own principle with no words, as a hand may leave it, is not a line.
+  assert.equal(
+    rulesPage({}, () => false, blueprint([{ id: "no-words", source: "user" }])),
+    bare,
+  );
+  // A proposal alone settles nothing, but an agent is told so.
+  const proposed = intentLines(
+    rulesPage({}, () => false, blueprint([{ id: "clear-hierarchy", source: "proposed" }])),
+  );
+  assert.equal(proposed.length, 2);
+  assert.equal(
+    proposed[0],
+    "- In the blueprint but not fixed by the owner, so settling nothing: `principle-clear-hierarchy`.",
+  );
+  // Several are named together; one with a source that is neither is not the owner's either.
+  const several = intentLines(
+    rulesPage(
+      {},
+      () => false,
+      blueprint([
+        { id: "clear-hierarchy", source: "proposed" },
+        { id: "of-a-hand", source: "repo", text: "Written by hand." },
+      ]),
+    ),
+  );
+  assert.equal(
+    several[0],
+    "- In the blueprint but not fixed by the owner, so settling nothing: `principle-clear-hierarchy`, `principle-of-a-hand`.",
+  );
+});
+
+test("the guide writes the rules page with every principle row of the ledger the owner fixed", () => {
+  const content = blueprint([...THREE, { id: "clear-hierarchy", source: "proposed" }]);
+  content.layers.foundations.direction = "workbench";
+  const dir = applied(content);
+  const lines = intentLines(text(dir, ".claude/rules/design-assembly.md"));
+  const rows = rowsOf(dir).filter((row) => row.id.startsWith("principle-"));
+  assert.equal(rows.length, 4);
+  for (const row of rows) {
+    const said = lines.some((line) => line.startsWith(`- \`${row.id}\`: `));
+    assert.equal(said, row.note === undefined, row.id);
+  }
+  assert.ok(lines.some((line) => line.includes("`workbench`")));
 });

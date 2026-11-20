@@ -272,7 +272,10 @@ the preview again.
    so: tell the person.
 
    It also writes `.claude/rules/design-assembly.md`: the rules it now holds here, where the
-   agent that builds the next screen reads them first. It names only what is installed.
+   agent that builds the next screen reads them first. It names only what is installed. The
+   page opens with what the owner fixed before any value: each principle that is theirs and the
+   direction they took, one line each. A principle the owner has not fixed is named there as
+   settling nothing.
 
    The preview's list of files is the full list of what is written. Beyond the files named
    above it holds the starting tables a person owns from then on (`design/column-types.json`,

@@ -196,6 +196,24 @@ test("on the floor: rows for the proofs it has, checks around its values, nothin
   assert.doesNotMatch(again.stdout, /^\s+(create|update)\s/m);
 });
 
+test("adopting keeps on the rules page what the owner fixed in a blueprint the guide wrote", () => {
+  const dir = floor({
+    "design/blueprint.json": JSON.stringify({
+      version: 1,
+      layers: { context: { principles: [{ id: "clear-hierarchy", source: "user" }] } },
+    }),
+  });
+  assert.equal(adopt(dir, "--conformance-level", "AA").status, 1);
+  const page = text(dir, ".claude/rules/design-assembly.md");
+  assert.match(page, /## What the owner fixed before any value\n\n- `principle-clear-hierarchy`: /);
+  // A blueprint that cannot be read is said, not refused: the page goes without the section.
+  const other = floor({ "design/blueprint.json": "{ not json" });
+  const said = adopt(other, "--conformance-level", "AA");
+  assert.equal(said.status, 1, said.stderr);
+  assert.match(said.stdout, /design\/blueprint\.json cannot be read as JSON/);
+  assert.doesNotMatch(text(other, ".claude/rules/design-assembly.md"), /What the owner fixed/);
+});
+
 test("each adopted value is held: moving it turns the gate red", () => {
   const changes = {
     "color-contrast": (css) =>

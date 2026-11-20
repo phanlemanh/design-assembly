@@ -95,7 +95,8 @@ stated level that the values do not reach is not a reason to lower the level: re
    one that says something else: then that file is listed as kept, and `make design-tokens` or
    `make design-components` will say this tool manages none.
 4. It writes `.claude/rules/design-assembly.md`: the rules it now holds here, for the agent that
-   builds next.
+   builds next. Where the guide ran here before and left a blueprint, the page keeps the
+   principles and the direction the owner fixed in it; adopting asks for none.
 5. Run the repository's formatter if it has one, then its gate.
 
 From then on a change to a value in the stylesheet is followed by `make design-tokens`, and, where
