@@ -3091,8 +3091,43 @@
       "plan": "fix",
       "opened": "2026-11-17",
       "where": ["trials"],
+      "status": "closed",
+      "note": "The component library's files are known by the folders components/ui and components/reui, not by the ui alias the component settings give, so a package that keeps the library in src/components counts the library's own files as its own: bypasses of the type, spacing and radius scales are listed in its button, calendar, tabs and scroll area, and its toaster is reported as a screen that calls the toast library itself.",
+      "closed": "2026-11-20",
+      "closed_by": "the library's folder is read from the component settings, an alias of the package's own followed through its exports, and where the library shares that folder with the repository's own components, only the files named for one of the library's items are the library's; the audit, the gate's bypass count, the channel and error-copy rules, the manifest and the probes all read that one list (components.mjs libraryParts); on a copy of the measured package 13 of 35 bypassing places and its toaster are no longer counted as its own; held by tests/test-library-package.mjs"
+    },
+    {
+      "id": "library-items-read-on-a-date",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-20",
+      "where": ["d0067"],
       "status": "open",
-      "note": "The component library's files are known by the folders components/ui and components/reui, not by the ui alias the component settings give, so a package that keeps the library in src/components counts the library's own files as its own: bypasses of the type, spacing and radius scales are listed in its button, calendar, tabs and scroll area, and its toaster is reported as a screen that calls the toast library itself."
+      "note": "The names of the library's items were read from its registry on 2026-11-20 and are kept in its adapter: an item the registry adds later, installed into a folder the library shares, is counted as the repository's own until the list is read again; and a file the repository wrote under the name of an item is counted as the library's."
+    },
+    {
+      "id": "shared-library-folder-top-level-only",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-20",
+      "where": ["d0067"],
+      "status": "open",
+      "note": "In a folder the library shares, only its files at the top of that folder are matched to the library's items; a subfolder there is the repository's own unless the settings name it as another registry's."
+    },
+    {
+      "id": "library-alias-through-exports-only",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-20",
+      "where": ["d0067"],
+      "status": "open",
+      "note": "An alias of the component settings is followed when it is @/ or starts with the package's own name and the package's exports map a folder of it, as ./components/* to ./src/components/*.tsx; an alias that only the TypeScript settings or the build map is not, and the usual folder is read instead."
     },
     {
       "id": "ladder-stopped-where-adopt-refused",

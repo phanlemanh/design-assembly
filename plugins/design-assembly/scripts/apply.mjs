@@ -46,6 +46,7 @@ import {
   COMPONENTS_FOLDER,
   componentsProblem,
   libraryFolders,
+  libraryParts,
   ownFolder,
   readComponents,
   readFolder,
@@ -317,11 +318,7 @@ export function tokensFile(target) {
 // The folder that holds the repository's components: where its component settings say, else the
 // usual place.
 export function componentsFolder(target) {
-  const settings = path.join(target, library.settingsFile);
-  const named = existsSync(settings)
-    ? library.folderIn(JSON.parse(readFileSync(settings, "utf8")))
-    : null;
-  return named ?? COMPONENTS_FOLDER;
+  return libraryFolders(target)[0] ?? COMPONENTS_FOLDER;
 }
 
 // The tool data the repository has today, or null.
@@ -345,9 +342,11 @@ export function componentsPlan(target, alreadyHeld, pending = {}) {
   const arriving = Object.entries(pending).filter(([file]) => file.startsWith(`${read}/`));
   const sources = { ...readFolder(target, read), ...Object.fromEntries(arriving) };
   if (!Object.keys(sources).some((name) => name.startsWith(`${folder}/`))) return { nothing: true };
-  // Another library's folder, installed from a second registry, is a library too.
+  // Another library's folder, installed from a second registry, is a library too. Where the
+  // library shares its folder with the repository's own components, its parts are its files.
   const others = libraryFolders(target).filter((item) => item !== folder);
-  const options = { library: [folder, ...others], pages: readPages(target) };
+  const parts = own ? null : libraryParts(target);
+  const options = { library: parts ?? [folder, ...others], pages: readPages(target) };
   const file = socket(target, "registry") ?? REGISTRY;
   const full = path.join(target, file);
   const before = existsSync(full) ? readFileSync(full, "utf8") : null;
@@ -373,6 +372,7 @@ export function componentsPlan(target, alreadyHeld, pending = {}) {
         folder,
         ...(others.length > 0 ? { libraries: others } : {}),
         ...(own ? { own } : {}),
+        ...(parts ? { library: parts } : {}),
         pages: KINDS_FOLDER,
       },
       // A repository that keeps the manifest out of git said so in its tool data: the choice is
@@ -529,7 +529,7 @@ export function columnsPlan(target, { starter, code }) {
     }
   }
 
-  const skip = [`${folder}/`, "src/generated/"];
+  const skip = [...libraryParts(target), "src/generated/"];
   const sources = readFolder(target, "src");
   const inSync = { kind: "columns", file: COLUMNS_FILE, types: TYPES_FILE };
   const rules = {
@@ -593,7 +593,7 @@ export function patternsPlan(target, { starter, code = false }) {
   const read = (file) =>
     existsSync(path.join(target, file)) ? readFileSync(path.join(target, file), "utf8") : null;
   const folder = componentsFolder(target);
-  const skip = [`${folder}/`, "src/generated/"];
+  const skip = [...libraryParts(target), "src/generated/"];
   const sources = readFolder(target, "src");
   const files = {};
   const held = {};
