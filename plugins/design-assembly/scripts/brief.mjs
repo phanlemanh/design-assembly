@@ -215,6 +215,24 @@ function branchLine({ compared, main, on_main: onMain, why }) {
   return `  compared with where this branch left ${main}: a line marked «written on this branch» is this branch's own, not what the repository had settled`;
 }
 
+// Where the question a place carries stands: the call that asks it, the question that waits, or
+// the owner's answer.
+function placeQuestion(place) {
+  if (place.call) {
+    return [`       recommendation: ${place.ask.recommendation}`, `       ask it: ${place.call}`];
+  }
+  if (place.asked) {
+    return [
+      `       asked (${place.asked.id}, ${place.asked.file}), waiting on the owner, with the recommendation: ${place.asked.recommendation ?? "none given"}`,
+    ];
+  }
+  if (place.settled_by) {
+    const { id, file, by, on } = place.settled_by;
+    return [`       answered by ${by} on ${on} (${id}, ${file})`];
+  }
+  return [];
+}
+
 // The choices no slot holds: what the sheet says of them, the call that asks one, and where they
 // hide on this screen.
 function beyondLines({ beyond }) {
@@ -226,10 +244,10 @@ function beyondLines({ beyond }) {
     ...(beyond.places.length > 0
       ? [
           "  where such a choice hides on this screen, as the repository shows:",
-          ...beyond.places.map(
-            (place) =>
-              `  ${numbered(place)} ${place.name}: ${place.says}  [${sourceWords(place.source)}]`,
-          ),
+          ...beyond.places.flatMap((place) => [
+            `  ${numbered(place)} ${place.name}: ${place.says}  [${sourceWords(place.source)}]`,
+            ...placeQuestion(place),
+          ]),
         ]
       : []),
     "",

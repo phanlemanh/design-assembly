@@ -168,7 +168,18 @@ function blindOf({ beyond }) {
       { id: "other-choices", note: beyond.note },
       ...beyond.places.map((place) => ({
         id: `near-slot-${place.number}`,
-        note: `${sentence(place.says)} Read from ${sourceWords(place.source)}.`,
+        note: [
+          `${sentence(place.says)} Read from ${sourceWords(place.source)}.`,
+          place.ask
+            ? `Ask it on the decision sheet, with the recommendation: ${place.ask.recommendation}`
+            : null,
+          place.asked ? `Asked as ${place.asked.id}, and waiting on the owner.` : null,
+          place.settled_by
+            ? `Answered by ${place.settled_by.by} on ${place.settled_by.on}, as ${place.settled_by.id}.`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" "),
       })),
     ]),
     ...group("What the sheet does not hold", briefLimits()),

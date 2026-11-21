@@ -64,6 +64,16 @@ const sheet = (dir, id = BUILT, more = []) => {
 };
 const slotOf = (result, id) => result.slots.find((slot) => slot.id === id);
 const itemOf = (screen, slot) => `screen:${screen}:${slot}`;
+// The item and the id a slot is asked under on the sample: principles and direction once for every
+// screen, the data model's lack of the planned screen's action and entity once for every screen
+// that names them, and any other slot one screen's own.
+const SHARED = {
+  principles: "screens:principles",
+  "model-changes": "screens:model-changes:Return+refundOrder",
+};
+const askedItem = (screen, slot) => SHARED[slot] ?? itemOf(screen, slot);
+const askedId = (screen, slot) =>
+  SHARED[slot] ? SHARED[slot].replace(/:/g, "-") : `screen-${screen}-${slot}`;
 
 // Every file of a repository with the hash of its bytes, the folder of git left out.
 function tree(dir, at = "") {
@@ -110,14 +120,21 @@ test("criterion 4: an open slot gives the very call of the decision sheet that a
     assert.deepEqual(open.ask, slot.ask);
     assert.equal(open.call, slot.call);
     const { ask, call } = open;
-    assert.equal(ask.item, itemOf(PLANNED, open.id));
-    assert.equal(ask.id, `screen-${PLANNED}-${open.id}`);
-    assert.ok(ask.question.includes(PLANNED), ask.question);
+    assert.equal(ask.item, askedItem(PLANNED, open.id));
+    assert.equal(ask.id, askedId(PLANNED, open.id));
+    // A question one screen's own names it; a shared one names none.
+    assert.equal(ask.question.includes(PLANNED), !SHARED[open.id], ask.question);
     assert.ok(ask.recommendation.trim().length > 0);
     // What the recommendation rests on: a standard, a principle or a measurement, and what the
     // sheet read of this repository.
     assert.ok(ask.basis.kind in BASES, open.id);
-    for (const reason of slot.why) assert.ok(ask.basis.text.includes(reason), reason);
+    // A screen's own question says each reason of its slot; a shared one says what it read of
+    // every screen it is for, each name among it.
+    if (SHARED[open.id]) {
+      for (const name of SHARED[open.id].split(":").at(-1).split("+")) {
+        assert.ok(ask.basis.text.includes(name), name);
+      }
+    } else for (const reason of slot.why) assert.ok(ask.basis.text.includes(reason), reason);
     assert.equal(typeof ask.hard_to_undo, "boolean");
     for (const said of [
       `'${DECIDE}'`,
@@ -338,8 +355,8 @@ test("criterion 5: a slot the owner answered through the decision sheet is settl
     assert.match(line.says, how, id);
     assert.ok(line.says.includes(words), `${id}: ${line.says}`);
     assert.deepEqual(line.source, {
-      file: `${WAITING_FOLDER}/screen-${PLANNED}-${id}.json`,
-      row: `screen-${PLANNED}-${id}`,
+      file: `${WAITING_FOLDER}/${askedId(PLANNED, id)}.json`,
+      row: askedId(PLANNED, id),
       by: OWNER,
       on: ANSWERED,
     });
@@ -406,7 +423,13 @@ test("each slot is open with nothing, asked with a question that waits, and sett
     const dir = sample(DROPS[id] ?? {});
     const open = slotOf(sheet(dir, screen), id);
     assert.equal(open.state, "open", id);
-    assert.equal(open.ask.item, itemOf(screen, id));
+    // The data model of a sample whose actions file is left out lacks every action a row names:
+    // the built screen shares listOrders with the planned one, so one question is for both.
+    const item =
+      id === "model-changes" && screen === BUILT
+        ? "screens:model-changes:Return+cancelOrder+listOrders+refundOrder"
+        : askedItem(screen, id);
+    assert.equal(open.ask.item, item, id);
     sheet(dir, screen, ["--queue"]);
     const asked = slotOf(sheet(dir, screen), id);
     assert.equal(asked.state, "asked", id);
@@ -492,25 +515,33 @@ test("a slot the sheet cannot ask says so, and offers no call the decision sheet
   assert.equal(called.status, EXIT.work, called.stderr);
   const result = JSON.parse(called.stdout);
   assert.ok(result.open.length >= 3);
-  for (const slot of result.open) {
+  // A question about the data model names no screen, so it is still asked; every slot that is
+  // the screen's own cannot be.
+  for (const slot of result.open.filter((item) => item.id !== "model-changes")) {
     assert.equal(slot.ask, undefined, slot.id);
     assert.equal(slot.call, undefined, slot.id);
     assert.match(slot.cannot_ask, /does not name one screen/, slot.id);
   }
+  assert.equal(
+    result.open.find((item) => item.id === "model-changes").ask.item,
+    SHARED["model-changes"],
+  );
   const shown = run(["my returns", "--target", odd]).stdout;
-  // No slot gives a call. The one call the sheet still prints asks a choice no slot holds, and
-  // names no screen: the decision sheet takes it.
+  // The calls the sheet still prints name no screen: the shared question of slot 10, and the one
+  // that asks a choice no slot holds. The decision sheet takes both.
   const [ofSlots, beyond] = shown.split("beyond the twelve slots:");
-  assert.doesNotMatch(ofSlots, /--ask|run again with --queue/);
+  assert.equal(ofSlots.match(/--ask /g).length, 1);
+  assert.match(ofSlots, /--item 'screens:model-changes:/);
   assert.match(beyond, /--ask 'QUESTION'/);
   assert.doesNotMatch(beyond, /--item/);
   assert.match(shown, /cannot be asked: .*does not name one screen/);
-  // --queue has nothing it can ask there: it writes nothing and says so.
-  const before = tree(odd);
+  // --queue asks only what it can: the shared question, and nothing about the screen itself.
   const queued = run(["my returns", "--target", odd, "--queue", "--json"]);
   assert.equal(queued.status, EXIT.work, queued.stderr);
-  assert.deepEqual(JSON.parse(queued.stdout).files, []);
-  assert.deepEqual(tree(odd), before);
+  assert.deepEqual(
+    JSON.parse(queued.stdout).files.map((file) => file.path),
+    [`${WAITING_FOLDER}/${askedId(PLANNED, "model-changes")}.json`],
+  );
   // A question about something else under the id the sheet would ask with: the same.
   const taken = sample();
   mkdirSync(path.join(taken, WAITING_FOLDER), { recursive: true });
@@ -528,7 +559,7 @@ test("a slot the sheet cannot ask says so, and offers no call the decision sheet
   assert.deepEqual(
     JSON.parse(rest.stdout).files.map((file) => file.path),
     ["model-changes", "touched-screens"].map(
-      (slot) => `${WAITING_FOLDER}/screen-${PLANNED}-${slot}.json`,
+      (slot) => `${WAITING_FOLDER}/${askedId(PLANNED, slot)}.json`,
     ),
   );
 });

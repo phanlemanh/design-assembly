@@ -72,8 +72,8 @@ same screen: one reader gives both.
   none, says it is hard to undo, or does not say, do not build on it. The sheet says which, for
   each. Say which slots you built on a recommendation, not an answer.
 - **open**: nothing says. The slot gives why, the question to ask (`ask`: the recommendation, what
-  it rests on, the item `screen:<screen id>:<slot>`), and `call`, the very call of the decision
-  sheet that asks it. Do not choose alone: ask it first. A slot the decision sheet would refuse to
+  it rests on, the item `screen:<screen id>:<slot>`, or a shared item, below), and `call`, the very
+  call of the decision sheet that asks it. Do not choose alone: ask it first. A slot the decision sheet would refuse to
   ask says so in `cannot_ask` and gives no call (the screen's id has a space, a colon, a comma or a
   slash in it, or another question has the id already): tell the user, who settles it by hand.
 
@@ -128,6 +128,14 @@ before the screen is built, and that is what you do.
 - A question in your own words about one slot counts too, when it names the item
   `screen:<screen id>:<slot>`: ask it with `/design-assembly:decide --ask ... --item` and the sheet
   shows the slot as asked.
+- Two slots are asked once for every screen they concern, so one thing to decide is one question
+  however many sheets you queue: principles and direction under `screens:principles`, and a change
+  to the data model under `screens:model-changes:NAMES`, the names it is about sorted and joined
+  with `+`. The sheet of every screen whose row or branch has those names reads that one question,
+  asked or answered. A question under a screen's own item is still read, for that screen. A branch
+  that writes more into the data model is asked again, under the larger set of names. Where the
+  repository's tool is older than 0.26.0, or its stamp cannot be read, these are asked one a screen,
+  under the screen's own item, as its gate reads them.
 - The owner answers on the decision sheet, `/design-assembly:decide`. On the next run the slot is
   settled by that answer: kept (the recommendation stands), refused (with what they said in its
   place) or their own words. A refusal with nothing said in its place tells you what not to do
@@ -148,7 +156,12 @@ Ask each one, one question each, with `/design-assembly:decide --ask "QUESTION" 
 listed only while it is there: what a person comes to this screen for, where the page of the kind
 says it of its reference screen alone; which look a control takes, where components have more
 than one; the name in code and the word a reader sees for a concept that is new to the data
-model, where no place the repository keeps its words in names it yet. The list is a help, not the
+model, where no place the repository keeps its words in names it yet; whether a toast's button
+counts among the actions of the row, where the rules page does not say it; the name each button
+behind a row's actions button is heard by, which the component takes no name for; and the words
+of a row's waiting state behind that button, where two rules meet. That last place carries its own
+question, one for the repository: `ask` and `call` while nobody asked it, `asked` while it waits,
+`settled_by` once the owner answered. Run its call as printed. The list is a help, not the
 whole of it: the shape of a new concept, sample data, the spoken name of a control, what another
 screen does with what this one adds are asked the same way when no page settles them.
 

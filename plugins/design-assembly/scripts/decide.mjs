@@ -37,6 +37,7 @@ import {
   mustAsk,
   questionFile,
   readWaiting,
+  replacedBy,
   rowProblems,
   STAMP,
   UNCONFIRMED,
@@ -137,8 +138,13 @@ function sheetOf({ rows, waiting, list }) {
     });
   }
   const permissions = [];
+  // A question a newer one replaces waits no longer: it is listed apart, and takes no answer.
+  const replaced = [];
+  const newer = replacedBy(list?.rows ?? []);
   for (const row of list?.rows ?? []) {
-    if (row.kind === "permission") {
+    if (row.kind !== "permission" && !row.answer && newer.has(row.id)) {
+      replaced.push({ id: row.id, source: "waiting-list", replaced_by: newer.get(row.id) });
+    } else if (row.kind === "permission") {
       permissions.push({
         id: row.id,
         source: "waiting-list",
@@ -172,10 +178,10 @@ function sheetOf({ rows, waiting, list }) {
       });
     }
   }
-  return { questions, answered, elsewhere, permissions };
+  return { questions, answered, elsewhere, permissions, replaced };
 }
 
-const PARTS = ["questions", "answered", "elsewhere", "permissions"];
+const PARTS = ["questions", "answered", "elsewhere", "permissions", "replaced"];
 
 // The sheet narrowed to the ids named. An id the sheet does not have is a wrong call.
 function narrow(result, only) {
@@ -311,6 +317,12 @@ function record(root, state, answers, { by, on, only }) {
     if (find("questions", id) && (only === null || only.includes(id))) continue;
     const done = find("answered", id);
     const call = find("elsewhere", id);
+    const gone = find("replaced", id);
+    if (gone) {
+      throw new Error(
+        `${id} was replaced by ${gone.replaced_by}, which asks the same about more: answer ${gone.replaced_by}`,
+      );
+    }
     if (find("permissions", id)) {
       throw new Error(
         `${id} is a permission: the owner gives it step by step, and no answer on this sheet settles it`,
@@ -463,6 +475,10 @@ export function report(result) {
       );
     }
   }
+  if (result.replaced.length > 0) {
+    lines.push("", "replaced by a newer question that asks the same about more, not counted:");
+    for (const item of result.replaced) lines.push(`  ${item.id}: answer ${item.replaced_by}`);
+  }
   if (permissions.length > 0) {
     lines.push(
       "",
@@ -549,18 +565,22 @@ const USAGE = `usage: node decide.mjs [--target DIR] [--only ID[,ID]] [--answers
              (--because) and whether it is hard to undo. The agent then goes on with its own
              recommendation, except for a call that is the owner's alone (see --item).
   --item     What the question is about, when it is one item: decision:ID (a row of the ledger),
-             pattern:NAME (a new page of a kind of screen), source-color:VALUE (the root colour)
-             or screen:ID:SLOT (one slot of the brief of one screen, which the ledger of
-             screens must have). A new kind of screen and
+             pattern:NAME (a new page of a kind of screen), source-color:VALUE (the root colour),
+             screen:ID:SLOT (one slot of the brief of one screen, which the ledger of
+             screens must have), screens:principles or screens:model-changes:NAMES (one slot
+             asked once for every screen it concerns). A new kind of screen and
              the brand colour are the owner's calls: the agent stops, and the gate stays red
              until the owner keeps it.
   --id       The question's id, and the name of its file. Without it, made from the item, or
              from the words of the question.
+  --replaces The ids of questions that wait and that this one asks the same about more, a comma
+             between them: they wait no longer, and their files stay as they are.
   --split    Turn a waiting list kept as one shared file, ${WAITING_LIST}, into one file per
              question; stops, and writes nothing, if a question could be lost.
   --dry-run  With --answers, --ask or --split: say which files would be written and what would
              change in each, and write nothing.
-  --json     The sheet as data: questions, answered, elsewhere, permissions, and the files written.
+  --json     The sheet as data: questions, answered, elsewhere, permissions, replaced, and the files
+             written.
 `;
 
 const FLAGS = {
@@ -575,10 +595,19 @@ const FLAGS = {
   "--easy-to-undo": "switch",
   "--item": "value",
   "--id": "value",
+  "--replaces": "value",
   "--split": "switch",
   "--dry-run": "switch",
 };
-const ASKING = ["--recommend", "--because", "--hard-to-undo", "--easy-to-undo", "--item", "--id"];
+const ASKING = [
+  "--recommend",
+  "--because",
+  "--hard-to-undo",
+  "--easy-to-undo",
+  "--item",
+  "--id",
+  "--replaces",
+];
 
 // A short name made of the words of an item: lowercase letters, digits and dashes.
 const slug = (words) =>
@@ -611,6 +640,13 @@ function askCall(root, state, call) {
     easy: flags["--easy-to-undo"] === true,
     item: flags["--item"],
     id: flags["--id"],
+    replaces:
+      flags["--replaces"] === undefined
+        ? undefined
+        : String(flags["--replaces"])
+            .split(",")
+            .map((id) => id.trim())
+            .filter(Boolean),
     on: flags["--on"],
   });
 }
@@ -684,6 +720,23 @@ export function askOf(root, state, ask) {
   if (before) throw refused(askedBefore(before, item));
   const on = ask.on ?? today();
   if (!isDay(on)) throw refused(`--on takes a day written YYYY-MM-DD, and ${on} is not one`);
+  // A question replaces only questions that wait on the owner: never an answer, a permission, or
+  // one another question replaced already.
+  const replaces = ask.replaces?.length > 0 ? ask.replaces : undefined;
+  const newer = replacedBy(state.list?.rows ?? []);
+  for (const other of replaces ?? []) {
+    const row = (state.list?.rows ?? []).find((candidate) => candidate.id === other);
+    if (!row) throw refused(`--replaces: ${other} is not a question of the waiting list`);
+    if (row.kind === "permission") throw refused(`--replaces: ${other} is a permission`);
+    if (row.answer) {
+      throw refused(
+        `--replaces: ${other} was answered by ${row.by} on ${row.on}; an answer is never replaced`,
+      );
+    }
+    if (newer.has(other)) {
+      throw refused(`--replaces: ${other} was replaced by ${newer.get(other)} already`);
+    }
+  }
   const row = {
     id,
     question: ask.question.trim(),
@@ -691,6 +744,7 @@ export function askOf(root, state, ask) {
     basis: ask.because.trim(),
     hard_to_undo: ask.hard,
     ...(item !== undefined ? { item } : {}),
+    ...(replaces ? { replaces } : {}),
     asked_on: on,
   };
   const problems = rowProblems(row, id);
