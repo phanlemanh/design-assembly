@@ -8,6 +8,8 @@ Status: decided (user).
 - type scale: `standard`
 - spacing scale: `4px`
 - corner radius: `floor`
+- text typeface: not answered yet: the floor's declarations stay as they are
+- heading typeface: not answered yet: the floor's declarations stay as they are
 
 ## Why
 
@@ -28,4 +30,5 @@ Chủ kho chọn bằng mắt trên bảng mẫu ngày 2026-11-12, trên màn th
 - `type-scale-values`: standard, checked by this plugin's tool
 - `spacing-values`: standard, checked by this plugin's tool
 - `radius-value`: closed, checked by this plugin's tool
+- `font-loaded`: closed, checked by this plugin's tool
 - `design-tokens`: formula, checked by this plugin's tool

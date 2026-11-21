@@ -1,0 +1,11 @@
+{
+  "id": "typeface-of-text-and-headings",
+  "question": "Kiểu chữ của kho này: họ chữ văn bản là font của sàn (Geist) hay font hệ thống, và tiêu đề cùng họ với văn bản, font của sàn hay font hệ thống?",
+  "recommendation": "Giữ font của sàn cho văn bản, tiêu đề cùng họ với văn bản",
+  "basis": "Đo trên kho này ngày 2026-11-21: stylesheet nêu \"Geist Variable\", sans-serif cho --font-sans, và --font-heading trỏ về --font-sans; gói font mà stylesheet nhập nạp đúng họ ấy, nên dòng font-loaded xanh. Giữ thì không màn nào đổi và không nạp gì mới. Font hệ thống thì bỏ được một tệp font nhưng mỗi hệ điều hành hiện một khác. Dễ đảo: đổi lời đáp trong bản thiết kế rồi chạy lại new.",
+  "hard_to_undo": false,
+  "where": "0080",
+  "if_refused": "Chạy lại new và chọn trên bảng mẫu: font hệ thống cho văn bản, hay tiêu đề khác họ với văn bản; khối máy sinh và sổ token đổi theo",
+  "item": "decision:typeface",
+  "asked_on": "2026-11-21"
+}

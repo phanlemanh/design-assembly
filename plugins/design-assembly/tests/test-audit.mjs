@@ -347,9 +347,12 @@ test("the renamed script gives the same facts as the script before the rename, b
   assert.equal(archive.status, 0, String(archive.stderr));
   const untar = spawnSync("tar", ["-x", "-C", old], { input: archive.stdout });
   assert.equal(untar.status, 0, String(untar.stderr));
-  cpSync(path.join(PLUGIN, "references"), path.join(old, "plugins/design-assembly/references"), {
-    recursive: true,
-  });
+  // The data and the tool the scripts read are today's on both sides: only the script differs.
+  for (const folder of ["references", "templates/tools"]) {
+    cpSync(path.join(PLUGIN, folder), path.join(old, "plugins/design-assembly", folder), {
+      recursive: true,
+    });
+  }
   for (const dir of [empty(), floor(), applied()]) {
     const json = (script) => {
       const run = spawnSync(execPath, [script, "--target", dir, "--json"], {

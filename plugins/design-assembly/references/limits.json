@@ -394,7 +394,7 @@
       "opened": "2026-11-12",
       "where": ["d0008", "spec", "handoff"],
       "status": "open",
-      "note": "The token file carries colour, corner radius and type only: there is nothing for font, spacing, elevation or motion."
+      "note": "The token file carries colour, corner radius, type size and typeface only: there is nothing for spacing, elevation or motion."
     },
     {
       "id": "component-reader-not-a-parser",
@@ -4048,6 +4048,72 @@
       "where": ["d0079"],
       "status": "open",
       "note": "This repository's model has one role that holds every action, so its browser test by role holds only that a role sees its buttons, and the half where a role does not see a button or a screen is shown once, on a planted copy with two roles, and not in its own make check."
+    },
+    {
+      "id": "font-weight-and-letter-spacing-unheld",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-21",
+      "where": ["d0080", "spec"],
+      "status": "open",
+      "note": "Weight and letter spacing are not chosen and not held: the typeface is the family of text and of headings only, and a screen may set any weight or letter spacing the framework has."
+    },
+    {
+      "id": "font-loading-code-not-written",
+      "area": "guide",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["d0080", "spec"],
+      "status": "open",
+      "note": "The guide writes no code that loads a font, on any stack: the floor's font and the system font need none, and on the second build stack, whose font loader is called in a layout file, a person writes it; the font-loaded check holds what they write."
+    },
+    {
+      "id": "typeface-not-asked-of-adopted-repo",
+      "area": "status",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["d0080", "spec"],
+      "status": "open",
+      "note": "A repository that adopted its values is not asked the typeface: status lists the question only where the guide wrote the block, and reading a repository's own typeface comes with the sources ledger."
+    },
+    {
+      "id": "font-loaded-reads-first-family-by-name",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-21",
+      "where": ["d0080", "spec"],
+      "status": "open",
+      "note": "The font-loaded check reads the first typeface the text and the heading variables name, and whether the build's adapter sees something load a family of that name or set that variable: a font loaded without the weights or the characters a screen uses, a typeface a component names in a class of its own, and a loader called outside a layout file are not seen."
+    },
+    {
+      "id": "font-package-read-where-installed",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-21",
+      "where": ["d0080", "spec"],
+      "status": "open",
+      "note": "A font package the stylesheet imports is read where the repository installed it: before its packages are installed, the gate reads a typeface that package loads as loaded by nothing."
+    },
+    {
+      "id": "font-loader-reader-unproven",
+      "area": "checks",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["d0080", "spec"],
+      "status": "open",
+      "note": "The reader of the second build stack's font loader was tried on throwaway repositories written for its test only, never on a repository of that stack."
     }
   ]
 }

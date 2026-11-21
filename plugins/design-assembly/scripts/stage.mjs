@@ -4,26 +4,14 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { ADAPTERS } from "../templates/tools/design-assembly/adapters/index.mjs";
+import { ADAPTERS, buildOf } from "../templates/tools/design-assembly/adapters/index.mjs";
 
 // The adapters a stage is drawn with: one of each kind it needs. `build` is the first build, the
 // one a repository whose packages name none is drawn with.
 const of = (kind) => ADAPTERS.find((adapter) => adapter.kind === kind);
 export const stageAdapters = { build: of("build"), browser: of("browser"), source: of("source") };
-const BUILDS = ADAPTERS.filter((adapter) => adapter.kind === "build");
-
-// The build a repository is drawn with: the one it shows most surely it builds with, by its
-// settings file or its own development command, then by its packages; on a tie, the first in the
-// list; and the first build when it names none.
-export function buildOf(target) {
-  let found = null;
-  let best = 0;
-  for (const adapter of BUILDS) {
-    const sure = Number(adapter.detect(target)) || 0;
-    if (sure > best) [found, best] = [adapter, sure];
-  }
-  return found ?? stageAdapters.build;
-}
+// The build a repository is drawn with, as the adapters choose it.
+export { buildOf };
 
 // Why a stage could not open when a package it needs is not installed: the build, named as such
 // where the browser is there, or nothing to draw with where neither is.

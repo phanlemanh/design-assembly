@@ -67,6 +67,8 @@ function build() {
       type_scale: "standard",
       spacing_unit: "4px",
       corner_radius: "small",
+      text_font: "floor",
+      heading_font: "text",
     },
   };
   const layers = Object.fromEntries(
@@ -140,7 +142,8 @@ test("with no answers the sheet lists every question, ends with 1, and leaves th
   const run = cli("--target", dir);
   assert.equal(run.status, 1);
   const result = sheet(dir);
-  assert.deepEqual(ids(result.questions), [...CALLS, "Q1", "Q2"]);
+  // The typeface the guide proposed is a question of the ledger too, as the other proposals are.
+  assert.deepEqual(ids(result.questions), [...CALLS, "typeface", "Q1", "Q2"]);
   assert.deepEqual(ids(result.permissions), ["P1"]);
   assert.deepEqual(result.answered, []);
   for (const item of result.questions) {
@@ -148,7 +151,7 @@ test("with no answers the sheet lists every question, ends with 1, and leaves th
     assert.ok(run.stdout.includes(item.question), item.id);
     assert.ok(run.stdout.includes(`recommendation: ${item.recommendation}`), item.id);
   }
-  assert.match(run.stdout, /^decision sheet: 5 question\(s\) wait on the owner/m);
+  assert.match(run.stdout, /^decision sheet: 6 question\(s\) wait on the owner/m);
   assert.ok(run.stdout.includes("P1: Allow the paid measurement"));
   assert.equal(cli("--target", dir, "--json").status, 1);
   assert.equal(cli("--target", dir, "--dry-run").status, 1);
@@ -239,7 +242,7 @@ test("a question that is hard to undo is marked, and one that is not is not", ()
   assert.ok(printed.includes("      if refused: Build the frame again\n"));
   assert.equal(printed.match(/^ {6}if refused: /gm).length, 1);
   // The sheet does not let silence read as "easy to undo".
-  assert.match(printed, /^hard to undo: 4 marked; 1 row\(s\) of the waiting list do not say$/m);
+  assert.match(printed, /^hard to undo: 5 marked; 1 row\(s\) of the waiting list do not say$/m);
 });
 
 test("--only narrows the sheet, the data and the exit code to the questions named", () => {
@@ -306,12 +309,13 @@ test("answers are written with the person's name and the date, answered question
     answersFile([
       "product-type giữ",
       "source-color bác Lam đậm hơn, gần màu thương hiệu",
+      "typeface giữ",
       "Q1 giữ",
       "Q2 đồng, viết tắt là đ",
     ]),
   );
   assert.equal(first.status, 1, first.stderr);
-  assert.match(first.stdout, /^answers recorded: 4, by Test Person on 2026-11-15$/m);
+  assert.match(first.stdout, /^answers recorded: 5, by Test Person on 2026-11-15$/m);
 
   // The rows of the ledger carry who answered and when, in the note, the one key the shape of the
   // ledger has for words. Every other byte of the ledger is as it was.
@@ -369,6 +373,14 @@ test("answers are written with the person's name and the date, answered question
       on: "2026-11-15",
     },
     {
+      id: "typeface",
+      source: "ledger",
+      answer: "keep",
+      said: null,
+      by: "Test Person",
+      on: "2026-11-15",
+    },
+    {
       id: "Q1",
       source: "waiting-list",
       answer: "keep",
@@ -410,7 +422,7 @@ test("answers are written with the person's name and the date, answered question
   assert.equal(done.status, 0);
   assert.match(done.stdout, /^decision sheet: no question waits on the owner/m);
   assert.ok(done.stdout.includes("P1: Allow the paid measurement"));
-  assert.deepEqual(ids(sheet(dir).answered), [...CALLS, "Q1", "Q2"]);
+  assert.deepEqual(ids(sheet(dir).answered), [...CALLS, "typeface", "Q1", "Q2"]);
 });
 
 test("a refusal is not deleted: the row stays, with what the owner said, and every later sheet names it", () => {
@@ -716,7 +728,13 @@ test("a call the ledger has no row for is listed, counted, and sent to the comma
   const dir = repo();
   edit(dir, LEDGER, (ledger) => ledger.replace(/ {2}- id: product-type\n(?: {4}.*\n)*/, ""));
   const result = sheet(dir);
-  assert.deepEqual(ids(result.questions), ["conformance-level", "source-color", "Q1", "Q2"]);
+  assert.deepEqual(ids(result.questions), [
+    "conformance-level",
+    "source-color",
+    "typeface",
+    "Q1",
+    "Q2",
+  ]);
   assert.deepEqual(ids(result.elsewhere), ["product-type"]);
   assert.match(result.elsewhere[0].answer_with, /^\/design-assembly:adopt --product-type /);
   assert.ok(report(result).includes(result.elsewhere[0].answer_with));
@@ -784,7 +802,9 @@ const REFRESHED = ["B1", "B5", "C1", "C3", "C6"];
 // The questions that came from the page, by their ids; any other was asked by a command since, about
 // an item of its own.
 const fromPage = (row) => /^[A-D]\d+$/.test(row.id);
-const PAGE_ITEMS = /^(need|before):/;
+// A question asked since the page: about a block to take in, or, from item 9.1 on, about a row of
+// the ledger a new choice of the plugin writes once the owner answers it (the typeface).
+const PAGE_ITEMS = /^(?:(?:need|before):|decision:typeface$)/;
 // The rows of every table of the page, in order: the section heading, then the cells of the row.
 function pageRows(page) {
   const rows = [];
@@ -804,7 +824,7 @@ function pageRows(page) {
 test("this repository's waiting list is data: 25 questions and 2 permissions, and an answer there names a person", () => {
   const all = readWaiting(ROOT).rows;
   const rows = all.filter(fromPage);
-  // Every other question was asked by a command since, about a block to take in.
+  // Every other question was asked by a command since, about a block or a choice the plugin added.
   for (const row of all.filter((item) => !fromPage(item))) {
     assert.match(String(row.item), PAGE_ITEMS, row.id);
   }

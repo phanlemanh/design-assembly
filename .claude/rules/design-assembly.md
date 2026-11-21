@@ -26,6 +26,10 @@ what another screen does with what this one adds. The sheet names where such cho
 the screen. Ask each as the section «Questions only the owner answers» says, and go on with
 your recommendation.
 
+## Type
+
+- Every typeface the stylesheet names is loaded, or is one every device has: a new one comes with what loads it (an @font-face rule, a font package the stylesheet imports, or the build's own font loader), or the gate fails.
+
 ## A table of data
 
 - A column shows a field of the data model. The field names its column type once: a `display` key on its property in `ontology/entities/`, with a type listed in `design/column-types.json`.

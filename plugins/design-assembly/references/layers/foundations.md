@@ -1,7 +1,8 @@
 # Layer: foundations
 
-**Framing.** What does the theme start from? The person gives a source color and picks a type scale
-and a corner radius; the machine derives the rest and checks it. Spacing stays on the floor's unit.
+**Framing.** What does the theme start from? The person gives a source color and picks a type scale,
+a corner radius and the typeface of text and of headings; the machine derives the rest and checks
+it. Spacing stays on the floor's unit.
 Density, elevation, motion and iconography are not in this version.
 
 **Depends on:** product context. Its conformance level fixes the contrast ratio every color role
@@ -25,12 +26,13 @@ below are for explaining a letter, not for choosing by.
 Ask one section at a time, in this order: each is shown on the sheet before it is asked. The
 sheet shows the type scales that suit the product type; `--all-ratios` draws every one, when the
 person asks for a stronger or a gentler scale than those. After `--around`, draw the other
-sections again with `--section type` and `--section radius`.
+sections again with `--section type`, `--section radius` and `--section typeface`.
 
 1. **Source color**, as `#rrggbb` or as the stylesheet writes a colour, `oklch(L C H)`. Never
    convert a colour by hand: copy it in the form you found it.
 2. **Type scale**: the floor's standard, or a modular scale. If modular, which ratio.
 3. **Corner radius**: one step of the shape scale.
+4. **Typeface**: of running text, then of headings (see "Typeface" below).
 
 Then record the layer as `decided`, keep the blueprint `designing`, and run
 `apply.mjs --target <repo> --dry-run`. The preview needs no approval. Show, quoting its lines:
@@ -113,6 +115,25 @@ smaller and larger radii from this one value.
 **Held by:** a check that `--radius` resolves to the decided value, so a rule added later in the
 stylesheet cannot change it unnoticed.
 
+## Typeface
+
+Two choices, asked after the corner radius and shown on the sheet `specimen.mjs --section
+typeface` draws, text first:
+
+| Option   | Why                                                             | Trade-off                                             | Label       |
+| -------- | --------------------------------------------------------------- | ----------------------------------------------------- | ----------- |
+| `floor`  | The font the floor already names and loads: nothing new to load | It is the floor's, not the brand's                    | `automated` |
+| `system` | The font each device uses for its own interface: no file at all | It looks a little different on every operating system | `automated` |
+| `source` | A font of the brand, with its row in the sources ledger         | Not in this version: its row comes with the next one  | none        |
+
+Headings take `text` (the same typeface), `floor` or `system`. A brand font is asked for in the
+words of the person, and recorded nowhere yet: say that its row in the sources ledger, with its pin
+and its licence, comes with the next version, and that the guide never fetches a font.
+
+**Held by:** a check that both variables resolve to the decided values, and a check that the first
+typeface each names is loaded by the repository, as its build loads one, or is a family every
+device has. Weight and letter spacing are not chosen in this version.
+
 ## What the floor's components do not follow
 
 Checked in a browser on 2026-11-11 with the shadcn components the floor installs:
@@ -128,8 +149,9 @@ the vendor's components; the core components layer is where this will be closed.
 ## Recommendation when the person hands this to Claude
 
 Propose a source color and record `source: proposed`. Keep `standard` for an application and
-propose `modular` with `major-third` for a content site. Keep the floor's corner radius. Put all
-three first in the final review so the person can replace them.
+propose `modular` with `major-third` for a content site. Keep the floor's corner radius, and the
+floor's font with headings in the same typeface. Put all of them first in the final review so the
+person can replace them.
 
 ## Recording
 
@@ -144,8 +166,16 @@ Choice keys:
   `major-third` or `perfect-fourth`.
 - `spacing_unit`: `4px`.
 - `corner_radius`: `floor`, `none`, `extra-small`, `small`, `medium` or `large`.
+- `text_font`: `floor` or `system`.
+- `heading_font`: `text`, `floor` or `system`. The two are written together.
+
+When the person gave a typeface, or confirmed the one proposed, write who and when beside it:
+`"answered": { "text_font": { "by": "<their name>", "on": "YYYY-MM-DD" }, "heading_font": { ... } }`.
+The guide refuses a typeface that is the owner's and does not say so.
 
 Beside the choice keys, `direction` names the direction of `references/directions.json` the
 values were drawn from, when the person picked one.
 
-A blueprint decided before these keys existed keeps the floor's values; the preview says so.
+A blueprint decided before these keys existed keeps the floor's values; the preview says so. One
+decided before the typeface existed names none: the stylesheet keeps the floor's declarations,
+and the question waits until the person answers it in the guide.

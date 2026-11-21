@@ -137,6 +137,14 @@ test("tokens are the theme variables of the stylesheet, followed to their values
     },
     // Only the type step this stylesheet can resolve: there is no framework here.
     text: { base: { $type: "dimension", $value: "1rem" } },
+    // A typeface is the family it means, the first of its list; the list stays beside it.
+    font: {
+      sans: {
+        $type: "fontFamily",
+        $value: "Inter",
+        $extensions: { "design-assembly": { css: "'Inter', sans-serif" } },
+      },
+    },
   });
   // A pointer that leads nowhere is not turned into a token, and is said aloud.
   assert.deepEqual(unresolved.slice(0, 1), ["--color-lost"]);

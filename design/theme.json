@@ -91,6 +91,12 @@
         "kind": "gate"
       }
     ],
+    "font-loaded": [
+      {
+        "kind": "font-loaded",
+        "variables": ["--font-sans", "--font-heading"]
+      }
+    ],
     "design-tokens": [
       {
         "kind": "tokens",

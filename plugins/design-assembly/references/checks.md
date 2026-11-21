@@ -92,12 +92,38 @@ and a `$value`.
   the one form every reader takes, and the stylesheet's own text is kept under `$extensions`. A
   value that differs in dark mode is kept beside it, under `$extensions` too. The shape of the file
   is in `contract.md`.
-- Groups today: `color`, `radius`, `text`. Typefaces, the spacing unit, elevation and motion have
-  no token yet.
+- Groups today: `color`, `radius`, `text`, `font`. A `font` token is a typeface, `$type`
+  `fontFamily`: its `$value` is the first family of the list, the one meant, and the whole list as
+  the stylesheet writes it is under `$extensions`. A typeface that points at a variable the
+  build's font loader sets while the page runs has no value in the stylesheet, and no token. The spacing unit, elevation and motion have no token yet.
 - The file is derived. Change the stylesheet, then run `make design-tokens`. The `tokens` check
   fails when the two disagree, whichever side moved.
 - A tokens file a person already keeps, and that says something else, is never written over: the
   scripts say so and write none.
+
+## The typeface
+
+The foundations layer asks the typeface of running text and of headings (`text_font`,
+`heading_font`): the floor's font, or the system font, which no file loads; headings may take the
+text's. A font with its row in the sources ledger is named and cannot be chosen in this version.
+
+- The marked block names both, in a block of the framework's theme after the floor's own
+  declaration of the same variables: the framework writes a theme variable's value into the
+  classes that use it, and the last declaration is the one in force. The floor's part of the
+  stylesheet is not edited. Where the owner keeps the floor's font, the block copies the floor's
+  own value, so the two declarations say the same.
+- A blueprint decided before the choice existed names no typeface: the block leaves the floor's
+  declarations alone, and `status` lists the question, answered in the guide.
+- The `typeface` row holds both values: a declaration later in the stylesheet that names another
+  turns the gate red, and so does a hand edit of the block, through `tonal-palette`.
+- The `font-loaded` row holds that the first typeface of each of the two variables is loaded, or
+  is a family every device has. What loads one is read by the adapter of the repository's build:
+  on the first stack an `@font-face` rule of the stylesheet or a font package it imports, read
+  where the repository installed it; on the second, the same, or the build's font loader called in
+  a layout file, which sets the variable the stylesheet names. Nothing is fetched. A typeface that
+  is named and not loaded would show the next family of the list without a word: the gate says
+  which, and where it is named.
+- Weight and letter spacing are not chosen and not held in this version.
 
 ## The component manifest
 

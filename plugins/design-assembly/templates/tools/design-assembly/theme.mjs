@@ -1,6 +1,8 @@
 // From a source color to a tonal palette and color roles. Pure: the same input gives the same text.
 import { asWritten, clipChroma, contrast, formatOklch, luminance, parseColor } from "./color.mjs";
+import { adapterOf } from "./adapters/index.mjs";
 import { CORNER_RADII, modularScale, typeDeclarations } from "./scale.mjs";
+import { themeDeclarations } from "./styles.mjs";
 
 export const START = "/* design-assembly:tokens:start";
 export const END = "/* design-assembly:tokens:end */";
@@ -91,6 +93,58 @@ export function readBlock(css) {
   return from === -1 || to === -1 ? null : css.slice(from, to + END.length);
 }
 
+const values = adapterOf("values");
+
+// The typeface every device has for its own interface: nothing is loaded for it.
+export const SYSTEM_FONT = "ui-sans-serif, system-ui, sans-serif";
+// The values each typeface choice takes in this version.
+export const FONT_CHOICES = { text: ["floor", "system"], heading: ["text", "floor", "system"] };
+// Said when a typeface from the sources ledger is asked for: that kind of value comes later.
+export const FONT_SOURCE_LATER =
+  "a typeface from the sources ledger needs its row there, with its pin and its licence, and that row comes with the next version of this plugin";
+
+// The value the floor's own theme blocks declare last for a variable, or null: the declaration the
+// framework puts into its classes. Read by the reader every check uses.
+const floorTheme = (floor, name) =>
+  themeDeclarations({ css: floor }).findLast((item) => item.name === name)?.value ?? null;
+
+// The typeface of running text and of headings as the block writes them, or null when neither is
+// decided: a blueprint decided before the choice existed leaves the floor's declarations alone.
+// The floor's typeface is copied from the floor's own declaration, so the two say the same; a
+// heading in the text's typeface points at the text's variable, as the floor writes it.
+export function fontValues(inputs, css) {
+  const { textFont, headingFont } = inputs;
+  if (textFont === undefined && headingFont === undefined) return null;
+  if (textFont === "source" || headingFont === "source") throw new Error(FONT_SOURCE_LATER);
+  if (!FONT_CHOICES.text.includes(textFont)) {
+    throw new Error(`text typeface must be one of ${FONT_CHOICES.text.join(", ")}`);
+  }
+  if (!FONT_CHOICES.heading.includes(headingFont)) {
+    throw new Error(`heading typeface must be one of ${FONT_CHOICES.heading.join(", ")}`);
+  }
+  const { text: textVariable, heading: headingVariable } = values.fonts;
+  const floor = withoutBlock(css);
+  const floorText = floorTheme(floor, textVariable);
+  if (!floorText && (textFont === "floor" || headingFont === "floor")) {
+    throw new Error(
+      `the floor's stylesheet names no ${textVariable} to keep: choose the system font`,
+    );
+  }
+  const floorHeading = floorTheme(floor, headingVariable);
+  const ofFloor = floorHeading
+    ? floorHeading.replace(`var(${textVariable})`, floorText ?? "")
+    : floorText;
+  return {
+    text: textFont === "floor" ? floorText : SYSTEM_FONT,
+    heading:
+      headingFont === "text"
+        ? `var(${textVariable})`
+        : headingFont === "floor"
+          ? ofFloor
+          : SYSTEM_FONT,
+  };
+}
+
 // Builds the theme from the decided inputs and the backgrounds the repository's own CSS declares.
 // `typeScale` and `cornerRadius` are optional: a ledger written before they existed renders as it
 // did then, so its generated check still holds.
@@ -118,6 +172,7 @@ export function buildTheme(inputs, css) {
     thresholds,
     radius: cornerRadius === undefined ? null : CORNER_RADII[cornerRadius],
     type: typeScale === "modular" ? modularScale(typeRatio) : null,
+    fonts: fontValues(inputs, css),
   };
 }
 
@@ -143,6 +198,17 @@ export function renderBlock(theme) {
     lines.push("}", "");
   });
   lines.pop();
+  // The typefaces go where the framework reads them, after the floor's own declaration of the same
+  // variables: the last declaration is the one in force.
+  if (theme.fonts) {
+    lines.push(
+      "",
+      `${values.fonts.block} {`,
+      `  ${values.fonts.text}: ${theme.fonts.text};`,
+      `  ${values.fonts.heading}: ${theme.fonts.heading};`,
+      "}",
+    );
+  }
   lines.push(END);
   return lines.join("\n");
 }

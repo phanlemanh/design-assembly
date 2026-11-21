@@ -64,7 +64,13 @@ import {
   starterParts,
 } from "../templates/tools/design-assembly/governance.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
-import { WAITING_FOLDER } from "../templates/tools/design-assembly/waiting.mjs";
+import { isDay, WAITING_FOLDER } from "../templates/tools/design-assembly/waiting.mjs";
+import {
+  declaredFonts,
+  fontProblems,
+  FONT_VARIABLES,
+  readLoads,
+} from "../templates/tools/design-assembly/fonts.mjs";
 import {
   channelsProblem,
   CORE_STATES,
@@ -159,6 +165,13 @@ const FOUNDATIONS_DEFAULTS = {
   corner_radius: "floor",
 };
 
+// Foundations choices added after that, with no value of the floor's to fall back on: a blueprint
+// decided before them leaves the stylesheet as it is, and the choice waits on the owner. Both are
+// answered together, and the owner's answer says who gave it and when.
+export const LATER_CHOICES = ["text_font", "heading_font"];
+// The rows the guide writes for more than one choice, by the choices they stand for.
+export const ROW_CHOICES = { typeface: LATER_CHOICES };
+
 // A layer built after the first version: a blueprint that still has it `planned` was written
 // before it could be asked, so its answer is the guide's proposal until the person gives one.
 const LATER_LAYERS = ["patterns"];
@@ -194,6 +207,8 @@ export function themeInputs(blueprint) {
       typeScale: choice.type_scale,
       ...(choice.type_scale === "modular" ? { typeRatio: choice.type_ratio } : {}),
       cornerRadius: choice.corner_radius,
+      ...(choice.text_font !== undefined ? { textFont: choice.text_font } : {}),
+      ...(choice.heading_font !== undefined ? { headingFont: choice.heading_font } : {}),
     },
     choice,
     defaulted,
@@ -250,19 +265,45 @@ export function blueprintProblems(blueprint, { preview = false } = {}) {
     }
     const values =
       layer.id === "foundations" ? themeInputs(blueprint).choice : (entry.choice ?? {});
+    const anyLater = LATER_CHOICES.some((key) => values[key] !== undefined);
     for (const choice of layer.choices.filter((c) => applies(c, values))) {
       const value = values[choice.key];
-      if (value === undefined) found.push(`${layer.id}: no ${choice.name}`);
-      else if (choice.options && !(value in choice.options)) {
+      if (value === undefined) {
+        if (!LATER_CHOICES.includes(choice.key) || anyLater) {
+          found.push(`${layer.id}: no ${choice.name}`);
+        }
+      } else if (choice.not_yet && Object.hasOwn(choice.not_yet, value)) {
+        found.push(`${layer.id}: ${choice.name} ${value}: ${choice.not_yet[value]}`);
+      } else if (choice.options && !(value in choice.options)) {
         found.push(
           `${layer.id}: ${choice.name} must be one of ${Object.keys(choice.options).join(", ")}`,
         );
       }
     }
+    found.push(...answeredProblems(layer, entry, values));
   }
   const color = blueprint.layers?.foundations?.choice?.source_color;
   if (color !== undefined && parseColor(String(color)) === null) {
     found.push("foundations: source color must be written as #rrggbb or oklch(L C H)");
+  }
+  return found;
+}
+
+// Who gave a later choice and when, where it is the owner's answer: the guide writes it into the
+// blueprint with the answer, and the decision sheet writes it when the owner confirms a proposal.
+function answeredProblems(layer, entry, values) {
+  const found = [];
+  for (const choice of layer.choices.filter((item) => LATER_CHOICES.includes(item.key))) {
+    if (values[choice.key] === undefined) continue;
+    const owners = entry.source === "user" || (entry.confirmed ?? []).includes(choice.key);
+    if (!owners) continue;
+    const said = entry.answered?.[choice.key];
+    const named = typeof said?.by === "string" && said.by.trim() !== "" && isDay(said?.on);
+    if (!named) {
+      found.push(
+        `${layer.id}: ${choice.name} is the owner's answer, and the blueprint does not say who gave it and when: write answered.${choice.key} with by and on (YYYY-MM-DD)`,
+      );
+    }
   }
   return found;
 }
@@ -1219,6 +1260,32 @@ export function ledgerButtons(target) {
   return offersOf(ledger ?? {}).screens.some((screen) => screen.actions.length > 0);
 }
 
+// What a typeface choice is called on the rules page.
+const FONT_WORDS = {
+  floor: (value) => `the floor's font (\`${value}\`)`,
+  system: () => "the system font, which no file loads",
+  text: () => "the text typeface",
+};
+
+// The lines of the rules page about the typeface: only where the repository holds its rows.
+function typefaceRules(checks, blueprint) {
+  const values = Object.fromEntries(
+    (checks.typeface ?? []).map((check) => [check.variable, check.expected]),
+  );
+  const [textVariable, headingVariable] = FONT_VARIABLES;
+  const choice = blueprint?.layers?.foundations?.choice ?? {};
+  const words = (key, variable) =>
+    FONT_WORDS[choice[key]]?.(values[variable]) ?? `\`${values[variable]}\``;
+  return [
+    "typeface" in checks &&
+      `Running text is set in ${words("text_font", textVariable)} and headings in ${words("heading_font", headingVariable)}, as \`${BLUEPRINT}\` decides: the generated block of the stylesheet names them as \`${textVariable}\` and \`${headingVariable}\`, and the gate holds both.`,
+    "typeface" in checks &&
+      `Never name a typeface in a screen or a component: text takes \`${textVariable}\` from the page, and a heading takes \`${headingVariable}\`. Another typeface is the owner's answer in the guide, never a class.`,
+    "font-loaded" in checks &&
+      "Every typeface the stylesheet names is loaded, or is one every device has: a new one comes with what loads it (an @font-face rule, a font package the stylesheet imports, or the build's own font loader), or the gate fails.",
+  ];
+}
+
 // `facts.buttons` is whether the ledger of screens gives some screen a button for an action.
 export function rulesPage(checks, has, blueprint = null, facts = {}) {
   const held = (id) => id in checks;
@@ -1255,6 +1322,7 @@ export function rulesPage(checks, has, blueprint = null, facts = {}) {
     if (shown.length > 0) lines.push("", `## ${title}`, "", ...shown.map((item) => `- ${item}`));
   };
   section(FIXED_SECTION, fixedFirst(blueprint, held("decision-sheet")));
+  section("Type", typefaceRules(checks, blueprint));
   const typed = has("src/components/ui/typed-table.tsx");
   section("A table of data", [
     held("display-kind") &&
@@ -1554,7 +1622,48 @@ function decisions(blueprint, theme, foundations) {
     ],
     "checks-in-gate": [{ kind: "gate" }],
   };
+  if (theme.fonts) {
+    const [textVariable, headingVariable] = FONT_VARIABLES;
+    const choice = foundations.choice;
+    const pending =
+      proposed("foundations", "text_font").note ?? proposed("foundations", "heading_font").note;
+    const said = blueprint.layers.foundations.answered?.text_font;
+    rows.push({
+      id: "typeface",
+      layer: "foundations",
+      kind: "closed",
+      source: `${BLUEPRINT}, text typeface ${choice.text_font}, heading typeface ${choice.heading_font}`,
+      check: TOOL,
+      note: pending ?? (said ? `answered by ${said.by} on ${said.on}` : undefined),
+    });
+    checks.typeface = [
+      { kind: "value", scope: ":root", variable: textVariable, expected: theme.fonts.text },
+      { kind: "value", scope: ":root", variable: headingVariable, expected: theme.fonts.heading },
+    ];
+  }
   return { rows, inputs: foundations.inputs, checks };
+}
+
+// The check that every typeface the stylesheet names is loaded, with its ledger row; or why it is
+// not added. `nothing`: the stylesheet names no typeface of its own.
+export function fontsPlan(target, styles, stylesheet) {
+  const variables = declaredFonts(styles);
+  if (variables.length === 0) return { nothing: true };
+  const loads = readLoads(target, styles.css, stylesheet);
+  const problems = fontProblems(styles, variables, stylesheet, loads);
+  if (problems.length > 0) return { failing: { id: "font-loaded", why: problems.join("; ") } };
+  return {
+    what: `every typeface ${stylesheet} names is loaded, as the ${loads.build} stack loads one, or is one every device has`,
+    row: {
+      id: "font-loaded",
+      layer: "foundations",
+      kind: "closed",
+      source: `${stylesheet}, the typeface each of ${variables.join(" and ")} names first`,
+      check: TOOL,
+      note: "the first typeface of each list, against what the adapter of the build can see load it: an @font-face rule or a font package of the stylesheet, or the build's own font loader in a layout file; that the file holds the weights a screen uses is not checked",
+    },
+    checks: [{ kind: "font-loaded", variables }],
+  };
 }
 
 // One page per decided layer: what was chosen, why, what was turned down, what the machine holds.
@@ -1562,8 +1671,17 @@ function record(layer, entry, rows, values, blueprint) {
   const lines = [`# ${layer.title[0].toUpperCase()}${layer.title.slice(1)}`, ""];
   lines.push(`Status: decided (${entry.source}).`, "", "## Choice", "");
   for (const choice of layer.choices.filter((c) => applies(c, values))) {
+    if (values[choice.key] === undefined) {
+      lines.push(`- ${choice.name}: not answered yet: the floor's declarations stay as they are`);
+      continue;
+    }
     const chosen = choice.key in (entry.choice ?? {});
-    const note = chosen ? "" : " (not asked: the floor's value)";
+    const said = entry.answered?.[choice.key];
+    const note = !chosen
+      ? " (not asked: the floor's value)"
+      : said
+        ? ` (answered by ${said.by} on ${said.on})`
+        : "";
     lines.push(`- ${choice.name}: \`${values[choice.key]}\`${note}`);
   }
   if (layer.id === "context") lines.push(...principleRecord(blueprint));
@@ -1603,6 +1721,11 @@ export function plan(target, blueprint) {
   // The design tokens file is read from the stylesheet as it is about to be written.
   const held = JSON.parse(read(FILES.theme) ?? "{}").checks?.[TOKENS_DECISION];
   const tokens = tokensPlan(target, loadStyles(target, FILES.css, files), FILES.css, Boolean(held));
+  const fonts = fontsPlan(target, loadStyles(target, FILES.css, files), FILES.css);
+  if (fonts.row) {
+    rows.push(fonts.row);
+    checks["font-loaded"] = fonts.checks;
+  }
   const prior = JSON.parse(read(FILES.theme) ?? "{}").checks ?? {};
   const columns = columnsPlan(target, { starter: true, code: true });
   const patterns = patternsPlan(target, { starter: true, code: true });
@@ -1772,6 +1895,7 @@ export function plan(target, blueprint) {
     patterns,
     templates,
     governance,
+    fonts,
     kept,
   };
 }
@@ -1860,6 +1984,16 @@ export function themeSummary(theme) {
     lines.push(`spacing scale: the floor's ${SPACING_UNIT_PX}px unit, unchanged`);
     lines.push(
       `corner radius: ${theme.radius}; the floor derives its smaller and larger radii from it`,
+    );
+  }
+  if (theme.fonts) {
+    const [textVariable, headingVariable] = FONT_VARIABLES;
+    lines.push(
+      `typeface: running text ${theme.fonts.text} (${textVariable}), headings ${theme.fonts.heading} (${headingVariable})`,
+    );
+  } else {
+    lines.push(
+      "typeface: not answered yet; the floor's declarations stay as they are until the owner answers",
     );
   }
   return lines;
@@ -1975,8 +2109,18 @@ function main(args) {
     say(`files: shown once these layers are decided: ${pending.map((l) => l.title).join(", ")}`);
     return end(facts, true);
   }
-  const { files, tokens, components, targets, columns, patterns, templates, governance, kept } =
-    plan(target, blueprint);
+  const {
+    files,
+    tokens,
+    components,
+    targets,
+    columns,
+    patterns,
+    templates,
+    governance,
+    fonts,
+    kept,
+  } = plan(target, blueprint);
   const unmet = (id) =>
     kept.includes(id)
       ? "Its check stays, and the gate fails until that changes"
@@ -2019,6 +2163,8 @@ function main(args) {
       say(`note: ${item.id}: ${item.why}. ${unmet(item.id)}.`);
     }
   }
+  if (fonts.what) say(`font-loaded: ${fonts.what}`);
+  if (fonts.failing) say(`note: font-loaded: ${fonts.failing.why}. ${unmet("font-loaded")}.`);
   if (targets.what) say(`target size: ${targets.what}`);
   else if (targets.below?.length > 0) {
     say(

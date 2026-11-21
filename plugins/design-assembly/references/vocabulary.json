@@ -108,6 +108,31 @@
       "trust": "source"
     },
     {
+      "term": "typeface",
+      "meaning": "A family of letterforms, such as one sans-serif design in all its weights. CSS calls it a font family.",
+      "source": "Common practice in typography; CSS Fonts Module Level 4, font-family",
+      "trust": "practice",
+      "avoid": ["font face"]
+    },
+    {
+      "term": "text typeface",
+      "meaning": "The typeface of running text: labels, cells, paragraphs, controls.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "heading typeface",
+      "meaning": "The typeface of headings. It may be the text typeface, or another one.",
+      "source": "Common practice",
+      "trust": "practice"
+    },
+    {
+      "term": "system font",
+      "meaning": "The typeface each operating system uses for its own interface, named in CSS by the generic family system-ui. Nothing is loaded for it.",
+      "source": "Common practice; CSS names it with the generic family system-ui",
+      "trust": "practice"
+    },
+    {
       "term": "line height",
       "meaning": "The distance between baselines of consecutive lines. Typographers call it leading.",
       "source": "Common practice",

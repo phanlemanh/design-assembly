@@ -403,7 +403,8 @@
         {
           "id": "9.1",
           "what": "Kiểu chữ, và font của thương hiệu vào được qua sổ nguồn",
-          "state": "todo"
+          "state": "doing",
+          "ref": "wiki/specs/0012-foundations-wide-enough.md; hai lát: lát 1 xong (tiêu chí 1, 3, 4 và phần kiểu chữ của tiêu chí 10: họ chữ văn bản và họ chữ tiêu đề là lựa chọn của tầng nền, giá trị font của sàn hoặc font hệ thống, font từ sổ nguồn bị từ chối bằng một câu; khối máy sinh nêu hai họ chữ, sổ token có nhóm font, dòng sổ typeface và font-loaded; bộ chuyển của hai nền dựng đọc cách nạp font; repo dựng trước bản này giữ mọi giá trị và cổng xanh, status nêu câu typeface), wiki/decisions/0080-the-typeface-is-a-choice-of-the-foundations.md, chứng bằng plugins/design-assembly/tests/test-typeface.mjs, plugin 0.29.0; câu kiểu chữ của kho này chờ chủ repo trên hàng chờ (design/waiting/typeface-of-text-and-headings.json); lát 2 chưa dựng (tiêu chí 2, 5 và phần font của 14: font qua sổ nguồn, adopt giữ font của repo, cuốn hướng dẫn, bảng năng lực)"
         },
         {
           "id": "9.2",

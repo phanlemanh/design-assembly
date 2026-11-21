@@ -4,11 +4,13 @@
 // load one of the repository's modules for the plugin, or change a module as it is served: it
 // says so in `serves`, and the scripts that need those say what they could not draw.
 import { spawn } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { createServer } from "node:net";
 import path from "node:path";
 import process from "node:process";
 import { setTimeout as wait } from "node:timers/promises";
+
+import { stylesheetLoads } from "./css-fonts.mjs";
 
 // How long the server may take to say it is ready, and to stop once asked.
 const READY_MS = 120_000;
@@ -23,7 +25,49 @@ export const adapter = {
   serves: { modules: false, load: false, transform: false },
   detect,
   serve,
+  fontLoads,
+  fontsSay:
+    "no @font-face rule of the stylesheet declares it, no package the stylesheet imports does, and no font loader in a layout file sets it",
 };
+
+// The folders a layout file of the app router sits in, and the modules of the build's font loader.
+const APP_FOLDERS = ["src/app", "app"];
+const LAYOUT = /^layout\.[jt]sx?$/;
+const LOADER = /from\s+["']next\/font\/(google|local)["']/;
+
+function layoutFiles(root, folder) {
+  const full = path.join(root, folder);
+  if (!existsSync(full) || !statSync(full).isDirectory()) return [];
+  return readdirSync(full)
+    .sort()
+    .flatMap((name) => {
+      if (name === "node_modules" || name.startsWith(".")) return [];
+      const file = path.posix.join(folder, name);
+      if (statSync(path.join(root, file)).isDirectory()) return layoutFiles(root, file);
+      return LAYOUT.test(name) ? [file] : [];
+    });
+}
+
+// What loads a typeface on this stack: what the stylesheet loads itself, and the build's font
+// loader called in a layout file. A loader call that names a variable sets it on the page; one of
+// the hosted families loads that family by its name, an underscore for each space.
+function fontLoads(root, css, stylesheet) {
+  const loads = stylesheetLoads(root, css, stylesheet);
+  for (const file of APP_FOLDERS.flatMap((folder) => layoutFiles(root, folder))) {
+    const source = readFileSync(path.join(root, file), "utf8");
+    if (!LOADER.test(source)) continue;
+    const by = `the font loader in ${file}`;
+    for (const match of source.matchAll(/\bvariable\s*:\s*["'](--[\w-]+)["']/g)) {
+      loads.push({ variable: match[1], by });
+    }
+    const hosted = /import\s*\{([^}]*)\}\s*from\s*["']next\/font\/google["']/.exec(source);
+    for (const name of (hosted?.[1] ?? "").split(",")) {
+      const family = name.trim().split(/\s+as\s+/)[0];
+      if (family) loads.push({ family: family.replaceAll("_", " "), by });
+    }
+  }
+  return loads;
+}
 
 // How surely the repository builds with Next.js: 2 when it keeps Next.js's settings file or its
 // own development command runs it, 1 when its packages only name it, 0 when they do not.
