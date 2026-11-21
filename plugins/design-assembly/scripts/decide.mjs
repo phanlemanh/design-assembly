@@ -727,9 +727,22 @@ export function askOf(root, state, ask) {
   const ledgerIds = state.rows.map((row) => String(row.id));
   if (ledgerIds.includes(id))
     throw refused(`${id} is the id of a row of ${LEDGER}: give another --id`);
-  // The same item asked before, or the same id: the answer, or the wait, is already there.
+  // The same item asked before, or the same id: the answer, or the wait, is already there. A
+  // question that waits on the same item and that this one says it replaces is not in the way.
   const item = ask.item;
-  const before = askedIn(state, { id, item });
+  const replacing = ask.replaces ?? [];
+  const before = askedIn(
+    {
+      ...state,
+      list: {
+        ...state.list,
+        rows: (state.list?.rows ?? []).filter(
+          (row) => !(replacing.includes(row.id) && row.id !== id && !row.answer),
+        ),
+      },
+    },
+    { id, item },
+  );
   if (before) throw refused(askedBefore(before, item));
   const on = ask.on ?? today();
   if (!isDay(on)) throw refused(`--on takes a day written YYYY-MM-DD, and ${on} is not one`);

@@ -210,6 +210,12 @@
       "templates": "7a5e462ca1bf15a2d2f76b6be48106b6311ca237",
       "scripts": "89e92501e2832ed8b713e3b058b4c77acc1e4188",
       "tool": "25d0073653a1b7ab45b68c3c8b222266dd728f8e"
+    },
+    {
+      "version": "0.32.0",
+      "templates": "ad4837852471aee2257995ed5407afab370db04c",
+      "scripts": "1d1980c7ec79f588403311eb49b9caac59b45df4",
+      "tool": "00d41ed826cff714d0790d5bb4d0714a28bd7a62"
     }
   ]
 }

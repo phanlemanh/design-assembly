@@ -1,11 +1,16 @@
 {
   "version": 1,
-  "about": "Every colour role of the stylesheet of the floor this plugin serves, one entry each, named the way the stylesheet adapter names them: where its value comes from, and the pairs of text and ground it is measured in. A role's value comes from one of three sources. formula: the guide writes it from a choice of the owner through the formula named. follows: it takes the value of another role, once the owner's word for its question says so; until then the floor's value stays. floor: kept from the floor, by the owner's word with a name and a day. A role whose question has no word yet waits on the owner. Each role is text on the grounds in `on`, measured at the conformance level's threshold for text, and a part that is not text against the grounds in `against`, measured at the threshold for parts that are not text. A role measured in no pair says why in `unmeasured`.",
-  "modes": { ":root": "light", ".dark": "dark" },
+  "about": "Every colour role of the stylesheet of the floor this plugin serves, one entry each, named the way the stylesheet adapter names them: where its value comes from, and the pairs of text and ground it is measured in. A role's value comes from one of three sources. formula: the guide writes it from a choice of the owner through the formula named; a role whose formula reads a choice the owner makes in answer to a question (`asks`) waits on that answer, and is kept from the floor until it comes. follows: it takes the value of another role, once the owner's word for its question says so; until then the floor's value stays. floor: kept from the floor, by the owner's word with a name and a day. A role whose question has no word yet waits on the owner. Each role is text on the grounds in `on`, measured at the conformance level's threshold for text, and a part that is not text against the grounds in `against`, measured at the threshold for parts that are not text. A role measured in no pair says why in `unmeasured`. A question whose recommendation changed says since when (`recommended_since`): an answer «keep» to it asked before that day kept the recommendation it was given then, which was to wait. A role with `floor: false` is one the floor's stylesheet does not have: it is written only where the owner chose what writes it, and is never kept from the floor.",
+  "modes": {
+    ":root": "light",
+    ".dark": "dark"
+  },
   "formulas": {
     "primary-on-background": "the source colour itself when it reaches the threshold on the background of each mode, else the nearest lightness of its hue that does",
     "text-on-primary": "the floor's near-white or near-black, whichever has the higher contrast on the primary",
-    "ring-is-primary": "the primary of the same mode"
+    "ring-is-primary": "the primary of the same mode",
+    "neutral-family": "every neutral role on the floor's own ladder of lightness, in pure grey or in grey leaning to the source colour; a role read as text moves away from its grounds only as far as reaching the threshold needs",
+    "status-tone": "each status tone the owner chose, at the hue and chroma of the closed list of status tones (references/status-tones.json), its lightness moved away from the background only as far as reaching the threshold for text on the background and on its own tint needs; a tone not chosen writes no role"
   },
   "questions": {
     "color-roles-sidebar": {
@@ -15,14 +20,22 @@
       "why": "The sidebar marks the page a person is on with its primary: kept from the floor, it is the floor's colour and not the owner's in at least one mode."
     },
     "color-roles-neutral": {
-      "question": "Are the neutral roles (background, text, card, popover, secondary, muted, accent, border, input and the sidebar's own) kept from the floor?",
-      "sources": ["floor"],
-      "later": "the neutral family (pure grey, or grey leaning to the source colour), a choice a later version of this plugin brings"
+      "question": "Are the neutral roles (background, text, card, popover, secondary, muted, accent, border, input and the sidebar's own) written by the neutral family's formula, in pure grey or in grey leaning to the source colour, or kept from the floor?",
+      "sources": ["formula", "floor"],
+      "choice": "neutral_family",
+      "recommended": "formula",
+      "recommended_value": "grey",
+      "why": "The formula writes every neutral role so that each pair the table declares reaches its threshold from the moment it is written; pure grey is the floor's own family, so no screen changes hue and only a pair below its threshold moves.",
+      "recommended_since": "2026-11-22"
     },
     "color-roles-status": {
-      "question": "Is the destructive role kept from the floor?",
-      "sources": ["floor"],
-      "later": "the status tones the product uses, a choice a later version of this plugin brings"
+      "question": "Are the status tones (the error tone always; success, warning and information as the product needs) written by the status tone formula from the closed list of hues, or is the destructive role kept from the floor?",
+      "sources": ["formula", "floor"],
+      "choice": "status_tones",
+      "recommended": "formula",
+      "recommended_value": ["error"],
+      "why": "The formula writes each tone the owner chooses at the hue of the closed list, at a lightness that reaches the threshold on the background and on the tone's own tint; the floor has only the error tone, and a tone no screen uses is a role nothing reads.",
+      "recommended_since": "2026-11-22"
     },
     "color-roles-chart": {
       "question": "Are the five chart roles kept from the floor?",
@@ -32,24 +45,48 @@
     }
   },
   "roles": [
-    { "role": "--background", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--background",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
+      "asks": "color-roles-neutral"
+    },
     {
       "role": "--foreground",
-      "source": "floor",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
       "asks": "color-roles-neutral",
       "on": ["--background"]
     },
-    { "role": "--card", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--card",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
+      "asks": "color-roles-neutral"
+    },
     {
       "role": "--card-foreground",
-      "source": "floor",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
       "asks": "color-roles-neutral",
       "on": ["--card"]
     },
-    { "role": "--popover", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--popover",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
+      "asks": "color-roles-neutral"
+    },
     {
       "role": "--popover-foreground",
-      "source": "floor",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
       "asks": "color-roles-neutral",
       "on": ["--popover"]
     },
@@ -67,42 +104,103 @@
       "choice": "source_color",
       "on": ["--primary"]
     },
-    { "role": "--secondary", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--secondary",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
+      "asks": "color-roles-neutral"
+    },
     {
       "role": "--secondary-foreground",
-      "source": "floor",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
       "asks": "color-roles-neutral",
       "on": ["--secondary"]
     },
-    { "role": "--muted", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--muted",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
+      "asks": "color-roles-neutral"
+    },
     {
       "role": "--muted-foreground",
-      "source": "floor",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
       "asks": "color-roles-neutral",
       "on": ["--muted", "--background"]
     },
-    { "role": "--accent", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--accent",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
+      "asks": "color-roles-neutral"
+    },
     {
       "role": "--accent-foreground",
-      "source": "floor",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
       "asks": "color-roles-neutral",
       "on": ["--accent"]
     },
     {
       "role": "--destructive",
-      "source": "floor",
+      "source": "formula",
+      "formula": "status-tone",
+      "choice": "status_tones",
+      "tone": "error",
       "asks": "color-roles-status",
       "on": ["--background"]
     },
     {
+      "role": "--success",
+      "source": "formula",
+      "formula": "status-tone",
+      "choice": "status_tones",
+      "tone": "success",
+      "asks": "color-roles-status",
+      "on": ["--background"],
+      "floor": false
+    },
+    {
+      "role": "--warning",
+      "source": "formula",
+      "formula": "status-tone",
+      "choice": "status_tones",
+      "tone": "warning",
+      "asks": "color-roles-status",
+      "on": ["--background"],
+      "floor": false
+    },
+    {
+      "role": "--info",
+      "source": "formula",
+      "formula": "status-tone",
+      "choice": "status_tones",
+      "tone": "information",
+      "asks": "color-roles-status",
+      "on": ["--background"],
+      "floor": false
+    },
+    {
       "role": "--border",
-      "source": "floor",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
       "asks": "color-roles-neutral",
       "unmeasured": "a border sets parts apart; it is not what a person reads, and the floor's own is lighter than 3:1 by design"
     },
     {
       "role": "--input",
-      "source": "floor",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
       "asks": "color-roles-neutral",
       "unmeasured": "the edge of a field, drawn by the component with its own ground: the review measures it on the screen"
     },
@@ -143,10 +241,18 @@
       "asks": "color-roles-chart",
       "unmeasured": "as --chart-1"
     },
-    { "role": "--sidebar", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--sidebar",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
+      "asks": "color-roles-neutral"
+    },
     {
       "role": "--sidebar-foreground",
-      "source": "floor",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
       "asks": "color-roles-neutral",
       "on": ["--sidebar"]
     },
@@ -163,16 +269,26 @@
       "asks": "color-roles-sidebar",
       "on": ["--sidebar-primary"]
     },
-    { "role": "--sidebar-accent", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--sidebar-accent",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
+      "asks": "color-roles-neutral"
+    },
     {
       "role": "--sidebar-accent-foreground",
-      "source": "floor",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
       "asks": "color-roles-neutral",
       "on": ["--sidebar-accent"]
     },
     {
       "role": "--sidebar-border",
-      "source": "floor",
+      "source": "formula",
+      "formula": "neutral-family",
+      "choice": "neutral_family",
       "asks": "color-roles-neutral",
       "unmeasured": "as --border"
     },

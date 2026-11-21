@@ -1,0 +1,26 @@
+{
+  "id": "neutral-family",
+  "question": "Họ trung tính của kho này: mười chín vai trung tính (nền, chữ, thẻ, hộp nổi, phụ, mờ, nhấn, viền, ô nhập, và phần trung tính của thanh bên) do công thức họ trung tính viết, bằng xám thuần (grey) hay xám ngả về màu gốc (tinted); hay giữ giá trị của sàn (floor)?",
+  "recommendation": "Để công thức viết, xám thuần (grey); keep lấy ứng viên đầu, grey",
+  "basis": "Đo trên một bản sao bỏ đi của kho này ngày 2026-11-22, với các lời đáp niêm phong: xám thuần chỉ đổi đúng một giá trị, --muted-foreground ở giao diện sáng từ oklch(0.556 0 0) sang oklch(0.546 0 0); cặp --muted-foreground trên --muted lên 4,52:1 (đang 4,34:1, dưới ngưỡng 4,5:1 của mức AA), trên --background 4,93:1; mười tám vai còn lại và cả giao diện tối giữ đúng giá trị của sàn, nên không màn nào đổi sắc. Xám ngả về màu gốc #0246ff cũng đạt (4,53:1) nhưng mọi bề mặt và chữ trung tính ngả lam (độ đậm màu tới 0,04), cả giao diện đổi sắc. Giữ của sàn thì cặp 4,34:1 thành phép kiểm và cổng đỏ. Dễ đảo: lời đáp nằm trong bản thiết kế, đổi rồi chạy lại new.",
+  "hard_to_undo": false,
+  "where": "0083",
+  "if_refused": "Giữ của sàn: cặp --muted-foreground trên --muted ở giao diện sáng (4,34:1) thành phép kiểm và cổng đỏ cho tới khi một màu được đổi bằng tay; hoặc xám ngả về màu gốc: mọi bề mặt và chữ trung tính ngả lam",
+  "item": "decision:color-roles-neutral",
+  "candidates": [
+    {
+      "name": "grey",
+      "why": "xám thuần: chỉ --muted-foreground ở giao diện sáng đổi, 0,556 thành 0,546; cặp lên 4,52:1"
+    },
+    {
+      "name": "tinted",
+      "why": "xám ngả về màu gốc #0246ff: cặp 4,53:1, mọi bề mặt và chữ trung tính ngả lam"
+    },
+    {
+      "name": "floor",
+      "why": "giữ của sàn: cặp 4,34:1 thành phép kiểm và cổng đỏ"
+    }
+  ],
+  "replaces": ["color-roles-neutral"],
+  "asked_on": "2026-11-22"
+}

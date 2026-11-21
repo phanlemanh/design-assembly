@@ -266,8 +266,15 @@ test("the foundations socket reads the table of colour roles, through a plug who
   const foundations = capability(table, "foundations");
   const plug = foundations.plugs.find((item) => item.id === "color-roles");
   assert.ok(plug, "no plug reads the table of colour roles");
-  assert.deepEqual(plug.references, ["references/color-roles.json"]);
-  assert.deepEqual(plug.scripts, ["scripts/color-roles.mjs"]);
+  // The table, and the closed list of status hues the status tone formula reads.
+  assert.deepEqual(plug.references, [
+    "references/color-roles.json",
+    "references/status-tones.json",
+  ]);
+  assert.deepEqual(plug.scripts, [
+    "scripts/color-roles.mjs",
+    "templates/tools/design-assembly/color-formulas.mjs",
+  ]);
   // The three checks of the table hold with it.
   assert.deepEqual(shapeProblems(table, context), []);
   assert.deepEqual(gapProblems(table, LIMITS), []);

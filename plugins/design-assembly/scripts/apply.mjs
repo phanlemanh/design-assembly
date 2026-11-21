@@ -152,6 +152,7 @@ import { readFontSources } from "../templates/tools/design-assembly/sources-ledg
 import {
   applyBlock,
   buildTheme,
+  ownWritten,
   readBlock,
   renderBlock,
   sourcedFont,
@@ -218,14 +219,118 @@ const FLOOR_SMALLEST_PX = 12;
 const applies = (choice, values) =>
   Object.entries(choice.when ?? {}).every(([key, value]) => values[key] === value);
 
+// The closed list of status tones: each tone, the role it writes and its colour in each mode.
+export const STATUS_TONES = readJson(path.join(PLUGIN, "references/status-tones.json")).tones;
+
 function colorRoleInputs(blueprint) {
-  const words = blueprint.layers?.foundations?.roles;
+  const foundations = blueprint.layers?.foundations ?? {};
+  const words = foundations.roles;
   if (!words || typeof words !== "object") return {};
   const colorRoles = Object.fromEntries(
     Object.entries(words).map(([question, word]) => [question, word?.source]),
   );
   const follows = followsOf(words);
-  return { colorRoles, ...(Object.keys(follows).length > 0 ? { follows } : {}) };
+  const choice = foundations.choice ?? {};
+  // The values the two formulas read: the neutral family, and the entries of the closed list for
+  // the tones chosen, with the brand's own colours the owner gave for them.
+  const formula = (question) => words[question]?.source === "formula";
+  const tones = formula("color-roles-status")
+    ? STATUS_TONES.filter((entry) => [choice.status_tones ?? []].flat().includes(entry.tone)).map(
+        ({ tone, role, light, dark, always }) => ({
+          tone,
+          role,
+          light,
+          dark,
+          ...(always ? { always } : {}),
+        }),
+      )
+    : [];
+  const exceptions = Object.fromEntries(
+    Object.entries(foundations.brand_exceptions ?? {}).map(([role, own]) => [
+      role,
+      { light: own?.light, dark: own?.dark },
+    ]),
+  );
+  return {
+    colorRoles,
+    ...(Object.keys(follows).length > 0 ? { follows } : {}),
+    ...(formula("color-roles-neutral") && choice.neutral_family !== undefined
+      ? { neutralFamily: choice.neutral_family }
+      : {}),
+    ...(tones.length > 0 ? { statusTones: tones } : {}),
+    ...(Object.keys(exceptions).length > 0 ? { exceptions } : {}),
+  };
+}
+
+// The choices of the foundations that answer a question of the table of colour roles, and why
+// each is wrong: given once the owner's word for its question is formula, and only then; one
+// option, or for one that takes many, a list of its options holding those it always holds.
+function askedChoiceProblems(layer, values, words) {
+  const found = [];
+  for (const choice of layer.choices.filter((item) => item.asked_by)) {
+    const value = values[choice.key];
+    const formula = words?.[choice.asked_by]?.source === "formula";
+    if (value === undefined) {
+      if (formula) found.push(`${layer.id}: no ${choice.name}`);
+      continue;
+    }
+    if (!formula) {
+      found.push(
+        `${layer.id}: the ${choice.name} is written only once roles.${choice.asked_by} is formula, the owner's word that the formula writes its roles`,
+      );
+      continue;
+    }
+    const names = Object.keys(choice.options);
+    if (!choice.many) {
+      if (!names.includes(value)) {
+        found.push(`${layer.id}: ${choice.name} must be one of ${names.join(", ")}`);
+      }
+      continue;
+    }
+    const twice = Array.isArray(value)
+      ? value.filter((item, index) => value.indexOf(item) !== index)
+      : [];
+    if (!Array.isArray(value) || value.some((item) => !names.includes(item))) {
+      found.push(`${layer.id}: ${choice.name} are among ${names.join(", ")}, as a list`);
+    } else if (twice.length > 0) {
+      found.push(`${layer.id}: ${choice.name} name ${[...new Set(twice)].join(", ")} twice`);
+    } else if ((choice.always ?? []).some((item) => !value.includes(item))) {
+      found.push(`${layer.id}: ${choice.name} always take ${choice.always.join(", ")}`);
+    }
+  }
+  return found;
+}
+
+// A brand's own status colour, as the blueprint gives it: for the role of a tone the owner chose,
+// in both modes, with why and the owner's name and day.
+function exceptionProblems(foundations) {
+  const own = foundations?.brand_exceptions;
+  if (own === undefined) return [];
+  if (own === null || typeof own !== "object" || Array.isArray(own)) {
+    return [
+      "foundations: brand_exceptions maps the role of a status tone to the brand's own colour",
+    ];
+  }
+  const chosen = [foundations.choice?.status_tones ?? []].flat();
+  return Object.entries(own).flatMap(([role, said]) => {
+    const at = `foundations: brand_exceptions.${role}`;
+    const tone = STATUS_TONES.find((entry) => entry.role === role);
+    if (!tone) return [`${at} is not the role of a status tone`];
+    const found = [];
+    if (!chosen.includes(tone.tone)) found.push(`${at}: the ${tone.tone} tone is not chosen`);
+    for (const mode of ["light", "dark"]) {
+      if (parseColor(String(said?.[mode] ?? "")) === null) {
+        found.push(`${at}: its ${mode} colour must be written as #rrggbb or oklch(L C H)`);
+      }
+    }
+    if (typeof said?.why !== "string" || said.why.trim() === "") found.push(`${at}: no why`);
+    if (!(typeof said?.by === "string" && said.by.trim() !== "" && isDay(said?.on))) {
+      found.push(
+        `${at} is the owner's word, and the blueprint does not say who gave it and when: write by and on (YYYY-MM-DD)`,
+      );
+    }
+    return found;
+  });
 }
 
 // What the note of the contrast row says: how many pairs are measured, and which wait.
@@ -308,7 +413,7 @@ export function blueprintProblems(blueprint, { preview = false, sources } = {}) 
     const values =
       layer.id === "foundations" ? themeInputs(blueprint).choice : (entry.choice ?? {});
     const anyLater = LATER_CHOICES.some((key) => values[key] !== undefined);
-    for (const choice of layer.choices.filter((c) => applies(c, values))) {
+    for (const choice of layer.choices.filter((c) => applies(c, values) && !c.asked_by)) {
       const value = values[choice.key];
       if (value === undefined) {
         if (!LATER_CHOICES.includes(choice.key) || anyLater) {
@@ -333,7 +438,9 @@ export function blueprintProblems(blueprint, { preview = false, sources } = {}) 
       }
     }
     found.push(...answeredProblems(layer, entry, values));
+    found.push(...askedChoiceProblems(layer, values, blueprint.layers?.foundations?.roles));
   }
+  found.push(...exceptionProblems(blueprint.layers?.foundations));
   const words = blueprint.layers?.foundations?.roles;
   if (words !== undefined) found.push(...wordsProblems(words));
   const color = blueprint.layers?.foundations?.choice?.source_color;
@@ -1352,10 +1459,28 @@ function colourRules(checks, blueprint) {
   );
   if (!beyond) return [];
   const waiting = pairs.filter((check) => check.waits).length;
+  const foundations = blueprint?.layers?.foundations ?? {};
+  const family =
+    foundations.roles?.["color-roles-neutral"]?.source === "formula"
+      ? foundations.choice?.neutral_family
+      : undefined;
+  const tones = (checks["status-tone"] ?? []).find((check) => check.kind === "tones");
+  const named = (items) =>
+    items.length === 1 ? items[0] : `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
+  const chosen = tones ? STATUS_TONES.filter((entry) => tones.chosen.includes(entry.role)) : [];
+  const own = (checks["brand-exceptions"] ?? []).map((check) => check.variable);
   return [
     `Every colour role of the stylesheet stands in the table of colour roles (\`${ROLES_FILE}\` of the plugin), with where its value comes from and the pairs it is measured in; \`status --roles\` prints it. A screen or a component takes a colour only through a role.`,
-    ...roleSentences(wordsOf(blueprint)).map((sentence) => `${sentence}.`),
-    `Every pair the table declares is measured in light and dark mode at the threshold of the conformance level: ${pairs.length} in all${waiting > 0 ? `, of which ${waiting} below the threshold wait on the owner, named on every run and not a check until the owner answers` : ""}.`,
+    ...roleSentences(wordsOf(blueprint), blueprint?.layers?.foundations?.choice).map(
+      (sentence) => `${sentence}.`,
+    ),
+    family &&
+      `The neutral family ${family} writes every neutral role in light and dark mode: never write a grey, a neutral value or an opacity of one in a screen or a component; a surface or a text takes its role.`,
+    chosen.length > 0 &&
+      `The status tones of this product are ${named(chosen.map((entry) => entry.tone))}: a screen says how something went only with ${named(chosen.map((entry) => `\`${entry.role}\``))}. A tone not among them has no role, and adding one is the owner's answer in the guide; the gate fails when a role of a tone nobody chose is declared.`,
+    own.length > 0 &&
+      `${named([...new Set(own)])} ${new Set(own).size === 1 ? "is" : "are"} the brand's own colour, by the owner's word (row brand-exceptions), held to that value and measured like every role.`,
+    `Every pair the table declares is measured in light and dark mode at the threshold of the conformance level: ${pairs.length} in all${waiting > 0 ? `, of which ${waiting} below the threshold wait on the owner, named on every run and held at the ratio each began to wait at until the owner answers` : ""}.`,
   ];
 }
 
@@ -1590,12 +1715,12 @@ export function vendored() {
 
 // The decisions this plugin answers, as ledger rows, and the checks its tool runs for each.
 // Ids are those of references/standard-decisions.json.
-function decisions(blueprint, theme, foundations, styles) {
+function decisions(blueprint, theme, foundations, styles, before = []) {
   const level = blueprint.layers.context.choice.conformance_level;
   const modular = foundations.choice.type_scale === "modular";
   const recorded = `${BLUEPRINT}`;
   const modes = theme.modes.map((mode) => ({ name: modeOf(mode.selector), scope: mode.selector }));
-  const contrastChecks = pairChecks(measurePairs(styles, level, modes), wordsOf(blueprint));
+  const contrastChecks = pairChecks(measurePairs(styles, level, modes), wordsOf(blueprint), before);
   // A person's call that the guide proposed is not theirs yet: the row says so until they confirm.
   // A layer the guide proposed may hold one answer the person has since given: `confirmed` lists
   // those choice keys, so that one row stops saying it is a proposal and the others still do.
@@ -1682,6 +1807,7 @@ function decisions(blueprint, theme, foundations, styles) {
     ],
     "checks-in-gate": [{ kind: "gate" }],
   };
+  rows.push(...toneRows(blueprint, foundations, theme, checks));
   if (theme.fonts) {
     const [textVariable, headingVariable] = FONT_VARIABLES;
     const choice = foundations.choice;
@@ -1707,6 +1833,60 @@ function decisions(blueprint, theme, foundations, styles) {
     ];
   }
   return { rows, inputs: foundations.inputs, checks };
+}
+
+// The rows of the status tones the owner chose, and of the brand's own colours for them, with the
+// checks that hold them; `checks` takes the checks. None until the owner's word is that the formula
+// writes the tones.
+function toneRows(blueprint, foundations, theme, checks) {
+  const tones = foundations.inputs.statusTones ?? [];
+  if (tones.length === 0) return [];
+  const said = blueprint.layers.foundations.roles?.["color-roles-status"];
+  const rows = [
+    {
+      id: "status-tone",
+      layer: "foundations",
+      kind: "closed",
+      source: `${BLUEPRINT}, status tones ${tones.map((tone) => tone.tone).join(", ")}, at the hues of the plugin's closed list (references/status-tones.json)`,
+      check: TOOL,
+      note: `answered by ${said.by} on ${said.on}; the gate holds that each tone chosen is written in light and dark mode and that no tone left out is declared, the contrast row that each reaches its threshold on the background`,
+    },
+  ];
+  checks["status-tone"] = [
+    {
+      kind: "tones",
+      scopes: theme.modes.map((mode) => mode.selector),
+      chosen: tones.map((tone) => tone.role),
+      absent: STATUS_TONES.filter((entry) => !tones.some((tone) => tone.tone === entry.tone)).map(
+        (entry) => ({ role: entry.role, tone: entry.tone }),
+      ),
+    },
+  ];
+  const own = blueprint.layers.foundations.brand_exceptions ?? {};
+  if (Object.keys(own).length > 0) {
+    rows.push({
+      id: "brand-exceptions",
+      layer: "foundations",
+      kind: "closed",
+      source: `${BLUEPRINT}, foundations.brand_exceptions`,
+      check: TOOL,
+      note: Object.entries(own)
+        .map(
+          ([role, item]) =>
+            `${role}: ${item.why.trim().replace(/\.?$/, ".")} Answered by ${item.by} on ${item.on}`,
+        )
+        .join("; "),
+    });
+    checks["brand-exceptions"] = Object.entries(own).flatMap(([role, item]) =>
+      theme.modes.map((mode) => ({
+        kind: "value",
+        scope: mode.selector,
+        variable: role,
+        expected: ownWritten(item[mode.selector === ":root" ? "light" : "dark"]),
+      })),
+    );
+  }
+  return rows;
 }
 
 // The check that every typeface the stylesheet names is loaded, with its ledger row; or why it is
@@ -1746,17 +1926,24 @@ function record(layer, entry, rows, values, blueprint) {
   lines.push(`Status: decided (${entry.source}).`, "", "## Choice", "");
   for (const choice of layer.choices.filter((c) => applies(c, values))) {
     if (values[choice.key] === undefined) {
-      lines.push(`- ${choice.name}: not answered yet: the floor's declarations stay as they are`);
+      const kept = choice.asked_by ? entry.roles?.[choice.asked_by] : null;
+      lines.push(
+        kept?.source === "floor"
+          ? `- ${choice.name}: not written: its roles are kept from the floor (answered by ${kept.by} on ${kept.on})`
+          : `- ${choice.name}: not answered yet: the floor's declarations stay as they are`,
+      );
       continue;
     }
     const chosen = choice.key in (entry.choice ?? {});
-    const said = entry.answered?.[choice.key];
+    // A choice that answers a question of the table of colour roles carries the owner's word there.
+    const said = choice.asked_by ? entry.roles?.[choice.asked_by] : entry.answered?.[choice.key];
     const note = !chosen
       ? " (not asked: the floor's value)"
       : said
         ? ` (answered by ${said.by} on ${said.on})`
         : "";
-    lines.push(`- ${choice.name}: \`${values[choice.key]}\`${note}`);
+    const shown = [values[choice.key]].flat().join(", ");
+    lines.push(`- ${choice.name}: \`${shown}\`${note}`);
   }
   if (layer.id === "context") lines.push(...principleRecord(blueprint));
   if (layer.id === "foundations" && entry.direction) {
@@ -1797,6 +1984,7 @@ export function plan(target, blueprint) {
     theme,
     foundations,
     loadStyles(target, FILES.css, files),
+    JSON.parse(read(FILES.theme) ?? "{}").checks?.["color-contrast"] ?? [],
   );
   // The design tokens file is read from the stylesheet as it is about to be written.
   const held = JSON.parse(read(FILES.theme) ?? "{}").checks?.[TOKENS_DECISION];
@@ -2069,6 +2257,16 @@ export function themeSummary(theme) {
     lines.push(`spacing scale: the floor's ${SPACING_UNIT_PX}px unit, unchanged`);
     lines.push(
       `corner radius: ${theme.radius}; the floor derives its smaller and larger radii from it`,
+    );
+  }
+  for (const mode of theme.modes.filter((item) => (item.neutrals ?? []).length > 0)) {
+    lines.push(
+      `neutral roles, ${modeOf(mode.selector)} mode: ${mode.neutrals.length} written by the neutral family's formula`,
+    );
+  }
+  for (const mode of theme.modes.filter((item) => (item.tones ?? []).length > 0)) {
+    lines.push(
+      `status tones, ${modeOf(mode.selector)} mode: ${mode.tones.map((tone) => `${tone.role} ${tone.own ? tone.written : formatOklch(tone.color)}${tone.own ? " (the brand's own)" : ""}`).join(", ")}`,
     );
   }
   if (theme.fonts) {

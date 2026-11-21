@@ -151,9 +151,10 @@ choose. Only a principle with `source: user` settles anything. The preview print
 each value of the blueprint that goes against a principle the owner fixed: read it out; the person
 may keep the value knowingly.
 
-Six answers belong to the person, because they are taste or brand: the product type, when the
+Eight answers belong to the person, because they are taste or brand: the product type, when the
 repository does not already record it; the source color; the type scale; the corner radius; the
-typeface of text and of headings; and the list-detail layout. The
+typeface of text and of headings; the neutral family; the status tones; and the list-detail
+layout. The
 conformance level is theirs too when a contract or a regulator sets it; otherwise it is AA. In
 **review each layer**, ask for them. In **hand it to Claude**, propose them, record
 `source: proposed`, and put them first in the final review so the person can replace them. Never
@@ -247,6 +248,38 @@ refuses a typeface that is the owner's without a name and a date.
 A blueprint decided before this choice existed has neither key: the guide leaves the floor's
 declarations as they are, and `status` lists the question until it is answered here.
 
+### The neutral family and the status tones
+
+After the typeface, ask the neutral family on the sheet `specimen.mjs --target <repo> --section
+neutral` draws, in light and in dark: pure grey (`grey`), the floor's own family, and grey leaning
+to the source colour (`tinted`). Each is drawn with every neutral role its formula writes, and the
+sheet prints the ratio of `--muted-foreground` on `--muted` and the lowest pair: every one already
+reaches the conformance level. Recommend pure grey, and say what that rests on as the preview's
+`recommendations` give it. "Kept from the floor" stays an answer: say that the floor's own muted
+text is below the threshold on this floor, so keeping it turns the gate red.
+
+Then the status tones, on `specimen.mjs --target <repo> --section status`: each tone of the
+plugin's closed list (`references/status-tones.json`), drawn in light and dark with its ratio on
+the background and on its own tint. The person picks letters: the error tone is always taken, and
+a tone not picked writes no role. Recommend the error tone alone unless a screen already says that
+something went well, needs attention, or is only information. Never offer a hue of your own: the
+hue of each tone is the list's.
+
+A letter is the person's answer. Write it to the blueprint in two places: the value under
+`layers.foundations.choice` (`"neutral_family": "grey"`, `"status_tones": ["error", "success"]`),
+and the owner's word that the formula writes those roles under
+`layers.foundations.roles.color-roles-neutral` and `.color-roles-status`, `{ "source": "formula",
+"by": "<their name>", "on": "<today>" }`. Kept from the floor is `"source": "floor"` with no value
+under `choice`. The guide refuses a value without that word, a word without its value, and a list
+of tones without the error tone.
+
+A brand that has its own colour for a status tone gives it under
+`layers.foundations.brand_exceptions`, keyed by the tone's role: `{ "--success": { "light":
+"<colour>", "dark": "<colour>", "why": "<the owner's reason>", "by": "<their name>", "on":
+"<today>" } }`. Only for a tone the owner chose, only from the owner's own words, never proposed by
+you. The guide writes the colour as given, adds the row `brand-exceptions`, and measures it like
+every role: below the threshold it refuses, and says the ratio.
+
 ### How a record opens
 
 The interaction patterns layer asks one thing, and it is seen too: how a record of a list opens
@@ -315,11 +348,13 @@ the preview again.
    and, once answered, the typeface of text and of headings. Every other color role has a line
    in the plugin's table of colour roles (`references/color-roles.json`; `status.mjs --roles`
    prints it): where its value comes from and the pairs it is measured in. The sidebar's primary,
-   its text and its ring follow the primary colour once the owner says so; the neutral roles, the
-   destructive one and the chart roles keep the floor's value. Each of those is a question of the
-   table, asked once for its group: write the owner's answer into the blueprint under
-   `layers.foundations.roles.<question>`, with `source` (`follows` or `floor`), `by` (their name)
-   and `on` (the day, YYYY-MM-DD). Never a value, and never on the owner's behalf. A question with
+   its text and its ring follow the primary colour once the owner says so; the neutral roles and
+   the status tones are written by their formulas once the owner chose a neutral family and the
+   tones; the chart roles keep the floor's value. Each of those is a question of the table, asked
+   once for its group: write the owner's answer into the blueprint under
+   `layers.foundations.roles.<question>`, with `source` (`follows`, `formula` or `floor`, as the
+   question takes), `by` (their name) and `on` (the day, YYYY-MM-DD). Never a value, and never on
+   the owner's behalf. A question with
    no answer waits on the owner, and `status` names it. Say so if the person expects the whole theme to
    turn to their colour.
 
@@ -351,7 +386,9 @@ the preview again.
    light and dark, at the threshold of the conformance level. Read out each `note:` line of the
    form `<pair> in <mode> mode measures <ratio>, below <threshold>: not checked until the owner
 answers <question>`: that pair is the floor's, below the threshold, and becomes a check, red,
-   once the owner keeps its roles from the floor. Never change a colour to make it pass.
+   once the owner keeps its roles from the floor. Until then it is held to the ratio it was
+   measured at: it may get no worse. Once the owner lets a formula write its roles, it passes
+   from the moment the guide writes them. Never change a colour to make it pass.
 9. Lines that start with `note:` and `hint:` mean different things. A `note:` says a rule is not
    met today and names the place: no check was added for it, or, if the row was already there,
    its check stays and the gate fails. A `hint:` says nothing is wrong: it names something the

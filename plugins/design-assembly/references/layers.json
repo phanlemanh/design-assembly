@@ -1,5 +1,5 @@
 {
-  "about": "The layers of a design system, in the order the guide visits them. One list: the guide, the ledger and the audit all use these ids. A layer is the artifact its decisions constrain. `title` and every choice `name` are terms from vocabulary.json. A layer with `built: false` is announced in one line and skipped. A choice may say under `sourced` that it also takes a row of the sources ledger: `kind` is the kind of source, `prefix` what the value starts with before the row's id, and `says` what such a value means.",
+  "about": "The layers of a design system, in the order the guide visits them. One list: the guide, the ledger and the audit all use these ids. A layer is the artifact its decisions constrain. `title` and every choice `name` are terms from vocabulary.json. A layer with `built: false` is announced in one line and skipped. A choice may say under `sourced` that it also takes a row of the sources ledger: `kind` is the kind of source, `prefix` what the value starts with before the row's id, and `says` what such a value means. A choice may say under `asked_by` the question of the table of colour roles it answers: it is given once the owner's word for that question is `formula`, and not before. A choice with `many` takes a list of its options, and `always` the options every list holds.",
   "layers": [
     {
       "id": "context",
@@ -46,7 +46,9 @@
         {
           "key": "type_ratio",
           "name": "modular scale",
-          "when": { "type_scale": "modular" },
+          "when": {
+            "type_scale": "modular"
+          },
           "options": {
             "minor-second": "1.067: steps barely differ. Dense screens with little hierarchy.",
             "major-second": "1.125: gentle steps. Applications with many levels of heading.",
@@ -100,6 +102,28 @@
             "prefix": "source:",
             "says": "A font with its row in the sources ledger, its pin and its licence: the value is `source:` and the row's id, and it can be chosen once a person has written the licence."
           }
+        },
+        {
+          "key": "neutral_family",
+          "name": "neutral family",
+          "asked_by": "color-roles-neutral",
+          "options": {
+            "grey": "Pure grey, the floor's own family: no screen changes hue, and a text colour moves only where its contrast needs it.",
+            "tinted": "Grey leaning to the source colour: every neutral surface and text takes a little of its hue, so the whole interface follows the owner's colour."
+          }
+        },
+        {
+          "key": "status_tones",
+          "name": "status tones",
+          "asked_by": "color-roles-status",
+          "many": true,
+          "always": ["error"],
+          "options": {
+            "error": "Something failed, or an action cannot be taken back: the floor's destructive role. Always taken.",
+            "success": "Something a person asked for is done.",
+            "warning": "Something needs attention before it becomes a fault.",
+            "information": "Something a person should know, with nothing wrong."
+          }
         }
       ]
     },
@@ -126,13 +150,23 @@
         }
       ]
     },
-    { "id": "content", "title": "content guidelines", "depends_on": ["context"], "built": false },
+    {
+      "id": "content",
+      "title": "content guidelines",
+      "depends_on": ["context"],
+      "built": false
+    },
     {
       "id": "templates",
       "title": "templates",
       "depends_on": ["components", "patterns", "content"],
       "built": false
     },
-    { "id": "governance", "title": "governance", "depends_on": ["templates"], "built": false }
+    {
+      "id": "governance",
+      "title": "governance",
+      "depends_on": ["templates"],
+      "built": false
+    }
   ]
 }

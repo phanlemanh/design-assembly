@@ -677,34 +677,35 @@ Its tool reads the real files (the stylesheet, the gate), not a copy of what was
 run also changes a copy of those files so that the check must fail, and reports a check that still
 passes: a check that cannot fail proves nothing.
 
-| Kind                | Passes when                                                                            |
-| ------------------- | -------------------------------------------------------------------------------------- |
-| `generated`         | The block in the stylesheet is exactly what the source color gives                     |
-| `contrast`          | Two color roles reach the contrast ratio of the conformance level; with `waits`, named |
-| `font-row`          | The font of the sources ledger a typeface names can still be chosen                    |
-| `value`             | A variable resolves to the decided value, whatever is written after it                 |
-| `absent`            | The stylesheet does not redeclare variables that the floor's scale owns                |
-| `scale`             | Every step of the type scale is larger than the one before                             |
-| `tokens`            | The design tokens file is exactly what the stylesheet gives                            |
-| `components`        | The component manifest is exactly what the component source gives                      |
-| `untracked`         | A derived file the repository keeps out of git is not tracked by git, and is ignored   |
-| `screen-fragments`  | A ledger kept as one file per entry: each file is named after its id, or its need      |
-| `target-size`       | Every control declares a height that reaches the target size of the conformance level  |
-| `column-types`      | The table of column types is well formed, and every field names one of its types       |
-| `columns`           | The file code reads is exactly what the table and the data model give                  |
-| `cells`             | No screen sets on a table what the column type decides                                 |
-| `states`            | Every screen of the registry declares the required states, or is excused with a reason |
-| `words`             | No screen writes its own words                                                         |
-| `error-copy`        | Every error message a screen shows has a title and a description                       |
-| `channels`          | No screen opens a browser dialog or calls a toast library itself                       |
-| `screen-kinds`      | Every screen is of exactly one kind, and each kind's page names its task and its files |
-| `reference-screens` | Each kind's reference is a listed screen of that kind with every required state        |
-| `screen-sizes`      | The widths reach down to 320 CSS pixels, and the browser test reads them               |
-| `import-direction`  | No source file imports a file of a part listed above its own                           |
-| `slips`             | Every line of the record names a date, what slipped, a layer and what was done         |
-| `decision-sheet`    | Every judgment the branch writes is answered or asked; nothing goes around a decision  |
-| `owner-calls`       | A new kind of screen or root colour on the branch has the owner's kept answer          |
-| `gate`              | `make check` runs the tool in a way that can fail                                      |
+| Kind                | Passes when                                                                                                                                                |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `generated`         | The block in the stylesheet is exactly what the source color gives                                                                                         |
+| `contrast`          | Two color roles reach the contrast ratio of the conformance level; with `waits`, named, and no worse than the ratio `measured` when the pair began to wait |
+| `tones`             | Each status tone the owner chose is a colour in every mode, and no role of a tone left out is declared                                                     |
+| `font-row`          | The font of the sources ledger a typeface names can still be chosen                                                                                        |
+| `value`             | A variable resolves to the decided value, whatever is written after it                                                                                     |
+| `absent`            | The stylesheet does not redeclare variables that the floor's scale owns                                                                                    |
+| `scale`             | Every step of the type scale is larger than the one before                                                                                                 |
+| `tokens`            | The design tokens file is exactly what the stylesheet gives                                                                                                |
+| `components`        | The component manifest is exactly what the component source gives                                                                                          |
+| `untracked`         | A derived file the repository keeps out of git is not tracked by git, and is ignored                                                                       |
+| `screen-fragments`  | A ledger kept as one file per entry: each file is named after its id, or its need                                                                          |
+| `target-size`       | Every control declares a height that reaches the target size of the conformance level                                                                      |
+| `column-types`      | The table of column types is well formed, and every field names one of its types                                                                           |
+| `columns`           | The file code reads is exactly what the table and the data model give                                                                                      |
+| `cells`             | No screen sets on a table what the column type decides                                                                                                     |
+| `states`            | Every screen of the registry declares the required states, or is excused with a reason                                                                     |
+| `words`             | No screen writes its own words                                                                                                                             |
+| `error-copy`        | Every error message a screen shows has a title and a description                                                                                           |
+| `channels`          | No screen opens a browser dialog or calls a toast library itself                                                                                           |
+| `screen-kinds`      | Every screen is of exactly one kind, and each kind's page names its task and its files                                                                     |
+| `reference-screens` | Each kind's reference is a listed screen of that kind with every required state                                                                            |
+| `screen-sizes`      | The widths reach down to 320 CSS pixels, and the browser test reads them                                                                                   |
+| `import-direction`  | No source file imports a file of a part listed above its own                                                                                               |
+| `slips`             | Every line of the record names a date, what slipped, a layer and what was done                                                                             |
+| `decision-sheet`    | Every judgment the branch writes is answered or asked; nothing goes around a decision                                                                      |
+| `owner-calls`       | A new kind of screen or root colour on the branch has the owner's kept answer                                                                              |
+| `gate`              | `make check` runs the tool in a way that can fail                                                                                                          |
 
 The tool also checks that it and the ledger agree in both directions: every row that points at it
 has checks behind it, and every decision it holds is a row.

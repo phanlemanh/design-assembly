@@ -68,18 +68,43 @@ export function wordsFromListed(rows) {
   const words = {};
   for (const row of rows ?? []) {
     const id = /^decision:(.+)$/.exec(row.item ?? "")?.[1];
-    const question = COLOR_ROLES.questions[id];
-    if (!question || !row.answer) continue;
-    // A source the question takes, in the owner's words, or "keep": the recommended one. Keeping
-    // a recommendation to wait is no word yet.
-    const source = question.sources.includes(row.answer)
-      ? row.answer
-      : row.answer === "keep"
-        ? (question.recommended ?? null)
-        : null;
+    const source = listedSource(id, row);
     if (source) words[id] = { source, by: row.by, on: row.on };
   }
   return words;
+}
+
+// The source an answer on the waiting list gives a question of the table, or null: a source the
+// question takes, in the owner's words, or "keep": the recommended one. Keeping a recommendation
+// to wait is no word yet. An answer in the owner's own words may also name a value of the choice
+// the formula reads, such as a neutral family or a list of status tones: that is the formula.
+export function listedSource(id, row) {
+  const question = COLOR_ROLES.questions[id];
+  if (!question || !row?.answer) return null;
+  // A question with candidates says what it recommends itself: «keep» takes its first one.
+  const first = Array.isArray(row.candidates) ? row.candidates[0]?.name : undefined;
+  const kept = row.answer === "keep" && first !== undefined;
+  const said = kept ? first : row.answer === "value" ? String(row.said ?? "").trim() : row.answer;
+  if (question.sources.includes(said)) return said;
+  if (said === "keep") return keptBefore(question, row) ? null : (question.recommended ?? null);
+  return question.choice && valuesOf(question.choice, said) ? "formula" : null;
+}
+
+// The values of a choice an answer names, or null: one option, or for a choice that takes many,
+// options split at commas.
+const LAYER_CHOICES = JSON.parse(
+  readFileSync(path.join(PLUGIN, "references/layers.json"), "utf8"),
+).layers.flatMap((layer) => layer.choices ?? []);
+export const choiceOf = (key) => LAYER_CHOICES.find((choice) => choice.key === key) ?? null;
+function valuesOf(key, said) {
+  const choice = choiceOf(key);
+  if (!choice?.options) return null;
+  const names = choice.many
+    ? String(said)
+        .split(",")
+        .map((name) => name.trim())
+    : [String(said)];
+  return names.length > 0 && names.every((name) => name in choice.options) ? names : null;
 }
 
 // The roles that take another role's value now: those the owner said follow. Each role and the
@@ -93,9 +118,10 @@ export function followsOf(words) {
 }
 
 // The questions a role still waits on: none for a role a formula writes or one the owner spoke to.
+// A role a formula writes from a choice the owner makes in answer to a question waits on it too.
 const waitsOf = (name, words) => {
   const entry = roleOf(name);
-  if (!entry || entry.source === "formula") return [];
+  if (!entry || !entry.asks) return [];
   return words[entry.asks] ? [] : [entry.asks];
 };
 
@@ -182,33 +208,87 @@ const PRIMARY_TEXT = ["--primary", "--primary-foreground"];
 // Whether an answer on the waiting list keeps a recommendation to wait: the owner's word is to
 // wait, and nothing is asked again until the choice that answers it comes.
 export const keepsWaiting = (question, row) =>
-  row?.answer === "keep" && !COLOR_ROLES.questions[question]?.recommended;
+  row?.answer === "keep" &&
+  !Array.isArray(row?.candidates) &&
+  (!COLOR_ROLES.questions[question]?.recommended ||
+    keptBefore(COLOR_ROLES.questions[question], row));
+
+// Whether the owner kept waiting for a choice that this version brings: the question now takes a
+// choice, so it is asked again.
+export const waitedForChoice = (question, row) =>
+  keepsWaiting(question, row) && Boolean(COLOR_ROLES.questions[question]?.choice);
+
+// Whether an answer «keep» kept a recommendation the question no longer gives: it was asked
+// before the day the recommendation changed, or says no day. A question asked then was to wait.
+const keptBefore = (question, row) =>
+  Boolean(question?.recommended_since) &&
+  !(typeof row?.asked_on === "string" && row.asked_on >= question.recommended_since);
 
 // The checks of the gate for the pairs measured: one per pair that can be read. A pair below its
 // threshold whose roles still wait on the owner is checked with `waits`: the gate names it with
 // its ratio and does not fail on it, until the owner answers and the guide runs again.
-export function pairChecks(measured, words) {
+// A pair that waits is held to the ratio it was measured at when it began to wait (`measured`,
+// to the hundredth the gate says): it may get no worse while the owner has not
+// answered. `before` is the checks the gate held until now: a pair that already waited on the same
+// question keeps the ratio it began at, so running the guide again never takes a worse number as
+// the new start.
+export function pairChecks(measured, words, before = []) {
   return measured
     .filter((pair) => pair.ratio !== null)
     .map((pair) => {
-      const waits = pair.ratio < pair.min ? pairWaits(pair, words) : [];
+      const waits = pair.ratio < pair.min ? pairWaits(pair, words).join(", ") : "";
+      // The same pair that waited before on a question it still waits on keeps its ratio, even
+      // when another of its questions has been answered since.
+      const still = (check) =>
+        String(check.waits ?? "")
+          .split(", ")
+          .some((question) => waits.split(", ").includes(question));
+      const held = before.find(
+        (check) =>
+          check.kind === "contrast" &&
+          waits !== "" &&
+          still(check) &&
+          check.foreground === pair.foreground &&
+          check.background === pair.background &&
+          JSON.stringify(check.scope) === JSON.stringify(pair.scope) &&
+          typeof check.measured === "number",
+      );
       return {
         kind: "contrast",
         scope: pair.scope,
         foreground: pair.foreground,
         background: pair.background,
         min: pair.min,
-        ...(waits.length > 0 ? { waits: waits.join(", ") } : {}),
+        ...(waits ? { waits, measured: held?.measured ?? Number(pair.ratio.toFixed(2)) } : {}),
       };
     });
 }
 
 // Where a role's value comes from, in words, with the owner's word where the table asks one.
-function sourceWords(entry, words) {
+function sourceWords(entry, words, choice = null) {
   const word = entry.asks ? words?.[entry.asks] : null;
   const said = word ? `, the owner's word (${entry.asks}, ${word.by} on ${word.on})` : "";
+  const named = entry.choice?.replace("_", " ");
+  if (entry.source === "formula" && !entry.asks) {
+    return `the formula ${entry.formula}, from the owner's ${named}`;
+  }
   if (entry.source === "formula") {
-    return `the formula ${entry.formula}, from the owner's ${entry.choice.replace("_", " ")}`;
+    // A role the floor does not have is written only where the owner chose its tone.
+    if (entry.floor === false && (!word || word.source === "floor")) {
+      return `not written: the floor has no such role, and it is written once the owner chooses the ${entry.tone} tone (${entry.asks})`;
+    }
+    if (word?.source === "floor") return `kept from the floor${said}`;
+    if (!word) {
+      return words === null
+        ? `the formula ${entry.formula}, from the owner's ${named}, once the owner answers (${entry.asks})`
+        : `kept from the floor until the owner answers ${entry.asks}, then the formula ${entry.formula}`;
+    }
+    const value = choice?.[entry.choice];
+    if (entry.tone && Array.isArray(value) && !value.includes(entry.tone)) {
+      return `not written: the owner did not choose the ${entry.tone} tone (${entry.asks}, ${word.by} on ${word.on})`;
+    }
+    const shown = Array.isArray(value) ? value.join(", ") : value;
+    return `the formula ${entry.formula}, from the owner's ${named}${shown ? ` (${shown})` : ""}${said}`;
   }
   if (entry.source === "follows") {
     if (word?.source === "floor") return `kept from the floor${said}`;
@@ -237,20 +317,22 @@ function pairWords(entry) {
 
 // The table as words, one line per role: its source and its pairs. `words` is a repository's
 // owner's word for each question, or null for the table alone.
-export function rolesLines(words = null) {
+// `choice` is the foundations' choices, for the values a formula reads.
+export function rolesLines(words = null, choice = null) {
   return COLOR_ROLES.roles.map(
-    (entry) => `${entry.role}: ${sourceWords(entry, words)}. ${pairWords(entry)}.`,
+    (entry) => `${entry.role}: ${sourceWords(entry, words, choice)}. ${pairWords(entry)}.`,
   );
 }
 
 // The sentences of the rules page: where each role's value comes from in this repository. Roles
 // whose source reads the same, such as those kept from the floor under one question, share one
 // sentence; a role that follows or comes from a formula has its own.
-export function roleSentences(words) {
+export function roleSentences(words, choice = null) {
   const groups = new Map();
   for (const entry of COLOR_ROLES.roles) {
-    const said = sourceWords(entry, words);
-    const own = said.startsWith("follows") || said.startsWith("the formula");
+    const said = sourceWords(entry, words, choice);
+    if (said.startsWith("not written")) continue;
+    const own = said.startsWith("follows") || (said.startsWith("the formula") && !entry.asks);
     const key = own ? entry.role : said;
     groups.set(key, { said, roles: [...(groups.get(key)?.roles ?? []), entry.role] });
   }
@@ -258,7 +340,9 @@ export function roleSentences(words) {
     const named =
       roles.length === 1 ? roles[0] : `${roles.slice(0, -1).join(", ")} and ${roles.at(-1)}`;
     if (said.startsWith("follows")) return `${named} ${said}`;
-    if (said.startsWith("the formula")) return `${named} comes from ${said}`;
+    if (said.startsWith("the formula")) {
+      return `${named} ${roles.length === 1 ? "comes" : "come"} from ${said}`;
+    }
     return `${named} ${roles.length === 1 ? "is" : "are"} ${said}`;
   });
 }

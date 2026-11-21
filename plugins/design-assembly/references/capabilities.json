@@ -248,8 +248,11 @@
           "id": "color-roles",
           "kind": "command",
           "default": false,
-          "scripts": ["scripts/color-roles.mjs"],
-          "references": ["references/color-roles.json"],
+          "scripts": [
+            "scripts/color-roles.mjs",
+            "templates/tools/design-assembly/color-formulas.mjs"
+          ],
+          "references": ["references/color-roles.json", "references/status-tones.json"],
           "step_of": "new"
         }
       ],

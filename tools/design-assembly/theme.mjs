@@ -1,6 +1,7 @@
 // From a source color to a tonal palette and color roles. Pure: the same input gives the same text.
 import { asWritten, clipChroma, contrast, formatOklch, luminance, parseColor } from "./color.mjs";
 import { adapterOf } from "./adapters/index.mjs";
+import { neutralRoles, toneColor } from "./color-formulas.mjs";
 import { CORNER_RADII, modularScale, typeDeclarations } from "./scale.mjs";
 import { fontCannot, SOURCES_FOLDER } from "./sources-ledger.mjs";
 import { themeDeclarations } from "./styles.mjs";
@@ -212,6 +213,42 @@ function followersOf(follows, mode) {
   });
 }
 
+// A brand's own colour as the block writes it: as the owner gave it, the way the repository's
+// formatter leaves a colour (hex in small letters, single spaces), so formatting never undoes it.
+export const ownWritten = (value) => {
+  const text = String(value).trim().replace(/\s+/g, " ");
+  return /^#[0-9a-f]+$/i.test(text) ? text.toLowerCase() : text;
+};
+
+// The status tones the owner chose, each with its value in this mode: the formula's from the
+// closed list of hues, or the brand's own colour where the owner gave one, which must reach the
+// threshold on the background as the formula's does. `statusTones` lists the entries of the closed
+// list, as the guide copies them; `exceptions` maps a role to its brand colour in each mode.
+function tonesOf(inputs, background, min, dark) {
+  const mode = dark ? "dark" : "light";
+  return (inputs.statusTones ?? []).map((entry) => {
+    const own = inputs.exceptions?.[entry.role]?.[mode];
+    if (own !== undefined) {
+      const color = parseColor(String(own));
+      if (!color)
+        throw new Error(
+          `brand exception ${entry.role} in ${mode} mode must be written as #rrggbb or oklch(L C H)`,
+        );
+      const ratio = contrast(color, background);
+      if (ratio < min) {
+        throw new Error(
+          `brand exception ${entry.role} in ${mode} mode is ${ratio.toFixed(2)}:1 on --background, below ${min}:1, so nothing is written: the owner gives a colour that reaches it, or lets the formula write the tone`,
+        );
+      }
+      return { role: entry.role, color, own: true, written: ownWritten(own) };
+    }
+    const tone = { ...entry, light: parseColor(entry.light), dark: parseColor(entry.dark) };
+    if (!tone.light || !tone.dark)
+      throw new Error(`the ${entry.tone} tone has no colour of the closed list`);
+    return { role: entry.role, color: toneColor(tone, background, min, dark) };
+  });
+}
+
 // Builds the theme from the decided inputs and the backgrounds the repository's own CSS declares.
 // `typeScale` and `cornerRadius` are optional: a ledger written before they existed renders as it
 // did then, so its generated check still holds. `context` is what a font of the sources ledger is
@@ -224,9 +261,24 @@ export function buildTheme(inputs, css, context = {}) {
   if (!source) throw new Error("source color must be written as #rrggbb or oklch(L C H)");
   const floor = withoutBlock(css);
   const modes = Object.keys(FALLBACK_BACKGROUND).map((selector) => {
+    const dark = selector !== ":root";
+    // The neutral roles first: the primary and the status tones are solved on the background the
+    // neutral family writes, where the owner chose one.
+    const neutrals =
+      inputs.neutralFamily === undefined
+        ? null
+        : neutralRoles(inputs.neutralFamily, source, thresholds.text, dark);
     const declared = readVariable(floor, selector, "--background");
-    const background = (declared && parseColor(declared)) || FALLBACK_BACKGROUND[selector];
-    return { selector, background, ...solvePrimary(source, background, thresholds.text) };
+    const background =
+      neutrals?.["--background"] ??
+      ((declared && parseColor(declared)) || FALLBACK_BACKGROUND[selector]);
+    return {
+      selector,
+      background,
+      neutrals: Object.entries(neutrals ?? {}).map(([role, value]) => ({ role, value })),
+      tones: tonesOf(inputs, background, thresholds.text, dark),
+      ...solvePrimary(source, background, thresholds.text),
+    };
   });
   if (cornerRadius !== undefined && !(cornerRadius in CORNER_RADII)) {
     throw new Error(`corner radius must be one of ${Object.keys(CORNER_RADII)}`);
@@ -243,6 +295,14 @@ export function buildTheme(inputs, css, context = {}) {
     fonts: fontValues(inputs, css, context),
   };
 }
+
+// The status roles the floor's own stylesheet already gives the framework's classes.
+const FLOOR_TONE_ROLES = ["--destructive"];
+// A neutral role as the block writes it: a colour, or a white of a share over the ground.
+export const neutralValue = (value) =>
+  value.translucent === undefined
+    ? formatOklch(value)
+    : `oklch(1 0 0 / ${Math.round(value.translucent * 100)}%)`;
 
 // The block as it sits at the end of the stylesheet. Written the way Prettier leaves CSS.
 export function renderBlock(theme) {
@@ -266,9 +326,24 @@ export function renderBlock(theme) {
     for (const follower of mode.followers ?? []) {
       lines.push(`  ${follower.role}: ${formatOklch(follower.color)};`);
     }
+    for (const neutral of mode.neutrals ?? []) {
+      lines.push(`  ${neutral.role}: ${neutralValue(neutral.value)};`);
+    }
+    for (const tone of mode.tones ?? []) {
+      lines.push(`  ${tone.role}: ${tone.own ? tone.written : formatOklch(tone.color)};`);
+    }
     lines.push("}", "");
   });
   lines.pop();
+  // A tone the floor has no role for reaches the framework's classes through its theme block.
+  const added = (theme.modes[0].tones ?? []).filter(
+    (tone) => !FLOOR_TONE_ROLES.includes(tone.role),
+  );
+  if (added.length > 0) {
+    lines.push("", `${values.colors.block} {`);
+    for (const tone of added) lines.push(`  ${values.colors.name(tone.role)}: var(${tone.role});`);
+    lines.push("}");
+  }
   // The typefaces go where the framework reads them, after the floor's own declaration of the same
   // variables: the last declaration is the one in force.
   if (theme.fonts) {
