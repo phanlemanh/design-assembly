@@ -670,7 +670,7 @@ export function patternsPlan(target, { starter, code = false }) {
         kind: "closed",
         source: `${SCREEN_LEDGER}, what each screen shows, opens with and offers, against ${MODEL}/`,
         check: TOOL,
-        note: "reads the ledger and the model as written: where a button sits, and that a role without the right does not see it while the screen runs, are not checked here",
+        note: "reads the ledger and the model as written: where a button sits is not checked, and that a role without the right does not see it while the screen runs is checked only by the browser test of the row screen-actions-seen, where the repository has it",
       },
       checks: [{ kind: "screen-actions", file: SCREEN_LEDGER, model: MODEL }],
     });
@@ -699,7 +699,7 @@ export function patternsPlan(target, { starter, code = false }) {
             kind: "closed",
             source: `${SEEN_TEST}, entering as each role by ${door}, against the gate's table of screens by role`,
             check: TOOL,
-            note: `that the browser test is there, reads the gate's own plan and enters by ${door}, and that the file is there; the test itself runs with the repository's browser checks. A control is known only by its ${MARK} mark, so a control of an action that lacks it is not seen; a role that opens no screen is not walked, and what a role that may not open a screen sees there is not checked yet`,
+            note: `that the browser test is there, reads the gate's own plan and enters by ${door}, and that the file is there; the test itself runs with the repository's browser checks. A control is known only by its ${MARK} mark, so a control of an action that lacks it is not seen; what a role that may not open a screen is shown instead, and the frame's navigation, are not checked`,
           },
           checks: [
             { kind: SEEN_DECISION, test: SEEN_TEST, door, file: SCREEN_LEDGER, model: MODEL },
@@ -1377,7 +1377,7 @@ export function rulesPage(checks, has, blueprint = null, facts = {}) {
       facts.buttons === true &&
       `A control that runs an action of \`${MODEL}/actions.yaml\` ${ACTION_MARK}: \`${MARK}="<action name>"\`, on the button itself, wherever it is drawn: on a row, in the list behind a row's actions button, in a dialog that asks${has("src/lib/notify.ts") ? ", and on a toast, whose button carries it when `notifyDone` and `notifyFailed` are given the action's name in its `action`" : ", and on a toast"}. Only a button for an action the screen's row lists in \`actions\` carries it; a control that runs none of them, such as one that opens a record, closes, filters or loads the list again, carries none. A button's words change with the data and the language, its action does not: a browser test knows the button by its mark, never by its words.`,
     held(SEEN_DECISION) &&
-      `\`${SEEN_TEST}\` opens every built screen as each role of the model that opens it, entering by \`${browser.door.file}\`, and walks its states: it fails when a role does not see a button its row and the model give it, or sees one they do not give it. A locked button still counts as seen: draw a button only for a role that may press it. A new role of the model gets its way in in \`${browser.door.file}\`, in the same change; this plugin never writes that file.`,
+      `\`${SEEN_TEST}\` opens every built screen as each role of the model, entering by \`${browser.door.file}\`, and walks its states: it fails when a role does not see a button its row and the model give it, sees one they do not give it, or finds a control or the words of a screen it may not open at that screen's route. A locked button still counts as seen: draw a button only for a role that may press it. A new role of the model gets its way in in \`${browser.door.file}\`, in the same change. That file is the repository's: this plugin never writes it, and an agent writes no sign-in a person did not give.`,
     held("navigation-in-frame") &&
       (has("src/components/app-frame.tsx")
         ? "Moving between screens is the frame's. Once there is more than one screen, `src/App.tsx` draws `AppFrame` (`src/components/app-frame.tsx`) with the list of screens, each given a `title` from the repository's words: it moves between them without loading the page again, marks the open one, leaves a screen's toasts behind and draws the toaster once. A screen never links to another screen: the gate fails when one does."

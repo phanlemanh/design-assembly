@@ -2098,9 +2098,11 @@
       "severity": "high",
       "plan": "fix",
       "opened": "2026-11-15",
-      "where": ["d0037"],
-      "status": "open",
-      "note": "That a role without the right does not see a button is worked out from the ledger and the model, and no browser test yet opens each screen as each role to see it so."
+      "where": ["d0037", "d0079"],
+      "status": "closed",
+      "note": "That a role without the right does not see a button is worked out from the ledger and the model, and no browser test yet opens each screen as each role to see it so.",
+      "closed": "2026-11-21",
+      "closed_by": "decision 0079, the browser test by role (templates/owned/screen-actions-seen.spec.ts.template, installed where a repository keeps its file of ways in, held by the row screen-actions-seen) and tests/test-screen-actions-seen.mjs: each built screen is opened as each role of the model, a role that opens it sees each of its buttons and none other, a locked one counted, and a role that may not open it finds no control and none of the words of the screen at its route; shown on a planted copy with two roles in docs/trials/browser-test-by-role-on-a-two-role-copy.md. What is left is in its own rows: unmarked-action-control-unseen, frame-navigation-by-role-unchecked, blocked-role-shown-unchecked, blocked-route-watched-briefly, role-lacking-control-skipped-by-words and reference-app-holds-one-role"
     },
     {
       "id": "screen-actions-attribute-edits",
@@ -3991,6 +3993,61 @@
       "where": ["d0078"],
       "status": "open",
       "note": "For a role that lacks an action of the screen, a control a step presses and that was not on the page once is not looked for again in a later state of the walk, even under another scenario, so a state that would have shown it under that scenario is counted as not reached."
+    },
+    {
+      "id": "unmarked-action-control-unseen",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-21",
+      "where": ["d0079"],
+      "status": "open",
+      "note": "The browser test by role knows a control of an action only by its data-model-action mark, so a control that runs an action and does not carry the mark is not seen: a role shown a delete button it may not press passes when that button is unmarked, and only the rule of the rules page asks for the mark."
+    },
+    {
+      "id": "frame-navigation-by-role-unchecked",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["d0079"],
+      "status": "open",
+      "note": "The browser test by role looks at the screens and not at the application's frame, so an entry of the frame's navigation that leads a role to a screen it may not open is not checked."
+    },
+    {
+      "id": "blocked-role-shown-unchecked",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-21",
+      "where": ["d0079"],
+      "status": "open",
+      "note": "What a role that may not open a screen is shown in its place, stopped there, sent elsewhere or told nothing is found, is the product's choice and is not checked: the browser test asks only that nothing of the screen is there, on a page with one main region and one top heading."
+    },
+    {
+      "id": "blocked-route-watched-briefly",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-21",
+      "where": ["d0079"],
+      "status": "open",
+      "note": "At the route of a screen a role may not open, the browser test watches for the words of the screen's first state for two seconds once the page has settled, and only in the main region, so words that come later than that, or that show outside the main region, are not seen."
+    },
+    {
+      "id": "reference-app-holds-one-role",
+      "area": "reference-app",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-21",
+      "where": ["d0079"],
+      "status": "open",
+      "note": "This repository's model has one role that holds every action, so its browser test by role holds only that a role sees its buttons, and the half where a role does not see a button or a screen is shown once, on a planted copy with two roles, and not in its own make check."
     }
   ]
 }

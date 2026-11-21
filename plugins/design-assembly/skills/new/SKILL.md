@@ -330,6 +330,18 @@ the preview again.
     wrote `design/screen-sizes.json` with 320 and 1440 and installed a browser test that checks
     every state of every screen at those widths. The widths are the person's from now on; the
     narrowest stays at 320 or less.
+    Where the ledger of screens says what each screen opens with and offers, and the repository
+    declares actions and roles, the rules page now says that a control of an action carries
+    `data-model-action="<action name>"`. Repeat the line for `screen-actions-seen` when the script
+    printed one: it installed `tests/e2e/screen-actions-seen.spec.ts`, which opens every built
+    screen as each role of the model, entering by `tests/e2e/roles.ts`, and fails when a role does
+    not see a button it may press, sees one it may not, or finds anything of a screen it may not
+    open. When `status` says instead that `tests/e2e/roles.ts` is missing, the row waits for that
+    file, and it is the person's: how a browser becomes each role (a sign-in, a stored session,
+    nothing at all) is theirs to say. The guide writes no sign-in code, and neither do you: say
+    what the file must hold, in the shape the line names, one way in per role, and let the person
+    write it. Where they ask you to type it for them, write only the steps they told you, say that
+    the file is theirs, and never fill a step they did not give. Then run the script again.
     A `hint:` that no page describes a kind of screen means the kinds are not held yet. The guide
     never writes such a page. Offer to write one with the person, per kind of screen the
     repository has, starting from the example `references/checks.md` gives under "Kinds of

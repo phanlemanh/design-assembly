@@ -9,6 +9,7 @@ import path from "node:path";
 import { after, test } from "node:test";
 
 import {
+  blockedProblems,
   doorProblem,
   MARK,
   seenProblems,
@@ -243,4 +244,63 @@ test("a mark outside the role's buttons met on the way to a state not reached is
   assert.match(problems[0], /^screen orders, role clerk, state confirm-remove: /);
   assert.match(problems[0], /on the way to the state, which was not reached/);
   assert.match(problems[0], /clerk may not run removeOrder/);
+});
+
+// What a role that may not open a screen found at its route, once the page settled: the marks on
+// the page, whether the words of the screen's first state were there, and how many main regions
+// and top headings the page has.
+const blocked = (change = {}) => ({
+  first: { name: "ready", shows: "Orders" },
+  marks: [],
+  words: false,
+  mains: 1,
+  headings: 1,
+  ...change,
+});
+// A ledger where only the lead opens the screen.
+const LEAD_ONLY = {
+  screens: [{ ...LEDGER.screens[0], entry: "removeOrder", actions: ["removeOrder"] }],
+};
+
+test("a role that may not open the screen sees nothing of it, and the page is still a page", () => {
+  const clerk = rowOf(walkPlan(LEAD_ONLY, MODEL), "orders", "clerk");
+  assert.equal(clerk.opens, false);
+  assert.deepEqual(blockedProblems(clerk, blocked()), []);
+  // A mark of the frame, or of no action of this screen, is not the screen's.
+  assert.deepEqual(blockedProblems(clerk, blocked({ marks: ["addOrder"] })), []);
+  // A role that opens the screen is walked, not checked here.
+  assert.deepEqual(
+    blockedProblems(rowOf(walkPlan(LEAD_ONLY, MODEL), "orders", "lead"), blocked()),
+    [],
+  );
+});
+
+test("a control of the screen on its route, for a role that may not open it, is a sentence", () => {
+  const clerk = rowOf(walkPlan(LEAD_ONLY, MODEL), "orders", "clerk");
+  const [problem] = blockedProblems(clerk, blocked({ marks: ["removeOrder"] }), { width: 320 });
+  assert.match(problem, /^screen orders, role clerk, at 320px: /);
+  assert.match(problem, /clerk may not open the screen/);
+  assert.match(problem, /data-model-action="removeOrder"/);
+  assert.match(problem, /at \/orders/);
+});
+
+test("the words of the first state, or a page without its main region, are sentences too", () => {
+  const clerk = rowOf(walkPlan(LEAD_ONLY, MODEL), "orders", "clerk");
+  const [words] = blockedProblems(clerk, blocked({ words: true }));
+  assert.match(words, /the words of its first state, ready \(«Orders»\), are on the page/);
+  const [shape] = blockedProblems(clerk, blocked({ mains: 0, headings: 2 }));
+  assert.match(shape, /0 main regions and 2 top headings/);
+  assert.match(shape, /one of each/);
+});
+
+test("a role sent away from a screen it may not open is the product's choice: only the page is checked", () => {
+  const clerk = rowOf(walkPlan(LEAD_ONLY, MODEL), "orders", "clerk");
+  // Sent to another screen, which shows the same records and the same buttons: not this screen.
+  assert.deepEqual(
+    blockedProblems(clerk, blocked({ sent: "/", words: true, marks: ["removeOrder"] })),
+    [],
+  );
+  // Still a page, wherever it was sent.
+  const [shape] = blockedProblems(clerk, blocked({ sent: "/", headings: 0 }));
+  assert.match(shape, /the page it was sent to, \/, has 1 main regions and 0 top headings/);
 });

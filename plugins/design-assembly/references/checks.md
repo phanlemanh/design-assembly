@@ -476,8 +476,9 @@ Every name comes from the repository being checked: the plugin keeps no vocabula
 repository that already spells these keys its own way names them under `keys`.
 
 Not checked here: where a button sits on the screen; that a role without the right does not see it
-while the screen runs; which attributes an update changes; the difference between a right over
-one's own records and over every record.
+while the screen runs, which the browser test by role checks where the repository has it (below);
+which attributes an update changes; the difference between a right over one's own records and over
+every record.
 
 ## What each role sees in a browser
 
@@ -488,22 +489,25 @@ held and some screen declares a button. Where the repository also has the test b
 floor's browser checks and keeps its own file of ways in, `tests/e2e/roles.ts` (for each role of the
 model, a function given the page that makes the browser that role and no other), the guide installs
 `tests/e2e/screen-actions-seen.spec.ts`. It reads the gate's own table of screens by role
-(`screen-actions-seen.mjs`, `walkPlanOf`), and for each built screen, each role that opens it and
-the narrowest and widest width, enters by the role's way in and walks every state by the steps of
-the screen list. It fails where a role does not see, at least once in a state it reached, a control
-marked with each button the table gives it; where the walk met a control marked with an action
-outside them, a locked one included, in a state it reached or on the way to one it did not reach;
-where a role that holds every action of the screen does not reach a state; and where a role has no
-way in. The guide never writes the file of ways in. Missing either, there is no row, and status
+(`screen-actions-seen.mjs`, `walkPlanOf`), and for each built screen, each role of the model and the
+narrowest and widest width, enters by the role's way in. A role that opens the screen walks every
+state by the steps of the screen list; the test fails where it does not see, at least once in a
+state it reached, a control marked with each button the table gives it; where the walk met a control
+marked with an action outside them, a locked one included, in a state it reached or on the way to
+one it did not reach; where a role that holds every action of the screen does not reach a state; and
+where a role of the model has no way in. A role that may not open the screen goes to its route; the
+test fails where, once the page settled and for two seconds after, a control marked with an action
+of the screen or the words of its first state are there, or the page has not one main region and one
+top heading. The guide never writes the file of ways in. Missing either, there is no row, and status
 names what is missing. Adopting installs no test: for a repository that adopted, status names the
 plugin's template to copy into place, and adopting then holds the row. A role that lacks an action
 of the screen does not wait again for a control already found absent.
 
 The row `screen-actions-seen` is held by the tool: the file of ways in is there, and the test is
 there, names `decision:screen-actions-seen`, reads `walkPlanOf` and enters by that file. The tool
-does not run the test. Not checked yet: what a role that may not open a screen sees there; a role
-that opens no screen is not walked, though every test checks its way in; the frame's navigation; a
-control of an action that does not carry its mark.
+does not run the test. Not checked: what a role that may not open a screen is shown instead; the
+frame's navigation; a control of an action that does not carry its mark. A repository whose model
+has one role holds only the first half in its own make check.
 
 ## Screen sizes and the page checks
 
