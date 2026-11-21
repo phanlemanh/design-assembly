@@ -50,7 +50,8 @@
       "question": "Which action opens the screen, which actions does it offer, and who may run each?",
       "reads": [
         "the `entry` and the `actions` of the screen's row",
-        "the roles that hold each action in the data model"
+        "the roles that hold each action in the data model",
+        "the rules page's line on the mark a control of an action carries"
       ],
       "ask": {
         "recommend": "Write into the screen's row the action that opens it and the actions it has buttons for, each given only to roles the data model lists, before it is built.",

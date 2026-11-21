@@ -55,6 +55,7 @@ import {
   screenActionsDebts,
   screenActionsProblem,
 } from "./screen-actions.mjs";
+import { seenFilesProblem } from "./screen-actions-seen.mjs";
 import { drawDerived, keptOutOfGit } from "./derived.mjs";
 import {
   FRAGMENT_LEDGERS,
@@ -525,6 +526,25 @@ const KINDS = {
         ? before.replace(/^screens:\n/m, `screens:\n${added}`)
         : `${before}screens:\n${added}`;
       return { ...state, files: { ...state.files, [check.file]: text } };
+    },
+  },
+  // Each role sees in a browser the buttons the ledger of screens and the model give it: the
+  // browser test that walks the screens as each role is there, reads the gate's own plan and
+  // enters by the repository's file of ways in, and that file is there. The test itself runs with
+  // the repository's browser checks.
+  "screen-actions-seen": {
+    run(state, check) {
+      if (!state.models?.[check.model]?.present) {
+        return `${check.model}/actions.yaml is missing, so no role is walked`;
+      }
+      return seenFilesProblem(
+        { door: state.files?.[check.door] ?? null, test: state.files?.[check.test] ?? null },
+        { doorFile: check.door, testFile: check.test },
+      );
+    },
+    // The file of ways in is gone.
+    change(state, check) {
+      return { ...state, files: { ...state.files, [check.door]: null } };
     },
   },
   // No screen writes its own words.
@@ -1042,6 +1062,7 @@ export function readState(root) {
       check.types,
       check.registry,
       check.test,
+      check.door,
       check.blueprint,
       check.ledger,
       ...Object.values(check.ledgers ?? {}),

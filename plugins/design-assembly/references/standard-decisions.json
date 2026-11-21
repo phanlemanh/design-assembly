@@ -567,6 +567,13 @@
       "sources": ["design-assembly", "reference-ledger"]
     },
     {
+      "id": "screen-actions-seen",
+      "layer": "templates",
+      "kind": "closed",
+      "question": "In a browser, does each role see the buttons the ledger of screens and the domain model give it on every screen it opens, and no other?",
+      "sources": ["design-assembly"]
+    },
+    {
       "id": "ledger-shapes",
       "layer": "governance",
       "kind": "closed",

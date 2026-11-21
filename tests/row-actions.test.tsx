@@ -96,3 +96,23 @@ it("from one second of waiting on, it shows it is working and a screen reader he
     vi.useRealTimers();
   }
 });
+
+it("a button the screen gives keeps its action's mark in the list, as a browser test reads it", async () => {
+  render(
+    <RowActions name="Actions for first">
+      <Button data-model-action="putAside">Put aside</Button>
+      <Button>Close</Button>
+    </RowActions>,
+  );
+  open("first");
+  const list = await screen.findByRole("dialog", { name: "Actions for first" });
+  expect(screen.getByRole("button", { name: "Put aside" })).toHaveAttribute(
+    "data-model-action",
+    "putAside",
+  );
+  // The row's own button runs no action of the model: it carries no mark.
+  expect(screen.getByRole("button", { name: "Actions for first" })).not.toHaveAttribute(
+    "data-model-action",
+  );
+  expect(list.querySelectorAll("[data-model-action]")).toHaveLength(1);
+});

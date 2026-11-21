@@ -4,6 +4,7 @@
 import { render, screen } from "@testing-library/react";
 import { expect, it } from "vitest";
 
+import { Button } from "../src/components/ui/button.tsx";
 import {
   Table,
   TableBody,
@@ -35,4 +36,23 @@ it("the column of actions stays in place, on the header and on every row", () =>
     expect(cell).toHaveClass("sticky", "right-0", "bg-background");
   }
   expect(screen.getByText("first")).not.toHaveClass("sticky");
+});
+
+it("a button in the column of actions keeps its action's mark", () => {
+  render(
+    <Table aria-label="items">
+      <TableBody>
+        <TableRow>
+          <TableCell>first</TableCell>
+          <TableActions>
+            <Button data-model-action="putAside">Put aside</Button>
+          </TableActions>
+        </TableRow>
+      </TableBody>
+    </Table>,
+  );
+  expect(screen.getByRole("button", { name: "Put aside" })).toHaveAttribute(
+    "data-model-action",
+    "putAside",
+  );
 });
