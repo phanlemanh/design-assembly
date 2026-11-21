@@ -428,7 +428,10 @@
       "name": "screen build",
       "socket": {
         "writes": ["screens", "columns", "column-types"],
-        "outputs": ["code that passes the gate"],
+        "outputs": [
+          "code that passes the gate",
+          "a browser test that opens each built screen as each role of the domain model, where the repository keeps its file of ways in"
+        ],
         "checks": ["make design-assembly", "make design-columns"],
         "decides": "machine",
         "human": {
@@ -457,6 +460,13 @@
           "kind": "command",
           "default": false,
           "scripts": ["templates/tools/design-assembly/screen-fragments.mjs"]
+        },
+        {
+          "id": "browser-test-by-role",
+          "kind": "gate",
+          "default": false,
+          "scripts": ["templates/tools/design-assembly/screen-actions-seen.mjs"],
+          "reads": ["screens"]
         }
       ],
       "layers": ["components", "patterns", "templates"],

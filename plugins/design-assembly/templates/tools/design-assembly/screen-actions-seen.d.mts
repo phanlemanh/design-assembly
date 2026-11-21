@@ -21,6 +21,15 @@ export interface SeenState {
   why?: string;
 }
 
+export interface BlockedSeen {
+  first: { name: string; shows: string };
+  marks: string[];
+  words: boolean;
+  mains: number;
+  headings: number;
+  sent?: string;
+}
+
 export declare function walkPlan(ledger: unknown, read: unknown): WalkRow[];
 export declare function walkPlanOf(root: string): WalkRow[];
 export declare function widthsOf(sizes: { widths?: number[] } | null | undefined): number[];
@@ -32,5 +41,10 @@ export declare function doorProblem(
 export declare function seenProblems(
   row: WalkRow,
   states: SeenState[],
+  options?: { width?: number | null },
+): string[];
+export declare function blockedProblems(
+  row: WalkRow,
+  seen: BlockedSeen,
   options?: { width?: number | null },
 ): string[];

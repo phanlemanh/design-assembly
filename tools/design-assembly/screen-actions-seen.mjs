@@ -99,6 +99,45 @@ export function seenFilesProblem({ door, test }, { doorFile, testFile }) {
   return null;
 }
 
+// Every problem of a role that may not open a screen, at the screen's route once the page settled:
+// no control marked with an action of the screen's row is on the page, nor the words of its first
+// state, and the page is still a page, with one main region and one top heading. What the role is
+// shown instead is the product's choice, and is not checked: a role sent to another route is held
+// only to that page being a page. `seen` is what was found: `marks`, `words` (whether the first
+// state's words were in the main region), `mains`, `headings`, `first`, the name and words of the
+// screen's first state, and `sent`, the path the role ended at when it is not the screen's.
+export function blockedProblems(row, seen, { width = null } = {}) {
+  if (row.opens) return [];
+  const at = width === null ? "" : `, at ${width}px`;
+  const who = `screen ${row.screen}, role ${row.role}${at}: ${row.role} may not open the screen`;
+  const route = row.route ?? "its route";
+  const problems = [];
+  if (seen.sent) {
+    if (seen.mains !== 1 || seen.headings !== 1) {
+      problems.push(
+        `${who}, and the page it was sent to, ${seen.sent}, has ${seen.mains} main regions and ${seen.headings} top headings. What such a role is shown instead is still a page, with one of each`,
+      );
+    }
+    return problems;
+  }
+  for (const name of [...new Set(seen.marks)].filter((mark) => row.actions.includes(mark))) {
+    problems.push(
+      `${who}, and a control marked ${MARK}="${name}" of it is on the page at ${route}. Keep every control of the screen from a role that may not open it`,
+    );
+  }
+  if (seen.words) {
+    problems.push(
+      `${who}, and the words of its first state, ${seen.first.name} («${seen.first.shows}»), are on the page at ${route}. Show a role that may not open the screen nothing of it`,
+    );
+  }
+  if (seen.mains !== 1 || seen.headings !== 1) {
+    problems.push(
+      `${who}, and the page at ${route} has ${seen.mains} main regions and ${seen.headings} top headings. What such a role is shown instead is still a page, with one of each`,
+    );
+  }
+  return problems;
+}
+
 // Every problem of one walk: a role that opens the screen sees each of its buttons at least once,
 // in a state it reached; never meets a control marked with an action outside its buttons; and,
 // when it holds every action of the screen, reaches every state. A role that lacks one may fail to
