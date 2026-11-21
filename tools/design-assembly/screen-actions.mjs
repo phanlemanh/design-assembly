@@ -8,7 +8,7 @@
 // Usage: node tools/design-assembly/screen-actions.mjs [--target DIR] [--keys entry=…,actions=…]
 //          [--overlay FILE.json] [--table] [--json]
 // Read-only: it never writes, in this repository or the one it reads.
-import { existsSync, readdirSync, readFileSync, realpathSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 import { argv, cwd, exit, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
@@ -63,8 +63,15 @@ export function readModel(root, folder = MODEL) {
     return existsSync(full) ? readFileSync(full, "utf8") : null;
   };
   const entitiesFolder = path.join(root, folder, "entities");
+  // Only a file named as an entity's file is read: a folder kept beside the entities, or a file
+  // of another kind, is passed over, never opened.
+  const isEntityFile = (file) =>
+    file.endsWith(".yaml") &&
+    statSync(path.join(entitiesFolder, file), { throwIfNoEntry: false })?.isFile() === true;
   const names = existsSync(entitiesFolder)
-    ? readdirSync(entitiesFolder).map((file) => `entities/${file}`)
+    ? readdirSync(entitiesFolder)
+        .filter(isEntityFile)
+        .map((file) => `entities/${file}`)
     : [];
   return modelOfFiles(
     Object.fromEntries(
