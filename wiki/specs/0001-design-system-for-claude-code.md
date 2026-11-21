@@ -728,6 +728,16 @@ quyết. Sau khi kiểm còn 11 chỗ phải đoán, so với 9 của lần 11: 
 hình dạng khái niệm mới. Plugin đã đi từ 0.7.1 lên 0.24.0 và bản sao bỏ thêm hồ sơ của bộ kit, nên con số không so
 thẳng với lần 11. Năm dòng sổ giới hạn mới; chi tiết ở `docs/trials/screen-trial-12-with-the-brief.md`.
 
+### Chạy thử lần mười ba (2026-11-21)
+
+Chỉ vai dựng màn, đề chuẩn nguyên văn, lượt chạy lại của mục 5.6 sau các sửa của quyết định 0076; bản sao dựng như lần
+12, cùng mô hình Opus 5.5 cho tác tử. Tác tử chạy phiếu cho cả ba màn nó đổi, trước khi dựng, và xếp 10 câu của các ô còn
+mở. Lần này nó tự hỏi thêm 11 câu bằng `decide --ask`, về hình dạng, tên và chữ của khái niệm mới, dáng nút, dữ liệu mẫu,
+thứ tự danh sách và điều màn khác làm; lần 12 nó không tự hỏi câu nào. Ô 10 mở theo tên khi nó đổi mô hình sau lần chạy
+phiếu đầu. Điều đã dựng khớp khuyến nghị của ô 12. Nó không chạy lại phiếu sau khi dựng. Cổng xanh, không dừng hỏi lần
+nào. Nó khai 33 chỗ tự quyết; sau khi kiểm còn 14, so với 11 của lần 12: 11 chỗ vào hàng chờ, 3 chỗ tự quyết lặng lẽ.
+Bốn chỗ là loại lần 12 không khai. Phiếu in sổ giới hạn có kể điều lần 12 tìm ra. Vì vậy con số không so thẳng với lần 12. Hai dòng sổ giới hạn thu hẹp, ba dòng mới; chi tiết ở `docs/trials/screen-trial-13-after-the-fixes.md`.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.
