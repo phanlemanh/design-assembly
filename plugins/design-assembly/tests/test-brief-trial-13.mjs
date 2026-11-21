@@ -424,6 +424,7 @@ test("a name written after the question of the data model was queued leaves the 
   const dir = trial();
   queueAll(dir);
   const first = readFileSync(path.join(dir, WAITING_FOLDER, `${MODEL_ID}.json`), "utf8");
+  assert.equal(JSON.parse(first).item, MODEL_ITEM);
   writeMore(dir);
   // The sheet asks again, about every name the branch has written, and says which question the
   // new one replaces and which names were added since.
@@ -492,7 +493,7 @@ test("a question the owner answered before a name was added settles those names 
   assert.match(
     open.ask.question,
     new RegExp(
-      `${MODEL_ID.replace(/[.+]/g, "\\$&")} answers Order\.shelved, restoreOrder, shelveOrder`,
+      `${MODEL_ID.replace(/[.+]/g, "\\$&")} answers Order\\.shelved, restoreOrder, shelveOrder`,
     ),
   );
   assert.match(told(dir, NEW), /still to ask: shelveAll/);

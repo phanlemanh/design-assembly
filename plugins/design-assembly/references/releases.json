@@ -177,9 +177,9 @@
     },
     {
       "version": "0.26.0",
-      "templates": "4995f055c4683c7d314316865d6596cf010e399b",
-      "scripts": "c38e2d8c03b024de012471c6b1d396f27aa3d222",
-      "tool": "1c4ece3143b97adced9c71aa4ba9b990684131e8"
+      "templates": "1f2436eb07d2a4cb89d0af787a60ec968a297f51",
+      "scripts": "2b0dd67dfe9ffa23ab77ddaa07dcbabe295f3f21",
+      "tool": "47f10a34b3a705e349ed45fb757a41273b1f1f9d"
     }
   ]
 }

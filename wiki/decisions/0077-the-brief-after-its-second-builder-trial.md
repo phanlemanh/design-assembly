@@ -75,15 +75,23 @@ lượt 12 đã làm, nên tác tử lượt 13 đọc được kết quả lư�
    `+`. Với ô 10, bộ tên là của cả nhóm màn: tên của màn này, cộng tên của mọi màn khác trong sổ có chung một tên với
    nhóm, lặp tới khi không thêm màn nào; lời câu hỏi nói điều phiếu đọc được của cả nhóm. Nên câu ấy không nêu tên một màn
    nào, và màn nào xếp trước cũng viết cùng một câu, từng byte. Phiếu của mỗi màn đọc nó như câu của ô mình: câu có đúng
-   mục ấy, hoặc câu có các tên chứa mọi tên của nhóm. Nhánh viết thêm một tên thì câu cũ không còn phủ, và phiếu hỏi lại
-   dưới bộ tên lớn hơn. Ô 10 chỉ thành câu chung khi dòng sổ màn không thiếu khoá
+   mục ấy, hoặc câu có các tên chứa mọi tên của nhóm.
+5. **Viết thêm tên sau khi đã xếp câu chung thì chủ repo vẫn chỉ có một câu.** Đây là thứ tự mà cả hai tác tử lượt thử
+   đã làm: chạy phiếu, đổi mô hình, chạy lại. Câu đang chờ chỉ nói về một phần tên của nhóm thì phiếu hỏi một câu mới
+   về mọi tên, và câu mới ghi nó **thay** câu cũ (khoá `replaces` của hàng chờ, cờ `--replaces` của `decide --ask`).
+   Lời câu hỏi nêu câu nó thay và các tên mới thêm. Tệp của câu cũ giữ nguyên, không bị ghi đè. Lệnh `decide` để câu cũ
+   ra khỏi danh sách đang chờ, liệt kê nó dưới `replaced`, và không nhận lời đáp cho nó. Câu cũ đã có lời đáp thì
+   **không bao giờ bị thay**: phiếu nói lời đáp ấy phủ những tên nào («For Item.archived, archiveItem: the owner
+   kept …»), rồi chỉ hỏi phần tên còn lại. Lời đáp về hai tên không bao giờ được đọc như lời đáp về ba. Ô chỉ «đã định»
+   khi các lời đáp phủ hết mọi tên. `decide --ask` từ chối thay một câu không có, đã có lời đáp, là quyền, hoặc đã bị
+   thay. Kho có công cụ trước 0.26.0 không bao giờ nhận khoá ấy, vì phiếu chỉ hỏi câu chung ở kho đọc được nó. Ô 10 chỉ thành câu chung khi dòng sổ màn không thiếu khoá
    nào; thiếu khoá thì đó là việc của riêng màn. Câu cũ dưới mục `screen:<mã màn>:<ô>` vẫn được đọc, cho đúng màn ấy.
    Ô 11 và ô 12 vẫn là câu của từng màn, vì chúng nói về chính màn đó.
-5. **Kho có công cụ cũ vẫn chạy như trước.** Cổng của một kho có công cụ trước 0.26.0 đọc mục `screens:` là hỏng, và
+6. **Kho có công cụ cũ vẫn chạy như trước.** Cổng của một kho có công cụ trước 0.26.0 đọc mục `screens:` là hỏng, và
    hàng chờ của nó sẽ không đọc được. Nên phiếu đọc tem công cụ: không có tem, hoặc tem 0.26.0 trở lên, thì hỏi câu
    chung; tem cũ hơn, hoặc tem không đọc được (một thư mục, một tệp không phải JSON), thì hỏi dưới mục của từng màn như
    trước. Phiếu vẫn ra ở cả ba trường hợp, có bài kiểm.
-6. **Phần «điều phiếu không thấy» không còn kể lượt thử.** Mọi dòng còn mở của các vùng phiếu và hồ sơ in ra (`brief`,
+7. **Phần «điều phiếu không thấy» không còn kể lượt thử.** Mọi dòng còn mở của các vùng phiếu và hồ sơ in ra (`brief`,
    `review`, `document`) được viết lại thành điều plugin không làm được, không nêu lượt thử nào và không kể tác tử đã làm
    gì. Lượt thử chỉ đứng ở `where` của dòng và trong wiki. Hai dòng của `review` mất phần «trong lượt thử của quyết định
    0073»; `brief-not-tried-by-a-builder` và `brief-sheet-narrows-what-the-builder-asks` không còn kể số chỗ hay câu hỏi
@@ -94,7 +102,7 @@ lượt 12 đã làm, nên tác tử lượt 13 đọc được kết quả lư�
 
 ## Consequences
 
-- Mười bốn bài kiểm mới trong `tests/test-brief-trial-13.mjs`, viết trước; mười một bài đỏ trước khi có mã, và bài thứ mười bốn (thứ tự xếp) đỏ trước sửa của lượt soát. Hai bài xanh
+- Mười sáu bài kiểm mới trong `tests/test-brief-trial-13.mjs`, viết trước; mười một bài đỏ trước khi có mã, và bài thứ mười bốn (thứ tự xếp) đỏ trước sửa của lượt soát. Hai bài xanh
   từ đầu là bài canh điều phải giữ: bản sao đúng tình huống lượt 13, và cùng phiếu ở hai ngày, từng byte. Kho nháp dựng
   đúng tình huống của lượt: nhánh `main` có màn đã dựng, một màn thứ hai cho thấy cùng bản ghi, trang luật do plugin
   viết và `RowActions` trong sổ linh kiện; trên nhánh, tác tử thêm một trường và hai hành động, khai màn mới với ba nút,
@@ -119,7 +127,9 @@ lượt 12 đã làm, nên tác tử lượt 13 đọc được kết quả lư�
     trang dưới dạng chữ chỉ trình đọc màn hình đọc, đúng như nút xoá của màn mẫu đã làm (`LABELS.saving` trong
     `src/example/ReferenceScreen.tsx`). Khi ấy trạng thái chờ có chữ của riêng nó, vắng trước khi tới, và hai dòng giới
     hạn của trạng thái chỉ nghe được thu hẹp thêm. Việc ấy đổi một linh kiện sàn: kho đã nhận linh kiện giữ bản cũ.
-  - Điểm 4: câu chung cho ô 10 được khoá theo bộ tên. Viết thêm một tên thì có câu mới, và câu cũ vẫn chờ cạnh nó.
+  - Điểm 4 và 5: câu chung cho ô 10 được khoá theo bộ tên của cả nhóm màn. Viết thêm tên thì câu mới thay câu đang chờ;
+    câu đã có lời đáp thì không thay, và câu mới chỉ hỏi phần tên còn lại. Chủ repo đã đáp phần đầu thì có hai lời
+    đáp cho một thay đổi mô hình, mỗi lời một phần tên.
 - Một lượt soát mã độc lập, chỉ được đưa mã và ý định, nêu năm điểm. Ba điểm đã sửa, mỗi điểm có bài kiểm thấy đỏ
   trước: câu chung của ô 10 tuỳ màn nào xếp trước khi các màn có bộ tên khác nhau (nay khoá theo cả nhóm, điểm 4); kho
   không có tem mà có bản chép công cụ bị coi là công cụ mới (nay phiếu nhận bản chép theo nội dung, không nhận ra thì
@@ -128,5 +138,9 @@ lượt 12 đã làm, nên tác tử lượt 13 đọc được kết quả lư�
   hành động nào là của dòng; lời của hai chỗ ấy đã nói có điều kiện («nếu các hành động của dòng nằm sau …»), ghi ở
   `brief-components-not-chosen-for-the-screen`. Một điểm giữ nguyên: chỗ tên đọc của từng nút không mang câu hỏi riêng,
   vì chữ của từng nút là việc của từng màn.
+- Một lượt soát độc lập thứ hai trên PR, chủ repo cho gửi sửa («Có, gửi sửa»), chỉ ra điều điểm 5 sửa: trước đó, viết
+  thêm một tên làm câu chung bị hỏi lại thành câu thứ hai. Ba bài kiểm mới dựng đúng thứ tự ấy, mỗi bài đỏ trước khi có
+  mã: thêm tên khi câu cũ còn chờ; thêm tên khi chủ repo đã đáp câu cũ; và `--replaces` bị từ chối khi không thay được.
+  Lệnh `decide --json` thêm khoá `replaced`.
 - Chỉ lượt thử thứ ba nói được: tác tử có hỏi ba lựa chọn ấy thay vì tự quyết không; hàng chờ có ít câu lặp hơn không;
   và số chỗ phải đoán có tăng so với lượt 13 không. Lượt ấy chạy trên bản plugin không còn in kết quả của lượt trước.
