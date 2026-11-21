@@ -374,8 +374,8 @@
         {
           "id": "5.7",
           "what": "Sửa điều lượt thử 13 chỉ ra ở lệnh brief, rồi chạy lại lượt thử",
-          "state": "doing",
-          "ref": "docs/trials/screen-trial-13-after-the-fixes.md; chủ repo chọn ngày 2026-11-21 («Chưa đạt, sửa tiếp», đáp câu «Đi hướng nào với dòng «xong khi» của giai đoạn 5 sau lượt thử 13?»); phần sửa: wiki/decisions/0077-the-brief-after-its-second-builder-trial.md, chứng bằng plugins/design-assembly/tests/test-brief-trial-13.mjs, plugin 0.26.0; xong khi lượt thử thứ ba đã chạy, và lượt ấy cần lời chủ repo",
+          "state": "done",
+          "ref": "docs/trials/screen-trial-14-after-the-second-fixes.md; docs/trials/screen-trial-13-after-the-fixes.md; chủ repo chọn ngày 2026-11-21 («Chưa đạt, sửa tiếp», đáp câu «Đi hướng nào với dòng «xong khi» của giai đoạn 5 sau lượt thử 13?»); phần sửa: wiki/decisions/0077-the-brief-after-its-second-builder-trial.md, chứng bằng plugins/design-assembly/tests/test-brief-trial-13.mjs, plugin 0.26.0; lượt chạy lại: lần 14, chủ repo cho chạy ngày 2026-11-21 («Cho chạy»), kết quả ở docs/trials/results.tsv: 13 chỗ phải đoán so với 14 của lần 13, 10 vào hàng chờ, 3 tự quyết lặng lẽ, 14 câu trên hàng chờ (6 phiếu xếp, 2 trong số đó là câu chung, 8 tác tử tự hỏi)",
           "command": "brief"
         }
       ],

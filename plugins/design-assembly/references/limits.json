@@ -3824,7 +3824,7 @@
       "opened": "2026-11-21",
       "where": ["trials", "d0076", "d0077"],
       "status": "open",
-      "note": "A builder that runs the brief may queue the open slots of the sheet and decide the rest alone. The sheet and the rules page say that the twelve slots are not every question of a screen, and the sheet names where other choices hide and what they are: the name, the shape and the words of a new concept, the look of a control, whether a toast's button counts among the actions of the screen's row, the name each button behind a row's actions button is heard by, and the words of a row's waiting state, which is put to the owner. What is still open: nothing sees what a builder chooses outside the twelve slots and the places the sheet names, and only a builder's run shows whether a builder asks them."
+      "note": "A builder that runs the brief may queue the open slots of the sheet and decide the rest alone. The sheet and the rules page say that the twelve slots are not every question of a screen, and the sheet names where other choices hide and what they are: the name, the shape and the words of a new concept, the look of a control, whether a toast's button counts among the actions of the screen's row, the name each button behind a row's actions button is heard by, and the words of a row's waiting state, which is put to the owner. What is still open: nothing sees what is chosen outside the twelve slots and the places the sheet names, such as the sample data a screen starts with, a state listed only so that the checks see something, or where an item lands in a list it comes back to from another screen, and such a choice reaches the owner only where whoever builds the screen asks it."
     },
     {
       "id": "brief-settled-by-rows-the-builder-wrote",
@@ -3923,6 +3923,39 @@
       "note": "The brief prints the open rows of its own limits, and since the first builder trial some of those rows say what that trial found (that the builder asked no question of its own and decided nine choices alone), so a later builder reads the findings of the trial before it in the plugin's own output, which the protocol forbids the coordinating session to tell it.",
       "closed": "2026-11-21",
       "closed_by": "decision 0077 and tests/test-brief-trial-13.mjs: no open limit of the areas brief, review and document, the ones a sheet or a record prints, names a trial or says what a builder did, and the part of a sheet on what it does not see is checked the same way, in the terminal and on the page; a row that rests on a trial names it in its where alone. What is left: only a builder's run shows whether the reworded part still teaches a builder the test"
+    },
+    {
+      "id": "row-actions-open-list-unmeasured",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["trials"],
+      "status": "open",
+      "note": "No state of a screen is required with a row's actions list open, so the browser test and its accessibility checks see the buttons inside the list only where the screen lists a state of its own that opens it: every state reached through the list closes it before the page is measured, and a screen with no such state passes with those buttons never measured."
+    },
+    {
+      "id": "decide-item-refusal-misnames-the-cause",
+      "area": "decide",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The decision sheet refuses an item screen:<screen id>:<name> whose name is not a slot of the brief by saying that it does not name one screen, even where the screen is in the ledger; the rules page names no item of that form, and nothing lists the slot names it takes but the calls a sheet prints."
+    },
+    {
+      "id": "brief-touched-screens-asked-per-screen",
+      "area": "brief",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The slot of other screens it touches is asked under each screen's own item: where one change reaches several screens and the sheet of each is queued, each sheet puts its own question on the waiting list, so which screens the change touches, one thing to decide, waits there once for each screen."
     }
   ]
 }
