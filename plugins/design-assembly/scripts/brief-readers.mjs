@@ -31,7 +31,8 @@ import {
   KINDS_FOLDER,
   SIZES_FILE,
 } from "../templates/tools/design-assembly/screens.mjs";
-import { NO_NAME_EACH, TOAST_BUTTON, WAITING_WORDS } from "./apply.mjs";
+import { ACTION_MARK, NO_NAME_EACH, TOAST_BUTTON, WAITING_WORDS } from "./apply.mjs";
+import { MARK } from "../templates/tools/design-assembly/screen-actions-seen.mjs";
 import { Refusal } from "./command.mjs";
 import { plural } from "./document.mjs";
 import { ROW_PREFIX } from "./principles.mjs";
@@ -365,6 +366,18 @@ function actions(context) {
       line: answer(
         `A button for an action is any one a person presses on this screen, ${TOAST_BUTTON} among them: the gate reads \`${keys.actions}\` alone and cannot tell where a button is drawn`,
         toast,
+      ),
+      data: null,
+    });
+  }
+  // How a browser test knows each of those buttons, as the rules page says it: by the mark the
+  // control carries, never by its words. Said only where the page says it.
+  const mark = rulesLine(context, ACTION_MARK);
+  if (mark) {
+    told.push({
+      line: answer(
+        `Each control of an action on this screen carries ${MARK}="<action name>" on itself, wherever it is drawn: a browser test knows the button by that mark, never by its words`,
+        mark,
       ),
       data: null,
     });

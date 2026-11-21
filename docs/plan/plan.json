@@ -349,7 +349,7 @@
           "id": "5.3",
           "what": "Bài kiểm trình duyệt theo vai",
           "state": "doing",
-          "ref": "wiki/specs/0011-the-browser-test-by-role.md; chủ repo bảo viết đề bài ngày 2026-11-21 («Viết đề bài cho mục 5.3»); chủ repo duyệt đề bài và đáp cả năm câu hỏi theo khuyến nghị cùng ngày («Duyệt cả năm»); hai lát, chưa lát nào dựng"
+          "ref": "wiki/specs/0011-the-browser-test-by-role.md; chủ repo bảo viết đề bài ngày 2026-11-21 («Viết đề bài cho mục 5.3»); chủ repo duyệt đề bài và đáp cả năm câu hỏi theo khuyến nghị cùng ngày («Duyệt cả năm»); hai lát: lát 1 xong (tiêu chí 1, 2, 3, 6, 7, 8, 9: kế hoạch đi đọc từ bảng của cổng, phép so, bài kiểm tests/e2e/screen-actions-seen.spec.ts, cửa vai tests/e2e/roles.ts, dòng sổ screen-actions-seen, luật về dấu data-action), wiki/decisions/0078-a-role-sees-its-buttons-by-their-mark.md, chứng bằng plugins/design-assembly/tests/test-screen-actions-seen.mjs, plugins/design-assembly/tests/test-screen-actions-seen-install.mjs và plugins/design-assembly/tests/test-action-mark.mjs, và bằng bốn lần gài lỗi trên một bản sao bỏ đi, ghi ở quyết định 0078 (tiêu chí 3 và 6), plugin 0.27.0; lát 2 (tiêu chí 4, 5, 10, 11: vai không mở được màn, lần đo trên bản sao có hai vai, sổ giới hạn, bảng năng lực) chưa dựng"
         },
         {
           "id": "5.4",

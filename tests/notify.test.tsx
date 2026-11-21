@@ -1,0 +1,61 @@
+// A toast's button that runs an action of the domain model carries the action's name on itself,
+// data-action, as every control of an action does: a browser test knows the button by its mark,
+// never by its words. The button that closes the toast runs none, and carries none.
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { toast } from "sonner";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
+
+import { Toaster } from "../src/components/ui/sonner.tsx";
+import { notifyDone, notifyFailed } from "../src/lib/notify.ts";
+
+const settle = () => act(() => vi.advanceTimersByTimeAsync(400));
+
+beforeEach(() => {
+  // The toast library takes a toast away on the next frame, so frames are faked too.
+  vi.useFakeTimers({
+    toFake: ["setTimeout", "clearTimeout", "Date", "requestAnimationFrame", "cancelAnimationFrame"],
+  });
+  render(<Toaster />);
+});
+afterEach(async () => {
+  act(() => {
+    toast.dismiss();
+  });
+  await act(() => vi.advanceTimersByTimeAsync(1000));
+  vi.useRealTimers();
+});
+
+it("the undo of a done action carries the name of the action it runs", async () => {
+  const run = vi.fn();
+  act(() => notifyDone("Added", { label: "Undo", run, close: "Close", action: "removeItem" }));
+  await settle();
+  const undo = screen.getByRole("button", { name: "Undo" });
+  expect(undo).toHaveAttribute("data-action", "removeItem");
+  expect(screen.getByRole("button", { name: "Close" })).not.toHaveAttribute("data-action");
+  fireEvent.click(undo);
+  // The toast leaves the way the library takes one away it was told to: it marks it, then removes
+  // it after its closing animation, on a later turn of the clock.
+  await act(() => vi.advanceTimersByTimeAsync(1000));
+  await act(() => vi.advanceTimersByTimeAsync(1000));
+  expect(run).toHaveBeenCalledTimes(1);
+  expect(screen.queryByText("Added")).not.toBeInTheDocument();
+});
+
+it("the button that tries a failed action again carries the name of that action", async () => {
+  act(() =>
+    notifyFailed("Not added", "Try again.", {
+      label: "Retry",
+      run: () => {},
+      close: "Close",
+      action: "addItem",
+    }),
+  );
+  await settle();
+  expect(screen.getByRole("button", { name: "Retry" })).toHaveAttribute("data-action", "addItem");
+});
+
+it("a button given no action carries no mark at all", async () => {
+  act(() => notifyDone("Saved", { label: "Show", run: () => {}, close: "Close" }));
+  await settle();
+  expect(document.querySelectorAll("[data-action]")).toHaveLength(0);
+});

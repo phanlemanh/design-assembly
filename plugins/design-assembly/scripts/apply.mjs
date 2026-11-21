@@ -113,6 +113,12 @@ import {
   readModel,
   screenActionsProblem,
 } from "../templates/tools/design-assembly/screen-actions.mjs";
+import {
+  MARK,
+  SEEN_DECISION,
+  SEEN_TEST,
+  seenFilesProblem,
+} from "../templates/tools/design-assembly/screen-actions-seen.mjs";
 
 // The repository's own test that the ledger of screens and the code agree while the code runs.
 const LEDGER_TEST = "tests/screens-ledger.test.ts";
@@ -483,6 +489,7 @@ const RECORD_TEMPLATE = "record-panel.tsx.template";
 const TOAST_PARTS = (folder) => ({
   [library.toast.template]: `${folder}/${library.toast.file}`,
   "notify.ts.template": "src/lib/notify.ts",
+  "notify.test.tsx.template": "tests/notify.test.tsx",
   "app-frame.tsx.template": `${path.posix.dirname(folder)}/app-frame.tsx`,
   "app-frame.test.tsx.template": "tests/frame.test.tsx",
 });
@@ -668,6 +675,39 @@ export function patternsPlan(target, { starter, code = false }) {
       checks: [{ kind: "screen-actions", file: SCREEN_LEDGER, model: MODEL }],
     });
   }
+  // What each role sees in a browser, once the join above is held and the repository has the
+  // adapter's test browser and its own file of ways in. The test is installed with the guide's
+  // code; adopting holds it only where it is already there. No way in is ever written here.
+  if ("screen-actions" in held && seenMissing(target).length === 0) {
+    let test = read(SEEN_TEST);
+    if (test === null && code) {
+      test = readFileSync(
+        path.join(PLUGIN, "templates/owned/screen-actions-seen.spec.ts.template"),
+        "utf8",
+      );
+      files[SEEN_TEST] = test;
+    }
+    if (test !== null) {
+      const door = browser.door.file;
+      propose(
+        SEEN_DECISION,
+        seenFilesProblem({ door: read(door), test }, { doorFile: door, testFile: SEEN_TEST }),
+        {
+          what: `each role sees in a browser the buttons ${SCREEN_LEDGER} and ${MODEL}/ give it on every built screen it opens, and no button it may not press`,
+          row: {
+            layer: "templates",
+            kind: "closed",
+            source: `${SEEN_TEST}, entering as each role by ${door}, against the gate's table of screens by role`,
+            check: TOOL,
+            note: `that the browser test is there, reads the gate's own plan and enters by ${door}, and that the file is there; the test itself runs with the repository's browser checks. A control is known only by its ${MARK} mark, so a control of an action that lacks it is not seen; a role that opens no screen is not walked, and what a role that may not open a screen sees there is not checked yet`,
+          },
+          checks: [
+            { kind: SEEN_DECISION, test: SEEN_TEST, door, file: SCREEN_LEDGER, model: MODEL },
+          ],
+        },
+      );
+    }
+  }
   let statesText = read(STATES_FILE);
   if (registry !== null && statesText === null && starter) {
     statesText = renderJson({ version: 1, required: CORE_STATES, exempt: {} }, lineWidth(target));
@@ -765,7 +805,12 @@ export function patternsPlan(target, { starter, code = false }) {
       // The frame comes with them: it draws the toaster once, and clears a screen's toasts when a
       // person moves on.
       const owned = TOAST_PARTS(folder);
+      // The test of the toast's mark comes only with a module that takes an action's name: one
+      // installed before that stays the repository's as it is, and the test would be red there.
+      const module = read(owned["notify.ts.template"]);
+      const named = module === null || /\baction\?: string\b/.test(module);
       for (const [name, file] of Object.entries(owned)) {
+        if (name === "notify.test.tsx.template" && !named) continue;
         if (read(file) === null) {
           files[file] = readFileSync(path.join(PLUGIN, "templates/owned", name), "utf8");
         }
@@ -777,6 +822,28 @@ export function patternsPlan(target, { starter, code = false }) {
     }
   }
   return { files, held, failing, notes };
+}
+
+// What a repository lacks for the browser test by role, one line each: the adapter's test browser
+// where the floor's browser checks run, and the file of ways in that the repository writes and
+// keeps. Empty when it has both. The guide and status ask this one place.
+export function seenMissing(target) {
+  const read = (file) =>
+    existsSync(path.join(target, file)) ? readFileSync(path.join(target, file), "utf8") : null;
+  const uses = JSON.parse(read("package.json") ?? "{}");
+  const installed = { ...uses.dependencies, ...uses.devDependencies };
+  const missing = [];
+  if (read(ROUTES) === null || !(browser.accessibilityPackage in installed)) {
+    missing.push(
+      `the repository has no test browser of the adapter: ${ROUTES} and the ${browser.accessibilityPackage} package, where the floor's browser checks run`,
+    );
+  }
+  if (read(browser.door.file) === null) {
+    missing.push(
+      `${browser.door.file} is missing: one way in per role of the model, which the repository writes and keeps (${browser.door.shape}); the guide writes no sign-in code`,
+    );
+  }
+  return missing;
 }
 
 // What the page-level browser test proves, by the decision each tag in it names.
@@ -1080,6 +1147,9 @@ export const TOAST_BUTTON = "a toast's button the screen raises";
 // that two rules meet at a row's waiting state behind it: the brief reads these lines too.
 export const NO_NAME_EACH = "takes no name for each action";
 export const WAITING_WORDS = "which gives way is the owner's";
+// The words of the rules page that say a control of an action carries the action's name: the brief
+// reads the line that holds them for the actions slot too.
+export const ACTION_MARK = "carries the action's name on itself";
 
 // What the owner fixed before any value, as the lines of the rules page: each principle that is
 // theirs, the direction they took, and how an agent uses them. A principle the owner did not fix
@@ -1143,7 +1213,14 @@ const BRIEF_FIRST = [
   "slot for the owner.",
 ];
 
-export function rulesPage(checks, has, blueprint = null) {
+// Whether the ledger of screens of a repository gives some screen a button for an action.
+export function ledgerButtons(target) {
+  const ledger = readScreenLedger(screensText(target, SCREEN_LEDGER));
+  return offersOf(ledger ?? {}).screens.some((screen) => screen.actions.length > 0);
+}
+
+// `facts.buttons` is whether the ledger of screens gives some screen a button for an action.
+export function rulesPage(checks, has, blueprint = null, facts = {}) {
   const held = (id) => id in checks;
   // Where a screen is entered in the ledger: its own file, or the one file every screen shares.
   const inFragments = Object.values(checks)
@@ -1296,6 +1373,11 @@ export function rulesPage(checks, has, blueprint = null) {
         "The gate reads `src/screens.ts` as written: list each screen and each of its states in full there, never built by a function or spread from another list, or the gate does not see them.",
     held("screen-actions") &&
       `${entryOf} also says what it shows (\`shows\`, entities of \`ontology/\`), the action a role must hold to open it (\`entry\`, or null for every role) and the actions it has buttons for (\`actions\`). A button for an action is any button a person presses on the screen, ${TOAST_BUTTON} among them, such as the undo of an action done there: list its action in \`actions\`, so the gate checks that whoever opens the screen may run it. The gate reads the row alone, so it cannot tell a toast's button from one drawn on the screen: an action whose only button is a toast's still needs one of its own, on this screen or another. Every action of \`ontology/actions.yaml\` is offered on a screen to every role that may run it; an action that has no screen is listed under \`no_screen\`${sharedFile} with \`later: <where>\`, or \`never: <reason>\` with \`decided_by\`, the person who decided, never you. The gate fails when an action is offered to nobody who may run it, when a screen shows a record to a role that may not view it, and when a button is one no role that opens its screen may press.`,
+    held("screen-actions") &&
+      facts.buttons === true &&
+      `A control that runs an action of \`${MODEL}/actions.yaml\` ${ACTION_MARK}: \`${MARK}="<action name>"\`, on the button itself, wherever it is drawn: on a row, in the list behind a row's actions button, in a dialog that asks${has("src/lib/notify.ts") ? ", and on a toast, whose button carries it when `notifyDone` and `notifyFailed` are given the action's name in its `action`" : ", and on a toast"}. Only a button for an action the screen's row lists in \`actions\` carries it; a control that runs none of them, such as one that opens a record, closes, filters or loads the list again, carries none. A button's words change with the data and the language, its action does not: a browser test knows the button by its mark, never by its words.`,
+    held(SEEN_DECISION) &&
+      `\`${SEEN_TEST}\` opens every built screen as each role of the model that opens it, entering by \`${browser.door.file}\`, and walks its states: it fails when a role does not see a button its row and the model give it, or sees one they do not give it. A locked button still counts as seen: draw a button only for a role that may press it. A new role of the model gets its way in in \`${browser.door.file}\`, in the same change; this plugin never writes that file.`,
     held("navigation-in-frame") &&
       (has("src/components/app-frame.tsx")
         ? "Moving between screens is the frame's. Once there is more than one screen, `src/App.tsx` draws `AppFrame` (`src/components/app-frame.tsx`) with the list of screens, each given a `title` from the repository's words: it moves between them without loading the page again, marks the open one, leaves a screen's toasts behind and draws the toaster once. A screen never links to another screen: the gate fails when one does."
@@ -1660,7 +1742,9 @@ export function plan(target, blueprint) {
     ...(before.affected ? { affected: before.affected } : {}),
   };
   files[FILES.theme] = renderJson(data, lineWidth(target));
-  files[RULES_PAGE] = rulesPage(checks, (file) => file in files || read(file) !== null, blueprint);
+  files[RULES_PAGE] = rulesPage(checks, (file) => file in files || read(file) !== null, blueprint, {
+    buttons: ledgerButtons(target),
+  });
   // The ledger may hold rows this plugin did not write: they are kept exactly as they are.
   // A principle the blueprint no longer lists leaves the ledger with it; a row another hand wrote
   // under the same prefix names another source and stays.

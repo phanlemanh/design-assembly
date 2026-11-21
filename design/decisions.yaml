@@ -306,3 +306,9 @@ decisions:
     source: "design/screens.yaml, what each screen shows, opens with and offers, against ontology/"
     check: "tool:tools/design-assembly/check.mjs"
     note: "reads the ledger and the model as written: where a button sits, and that a role without the right does not see it while the screen runs, are not checked here"
+  - id: screen-actions-seen
+    layer: templates
+    kind: closed
+    source: "tests/e2e/screen-actions-seen.spec.ts, entering as each role by tests/e2e/roles.ts, against the gate's table of screens by role"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "that the browser test is there, reads the gate's own plan and enters by tests/e2e/roles.ts, and that the file is there; the test itself runs with the repository's browser checks. A control is known only by its data-action mark, so a control of an action that lacks it is not seen; a role that opens no screen is not walked, and what a role that may not open a screen sees there is not checked yet"

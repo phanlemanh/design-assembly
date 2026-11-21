@@ -21,6 +21,8 @@ import { sheet, WAITING_FOLDER, WAITING_LIST } from "./decide.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { audit, AUDIT, DECIDE, PERSON_CALLS, UNCONFIRMED } from "./audit.mjs";
 import { socketsOf } from "./capabilities.mjs";
+import { seenMissing } from "./apply.mjs";
+import { SEEN_DECISION } from "../templates/tools/design-assembly/screen-actions-seen.mjs";
 import {
   installedTree,
   readStamp,
@@ -248,9 +250,26 @@ function rhythmsOf(audit, broken) {
   return RHYTHMS.map(([id, name]) => ({ id, name, says: says[id] }));
 }
 
+// What keeps the browser test by role from being held, as a step: where the ledger joins screens
+// with the model and the row of what each role sees is not there, what the repository lacks for
+// it, and the command that installs the test once it is there. Null when nothing is missing.
+function seenStepOf(root, rows, audited) {
+  const ids = new Set(rows.map((row) => String(row.id)));
+  if (!ids.has("screen-actions") || ids.has(SEEN_DECISION)) return null;
+  const missing = seenMissing(root);
+  if (missing.length === 0) return null;
+  const command =
+    audited.values === "generated" ? "/design-assembly:new" : "/design-assembly:adopt";
+  return {
+    command,
+    why: `${SEEN_DECISION} has no row: ${missing.join("; ")}. Then run ${command} again: it installs the browser test that opens each screen as each role, and holds it`,
+  };
+}
+
 // The commands to run next, in order: what is broken first, then what answers the owner, then what
-// the audit decides from the files. Only commands this plugin has.
-function nextOf(audit, waiting, broken, tool) {
+// the audit decides from the files, then what the browser test by role still lacks. Only commands
+// this plugin has.
+function nextOf(audit, waiting, broken, tool, seen = null) {
   const next = [];
   if (broken.length > 0) {
     next.push({
@@ -285,6 +304,7 @@ function nextOf(audit, waiting, broken, tool) {
   if (named && !next.some((step) => step.command === named[1])) {
     next.push({ command: named[1], why: named[2] });
   }
+  if (seen) next.push(seen);
   return next;
 }
 
@@ -311,10 +331,11 @@ function readLedgers(root) {
     waiting: waitingOf(audited, rows, readBlueprint(root)),
     tool: toolOf(root),
     sockets: socketsOf(root),
+    seen: seenStepOf(root, rows, audited),
   };
 }
 
-function resultOf({ audit, broken, tool, sockets }, waiting) {
+function resultOf({ audit, broken, tool, sockets, seen }, waiting) {
   return {
     tier: audit.tier,
     // Core decisions only, as the audit counts them. Two numbers: a claim was not run again here.
@@ -323,7 +344,7 @@ function resultOf({ audit, broken, tool, sockets }, waiting) {
     rhythms: rhythmsOf(audit, broken),
     waiting,
     tool,
-    next: nextOf(audit, waiting, broken, tool),
+    next: nextOf(audit, waiting, broken, tool, seen),
     // The socket board: which plug fills each socket of the capability table, and which is empty.
     sockets,
   };

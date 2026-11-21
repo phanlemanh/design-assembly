@@ -479,6 +479,29 @@ Not checked here: where a button sits on the screen; that a role without the rig
 while the screen runs; which attributes an update changes; the difference between a right over
 one's own records and over every record.
 
+## What each role sees in a browser
+
+A control that runs an action a screen's row lists in `actions` carries the action's name on
+itself, `data-action="<action name>"`, wherever it is drawn: on a row, in the list behind a row's
+actions button, in a dialog, on a toast. The rules page says so where the row `screen-actions` is
+held and some screen declares a button. Where the repository also has the test browser of the
+floor's browser checks and keeps its own file of ways in, `tests/e2e/roles.ts` (for each role of
+the model, a function given the page that makes the browser that role and no other), the guide
+installs `tests/e2e/screen-actions-seen.spec.ts`. It reads the gate's own table of screens by role
+(`screen-actions-seen.mjs`, `walkPlanOf`), and for each built screen, each role that opens it and
+the narrowest and widest width, enters by the role's way in and walks every state by the steps of
+the screen list. It fails where a role does not see, at least once in a state it reached, a control
+marked with each button the table gives it; where a state it reached has a control marked with an
+action outside them, a locked one included; where a role that holds every action of the screen
+does not reach a state; and where a role has no way in. The guide never writes the file of ways
+in. Missing either, there is no row, and status names what is missing.
+
+The row `screen-actions-seen` is held by the tool: the file of ways in is there, and the test is
+there, names `decision:screen-actions-seen`, reads `walkPlanOf` and enters by that file. The tool
+does not run the test. Not checked yet: what a role that may not open a screen sees there; a role
+that opens no screen is not walked, though every test checks its way in; the frame's navigation; a
+control of an action that does not carry its mark.
+
 ## Screen sizes and the page checks
 
 `design/screen-sizes.json` lists the widths, in CSS pixels, that every page is checked at. The

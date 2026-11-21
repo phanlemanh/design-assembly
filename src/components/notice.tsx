@@ -22,6 +22,9 @@ export function Notice({
   detail,
   action,
   onAction,
+  // The action of the domain model the button runs, if any: the button carries its name as its
+  // mark, data-action, as every control of an action does.
+  runs,
   // Where focus is sent when a control elsewhere on the screen leaves the page.
   actionRef,
   // While the action waits, the button is held and keeps focus: a disabled button would drop it.
@@ -31,6 +34,7 @@ export function Notice({
   detail: string;
   action?: ReactNode;
   onAction?: () => void;
+  runs?: string | undefined;
   actionRef?: Ref<HTMLButtonElement> | undefined;
   pending?: boolean;
 }) {
@@ -42,7 +46,13 @@ export function Notice({
       </EmptyHeader>
       {action !== undefined && (
         <EmptyContent>
-          <Button ref={actionRef} disabled={pending} focusableWhenDisabled onClick={onAction}>
+          <Button
+            ref={actionRef}
+            data-action={runs}
+            disabled={pending}
+            focusableWhenDisabled
+            onClick={onAction}
+          >
             {action}
           </Button>
         </EmptyContent>

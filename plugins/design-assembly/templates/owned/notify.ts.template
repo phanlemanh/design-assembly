@@ -8,8 +8,11 @@
 import { createElement } from "react";
 import { toast } from "sonner";
 
-// The button a toast carries, and the word on the button that closes the toast.
-export type Choice = { label: string; run: () => void; close: string };
+// The button a toast carries, and the word on the button that closes the toast. `action` is the
+// name of the action of the domain model the button runs, when it runs one: the button then
+// carries it as its mark, data-action, as every control of an action does, so a browser test knows
+// the button by its action and never by its words.
+export type Choice = { label: string; run: () => void; close: string; action?: string };
 
 // Where the person was before they reached for a toast. A toast goes away once its button is
 // pressed, and would take focus with it: focus goes back there first, and the action may then move
@@ -25,17 +28,38 @@ const goBack = () => {
   if (before?.isConnected) before.focus();
 };
 
-const stays = (choice: Choice) => ({
-  duration: Infinity,
-  action: {
-    label: choice.label,
-    onClick: () => {
-      goBack();
-      choice.run();
+// Each toast that carries a button is named, so its own button can take it away.
+let made = 0;
+
+// The toast library marks a button it draws itself with a mark of its own on the same attribute,
+// which names no action: the button is drawn here instead, with the library's look, and carries
+// the action's name or no mark at all. It is a plain button on purpose, a departure from the rule
+// that a control comes from the component library: the library would draw it the same way, and a
+// component's own classes would undo the toast's look.
+const stays = (choice: Choice) => {
+  made += 1;
+  const id = `notify-${made}`;
+  const button = createElement(
+    "button",
+    {
+      type: "button",
+      "data-button": "",
+      ...(choice.action ? { "data-action": choice.action } : {}),
+      onClick: () => {
+        goBack();
+        choice.run();
+        toast.dismiss(id);
+      },
     },
-  },
-  cancel: { label: choice.close, onClick: goBack },
-});
+    choice.label,
+  );
+  return {
+    id,
+    duration: Infinity,
+    action: button,
+    cancel: { label: choice.close, onClick: goBack },
+  };
+};
 
 // The action worked. Pass the undo when the action can be taken back.
 export function notifyDone(message: string, undo?: Choice): void {
