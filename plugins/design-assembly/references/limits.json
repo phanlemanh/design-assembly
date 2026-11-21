@@ -3747,7 +3747,7 @@
       "opened": "2026-11-21",
       "where": ["spec", "d0074", "trials"],
       "status": "open",
-      "note": "One independent builder has built a screen from a sheet, once: it counted more places it had to guess than the last builder without a sheet, on copies that differ in more than the sheet. One run does not say whether the sheet lowers the number of places a builder has to guess."
+      "note": "Two independent builders have built a screen from a sheet, once each: counted the same way, the first had 11 places to guess against 9 for the last builder without a sheet, and the second 14, of which 11 reached the waiting list against 2. The copies differ in more than the sheet, and the second builder named kinds of choice the first did not, because the sheet told it to look for them; two runs do not say whether the sheet lowers the number of places a builder has to guess."
     },
     {
       "id": "brief-sheet-look-unseen-by-the-owner",
@@ -3819,12 +3819,12 @@
       "id": "brief-sheet-narrows-what-the-builder-asks",
       "area": "brief",
       "kind": "wrong-signal",
-      "severity": "high",
+      "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-21",
       "where": ["trials", "d0076"],
       "status": "open",
-      "note": "A builder that runs the brief may queue the open slots of the sheet and ask nothing else: in its one trial the builder queued the three open slots, asked no question of its own, and decided alone nine choices no page settled. Since then the sheet says, for a person, for a machine, on the page and again where --queue says what it wrote, that the twelve slots are not every question of the screen, gives the call that asks any other choice, and names three places such choices hide, read from the repository (what a person comes to this screen for, which look a control takes, the name and the word of a concept new to the data model); the rules page says the same. That a builder then asks what the slots do not hold is shown by no test: only a second builder trial shows it. Nothing sees what a builder chose outside the twelve slots, and choices the sheet names no place for (sample data, the spoken name of a control, a waiting state with no words) are told only in general; a new name counts as having its word once that word stands anywhere in a file the repository keeps its words in, so a place can be missing where the word is there for another reason."
+      "note": "A builder that runs the brief may queue the open slots of the sheet and decide the rest alone: the first builder trial asked no question of its own. In the second, after the sheet and the rules page said the twelve slots are not every question, the builder asked eleven of its own with decide --ask, ten before building and one while building, about the shape, the names and the words of the new concept, the look of a control, sample data, the order of the list, what the screen is for and what the other screens do. What is still open: it still decided alone three choices the sheet names no place for (the spoken name of a control behind a row's actions button, the words a waiting state waits for when the page shows none, whether an action with a button only on a toast counts among the screen's actions); nothing sees what a builder chose outside the twelve slots; and two runs do not say a third builder asks as much."
     },
     {
       "id": "brief-settled-by-rows-the-builder-wrote",
@@ -3886,6 +3886,39 @@
       "note": "The kind slot gives what a person comes to a screen of the kind for, read from the page of the kind, as if it were the screen's own: the page of a kind describes its reference screen, so for a second screen of the kind with another job (a list a person cannot add to) the line says something untrue of that screen.",
       "closed": "2026-11-21",
       "closed_by": "the kind slot gives what a person comes for as said of the reference screen the page of the kind names, by its file, and says that no page says it of this screen; only for the reference screen itself is it this screen's own, and the sheet lists the screen's own job among the choices no slot holds (tests/test-brief-trial-12.mjs)"
+    },
+    {
+      "id": "brief-queues-a-question-per-screen",
+      "area": "brief",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["trials"],
+      "status": "open",
+      "note": "A builder that changes several screens and queues the open slots of each sheet writes one question a screen for what is one thing to decide: in the second builder trial the question of principles and direction, the same on every sheet, and the question of one addition to the data model each went three times onto the waiting list, so ten questions stood there for four things to decide."
+    },
+    {
+      "id": "screen-actions-toast-button-unsaid",
+      "area": "rules",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The rules page says a screen's row lists the actions it has buttons for and does not say whether a button on a toast counts: two builders in a row listed an action whose only button is a toast's undo, and the gate takes the row either way."
+    },
+    {
+      "id": "trial-builder-reads-findings-through-the-sheet",
+      "area": "trials",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-21",
+      "where": ["trials"],
+      "status": "open",
+      "note": "The brief prints the open rows of its own limits, and since the first builder trial some of those rows say what that trial found (that the builder asked no question of its own and decided nine choices alone), so a later builder reads the findings of the trial before it in the plugin's own output, which the protocol forbids the coordinating session to tell it."
     }
   ]
 }
