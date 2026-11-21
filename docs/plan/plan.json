@@ -353,7 +353,8 @@
         {
           "id": "5.4",
           "what": "Một lượt thử độc lập đo số chỗ tác tử phải đoán",
-          "state": "todo"
+          "state": "done",
+          "ref": "docs/trials/screen-trial-12-with-the-brief.md; chủ repo cho chạy ngày 2026-11-21 («Cho chạy»); một lượt vai dựng màn trên đề chuẩn, kết quả ở docs/trials/results.tsv, lần 12: 11 chỗ phải đoán so với 9 của lần 11, 2 vào hàng chờ, 9 tự quyết lặng lẽ; năm dòng mới ở plugins/design-assembly/references/limits.json"
         },
         {
           "id": "5.5",
