@@ -32,7 +32,7 @@ a screen kind, must have its shape.
 | `parts`        | `design/parts.json`              | The parts of the code from the top down                          | A person                                   | 1     |
 | `screens`      | `design/screens.yaml`            | Which screens exist, of which kind, with which states            | A person or an agent, with each new screen | 1     |
 | `intake`       | `design/intake.yaml`             | Which need got which block, from where, approved by whom, when   | The round that takes the block in, once    | 1     |
-| `sources`      | `design/sources/<id>.json`       | Which outside libraries blocks are picked from, at which pin     | A person, or the repository's pinning tool | 1     |
+| `sources`      | `design/sources/<id>.json`       | Which outside libraries and fonts come in, at which pin          | A person, the pinning tool, `font-source`  | 1     |
 | `screen-kinds` | `design/patterns/<kind>.md`      | How a screen of each kind is built                               | A person                                   | none  |
 
 ### decisions
@@ -185,6 +185,32 @@ the pin: a source whose snapshot differs, whose pin file or catalog cannot be re
 shape, is unreadable, says why, and offers nothing. A source pinned by a version has no snapshot to
 compare, and says so. Whether a catalog is kept in git is the repository's choice, as with every
 derived file.
+
+A source may say its `kind`. One kind has a meaning here, `font`: a typeface the product uses that
+is neither the floor's nor the system's. A source with no `kind`, or with a word of the
+repository's own, is a library as above, and is read as before. A font has `version`, `id`,
+`kind` and `family` (the name a stylesheet calls it by), and no `catalog`: it offers no block. It
+may have `title`, and `variable`, the CSS variable a font loader of the build sets for it, which a
+stylesheet then names instead of the family. Two things are required of it:
+
+- its `pin`, held in the row itself, never in a `pin_file`: either `package` and `version`, the
+  package the font comes in and the version the repository's lockfile pins it at; or `files`, each
+  font file by its path from the repository's root (`file`) with its `sha256`, and maybe the
+  `weight` it holds (`400`, or a range as `100 900`) and its `style` (`normal` or `italic`). Where
+  a font comes from is what its pin names.
+- its `licence`, the licence the font is used under, in a person's words. No tool writes it.
+
+A row a command wrote says so under `proposed`: `by`, the command, and `on`, the day. Such a row
+has its pin and may still lack its licence; it is then not held, the font cannot be chosen, and
+`status` asks for the licence. Once a person writes the licence the row is held like any other, and
+`proposed` stays as the record of where the row came from. `own: true` says the repository loaded
+this font before the row was written: its own font, kept as found.
+
+The gate fails on a font row with no pin, and on one with no licence that no command proposed;
+the sentence names the row and what is missing. A typeface chosen from the ledger is held further:
+the gate fails when its row is gone, loses its licence, or pins what the repository no longer has
+(the lockfile pins another version, a file has another hash). The pin of a font nobody chose is
+compared by the readers that name it, the handoff book and `status`, not by the gate.
 
 ### screen-kinds
 

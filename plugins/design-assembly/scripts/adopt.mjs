@@ -57,7 +57,8 @@ import {
   ownValue,
   resolve,
 } from "../templates/tools/design-assembly/styles.mjs";
-import { THRESHOLDS, withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
+import { readBlock, THRESHOLDS, withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
+import { declaredFonts, readLoads } from "../templates/tools/design-assembly/fonts.mjs";
 import { COMPONENTS_DECISION, readFolder } from "../templates/tools/design-assembly/components.mjs";
 import { KINDS_FOLDER, readPages } from "../templates/tools/design-assembly/screens.mjs";
 import { TOKENS_DECISION } from "../templates/tools/design-assembly/tokens.mjs";
@@ -70,6 +71,7 @@ import {
   RULES_PAGE,
   ledgerButtons,
   rulesPage,
+  fontsPlan,
   targetPlan,
   tokensPlan,
   vendored,
@@ -78,6 +80,7 @@ import {
   DECISION_SHEET,
   OWNER_CALLS,
 } from "./apply.mjs";
+import { licenceStep, ownFonts, today } from "./font-source.mjs";
 import { findProofs } from "./proofs.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -307,6 +310,8 @@ export function adoption(
     kept: [],
     rerun: [],
     loose: [],
+    // The fonts the repository loads today, each proposed as a row of the sources ledger.
+    fonts: [],
     person: [],
     in_ledger: have.size,
     files: {},
@@ -423,6 +428,69 @@ export function adoption(
       candidates[id] = { what: item.what, row, checks: item.checks };
     }
     for (const item of patterns.failing) if (open(item.id)) result.failing.push(item);
+    // The repository's own typefaces: held as found. That each one the stylesheet names is
+    // loaded, as the build loads one; and, where no guide wrote the block, that text and headings
+    // keep the typefaces they name today. In a repository the guide wrote, which typeface is the
+    // owner's answer in the guide.
+    if (open("font-loaded")) {
+      const loaded = fontsPlan(root, styles, result.stylesheet);
+      if (loaded.failing) result.failing.push(loaded.failing);
+      else if (loaded.row) {
+        const { kind, source, note } = loaded.row;
+        candidates["font-loaded"] = {
+          what: loaded.what,
+          row: { kind, source, note },
+          checks: loaded.checks,
+        };
+      }
+    }
+    if (open("typeface") && readBlock(read(root, result.stylesheet) ?? "") === null) {
+      const named = declaredFonts(styles)
+        .map((variable) => [variable, resolve(styles, ":root", variable)])
+        .filter(([, found]) => found !== null)
+        .map(([variable, found]) => [variable, found.value.replace(/\s+/g, " ")]);
+      if (named.length > 0) {
+        candidates.typeface = {
+          what: named.map(([variable, value]) => `${variable} stays ${value}`).join("; "),
+          row: { kind: "closed", source: "the stylesheet's typefaces, as found" },
+          checks: named.map(([variable, expected]) => ({
+            kind: "value",
+            scope: ":root",
+            variable,
+            expected,
+          })),
+        };
+      }
+    }
+    // The font the repository loads today is its own: its row of the sources ledger is proposed
+    // from what the repository holds, a package its lockfile pins or files hashed in place. A row
+    // that is there is left as it is; the licence is a person's, so the row waits on it.
+    for (const font of ownFonts(root, styles, result.stylesheet, { on: today(), by: "adopt" })) {
+      const own = `${font.shown} is the repository's own font, loaded by ${font.by}`;
+      if (font.exists) {
+        result.kept.push({
+          id: "font-source",
+          why: `${own}: ${font.exists} is already there, and is left as it is`,
+        });
+      } else if (font.cannot) {
+        result.person.push({ id: "font-source", why: `${own}, and ${font.cannot}` });
+      } else {
+        result.files[font.row] = font.content;
+        result.fonts.push({
+          shown: font.shown,
+          family: font.family,
+          row: font.row,
+          own: true,
+          from: font.from,
+          loaded_by: font.by,
+          stated: font.stated,
+        });
+        result.person.push({
+          id: "font-licence",
+          why: `${licenceStep(font.row)}${font.stated ? `. ${font.stated}` : ""}`,
+        });
+      }
+    }
     const artifacts = { [TOKENS_DECISION]: tokens, [COMPONENTS_DECISION]: components };
     // Every ledger the repository has, or gets in this run, has the one shape of the contract:
     // held from here on. A ledger that differs gets no row, and the differences are said.
@@ -518,6 +586,8 @@ export function adoption(
         ...styles,
         gate: vendored()[FILES.gate],
         makefile: read(root, "Makefile"),
+        // What loads a typeface, as the adapter of the repository's build reads it.
+        fonts: readLoads(root, styles.css, result.stylesheet),
         displays: columns.displays ?? {},
         files: {
           ...Object.fromEntries(
@@ -800,6 +870,11 @@ export function report(result) {
     "rows of yours a lint rule is said to hold, that its re-run does not show, so they stay claimed:",
     result.loose,
     reason,
+  );
+  section(
+    "the repository's own font, proposed as a row of the sources ledger (a person writes its licence):",
+    result.fonts,
+    (font) => `${font.shown}: ${font.row}, from ${font.from}; loaded by ${font.loaded_by}`,
   );
   section("would fail today, so nothing was added:", result.failing, reason);
   section("cannot be read here:", result.unreadable, reason);

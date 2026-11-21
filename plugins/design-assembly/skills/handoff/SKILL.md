@@ -115,7 +115,9 @@ what the sheet answers, the one thing to look at, and what on it is still open.
   the recorded are proposals nobody confirmed.
 - **Colour.** Read out every pair below the contrast ratio. Say which ratios the gate holds and
   which the book only measured.
-- **Type and shape.** Say what the book cannot show: the font file is not inside it.
+- **Type and shape.** Name each font and where it comes from, as the sheet says: its row of the
+  sources ledger, what the row pins and its licence, or that the ledger has no row for it and what
+  loads it. Say what the book cannot show: the font file is not inside it.
 - **Components.** Each drawing is the repository's own component, not a picture of one. Say
   that they are shown at rest and in light, and that the parts listed under them are seen on the
   screens.

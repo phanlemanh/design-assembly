@@ -94,10 +94,17 @@ stated level that the values do not reach is not a reason to lower the level: re
    the component manifest (`design/component-registry.json`), unless the repository already keeps
    one that says something else: then that file is listed as kept, and `make design-tokens` or
    `make design-components` will say this tool manages none.
-4. It writes `.claude/rules/design-assembly.md`: the rules it now holds here, for the agent that
+4. For each font the repository loads and holds, a package its lockfile pins or files inside it,
+   it writes the font's row of the sources ledger, `design/sources/<id>.json`, saying it is the
+   repository's own (`own: true`). It fetches nothing and writes no licence: ask the owner for the
+   licence the font is used under, show what the report says the lockfile states, and write their
+   words into the row's `licence`. A font it cannot pin, loaded from an address outside the
+   repository or by a loader that takes it from elsewhere, gets no row: the report says so, and a
+   person writes the row. A row already there is left as it is.
+5. It writes `.claude/rules/design-assembly.md`: the rules it now holds here, for the agent that
    builds next. Where the guide ran here before and left a blueprint, the page keeps the
    principles and the direction the owner fixed in it; adopting asks for none.
-5. Run the repository's formatter if it has one, then its gate.
+6. Run the repository's formatter if it has one, then its gate.
 
 From then on a change to a value in the stylesheet is followed by `make design-tokens`, and, where
 adopting wrote the component manifest, a change to a component by `make design-components`. The

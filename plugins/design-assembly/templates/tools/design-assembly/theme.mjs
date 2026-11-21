@@ -2,6 +2,7 @@
 import { asWritten, clipChroma, contrast, formatOklch, luminance, parseColor } from "./color.mjs";
 import { adapterOf } from "./adapters/index.mjs";
 import { CORNER_RADII, modularScale, typeDeclarations } from "./scale.mjs";
+import { fontCannot, SOURCES_FOLDER } from "./sources-ledger.mjs";
 import { themeDeclarations } from "./styles.mjs";
 
 export const START = "/* design-assembly:tokens:start";
@@ -97,30 +98,60 @@ const values = adapterOf("values");
 
 // The typeface every device has for its own interface: nothing is loaded for it.
 export const SYSTEM_FONT = "ui-sans-serif, system-ui, sans-serif";
-// The values each typeface choice takes in this version.
+// The words each typeface choice takes. Beside them it takes a font of the sources ledger.
 export const FONT_CHOICES = { text: ["floor", "system"], heading: ["text", "floor", "system"] };
-// Said when a typeface from the sources ledger is asked for: that kind of value comes later.
-export const FONT_SOURCE_LATER =
-  "a typeface from the sources ledger needs its row there, with its pin and its licence, and that row comes with the next version of this plugin";
+// A font of the sources ledger as a typeface choice names it: `source:` and the id of its row.
+export const FONT_SOURCE = "source:";
+const SOURCED = /^source:([a-z0-9]+(?:-[a-z0-9]+)*)$/;
+// The id of the row a typeface choice names, or null when the value is a word.
+export const sourceFontId = (value) => SOURCED.exec(String(value ?? ""))?.[1] ?? null;
+// The file of the row a typeface choice names.
+export const sourceFontFile = (value) => `${SOURCES_FOLDER}/${sourceFontId(value)}.json`;
 
 // The value the floor's own theme blocks declare last for a variable, or null: the declaration the
 // framework puts into its classes. Read by the reader every check uses.
 const floorTheme = (floor, name) =>
   themeDeclarations({ css: floor }).findLast((item) => item.name === name)?.value ?? null;
 
+// The font of the sources ledger a typeface choice names, among the fonts read from the ledger.
+// It throws one sentence when the font cannot be chosen: its row is missing, is not whole, waits
+// on its licence, or pins what the repository no longer holds.
+export function sourcedFont(value, sources) {
+  const id = sourceFontId(value);
+  const font = (sources ?? []).find((item) => item.id === id);
+  if (!font) {
+    throw new Error(
+      `the sources ledger has no font row ${sourceFontFile(value)}: a font is chosen once its row is there, of the kind font, with its pin and its licence`,
+    );
+  }
+  const cannot = fontCannot(font);
+  if (cannot) throw new Error(cannot);
+  return font;
+}
+
+// A font of the sources ledger as the block names it: by the variable a font loader of the build
+// sets for it, or by its family; then the system font, which the page shows until it is loaded.
+const sourcedValue = (font) =>
+  `${font.variable ? `var(${font.variable})` : `"${font.family}"`}, ${SYSTEM_FONT}`;
+
+const oneOf = (words) =>
+  `${words.join(", ")}, or ${FONT_SOURCE}<id> for a font of the sources ledger`;
+
 // The typeface of running text and of headings as the block writes them, or null when neither is
 // decided: a blueprint decided before the choice existed leaves the floor's declarations alone.
 // The floor's typeface is copied from the floor's own declaration, so the two say the same; a
-// heading in the text's typeface points at the text's variable, as the floor writes it.
-export function fontValues(inputs, css) {
+// heading in the text's typeface points at the text's variable, as the floor writes it. A font of
+// the sources ledger is read from `context.sources`, the fonts of the ledger; `context.faces`, the
+// build's own way to write what loads a font kept as files, gives the rules the block carries.
+export function fontValues(inputs, css, context = {}) {
   const { textFont, headingFont } = inputs;
   if (textFont === undefined && headingFont === undefined) return null;
-  if (textFont === "source" || headingFont === "source") throw new Error(FONT_SOURCE_LATER);
-  if (!FONT_CHOICES.text.includes(textFont)) {
-    throw new Error(`text typeface must be one of ${FONT_CHOICES.text.join(", ")}`);
+  const sourced = [textFont, headingFont].map((value) => sourceFontId(value) !== null);
+  if (!sourced[0] && !FONT_CHOICES.text.includes(textFont)) {
+    throw new Error(`text typeface must be one of ${oneOf(FONT_CHOICES.text)}`);
   }
-  if (!FONT_CHOICES.heading.includes(headingFont)) {
-    throw new Error(`heading typeface must be one of ${FONT_CHOICES.heading.join(", ")}`);
+  if (!sourced[1] && !FONT_CHOICES.heading.includes(headingFont)) {
+    throw new Error(`heading typeface must be one of ${oneOf(FONT_CHOICES.heading)}`);
   }
   const { text: textVariable, heading: headingVariable } = values.fonts;
   const floor = withoutBlock(css);
@@ -134,21 +165,36 @@ export function fontValues(inputs, css) {
   const ofFloor = floorHeading
     ? floorHeading.replace(`var(${textVariable})`, floorText ?? "")
     : floorText;
+  const fonts = [textFont, headingFont].map((value, index) =>
+    sourced[index] ? sourcedFont(value, context.sources) : null,
+  );
+  // What loads each chosen font, once, where the build knows how to write it: a font a loader
+  // sets under a variable is loaded by that loader, and one that is a package by its own import.
+  const faces = [];
+  for (const font of new Set(fonts.filter(Boolean))) {
+    if (!context.faces || font.variable || !font.pin?.files) continue;
+    faces.push(...context.faces(font, context.stylesheet));
+  }
   return {
-    text: textFont === "floor" ? floorText : SYSTEM_FONT,
-    heading:
-      headingFont === "text"
+    text: fonts[0] ? sourcedValue(fonts[0]) : textFont === "floor" ? floorText : SYSTEM_FONT,
+    heading: fonts[1]
+      ? sourcedValue(fonts[1])
+      : headingFont === "text"
         ? `var(${textVariable})`
         : headingFont === "floor"
           ? ofFloor
           : SYSTEM_FONT,
+    faces,
+    // The fonts of the sources ledger the two choices name, each once.
+    sources: [...new Set(fonts.filter(Boolean))],
   };
 }
 
 // Builds the theme from the decided inputs and the backgrounds the repository's own CSS declares.
 // `typeScale` and `cornerRadius` are optional: a ledger written before they existed renders as it
-// did then, so its generated check still holds.
-export function buildTheme(inputs, css) {
+// did then, so its generated check still holds. `context` is what a font of the sources ledger is
+// read from: see `fontValues`.
+export function buildTheme(inputs, css, context = {}) {
   const { sourceColor, conformanceLevel, typeScale, typeRatio, cornerRadius } = inputs;
   const thresholds = THRESHOLDS[conformanceLevel];
   if (!thresholds) throw new Error(`conformance level must be one of ${Object.keys(THRESHOLDS)}`);
@@ -172,7 +218,7 @@ export function buildTheme(inputs, css) {
     thresholds,
     radius: cornerRadius === undefined ? null : CORNER_RADII[cornerRadius],
     type: typeScale === "modular" ? modularScale(typeRatio) : null,
-    fonts: fontValues(inputs, css),
+    fonts: fontValues(inputs, css, context),
   };
 }
 
@@ -201,6 +247,8 @@ export function renderBlock(theme) {
   // The typefaces go where the framework reads them, after the floor's own declaration of the same
   // variables: the last declaration is the one in force.
   if (theme.fonts) {
+    // What loads a chosen font goes first: a rule of its own, outside every selector.
+    for (const face of theme.fonts.faces ?? []) lines.push("", face);
     lines.push(
       "",
       `${values.fonts.block} {`,

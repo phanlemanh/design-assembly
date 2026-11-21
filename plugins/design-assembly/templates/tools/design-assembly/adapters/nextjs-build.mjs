@@ -4,13 +4,13 @@
 // load one of the repository's modules for the plugin, or change a module as it is served: it
 // says so in `serves`, and the scripts that need those say what they could not draw.
 import { spawn } from "node:child_process";
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import { createServer } from "node:net";
 import path from "node:path";
 import process from "node:process";
 import { setTimeout as wait } from "node:timers/promises";
 
-import { stylesheetLoads } from "./css-fonts.mjs";
+import { importLine, stylesheetLoads } from "./css-fonts.mjs";
 
 // How long the server may take to say it is ready, and to stop once asked.
 const READY_MS = 120_000;
@@ -28,6 +28,13 @@ export const adapter = {
   fontLoads,
   fontsSay:
     "no @font-face rule of the stylesheet declares it, no package the stylesheet imports does, and no font loader in a layout file sets it",
+  // This adapter writes no code that loads a font: a person writes it, and this says what.
+  fontHint: (font, stylesheet) =>
+    font.variable
+      ? `call the build's font loader in a layout file so that it sets ${font.variable}`
+      : font.pin?.package
+        ? importLine(font.pin.package, stylesheet)
+        : `write an @font-face rule for each file of the font in ${stylesheet}, or call the build's font loader in a layout file`,
 };
 
 // The folders a layout file of the app router sits in, and the modules of the build's font loader.
@@ -48,19 +55,95 @@ function layoutFiles(root, folder) {
     });
 }
 
+// The modules of the build's font loader a layout file imports, by the name each is called with:
+// the default import of a module, and each name imported from it.
+function loaderNames(source) {
+  const names = new Map();
+  const imports =
+    /import\s+(?:([\w$]+)\s*,?\s*)?(?:\{([^}]*)\})?\s*from\s+["']next\/font\/(google|local)["']/g;
+  for (const [, whole, listed, kind] of source.matchAll(imports)) {
+    if (whole) names.set(whole, kind);
+    for (const item of (listed ?? "").split(",")) {
+      const name = item
+        .trim()
+        .split(/\s+as\s+/)
+        .pop();
+      if (name) names.set(name, kind);
+    }
+  }
+  return names;
+}
+
+// The call a place of the source sits in: the name called, and the text between its brackets.
+// Null when the place is in no call.
+function callAround(source, index) {
+  let depth = 0;
+  let open = -1;
+  for (let at = index; at >= 0; at -= 1) {
+    if (source[at] === ")") depth += 1;
+    else if (source[at] === "(") {
+      if (depth === 0) {
+        open = at;
+        break;
+      }
+      depth -= 1;
+    }
+  }
+  if (open === -1) return null;
+  depth = 0;
+  let close = source.length;
+  for (let at = open; at < source.length; at += 1) {
+    if (source[at] === "(") depth += 1;
+    else if (source[at] === ")") {
+      depth -= 1;
+      if (depth === 0) {
+        close = at;
+        break;
+      }
+    }
+  }
+  const name = /([\w$]+)\s*$/.exec(source.slice(0, open))?.[1] ?? null;
+  return { name, text: source.slice(open + 1, close) };
+}
+
+// The font files a call of the loader names that are files of the repository: each path the call
+// writes with a font's ending, followed from the layout file's own folder. Only what is there
+// counts; a call that names none takes its font from somewhere this reader cannot see.
+function namedFiles(root, file, call) {
+  const found = [];
+  for (const match of call.matchAll(/["']([^"']+\.(?:woff2|woff|ttf|otf))["']/gi)) {
+    const named = path.posix.normalize(path.posix.join(path.posix.dirname(file), match[1]));
+    if (named.startsWith("..")) continue;
+    const full = path.join(root, named);
+    if (!existsSync(full) || !statSync(full).isFile() || found.includes(named)) continue;
+    // A link inside the repository that leads out of it names no file of it.
+    const led = path.relative(realpathSync(root), realpathSync(full));
+    if (!led.startsWith("..") && !path.isAbsolute(led)) found.push(named);
+  }
+  return found;
+}
+
 // What loads a typeface on this stack: what the stylesheet loads itself, and the build's font
 // loader called in a layout file. The loader writes its family under a name it makes up, so a
 // stylesheet reaches a font of the loader only through the CSS variable the call sets, with
 // `variable`: that variable is what it loads, never the family by its name. A call with no
-// variable is applied by a class or a style in code, which no stylesheet names.
+// variable is applied by a class or a style in code, which no stylesheet names. Each such load
+// says which module of the loader was called, and the font files of the repository the call names.
 function fontLoads(root, css, stylesheet) {
   const loads = stylesheetLoads(root, css, stylesheet);
   for (const file of APP_FOLDERS.flatMap((folder) => layoutFiles(root, folder))) {
     const source = readFileSync(path.join(root, file), "utf8");
     if (!LOADER.test(source)) continue;
     const by = `the font loader in ${file}`;
+    const names = loaderNames(source);
     for (const match of source.matchAll(/\bvariable\s*:\s*["'](--[\w-]+)["']/g)) {
-      loads.push({ variable: match[1], by });
+      const call = callAround(source, match.index);
+      loads.push({
+        variable: match[1],
+        by,
+        loader: names.get(call?.name) ?? null,
+        files: call ? namedFiles(root, file, call.text) : [],
+      });
     }
   }
   return loads;

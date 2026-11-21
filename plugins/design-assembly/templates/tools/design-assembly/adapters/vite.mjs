@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { stylesheetLoads } from "./css-fonts.mjs";
+import { faceRule, importLine, stylesheetLoads } from "./css-fonts.mjs";
 
 export const adapter = {
   id: "vite",
@@ -24,7 +24,37 @@ export const adapter = {
   fontLoads: stylesheetLoads,
   fontsSay:
     "no @font-face rule of the stylesheet declares it, and no package the stylesheet imports does",
+  // The rules that load a font kept as files of the repository, one per file, as this stack
+  // takes them in a stylesheet.
+  fontFaces: (font, stylesheet) =>
+    font.pin.files.map((entry) =>
+      faceRule({
+        family: font.family,
+        url: fileAddress(entry.file, stylesheet),
+        weight: entry.weight,
+        style: entry.style,
+      }),
+    ),
+  // The folder whose files this build serves from the root of the site: where an address that
+  // starts at the root leads.
+  publicFolder: "public",
+  // What a person writes to load a font this stack has no rule of its own for.
+  fontHint: (font, stylesheet) =>
+    font.pin?.package ? importLine(font.pin.package, stylesheet) : null,
 };
+
+// The folder whose files this build serves from the root of the site, as they are.
+const PUBLIC_FOLDER = "public/";
+
+// The address of a file of the repository in a stylesheet: from the root of the site when the
+// build serves it from its public folder, else by the path from the stylesheet's own folder, which
+// the build follows and takes the file from.
+function fileAddress(file, stylesheet) {
+  const normal = path.posix.normalize(String(file));
+  if (normal.startsWith(PUBLIC_FOLDER)) return `/${normal.slice(PUBLIC_FOLDER.length)}`;
+  const relative = path.posix.relative(path.posix.dirname(stylesheet), normal);
+  return relative.startsWith(".") ? relative : `./${relative}`;
+}
 
 // How surely the repository builds with Vite: 2 when it keeps Vite's settings file or its own
 // development command runs Vite, 1 when its packages only name it, 0 when they do not. A file of

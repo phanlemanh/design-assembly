@@ -38,10 +38,12 @@ import {
   typeDeclarations,
 } from "../templates/tools/design-assembly/scale.mjs";
 import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
+import { readFontSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import {
   buildTheme,
   fontValues,
   renderBlock,
+  sourceFontId,
   withoutBlock,
 } from "../templates/tools/design-assembly/theme.mjs";
 import { FONT_VARIABLES } from "../templates/tools/design-assembly/fonts.mjs";
@@ -331,7 +333,14 @@ export function specimenPlan(target, options = {}) {
     });
   }
   // The typefaces: each value a choice takes in this version, drawn with what the block would set.
-  if (want("typeface")) sections.push(...typefaceSections(state, css, letter, dropped));
+  if (want("typeface")) {
+    const context = {
+      sources: readFontSources(target),
+      stylesheet: FILES.css,
+      faces: buildOf(target).fontFaces ?? null,
+    };
+    sections.push(...typefaceSections(state, css, letter, dropped, context));
+  }
   // How a record opens: asked on its own, once a screen opens one.
   if (wanted === "record") {
     const order = RECORD_ORDER[state.productType] ?? RECORD_ORDER.application;
@@ -385,29 +394,44 @@ export function specimenPlan(target, options = {}) {
 }
 
 // The two typeface sections: the text first, then the headings beside the text the blueprint has
-// so far, or the floor's. A value the floor cannot give is dropped and said.
-function typefaceSections(state, css, letter, dropped) {
+// so far, or the floor's. After the words of each choice come the fonts of the sources ledger. A
+// value the floor cannot give, or a font that cannot be chosen yet, is dropped and said.
+function typefaceSections(state, css, letter, dropped, context) {
   const choiceOf = (key) =>
     LAYERS.find((layer) => layer.id === "foundations").choices.find((item) => item.key === key);
   const [textVariable] = FONT_VARIABLES;
   const option = (key, value, inputs) => {
     let fonts;
     try {
-      fonts = fontValues(inputs, css);
+      fonts = fontValues(inputs, css, context);
     } catch (error) {
-      dropped.push(`${choiceOf(key).name} ${value}: ${error.message}`);
+      // The font of the text may be the one that cannot be drawn: said once, by the text.
+      if (key === "text_font" || sourceFontId(value) !== null || sourceFontId(text) === null) {
+        dropped.push(`${choiceOf(key).name} ${value}: ${error.message}`);
+      }
       return null;
     }
     const heading = fonts.heading === `var(${textVariable})` ? fonts.text : fonts.heading;
     const shown = key === "text_font" ? fonts.text : heading;
+    const font = context.sources.find((item) => item.id === sourceFontId(value));
     return {
       value,
-      label: `${value}: ${choiceOf(key).options[value]}`,
+      label: font
+        ? `${value}: ${font.title}, the font of ${font.file}, from ${font.from}`
+        : `${value}: ${choiceOf(key).options[value]}`,
       notes: [`font-family: ${shown}`],
-      css: values.fonts.preview({ text: fonts.text, heading }),
+      // What loads a font kept as files is drawn with it; any other font shows as the screen
+      // loads it today.
+      css: [...fonts.faces, values.fonts.preview({ text: fonts.text, heading })].join("\n"),
       modes: ["light"],
     };
   };
+  const valuesOf = (key) => [
+    ...Object.keys(choiceOf(key).options),
+    ...(choiceOf(key).sourced
+      ? context.sources.map((font) => `${choiceOf(key).sourced.prefix}${font.id}`)
+      : []),
+  ];
   const text = state.textFont ?? "floor";
   const section = (id, key, title, question, inputsOf) => ({
     id,
@@ -416,7 +440,7 @@ function typefaceSections(state, css, letter, dropped) {
     question,
     shots: ["ready"],
     options: letter(
-      Object.keys(choiceOf(key).options)
+      valuesOf(key)
         .map((value) => option(key, value, inputsOf(value)))
         .filter(Boolean),
     ),

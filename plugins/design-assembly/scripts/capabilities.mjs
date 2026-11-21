@@ -124,6 +124,12 @@ export function shapeProblems(table, context) {
         if (!context.ledgers.includes(ledger))
           at(`plug ${plug.id} reads ${ledger}, which is not a ledger of the contract`);
       }
+      if (
+        plug.writes_through !== undefined &&
+        !table.capabilities.some((other) => other.id === plug.writes_through)
+      ) {
+        at(`plug ${plug.id} writes through ${plug.writes_through}, which is not a capability`);
+      }
     }
     return found;
   });
@@ -226,23 +232,31 @@ export function scriptFiles(plugin = PLUGIN) {
   );
 }
 
-// For a script: the ledgers it may write (those of the sockets it is a plug of, or that its route
-// passes through) and the ledgers its plugs say it reads.
+// For a script: the ledgers it may write (those of the sockets it is a plug of, of the socket a
+// plug of it writes through, or of the sockets its route passes through and their plugs write
+// through) and the ledgers its plugs say it reads.
 function allowedOf(script, table) {
   const writes = new Set();
   const reads = new Set();
   const socketOf = (id) => table.capabilities.find((item) => item.id === id)?.socket;
+  const through = (plug) => list(socketOf(plug.writes_through)?.writes);
   for (const item of table.capabilities) {
     for (const plug of list(item.plugs)) {
       if (!list(plug.scripts).includes(script)) continue;
       list(item.socket?.writes).forEach((ledger) => writes.add(ledger));
+      through(plug).forEach((ledger) => writes.add(ledger));
       list(plug.reads).forEach((ledger) => reads.add(ledger));
     }
   }
   for (const route of list(table.routes)) {
     if (route.script !== script) continue;
-    for (const id of list(route.through))
+    for (const id of list(route.through)) {
       list(socketOf(id)?.writes).forEach((ledger) => writes.add(ledger));
+      const item = table.capabilities.find((capability) => capability.id === id);
+      list(item?.plugs)
+        .flatMap(through)
+        .forEach((ledger) => writes.add(ledger));
+    }
   }
   return { writes, reads };
 }
@@ -271,6 +285,11 @@ export function unwrittenProblems(table, scripts, limits, ledgers = LEDGERS) {
     const sockets = [item.id];
     const writers = [
       ...list(item.plugs).flatMap((plug) => list(plug.scripts)),
+      // The plugs of other sockets that write through this one.
+      ...table.capabilities
+        .flatMap((other) => list(other.plugs))
+        .filter((plug) => plug.writes_through === item.id)
+        .flatMap((plug) => list(plug.scripts)),
       ...list(table.routes)
         .filter((route) => list(route.through).some((id) => sockets.includes(id)))
         .map((route) => route.script),

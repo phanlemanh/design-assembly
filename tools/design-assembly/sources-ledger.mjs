@@ -6,14 +6,30 @@
 // the pin, compares the snapshot it names with the hashes it records, and reads the catalog. A
 // source that cannot be read this way is said to be unreadable, with why, and offers nothing.
 import { createHash } from "node:crypto";
-import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
+
+import { pinnedPackage } from "./adapters/lockfile.mjs";
 
 export const SOURCES_FOLDER = "design/sources";
 export const SOURCES_VERSION = 1;
+// The kind of source that is a font: where it comes from, its pin and its licence. A source with
+// no kind, or with a kind this plugin gives no meaning, is a library blocks are picked from.
+export const FONT_KIND = "font";
 
 const isMap = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 const text = (value) => (typeof value === "string" ? value : undefined);
+const filled = (value) => typeof value === "string" && value.trim() !== "";
+export const isFont = (source) => isMap(source) && source.kind === FONT_KIND;
+// How each field of a font row a stylesheet takes is written: the contract holds a row's shape
+// with these, and the reader refuses a row that breaks one before any of it reaches a stylesheet.
+export const FONT_FIELDS = {
+  family: "^[^\"'\\\\;{}\\n]+$",
+  variable: "^--[A-Za-z0-9_-]+$",
+  file: '^[^"\\\\\\n]+$',
+  weight: "^(normal|bold|\\d{1,4}( \\d{1,4})?)$",
+};
+export const FONT_STYLES = ["normal", "italic"];
 
 // The items of a catalog, each with its name, kind, title, description, and where it can be seen.
 // A catalog lists its items, or keeps them in groups: an item in a group takes the group's kind,
@@ -43,8 +59,17 @@ export function catalogItems(catalog) {
 // A path a source names, inside the repository, or null when it leads out of it.
 function inside(root, file) {
   const full = path.resolve(root, String(file));
-  const relative = path.relative(path.resolve(root), full);
-  return relative.startsWith("..") || path.isAbsolute(relative) ? null : full;
+  const within = (from, to) => {
+    const relative = path.relative(from, to);
+    return !(relative.startsWith("..") || path.isAbsolute(relative));
+  };
+  if (!within(path.resolve(root), full)) return null;
+  // A link inside the repository may lead out of it: where it leads is what counts.
+  try {
+    return within(realpathSync(root), realpathSync(full)) ? full : null;
+  } catch {
+    return full;
+  }
 }
 
 // Why a path a source names cannot be read, or null.
@@ -142,17 +167,194 @@ function readSource(root, name) {
   return { ...said, pin, unreadable: null, items: catalogItems(catalog), blind };
 }
 
-// Every pinned source of a repository, in the order they are looked through: by `order`, the
-// smallest first and a source without one last, then by id. Empty when it keeps none.
-export function readPinnedSources(root) {
+// The files of the ledger, by name.
+function sourceFiles(root) {
   const folder = path.join(root, SOURCES_FOLDER);
   if (!existsSync(folder) || !statSync(folder).isDirectory()) return [];
   return readdirSync(folder)
     .filter((name) => name.endsWith(".json") && isFile(path.join(folder, name)))
-    .sort()
+    .sort();
+}
+
+// A file of the ledger as data, or null when it is not JSON.
+function parsed(root, name) {
+  try {
+    return readJson(root, `${SOURCES_FOLDER}/${name}`);
+  } catch {
+    return null;
+  }
+}
+
+// Every pinned source blocks are picked from, in the order they are looked through: by `order`,
+// the smallest first and a source without one last, then by id. Empty when the repository keeps
+// none. A font is a source of another kind: it offers no block, and is read by `readFontSources`.
+export function readPinnedSources(root) {
+  return sourceFiles(root)
+    .filter((name) => !isFont(parsed(root, name)))
     .map((name) => readSource(root, name))
     .sort(
       (a, b) =>
         (a.order ?? Infinity) - (b.order ?? Infinity) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
     );
+}
+
+// The pin of a font, as the row itself says it: the package and the version the lockfile pins it
+// at, or each of its files, by its path from the repository's root, with its hash. Null when the
+// row says neither whole: a pin kept in another file is no pin of a font.
+export function fontPin(source) {
+  const pin = isMap(source?.pin) ? source.pin : null;
+  if (!pin) return null;
+  if (filled(pin.package) && filled(pin.version)) {
+    return { package: pin.package, version: pin.version };
+  }
+  const files = Array.isArray(pin.files) ? pin.files : [];
+  const whole = files.every(
+    (entry) => filled(entry?.file) && /^[0-9a-f]{64}$/.test(String(entry?.sha256 ?? "")),
+  );
+  return files.length > 0 && whole ? { files } : null;
+}
+
+// What a font row lacks beside its shape, each sentence naming the row. The pin is required of
+// every font row. The licence is required of a row a person finished: a row a command wrote says
+// so under `proposed`, and waits on its licence without being held.
+export function fontRowProblems(source, file) {
+  const problems = [];
+  if (!fontPin(source)) {
+    problems.push(
+      `${file} is a font and has no pin: its row says the package and the version the lockfile pins it at, or each of its files with its sha256`,
+    );
+  }
+  if (!filled(source?.licence) && !isMap(source?.proposed)) {
+    problems.push(
+      `${file} is a font and has no licence: a person writes the licence the font is used under, and until then the font cannot be chosen`,
+    );
+  }
+  return problems;
+}
+
+// How a font's pin differs from what the repository holds now, and what could not be compared.
+function pinDrift(root, file, pin) {
+  const drift = [];
+  const blind = [];
+  if (pin.package) {
+    const locked = pinnedPackage(root, pin.package);
+    if (locked.lockfile === null) {
+      blind.push(
+        `no lockfile this tool reads is in the repository, so the version ${file} pins ${pin.package} at is not compared`,
+      );
+    } else if (locked.version === null) {
+      drift.push(
+        `${file} pins ${pin.package} at ${pin.version}, and ${locked.lockfile} does not pin ${pin.package}: install the package, or take the row out`,
+      );
+    } else if (locked.version !== pin.version) {
+      drift.push(
+        `${file} pins ${pin.package} at ${pin.version}, and ${locked.lockfile} pins ${locked.version}: write the new version into the row once its licence is read again, or put the package back`,
+      );
+    }
+    return { drift, blind };
+  }
+  for (const entry of pin.files) {
+    const away = outside(root, entry.file, "a file of its pin");
+    if (away) {
+      drift.push(`${file}: ${away}`);
+      continue;
+    }
+    const full = inside(root, entry.file);
+    if (!isFile(full)) {
+      drift.push(`${file}: ${entry.file}, a file of its pin, is not there`);
+      continue;
+    }
+    const hash = createHash("sha256").update(readFileSync(full)).digest("hex");
+    if (hash !== entry.sha256) {
+      drift.push(
+        `${file}: ${entry.file} is not the file it was pinned with: its sha256 differs from the pin`,
+      );
+    }
+  }
+  return { drift, blind };
+}
+
+// One font of the ledger as the tools use it: its family, how the stylesheet reaches it, where it
+// comes from, whether the gate holds its row, and how its pin differs from the repository today.
+function readFont(root, name, source) {
+  const file = `${SOURCES_FOLDER}/${name}`;
+  const id = name.replace(/\.json$/, "");
+  const problems = [];
+  const version = Number(source.version);
+  if (Number.isFinite(version) && version > SOURCES_VERSION) {
+    problems.push(
+      `${file} has shape ${version} and this tool knows shape ${SOURCES_VERSION}: update the design-assembly plugin`,
+    );
+  }
+  if (!filled(source.family)) problems.push(`${file}.family is missing`);
+  else if (!new RegExp(FONT_FIELDS.family).test(source.family)) {
+    problems.push(`${file}.family is not a name a stylesheet can take`);
+  }
+  if (
+    source.variable !== undefined &&
+    !new RegExp(FONT_FIELDS.variable).test(String(source.variable))
+  ) {
+    problems.push(`${file}.variable is not the name of a CSS variable`);
+  }
+  for (const [index, entry] of (Array.isArray(source.pin?.files)
+    ? source.pin.files
+    : []
+  ).entries()) {
+    const where = `${file}.pin.files[${index}]`;
+    if (!new RegExp(FONT_FIELDS.file).test(String(entry?.file ?? ""))) {
+      problems.push(`${where}.file is not a path a stylesheet can take`);
+    }
+    if (entry?.weight !== undefined && !new RegExp(FONT_FIELDS.weight).test(String(entry.weight))) {
+      problems.push(`${where}.weight is not a weight, nor a range of weights`);
+    }
+    if (entry?.style !== undefined && !FONT_STYLES.includes(entry.style)) {
+      problems.push(`${where}.style is not one of ${FONT_STYLES.join(", ")}`);
+    }
+  }
+  problems.push(...fontRowProblems(source, file));
+  const pin = fontPin(source);
+  const { drift, blind } = pin ? pinDrift(root, file, pin) : { drift: [], blind: [] };
+  const licensed = filled(source.licence);
+  const from = !pin
+    ? null
+    : pin.package
+      ? `the package ${pin.package} at ${pin.version}`
+      : `${pin.files.length} file${pin.files.length === 1 ? "" : "s"} of the repository (${pin.files.map((entry) => entry.file).join(", ")})`;
+  return {
+    id,
+    file,
+    title: text(source.title) ?? text(source.family) ?? id,
+    family: text(source.family) ?? null,
+    variable: new RegExp(FONT_FIELDS.variable).test(String(source.variable ?? ""))
+      ? source.variable
+      : null,
+    licence: licensed ? source.licence : null,
+    // The repository loaded this font before the row was written: its own font, kept as found.
+    own: source.own === true,
+    proposed: isMap(source.proposed) ? source.proposed : null,
+    pin,
+    from,
+    // The gate holds a row that is whole: its shape, its pin and its licence.
+    held: problems.length === 0 && licensed,
+    // A row a command wrote, that only a person's licence is missing from.
+    waits:
+      problems.length === 0 && !licensed
+        ? `${file} has no licence yet: a person writes the licence the font is used under, and the row is held from then on`
+        : null,
+    problems,
+    drift,
+    blind,
+  };
+}
+
+// Why a font cannot be chosen as a typeface, in one sentence, or null: its row is not whole, it
+// waits on its licence, or its pin is no longer what the repository holds.
+export const fontCannot = (font) => font.problems[0] ?? font.waits ?? font.drift[0] ?? null;
+
+// Every font of the ledger, by id. Empty when the repository keeps none.
+export function readFontSources(root) {
+  return sourceFiles(root)
+    .map((name) => [name, parsed(root, name)])
+    .filter(([, source]) => isFont(source))
+    .map(([name, source]) => readFont(root, name, source));
 }

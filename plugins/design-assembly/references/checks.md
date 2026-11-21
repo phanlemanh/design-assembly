@@ -104,8 +104,8 @@ and a `$value`.
 ## The typeface
 
 The foundations layer asks the typeface of running text and of headings (`text_font`,
-`heading_font`): the floor's font, or the system font, which no file loads; headings may take the
-text's. A font with its row in the sources ledger is named and cannot be chosen in this version.
+`heading_font`): the floor's font, the system font, which no file loads, or a font of the sources
+ledger, `source:<id>`; headings may take the text's.
 
 - The marked block names both, in a block of the framework's theme after the floor's own
   declaration of the same variables: the framework writes a theme variable's value into the
@@ -123,6 +123,20 @@ text's. A font with its row in the sources ledger is named and cannot be chosen 
   a layout file, which sets the variable the stylesheet names. Nothing is fetched. A typeface that
   is named and not loaded would show the next family of the list without a word: the gate says
   which, and where it is named.
+- A font of the sources ledger is named by its family, or by the variable its build's font loader
+  sets, then the system font. It can be chosen only while its row is whole: of the kind `font`,
+  with its pin and its licence, and with a pin that is still what the repository holds (the
+  version its lockfile pins, the hash of each file). The `tonal-palette` row writes the block again
+  from the row on every run, so the gate turns red when the row is gone, loses its licence, or no
+  longer pins what the repository has, and the sentence names the row. On the first build stack a
+  font kept as files is loaded by the block itself, an `@font-face` rule per file; any other font is
+  loaded by what a person writes, and `font-loaded` holds it.
+- `ledger-shapes` holds every font row: one with no pin, or with no licence that no command
+  proposed, is red, and the sentence names the row and what is missing. A row a command proposed
+  and no person finished is not held, and `status` asks for its licence.
+- `adopt` holds the typefaces a repository names as found (`typeface`, where no guide wrote the
+  block) and that they are loaded (`font-loaded`), and proposes a row for each font it loads that
+  the repository holds: the row says `own: true`. It writes over nothing.
 - Weight and letter spacing are not chosen and not held in this version.
 
 ## The component manifest

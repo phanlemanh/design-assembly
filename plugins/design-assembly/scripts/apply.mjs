@@ -34,6 +34,7 @@ import {
   TYPES_FILE,
   typesProblem,
 } from "../templates/tools/design-assembly/columns.mjs";
+import { buildOf } from "../templates/tools/design-assembly/adapters/index.mjs";
 import { adapter as browser } from "../templates/tools/design-assembly/adapters/playwright.mjs";
 import { adapter as library } from "../templates/tools/design-assembly/adapters/shadcn.mjs";
 import {
@@ -137,11 +138,15 @@ import {
   TOKENS_DECISION,
   tokensProblem,
 } from "../templates/tools/design-assembly/tokens.mjs";
+import { readFontSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import {
   applyBlock,
   buildTheme,
   readBlock,
   renderBlock,
+  sourcedFont,
+  sourceFontFile,
+  sourceFontId,
   THRESHOLDS,
 } from "../templates/tools/design-assembly/theme.mjs";
 
@@ -175,6 +180,13 @@ export const ROW_CHOICES = { typeface: LATER_CHOICES };
 // A layer built after the first version: a blueprint that still has it `planned` was written
 // before it could be asked, so its answer is the guide's proposal until the person gives one.
 const LATER_LAYERS = ["patterns"];
+
+// What a font of the sources ledger is read from in a repository: the reading the gate makes.
+export const fontsOf = (target, stylesheet = FILES.css) => ({
+  sources: readFontSources(target),
+  stylesheet,
+  faces: buildOf(target).fontFaces ?? null,
+});
 
 // How a record opens: the person's answer, else the proposal for the product type.
 export function recordLayout(blueprint) {
@@ -217,8 +229,9 @@ export function themeInputs(blueprint) {
 
 // One line per problem in the blueprint. Empty means it can be applied, or, with `preview`, that a
 // preview can be shown: a preview is what the person looks at BEFORE approving, so it accepts a
-// blueprint that is still being designed.
-export function blueprintProblems(blueprint, { preview = false } = {}) {
+// blueprint that is still being designed. `sources` is the fonts of the sources ledger, as
+// `readFontSources` gives them: a typeface that names one is held against its row.
+export function blueprintProblems(blueprint, { preview = false, sources } = {}) {
   const found = [];
   if (!preview && blueprint.status !== "approved") {
     found.push(
@@ -272,11 +285,21 @@ export function blueprintProblems(blueprint, { preview = false } = {}) {
         if (!LATER_CHOICES.includes(choice.key) || anyLater) {
           found.push(`${layer.id}: no ${choice.name}`);
         }
-      } else if (choice.not_yet && Object.hasOwn(choice.not_yet, value)) {
-        found.push(`${layer.id}: ${choice.name} ${value}: ${choice.not_yet[value]}`);
+      } else if (choice.sourced && sourceFontId(value) !== null) {
+        // A row of the sources ledger: it can be chosen when the row is there and whole. Where
+        // the ledger was not read, only the form of the value is held.
+        if (sources === undefined) continue;
+        try {
+          sourcedFont(value, sources);
+        } catch (error) {
+          found.push(`${layer.id}: ${choice.name} ${value}: ${error.message}`);
+        }
       } else if (choice.options && !(value in choice.options)) {
+        const sourced = choice.sourced
+          ? `, or ${choice.sourced.prefix}<id> for a ${choice.sourced.kind} of the sources ledger`
+          : "";
         found.push(
-          `${layer.id}: ${choice.name} must be one of ${Object.keys(choice.options).join(", ")}`,
+          `${layer.id}: ${choice.name} must be one of ${Object.keys(choice.options).join(", ")}${sourced}`,
         );
       }
     }
@@ -1275,7 +1298,9 @@ function typefaceRules(checks, blueprint) {
   const [textVariable, headingVariable] = FONT_VARIABLES;
   const choice = blueprint?.layers?.foundations?.choice ?? {};
   const words = (key, variable) =>
-    FONT_WORDS[choice[key]]?.(values[variable]) ?? `\`${values[variable]}\``;
+    sourceFontId(choice[key]) !== null
+      ? `\`${values[variable]}\`, the font of \`${sourceFontFile(choice[key])}\``
+      : (FONT_WORDS[choice[key]]?.(values[variable]) ?? `\`${values[variable]}\``);
   return [
     "typeface" in checks &&
       `Running text is set in ${words("text_font", textVariable)} and headings in ${words("heading_font", headingVariable)}, as \`${BLUEPRINT}\` decides: the generated block of the stylesheet names them as \`${textVariable}\` and \`${headingVariable}\`, and the gate holds both.`,
@@ -1646,12 +1671,21 @@ function decisions(blueprint, theme, foundations) {
 
 // The check that every typeface the stylesheet names is loaded, with its ledger row; or why it is
 // not added. `nothing`: the stylesheet names no typeface of its own.
-export function fontsPlan(target, styles, stylesheet) {
+// `chosen` is the fonts of the sources ledger the typeface names: for one nothing loads yet, the
+// build's adapter says what a person writes.
+export function fontsPlan(target, styles, stylesheet, chosen = []) {
   const variables = declaredFonts(styles);
   if (variables.length === 0) return { nothing: true };
   const loads = readLoads(target, styles.css, stylesheet);
   const problems = fontProblems(styles, variables, stylesheet, loads);
-  if (problems.length > 0) return { failing: { id: "font-loaded", why: problems.join("; ") } };
+  if (problems.length > 0) {
+    const hint = buildOf(target).fontHint;
+    const hints = chosen
+      .map((font) => [font, hint?.(font, stylesheet)])
+      .filter(([, what]) => what)
+      .map(([font, what]) => `to load ${font.family}, the font of ${font.file}, ${what}`);
+    return { failing: { id: "font-loaded", why: [...problems, ...hints].join("; ") } };
+  }
   return {
     what: `every typeface ${stylesheet} names is loaded, as the ${loads.build} stack loads one, or is one every device has`,
     row: {
@@ -1715,13 +1749,18 @@ export function plan(target, blueprint) {
     existsSync(path.join(target, file)) ? readFileSync(path.join(target, file), "utf8") : null;
   const css = read(FILES.css);
   const foundations = themeInputs(blueprint);
-  const theme = buildTheme(foundations.inputs, css);
+  const theme = buildTheme(foundations.inputs, css, fontsOf(target));
   const { rows, inputs, checks } = decisions(blueprint, theme, foundations);
   const files = { [FILES.css]: applyBlock(css, renderBlock(theme)) };
   // The design tokens file is read from the stylesheet as it is about to be written.
   const held = JSON.parse(read(FILES.theme) ?? "{}").checks?.[TOKENS_DECISION];
   const tokens = tokensPlan(target, loadStyles(target, FILES.css, files), FILES.css, Boolean(held));
-  const fonts = fontsPlan(target, loadStyles(target, FILES.css, files), FILES.css);
+  const fonts = fontsPlan(
+    target,
+    loadStyles(target, FILES.css, files),
+    FILES.css,
+    theme.fonts?.sources ?? [],
+  );
   if (fonts.row) {
     rows.push(fonts.row);
     checks["font-loaded"] = fonts.checks;
@@ -2056,7 +2095,10 @@ function main(args) {
     );
   }
   const blueprint = readJson(blueprintPath);
-  const problems = blueprintProblems(blueprint, { preview: dryRun });
+  const problems = blueprintProblems(blueprint, {
+    preview: dryRun,
+    sources: readFontSources(target),
+  });
   if (problems.length > 0) {
     const what = dryRun ? "previewed" : "applied";
     stop(`${BLUEPRINT} cannot be ${what}:\n  ${problems.join("\n  ")}`);
@@ -2081,7 +2123,7 @@ function main(args) {
 
   const css = readFileSync(path.join(target, FILES.css), "utf8");
   const foundations = themeInputs(blueprint);
-  const theme = buildTheme(foundations.inputs, css);
+  const theme = buildTheme(foundations.inputs, css, fontsOf(target));
   for (const line of themeSummary(theme)) say(line);
   for (const line of principleLines(blueprint)) say(line);
   for (const direction of facts.directions) {
