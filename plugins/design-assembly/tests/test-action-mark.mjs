@@ -37,6 +37,12 @@ const JOINED = {
 const none = () => false;
 const markLine = (page) => page.split("\n").find((line) => line.includes(ACTION_MARK)) ?? null;
 
+test("the mark has a name of its own: a toast library sets data-action on the button it draws", () => {
+  assert.equal(MARK, "data-model-action");
+  // The toast module never leaves the library's own attribute on a button it raises.
+  assert.doesNotMatch(template("notify.ts.template"), /"data-action"/);
+});
+
 test("the rules page says a control of an action carries its mark, where buttons are declared", () => {
   const line = markLine(rulesPage(JOINED, none, null, { buttons: true }));
   assert.ok(line, "the rules page says nothing of the mark");
@@ -82,7 +88,7 @@ test("the actions slot gives the rule of the mark, read from its line of the rul
   const slot = actionsOf(sheet(made.dir));
   const line = slot.answer.find((item) => item.says.includes(MARK));
   assert.ok(line, "the actions slot says nothing of the mark");
-  assert.match(line.says, /data-action="<action name>"/);
+  assert.match(line.says, /data-model-action="<action name>"/);
   assert.equal(line.source.file, RULES);
   assert.ok(page.split("\n")[line.source.line - 1].includes(ACTION_MARK));
   // A rules page that does not say it: the slot says nothing of a mark.

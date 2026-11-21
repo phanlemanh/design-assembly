@@ -45,14 +45,14 @@ it("a button in the column of actions keeps its action's mark", () => {
         <TableRow>
           <TableCell>first</TableCell>
           <TableActions>
-            <Button data-action="putAside">Put aside</Button>
+            <Button data-model-action="putAside">Put aside</Button>
           </TableActions>
         </TableRow>
       </TableBody>
     </Table>,
   );
   expect(screen.getByRole("button", { name: "Put aside" })).toHaveAttribute(
-    "data-action",
+    "data-model-action",
     "putAside",
   );
 });

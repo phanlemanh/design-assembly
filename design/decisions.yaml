@@ -311,4 +311,4 @@ decisions:
     kind: closed
     source: "tests/e2e/screen-actions-seen.spec.ts, entering as each role by tests/e2e/roles.ts, against the gate's table of screens by role"
     check: "tool:tools/design-assembly/check.mjs"
-    note: "that the browser test is there, reads the gate's own plan and enters by tests/e2e/roles.ts, and that the file is there; the test itself runs with the repository's browser checks. A control is known only by its data-action mark, so a control of an action that lacks it is not seen; a role that opens no screen is not walked, and what a role that may not open a screen sees there is not checked yet"
+    note: "that the browser test is there, reads the gate's own plan and enters by tests/e2e/roles.ts, and that the file is there; the test itself runs with the repository's browser checks. A control is known only by its data-model-action mark, so a control of an action that lacks it is not seen; a role that opens no screen is not walked, and what a role that may not open a screen sees there is not checked yet"

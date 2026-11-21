@@ -43,7 +43,7 @@ function ConfirmDelete(props: {
         </DialogHeader>
         <DialogFooter>
           <DialogClose render={<Button variant="outline" />}>{LABELS.cancel}</DialogClose>
-          <Button variant="destructive" data-action="deleteItem" onClick={props.onConfirm}>
+          <Button variant="destructive" data-model-action="deleteItem" onClick={props.onConfirm}>
             {LABELS.deleteAction}
           </Button>
         </DialogFooter>
@@ -74,7 +74,7 @@ function DeleteButton({
       ref={ref}
       variant="outline"
       size="sm"
-      data-action="deleteItem"
+      data-model-action="deleteItem"
       aria-label={slow ? LABELS.deletingItem(item.name) : LABELS.deleteItem(item.name)}
       disabled={pending}
       focusableWhenDisabled

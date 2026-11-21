@@ -10,8 +10,8 @@ import { toast } from "sonner";
 
 // The button a toast carries, and the word on the button that closes the toast. `action` is the
 // name of the action of the domain model the button runs, when it runs one: the button then
-// carries it as its mark, data-action, as every control of an action does, so a browser test knows
-// the button by its action and never by its words.
+// carries it as its mark, data-model-action, as every control of an action does, so a browser test
+// knows the button by its action and never by its words.
 export type Choice = { label: string; run: () => void; close: string; action?: string };
 
 // Where the person was before they reached for a toast. A toast goes away once its button is
@@ -31,11 +31,11 @@ const goBack = () => {
 // Each toast that carries a button is named, so its own button can take it away.
 let made = 0;
 
-// The toast library marks a button it draws itself with a mark of its own on the same attribute,
-// which names no action: the button is drawn here instead, with the library's look, and carries
-// the action's name or no mark at all. It is a plain button on purpose, a departure from the rule
-// that a control comes from the component library: the library would draw it the same way, and a
-// component's own classes would undo the toast's look.
+// A button the toast library draws itself takes no attribute from here, so it could not carry the
+// mark: the button is drawn here instead, with the library's look, and carries the action's name
+// or no mark at all. One way for every toast's button keeps them alike. It is a plain button on
+// purpose, a departure from the rule that a control comes from the component library: the
+// library would draw it the same way, and a component's own classes would undo the toast's look.
 const stays = (choice: Choice) => {
   made += 1;
   const id = `notify-${made}`;
@@ -44,7 +44,7 @@ const stays = (choice: Choice) => {
     {
       type: "button",
       "data-button": "",
-      ...(choice.action ? { "data-action": choice.action } : {}),
+      ...(choice.action ? { "data-model-action": choice.action } : {}),
       onClick: () => {
         goBack();
         choice.run();

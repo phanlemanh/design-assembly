@@ -21,6 +21,7 @@ sources:
   - plugins/design-assembly/tests/test-action-mark.mjs
   - tests/e2e/roles.ts
   - "chủ repo, 2026-11-21: «Duyệt cả năm», đáp câu «Duyệt đề bài 0011 theo cả năm khuyến nghị?»"
+  - "chủ repo, 2026-11-21: «Đổi tên, gửi sửa», đáp câu «Đổi tên dấu `data-action` để khỏi trùng với thư viện toast?»"
 ---
 
 # 0078 Vai thấy nút của mình, nhận bằng dấu: dòng sổ mới cạnh dòng cũ, cửa vai của repo, «thấy» là có trên trang
@@ -30,7 +31,7 @@ sources:
 Accepted, 2026-11-21. Lát 1 của đề bài 0011, mục 5.3. Plugin lên 0.27.0. Mục 5.3 chưa xong: lát 2 (vai không mở được
 màn, lần đo trên bản sao có hai vai, sổ giới hạn và bảng năng lực) chưa dựng, và giới hạn
 `screen-actions-runtime-hiding-unchecked` còn mở. **Ba thay đổi hợp đồng**, chủ repo nhận cùng lời duyệt đề bài: một
-dòng mới trong bảng quyết định chuẩn, `screen-actions-seen`; luật về dấu `data-action` trên trang luật; một tệp cửa vai
+dòng mới trong bảng quyết định chuẩn, `screen-actions-seen`; luật về dấu `data-model-action` trên trang luật; một tệp cửa vai
 mà repo giữ, ở nền này là `tests/e2e/roles.ts`.
 
 ## Context
@@ -63,17 +64,29 @@ cửa vai của repo, dấu trên điều khiển, và bài đi mới đứng c�
    khi trạng thái đã yên, nên nút chỉ hiện giữa đường (danh sách của nút «⋯» trước khi bấm hành động) cũng được tính.
    Nút bị khoá vẫn là thấy. Một thao tác phải được thấy ít nhất một lần trên cả màn, không phải ở mỗi trạng thái: gỡ dấu
    khỏi một trong nhiều nút của cùng thao tác thì bài kiểm vẫn xanh, đúng như luật. Dấu thấy ở trạng thái không tới được
-   không tính. Vai giữ mọi thao tác của màn phải tới mọi trạng thái; vai thiếu một thao tác được phép không tới.
+   không tính là thấy; nhưng dấu của một thao tác ngoài nút của vai là lỗi dù gặp ở đâu, cả trên đường tới một trạng
+   thái không tới được, và câu đỏ nói trạng thái ấy không tới được. Vai giữ mọi thao tác của màn phải tới mọi trạng
+   thái; vai thiếu một thao tác được phép không tới. Vai thiếu một thao tác không chờ lại một nút đã vắng: lần đầu chờ
+   mười giây, các trạng thái sau cần nút ấy dừng ngay. Đo trên bản sao có thêm vai chỉ được xem, nút thật sự giấu: trước
+   khi sửa, mỗi bề rộng của màn mẫu mất 1,0 phút (sáu trạng thái cần nút xoá hay nút thêm, hạn của bài là 90 giây); sau
+   khi sửa, 21,7 giây. Cái giá là một dòng giới hạn (`role-lacking-control-skipped-by-words`).
 5. **Chỉ nút của thao tác dòng sổ ghi trong `actions` mang dấu.** Điều khiển mở bản ghi, đóng, lọc, hay tải lại danh
    sách sau khi lỗi (chạy lại thao tác mở màn) không mang dấu. Dấu của thao tác nằm ngoài nút của vai là lỗi, kể cả dấu
    của thao tác mở màn; câu đỏ phân biệt ba trường hợp: vai không được chạy, dòng sổ không ghi nút ấy, hay dấu không gọi
    tên thao tác nào.
-6. **Nút trên toast tự vẽ để mang dấu.** Thư viện toast tự đặt `data-action` (giá trị không gọi tên thao tác nào) lên
-   nút nó vẽ. Mô-đun báo kết quả (`notify.ts`) vì thế vẽ nút của mình với dáng của thư viện, nhận tên thao tác ở khoá
-   `action` của lựa chọn, và tự đóng toast khi bấm; không tên thì không dấu. Linh kiện hàng (`RowActions`) và cột thao tác
-   (`TableActions`) không tự vẽ nút nào của thao tác: chúng giữ nút của màn, và bài kiểm của mỗi cái chứng dấu của nút
-   màn đưa vào vẫn ở đó.
-7. **Luật về dấu chỉ có khi có nghĩa.** Trang luật và ô 3 của phiếu `brief` nói luật ấy chỉ khi cổng giữ
+6. **Dấu có tên riêng, `data-model-action`.** Tên đầu là `data-action`, theo đề bài. Thư viện toast tự đặt
+   `data-action="true"` lên nút nó vẽ, nên trên một bản sao giữ mô-đun báo kết quả cũ, bài kiểm đỏ với câu «dấu không
+   gọi tên thao tác nào … hoặc gỡ dấu ra», bảo người dựng gỡ một dấu họ không hề đặt. Chủ repo đổi tên ngày 2026-11-21
+   («Đổi tên, gửi sửa»). Với tên riêng, một nút thư viện tự vẽ chỉ là nút không mang dấu. Không gói nào trong
+   `node_modules` của kho này đặt `data-model-action`. Câu đỏ cho một dấu không gọi tên thao tác nào vẫn còn, cho dấu do
+   chính repo đặt sai.
+7. **Nút trên toast tự vẽ để mang dấu.** Nút thư viện toast tự vẽ không nhận thuộc tính nào từ ngoài, nên không mang
+   được dấu. Mô-đun báo kết quả (`notify.ts`) vì thế vẽ nút của mình với dáng của thư viện, nhận tên thao tác ở khoá
+   `action` của lựa chọn, và tự đóng toast khi bấm; không tên thì không dấu. Nút không tên vẫn đi cùng một lối ấy chứ
+   không quay về nút của thư viện: một lối cho mọi nút toast giữ chúng giống nhau. Đây là nút thường, một ngoại lệ có
+   ghi lý do ngay cạnh mã. Linh kiện hàng (`RowActions`) và cột thao tác (`TableActions`) không tự vẽ nút nào của thao
+   tác: chúng giữ nút của màn, và bài kiểm của mỗi cái chứng dấu của nút màn đưa vào vẫn ở đó.
+8. **Luật về dấu chỉ có khi có nghĩa.** Trang luật và ô 3 của phiếu `brief` nói luật ấy chỉ khi cổng giữ
    `screen-actions` và sổ màn khai nút cho ít nhất một màn. Ô 3 đọc dòng ấy từ trang luật, kèm số dòng.
 
 Đã có trước, máy chọn và nêu với chủ repo trước khi duyệt đề bài, không bị bác: không kiểm vùng điều hướng của khung;
@@ -89,16 +102,18 @@ không đụng bài kiểm trạng thái đã cài (`tests/e2e/templates.spec.ts
 - Bốn lần gài trên một bản sao bỏ đi của kho này, ngày 2026-11-21, mỗi lần một lỗi rồi gỡ ra. Gỡ dấu khỏi nút xoá của
   dòng (một trong nhiều nút của `deleteItem`): bài kiểm xanh. Gỡ dấu `createItem` khỏi nút thêm của trạng thái rỗng và
   khỏi nút thử lại trên toast, hai chỗ duy nhất của nó: hai bài của màn `reference` đỏ, «screen reference, role user, at
-  320px: no control marked data-action="createItem" was seen in any state user reached (states reached: …). Put
-  data-action="createItem" on the control that runs createItem, …» (tiêu chí 3). Đặt dấu `createItem` lên một nút ở
+  320px: no control marked data-model-action="createItem" was seen in any state user reached (states reached: …). Put
+  data-model-action="createItem" on the control that runs createItem, …» (tiêu chí 3). Đặt dấu `createItem` lên một nút ở
   trạng thái rỗng của màn `overdue`: hai bài của màn ấy đỏ, «screen overdue, role user, state empty, at 320px: a control
-  marked data-action="createItem" is on the page, and the row of overdue lists no button for createItem. …». Bỏ lối vào
+  marked data-model-action="createItem" is on the page, and the row of overdue lists no button for createItem. …». Bỏ lối vào
   của `user` khỏi `tests/e2e/roles.ts`: cả bốn bài đỏ, «role user has no way in: tests/e2e/roles.ts gives none for it.
   …» (tiêu chí 6). Gỡ hết: bốn bài xanh.
 - Vai không mở được màn chưa được đi: bài kiểm hiện chỉ tạo phép thử cho vai mở được màn. Nửa ấy là lát 2. Lối vào thì
   mỗi bài kiểm đều xét cho mọi vai của mô hình, kể cả vai không mở màn nào.
-- Repo đã cài `notify.ts` trước 0.27.0 giữ bản của mình (tệp của repo, không bị ghi đè): nút trên toast của nó mang dấu
-  của thư viện, và bài kiểm đỏ ở đó với câu «dấu không gọi tên thao tác nào». Một dòng sổ giới hạn
-  (`action-mark-not-in-earlier-owned-parts`).
-- Repo đến với plugin qua lệnh nhận (`adopt`) chỉ có dòng mới khi bài kiểm đã có sẵn; lệnh nhận không cài bài kiểm, và
-  `status` không nêu bước nào cho trường hợp ấy. Một dòng sổ giới hạn (`seen-row-needs-the-guide-to-install`).
+- Repo đã cài `notify.ts` trước 0.27.0 giữ bản của mình (tệp của repo, không bị ghi đè): nút trên toast của nó không
+  nhận tên thao tác, nên không mang dấu, và bài kiểm toast mới không được cài cạnh nó. Một thao tác chỉ có nút trên toast
+  thì bài kiểm nói thao tác ấy không được thấy, chỉ vào màn trong khi nguyên do là bản cũ của mô-đun. Một dòng sổ giới
+  hạn (`action-mark-not-in-earlier-owned-parts`).
+- Repo đến với plugin qua lệnh nhận (`adopt`) chỉ có dòng mới khi bài kiểm đã có sẵn; lệnh nhận không cài bài kiểm. Ở
+  repo ấy, `status` nói thế, chỉ tệp mẫu của plugin để chép, và nói lệnh nhận giữ dòng khi bài kiểm đã có; repo đi qua
+  lệnh dẫn đường thì `status` nói lệnh ấy cài bài kiểm. Dòng giới hạn `seen-row-needs-the-guide-to-install` đóng.

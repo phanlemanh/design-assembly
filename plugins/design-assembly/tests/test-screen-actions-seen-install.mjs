@@ -211,3 +211,26 @@ test("once the row is held, the gate fails when the door, the test or its tag is
   assert.notEqual(untagged.status, 0);
   assert.match(untagged.stderr, /does not name decision:screen-actions-seen/);
 });
+
+test("status names a command that does what it says, for a guided and for an adopted repository", async () => {
+  const { seenStepOf } = await import("../scripts/status.mjs");
+  // The door and the browser are there; the test is not, and the row neither.
+  const dir = repository({ [DOOR]: DOORS });
+  assert.equal(has(dir, SEEN_TEST), false);
+  const rows = [{ id: "screen-actions" }];
+  // The guide installs the test when it runs again.
+  const guided = seenStepOf(dir, rows, { values: "generated" });
+  assert.equal(guided.command, "/design-assembly:new");
+  assert.match(guided.why, /installs the browser test/);
+  // Adopting installs no test: the step says where the test comes from, and that adopting then
+  // holds it.
+  const adopted = seenStepOf(dir, rows, { values: "own" });
+  assert.equal(adopted.command, "/design-assembly:adopt");
+  assert.doesNotMatch(adopted.why, /installs the browser test/);
+  assert.match(adopted.why, /adopting installs no test/);
+  assert.match(adopted.why, /templates\/owned\/screen-actions-seen\.spec\.ts\.template/);
+  assert.match(adopted.why, /holds the row once the test is there/);
+  // With the test in place, nothing is left to say.
+  put(dir, SEEN_TEST, TEMPLATE);
+  assert.equal(seenStepOf(dir, rows, { values: "own" }), null);
+});

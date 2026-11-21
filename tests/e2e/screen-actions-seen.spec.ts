@@ -4,7 +4,7 @@
 // may press there, and the gate works that out (tools/design-assembly/screen-actions.mjs); this
 // test reads that very plan, enters as the role through tests/e2e/roles.ts, walks every state of
 // the screen by the steps the screen list declares, and records every control marked
-// data-action="<action name>". A role sees each of its buttons at least once and none it may not
+// data-model-action="<action name>". A role sees each of its buttons at least once and none it may not
 // press; a locked button still counts as seen. A role that holds every action of the screen
 // reaches every state. A role that opens no screen is not walked yet, but every test checks that
 // each role of the model has its way in.
@@ -60,8 +60,11 @@ const settle = (page: Page) =>
   );
 
 // One state, reached the way a person reaches it. The marks are read before each step as well as
-// at the end, so a control seen on the way counts: the list a row's button opens, for one.
-async function walk(page: Page, route: Route): Promise<SeenState> {
+// at the end, so a control seen on the way counts: the list a row's button opens, for one. A role
+// that lacks an action of the screen may lack the control a step presses: `absent` keeps each
+// control it already waited for in vain, so a later state that needs it stops at once. A role that
+// holds every action passes none, and waits for every control.
+async function walk(page: Page, route: Route, absent?: Set<string>): Promise<SeenState> {
   const name = stateOf(route);
   const marks = new Set<string>();
   const read = async () => (await marksOn(page)).forEach((mark) => marks.add(mark));
@@ -74,9 +77,11 @@ async function walk(page: Page, route: Route): Promise<SeenState> {
         : page.getByLabel(step.fill, { exact: true });
     const said =
       "press" in step ? `the control to press, «${step.press}»` : `the field «${step.fill}»`;
+    if (absent?.has(said)) return missed(`${said} is not on the page`);
     try {
       await control.waitFor({ timeout: WAIT_MS });
     } catch {
+      absent?.add(said);
       return missed(`${said} is not on the page`);
     }
     await read();
@@ -120,7 +125,8 @@ for (const row of plan.filter((item) => item.opens)) {
       await page.setViewportSize({ width, height: 800 });
       await DOORS[row.role]?.(page);
       const states: SeenState[] = [];
-      for (const route of routes) states.push(await walk(page, route));
+      const absent = row.holdsAll ? undefined : new Set<string>();
+      for (const route of routes) states.push(await walk(page, route, absent));
       expect(
         seenProblems(row, states, { width }),
         "screen-actions-seen: each role sees the buttons the ledger of screens and the domain model give it, and no other",

@@ -481,20 +481,23 @@ one's own records and over every record.
 
 ## What each role sees in a browser
 
-A control that runs an action a screen's row lists in `actions` carries the action's name on
-itself, `data-action="<action name>"`, wherever it is drawn: on a row, in the list behind a row's
+A control that runs an action a screen's row lists in `actions` carries the action's name on itself,
+`data-model-action="<action name>"`, wherever it is drawn: on a row, in the list behind a row's
 actions button, in a dialog, on a toast. The rules page says so where the row `screen-actions` is
 held and some screen declares a button. Where the repository also has the test browser of the
-floor's browser checks and keeps its own file of ways in, `tests/e2e/roles.ts` (for each role of
-the model, a function given the page that makes the browser that role and no other), the guide
-installs `tests/e2e/screen-actions-seen.spec.ts`. It reads the gate's own table of screens by role
+floor's browser checks and keeps its own file of ways in, `tests/e2e/roles.ts` (for each role of the
+model, a function given the page that makes the browser that role and no other), the guide installs
+`tests/e2e/screen-actions-seen.spec.ts`. It reads the gate's own table of screens by role
 (`screen-actions-seen.mjs`, `walkPlanOf`), and for each built screen, each role that opens it and
 the narrowest and widest width, enters by the role's way in and walks every state by the steps of
 the screen list. It fails where a role does not see, at least once in a state it reached, a control
-marked with each button the table gives it; where a state it reached has a control marked with an
-action outside them, a locked one included; where a role that holds every action of the screen
-does not reach a state; and where a role has no way in. The guide never writes the file of ways
-in. Missing either, there is no row, and status names what is missing.
+marked with each button the table gives it; where the walk met a control marked with an action
+outside them, a locked one included, in a state it reached or on the way to one it did not reach;
+where a role that holds every action of the screen does not reach a state; and where a role has no
+way in. The guide never writes the file of ways in. Missing either, there is no row, and status
+names what is missing. Adopting installs no test: for a repository that adopted, status names the
+plugin's template to copy into place, and adopting then holds the row. A role that lacks an action
+of the screen does not wait again for a control already found absent.
 
 The row `screen-actions-seen` is held by the tool: the file of ways in is there, and the test is
 there, names `decision:screen-actions-seen`, reads `walkPlanOf` and enters by that file. The tool

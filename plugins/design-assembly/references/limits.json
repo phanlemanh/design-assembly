@@ -3966,7 +3966,7 @@
       "opened": "2026-11-21",
       "where": ["d0078"],
       "status": "open",
-      "note": "The module that tells results through toasts is the repository's once installed, and never written over: a repository that installed it before the browser test by role keeps one whose toast's button takes no action's name. That button then carries the toast library's own mark, which names no action, and the browser test by role says a mark names no action and that the action is not seen, pointing at the screen while the cause is the earlier copy of the module. The test of the toast's mark is not installed beside such a module, since it would be red there, so nothing else says the module is the cause."
+      "note": "The module that tells results through toasts is the repository's once installed, and never written over: a repository that installed it before the browser test by role keeps one whose toast's button takes no action's name and so carries no mark, and the test of the toast's mark is not installed beside it, so for an action whose only control is a toast's button the browser test by role says the action is not seen, pointing at the screen while the cause is the earlier copy of the module."
     },
     {
       "id": "seen-row-needs-the-guide-to-install",
@@ -3976,8 +3976,21 @@
       "plan": "fix",
       "opened": "2026-11-21",
       "where": ["d0078"],
+      "status": "closed",
+      "note": "Adopting holds the row of what each role sees in a browser only where the browser test by role is already there, and installs no test; for a repository that adopted, has the test browser and its file of ways in, and has no such test, status names no step: nothing says the guide installs it.",
+      "closed": "2026-11-21",
+      "closed_by": "decision 0078 and tests/test-screen-actions-seen-install.mjs: for a repository that adopted, status says that adopting installs no test, names the plugin's template to copy into tests/e2e/screen-actions-seen.spec.ts, and that adopting then holds the row; for one the guide set up, it says the guide installs the test. What is left: adopting still installs no test, so the copy is a person's or an agent's step"
+    },
+    {
+      "id": "role-lacking-control-skipped-by-words",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-21",
+      "where": ["d0078"],
       "status": "open",
-      "note": "Adopting holds the row of what each role sees in a browser only where the browser test by role is already there, and installs no test; for a repository that adopted, has the test browser and its file of ways in, and has no such test, status names no step: nothing says the guide installs it."
+      "note": "For a role that lacks an action of the screen, a control a step presses and that was not on the page once is not looked for again in a later state of the walk, even under another scenario, so a state that would have shown it under that scenario is counted as not reached."
     }
   ]
 }

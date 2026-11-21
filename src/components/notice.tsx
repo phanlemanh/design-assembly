@@ -23,7 +23,7 @@ export function Notice({
   action,
   onAction,
   // The action of the domain model the button runs, if any: the button carries its name as its
-  // mark, data-action, as every control of an action does.
+  // mark, data-model-action, as every control of an action does.
   runs,
   // Where focus is sent when a control elsewhere on the screen leaves the page.
   actionRef,
@@ -48,7 +48,7 @@ export function Notice({
         <EmptyContent>
           <Button
             ref={actionRef}
-            data-action={runs}
+            data-model-action={runs}
             disabled={pending}
             focusableWhenDisabled
             onClick={onAction}

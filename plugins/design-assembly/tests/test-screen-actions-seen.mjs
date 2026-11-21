@@ -163,7 +163,10 @@ test("an action the role may run and never sees is a sentence with the screen, r
   assert.match(problems[0], /^screen orders, role lead, at 320px: /);
   assert.match(problems[0], new RegExp(`${MARK}="removeOrder"`));
   assert.match(problems[0], /states reached: ready/);
-  assert.match(problems[0], /Put data-action="removeOrder" on the control that runs removeOrder/);
+  assert.match(
+    problems[0],
+    /Put data-model-action="removeOrder" on the control that runs removeOrder/,
+  );
 });
 
 test("a mark seen only in a state the role did not reach does not count", () => {
@@ -197,7 +200,7 @@ test("a mark of an action outside the role's buttons names the state where it wa
   ]);
   assert.equal(problems.length, 2);
   assert.match(problems[0], /^screen orders, role clerk, state ready: /);
-  assert.match(problems[0], /data-action="removeOrder" is on the page/);
+  assert.match(problems[0], /data-model-action="removeOrder" is on the page/);
   assert.match(problems[0], /clerk may not run removeOrder/);
   // Not seeing means not on the page: a locked button still counts as seen.
   assert.match(problems[0], /a locked button still counts as seen/);
@@ -209,9 +212,9 @@ test("a mark of an action the screen's row does not list, or of no action, says 
   const [unlisted, nothing] = seenProblems(lead, [
     state("ready", ["addOrder", "removeOrder", "viewOrders", "true"]),
   ]);
-  assert.match(unlisted, /data-action="viewOrders"/);
+  assert.match(unlisted, /data-model-action="viewOrders"/);
   assert.match(unlisted, /the row of orders lists no button for viewOrders/);
-  assert.match(nothing, /data-action="true"/);
+  assert.match(nothing, /data-model-action="true"/);
   assert.match(nothing, /names no action/);
 });
 
@@ -226,4 +229,18 @@ test("a role with no way in is named, with the file it is missing from", () => {
 test("the walk runs at the narrowest and the widest width a person listed", () => {
   assert.deepEqual(widthsOf({ widths: [768, 320, 1440, 1024] }), [320, 1440]);
   assert.deepEqual(widthsOf({ widths: [390] }), [390]);
+});
+
+test("a mark outside the role's buttons met on the way to a state not reached is a problem too", () => {
+  const plan = walkPlan({ screens: [{ ...LEDGER.screens[0], actions: ["removeOrder"] }] }, MODEL);
+  const clerk = rowOf(plan, "orders", "clerk");
+  assert.deepEqual(clerk.buttons, []);
+  const problems = seenProblems(clerk, [
+    state("ready", []),
+    state("confirm-remove", ["removeOrder"], false, "«Remove this order?» never appeared"),
+  ]);
+  assert.equal(problems.length, 1);
+  assert.match(problems[0], /^screen orders, role clerk, state confirm-remove: /);
+  assert.match(problems[0], /on the way to the state, which was not reached/);
+  assert.match(problems[0], /clerk may not run removeOrder/);
 });

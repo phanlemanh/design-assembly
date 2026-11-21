@@ -29,6 +29,7 @@ sources:
   - "repo kiểm chứng, chỉ đọc, ngày 2026-11-21: bộ «vai × màn» repo ấy tự viết tay, ba tệp, 410 dòng"
   - "chủ repo, 2026-11-21: «Viết đề bài cho mục 5.3»"
   - "chủ repo, 2026-11-21: «Duyệt cả năm», đáp câu «Duyệt đề bài 0011 theo cả năm khuyến nghị?»"
+  - "chủ repo, 2026-11-21: «Đổi tên, gửi sửa», đáp câu «Đổi tên dấu `data-action` để khỏi trùng với thư viện toast?»"
 ---
 
 # 0011 Bài kiểm trình duyệt theo vai — mở từng màn dưới từng vai để thấy đúng nút
@@ -70,7 +71,7 @@ trong `ontology/actions.yaml`). Không phải vai ARIA của một phần tử t
    giữ đúng vai ấy và không vai nào khác. Hình dạng của lối vào do bộ chuyển trình duyệt định. Plugin không viết mã
    đăng nhập và không đoán repo có đăng nhập hay không (câu hỏi 2).
 3. **Dấu của thao tác.** Điều khiển chạy một thao tác của mô hình mang tên thao tác ấy ngay trên nó, dưới dạng một
-   thuộc tính (`data-action="deleteItem"`). Bài kiểm nhận ra nút bằng dấu này, không bằng chữ trên nút (câu hỏi 1).
+   thuộc tính (`data-model-action="deleteItem"`; tên đầu là `data-action`, chủ repo đổi ngày 2026-11-21, xem câu hỏi 1). Bài kiểm nhận ra nút bằng dấu này, không bằng chữ trên nút (câu hỏi 1).
 4. **Bài đi.** Một tệp bài kiểm mới do plugin cài, đứng cạnh bài kiểm trạng thái đang có. Với mỗi màn đã dựng, mỗi vai
    và hai bề rộng (hẹp nhất và rộng nhất đã khai), nó vào bằng cửa của vai, đi qua các trạng thái của màn theo đúng
    các bước mà danh sách màn đã khai, và ghi lại mọi điều khiển mang dấu nó gặp.
@@ -151,7 +152,7 @@ lời duyệt đề bài ngày 2026-11-21:
   đúng những nút sổ màn và mô hình cho nó, và không thấy màn nó không được mở không?». Dòng `screen-actions` giữ nguyên
   nghĩa: nó vẫn là điều sổ nói. Tách hai dòng để repo chưa có cửa vai không bị đỏ vì điều nó chưa giữ được. Tên và
   việc tách là máy chọn, đã nêu riêng với chủ repo trước khi duyệt; không bị bác.
-- **Một thuộc tính trên điều khiển**, `data-action`, thành luật của trang luật (câu hỏi 1).
+- **Một thuộc tính trên điều khiển**, `data-model-action`, thành luật của trang luật (câu hỏi 1).
 - **Một tệp cửa vai** mà repo giữ; với nền đang có là `tests/e2e/roles.ts` (câu hỏi 2).
 
 Sổ màn không thêm khoá nào. Hàng chờ không đổi.
@@ -197,7 +198,7 @@ Mỗi câu kèm một khuyến nghị. Chủ repo đáp cả năm theo khuyến 
    nút đổi theo dòng dữ liệu và theo ngôn ngữ, còn tên thao tác thì không; dấu nằm ngay cạnh mã vẽ nút nên khó lệch;
    và nó cho phép về sau phân biệt nút trên toast với nút trên màn, điều cổng hôm nay không làm được
    (`screen-actions-toast-button-unsaid`). Cái giá: mỗi màn thêm một thuộc tính cho mỗi nút của thao tác, và tác tử
-   dựng màn có thêm một dòng luật phải theo. Đã nhận: dấu trên điều khiển.
+   dựng màn có thêm một dòng luật phải theo. Đã nhận: dấu trên điều khiển. Ngày 2026-11-21, sau lát 1, chủ repo đổi tên dấu thành `data-model-action`, đáp câu «Đổi tên dấu `data-action` để khỏi trùng với thư viện toast?» bằng «Đổi tên, gửi sửa»: thư viện toast tự đặt `data-action` lên nút nó vẽ. Dấu vẫn nằm trên chính điều khiển; chỉ tên đổi.
 2. **Cửa vai do ai viết và nằm ở đâu?** Khuyến nghị: repo viết, ở một tệp của repo; plugin cài bài kiểm và chỉ đề
    xuất dòng sổ khi tệp ấy đã có. Plugin không biết repo đăng nhập thế nào, và một tệp cửa do plugin đoán sẽ làm đỏ
    repo vừa cài, đúng lỗi đã ghi ở `starter-screen-fails-installed-checks`. Ở kho này, lát 1 viết tệp cửa cho vai

@@ -5,7 +5,7 @@
 // pure part of that test: the walking plan, read from the gate's table and never reckoned again,
 // and the comparison of what a walk saw with what the table allows, one sentence per problem.
 //
-// A control that runs an action carries the action's name on itself: data-action="<action name>".
+// A control that runs an action carries the action's name on itself: data-model-action="<action name>".
 // A control is seen when it is on the page in a state the role reached, locked or not.
 //
 // Usage: node tools/design-assembly/screen-actions-seen.mjs [--target DIR] [--json]
@@ -20,7 +20,7 @@ import { ledgerText } from "./screen-fragments.mjs";
 import { readScreenLedger } from "./screen-ledger.mjs";
 
 // The attribute that marks a control with the action it runs.
-export const MARK = "data-action";
+export const MARK = "data-model-action";
 // The decision of the ledger this test holds.
 export const SEEN_DECISION = "screen-actions-seen";
 // The browser test that walks the screens as each role, beside the test of every page.
@@ -124,17 +124,20 @@ export function seenProblems(row, states, { width = null } = {}) {
       `${who}${at}: no control marked ${MARK}="${name}" was seen in any state ${row.role} reached (states reached: ${where}). Put ${MARK}="${name}" on the control that runs ${name}, in a state the screen list declares`,
     );
   }
-  for (const item of reached) {
+  // A control the role may not press is a problem wherever the walk met it: in a state it reached,
+  // or on the way to one it did not reach.
+  for (const item of states) {
+    const where = item.reached ? "" : " on the way to the state, which was not reached";
     for (const name of [...new Set(item.marks)].filter((mark) => !row.buttons.includes(mark))) {
-      problems.push(`${who}, state ${item.name}${at}: ${outside(row, name)}`);
+      problems.push(`${who}, state ${item.name}${at}: ${outside(row, name, where)}`);
     }
   }
   return problems;
 }
 
 // What is wrong with a mark of an action outside the role's buttons, and what to do.
-function outside(row, name) {
-  const on = `a control marked ${MARK}="${name}" is on the page`;
+function outside(row, name, where = "") {
+  const on = `a control marked ${MARK}="${name}" is on the page${where}`;
   if (!/^[A-Za-z_][\w-]*$/.test(name) || name === "true" || name === "false") {
     return `${on}, and it names no action. Mark a control with the name of the action of the model it runs, or take the mark off`;
   }

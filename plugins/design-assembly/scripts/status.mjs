@@ -22,7 +22,13 @@ import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { audit, AUDIT, DECIDE, PERSON_CALLS, UNCONFIRMED } from "./audit.mjs";
 import { socketsOf } from "./capabilities.mjs";
 import { seenMissing } from "./apply.mjs";
-import { SEEN_DECISION } from "../templates/tools/design-assembly/screen-actions-seen.mjs";
+import {
+  SEEN_DECISION,
+  SEEN_TEST,
+} from "../templates/tools/design-assembly/screen-actions-seen.mjs";
+
+// Where the browser test by role comes from, in this plugin.
+const SEEN_TEMPLATE = "templates/owned/screen-actions-seen.spec.ts.template";
 import {
   installedTree,
   readStamp,
@@ -252,18 +258,27 @@ function rhythmsOf(audit, broken) {
 
 // What keeps the browser test by role from being held, as a step: where the ledger joins screens
 // with the model and the row of what each role sees is not there, what the repository lacks for
-// it, and the command that installs the test once it is there. Null when nothing is missing.
-function seenStepOf(root, rows, audited) {
+// it, and a command that does what the step says. The guide installs the test; adopting installs
+// none and holds the row once the test is there, so for a repository that adopted the step says
+// where the test comes from. Null when nothing is missing.
+export function seenStepOf(root, rows, audited) {
   const ids = new Set(rows.map((row) => String(row.id)));
   if (!ids.has("screen-actions") || ids.has(SEEN_DECISION)) return null;
+  const guided = audited.values === "generated";
   const missing = seenMissing(root);
+  if (!existsSync(path.join(root, SEEN_TEST))) {
+    missing.push(
+      guided
+        ? `${SEEN_TEST} is not installed yet`
+        : `${SEEN_TEST} is not there, and adopting installs no test: copy it from this plugin's ${SEEN_TEMPLATE}`,
+    );
+  }
   if (missing.length === 0) return null;
-  const command =
-    audited.values === "generated" ? "/design-assembly:new" : "/design-assembly:adopt";
-  return {
-    command,
-    why: `${SEEN_DECISION} has no row: ${missing.join("; ")}. Then run ${command} again: it installs the browser test that opens each screen as each role, and holds it`,
-  };
+  const command = guided ? "/design-assembly:new" : "/design-assembly:adopt";
+  const then = guided
+    ? `Then run ${command} again: it installs the browser test that opens each screen as each role, and holds it`
+    : `Then run ${command} again: it holds the row once the test is there`;
+  return { command, why: `${SEEN_DECISION} has no row: ${missing.join("; ")}. ${then}` };
 }
 
 // The commands to run next, in order: what is broken first, then what answers the owner, then what
