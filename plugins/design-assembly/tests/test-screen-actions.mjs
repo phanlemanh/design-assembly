@@ -364,6 +364,20 @@ test("the model is read from the repository's files, lifecycle or not", () => {
   assert.equal(readModel(path.join(root, "nowhere")).present, false);
 });
 
+test("a folder or a stray file beside the entities is passed over, never read as one", () => {
+  const root = mkdtempSync(path.join(tmpdir(), "screen-actions-folder-"));
+  mkdirSync(path.join(root, "ontology/entities/drafts"), { recursive: true });
+  // A folder whose name ends as an entity's file does is no entity either.
+  mkdirSync(path.join(root, "ontology/entities/Old.yaml"));
+  writeFileSync(path.join(root, "ontology/actions.yaml"), "actions: []\n");
+  writeFileSync(path.join(root, "ontology/entities/Order.yaml"), "name: Order\n");
+  writeFileSync(path.join(root, "ontology/entities/drafts/Later.yaml"), "name: Later\n");
+  writeFileSync(path.join(root, "ontology/entities/notes.txt"), "not an entity\n");
+  const read = readModel(root);
+  assert.equal(read.present, true);
+  assert.deepEqual(Object.keys(read.entities), ["Order"]);
+});
+
 // The reference repository, when it is on this machine: read, never written.
 const REFERENCE = env.DESIGN_ASSEMBLY_REFERENCE_LEDGER;
 const reference = REFERENCE && existsSync(path.join(REFERENCE, "ontology/actions.yaml"));
