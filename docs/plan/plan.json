@@ -321,7 +321,7 @@
     {
       "id": 5,
       "name": "Dựng màn không phải đoán",
-      "state": "current",
+      "state": "done",
       "parallel": [],
       "items": [
         {
@@ -382,12 +382,16 @@
       "done_when": [
         "Một tác tử độc lập dựng một màn chỉ từ brief; số chỗ phải đoán không tăng so với lượt thử gần nhất"
       ],
-      "needs_owner": ["Cho chạy lượt thử độc lập"]
+      "needs_owner": ["Cho chạy lượt thử độc lập"],
+      "closed": {
+        "on": "2026-11-21",
+        "evidence": "Trên nhánh chính 2ea6b64, plugin 0.28.0. Dòng «xong khi»: lượt thử 14 (docs/trials/screen-trial-14-after-the-second-fixes.md), chủ repo cho chạy ngày 2026-11-21 («Cho chạy»): một tác tử độc lập dựng màn của đề chuẩn chỉ từ đề, tự tìm ra phiếu brief từ trang luật và chạy nó cho cả ba màn trước khi dựng, cổng xanh; 13 chỗ phải đoán so với 14 của lượt 13 là lượt gần nhất, 10 vào hàng chờ, 3 tự quyết lặng lẽ. Lệnh cho thấy: awk -F'\\t' '$3==\"screen\" && $1>=11 {print $1, $6, $7}' docs/trials/results.tsv in 11 green 9, 12 green 11, 13 green 14, 14 green 13. Chủ repo coi dòng ấy là đạt ngày 2026-11-21 («Đạt»), sau khi được nêu rằng 13 vẫn cao hơn lượt 11 và 12, rằng một chỗ chênh nằm trong độ lệch của hai lượt cùng điều kiện, và rằng đếm là phán đoán; chủ repo cho đóng giai đoạn cùng ngày («Đóng giai đoạn 5»). Lệnh brief: node --test trên test-brief.mjs, test-brief-asks.mjs, test-brief-trial-12.mjs và test-brief-trial-13.mjs của plugins/design-assembly/tests, 65 bài xanh, không bài nào bị bỏ qua. Việc cần chủ repo, cho chạy lượt thử độc lập: đã cho ba lần, lượt 12, 13 và 14. Các mục không nằm trên dòng «xong khi» có lệnh chứng riêng: lệnh review (test-review.mjs, test-review-harvest.mjs), bảng năng lực (test-capabilities.mjs), bài kiểm trình duyệt theo vai (test-screen-actions-seen.mjs, tests/e2e/screen-actions-seen.spec.ts, và lần đo docs/trials/browser-test-by-role-on-a-two-role-copy.md)."
+      }
     },
     {
       "id": 9,
       "name": "Nền đủ mảng",
-      "state": "later",
+      "state": "current",
       "parallel": [],
       "items": [
         {
