@@ -37,6 +37,8 @@ const LEDGER = "design/decisions.yaml";
 const BLUEPRINT = "design/blueprint.json";
 const WHO = ["--by", "Test Person", "--on", "2026-11-15"];
 
+import { passingFloor, roleWords } from "./helpers/answered-roles.mjs";
+
 const made = [];
 after(() => made.forEach((dir) => rmSync(dir, { recursive: true, force: true })));
 
@@ -57,7 +59,7 @@ const empty = () => {
 let proposed = null;
 function build() {
   const dir = empty();
-  put(dir, "src/index.css", withoutBlock(text(ROOT, "src/index.css")));
+  put(dir, "src/index.css", passingFloor(withoutBlock(text(ROOT, "src/index.css"))));
   put(dir, "Makefile", text(ROOT, "Makefile"));
   const choices = {
     context: { product_type: "application", conformance_level: "AA" },
@@ -79,6 +81,9 @@ function build() {
         : { status: "planned" },
     ]),
   );
+  // The owner spoke to every question of the table of colour roles, as a repository of this
+  // version has it: what waits is the guide's proposals.
+  layers.foundations.roles = roleWords();
   put(dir, BLUEPRINT, JSON.stringify({ version: 1, status: "approved", layers }));
   const run = spawnSync(execPath, [APPLY, "--target", dir]);
   assert.equal(run.status, 0, String(run.stderr));
@@ -804,7 +809,7 @@ const REFRESHED = ["B1", "B5", "C1", "C3", "C6"];
 const fromPage = (row) => /^[A-D]\d+$/.test(row.id);
 // A question asked since the page: about a block to take in, or, from item 9.1 on, about a row of
 // the ledger a new choice of the plugin writes once the owner answers it (the typeface).
-const PAGE_ITEMS = /^(?:(?:need|before):|decision:typeface$)/;
+const PAGE_ITEMS = /^(?:(?:need|before):|decision:typeface$|decision:color-roles-[a-z]+$)/;
 // From item 9.1, slice 2, on: the licence of a font row of the sources ledger that a command
 // proposed. The waiting list has no kind of item for it, so the question names none, and its id
 // names the row, as status reads it.

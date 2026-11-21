@@ -75,7 +75,7 @@ import {
 import { DEFAULT_STYLESHEET, findStylesheet, loadStyles, resolve } from "./styles.mjs";
 import { lintProbes } from "./lint.mjs";
 import { probesFor, ruleOf } from "./probes.mjs";
-import { buildTheme, readBlock, renderBlock, withoutBlock } from "./theme.mjs";
+import { buildTheme, END, readBlock, renderBlock, sourcedFont, withoutBlock } from "./theme.mjs";
 import { tokensProblem } from "./tokens.mjs";
 import { buildOf } from "./adapters/index.mjs";
 import { fontProblems, readLoads, unloadedCopy } from "./fonts.mjs";
@@ -111,6 +111,27 @@ export const fontContext = (state) => ({
   faces: state.fontFaces ?? null,
 });
 
+// The mode a scope stands for: the light one is :root, any other is a dark one.
+const modeOf = (scope) => ([scope].flat()[0] === ":root" ? "light" : "dark");
+// A pair of colour roles as a sentence names it: the two roles, the mode and its selectors.
+const pairName = (check) =>
+  `${check.foreground} on ${check.background} in ${modeOf(check.scope)} mode (${[check.scope].flat().join(", ")})`;
+// The contrast ratio of a pair as the stylesheet stands, or why it cannot be read.
+function measuredPair(state, check) {
+  const foreground = resolve(state, check.scope, check.foreground);
+  const background = resolve(state, check.scope, check.background);
+  if (!foreground?.color || !background?.color) {
+    return {
+      problem: `cannot read ${check.foreground} and ${check.background} in ${[check.scope].flat().join(", ")}`,
+    };
+  }
+  return { ratio: contrast(foreground.color, background.color) };
+}
+// Whether the typeface row checks the fonts of the sources ledger it chose: a repository the guide
+// wrote before it did keeps hearing a font's fault from the generated block.
+const fontRowHeld = (state) =>
+  (state.theme?.checks?.typeface ?? []).some((check) => check.kind === "font-row");
+
 // One entry per kind of check. `run` returns null when the check passes, else what is wrong.
 // `change` returns the same state altered so that the check must fail.
 const KINDS = {
@@ -137,13 +158,29 @@ const KINDS = {
         headingFont: foundations.heading_font,
       };
       const applied = state.theme?.inputs ?? {};
-      // The typeface came later: an answer the blueprint gives and nothing applied is not in force.
-      const later = ["textFont", "headingFont"].filter((key) => answers[key] !== undefined);
-      const differs = [...new Set([...Object.keys(applied), ...later])].filter(
-        (key) => String(answers[key]) !== String(applied[key]),
+      // The owner's word for each question of the table of colour roles, as the guide applies it.
+      const words = decided.layers?.foundations?.roles;
+      if (words) {
+        answers.colorRoles = Object.fromEntries(
+          Object.entries(words).map(([question, word]) => [question, word?.source]),
+        );
+      }
+      // The typeface and the colour roles came later: an answer the blueprint gives and nothing
+      // applied is not in force. `follows` is what the guide derives from the words, not an answer.
+      const later = ["textFont", "headingFont", "colorRoles"].filter(
+        (key) => answers[key] !== undefined,
       );
+      const said = (value) =>
+        value !== null && typeof value === "object"
+          ? JSON.stringify(Object.entries(value).sort())
+          : String(value);
+      const differs = [...new Set([...Object.keys(applied), ...later])]
+        .filter((key) => key !== "follows")
+        .filter((key) => said(answers[key]) !== said(applied[key]));
       if (differs.length === 0) return null;
-      return `${check.file} decides ${differs.map((key) => `${key}: ${answers[key]}`).join(", ")}, and what is applied is ${differs.map((key) => applied[key]).join(", ")}: run the guide again, or put the answer back`;
+      const shown = (value) =>
+        value !== null && typeof value === "object" ? JSON.stringify(value) : value;
+      return `${check.file} decides ${differs.map((key) => `${key}: ${shown(answers[key])}`).join(", ")}, and what is applied is ${differs.map((key) => shown(applied[key])).join(", ")}: run the guide again, or put the answer back`;
     },
     change(state, check) {
       const decided = JSON.parse(state.files?.[check.file] ?? "{}");
@@ -201,6 +238,19 @@ const KINDS = {
       try {
         expected = renderBlock(buildTheme(state.theme.inputs, state.css, fontContext(state)));
       } catch (error) {
+        // A chosen font whose row is gone, waits on its licence or no longer pins what the
+        // repository holds is the typeface's fault, said under its row where the row checks it:
+        // the rest of the block is still held here, up to the typefaces.
+        if (error.font && fontRowHeld(state)) {
+          const rest = Object.fromEntries(
+            Object.entries(state.theme.inputs).filter(
+              ([key]) => !["textFont", "headingFont"].includes(key),
+            ),
+          );
+          const prefix = renderBlock(buildTheme(rest, state.css)).slice(0, -END.length);
+          if (block.startsWith(prefix)) return null;
+          return "the generated block is not what the source color gives: run the guide again instead of editing it";
+        }
         // The repository no longer gives what the decided inputs need, such as the floor's font,
         // or the row of a chosen font with its licence and a pin that still holds.
         return `the generated block cannot be written again from what was decided: ${error.message}`;
@@ -216,22 +266,49 @@ const KINDS = {
       return { ...state, css: state.css.replace(block, edited) };
     },
   },
+  // A pair of colour roles reaches the contrast ratio of its threshold. A pair the guide measured
+  // below it while a role of it waits on the owner says `waits`: it is named with its ratio on every
+  // run and does not fail, until the owner answers and the guide runs again. It still fails when a
+  // role of it can no longer be read, since then nothing is measured.
   contrast: {
     run(state, check) {
-      const foreground = resolve(state, check.scope, check.foreground);
-      const background = resolve(state, check.scope, check.background);
-      if (!foreground?.color || !background?.color) {
-        return `cannot read ${check.foreground} and ${check.background} in ${[check.scope].flat().join(", ")}`;
-      }
-      const ratio = contrast(foreground.color, background.color);
-      if (ratio >= check.min) return null;
-      return `${check.foreground} on ${check.background} in ${[check.scope].flat().join(", ")} has a contrast ratio of ${ratio.toFixed(2)}:1, below ${check.min}:1`;
+      const measured = measuredPair(state, check);
+      if (measured.problem) return measured.problem;
+      if (measured.ratio >= check.min || check.waits) return null;
+      return `${pairName(check)} has a contrast ratio of ${measured.ratio.toFixed(2)}:1, below ${check.min}:1`;
+    },
+    notes(state, check) {
+      if (!check.waits) return [];
+      const measured = measuredPair(state, check);
+      if (measured.problem || measured.ratio >= check.min) return [];
+      return [
+        `${pairName(check)} measures ${measured.ratio.toFixed(2)}:1, below ${check.min}:1: not checked until the owner answers ${check.waits}`,
+      ];
     },
     change(state, check) {
-      const background = resolve(state, check.scope, check.background);
       const where = [check.scope].flat()[0];
+      if (check.waits) {
+        const unread = `${where} {\n  ${check.foreground}: unreadable;\n}\n`;
+        return { ...state, css: `${state.css}\n${unread}` };
+      }
+      const background = resolve(state, check.scope, check.background);
       const same = `${where} {\n  ${check.foreground}: ${background?.value ?? "oklch(1 0 0)"};\n}\n`;
       return { ...state, css: `${state.css}\n${same}` };
+    },
+  },
+  // A font of the sources ledger that a typeface choice names can still be chosen: its row is
+  // there, whole, with its licence, and its pin still holds what the repository has.
+  "font-row": {
+    run(state, check) {
+      try {
+        sourcedFont(check.value, state.fontSources);
+        return null;
+      } catch (error) {
+        return error.message;
+      }
+    },
+    change(state) {
+      return { ...state, fontSources: [] };
     },
   },
   // Every typeface the stylesheet names is loaded, as the repository's build loads one, or is a

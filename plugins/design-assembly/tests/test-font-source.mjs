@@ -511,18 +511,49 @@ test("first stack, a font kept as files: the guide writes the block with what lo
   const unlicensed = gate(dir);
   assert.notEqual(unlicensed.status, 0);
   assert.match(unlicensed.stderr, /design\/sources\/brand-sans\.json is a font and has no licence/);
+  // The fault is the typeface's, and stands under its row, not under the generated block's.
+  assert.match(
+    unlicensed.stderr,
+    /^ {2}typeface: .*brand-sans\.json is a font and has no licence/m,
+  );
+  assert.doesNotMatch(unlicensed.stderr, /^ {2}tonal-palette:/m);
   // The file is no longer the one that was pinned.
   put(dir, ROW, pretty(filed()));
   put(dir, FONT_FILE, `${FONT_BYTES}changed`);
   const moved = gate(dir);
   assert.notEqual(moved.status, 0);
   assert.match(moved.stderr, /src\/fonts\/brand-sans\.woff2 is not the file it was pinned with/);
+  assert.match(
+    moved.stderr,
+    /^ {2}typeface: .*brand-sans\.woff2 is not the file it was pinned with/m,
+  );
+  assert.doesNotMatch(moved.stderr, /^ {2}tonal-palette:/m);
+  // A repository the guide wrote before the typeface row checked its fonts still hears the
+  // fault, from the generated block, as it did then.
+  const theme = json(dir, "design/theme.json");
+  const older = {
+    ...theme,
+    checks: {
+      ...theme.checks,
+      typeface: theme.checks.typeface.filter((check) => check.kind !== "font-row"),
+    },
+  };
+  put(dir, "design/theme.json", `${JSON.stringify(older, null, 2)}\n`);
+  const heard = gate(dir);
+  assert.notEqual(heard.status, 0);
+  assert.match(
+    heard.stderr,
+    /^ {2}tonal-palette: .*brand-sans\.woff2 is not the file it was pinned with/m,
+  );
+  put(dir, "design/theme.json", `${JSON.stringify(theme, null, 2)}\n`);
   // The row is gone.
   put(dir, FONT_FILE, FONT_BYTES);
   rmSync(path.join(dir, ROW));
   const gone = gate(dir);
   assert.notEqual(gone.status, 0);
   assert.match(gone.stderr, /the sources ledger has no font row design\/sources\/brand-sans\.json/);
+  assert.match(gone.stderr, /^ {2}typeface: the sources ledger has no font row/m);
+  assert.doesNotMatch(gone.stderr, /^ {2}tonal-palette:/m);
 });
 
 test("first stack, a font that is a package: a person writes the one line that loads it, and font-loaded holds it like any other", () => {
@@ -557,6 +588,8 @@ test("first stack, a font that is a package: a person writes the one line that l
   const moved = gate(dir);
   assert.notEqual(moved.status, 0);
   assert.match(moved.stderr, /pins brand-type at 1\.2\.0.*package-lock\.json pins 1\.3\.0/);
+  assert.match(moved.stderr, /^ {2}typeface: .*pins brand-type at 1\.2\.0/m);
+  assert.doesNotMatch(moved.stderr, /^ {2}tonal-palette:/m);
 });
 
 test("second stack: the guide writes the value and no loading code, and says a person writes it", () => {

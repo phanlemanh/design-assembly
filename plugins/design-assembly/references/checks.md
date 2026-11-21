@@ -680,7 +680,8 @@ passes: a check that cannot fail proves nothing.
 | Kind                | Passes when                                                                            |
 | ------------------- | -------------------------------------------------------------------------------------- |
 | `generated`         | The block in the stylesheet is exactly what the source color gives                     |
-| `contrast`          | Two color roles reach the contrast ratio of the conformance level                      |
+| `contrast`          | Two color roles reach the contrast ratio of the conformance level; with `waits`, named |
+| `font-row`          | The font of the sources ledger a typeface names can still be chosen                    |
 | `value`             | A variable resolves to the decided value, whatever is written after it                 |
 | `absent`            | The stylesheet does not redeclare variables that the floor's scale owns                |
 | `scale`             | Every step of the type scale is larger than the one before                             |

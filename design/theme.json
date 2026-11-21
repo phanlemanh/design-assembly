@@ -23,6 +23,27 @@
       {
         "kind": "contrast",
         "scope": ":root",
+        "foreground": "--foreground",
+        "background": "--background",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--card-foreground",
+        "background": "--card",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--popover-foreground",
+        "background": "--popover",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ":root",
         "foreground": "--primary",
         "background": "--background",
         "min": 4.5
@@ -36,6 +57,99 @@
       },
       {
         "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--secondary-foreground",
+        "background": "--secondary",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--muted-foreground",
+        "background": "--muted",
+        "min": 4.5,
+        "waits": "color-roles-neutral"
+      },
+      {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--muted-foreground",
+        "background": "--background",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--accent-foreground",
+        "background": "--accent",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--destructive",
+        "background": "--background",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--ring",
+        "background": "--background",
+        "min": 3
+      },
+      {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--sidebar-foreground",
+        "background": "--sidebar",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--sidebar-primary-foreground",
+        "background": "--sidebar-primary",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--sidebar-accent-foreground",
+        "background": "--sidebar-accent",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ":root",
+        "foreground": "--sidebar-ring",
+        "background": "--sidebar",
+        "min": 3,
+        "waits": "color-roles-sidebar, color-roles-neutral"
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--foreground",
+        "background": "--background",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--card-foreground",
+        "background": "--card",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--popover-foreground",
+        "background": "--popover",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
         "scope": ".dark",
         "foreground": "--primary",
         "background": "--background",
@@ -47,6 +161,76 @@
         "foreground": "--primary-foreground",
         "background": "--primary",
         "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--secondary-foreground",
+        "background": "--secondary",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--muted-foreground",
+        "background": "--muted",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--muted-foreground",
+        "background": "--background",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--accent-foreground",
+        "background": "--accent",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--destructive",
+        "background": "--background",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--ring",
+        "background": "--background",
+        "min": 3
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--sidebar-foreground",
+        "background": "--sidebar",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--sidebar-primary-foreground",
+        "background": "--sidebar-primary",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--sidebar-accent-foreground",
+        "background": "--sidebar-accent",
+        "min": 4.5
+      },
+      {
+        "kind": "contrast",
+        "scope": ".dark",
+        "foreground": "--sidebar-ring",
+        "background": "--sidebar",
+        "min": 3
       }
     ],
     "type-scale-values": [

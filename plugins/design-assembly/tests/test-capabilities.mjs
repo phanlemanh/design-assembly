@@ -261,3 +261,23 @@ test("the brand assets socket has a plug for fonts, which writes its rows in the
     "scripts/font-source.mjs: can write and reaches ledger sources, which no socket of this script holds",
   ]);
 });
+
+test("the foundations socket reads the table of colour roles, through a plug whose files are the plugin's; its three checks stay green", () => {
+  const foundations = capability(table, "foundations");
+  const plug = foundations.plugs.find((item) => item.id === "color-roles");
+  assert.ok(plug, "no plug reads the table of colour roles");
+  assert.deepEqual(plug.references, ["references/color-roles.json"]);
+  assert.deepEqual(plug.scripts, ["scripts/color-roles.mjs"]);
+  // The three checks of the table hold with it.
+  assert.deepEqual(shapeProblems(table, context), []);
+  assert.deepEqual(gapProblems(table, LIMITS), []);
+  assert.deepEqual(reachProblems(table, LAYERS, TIERS), []);
+  // A reference that is no file of the plugin is red.
+  const lost = copy();
+  capability(lost, "foundations").plugs.find((item) => item.id === "color-roles").references = [
+    "references/no-such.json",
+  ];
+  assert.deepEqual(shapeProblems(lost, context), [
+    "foundations: plug color-roles reads references/no-such.json, which is not a file of the plugin",
+  ]);
+});

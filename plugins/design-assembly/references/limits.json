@@ -43,9 +43,9 @@
       "severity": "high",
       "plan": "fix",
       "opened": "2026-11-12",
-      "where": ["d0007", "d0010", "spec", "escapes"],
+      "where": ["d0007", "d0010", "spec", "escapes", "d0082"],
       "status": "open",
-      "note": "The contrast check covers two pairs of the primary colour only, while the audit counts the row as fully held by the machine."
+      "note": "Narrowed by d0082: the contrast check now measures every pair the table of colour roles declares, in light and dark, and no longer only the two of the primary colour. What is still open: the roles the table measures in no pair (the borders, the edge of a field, the five chart roles), the sidebar's primary as a mark against the sidebar, which is measured only as the ground of its text, a ground drawn with transparency (the dark border at 10%, a tint of the destructive colour), a pair a component makes that the table does not declare, and a pair below the threshold that waits on the owner, which the gate names and does not fail on."
     },
     {
       "id": "hover-contrast-unchecked",
@@ -4171,6 +4171,39 @@
       "plan": "keep",
       "where": ["d0081"],
       "note": "In the guide the row of a brand font is written by a command the agent runs on the person's word, font-source, not by the guide's own writing step: the guide takes a font only once its row is whole, so a font the person names and the agent does not write a row for is refused, never chosen silently."
+    },
+    {
+      "id": "adopted-contrast-row-keeps-its-pairs",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["d0082"],
+      "status": "open",
+      "note": "A repository that adopted its values with a version before the table of colour roles keeps the pairs its contrast row has: adopt adds the table's pairs only to a row it writes now, never to a row already in the ledger. status measures every pair there and names each one below the threshold with its number, but the gate does not hold the new pairs until the row is written again."
+    },
+    {
+      "id": "color-roles-of-the-floor-only",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["d0082"],
+      "status": "open",
+      "note": "The table of colour roles holds the 31 roles of the floor this plugin serves, and a plugin test is red when that floor has a role the table does not hold. A repository with roles of its own beyond them is not held to it: no check of the gate says a role of its stylesheet stands in no line, and its own roles are measured in no pair."
+    },
+    {
+      "id": "color-role-answer-written-by-hand",
+      "area": "guide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-21",
+      "where": ["d0082"],
+      "status": "open",
+      "note": "The owner's word for a question of the table of colour roles reaches a guided repository's blueprint by hand, under foundations.roles, through the guide: the decision sheet records an answer on the waiting list and does not write it there, and no specimen sheet draws the sidebar following the primary colour before the owner answers."
     }
   ]
 }

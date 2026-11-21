@@ -18,6 +18,19 @@ import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
 import { pinnedPackage } from "../templates/tools/design-assembly/adapters/lockfile.mjs";
 import { readFontSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { readWaiting } from "../templates/tools/design-assembly/waiting.mjs";
+import { darkScopes, loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
+import {
+  COLOR_ROLES,
+  measurePairs,
+  pairSays,
+  pairWaits,
+  PAIRS,
+  rolesLines,
+  unansweredQuestions,
+  keepsWaiting,
+  wordsFromListed,
+  wordsOf,
+} from "./color-roles.mjs";
 import { finish, readCall, refuse, start } from "./command.mjs";
 import { principleCall } from "./principles.mjs";
 import { sheet, WAITING_FOLDER, WAITING_LIST } from "./decide.mjs";
@@ -180,6 +193,116 @@ export function typefaceAsk(root, rows, audited) {
     basis: `${MEASURED}the ledger has no row for the typeface, so the stylesheet keeps the floor's declarations, and the floor's font is the one the repository already loads`,
     answer: "/design-assembly:new",
   };
+}
+
+// The owner's word for each question of the table of colour roles: the blueprint's, where the guide
+// wrote the values; for a repository that adopted its own, the answers given on the waiting list,
+// with who gave them and when.
+function roleWordsOf(root, rows, guided) {
+  return guided ? wordsOf(readBlueprint(root)) : wordsFromListed(listedRows(root, rows));
+}
+
+// The modes a repository's pairs are read in: light, and its dark selectors where it has them.
+function modesOf(styles) {
+  const scopes = darkScopes(styles);
+  const dark =
+    scopes.length === 0 ? [] : [{ name: "dark", scope: scopes.length === 1 ? scopes[0] : scopes }];
+  return [{ name: "light", scope: ":root" }, ...dark];
+}
+
+// What a question of the table rests on, measured here now: each pair below its threshold that
+// waits on it, and for roles that would follow, what they are and what they would follow.
+// The declared pairs below the threshold here that wait on a question.
+function belowFor(styles, level, question, words) {
+  if (!styles || !level) return [];
+  return measurePairs(styles, level, modesOf(styles)).filter(
+    (pair) =>
+      pair.ratio !== null && pair.ratio < pair.min && pairWaits(pair, words).includes(question.id),
+  );
+}
+
+function roleBasis(styles, level, question, words) {
+  const said = belowFor(styles, level, question, words).map(pairSays);
+  for (const entry of COLOR_ROLES.roles.filter((item) => item.asks === question.id && item.of)) {
+    for (const mode of styles ? modesOf(styles) : []) {
+      const own = resolveRole(styles, mode.scope, entry.role);
+      const of = resolveRole(styles, mode.scope, entry.of);
+      if (own && of && own !== of) {
+        said.push(`${entry.role} is ${own} in ${mode.name} mode, where ${entry.of} is ${of}`);
+      }
+    }
+  }
+  const pairs = PAIRS.filter(
+    (pair) => question.roles.includes(pair.foreground) || question.roles.includes(pair.background),
+  ).length;
+  return `${MEASURED}${question.roles.length} role(s) of ${ROLES_TABLE} wait on this answer, in ${pairs} declared pair(s)${said.length > 0 ? `; ${said.join("; ")}` : "; every pair of them that can be read reaches its threshold"}`;
+}
+const ROLES_TABLE = "the table of colour roles";
+const resolveRole = (styles, scope, name) => resolve(styles, scope, name)?.value ?? null;
+
+// What the machine recommends for a question of the table, from the table itself and from how
+// many of its pairs are below the threshold here.
+function roleRecommendation(question, below) {
+  if (question.recommended === "follows") {
+    return `Let them follow the primary colour: the guide then writes them from the source colour in both modes. ${question.why}`;
+  }
+  if (question.later) {
+    return below > 0
+      ? `Do not keep them yet: wait for ${question.later}. Kept from the floor now, ${below} of their pairs below the threshold become checks and turn the gate red.`
+      : `Wait for ${question.later}; keeping them from the floor now changes nothing on the screen and turns no check red.`;
+  }
+  return `Keep them from the floor. ${question.why ?? ""}`.trim();
+}
+
+// The questions of the table of colour roles no word answers yet, asked of a repository whose
+// contrast row this plugin holds. A question that waits on the waiting list is the list's to
+// show; one the owner answered there reaches a guided repository's blueprint only through the
+// guide, and waits here until then.
+export function colorRoleAsks(root, rows, audited) {
+  if (rows.length === 0 || !rows.some((row) => String(row.id) === "color-contrast")) return [];
+  let theme;
+  try {
+    theme = JSON.parse(readFileSync(path.join(root, "design/theme.json"), "utf8"));
+  } catch {
+    return [];
+  }
+  if (!theme?.checks?.["color-contrast"]) return [];
+  const guided = audited.values === "generated";
+  const words = roleWordsOf(root, rows, guided);
+  const listed = listedRows(root, rows);
+  const level = theme.inputs?.conformanceLevel ?? null;
+  let styles = null;
+  try {
+    styles = loadStyles(root, theme.stylesheet ?? "src/index.css");
+  } catch {
+    styles = null;
+  }
+  const answer = guided ? "/design-assembly:new" : DECIDE;
+  return unansweredQuestions(words).flatMap((question) => {
+    const asked = listed.findLast((row) => row.item === `decision:${question.id}`);
+    if (asked && !asked.answer) return [];
+    // The owner kept the recommendation to wait: that is their word for now.
+    if (keepsWaiting(question.id, asked)) return [];
+    // An answer the question does not take, or a refusal, asks again.
+    const taken =
+      asked &&
+      guided &&
+      question.sources.includes(asked.answer === "keep" ? question.recommended : asked.answer);
+    return [
+      {
+        id: question.id,
+        source: "ledger",
+        question: question.question,
+        recommendation: taken
+          ? "Run the guide and write the owner's answer into the blueprint, under foundations.roles, with their name and the day: the decision sheet recorded it and changed no file the guide writes from."
+          : roleRecommendation(question, belowFor(styles, level, question, words).length),
+        basis: taken
+          ? `${MEASURED}the owner answered ${asked.id} of the waiting list by ${asked.by} on ${asked.on}, and the blueprint has no word for ${question.id}`
+          : `${asked ? `the answer «${asked.answer}» to ${asked.id} of the waiting list is none of ${question.sources.join(", ")}, so it is asked again; ` : ""}${roleBasis(styles, level, question, words)}`,
+        answer,
+      },
+    ];
+  });
 }
 
 const standardBasis = (decision) =>
@@ -440,6 +563,7 @@ function readLedgers(root) {
       ...waitingOf(audited, rows, readBlueprint(root)),
       ...(typeface ? [typeface] : []),
       ...fontLicenceAsks(root, rows, audited),
+      ...colorRoleAsks(root, rows, audited),
     ],
     tool: toolOf(root),
     sockets: socketsOf(root),
@@ -766,7 +890,8 @@ export function documentOf(result, origin) {
   };
 }
 
-const USAGE = "usage: node status.mjs [--target DIR] [--json] [--out DIR [--format html|pdf]]\n";
+const USAGE =
+  "usage: node status.mjs [--target DIR] [--json] [--out DIR [--format html|pdf]] [--roles]\n";
 
 // Something is left when an answer waits on a person, when the tool differs, or when a check
 // fails or source goes around a decision: `next` then starts with the audit.
@@ -776,9 +901,26 @@ export const leavesWork = (result) =>
   result.next.some((step) => step.command === AUDIT);
 
 async function main(args) {
-  const call = readCall(args, DOCUMENT_FLAGS);
+  const call = readCall(args, { ...DOCUMENT_FLAGS, "--roles": "switch" });
   if (call.problem) return refuse(call.problem, USAGE);
   if (call.help) return void stdout.write(USAGE);
+  // The table of colour roles as words: each role, its source and its pairs, with the owner's word
+  // where the repository's blueprint has one.
+  if (call.flags["--roles"]) {
+    const blueprint = readBlueprint(call.target);
+    const rows = readLedger(call.target) ?? [];
+    const words = blueprint
+      ? wordsOf(blueprint)
+      : rows.length > 0
+        ? wordsFromListed(listedRows(call.target, rows))
+        : null;
+    return finish({
+      json: call.json,
+      result: { roles: COLOR_ROLES.roles, pairs: PAIRS, words },
+      text: `${rolesLines(words).join("\n")}\n`,
+      work: false,
+    });
+  }
   // A wrong call for a document is refused before anything is read.
   const asked = requested(call);
   const result = fullStatus(call.target);

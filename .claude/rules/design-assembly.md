@@ -32,6 +32,20 @@ your recommendation.
 - Never name a typeface in a screen or a component: text takes `--font-sans` from the page, and a heading takes `--font-heading`. Another typeface is the owner's answer in the guide, never a class.
 - Every typeface the stylesheet names is loaded, or is one every device has: a new one comes with what loads it (an @font-face rule, a font package the stylesheet imports, or the build's own font loader), or the gate fails.
 
+## Colour
+
+- Every colour role of the stylesheet stands in the table of colour roles (`references/color-roles.json` of the plugin), with where its value comes from and the pairs it is measured in; `status --roles` prints it. A screen or a component takes a colour only through a role.
+- --background, --foreground, --card, --card-foreground, --popover, --popover-foreground, --secondary, --secondary-foreground, --muted, --muted-foreground, --accent, --accent-foreground, --border, --input, --sidebar, --sidebar-foreground, --sidebar-accent, --sidebar-accent-foreground and --sidebar-border are kept from the floor, waiting on the owner (color-roles-neutral).
+- --primary comes from the formula primary-on-background, from the owner's source color.
+- --primary-foreground comes from the formula text-on-primary, from the owner's source color.
+- --destructive is kept from the floor, waiting on the owner (color-roles-status).
+- --ring comes from the formula ring-is-primary, from the owner's source color.
+- --chart-1, --chart-2, --chart-3, --chart-4 and --chart-5 are kept from the floor, waiting on the owner (color-roles-chart).
+- --sidebar-primary follows --primary once the owner says so; kept from the floor until then (color-roles-sidebar).
+- --sidebar-primary-foreground follows --primary-foreground once the owner says so; kept from the floor until then (color-roles-sidebar).
+- --sidebar-ring follows --ring once the owner says so; kept from the floor until then (color-roles-sidebar).
+- Every pair the table declares is measured in light and dark mode at the threshold of the conformance level: 30 in all, of which 2 below the threshold wait on the owner, named on every run and not a check until the owner answers.
+
 ## A table of data
 
 - A column shows a field of the data model. The field names its column type once: a `display` key on its property in `ontology/entities/`, with a type listed in `design/column-types.json`.

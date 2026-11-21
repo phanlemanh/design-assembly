@@ -204,6 +204,12 @@
       "templates": "1e956631fa6dfcad8c6ab791571559cf85a338d8",
       "scripts": "a4030943a1c5a10dc15fe0398ff8745ed3f32fa0",
       "tool": "6ad3ee707481483da9476a86923b156175dfec88"
+    },
+    {
+      "version": "0.31.0",
+      "templates": "7a5e462ca1bf15a2d2f76b6be48106b6311ca237",
+      "scripts": "89e92501e2832ed8b713e3b058b4c77acc1e4188",
+      "tool": "25d0073653a1b7ab45b68c3c8b222266dd728f8e"
     }
   ]
 }

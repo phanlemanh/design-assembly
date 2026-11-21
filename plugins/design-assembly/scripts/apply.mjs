@@ -26,6 +26,16 @@ import { STAMP, stampText } from "./stamp.mjs";
 import { FILES, heldHere } from "../templates/tools/design-assembly/check.mjs";
 import { contrast, formatOklch, parseColor } from "../templates/tools/design-assembly/color.mjs";
 import {
+  followsOf,
+  measurePairs,
+  modeOf,
+  pairChecks,
+  roleSentences,
+  ROLES_FILE,
+  wordsOf,
+  wordsProblems,
+} from "./color-roles.mjs";
+import {
   BASES,
   buildColumns,
   cellProblems,
@@ -208,6 +218,22 @@ const FLOOR_SMALLEST_PX = 12;
 const applies = (choice, values) =>
   Object.entries(choice.when ?? {}).every(([key, value]) => values[key] === value);
 
+function colorRoleInputs(blueprint) {
+  const words = blueprint.layers?.foundations?.roles;
+  if (!words || typeof words !== "object") return {};
+  const colorRoles = Object.fromEntries(
+    Object.entries(words).map(([question, word]) => [question, word?.source]),
+  );
+  const follows = followsOf(words);
+  return { colorRoles, ...(Object.keys(follows).length > 0 ? { follows } : {}) };
+}
+
+// What the note of the contrast row says: how many pairs are measured, and which wait.
+function contrastNote(checks) {
+  const waiting = checks.filter((check) => check.waits);
+  return `every pair of the plugin's table of colour roles (${ROLES_FILE}) in light and dark mode, ${checks.length} in all: text at the threshold for text, a ring at the threshold for parts that are not text${waiting.length > 0 ? `; ${waiting.length} below the threshold wait on the owner and are named on every run` : ""}`;
+}
+
 export function themeInputs(blueprint) {
   const decided = blueprint.layers?.foundations?.choice ?? {};
   const choice = { ...FOUNDATIONS_DEFAULTS, ...decided };
@@ -221,6 +247,9 @@ export function themeInputs(blueprint) {
       cornerRadius: choice.corner_radius,
       ...(choice.text_font !== undefined ? { textFont: choice.text_font } : {}),
       ...(choice.heading_font !== undefined ? { headingFont: choice.heading_font } : {}),
+      // The owner's word for each question of the table of colour roles, and the roles it makes
+      // follow another. A blueprint without words leaves the floor's roles as they are.
+      ...colorRoleInputs(blueprint),
     },
     choice,
     defaulted,
@@ -305,6 +334,8 @@ export function blueprintProblems(blueprint, { preview = false, sources } = {}) 
     }
     found.push(...answeredProblems(layer, entry, values));
   }
+  const words = blueprint.layers?.foundations?.roles;
+  if (words !== undefined) found.push(...wordsProblems(words));
   const color = blueprint.layers?.foundations?.choice?.source_color;
   if (color !== undefined && parseColor(String(color)) === null) {
     found.push("foundations: source color must be written as #rrggbb or oklch(L C H)");
@@ -1311,6 +1342,23 @@ function typefaceRules(checks, blueprint) {
   ];
 }
 
+// What the rules page says of the colour roles, where the contrast row measures the pairs of the
+// table of colour roles: where each role's value comes from in this repository, grouped by the
+// question that speaks for it, and how its pairs are held.
+function colourRules(checks, blueprint) {
+  const pairs = checks["color-contrast"] ?? [];
+  const beyond = pairs.some(
+    (check) => !["--primary", "--primary-foreground"].includes(check.foreground),
+  );
+  if (!beyond) return [];
+  const waiting = pairs.filter((check) => check.waits).length;
+  return [
+    `Every colour role of the stylesheet stands in the table of colour roles (\`${ROLES_FILE}\` of the plugin), with where its value comes from and the pairs it is measured in; \`status --roles\` prints it. A screen or a component takes a colour only through a role.`,
+    ...roleSentences(wordsOf(blueprint)).map((sentence) => `${sentence}.`),
+    `Every pair the table declares is measured in light and dark mode at the threshold of the conformance level: ${pairs.length} in all${waiting > 0 ? `, of which ${waiting} below the threshold wait on the owner, named on every run and not a check until the owner answers` : ""}.`,
+  ];
+}
+
 // `facts.buttons` is whether the ledger of screens gives some screen a button for an action.
 export function rulesPage(checks, has, blueprint = null, facts = {}) {
   const held = (id) => id in checks;
@@ -1348,6 +1396,7 @@ export function rulesPage(checks, has, blueprint = null, facts = {}) {
   };
   section(FIXED_SECTION, fixedFirst(blueprint, held("decision-sheet")));
   section("Type", typefaceRules(checks, blueprint));
+  section("Colour", colourRules(checks, blueprint));
   const typed = has("src/components/ui/typed-table.tsx");
   section("A table of data", [
     held("display-kind") &&
@@ -1541,10 +1590,12 @@ export function vendored() {
 
 // The decisions this plugin answers, as ledger rows, and the checks its tool runs for each.
 // Ids are those of references/standard-decisions.json.
-function decisions(blueprint, theme, foundations) {
+function decisions(blueprint, theme, foundations, styles) {
   const level = blueprint.layers.context.choice.conformance_level;
   const modular = foundations.choice.type_scale === "modular";
   const recorded = `${BLUEPRINT}`;
+  const modes = theme.modes.map((mode) => ({ name: modeOf(mode.selector), scope: mode.selector }));
+  const contrastChecks = pairChecks(measurePairs(styles, level, modes), wordsOf(blueprint));
   // A person's call that the guide proposed is not theirs yet: the row says so until they confirm.
   // A layer the guide proposed may hold one answer the person has since given: `confirmed` lists
   // those choice keys, so that one row stops saying it is a proposal and the others still do.
@@ -1584,9 +1635,9 @@ function decisions(blueprint, theme, foundations) {
       id: "color-contrast",
       layer: "foundations",
       kind: "formula",
-      source: `WCAG 2.2 level ${level}, contrast ratio for text`,
+      source: `WCAG 2.2 level ${level}, contrast ratio for text and for parts that are not text`,
       check: TOOL,
-      note: "the primary color roles in light and dark mode: the primary on the background, and the text on the primary",
+      note: contrastNote(contrastChecks),
     },
     {
       id: "type-scale-values",
@@ -1619,22 +1670,6 @@ function decisions(blueprint, theme, foundations) {
       check: TOOL,
     },
   ];
-  const contrastChecks = theme.modes.flatMap((mode) => [
-    {
-      kind: "contrast",
-      scope: mode.selector,
-      foreground: "--primary",
-      background: "--background",
-      min: THRESHOLDS[level].text,
-    },
-    {
-      kind: "contrast",
-      scope: mode.selector,
-      foreground: "--primary-foreground",
-      background: "--primary",
-      min: THRESHOLDS[level].text,
-    },
-  ]);
   const checks = {
     "tonal-palette": [{ kind: "generated" }, { kind: "blueprint", file: BLUEPRINT }],
     "color-contrast": contrastChecks,
@@ -1664,6 +1699,11 @@ function decisions(blueprint, theme, foundations) {
     checks.typeface = [
       { kind: "value", scope: ":root", variable: textVariable, expected: theme.fonts.text },
       { kind: "value", scope: ":root", variable: headingVariable, expected: theme.fonts.heading },
+      // Each font of the sources ledger the typeface names can still be chosen: a row gone, a
+      // licence missing or a pin that no longer holds is said here, under the typeface's row.
+      ...[...new Set([choice.text_font, choice.heading_font])]
+        .filter((value) => sourceFontId(value) !== null)
+        .map((value) => ({ kind: "font-row", value })),
     ];
   }
   return { rows, inputs: foundations.inputs, checks };
@@ -1750,8 +1790,14 @@ export function plan(target, blueprint) {
   const css = read(FILES.css);
   const foundations = themeInputs(blueprint);
   const theme = buildTheme(foundations.inputs, css, fontsOf(target));
-  const { rows, inputs, checks } = decisions(blueprint, theme, foundations);
   const files = { [FILES.css]: applyBlock(css, renderBlock(theme)) };
+  // Every pair of the table of colour roles is measured on the stylesheet as it is about to be.
+  const { rows, inputs, checks } = decisions(
+    blueprint,
+    theme,
+    foundations,
+    loadStyles(target, FILES.css, files),
+  );
   // The design tokens file is read from the stylesheet as it is about to be written.
   const held = JSON.parse(read(FILES.theme) ?? "{}").checks?.[TOKENS_DECISION];
   const tokens = tokensPlan(target, loadStyles(target, FILES.css, files), FILES.css, Boolean(held));
