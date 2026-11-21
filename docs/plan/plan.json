@@ -397,7 +397,8 @@
         {
           "id": "9.0",
           "what": "Đề bài chi tiết cho cả giai đoạn, chủ repo duyệt",
-          "state": "todo"
+          "state": "done",
+          "ref": "wiki/specs/0012-foundations-wide-enough.md; chủ repo bảo viết đề bài ngày 2026-11-21 («Có, viết đề bài»); chủ repo duyệt đề bài và đáp cả sáu câu hỏi theo khuyến nghị cùng ngày («Duyệt cả sáu»); năm lát cho các mục 9.1, 9.2, 9.3, chưa lát nào dựng"
         },
         {
           "id": "9.1",
