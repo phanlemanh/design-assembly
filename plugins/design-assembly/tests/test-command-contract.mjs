@@ -25,6 +25,8 @@ import { EXIT, readCall } from "../scripts/command.mjs";
 import { treeHash } from "../scripts/stamp.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
 
+import { passingFloor, roleWords } from "./helpers/answered-roles.mjs";
+
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ROOT = path.resolve(PLUGIN, "../..");
 const reference = (file) => JSON.parse(readFileSync(path.join(PLUGIN, "references", file), "utf8"));
@@ -258,6 +260,12 @@ function blueprint(source) {
     text_font: { by: "Owner Name", on: "2026-11-21" },
     heading_font: { by: "Owner Name", on: "2026-11-21" },
   };
+  // The colour roles came later too: where a person gave the answers, the owner spoke to each
+  // question of the table of colour roles, on a floor whose pairs it keeps reach the threshold.
+  if (source === "user") {
+    layers.foundations.roles = roleWords();
+    put(dir, "src/index.css", passingFloor(text(dir, "src/index.css")));
+  }
   put(dir, "design/blueprint.json", JSON.stringify({ version: 1, status: "approved", layers }));
   return dir;
 }

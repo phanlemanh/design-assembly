@@ -25,9 +25,9 @@ decisions:
   - id: color-contrast
     layer: foundations
     kind: formula
-    source: "WCAG 2.2 level AA, contrast ratio for text"
+    source: "WCAG 2.2 level AA, contrast ratio for text and for parts that are not text"
     check: "tool:tools/design-assembly/check.mjs"
-    note: "the primary color roles in light and dark mode: the primary on the background, and the text on the primary"
+    note: "every pair of the plugin's table of colour roles (references/color-roles.json) in light and dark mode, 30 in all: text at the threshold for text, a ring at the threshold for parts that are not text; 2 below the threshold wait on the owner and are named on every run"
   - id: type-scale-values
     layer: foundations
     kind: standard

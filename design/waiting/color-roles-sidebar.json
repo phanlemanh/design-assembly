@@ -1,0 +1,11 @@
+{
+  "id": "color-roles-sidebar",
+  "question": "Ba vai của thanh bên (--sidebar-primary, --sidebar-primary-foreground, --sidebar-ring) đi theo màu chính của kho này, hay giữ của sàn?",
+  "recommendation": "Đi theo màu chính",
+  "basis": "Đo trên kho này ngày 2026-11-21: ở giao diện tối --sidebar-primary là oklch(0.488 0.243 264.376), màu xanh của sàn, trong khi --primary là oklch(0.608 0.211 263.68) từ màu gốc #0246ff; ở giao diện sáng --sidebar-primary là oklch(0.205 0 0) và --primary là oklch(0.51 0.274 263.68). --sidebar-ring trên --sidebar ở giao diện sáng là 2,48:1, dưới 3:1, và cặp ấy đang chờ câu này. Sàn tự khai ba vai này bằng đúng --primary, --primary-foreground và --ring ở giao diện sáng, nên đi theo là giữ ý của sàn với màu của chủ repo; khi ấy chữ trên vai chính của thanh bên có cùng tương phản với chữ trên --primary (đã giữ, ≥ 4,5:1). Dễ đảo: đổi lời trong bản thiết kế rồi chạy lại new; khối máy sinh viết hoặc bỏ ba dòng ấy.",
+  "hard_to_undo": false,
+  "where": "0082",
+  "if_refused": "Giữ của sàn: ba vai giữ giá trị sàn ở cả hai giao diện, cặp --sidebar-ring trên --sidebar ở giao diện sáng (2,48:1) thành phép kiểm và cổng đỏ",
+  "item": "decision:color-roles-sidebar",
+  "asked_on": "2026-11-21"
+}

@@ -243,6 +243,14 @@
           "default": true,
           "scripts": ["templates/tools/design-assembly/tokens.mjs"],
           "step_of": "new"
+        },
+        {
+          "id": "color-roles",
+          "kind": "command",
+          "default": false,
+          "scripts": ["scripts/color-roles.mjs"],
+          "references": ["references/color-roles.json"],
+          "step_of": "new"
         }
       ],
       "layers": ["foundations"],

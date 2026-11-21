@@ -1,0 +1,11 @@
+{
+  "id": "color-roles-chart",
+  "question": "Năm vai biểu đồ của kho này (--chart-1 tới --chart-5) giữ giá trị của sàn không?",
+  "recommendation": "Giữ của sàn",
+  "basis": "Đo trên kho này ngày 2026-11-21: không màn nào của ứng dụng mẫu vẽ biểu đồ, và bản này không có công thức nào viết màu biểu đồ; năm vai là năm sắc xám của sàn, từ oklch(0.87 0 0) tới oklch(0.269 0 0), giống nhau ở hai giao diện. Bảng vai không đo cặp nào của chúng: màu biểu đồ được đọc cạnh nhau trên khung vẽ, điều bảng không biết. Giữ thì không gì đổi; một màu biểu đồ riêng sau này vào bằng dòng sổ brand-exceptions. Dễ đảo: lời đáp nằm trong bản thiết kế, đổi rồi chạy lại new.",
+  "hard_to_undo": false,
+  "where": "0082",
+  "if_refused": "Không giữ: năm vai chờ một màu biểu đồ do người đặt, qua dòng sổ brand-exceptions",
+  "item": "decision:color-roles-chart",
+  "asked_on": "2026-11-21"
+}

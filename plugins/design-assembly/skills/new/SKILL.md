@@ -312,9 +312,16 @@ the preview again.
 
    The generated block sets the tonal palette of the source color (`--palette-primary-*`), the
    primary color role, the text on it and the focus ring, in light and dark, the corner radius,
-   and, once answered, the typeface of text and of headings. Every other color role keeps the
-   floor's value, the sidebar's
-   included: say so if the person expects the whole theme to turn to their colour.
+   and, once answered, the typeface of text and of headings. Every other color role has a line
+   in the plugin's table of colour roles (`references/color-roles.json`; `status.mjs --roles`
+   prints it): where its value comes from and the pairs it is measured in. The sidebar's primary,
+   its text and its ring follow the primary colour once the owner says so; the neutral roles, the
+   destructive one and the chart roles keep the floor's value. Each of those is a question of the
+   table, asked once for its group: write the owner's answer into the blueprint under
+   `layers.foundations.roles.<question>`, with `source` (`follows` or `floor`), `by` (their name)
+   and `on` (the day, YYYY-MM-DD). Never a value, and never on the owner's behalf. A question with
+   no answer waits on the owner, and `status` names it. Say so if the person expects the whole theme to
+   turn to their colour.
 
 2. `node ${CLAUDE_PLUGIN_ROOT}/scripts/adopt.mjs --target <repo>`, with no flags. The guide writes
    only the rows for what it generated; this adds the rows for what the floor already proves with
@@ -340,8 +347,11 @@ the preview again.
    line the guide prints at the top of the stylesheet, then runs the guide again. On the second
    build stack the guide writes no loading code: the person calls the build's font loader in a
    layout file, as the line printed says. The gate is red until something loads it. Say so.
-8. Say how far the contrast check reaches: the primary on the background and the text on the
-   primary, in light and dark. The other color roles are not checked in this version.
+8. Say how far the contrast check reaches: every pair the table of colour roles declares, in
+   light and dark, at the threshold of the conformance level. Read out each `note:` line of the
+   form `<pair> in <mode> mode measures <ratio>, below <threshold>: not checked until the owner
+answers <question>`: that pair is the floor's, below the threshold, and becomes a check, red,
+   once the owner keeps its roles from the floor. Never change a colour to make it pass.
 9. Lines that start with `note:` and `hint:` mean different things. A `note:` says a rule is not
    met today and names the place: no check was added for it, or, if the row was already there,
    its check stays and the gate fails. A `hint:` says nothing is wrong: it names something the

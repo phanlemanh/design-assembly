@@ -116,16 +116,18 @@ const floorTheme = (floor, name) =>
 // The font of the sources ledger a typeface choice names, among the fonts read from the ledger.
 // It throws one sentence when the font cannot be chosen: its row is missing, is not whole, waits
 // on its licence, or pins what the repository no longer holds.
+// The error is marked `font`: the fault is the typeface's, and the gate says it under that row.
 export function sourcedFont(value, sources) {
   const id = sourceFontId(value);
   const font = (sources ?? []).find((item) => item.id === id);
+  const fault = (message) => Object.assign(new Error(message), { font: true });
   if (!font) {
-    throw new Error(
+    throw fault(
       `the sources ledger has no font row ${sourceFontFile(value)}: a font is chosen once its row is there, of the kind font, with its pin and its licence`,
     );
   }
   const cannot = fontCannot(font);
-  if (cannot) throw new Error(cannot);
+  if (cannot) throw fault(cannot);
   return font;
 }
 
@@ -190,6 +192,26 @@ export function fontValues(inputs, css, context = {}) {
   };
 }
 
+// The roles the block writes from its formula, by what each is in a mode. A role that follows one
+// of them takes the same value; the table of colour roles says which follow, and the owner's word
+// says when.
+const FORMULA_ROLES = {
+  "--primary": (mode) => mode.primary,
+  "--primary-foreground": (mode) => mode.onPrimary,
+  "--ring": (mode) => mode.primary,
+};
+
+// Each role that follows another, with the value it takes in this mode. `follows` maps a role to
+// the role it follows, in the order the block writes them.
+function followersOf(follows, mode) {
+  return Object.entries(follows ?? {}).map(([role, of]) => {
+    if (!FORMULA_ROLES[of]) {
+      throw new Error(`${role} follows ${of}, which no formula of the block writes`);
+    }
+    return { role, color: FORMULA_ROLES[of](mode) };
+  });
+}
+
 // Builds the theme from the decided inputs and the backgrounds the repository's own CSS declares.
 // `typeScale` and `cornerRadius` are optional: a ledger written before they existed renders as it
 // did then, so its generated check still holds. `context` is what a font of the sources ledger is
@@ -214,7 +236,7 @@ export function buildTheme(inputs, css, context = {}) {
   }
   return {
     palette: tonalPalette(source),
-    modes,
+    modes: modes.map((mode) => ({ ...mode, followers: followersOf(inputs.follows, mode) })),
     thresholds,
     radius: cornerRadius === undefined ? null : CORNER_RADII[cornerRadius],
     type: typeScale === "modular" ? modularScale(typeRatio) : null,
@@ -241,6 +263,9 @@ export function renderBlock(theme) {
     lines.push(`  --primary: ${formatOklch(mode.primary)};`);
     lines.push(`  --primary-foreground: ${formatOklch(mode.onPrimary)};`);
     lines.push(`  --ring: ${formatOklch(mode.primary)};`);
+    for (const follower of mode.followers ?? []) {
+      lines.push(`  ${follower.role}: ${formatOklch(follower.color)};`);
+    }
     lines.push("}", "");
   });
   lines.pop();
