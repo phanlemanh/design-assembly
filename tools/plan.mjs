@@ -68,14 +68,46 @@ export function planProblems(plan) {
       }
     }
   }
+  const groups = new Set();
+  for (const group of plan.parked_groups ?? []) {
+    if (groups.has(group.id)) {
+      found.push(`the group ${group.id} of what is set aside is named twice`);
+    }
+    groups.add(group.id);
+    if (typeof group.name !== "string" || group.name.trim() === "") {
+      found.push(`the group ${group.id} of what is set aside has no name`);
+    }
+  }
   for (const entry of plan.parked ?? []) {
     if (!ids.has(entry.stage)) {
       found.push(
         `"${entry.what}" is set aside for stage ${entry.stage}, which the plan does not have`,
       );
     }
+    if (entry.group !== undefined && !groups.has(entry.group)) {
+      found.push(
+        `"${entry.what}" is set aside in the group ${entry.group}, which the plan does not have`,
+      );
+    }
   }
   return found;
+}
+
+// What is set aside, by group: the groups in the order the plan gives them, which is the order
+// the owner takes them up in, each with its entries in the plan's own order; what names no group
+// comes last, under no name. A group with nothing in it is left out.
+export function parkedByGroup(plan) {
+  const parked = plan.parked ?? [];
+  const named = (plan.parked_groups ?? []).map((group) => ({
+    id: group.id,
+    name: group.name,
+    entries: parked.filter((entry) => entry.group === group.id),
+  }));
+  const ids = new Set(named.map((group) => group.id));
+  const rest = parked.filter((entry) => entry.group === undefined || !ids.has(entry.group));
+  return [...named, { id: null, name: null, entries: rest }].filter(
+    (group) => group.entries.length > 0,
+  );
 }
 
 // The values of the `Plan:` trailers of one commit message: lines of its last paragraph.
@@ -170,8 +202,15 @@ function report(plan) {
   for (const stage of beside) show(stage, "may run beside it");
   if (next) lines.push("", `after that: stage ${next.id} — ${next.name}`);
   lines.push("", `set aside, not lost: ${(plan.parked ?? []).length}`);
-  for (const entry of plan.parked ?? [])
-    lines.push(`  stage ${entry.stage}: ${entry.what} (${entry.why_not_now})`);
+  for (const group of parkedByGroup(plan)) {
+    if (group.name !== null) lines.push(`  ${group.name} (${group.entries.length})`);
+    else if ((plan.parked_groups ?? []).length > 0)
+      lines.push(`  in no group (${group.entries.length})`);
+    const indent = (plan.parked_groups ?? []).length > 0 ? "    " : "  ";
+    for (const entry of group.entries) {
+      lines.push(`${indent}stage ${entry.stage}: ${entry.what} (${entry.why_not_now})`);
+    }
+  }
   const off = offPlanOnMain(plan);
   lines.push(
     "",

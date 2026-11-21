@@ -6,7 +6,7 @@ import path from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { commitProblems, planProblems, position, trailers } from "./plan.mjs";
+import { commitProblems, parkedByGroup, planProblems, position, trailers } from "./plan.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const real = () => JSON.parse(readFileSync(path.join(ROOT, "docs/plan/plan.json"), "utf8"));
@@ -91,6 +91,58 @@ test("something set aside names the stage it waits for", () => {
     planProblems(lost).join("\n"),
     /set aside for stage 42, which the plan does not have/,
   );
+});
+
+test("what is set aside is shown by group, in the order the plan gives its groups", () => {
+  const grouped = copy((plan) => {
+    plan.parked_groups = [
+      { id: "seam", name: "The seam" },
+      { id: "small", name: "Small things" },
+      { id: "empty", name: "Nothing here" },
+    ];
+    plan.parked = [
+      { what: "one", stage: 0, why_not_now: "later", group: "small" },
+      { what: "two", stage: 0, why_not_now: "later", group: "seam" },
+      { what: "three", stage: 0, why_not_now: "later" },
+      { what: "four", stage: 0, why_not_now: "later", group: "seam" },
+    ];
+  });
+  assert.deepEqual(planProblems(grouped), []);
+  assert.deepEqual(
+    parkedByGroup(grouped).map((group) => [group.name, group.entries.map((entry) => entry.what)]),
+    [
+      ["The seam", ["two", "four"]],
+      ["Small things", ["one"]],
+      [null, ["three"]],
+    ],
+  );
+  // A plan that names no groups shows what is set aside as one list, in its own order.
+  const flat = copy((plan) => delete plan.parked_groups);
+  assert.equal(parkedByGroup(flat).length, 1);
+  assert.equal(parkedByGroup(flat)[0].entries.length, flat.parked.length);
+});
+
+test("something set aside in a group the plan does not have, or a group named twice, is a problem", () => {
+  const lost = copy((plan) => {
+    plan.parked_groups = [{ id: "seam", name: "The seam" }];
+    plan.parked[0].group = "nowhere";
+  });
+  assert.match(
+    planProblems(lost).join("\n"),
+    /is set aside in the group nowhere, which the plan does not have/,
+  );
+  const twice = copy((plan) => {
+    plan.parked_groups = [
+      { id: "seam", name: "The seam" },
+      { id: "seam", name: "Again" },
+    ];
+  });
+  assert.match(
+    planProblems(twice).join("\n"),
+    /the group seam of what is set aside is named twice/,
+  );
+  const unnamed = copy((plan) => (plan.parked_groups = [{ id: "seam" }]));
+  assert.match(planProblems(unnamed).join("\n"), /the group seam of what is set aside has no name/);
 });
 
 test("a commit's trailer is read from its last lines", () => {
