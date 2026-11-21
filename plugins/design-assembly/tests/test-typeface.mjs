@@ -311,7 +311,7 @@ function fontRepository(css, files = {}, stylesheet = "src/index.css") {
 }
 const fontResult = (dir) => runChecks(readState(dir)).find((result) => result.id === "font-loaded");
 const theme = (sans, heading = "var(--font-sans)") =>
-  `@import "tailwindcss";\n\n@theme inline {\n  --font-heading: ${heading};\n  --font-sans: ${sans};\n}\n`;
+  `@theme inline {\n  --font-heading: ${heading};\n  --font-sans: ${sans};\n}\n`;
 
 test("the first typeface of a list is the one the page means; a generic family needs nothing", () => {
   assert.deepEqual(firstFamily('"Geist Variable", sans-serif'), { name: "Geist Variable" });
@@ -402,7 +402,8 @@ test("second stack: its font loader in a layout file, setting the variable the s
     /--font-sans in src\/app\/globals\.css names the typeface var\(--font-inter\)/,
   );
   assert.match(fontResult(missing).problem, /layout file/);
-  // A loader named by its family loads that family, written by name.
+  // The loader writes its family under a name of its own: a stylesheet that names the family in
+  // words gets the fallback, so a loader with a variable does not load it by name.
   const byName = fontRepository(
     theme('"Inter", sans-serif'),
     {
@@ -411,7 +412,46 @@ test("second stack: its font loader in a layout file, setting the variable the s
     },
     "src/app/globals.css",
   );
-  assert.equal(fontResult(byName).problem, null);
+  assert.match(fontResult(byName).problem, /names the typeface "Inter"/);
+});
+
+test("second stack: a loader called with no variable loads nothing a stylesheet can name", () => {
+  const dir = fontRepository(
+    theme('"Inter", sans-serif'),
+    {
+      "package.json": JSON.stringify({ dependencies: { next: "16.0.0" } }),
+      "app/layout.tsx": [
+        'import { Inter } from "next/font/google";',
+        "",
+        'const inter = Inter({ subsets: ["latin"] });',
+        "",
+        "export default function RootLayout({ children }) {",
+        "  return <html className={inter.className}>{children}</html>;",
+        "}",
+        "",
+      ].join("\n"),
+    },
+    "app/globals.css",
+  );
+  const result = fontResult(dir);
+  assert.match(result.problem, /--font-sans in app\/globals\.css names the typeface "Inter"/);
+  assert.deepEqual(readState(dir).fonts.loads, []);
+});
+
+test("a font package the stylesheet imports and the repository has not installed is named as such", () => {
+  const dir = fontRepository(`@import "brand-type";\n${theme('"Brand Sans", sans-serif')}`, {
+    "package.json": JSON.stringify({ devDependencies: { vite: "8.0.0" } }),
+  });
+  const result = fontResult(dir);
+  // Still red: nothing here shows the typeface is loaded, and the gate cannot read what would.
+  assert.ok(result.problem, "an unread package passed");
+  assert.match(result.problem, /names the typeface "Brand Sans"/);
+  assert.match(
+    result.problem,
+    /the package brand-type, which src\/index\.css imports, is not installed here/,
+  );
+  assert.match(result.problem, /Install the repository's packages, then run the gate again/);
+  assert.doesNotMatch(result.problem, /no package the stylesheet imports does/);
 });
 
 // ---- a repository set up before this version ----------------------------------------------------

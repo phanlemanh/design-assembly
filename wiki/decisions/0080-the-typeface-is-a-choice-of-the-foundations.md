@@ -98,6 +98,20 @@ trị hay đỏ cổng, lựa chọn mới là một câu chờ chủ repo.
 12. **Cổng không dừng giữa chừng.** Khi sàn thôi khai font mà chủ repo đã chọn giữ, phép kiểm `generated` đỏ bằng một
     câu nói điều ấy, thay vì để lỗi văng ra khỏi `make check`.
 
+13. **Bộ nạp font của nền dựng thứ hai chỉ được tính qua biến nó đặt.** Người soát lần hai chỉ ra: bộ nạp viết họ chữ
+    dưới một tên nó tự sinh (gói đã cài băm tên họ của mọi quy tắc `@font-face` nó phát ra), và tài liệu đi kèm gói
+    chỉ ba lối dùng font đã nạp: tên lớp, đối tượng kiểu, và biến CSS. Một stylesheet nêu họ chữ bằng chữ thì nhận họ
+    dự phòng, đúng lỗi tiêu chí 4 có để bắt, mà bản đầu của bộ đọc lại cho xanh. Nay một font của bộ nạp chỉ được tính
+    là đã nạp qua biến mà lời gọi trong tệp layout đặt bằng `variable`, và chỉ khi stylesheet dùng biến ấy; lối khớp theo
+    tên bị bỏ. Điều bộ đọc vẫn không thấy: lớp đặt biến ấy có được gắn lên trang hay không (`font-loader-reader-unproven`),
+    và bộ nạp mà khai báo riêng của nó đặt cho họ chữ một tên của repo thì bị đọc là không gì nạp
+    (`font-loaded-reads-first-family-by-name`).
+14. **Gói font chưa cài: cổng vẫn đỏ, nhưng câu đỏ nói đúng chiều.** Trên một bản chép chưa cài gói, cổng không đọc được
+    gói mà stylesheet nhập nạp gì. Câu đỏ nay nêu gói ấy chưa được cài ở đây, nên điều nó nạp không đọc được, và bảo cài
+    gói của repo rồi chạy lại cổng, thay vì nói không gói nào nạp họ chữ. Cổng vẫn đỏ: không gì ở đây chứng được họ chữ
+    được nạp, và cho xanh khi không đọc được thì một gói gõ sai tên hay đã gỡ sẽ lọt qua; CI luôn cài gói trước khi chạy
+    cổng. Dòng `font-package-read-where-installed` thu hẹp theo.
+
 ## Consequences
 
 - Hợp đồng đổi ba chỗ: tầng nền thêm `text_font` và `heading_font` (và khoá `not_yet`, `answered`); sổ token thêm nhóm

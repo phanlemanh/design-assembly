@@ -106,6 +106,17 @@ export function fontProblems(styles, variables, stylesheet, fonts) {
       : loads.some((item) => item.family?.toLowerCase() === key);
     if (loaded) continue;
     const shown = first.variable ? `var(${first.variable})` : `"${first.name}"`;
+    // A package the stylesheet imports and nobody installed here may be what loads it: the
+    // sentence says what could not be read, and what to run, instead of that nothing loads it.
+    const missing = loads.filter((item) => item.missing).map((item) => item.missing);
+    if (missing.length > 0) {
+      const which = missing.length === 1 ? "the package" : "the packages";
+      const verb = missing.length === 1 ? "is" : "are";
+      found.push(
+        `${variable} in ${stylesheet} names the typeface ${shown}, and nothing read here loads it: ${which} ${missing.join(", ")}, which ${stylesheet} imports, ${verb} not installed here, so what ${missing.length === 1 ? "it loads" : "they load"} could not be read. Install the repository's packages, then run the gate again`,
+      );
+      continue;
+    }
     found.push(
       `${variable} in ${stylesheet} names the typeface ${shown}, and nothing in the repository loads it: ${fonts?.say ?? "nothing was read"}. Load it, or choose the floor's font or the system font`,
     );

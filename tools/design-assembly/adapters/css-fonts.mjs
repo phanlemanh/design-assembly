@@ -36,10 +36,11 @@ const readJson = (file) => {
 // The stylesheet a package import names, in the repository's installed packages, or null: the
 // file of the path after the package's name, else what the package says its stylesheet is.
 export function packageStylesheet(root, specifier) {
-  const parts = specifier.split("/");
-  const name = specifier.startsWith("@") ? parts.slice(0, 2).join("/") : parts[0];
-  const rest = parts.slice(specifier.startsWith("@") ? 2 : 1).join("/");
-  const folder = path.join(root, "node_modules", name);
+  const { folder } = packageFolder(root, specifier);
+  const rest = specifier
+    .split("/")
+    .slice(specifier.startsWith("@") ? 2 : 1)
+    .join("/");
   if (!existsSync(folder)) return null;
   const candidates = [];
   if (rest) candidates.push(rest, `${rest}.css`);
@@ -57,13 +58,26 @@ export function packageStylesheet(root, specifier) {
   return file ?? null;
 }
 
-// Every typeface a stylesheet loads by itself, each with what loads it.
+// The folder a package import names among the repository's installed packages.
+function packageFolder(root, specifier) {
+  const parts = specifier.split("/");
+  const name = specifier.startsWith("@") ? parts.slice(0, 2).join("/") : parts[0];
+  return { name, folder: path.join(root, "node_modules", name) };
+}
+
+// Every typeface a stylesheet loads by itself, each with what loads it; and each package it imports
+// that is not installed here, whose typefaces could not be read.
 export function stylesheetLoads(root, css, stylesheet) {
   const loads = faceFamilies(css).map((family) => ({
     family,
     by: `an @font-face rule of ${stylesheet}`,
   }));
   for (const specifier of importedPackages(css)) {
+    const { name, folder } = packageFolder(root, specifier);
+    if (!existsSync(folder)) {
+      if (!loads.some((item) => item.missing === name)) loads.push({ missing: name });
+      continue;
+    }
     const file = packageStylesheet(root, specifier);
     if (!file) continue;
     for (const family of faceFamilies(readFileSync(file, "utf8"))) {

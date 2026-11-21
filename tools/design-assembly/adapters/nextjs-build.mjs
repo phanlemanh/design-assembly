@@ -49,8 +49,10 @@ function layoutFiles(root, folder) {
 }
 
 // What loads a typeface on this stack: what the stylesheet loads itself, and the build's font
-// loader called in a layout file. A loader call that names a variable sets it on the page; one of
-// the hosted families loads that family by its name, an underscore for each space.
+// loader called in a layout file. The loader writes its family under a name it makes up, so a
+// stylesheet reaches a font of the loader only through the CSS variable the call sets, with
+// `variable`: that variable is what it loads, never the family by its name. A call with no
+// variable is applied by a class or a style in code, which no stylesheet names.
 function fontLoads(root, css, stylesheet) {
   const loads = stylesheetLoads(root, css, stylesheet);
   for (const file of APP_FOLDERS.flatMap((folder) => layoutFiles(root, folder))) {
@@ -59,11 +61,6 @@ function fontLoads(root, css, stylesheet) {
     const by = `the font loader in ${file}`;
     for (const match of source.matchAll(/\bvariable\s*:\s*["'](--[\w-]+)["']/g)) {
       loads.push({ variable: match[1], by });
-    }
-    const hosted = /import\s*\{([^}]*)\}\s*from\s*["']next\/font\/google["']/.exec(source);
-    for (const name of (hosted?.[1] ?? "").split(",")) {
-      const family = name.trim().split(/\s+as\s+/)[0];
-      if (family) loads.push({ family: family.replaceAll("_", " "), by });
     }
   }
   return loads;
