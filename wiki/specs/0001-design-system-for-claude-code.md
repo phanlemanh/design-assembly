@@ -738,6 +738,17 @@ phiếu đầu. Điều đã dựng khớp khuyến nghị của ô 12. Nó khô
 nào. Nó khai 33 chỗ tự quyết; sau khi kiểm còn 14, so với 11 của lần 12: 11 chỗ vào hàng chờ, 3 chỗ tự quyết lặng lẽ.
 Bốn chỗ là loại lần 12 không khai. Phiếu in sổ giới hạn có kể điều lần 12 tìm ra. Vì vậy con số không so thẳng với lần 12. Hai dòng sổ giới hạn thu hẹp, ba dòng mới; chi tiết ở `docs/trials/screen-trial-13-after-the-fixes.md`.
 
+### Chạy thử lần mười bốn (2026-11-21)
+
+Chỉ vai dựng màn, đề chuẩn nguyên văn, lượt chạy lại của mục 5.7 sau các sửa của quyết định 0077; bản sao dựng như lần
+13, cùng mô hình Opus 5.5 cho tác tử. Trước khi tác tử bắt đầu, phiếu và trang luật của bản sao được đọc lại: không chỗ
+nào nêu lượt thử hay kể điều một tác tử trước làm. Tác tử chạy phiếu cho cả ba màn nó đổi, trước khi dựng, xếp 6 câu của
+các ô còn mở, trong đó 2 câu chung dưới `screens:`, và tự hỏi 8 câu bằng `decide --ask`. Nó hỏi tên đọc của các nút trong
+«⋯» và chữ của trạng thái chờ, hai loại lần 13 tự quyết lặng lẽ, và làm theo trang luật ở loại thứ ba, nút trên toast.
+Nó chạy lại phiếu cho màn mới sau khi dựng. Cổng xanh, không dừng hỏi lần nào. Nó khai 26 chỗ tự quyết; sau khi kiểm còn
+13, so với 14 của lần 13: 10 chỗ vào hàng chờ, 3 chỗ tự quyết lặng lẽ, đều là loại khác ba loại của lần 13. Một dòng sổ
+giới hạn thu hẹp, ba dòng mới; chi tiết ở `docs/trials/screen-trial-14-after-the-second-fixes.md`.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.
