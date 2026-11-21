@@ -138,10 +138,13 @@ test("criterion 9: the rules page tells a builder to run the brief before a scre
   assert.doesNotMatch(bare, /brief/);
   const other = rulesPage({ labels: [{ kind: "labels" }] }, () => false);
   assert.doesNotMatch(other, /brief/);
-  // The page with the ledger is the page without it plus that paragraph and the ledger's own lines.
+  // The page with the ledger is the page without it plus two paragraphs, the second on what the
+  // sheet does not hold, and the ledger's own lines.
   const lines = held.split("\n");
   const from = lines.findIndex((line) => line.startsWith("Before you build or change a screen"));
-  const to = lines.findIndex((line, index) => index > from && line === "");
+  const second = lines.findIndex((line) => line.startsWith("The twelve slots are the choices"));
+  assert.equal(lines[second - 1], "");
+  const to = lines.findIndex((line, index) => index > second && line === "");
   const without = [...lines.slice(0, from - 1), ...lines.slice(to)].join("\n");
   assert.equal(without.slice(0, without.indexOf("\n## ")), bare.slice(0, bare.indexOf("\n## ")));
 });

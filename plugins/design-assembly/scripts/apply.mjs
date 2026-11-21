@@ -1103,7 +1103,28 @@ function fixedFirst(blueprint, asks) {
 }
 
 // What the rules page tells a builder to do before it builds or changes a screen: run the brief
-// of that screen and build from its sheet.
+// of that screen and build from its sheet, and ask what the sheet does not hold. The twelve slots
+// are not every question of a screen: a builder that queues the open ones and asks nothing else
+// decides the rest alone. `asks` is whether the page has the section on the owner's questions to
+// point at; without it the call is named.
+const briefFirst = (asks) => [
+  ...BRIEF_FIRST,
+  "",
+  "The twelve slots are the choices every screen meets. They are not every question of the screen:",
+  "a sheet with nothing open does not mean nothing is left to ask. Any other choice that no ledger,",
+  "component or page of a kind settles is still the owner's, and is asked one question each: the",
+  "name and the shape of a new concept, the word a reader sees for it, which look a control takes,",
+  "what another screen does with what this one adds. The sheet names where such choices hide on",
+  ...(asks
+    ? [
+        "the screen. Ask each as the section «Questions only the owner answers» says, and go on with",
+        "your recommendation.",
+      ]
+    : [
+        "the screen. Ask each with `/design-assembly:decide --ask`, with what you recommend and what",
+        "it rests on, and go on with your recommendation.",
+      ]),
+];
 const BRIEF_FIRST = [
   "Before you build or change a screen, run `/design-assembly:brief <screen id>`, with the screen's",
   "`id` in the ledger of screens; a screen that is not built yet is entered there first, with",
@@ -1143,7 +1164,7 @@ export function rulesPage(checks, has, blueprint = null) {
     "it.",
     // Where the repository keeps a ledger of screens, a builder is handed one sheet for its screen.
     // It stands before the rules, to be read first, and is no rule itself: no check holds it.
-    ...(held("screen-ledger") ? ["", ...BRIEF_FIRST] : []),
+    ...(held("screen-ledger") ? ["", ...briefFirst(held("decision-sheet"))] : []),
   ];
   const section = (title, items) => {
     const shown = items.filter(Boolean);

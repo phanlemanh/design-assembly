@@ -234,6 +234,9 @@ test("criterion 5: --queue writes one new file of the waiting list for each open
         recommendation: first.ask.recommendation,
         basis: first.ask.basis.text,
         hard_to_undo: first.ask.hard_to_undo,
+        // Nothing was built since: nothing stands against the recommendation that waits.
+        against: [],
+        now: [],
       });
       assert.deepEqual(slotOf(told, slot.id).asked, slot.asked);
       assert.equal(slotOf(told, slot.id).call, undefined);
@@ -248,7 +251,11 @@ test("criterion 5: --queue writes one new file of the waiting list for each open
     assert.ok(shown.stdout.includes(slot.ask.recommendation), slot.id);
     assert.ok(shown.stdout.includes(`${WAITING_FOLDER}/${slot.ask.id}.json`), slot.id);
   }
-  assert.doesNotMatch(shown.stdout, /--ask/);
+  // An asked slot gives no call of its own. The sheet still gives the one call that asks a choice
+  // no slot holds: slots that are asked are not everything there is to ask.
+  const [ofSlots, beyond] = shown.stdout.split("beyond the twelve slots:");
+  assert.doesNotMatch(ofSlots, /--ask/);
+  assert.match(beyond, /--ask 'QUESTION'/);
   // Asked once: a second --queue writes nothing, and the tree is as the first left it.
   const again = run([PLANNED, "--target", dir, "--queue", "--json"]);
   assert.equal(again.status, EXIT.work, again.stderr);
@@ -385,6 +392,8 @@ test("criterion 8: exit 0 is reached through the command itself, once the owner 
     open: 0,
     settled_by_answer: 1,
     settled_waiting: 0,
+    settled_on_branch: 0,
+    against: 0,
   });
   assert.match(run([BUILT, "--target", dir]).stdout, /12 of 12 slots settled/);
 });
@@ -489,7 +498,12 @@ test("a slot the sheet cannot ask says so, and offers no call the decision sheet
     assert.match(slot.cannot_ask, /does not name one screen/, slot.id);
   }
   const shown = run(["my returns", "--target", odd]).stdout;
-  assert.doesNotMatch(shown, /--ask|run again with --queue/);
+  // No slot gives a call. The one call the sheet still prints asks a choice no slot holds, and
+  // names no screen: the decision sheet takes it.
+  const [ofSlots, beyond] = shown.split("beyond the twelve slots:");
+  assert.doesNotMatch(ofSlots, /--ask|run again with --queue/);
+  assert.match(beyond, /--ask 'QUESTION'/);
+  assert.doesNotMatch(beyond, /--item/);
   assert.match(shown, /cannot be asked: .*does not name one screen/);
   // --queue has nothing it can ask there: it writes nothing and says so.
   const before = tree(odd);
@@ -631,6 +645,8 @@ test("the summary says how many settled slots hold a line that waits on another 
     open: 3,
     settled_by_answer: 0,
     settled_waiting: 2,
+    settled_on_branch: 0,
+    against: 0,
   });
   const shown = run([PLANNED, "--target", dir]).stdout;
   assert.match(

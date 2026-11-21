@@ -18,6 +18,14 @@ unless it says it is hard to undo. An open slot has nothing behind it: ask it be
 alone, with the call the sheet gives, or all of them at once with `--queue`. Never answer a
 slot for the owner.
 
+The twelve slots are the choices every screen meets. They are not every question of the screen:
+a sheet with nothing open does not mean nothing is left to ask. Any other choice that no ledger,
+component or page of a kind settles is still the owner's, and is asked one question each: the
+name and the shape of a new concept, the word a reader sees for it, which look a control takes,
+what another screen does with what this one adds. The sheet names where such choices hide on
+the screen. Ask each as the section «Questions only the owner answers» says, and go on with
+your recommendation.
+
 ## A table of data
 
 - A column shows a field of the data model. The field names its column type once: a `display` key on its property in `ontology/entities/`, with a type listed in `design/column-types.json`.

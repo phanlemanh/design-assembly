@@ -6,8 +6,10 @@
 // settle is then looked up on the waiting list, by the item `screen:<screen id>:<slot>`: a
 // question that waits there makes it asked, an answer of the owner's settles it, with their name
 // and the day the answer carries, and with neither it is open and gives the question the decision
-// sheet would be asked, as the very call that asks it. Read-only, and read from the repository
-// alone.
+// sheet would be asked, as the very call that asks it. What the working tree says is set beside
+// what the repository had where this branch left the main one (brief-branch.mjs): a line read
+// from a row this branch wrote says so, and a question that waits is held against what stands
+// now. Read-only, and read from the repository alone.
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -30,7 +32,8 @@ import {
   SCREEN_SLOTS,
   screenItem,
 } from "../templates/tools/design-assembly/waiting.mjs";
-import { MEASURES, READERS } from "./brief-readers.mjs";
+import { branchOf, modelWritten, rowWritten } from "./brief-branch.mjs";
+import { MEASURES, PLACES, READERS, STANDS } from "./brief-readers.mjs";
 import { BASES } from "./document.mjs";
 import { callOf } from "./queue.mjs";
 
@@ -108,6 +111,11 @@ export function askProblems(catalogue) {
         `${slot?.id}: an open slot must recommend something, say what that rests on (a principle, a standard or a measurement), and say whether it is hard to undo`,
       );
     }
+    for (const [name, other] of Object.entries(ask?.cases ?? {})) {
+      if (!written(other?.recommend)) {
+        found.push(`${slot?.id}: its recommendation for the case ${name} says nothing`);
+      }
+    }
     if (!SCREEN_SLOTS.includes(slot?.id)) {
       found.push(
         `${slot?.id}: the waiting list cannot name this slot (it names: ${SCREEN_SLOTS.join(", ")})`,
@@ -132,18 +140,54 @@ function kindOf(pages, family) {
   return { ...page, text: pages[page.file], front: frontMatter(pages[page.file]) ?? {} };
 }
 
+// What this branch wrote, as the readers are given it: whether anything was compared and with
+// which main branch, how the screen's own row stands against the one the base has, what the data
+// model gained, lost or changed, and the other screens of the ledger this branch changed, each
+// with what of it changed: its row, or the source file that draws it. A screen this branch adds
+// is a screen of its own and not one it changed. Where nothing was compared
+// the row is not said to be anyone's, and nothing is listed.
+function branchFacts(target, { own, raw, others, drawn }) {
+  const found = branchOf(target);
+  const { compared, main, on_main, why } = found;
+  const said = { compared, main, on_main, why };
+  if (!compared) return { ...said, row: { new: false, changed: [] }, model: [], touched: () => [] };
+  const rowAt = (id) => found.screens.find((item) => String(item?.id) === String(id));
+  return {
+    ...said,
+    row: rowWritten(rowAt(own.id), own.row),
+    model: modelWritten(found.model, raw),
+    touched: () => {
+      const files = drawn();
+      return others
+        .map((item) => {
+          const written = rowWritten(rowAt(item.id), item);
+          const file = files.find((screen) => screen.id === String(item.id))?.file ?? null;
+          return {
+            id: String(item.id),
+            added: written.new,
+            row: written.changed,
+            file: file !== null && found.changed.has(file) ? file : null,
+          };
+        })
+        .filter((item) => !item.added && (item.row.length > 0 || item.file !== null));
+    },
+  };
+}
+
 // What every reader is given: the screen and its own row with the file the row is kept in, the
 // keys the ledger spells its columns with, the page of the screen's kind, the data model as the
 // files have it (`raw`) and as who-holds-what (`model`), the screen list of the application, the
-// rows of the other screens of the ledger, and the number a slot of the catalogue has, for an
-// answer that waits on another slot.
+// ledger of screens and the rows of its other screens, what this branch wrote, and the number a
+// slot of the catalogue has, for an answer that waits on another slot.
 function contextOf(target, facts, catalogue) {
   const [own] = facts.ledger_rows;
   const text = ledgerText(target);
   const ledger = readScreenLedger(text);
   const spelled = ledger?.keys && typeof ledger.keys === "object" ? ledger.keys : {};
+  const keys = { ...KEYS, ...spelled };
   const registry = read(target, REGISTRY);
   const raw = readModel(target);
+  const others = ledger.screens.filter((item) => String(item?.id) !== facts.screen.id);
   // Each built screen with the source file that draws it, and its id in the ledger: read when a
   // reader asks, since it reads every source file.
   const drawn = () =>
@@ -153,24 +197,50 @@ function contextOf(target, facts, catalogue) {
         id: ledger.screens.find((item) => item.route === screen.path)?.id ?? null,
       }),
     );
+  const branch = branchFacts(target, { own, raw, others, drawn });
+  // Whether what is read from the row is this branch's own: the whole row where the base has none,
+  // one key where its value changed, and, with no key named, what the row says of the data model.
+  const written = (key) => {
+    if (branch.row.new) return "new";
+    const named = key ? [key] : [keys.shows, keys.entry, keys.actions];
+    return named.some((name) => branch.row.changed.includes(name)) ? "changed" : null;
+  };
   return {
     target,
     facts,
     screen: { ...facts.screen, route: facts.screen.route ?? null },
     row: own.row,
     status: String(own.row.status ?? "built"),
-    // Where a key of the screen's own row is read from.
-    at: (key) => ({ file: own.ledger, row: own.id, ...(key ? { key } : {}) }),
-    keys: { ...KEYS, ...spelled },
+    // Where a key of the screen's own row is read from, and whether this branch wrote it.
+    at: (key) => ({
+      file: own.ledger,
+      row: own.id,
+      ...(key ? { key } : {}),
+      ...(written(key) ? { branch: written(key) } : {}),
+    }),
+    // Whether a part of the data model a line is read from is this branch's own: an action or an
+    // entity by its name, a field as Entity.field.
+    inModel: (what, name) => {
+      const mine = branch.model.find((item) => item.what === what && item.name === name);
+      return mine ? { branch: mine.change === "added" ? "new" : "changed" } : {};
+    },
+    keys,
     kind: kindOf(readPages(target), facts.screen.family),
     raw,
     model: modelOf(raw),
     registry,
     drawn,
-    others: ledger.screens.filter((item) => String(item?.id) !== facts.screen.id),
+    ledger,
+    others,
+    branch,
     numberOf: (id) => catalogue.slots.find((slot) => slot.id === id)?.number ?? id,
   };
 }
+
+// The words of a recommendation of the catalogue, with what the sheet measured put where the
+// words leave room for it, written {name}.
+const filled = (words, fill = {}) =>
+  words.replace(/\{([a-z_]+)\}/g, (whole, name) => (name in fill ? fill[name] : whole));
 
 // What an open slot puts to the owner: the question, with the screen and why nothing settles it,
 // the catalogue's recommendation for that slot, and what it rests on, with what the sheet
@@ -179,15 +249,21 @@ function contextOf(target, facts, catalogue) {
 function questionOf(slot, found, context) {
   const { screen, status } = context;
   const read = found.why.join("; ");
+  // What the sheet measured for this slot, and which of the catalogue's recommendations what it
+  // read or measured calls for: the slot's own where neither names another.
   const measured = MEASURES[slot.id]?.(context) ?? null;
+  const which = found.case ?? measured?.case;
+  const recommend = slot.ask.cases?.[which]?.recommend ?? slot.ask.recommend;
   return {
     item: screenItem(screen.id, slot.id),
     id: questionId(screen.id, slot.id),
     question: `For the screen ${screen.id}, ${status === "built" ? "which is built" : "declared ahead and not built yet"}, slot ${slot.number}, ${slot.name}: ${slot.question} Nothing in the repository settles it: ${read}.`,
-    recommendation: slot.ask.recommend,
+    recommendation: filled(recommend, measured?.fill),
     basis: {
       kind: slot.ask.basis.kind,
-      text: [slot.ask.basis.text, measured, `The sheet read: ${read}.`].filter(Boolean).join(" "),
+      text: [slot.ask.basis.text, measured?.text, `The sheet read: ${read}.`]
+        .filter(Boolean)
+        .join(" "),
     },
     hard_to_undo: slot.ask.hard_to_undo,
   };
@@ -240,6 +316,34 @@ function unaskable(ask, waiting) {
     : null;
 }
 
+// A question that waits, held against what stands in the repository now, where the sheet can
+// read it: `against` is each thing that goes against its recommendation, `now` each thing that
+// stands beside it and that the sheet cannot judge, the recommendation being in words of its own.
+// Both say what the branch holds against the main one, whenever the question was asked, and both
+// are empty for a slot nothing reads this way.
+function standsNow(slot, row, context) {
+  const found = STANDS[slot.id]?.(context, row.recommendation ?? null, slot) ?? {};
+  return { against: found.against ?? [], now: found.now ?? [] };
+}
+
+// A slot the repository settles while a question about it still waits on the owner: the question,
+// with its recommendation held against what the repository says now. Nothing where no question
+// waits.
+function stillWaits(slot, context, waiting) {
+  const stands = standingOf(waiting, context.screen.id, slot.id);
+  if (!stands || stands.row.answer) return {};
+  const { row, file } = stands;
+  return {
+    waits: {
+      id: row.id,
+      file,
+      question: row.question,
+      recommendation: row.recommendation ?? null,
+      ...standsNow(slot, row, context),
+    },
+  };
+}
+
 // One slot the repository does not settle, by where its question stands: settled by the owner's
 // answer, asked and waiting, or open, with the question to ask and the call that asks it. An open
 // slot whose question the decision sheet would refuse gives no call, and says why.
@@ -271,6 +375,7 @@ function unsettled(slot, found, context, { waiting, target, plugin }) {
         recommendation: row.recommendation ?? null,
         basis: row.basis ?? null,
         hard_to_undo: row.hard_to_undo ?? null,
+        ...standsNow(slot, row, context),
       },
     };
   }
@@ -287,8 +392,9 @@ function unsettled(slot, found, context, { waiting, target, plugin }) {
   };
 }
 
-// The twelve slots of one screen, in the catalogue's order, and what the readers found beside
-// their answers, for the answer a machine reads. A slot no ledger holds, on every sheet or while
+// The twelve slots of one screen, in the catalogue's order, with what the readers found beside
+// their answers, for the answer a machine reads, how the sheet stands against the main branch,
+// and the places beyond the slots where a choice of this screen hides. A slot no ledger holds, on every sheet or while
 // the screen is not built, is not read: the catalogue's own reason says why the repository does
 // not settle it. `waiting` is the waiting list to look questions up on, the repository's own when
 // not given; one that cannot be read stops the sheet, since a slot's state would not be known.
@@ -310,6 +416,9 @@ export function slotsOf(
     const unheld = [context.status, "always"].includes(slot.unheld?.when);
     const found = unheld ? { answer: [], why: [slot.unheld.why] } : readers[slot.id](context);
     Object.assign(data, found.data ?? {});
+    const settled = found.why.length === 0;
+    // A settled slot one of whose lines was read from what this branch wrote.
+    const mine = settled && found.answer.some((item) => item.source.branch);
     return {
       number: slot.number,
       id: slot.id,
@@ -318,10 +427,20 @@ export function slotsOf(
       state: "settled",
       answer: found.answer,
       why: found.why,
-      ...(found.why.length === 0
-        ? {}
+      ...(mine ? { written_on_branch: true } : {}),
+      ...(settled
+        ? stillWaits(slot, context, list)
         : unsettled(slot, found, context, { waiting: list, target, plugin })),
     };
   });
-  return { slots, data };
+  const { compared, main, on_main, why } = context.branch;
+  const places = catalogue.slots.flatMap((slot) =>
+    (PLACES[slot.id]?.(context) ?? []).map((place) => ({
+      slot: slot.id,
+      number: slot.number,
+      name: slot.name,
+      ...place,
+    })),
+  );
+  return { slots, data, branch: { compared, main, on_main, why }, places };
 }

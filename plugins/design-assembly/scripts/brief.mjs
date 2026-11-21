@@ -4,8 +4,13 @@
 // the row or line the answer comes from, or the owner answered a question about it, with their
 // name and the day the answer carries. Asked: a question about that slot of that screen waits on
 // the owner, with its recommendation. Open: nothing says, and the sheet gives the very call of the
-// decision sheet that asks it, with a recommendation and what it rests on. The sheet asks no
-// question itself and answers none: every question goes through the decision sheet. No model is
+// decision sheet that asks it, with a recommendation and what it rests on. The twelve slots are
+// the choices every screen meets and not every question of one screen: the sheet says so, names
+// where other choices of this screen hide, and gives the call that asks any of them. What the
+// working tree says is compared with where the branch left the main one: a line read from a row
+// this branch wrote says so, what this branch wrote into the data model opens its slot, and a
+// question that waits is held against what stands now. The sheet asks no question itself and
+// answers none: every question goes through the decision sheet. No model is
 // called and no clock is read for the sheet, so the same repository gives the same sheet, byte
 // for byte; the one day a clock gives is the day a queued question says it was asked.
 // Read-only but for one flag. With --out it writes the sheet as a document into that folder and
@@ -21,11 +26,19 @@ import { stdout } from "node:process";
 
 import { writeFiles, writtenFiles } from "./apply.mjs";
 import { older } from "./asking.mjs";
-import { briefLimits, DECIDE, sheetOf, sourceWords, standOf } from "./brief-sheet.mjs";
+import {
+  ASK,
+  beyondNote,
+  briefLimits,
+  DECIDE,
+  sheetOf,
+  sourceWords,
+  standOf,
+} from "./brief-sheet.mjs";
 import { slotsOf } from "./brief-slots.mjs";
 import { finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
-import { askAll } from "./queue.mjs";
+import { askAll, callOf } from "./queue.mjs";
 import { factsOf } from "./review-pack.mjs";
 import { readStamp } from "./stamp.mjs";
 
@@ -38,6 +51,9 @@ const QUESTIONS_SINCE = "0.24.0";
 // How the slots of a sheet stand, counted: how many are settled, asked and open, how many of the
 // settled ones the owner's answer settled, and how many hold a line that waits on another slot.
 // One thing missing opens one slot, so such a slot is settled; the count says it is not whole.
+// Two more counts say what a settled or an asked slot rests on: how many settled slots hold a
+// line read from what this branch wrote, and how many questions that wait recommend what the
+// repository no longer does.
 export function summaryOf(slots) {
   const settled = slots.filter((slot) => slot.state === "settled");
   const count = (state) => slots.filter((slot) => slot.state === state).length;
@@ -50,6 +66,28 @@ export function summaryOf(slots) {
     settled_waiting: settled.filter((slot) =>
       slot.answer.some((item) => item.waits_on !== undefined),
     ).length,
+    settled_on_branch: settled.filter((slot) => slot.written_on_branch).length,
+    against: slots.filter((slot) => (slot.asked ?? slot.waits)?.against.length > 0).length,
+  };
+}
+
+// What the sheet says of the choices no slot holds: that the slots are not every question of the
+// screen, how any other choice is asked, as the command a person types and as the call a builder
+// runs, and where such choices hide on this screen. `rules` are the lines of the rules page.
+function beyondOf(target, rules, places) {
+  return {
+    note: beyondNote(rules),
+    ask: ASK,
+    call: callOf(
+      {
+        question: "QUESTION",
+        recommendation: "WHAT YOU RECOMMEND",
+        basis: "WHAT IT RESTS ON",
+        hard_to_undo: false,
+      },
+      { target },
+    ),
+    places,
   };
 }
 
@@ -59,7 +97,7 @@ export function summaryOf(slots) {
 // `waiting` is the waiting list to look questions up on, the repository's own when not given.
 export function brief(target, id, { catalogue, waiting } = {}) {
   const facts = factsOf(target, id, { unbuilt: true });
-  const { slots, data } = slotsOf(target, facts, {
+  const { slots, data, branch, places } = slotsOf(target, facts, {
     ...(catalogue ? { catalogue } : {}),
     ...(waiting === undefined ? {} : { waiting }),
   });
@@ -95,8 +133,11 @@ export function brief(target, id, { catalogue, waiting } = {}) {
     direction: facts.direction,
     widths: facts.widths,
     widths_declared: facts.declared,
-    model_changes: data.model_changes ?? { actions: [], entities: [] },
+    model_changes: data.model_changes ?? { actions: [], entities: [], written: [] },
+    // How the sheet stands against the main branch: whether anything was compared, and why not.
+    branch,
     summary: summaryOf(slots),
+    beyond: beyondOf(target, facts.rules.lines, places),
     slots,
     asked: listed("asked", ({ asked }) => ({ asked })),
     // An open slot gives its question and the call that asks it, or why it cannot be asked.
@@ -143,12 +184,55 @@ export function queueOf(target, id, { catalogue, on } = {}) {
 
 const numbered = (slot) => String(slot.number).padStart(2);
 
+// What stands in the repository now beside a question that waits, one line each.
+const standLines = ({ against, now }) => [
+  ...against.map((line) => `     goes against the recommendation that waits: ${line}`),
+  ...now.map((line) => `     stands now, beside the recommendation that waits: ${line}`),
+];
+
 function slotLines(slot) {
   const unsaid = slot.state === "open" ? "open" : "not said by the repository";
   return [
     `${numbered(slot)} ${slot.name}: ${slot.state}`,
     ...slot.answer.map((item) => `     ${item.says}  [${sourceWords(item.source)}]`),
     ...slot.why.map((reason) => `     ${unsaid}: ${reason}`),
+    ...(slot.waits
+      ? [
+          `     a question about this slot still waits (${slot.waits.id}, ${slot.waits.file}), with the recommendation: ${slot.waits.recommendation ?? "none given"}`,
+          ...standLines(slot.waits),
+        ]
+      : []),
+    ...(slot.asked ? standLines(slot.asked) : []),
+  ];
+}
+
+// How the sheet stands against the main branch, in one line under the counts.
+function branchLine({ compared, main, on_main: onMain, why }) {
+  if (!compared) {
+    return `  not compared with a main branch: ${why}; what this branch wrote reads as the repository's own`;
+  }
+  if (onMain) return `  compared with ${main}: ${why}`;
+  return `  compared with where this branch left ${main}: a line marked «written on this branch» is this branch's own, not what the repository had settled`;
+}
+
+// The choices no slot holds: what the sheet says of them, the call that asks one, and where they
+// hide on this screen.
+function beyondLines({ beyond }) {
+  return [
+    "beyond the twelve slots:",
+    `  ${beyond.note}`,
+    `  ask it: ${beyond.call}`,
+    "  (--hard-to-undo in place of --easy-to-undo where the choice is costly to go back on)",
+    ...(beyond.places.length > 0
+      ? [
+          "  where such a choice hides on this screen, as the repository shows:",
+          ...beyond.places.map(
+            (place) =>
+              `  ${numbered(place)} ${place.name}: ${place.says}  [${sourceWords(place.source)}]`,
+          ),
+        ]
+      : []),
+    "",
   ];
 }
 
@@ -199,14 +283,24 @@ export function report(result) {
     summary.settled_waiting > 0
       ? `; ${summary.settled_waiting} of the settled slots ${summary.settled_waiting === 1 ? "holds" : "hold"} a line that waits on another slot`
       : "";
+  const mine =
+    summary.settled_on_branch > 0
+      ? `; ${summary.settled_on_branch} of the settled slots ${summary.settled_on_branch === 1 ? "rests" : "rest"} on what this branch wrote`
+      : "";
+  const against =
+    summary.against > 0
+      ? `; ${plural(summary.against, "question that waits recommends", "questions that wait recommend")} what the repository no longer does`
+      : "";
   return [
     `screen brief: ${screen.id} (${screen.route ?? "no route"}), ${built ? "built" : "declared ahead, not built yet"}`,
-    `  ${summary.settled} of ${plural(slots.length, "slot", "slots")} settled, ${summary.asked} asked, ${summary.open} open${waiting}`,
+    `  ${summary.settled} of ${plural(slots.length, "slot", "slots")} settled, ${summary.asked} asked, ${summary.open} open${waiting}${mine}${against}`,
+    branchLine(result.branch),
     "",
     ...slots.flatMap(slotLines),
     "",
     ...openLines(result),
     ...askedLines(result),
+    ...beyondLines(result),
     "what the sheet does not see:",
     ...briefLimits().map((limit) => `  ${limit.id}: ${limit.note}`),
     "",
@@ -238,6 +332,8 @@ async function main(args) {
           ? `queued: ${plural(lines.length, "question", "questions")}, each a new file of the waiting list`
           : "queued: nothing, no slot of this sheet is open and can be asked",
         ...lines.map((line) => `  ${line}`),
+        // What was queued is the slots' own questions, and no more.
+        `  these are the questions of the slots: a choice of this screen that is on no slot is not among them, and is still asked with ${ASK}`,
         "",
         "",
       ].join("\n")
