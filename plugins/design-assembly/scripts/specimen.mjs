@@ -8,7 +8,7 @@
 // once per arrangement of the list-detail layout.
 // The direction section is asked first, on its own: whole directions, each a colour, a type scale
 // and a corner radius drawn together, before any single value is asked.
-// Usage: node specimen.mjs --target DIR [--section direction|color|around|type|radius|review|record|all]
+// Usage: node specimen.mjs --target DIR [--section direction|color|around|type|radius|typeface|review|record|all]
 //          [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -40,9 +40,12 @@ import {
 import { loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
 import {
   buildTheme,
+  fontValues,
   renderBlock,
   withoutBlock,
 } from "../templates/tools/design-assembly/theme.mjs";
+import { FONT_VARIABLES } from "../templates/tools/design-assembly/fonts.mjs";
+import { adapter as values } from "../templates/tools/design-assembly/adapters/tailwind.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
@@ -88,6 +91,7 @@ export function decided(blueprint) {
     typeScale: foundations.type_scale ?? "standard",
     typeRatio: foundations.type_ratio ?? null,
     cornerRadius: foundations.corner_radius ?? "floor",
+    textFont: foundations.text_font ?? null,
     recordPanel: blueprint?.layers?.patterns?.choice?.record_panel ?? null,
     assumed: [
       ...(context.conformance_level ? [] : ["conformance level AA"]),
@@ -326,6 +330,8 @@ export function specimenPlan(target, options = {}) {
       ),
     });
   }
+  // The typefaces: each value a choice takes in this version, drawn with what the block would set.
+  if (want("typeface")) sections.push(...typefaceSections(state, css, letter, dropped));
   // How a record opens: asked on its own, once a screen opens one.
   if (wanted === "record") {
     const order = RECORD_ORDER[state.productType] ?? RECORD_ORDER.application;
@@ -376,6 +382,61 @@ export function specimenPlan(target, options = {}) {
     }
   }
   return { state, sections, dropped };
+}
+
+// The two typeface sections: the text first, then the headings beside the text the blueprint has
+// so far, or the floor's. A value the floor cannot give is dropped and said.
+function typefaceSections(state, css, letter, dropped) {
+  const choiceOf = (key) =>
+    LAYERS.find((layer) => layer.id === "foundations").choices.find((item) => item.key === key);
+  const [textVariable] = FONT_VARIABLES;
+  const option = (key, value, inputs) => {
+    let fonts;
+    try {
+      fonts = fontValues(inputs, css);
+    } catch (error) {
+      dropped.push(`${choiceOf(key).name} ${value}: ${error.message}`);
+      return null;
+    }
+    const heading = fonts.heading === `var(${textVariable})` ? fonts.text : fonts.heading;
+    const shown = key === "text_font" ? fonts.text : heading;
+    return {
+      value,
+      label: `${value}: ${choiceOf(key).options[value]}`,
+      notes: [`font-family: ${shown}`],
+      css: values.fonts.preview({ text: fonts.text, heading }),
+      modes: ["light"],
+    };
+  };
+  const text = state.textFont ?? "floor";
+  const section = (id, key, title, question, inputsOf) => ({
+    id,
+    key,
+    title,
+    question,
+    shots: ["ready"],
+    options: letter(
+      Object.keys(choiceOf(key).options)
+        .map((value) => option(key, value, inputsOf(value)))
+        .filter(Boolean),
+    ),
+  });
+  return [
+    section(
+      "text-font",
+      "text_font",
+      "text typeface",
+      "Which typeface reads right for running text on this screen?",
+      (value) => ({ textFont: value, headingFont: "text" }),
+    ),
+    section(
+      "heading-font",
+      "heading_font",
+      "heading typeface",
+      `Which typeface do headings take, beside running text in the ${text} typeface?`,
+      (value) => ({ textFont: text, headingFont: value }),
+    ),
+  ];
 }
 
 // The direction section: each direction the guide would show, drawn whole. Its colour is solved as
@@ -714,7 +775,7 @@ async function main() {
   const all = (flag) => args.flatMap((arg, index) => (arg === flag ? [args[index + 1]] : []));
   if (!value("--target")) {
     stderr.write(
-      "usage: node specimen.mjs --target DIR [--section direction|color|around|type|radius|review|record|all] [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]\n",
+      "usage: node specimen.mjs --target DIR [--section direction|color|around|type|radius|typeface|review|record|all] [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]\n",
     );
     exit(2);
   }

@@ -137,6 +137,8 @@ test("with no principle every recommendation rests on a standard, by product typ
       ["conformance_level", "AA"],
       ["type_scale", "standard"],
       ["corner_radius", "floor"],
+      ["text_font", "floor"],
+      ["heading_font", "text"],
       ["record_panel", "beside"],
     ],
   );

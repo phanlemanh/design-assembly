@@ -18,4 +18,17 @@ export const adapter = {
   // The start of a class name, to build one in pieces; and a class that changes a component's look.
   classStart: "text-",
   lookClass: "bg-primary",
+  // The typefaces: the variable of running text and of headings, and the block that declares
+  // them. The framework writes a theme variable's value into the classes that use it, so a
+  // typeface takes effect only when it is declared in that block, never in a selector's own: the
+  // last declaration of the variable in such a block is the one in force.
+  fonts: {
+    text: "--font-sans",
+    heading: "--font-heading",
+    block: "@theme inline",
+    // What a sheet that draws a choice puts on the page, with the values resolved: the classes
+    // already hold the floor's value, so the preview sets the property the classes set.
+    preview: ({ text, heading }) =>
+      `html, .font-sans {\n  font-family: ${text};\n}\n.font-heading {\n  font-family: ${heading};\n}\n`,
+  },
 };

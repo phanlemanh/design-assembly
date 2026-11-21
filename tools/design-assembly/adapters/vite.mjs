@@ -5,6 +5,8 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import { stylesheetLoads } from "./css-fonts.mjs";
+
 export const adapter = {
   id: "vite",
   kind: "build",
@@ -17,6 +19,11 @@ export const adapter = {
   importExpression: (address) => `import(/* @vite-ignore */ ${address})`,
   entries,
   serve,
+  // What loads a typeface on this stack: an @font-face rule of the stylesheet, or a font package
+  // the stylesheet imports.
+  fontLoads: stylesheetLoads,
+  fontsSay:
+    "no @font-face rule of the stylesheet declares it, and no package the stylesheet imports does",
 };
 
 // How surely the repository builds with Vite: 2 when it keeps Vite's settings file or its own

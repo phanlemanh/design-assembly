@@ -192,6 +192,12 @@
       "templates": "74634268c2cbb07a45fc3793cfed19234f8fa176",
       "scripts": "ca03e00bccfe28828c9833e1eb42f5df7800fa98",
       "tool": "8f1f18233741a710a7c089eb3d2fecf1c00f2761"
+    },
+    {
+      "version": "0.29.0",
+      "templates": "f46590714f08cdbe18f7d43741552a4d71bf10c3",
+      "scripts": "cfdd0a96a7bb2357f70ae716b9e780c30110dc89",
+      "tool": "4ed551f4e907343fc4537ee5d9b78697a031d380"
     }
   ]
 }

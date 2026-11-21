@@ -312,3 +312,15 @@ decisions:
     source: "tests/e2e/screen-actions-seen.spec.ts, entering as each role by tests/e2e/roles.ts, against the gate's table of screens by role"
     check: "tool:tools/design-assembly/check.mjs"
     note: "that the browser test is there, reads the gate's own plan and enters by tests/e2e/roles.ts, and that the file is there; the test itself runs with the repository's browser checks. A control is known only by its data-model-action mark, so a control of an action that lacks it is not seen; what a role that may not open a screen is shown instead, and the frame's navigation, are not checked"
+  - id: font-loaded
+    layer: foundations
+    kind: closed
+    source: "src/index.css, the typeface each of --font-sans and --font-heading names first"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "the first typeface of each list, against what the adapter of the build can see load it: an @font-face rule or a font package of the stylesheet, or the build's own font loader in a layout file; that the file holds the weights a screen uses is not checked"
+  - id: typeface
+    layer: foundations
+    kind: closed
+    source: "design/blueprint.json, text typeface floor, heading typeface text"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "answered by Manh Phan on 2026-11-21"

@@ -116,6 +116,10 @@ scale, shape). Density, elevation, motion and iconography are not.
   the repository's own screen once per option, in light and in dark, on one sheet, and a person
   answers with a letter. The options come from closed lists and the same functions that write the
   values, so what is seen is what the gate will hold.
+- The typeface of running text and of headings is a choice of the foundations too: the floor's
+  font or the system font. The gate holds the values the generated block names, and that each
+  typeface the stylesheet names is loaded, as the adapter of the repository's build sees it load.
+  Nothing is fetched. A font of the brand comes in through the sources ledger, in the next version.
 - `scripts/apply.mjs` derives a tonal palette and the primary color roles from one source color,
   writes them into the repository's stylesheet, adds its rows to the ledger
   `design/decisions.yaml`, and installs the checks that hold them.

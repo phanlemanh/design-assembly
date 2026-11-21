@@ -77,6 +77,7 @@ import { lintProbes } from "./lint.mjs";
 import { probesFor, ruleOf } from "./probes.mjs";
 import { buildTheme, readBlock, renderBlock, withoutBlock } from "./theme.mjs";
 import { tokensProblem } from "./tokens.mjs";
+import { fontProblems, readLoads, unloadedCopy } from "./fonts.mjs";
 import {
   branchFacts,
   branchDone,
@@ -121,9 +122,13 @@ const KINDS = {
         typeScale: foundations.type_scale ?? "standard",
         typeRatio: foundations.type_ratio,
         cornerRadius: foundations.corner_radius ?? "floor",
+        textFont: foundations.text_font,
+        headingFont: foundations.heading_font,
       };
       const applied = state.theme?.inputs ?? {};
-      const differs = Object.keys(applied).filter(
+      // The typeface came later: an answer the blueprint gives and nothing applied is not in force.
+      const later = ["textFont", "headingFont"].filter((key) => answers[key] !== undefined);
+      const differs = [...new Set([...Object.keys(applied), ...later])].filter(
         (key) => String(answers[key]) !== String(applied[key]),
       );
       if (differs.length === 0) return null;
@@ -181,7 +186,13 @@ const KINDS = {
     run(state) {
       const block = readBlock(state.css);
       if (block === null) return `the generated block is missing from ${state.stylesheet}`;
-      const expected = renderBlock(buildTheme(state.theme.inputs, state.css));
+      let expected;
+      try {
+        expected = renderBlock(buildTheme(state.theme.inputs, state.css));
+      } catch (error) {
+        // The stylesheet no longer gives what the decided inputs need, such as the floor's font.
+        return `the generated block cannot be written again from what was decided: ${error.message}`;
+      }
       if (block === expected) return null;
       return "the generated block is not what the source color gives: run the guide again instead of editing it";
     },
@@ -209,6 +220,17 @@ const KINDS = {
       const where = [check.scope].flat()[0];
       const same = `${where} {\n  ${check.foreground}: ${background?.value ?? "oklch(1 0 0)"};\n}\n`;
       return { ...state, css: `${state.css}\n${same}` };
+    },
+  },
+  // Every typeface the stylesheet names is loaded, as the repository's build loads one, or is a
+  // family every device has.
+  "font-loaded": {
+    run(state, check) {
+      const found = fontProblems(state, check.variables, state.stylesheet, state.fonts);
+      return found.length > 0 ? found.join("; ") : null;
+    },
+    change(state, check) {
+      return { ...state, css: unloadedCopy(state.css, check.variables[0]) };
     },
   },
   // The variable resolves to the decided value: nothing later in the stylesheet overrides it.
@@ -1101,6 +1123,7 @@ export function readState(root) {
           main: asking.find((check) => check.main)?.main ?? null,
         });
   const testsOf = asking.find((check) => check.tests)?.tests;
+  const styles = loadStyles(root, stylesheet);
   return {
     root,
     // The component library's parts, read from its settings now, where it keeps them.
@@ -1112,7 +1135,11 @@ export function readState(root) {
     stylesheet,
     // `css` is the repository's own text with its relative imports put in place; `base` is the
     // framework's theme, read only when a value points into it.
-    ...loadStyles(root, stylesheet),
+    ...styles,
+    // What loads a typeface, as the adapter of the repository's build reads it.
+    fonts: checks.some((check) => check.kind === "font-loaded")
+      ? readLoads(root, styles.css, stylesheet)
+      : null,
     files: Object.fromEntries(named),
     // The fragments of each such ledger kept as a folder, or null where it is one file.
     fragments: Object.fromEntries(

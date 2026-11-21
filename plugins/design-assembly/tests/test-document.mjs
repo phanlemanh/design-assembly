@@ -156,6 +156,8 @@ function build(source) {
       type_scale: "standard",
       spacing_unit: "4px",
       corner_radius: "small",
+      text_font: "floor",
+      heading_font: "text",
     },
   };
   const layers = Object.fromEntries(
@@ -166,6 +168,13 @@ function build(source) {
         : { status: "planned" },
     ]),
   );
+  // The typeface came later: the owner answered it, with their name and the day, so it waits on
+  // nobody, as a repository of this version has it.
+  layers.foundations.confirmed = ["text_font", "heading_font"];
+  layers.foundations.answered = {
+    text_font: { by: "Owner Name", on: "2026-11-21" },
+    heading_font: { by: "Owner Name", on: "2026-11-21" },
+  };
   put(dir, "design/blueprint.json", JSON.stringify({ version: 1, status: "approved", layers }));
   const run = spawnSync(execPath, [path.join(PLUGIN, "scripts/apply.mjs"), "--target", dir]);
   assert.equal(run.status, 0, String(run.stderr));

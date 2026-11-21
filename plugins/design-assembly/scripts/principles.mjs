@@ -63,6 +63,14 @@ const DEFAULTS = {
     option: "floor",
     text: "the foundations layer page: keep the floor's corner radius, which its components were drawn with",
   }),
+  text_font: () => ({
+    option: "floor",
+    text: "the foundations layer page: keep the floor's font, which the stylesheet already names and loads, so nothing new is loaded and no screen changes",
+  }),
+  heading_font: () => ({
+    option: "text",
+    text: "the foundations layer page: headings in the text typeface, as the floor sets them, so a screen has one typeface",
+  }),
   record_panel: (type) =>
     type === "content-site"
       ? { option: "in-place", text: "the patterns layer page: in place for a content site" }

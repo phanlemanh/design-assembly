@@ -44,7 +44,7 @@ import {
   WAITING_FOLDER,
   WAITING_LIST,
 } from "../templates/tools/design-assembly/waiting.mjs";
-import { writeFiles, writtenFiles } from "./apply.mjs";
+import { ROW_CHOICES, writeFiles, writtenFiles } from "./apply.mjs";
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { principleOfRow } from "./principles.mjs";
 import { status } from "./status.mjs";
@@ -286,9 +286,13 @@ function restamp(text, id, stamp) {
   return { text: lines.join("\n"), note };
 }
 
+// Confirming a row the guide writes for more than one choice confirms each, with who answered and
+// when: the guide asks for that on these choices.
+const CHOICES_OF_ROW = ROW_CHOICES;
+
 // Where the guide reads that a person confirmed one of its proposals: the row it writes from the
 // blueprint says "proposal" again on its next run unless the blueprint lists the choice.
-function confirmInBlueprint(blueprint, row) {
+function confirmInBlueprint(blueprint, row, { by, on } = {}) {
   if (!String(row.source ?? "").startsWith(BLUEPRINT)) return null;
   // A design principle is the owner's once the blueprint says they gave it.
   const principle = principleOfRow(blueprint, row.id);
@@ -298,13 +302,22 @@ function confirmInBlueprint(blueprint, row) {
     entry.source = "user";
     return `context lists the principle ${principle.id} as the owner's, so the guide keeps it`;
   }
-  const key = String(row.id).replaceAll("-", "_");
-  const layer = LAYERS.find((item) => (item.choices ?? []).some((choice) => choice.key === key));
+  const keys = CHOICES_OF_ROW[String(row.id)] ?? [String(row.id).replaceAll("-", "_")];
+  const layer = LAYERS.find((item) =>
+    (item.choices ?? []).some((choice) => choice.key === keys[0]),
+  );
   const entry = layer ? blueprint?.layers?.[layer.id] : null;
   if (!entry || entry.status !== "decided" || entry.source === "user") return null;
-  if ((entry.confirmed ?? []).includes(key)) return null;
-  entry.confirmed = [...(entry.confirmed ?? []), key];
-  return `${layer.id} lists ${key} as confirmed, so the guide keeps the answer`;
+  const fresh = keys.filter((key) => !(entry.confirmed ?? []).includes(key));
+  if (fresh.length === 0) return null;
+  entry.confirmed = [...(entry.confirmed ?? []), ...fresh];
+  if (String(row.id) in CHOICES_OF_ROW) {
+    entry.answered = {
+      ...entry.answered,
+      ...Object.fromEntries(fresh.map((key) => [key, { by, on }])),
+    };
+  }
+  return `${layer.id} lists ${fresh.join(", ")} as confirmed, so the guide keeps the answer`;
 }
 
 // The answers put where each question lives. Returns the files to write, what changes in each, and
@@ -364,7 +377,7 @@ function record(root, state, answers, { by, on, only }) {
       text = stamped.text;
       say(LEDGER, `${answer.id}: the note becomes "${stamped.note}"`);
       if (answer.answer !== "keep") continue;
-      const confirmed = confirmInBlueprint(blueprint, rowOf(answer.id));
+      const confirmed = confirmInBlueprint(blueprint, rowOf(answer.id), { by, on });
       if (confirmed) say(BLUEPRINT, confirmed);
     }
     files[LEDGER] = text;

@@ -28,6 +28,19 @@ export const ADAPTERS = [vite, playwright, tailwind, shadcn, react, eslint, next
 // The adapter of a kind.
 export const adapterOf = (kind) => ADAPTERS.find((adapter) => adapter.kind === kind);
 
+// The build a repository is drawn with and loads its fonts by: the one it shows most surely it
+// builds with, by its settings file or its own development command, then by its packages; on a
+// tie, the first in the list; and the first build when it names none.
+export function buildOf(root) {
+  let found = null;
+  let best = 0;
+  for (const adapter of ADAPTERS.filter((item) => item.kind === "build")) {
+    const sure = Number(adapter.detect(root)) || 0;
+    if (sure > best) [found, best] = [adapter, sure];
+  }
+  return found ?? adapterOf("build");
+}
+
 // Every name an adapter declares that appears in a text: a library or build tool named where only
 // an adapter may name it. A name is matched whole, in any case, so `reactive` is not `react`.
 export function libraryNamesIn(text) {

@@ -151,9 +151,9 @@ choose. Only a principle with `source: user` settles anything. The preview print
 each value of the blueprint that goes against a principle the owner fixed: read it out; the person
 may keep the value knowingly.
 
-Five answers belong to the person, because they are taste or brand: the product type, when the
-repository does not already record it; the source color; the type scale; the corner radius; and
-the list-detail layout. The
+Six answers belong to the person, because they are taste or brand: the product type, when the
+repository does not already record it; the source color; the type scale; the corner radius; the
+typeface of text and of headings; and the list-detail layout. The
 conformance level is theirs too when a contract or a regulator sets it; otherwise it is AA. In
 **review each layer**, ask for them. In **hand it to Claude**, propose them, record
 `source: proposed`, and put them first in the final review so the person can replace them. Never
@@ -217,6 +217,26 @@ the sheet is, where one picture of the whole sheet is, and what each letter stan
   same options in words: go on with those, and say that nothing could be shown.
 
 In **hand it to Claude**, do not stop here: draw the sheet for the final review instead.
+
+### The typeface
+
+After the corner radius, ask the typeface of running text, then of headings, on the sheet
+`specimen.mjs --target <repo> --section typeface` draws: the floor's font and the system font for
+text; the same as text, the floor's and the system font for headings. Recommend the floor's font,
+with headings in the same typeface, and say what that rests on as the preview's `recommendations`
+give it. A font of the brand cannot be chosen in this version: the guide refuses `source` with
+the sentence that says its row in the sources ledger comes with the next version. Say that
+sentence, and never fetch, copy or name a font file for the person.
+
+A letter is the person's answer: write `text_font` and `heading_font` to
+`layers.foundations.choice`, and beside them who answered and when,
+`"answered": { "text_font": { "by": "<their name>", "on": "<today>" }, "heading_font": { ... } }`,
+with the name the person goes by in this repository. A typeface you proposed has no `answered`;
+the row then says a person has not confirmed it, and the decision sheet asks it. The guide
+refuses a typeface that is the owner's without a name and a date.
+
+A blueprint decided before this choice existed has neither key: the guide leaves the floor's
+declarations as they are, and `status` lists the question until it is answered here.
 
 ### How a record opens
 
@@ -282,8 +302,9 @@ the preview again.
    `design/states.json`) and the file derived from the first (`design/columns.json`).
 
    The generated block sets the tonal palette of the source color (`--palette-primary-*`), the
-   primary color role, the text on it and the focus ring, in light and dark, and the corner
-   radius. Every other color role keeps the floor's value, the sidebar's
+   primary color role, the text on it and the focus ring, in light and dark, the corner radius,
+   and, once answered, the typeface of text and of headings. Every other color role keeps the
+   floor's value, the sidebar's
    included: say so if the person expects the whole theme to turn to their colour.
 
 2. `node ${CLAUDE_PLUGIN_ROOT}/scripts/adopt.mjs --target <repo>`, with no flags. The guide writes
@@ -303,20 +324,24 @@ the preview again.
    and claimed together, over all rows. Give it only with that explanation. Decisions of kind
    judgment have no check by design: the product type, the conformance level and the source color
    are a person's calls.
-7. Say how far the contrast check reaches: the primary on the background and the text on the
+7. Repeat the `typeface:` and `font-loaded:` lines. The gate now holds that the typeface the
+   stylesheet names is loaded, as the repository's build loads one. Where the person wants a
+   font the floor does not load, the loading code is theirs to write on a stack whose adapter
+   does not write it: this version writes it on none. Say so.
+8. Say how far the contrast check reaches: the primary on the background and the text on the
    primary, in light and dark. The other color roles are not checked in this version.
-8. Lines that start with `note:` and `hint:` mean different things. A `note:` says a rule is not
+9. Lines that start with `note:` and `hint:` mean different things. A `note:` says a rule is not
    met today and names the place: no check was added for it, or, if the row was already there,
    its check stays and the gate fails. A `hint:` says nothing is wrong: it names something the
    person may want to do later. Read both out, and never call a hint a failure.
-9. Repeat the `column types:` line. The guide wrote `design/column-types.json` with six starting
-   types if there was none: its sample lengths are a proposal, and the file is the person's from
-   now on. A field names its column type with a `display` key in the data model. With the first
-   field that does, the guide also holds `display-kind` and installs the typed table parts
-   (`TypedTable`, `TypedRow`, `TypedHead`, `TypedCell`), which the repository then owns; before
-   that it prints a `hint:` and installs neither. Adding a `display` key changes the data model:
-   follow the repository's own rule for such a change.
-10. Repeat the lines for `state-matrix`, `labels`, `error-copy` and `notification-channel`. Where
+10. Repeat the `column types:` line. The guide wrote `design/column-types.json` with six starting
+    types if there was none: its sample lengths are a proposal, and the file is the person's from
+    now on. A field names its column type with a `display` key in the data model. With the first
+    field that does, the guide also holds `display-kind` and installs the typed table parts
+    (`TypedTable`, `TypedRow`, `TypedHead`, `TypedCell`), which the repository then owns; before
+    that it prints a `hint:` and installs neither. Adding a `display` key changes the data model:
+    follow the repository's own rule for such a change.
+11. Repeat the lines for `state-matrix`, `labels`, `error-copy` and `notification-channel`. Where
     the repository already depends on the toast library, the guide installs the toast and the one
     module screens tell results through; otherwise it prints how to get them. Never install a
     package yourself: say in the summary what is missing and what adding it would give. This is
@@ -325,7 +350,7 @@ the preview again.
     today; read out the place it names. The list of states every screen must declare
     (`design/states.json`) is the person's from now on, and excusing a screen there needs a
     reason. Each of the four rows holds only what can be read from source; its note says what.
-11. Kinds of screen. Repeat the lines for `test-screen-sizes`, `one-main-one-h1`,
+12. Kinds of screen. Repeat the lines for `test-screen-sizes`, `one-main-one-h1`,
     `no-sideways-scroll`, `wcag-aa`, `focus-after-action` and `row-actions-in-view`: where the floor's browser checks are installed, the guide
     wrote `design/screen-sizes.json` with 320 and 1440 and installed a browser test that checks
     every state of every screen at those widths. The widths are the person's from now on; the
@@ -374,7 +399,7 @@ the preview again.
     Say what a failed action does (`references/checks.md`, "A failed action"), and that a screen
     with an action done at once lists a state for that action failing. Where no toast is
     installed, say that the rule stands and the module that tells a failure is not there yet.
-12. The system itself. Repeat the lines for `tier-direction` and `escapes`. The guide wrote
+13. The system itself. Repeat the lines for `tier-direction` and `escapes`. The guide wrote
     `design/parts.json`, the parts of the code from the top down, once a kind of screen was
     described; read the parts out and ask whether the order is right, because the list is the
     person's from now on. A `note:` for `tier-direction` names an import that goes against the
@@ -382,7 +407,7 @@ the preview again.
     The guide also wrote `design/escapes.md` with no line. Say what it is for: when anyone finds
     a fault that every check let through, a line goes in before the fix. Say plainly that no tool
     can tell a fault was left out, and that the audit calls an empty record what it is.
-13. Repeat the `target size:` line the script printed: the smallest control and the controls it
+14. Repeat the `target size:` line the script printed: the smallest control and the controls it
     could not measure. If it printed a note instead, some controls are below what the conformance
     level asks and no check was added: name them, and say that the components change first or the
     level does. That choice is the person's.

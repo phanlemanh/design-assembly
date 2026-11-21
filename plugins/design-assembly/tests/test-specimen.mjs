@@ -198,7 +198,13 @@ test("the plan is the same on every run, and writes nothing to the repository", 
   assert.equal(first.status, 0, first.stderr);
   assert.equal(first.stdout, second.stdout);
   assert.ok(!existsSync(path.join(dir, "coverage")));
-  assert.deepEqual(Object.keys(JSON.parse(first.stdout).choices), ["color", "type", "radius"]);
+  assert.deepEqual(Object.keys(JSON.parse(first.stdout).choices), [
+    "color",
+    "type",
+    "radius",
+    "text-font",
+    "heading-font",
+  ]);
 });
 
 test("the review section shows the screen as it is beside what the blueprint decides", () => {

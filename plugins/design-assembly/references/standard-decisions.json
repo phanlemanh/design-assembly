@@ -164,6 +164,20 @@
       "sources": ["design-assembly"]
     },
     {
+      "id": "typeface",
+      "layer": "foundations",
+      "kind": "closed",
+      "question": "Which typeface does running text use, and which do headings use?",
+      "sources": ["design-assembly"]
+    },
+    {
+      "id": "font-loaded",
+      "layer": "foundations",
+      "kind": "closed",
+      "question": "Is every typeface the stylesheet names loaded by something in the repository, or one every device has?",
+      "sources": ["design-assembly"]
+    },
+    {
       "id": "motion",
       "layer": "foundations",
       "kind": "standard",

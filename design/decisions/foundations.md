@@ -8,10 +8,12 @@ Status: decided (user).
 - type scale: `standard`
 - spacing scale: `4px`
 - corner radius: `floor`
+- text typeface: `floor` (answered by Manh Phan on 2026-11-21)
+- heading typeface: `text` (answered by Manh Phan on 2026-11-21)
 
 ## Why
 
-Chủ kho chọn bằng mắt trên bảng mẫu ngày 2026-11-12, trên màn thật của kho: giữ màu gốc lam #0246ff, thang chữ chuẩn của sàn và bo góc của sàn. Khoảng cách chỉ có một phương án.
+Chủ kho chọn bằng mắt trên bảng mẫu ngày 2026-11-12, trên màn thật của kho: giữ màu gốc lam #0246ff, thang chữ chuẩn của sàn và bo góc của sàn. Khoảng cách chỉ có một phương án. Ngày 2026-11-21 chủ kho giữ font của sàn («Giữ font của sàn»), đáp câu typeface-of-text-and-headings của hàng chờ: văn bản dùng font của sàn, tiêu đề cùng họ với văn bản.
 
 ## Rejected
 
@@ -28,4 +30,6 @@ Chủ kho chọn bằng mắt trên bảng mẫu ngày 2026-11-12, trên màn th
 - `type-scale-values`: standard, checked by this plugin's tool
 - `spacing-values`: standard, checked by this plugin's tool
 - `radius-value`: closed, checked by this plugin's tool
+- `typeface`: closed, checked by this plugin's tool
+- `font-loaded`: closed, checked by this plugin's tool
 - `design-tokens`: formula, checked by this plugin's tool

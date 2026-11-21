@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 
 import { SLIPS_FILE } from "../templates/tools/design-assembly/governance.mjs";
 import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
+import { readWaiting } from "../templates/tools/design-assembly/waiting.mjs";
 import { finish, readCall, refuse, start } from "./command.mjs";
 import { principleCall } from "./principles.mjs";
 import { sheet, WAITING_FOLDER, WAITING_LIST } from "./decide.mjs";
@@ -88,6 +89,54 @@ function toolOf(root) {
       ? recorded !== null
       : copy !== installed.tree || (recorded?.tree ?? copy) !== copy;
   return { recorded, installed, copy, differs, says };
+}
+
+// The standard decisions, for the question a later choice asks.
+const STANDARD = json("references/standard-decisions.json").decisions;
+// The row the typeface choice writes, and the item a question about it names on the waiting list.
+const TYPEFACE = "typeface";
+
+// The typeface, asked of a repository the guide wrote before the choice existed: its ledger has no
+// row for it, and no question of the waiting list asks it. Its stylesheet keeps the floor's
+// typeface until the owner answers in the guide. An answer given on the waiting list waits too,
+// until the guide writes it. Null when nothing waits. A repository that adopted
+// its values is not asked here: reading its own typeface comes with the sources ledger.
+export function typefaceAsk(root, rows, audited) {
+  if (audited.values !== "generated" || rows.length === 0) return null;
+  if (rows.some((row) => String(row.id) === TYPEFACE)) return null;
+  let listed = null;
+  try {
+    listed = readWaiting(
+      root,
+      rows.map((row) => String(row.id)),
+    );
+  } catch {
+    // A waiting list that cannot be read is the decision sheet's to report.
+  }
+  const asked = (listed?.rows ?? []).findLast((row) => row.item === `decision:${TYPEFACE}`);
+  // A question that waits is the waiting list's to show. One the owner answered reaches no blueprint
+  // by itself: it waits again, here, for the guide to write it.
+  if (asked && !asked.answer) return null;
+  if (asked) {
+    return {
+      id: TYPEFACE,
+      source: "ledger",
+      question: STANDARD.find((decision) => decision.id === TYPEFACE).question,
+      recommendation:
+        "Run the guide and write the owner's answer into the blueprint, with their name and the day: the decision sheet recorded it and changed no file the guide writes from.",
+      basis: `${MEASURED}the owner answered ${asked.id} of the waiting list by ${asked.by} on ${asked.on}, and the ledger still has no row for the typeface`,
+      answer: "/design-assembly:new",
+    };
+  }
+  return {
+    id: TYPEFACE,
+    source: "ledger",
+    question: STANDARD.find((decision) => decision.id === TYPEFACE).question,
+    recommendation:
+      "Keep the floor's font for running text and for headings: answer it in the guide, on the sheet that draws each typeface on this repository's screen.",
+    basis: `${MEASURED}the ledger has no row for the typeface, so the stylesheet keeps the floor's declarations, and the floor's font is the one the repository already loads`,
+    answer: "/design-assembly:new",
+  };
 }
 
 const standardBasis = (decision) =>
@@ -340,10 +389,11 @@ function readLedgers(root) {
   const audited = audit(root);
   const rows = readLedger(root) ?? [];
   const broken = audited.decisions.filter((d) => ["failing", "bypassed"].includes(d.state));
+  const typeface = typefaceAsk(root, rows, audited);
   return {
     audit: audited,
     broken,
-    waiting: waitingOf(audited, rows, readBlueprint(root)),
+    waiting: [...waitingOf(audited, rows, readBlueprint(root)), ...(typeface ? [typeface] : [])],
     tool: toolOf(root),
     sockets: socketsOf(root),
     seen: seenStepOf(root, rows, audited),
