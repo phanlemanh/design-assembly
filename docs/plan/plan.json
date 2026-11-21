@@ -348,7 +348,8 @@
         {
           "id": "5.3",
           "what": "Bài kiểm trình duyệt theo vai",
-          "state": "todo"
+          "state": "doing",
+          "ref": "wiki/specs/0011-the-browser-test-by-role.md; chủ repo bảo viết đề bài ngày 2026-11-21 («Viết đề bài cho mục 5.3»); chủ repo duyệt đề bài và đáp cả năm câu hỏi theo khuyến nghị cùng ngày («Duyệt cả năm»); hai lát, chưa lát nào dựng"
         },
         {
           "id": "5.4",
