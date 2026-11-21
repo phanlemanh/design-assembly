@@ -68,7 +68,8 @@
         "foreground": "--muted-foreground",
         "background": "--muted",
         "min": 4.5,
-        "waits": "color-roles-neutral"
+        "waits": "color-roles-neutral",
+        "measured": 4.34
       },
       {
         "kind": "contrast",
@@ -125,7 +126,8 @@
         "foreground": "--sidebar-ring",
         "background": "--sidebar",
         "min": 3,
-        "waits": "color-roles-sidebar, color-roles-neutral"
+        "waits": "color-roles-sidebar, color-roles-neutral",
+        "measured": 2.48
       },
       {
         "kind": "contrast",

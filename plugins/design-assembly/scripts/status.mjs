@@ -28,6 +28,8 @@ import {
   rolesLines,
   unansweredQuestions,
   keepsWaiting,
+  listedSource,
+  waitedForChoice,
   wordsFromListed,
   wordsOf,
 } from "./color-roles.mjs";
@@ -242,7 +244,18 @@ const resolveRole = (styles, scope, name) => resolve(styles, scope, name)?.value
 
 // What the machine recommends for a question of the table, from the table itself and from how
 // many of its pairs are below the threshold here.
-function roleRecommendation(question, below) {
+function roleRecommendation(question, below, guided) {
+  if (question.recommended === "formula") {
+    const value = [question.recommended_value].flat().join(", ");
+    const what =
+      question.choice === "neutral_family"
+        ? `Let the neutral family's formula write them, in ${value === "grey" ? "pure grey" : value}`
+        : `Let the status tone formula write them, with the ${value} tone${value.includes(",") ? "s" : ""} alone to start`;
+    if (!guided) {
+      return `${what}: the formula writes them only where the guide writes this repository's values, so here wait for that, or keep them from the floor${below > 0 ? `, where ${below} of their pairs below the threshold become checks and turn the gate red` : ""}. ${question.why}`;
+    }
+    return `${what}: answer it in the guide, on the sheet that draws each value on this repository's screen. ${question.why}`;
+  }
   if (question.recommended === "follows") {
     return `Let them follow the primary colour: the guide then writes them from the source colour in both modes. ${question.why}`;
   }
@@ -282,12 +295,11 @@ export function colorRoleAsks(root, rows, audited) {
     const asked = listed.findLast((row) => row.item === `decision:${question.id}`);
     if (asked && !asked.answer) return [];
     // The owner kept the recommendation to wait: that is their word for now.
-    if (keepsWaiting(question.id, asked)) return [];
+    // The owner kept waiting for a choice that has come since: asked again, saying so.
+    const waited = waitedForChoice(question.id, asked);
+    if (keepsWaiting(question.id, asked) && !waited) return [];
     // An answer the question does not take, or a refusal, asks again.
-    const taken =
-      asked &&
-      guided &&
-      question.sources.includes(asked.answer === "keep" ? question.recommended : asked.answer);
+    const taken = asked && guided && listedSource(question.id, asked) !== null;
     return [
       {
         id: question.id,
@@ -295,10 +307,10 @@ export function colorRoleAsks(root, rows, audited) {
         question: question.question,
         recommendation: taken
           ? "Run the guide and write the owner's answer into the blueprint, under foundations.roles, with their name and the day: the decision sheet recorded it and changed no file the guide writes from."
-          : roleRecommendation(question, belowFor(styles, level, question, words).length),
+          : roleRecommendation(question, belowFor(styles, level, question, words).length, guided),
         basis: taken
           ? `${MEASURED}the owner answered ${asked.id} of the waiting list by ${asked.by} on ${asked.on}, and the blueprint has no word for ${question.id}`
-          : `${asked ? `the answer «${asked.answer}» to ${asked.id} of the waiting list is none of ${question.sources.join(", ")}, so it is asked again; ` : ""}${roleBasis(styles, level, question, words)}`,
+          : `${waited ? `the owner kept waiting in ${asked.id} of the waiting list, by ${asked.by} on ${asked.on}, and the choice it waited for has come; ` : asked ? `the answer «${asked.answer}» to ${asked.id} of the waiting list is none of ${question.sources.join(", ")}, so it is asked again; ` : ""}${roleBasis(styles, level, question, words)}`,
         answer,
       },
     ];
@@ -917,7 +929,7 @@ async function main(args) {
     return finish({
       json: call.json,
       result: { roles: COLOR_ROLES.roles, pairs: PAIRS, words },
-      text: `${rolesLines(words).join("\n")}\n`,
+      text: `${rolesLines(words, blueprint?.layers?.foundations?.choice ?? null).join("\n")}\n`,
       work: false,
     });
   }

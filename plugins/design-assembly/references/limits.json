@@ -43,9 +43,9 @@
       "severity": "high",
       "plan": "fix",
       "opened": "2026-11-12",
-      "where": ["d0007", "d0010", "spec", "escapes", "d0082"],
+      "where": ["d0007", "d0010", "spec", "escapes", "d0082", "d0083"],
       "status": "open",
-      "note": "Narrowed by d0082: the contrast check now measures every pair the table of colour roles declares, in light and dark, and no longer only the two of the primary colour. What is still open: the roles the table measures in no pair (the borders, the edge of a field, the five chart roles), the sidebar's primary as a mark against the sidebar, which is measured only as the ground of its text, a ground drawn with transparency (the dark border at 10%, a tint of the destructive colour), a pair a component makes that the table does not declare, and a pair below the threshold that waits on the owner, which the gate names and does not fail on."
+      "note": "Narrowed by d0082 and d0083: the contrast check measures every pair the table of colour roles declares, in light and dark, the status tones the owner chose among them, and a pair below the threshold that waits on the owner is held to the ratio it was measured at when it began to wait. What is still open: the roles the table measures in no pair (the borders, the edge of a field, the five chart roles), the sidebar's primary as a mark against the sidebar, which is measured only as the ground of its text, a ground drawn with transparency (the dark border at 10%; a status tone on its own tint, which the formula reaches when it writes the tone and the gate does not measure again), a pair a component makes that the table does not declare, and a waiting pair a version before this one wrote, held only once the guide runs again."
     },
     {
       "id": "hover-contrast-unchecked",
@@ -4201,9 +4201,53 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-21",
-      "where": ["d0082"],
+      "where": ["d0082", "d0083"],
       "status": "open",
-      "note": "The owner's word for a question of the table of colour roles reaches a guided repository's blueprint by hand, under foundations.roles, through the guide: the decision sheet records an answer on the waiting list and does not write it there, and no specimen sheet draws the sidebar following the primary colour before the owner answers."
+      "note": "Narrowed by d0083: the specimen sheet now draws the neutral family and the status tones on the repository's screen before the owner answers. Still open: the owner's word for a question of the table reaches a guided repository's blueprint by hand, under foundations.roles and the choice beside it, through the guide; the decision sheet records an answer on the waiting list and does not write it there; and no sheet draws the sidebar following the primary colour."
+    },
+    {
+      "id": "status-tone-hues-copied-into-tool-data",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-22",
+      "where": ["d0083"],
+      "status": "open",
+      "note": "The guide copies each chosen tone's entry of the closed list of status hues into the tool data (design/theme.json), and the gate writes the block again from there: the gate cannot read the plugin's references. The blueprint check holds which tones are chosen, not their hues, so a hand edit of a hue in the tool data and of the block together is not caught; running the guide again puts the list's hue back."
+    },
+    {
+      "id": "status-tone-beyond-error-drawn-on-no-screen",
+      "area": "guide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-22",
+      "where": ["d0083"],
+      "status": "open",
+      "note": "The floor's screens use only the error tone. The specimen sheet draws success, warning and information as swatches beside the screen, not on it, so the owner sees their colour and ratios, not a screen that uses them; and the rules page names their roles without a component of the floor that takes them."
+    },
+    {
+      "id": "neutral-formula-needs-the-guide",
+      "area": "guide",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-22",
+      "where": ["d0083"],
+      "status": "open",
+      "note": "The neutral family and the status tones are written by the guide's generated block. A repository that adopted its own values has no such block: its owner can only wait, or keep the roles from the floor, until the guide writes its values. status says so instead of recommending the formula there."
+    },
+    {
+      "id": "color-role-keep-reads-the-table",
+      "area": "guide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-22",
+      "where": ["d0083"],
+      "status": "open",
+      "note": "An answer «keep» to a question of the table on the waiting list takes the question's first candidate where the question lists candidates. Without candidates it is read as the table's recommendation for that question on the day the question was asked (the formula from 2026-11-22, to wait before), not as the words of the question's own recommendation, which the machine does not read; decide --ask cannot write candidates, so a question that recommends something else than the table needs them added, or an answer with the word of the source."
     }
   ]
 }

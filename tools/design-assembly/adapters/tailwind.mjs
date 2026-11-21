@@ -22,6 +22,12 @@ export const adapter = {
   // them. The framework writes a theme variable's value into the classes that use it, so a
   // typeface takes effect only when it is declared in that block, never in a selector's own: the
   // last declaration of the variable in such a block is the one in force.
+  // A colour role the floor has no class for, such as a status tone the owner chose: the
+  // framework makes its classes from a theme variable of the same name in this block.
+  colors: {
+    block: "@theme inline",
+    name: (role) => `--color-${role.slice(2)}`,
+  },
   fonts: {
     text: "--font-sans",
     heading: "--font-heading",

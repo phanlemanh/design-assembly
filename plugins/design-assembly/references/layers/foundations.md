@@ -57,12 +57,14 @@ contrast ratio or a size yourself: the preview computes them from the repository
 | A colour proposed by Claude    | Something to react to today   | It carries no brand meaning          | `automated` |
 | Keep the floor's neutral theme | Nothing to decide             | The guide generates no colour tokens | `manual`    |
 
-| Derived                       | How                                                                                                       | Held by                                          |
-| ----------------------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
-| Tonal palette, tones 0 to 100 | The source color's hue and chroma at each tone, cut to what a screen can show                             | Regenerating must give the same text             |
-| Color role primary            | The source color when it meets the contrast ratio on the background, else the nearest lightness that does | A contrast check on the values in the stylesheet |
-| Color role on-primary         | Near-white or near-black, whichever reads better on the primary                                           | A contrast check                                 |
-| Focus ring                    | The primary                                                                                               | The same check as the primary                    |
+| Derived                       | How                                                                                                                                                                                | Held by                                                           |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| Tonal palette, tones 0 to 100 | The source color's hue and chroma at each tone, cut to what a screen can show                                                                                                      | Regenerating must give the same text                              |
+| Color role primary            | The source color when it meets the contrast ratio on the background, else the nearest lightness that does                                                                          | A contrast check on the values in the stylesheet                  |
+| Color role on-primary         | Near-white or near-black, whichever reads better on the primary                                                                                                                    | A contrast check                                                  |
+| Focus ring                    | The primary                                                                                                                                                                        | The same check as the primary                                     |
+| Neutral roles                 | The neutral family's formula: the floor's ladder of lightness, in pure grey or leaning to the source colour; a text moves away from its grounds only as far as the threshold needs | A contrast check on every pair the table of colour roles declares |
+| Status tones                  | The status tone formula: each tone chosen at the hue of the closed list, its lightness moved only as far as reaching the threshold on the background and on its own tint needs     | The row status-tone, and the contrast check                       |
 
 **When Claude proposes the colour.** Any choice is a placeholder: say so, and record
 `source: proposed`. Prefer a colour with a hue that the repository already uses somewhere, and say
@@ -70,7 +72,18 @@ where it came from; if there is none, say that the pick is arbitrary. It is not 
 until the person says it is.
 
 The generated block changes the primary color role, the text on it, the focus ring and the corner
-radius. Every other color role keeps the floor's value.
+radius; once the owner answers, the neutral roles from the neutral family and the status tones
+chosen. A role whose question has no answer keeps the floor's value.
+
+**The neutral family** (`neutral_family`): `grey`, the floor's own pure grey, or `tinted`, grey
+leaning to the source colour. Recommend `grey`: no screen changes hue, and only a text below its
+threshold moves. Kept from the floor stays an answer, through the question of the table.
+
+**The status tones** (`status_tones`): the error tone always, and success, warning and information
+as the product needs. The hue of each comes from the closed list `references/status-tones.json`;
+never a hue of Claude's. Recommend the error tone alone until a screen needs another. A brand's own
+colour for a tone is the owner's exception, under `brand_exceptions`, and is measured like any
+role.
 
 The floor names its variables its own way: on-primary is written to `--primary-foreground`. The
 background is read from the repository's own stylesheet, so the roles are solved against the real

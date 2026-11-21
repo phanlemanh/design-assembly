@@ -75,7 +75,15 @@ import {
 import { DEFAULT_STYLESHEET, findStylesheet, loadStyles, resolve } from "./styles.mjs";
 import { lintProbes } from "./lint.mjs";
 import { probesFor, ruleOf } from "./probes.mjs";
-import { buildTheme, END, readBlock, renderBlock, sourcedFont, withoutBlock } from "./theme.mjs";
+import {
+  buildTheme,
+  END,
+  readBlock,
+  readVariable,
+  renderBlock,
+  sourcedFont,
+  withoutBlock,
+} from "./theme.mjs";
 import { tokensProblem } from "./tokens.mjs";
 import { buildOf } from "./adapters/index.mjs";
 import { fontProblems, readLoads, unloadedCopy } from "./fonts.mjs";
@@ -165,22 +173,53 @@ const KINDS = {
           Object.entries(words).map(([question, word]) => [question, word?.source]),
         );
       }
+      // The neutral family and the status tones are answers once the owner's word is that the
+      // formula writes their roles; a brand's own colour for a tone is an answer of its own.
+      const formula = (question) => words?.[question]?.source === "formula";
+      if (formula("color-roles-neutral")) answers.neutralFamily = foundations.neutral_family;
+      // The tones are a set: in any order, each once.
+      const toneSet = (list) => [...new Set(list)].sort();
+      if (formula("color-roles-status")) {
+        answers.statusTones = toneSet([foundations.status_tones ?? []].flat());
+      }
+      const own = decided.layers?.foundations?.brand_exceptions;
+      if (own) {
+        answers.exceptions = Object.fromEntries(
+          Object.entries(own).map(([role, item]) => [
+            role,
+            { light: item?.light, dark: item?.dark },
+          ]),
+        );
+      }
+      // What is applied, the status tones by their names: the guide copies each tone's entry of
+      // the plugin's closed list, which the blueprint does not hold.
+      const appliedSaid = {
+        ...applied,
+        ...(applied.statusTones
+          ? { statusTones: toneSet(applied.statusTones.map((tone) => tone.tone)) }
+          : {}),
+      };
       // The typeface and the colour roles came later: an answer the blueprint gives and nothing
       // applied is not in force. `follows` is what the guide derives from the words, not an answer.
-      const later = ["textFont", "headingFont", "colorRoles"].filter(
-        (key) => answers[key] !== undefined,
-      );
+      const later = [
+        "textFont",
+        "headingFont",
+        "colorRoles",
+        "neutralFamily",
+        "statusTones",
+        "exceptions",
+      ].filter((key) => answers[key] !== undefined);
       const said = (value) =>
         value !== null && typeof value === "object"
           ? JSON.stringify(Object.entries(value).sort())
           : String(value);
       const differs = [...new Set([...Object.keys(applied), ...later])]
         .filter((key) => key !== "follows")
-        .filter((key) => said(answers[key]) !== said(applied[key]));
+        .filter((key) => said(answers[key]) !== said(appliedSaid[key]));
       if (differs.length === 0) return null;
       const shown = (value) =>
         value !== null && typeof value === "object" ? JSON.stringify(value) : value;
-      return `${check.file} decides ${differs.map((key) => `${key}: ${shown(answers[key])}`).join(", ")}, and what is applied is ${differs.map((key) => shown(applied[key])).join(", ")}: run the guide again, or put the answer back`;
+      return `${check.file} decides ${differs.map((key) => `${key}: ${shown(answers[key])}`).join(", ")}, and what is applied is ${differs.map((key) => shown(appliedSaid[key])).join(", ")}: run the guide again, or put the answer back`;
     },
     change(state, check) {
       const decided = JSON.parse(state.files?.[check.file] ?? "{}");
@@ -271,22 +310,40 @@ const KINDS = {
   // run and does not fail, until the owner answers and the guide runs again. It still fails when a
   // role of it can no longer be read, since then nothing is measured.
   contrast: {
+    // A pair that waits is still held to the ratio it was measured at when it began to wait
+    // (`measured`): it may not get worse while the owner has not answered. A pair written before
+    // that ratio was kept is named on every run, as before, and held once the guide runs again.
     run(state, check) {
       const measured = measuredPair(state, check);
       if (measured.problem) return measured.problem;
-      if (measured.ratio >= check.min || check.waits) return null;
+      if (measured.ratio >= check.min) return null;
+      if (check.waits) {
+        const now = Number(measured.ratio.toFixed(2));
+        if (typeof check.measured !== "number" || now >= check.measured) return null;
+        return `${pairName(check)} measured ${check.measured.toFixed(2)}:1 when it began to wait on ${check.waits}, and is now ${measured.ratio.toFixed(2)}:1: a pair that waits on the owner may not get worse`;
+      }
       return `${pairName(check)} has a contrast ratio of ${measured.ratio.toFixed(2)}:1, below ${check.min}:1`;
     },
     notes(state, check) {
       if (!check.waits) return [];
       const measured = measuredPair(state, check);
       if (measured.problem || measured.ratio >= check.min) return [];
+      const unheld =
+        typeof check.measured === "number"
+          ? `, and held at ${check.measured.toFixed(2)}:1, the ratio it began to wait at`
+          : "; the ratio it began at is not kept: run the guide again to hold it there";
       return [
-        `${pairName(check)} measures ${measured.ratio.toFixed(2)}:1, below ${check.min}:1: not checked until the owner answers ${check.waits}`,
+        `${pairName(check)} measures ${measured.ratio.toFixed(2)}:1, below ${check.min}:1: not checked until the owner answers ${check.waits}${unheld}`,
       ];
     },
     change(state, check) {
       const where = [check.scope].flat()[0];
+      // A pair held at the ratio it began to wait at: its text on its own ground, 1:1, below it.
+      if (check.waits && typeof check.measured === "number") {
+        const ground = resolve(state, check.scope, check.background);
+        const same = `${where} {\n  ${check.foreground}: ${ground?.value ?? "oklch(1 0 0)"};\n}\n`;
+        return { ...state, css: `${state.css}\n${same}` };
+      }
       if (check.waits) {
         const unread = `${where} {\n  ${check.foreground}: unreadable;\n}\n`;
         return { ...state, css: `${state.css}\n${unread}` };
@@ -294,6 +351,34 @@ const KINDS = {
       const background = resolve(state, check.scope, check.background);
       const same = `${where} {\n  ${check.foreground}: ${background?.value ?? "oklch(1 0 0)"};\n}\n`;
       return { ...state, css: `${state.css}\n${same}` };
+    },
+  },
+  // The status tones the owner chose are written in every mode, and no tone left out is declared:
+  // a role of a tone nobody chose would be a colour no answer speaks for.
+  tones: {
+    run(state, check) {
+      const found = [];
+      for (const scope of check.scopes) {
+        for (const role of check.chosen) {
+          if (!resolve(state, scope, role)?.color)
+            found.push(`${role} is not a colour in ${scope}`);
+        }
+      }
+      for (const { role, tone } of check.absent) {
+        const where = check.scopes.filter((scope) => readVariable(state.css, scope, role) !== null);
+        if (where.length > 0) {
+          found.push(
+            `${role} is declared in ${where.join(", ")}, and the owner did not choose the ${tone} tone: choose it in the guide, or take the declaration out`,
+          );
+        }
+      }
+      return found.length > 0 ? found.join("; ") : null;
+    },
+    change(state, check) {
+      const absent = check.absent[0];
+      const role = absent?.role ?? check.chosen[0];
+      const value = absent ? "oklch(0.6 0.15 150)" : "unreadable";
+      return { ...state, css: `${state.css}\n:root {\n  ${role}: ${value};\n}\n` };
     },
   },
   // A font of the sources ledger that a typeface choice names can still be chosen: its row is
@@ -923,6 +1008,8 @@ const KINDS = {
     },
   },
 };
+// The kinds of check, for the plugin's own tests of a single check.
+export const KINDS_FOR_TEST = KINDS;
 
 const lintKey = (id, check) => `${id}:${check.rule}`;
 

@@ -127,6 +127,18 @@
       "trust": "practice"
     },
     {
+      "term": "neutral family",
+      "meaning": "The greys of a theme: its backgrounds, its text, its surfaces and their edges. Pure grey has no hue; a tinted grey leans a little to the source colour.",
+      "source": "Common practice in design systems that derive a theme from one colour",
+      "trust": "practice"
+    },
+    {
+      "term": "status tones",
+      "meaning": "The colours a product uses to say how something went: an error always, and success, a warning or information where the product needs them.",
+      "source": "Common practice; the standard decision status-tone",
+      "trust": "practice"
+    },
+    {
       "term": "system font",
       "meaning": "The typeface each operating system uses for its own interface, named in CSS by the generic family system-ui. Nothing is loaded for it.",
       "source": "Common practice; CSS names it with the generic family system-ui",

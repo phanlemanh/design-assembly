@@ -134,24 +134,35 @@ test("each role says where its value comes from, and is measured or says why not
       assert.equal(of?.source, "formula", `${at}follows a role no formula writes`);
     }
     if (entry.source !== "formula") assert.ok(questions.includes(entry.asks), `${at}asks nothing`);
+    // A formula that reads a choice the owner makes in answer to a question names that question.
+    if (entry.source === "formula" && entry.choice !== "source_color") {
+      assert.ok(questions.includes(entry.asks), `${at}asks nothing`);
+    }
     const measured =
       (entry.on ?? []).length + (entry.against ?? []).length > 0 || grounds.has(entry.role);
     assert.ok(measured || entry.unmeasured, `${at}in no pair, and says not why`);
   }
-  // The pairs a person reads and a ring: the trial with an outside tool measured the same fifteen.
-  assert.equal(PAIRS.length, 15);
+  // The pairs a person reads and a ring: the trial with an outside tool measured the same fifteen
+  // of the floor; the three status tones the floor does not have add one pair each, measured only
+  // where the owner chose the tone.
+  assert.equal(PAIRS.length, 18);
+  assert.equal(PAIRS.filter((p) => floorRoles(FLOOR_CSS).includes(p.foreground)).length, 15);
   assert.ok(PAIRS.some((p) => p.foreground === "--muted-foreground" && p.background === "--muted"));
   assert.equal(PAIRS.find((p) => p.foreground === "--ring").kind, "non-text");
 });
 
 test("the table prints as words: each role, its source and its pairs", () => {
   const lines = rolesLines();
-  assert.equal(lines.filter((line) => /^--/.test(line)).length, 31);
+  // The floor's 31 roles and the three status tones it does not have.
+  assert.equal(lines.filter((line) => /^--/.test(line)).length, 34);
   const sidebar = lines.find((line) => line.startsWith("--sidebar-primary:"));
   assert.match(sidebar, /follows --primary/);
   assert.match(sidebar, /color-roles-sidebar/);
   const muted = lines.find((line) => line.startsWith("--muted-foreground:"));
-  assert.match(muted, /kept from the floor/);
+  assert.match(
+    muted,
+    /the formula neutral-family, from the owner's neutral family, once the owner answers/,
+  );
   assert.match(muted, /text on --muted, --background/);
   assert.match(
     lines.find((line) => line.startsWith("--muted:")),
@@ -234,7 +245,7 @@ test("the owner's word for a question of the table needs a name and a day, and a
   setBlueprint(dir, wrong);
   const refused = run(script("apply.mjs"), "--target", dir);
   assert.notEqual(refused.status, 0);
-  assert.match(refused.stderr, /color-roles-neutral.*takes floor/);
+  assert.match(refused.stderr, /color-roles-neutral.*takes formula or floor/);
   assert.match(refused.stderr, /color-roles-chart.*who gave it and when/);
   assert.match(refused.stderr, /color-roles-nothing.*not a question of the table/);
 });
@@ -245,9 +256,11 @@ test("the gate measures every pair the table declares, in light and in dark", ()
   const dir = repository();
   apply(dir);
   const checks = contrastChecks(dir);
-  assert.equal(checks.length, PAIRS.length * 2);
+  // Every pair of the roles this stylesheet declares: a status tone nobody chose has no role here.
+  const declared = PAIRS.filter((pair) => floorRoles(FLOOR_CSS).includes(pair.foreground));
+  assert.equal(checks.length, declared.length * 2);
   for (const scope of [":root", ".dark"]) {
-    for (const pair of PAIRS) {
+    for (const pair of declared) {
       const found = checks.find(
         (item) =>
           item.scope === scope &&
@@ -507,7 +520,7 @@ test("the rules page says the colour roles and where each comes from only where 
   assert.match(page, /--sidebar-primary follows --primary/);
   assert.match(
     page,
-    /--muted-foreground, .* are kept from the floor, waiting on the owner \(color-roles-neutral\)/,
+    /--muted-foreground, .* are kept from the floor until the owner answers color-roles-neutral, then the formula neutral-family/,
   );
   assert.deepEqual(colourLines(rulesPage({}, none, blueprint())), []);
 });
@@ -575,7 +588,9 @@ test("a pair of a role a formula writes, or of the repository's own primary, nev
   );
 });
 
-test("an owner who keeps the recommendation to wait is not asked again, on either path", () => {
+// Slice 2 brought the choice the neutral question waited for: an owner who kept waiting for it
+// is asked again, saying so, on both paths; the status question, still unanswered, is asked too.
+test("an owner who kept the recommendation to wait is asked again once the choice comes, on either path", () => {
   const keep = (dir, question) =>
     put(
       dir,
@@ -595,13 +610,17 @@ test("an owner who keeps the recommendation to wait is not asked again, on eithe
   const guided = before();
   keep(guided, "color-roles-neutral");
   const guidedIds = fullStatus(guided).waiting.map((item) => item.id);
-  assert.equal(guidedIds.includes("color-roles-neutral"), false, guidedIds.join(", "));
+  assert.ok(guidedIds.includes("color-roles-neutral"), guidedIds.join(", "));
+  assert.match(
+    fullStatus(guided).waiting.find((item) => item.id === "color-roles-neutral").basis,
+    /the choice it waited for has come/,
+  );
   assert.ok(guidedIds.includes("color-roles-status"), guidedIds.join(", "));
 
   const own = adoptedBefore();
   keep(own, "color-roles-neutral");
   const ownIds = fullStatus(own).waiting.map((item) => item.id);
-  assert.equal(ownIds.includes("color-roles-neutral"), false, ownIds.join(", "));
+  assert.ok(ownIds.includes("color-roles-neutral"), ownIds.join(", "));
   for (const item of fullStatus(own).waiting) {
     assert.doesNotMatch(item.recommendation, /blueprint/, item.id);
   }

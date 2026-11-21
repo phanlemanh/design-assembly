@@ -1,0 +1,38 @@
+{
+  "about": "The status tones a product may use, and the hue each takes: a closed list, as the starting source colours are. The guide never invents a hue. The owner chooses which tones the product uses; the error tone is always one of them. Each tone is a colour in light mode and one in dark mode, written in OKLCH: the step of a common palette that the floor's own error tone takes in that mode. The formula status-tone keeps the hue and chroma of the mode and moves the lightness, away from the background, only as far as reaching the conformance level's threshold for text on the background and on the tone's own tint needs. `role` is the colour role the tone writes, named the way the stylesheet adapter names it: the error tone is the floor's own destructive role. A tone the owner did not choose writes no role. A brand's own colour for a tone enters through the ledger row brand-exceptions, with the owner's name and day, and is measured like any other.",
+  "tones": [
+    {
+      "tone": "error",
+      "role": "--destructive",
+      "always": true,
+      "name": "red",
+      "light": "oklch(0.577 0.245 27.325)",
+      "dark": "oklch(0.704 0.191 22.216)",
+      "use": "Something failed, or an action cannot be taken back."
+    },
+    {
+      "tone": "success",
+      "role": "--success",
+      "name": "green",
+      "light": "oklch(0.627 0.194 149.214)",
+      "dark": "oklch(0.792 0.209 151.711)",
+      "use": "Something a person asked for is done."
+    },
+    {
+      "tone": "warning",
+      "role": "--warning",
+      "name": "amber",
+      "light": "oklch(0.666 0.179 58.318)",
+      "dark": "oklch(0.828 0.189 84.429)",
+      "use": "Something needs attention before it becomes a fault."
+    },
+    {
+      "tone": "information",
+      "role": "--info",
+      "name": "sky",
+      "light": "oklch(0.588 0.158 241.966)",
+      "dark": "oklch(0.746 0.16 232.661)",
+      "use": "Something a person should know, with nothing wrong."
+    }
+  ]
+}

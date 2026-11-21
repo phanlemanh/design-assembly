@@ -8,7 +8,7 @@
 // once per arrangement of the list-detail layout.
 // The direction section is asked first, on its own: whole directions, each a colour, a type scale
 // and a corner radius drawn together, before any single value is asked.
-// Usage: node specimen.mjs --target DIR [--section direction|color|around|type|radius|typeface|review|record|all]
+// Usage: node specimen.mjs --target DIR [--section direction|color|around|type|radius|typeface|neutral|status|review|record|all]
 //          [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -47,12 +47,26 @@ import {
   withoutBlock,
 } from "../templates/tools/design-assembly/theme.mjs";
 import { FONT_VARIABLES } from "../templates/tools/design-assembly/fonts.mjs";
+import {
+  NEUTRAL_ROLES,
+  neutralRoles,
+  over,
+  TONE_TINT,
+  toneColor,
+} from "../templates/tools/design-assembly/color-formulas.mjs";
+import {
+  neutralValue,
+  readVariable,
+  THRESHOLDS,
+} from "../templates/tools/design-assembly/theme.mjs";
+import { recommendations } from "./principles.mjs";
 import { adapter as values } from "../templates/tools/design-assembly/adapters/tailwind.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
 const COLORS = JSON.parse(readFileSync(path.join(PLUGIN, "references/source-colors.json"), "utf8"));
 const LAYERS = JSON.parse(readFileSync(path.join(PLUGIN, "references/layers.json"), "utf8")).layers;
+const STATUS = JSON.parse(readFileSync(path.join(PLUGIN, "references/status-tones.json"), "utf8"));
 const RECORD_CHOICE = LAYERS.find((layer) => layer.id === "patterns")?.choices?.find(
   (choice) => choice.key === "record_panel",
 );
@@ -94,6 +108,7 @@ export function decided(blueprint) {
     typeRatio: foundations.type_ratio ?? null,
     cornerRadius: foundations.corner_radius ?? "floor",
     textFont: foundations.text_font ?? null,
+    neutralFamily: foundations.neutral_family ?? null,
     recordPanel: blueprint?.layers?.patterns?.choice?.record_panel ?? null,
     assumed: [
       ...(context.conformance_level ? [] : ["conformance level AA"]),
@@ -341,6 +356,10 @@ export function specimenPlan(target, options = {}) {
     };
     sections.push(...typefaceSections(state, css, letter, dropped, context));
   }
+  // The neutral family and the status tones: each value drawn with what its formula writes, in
+  // light and in dark, the recommendation first.
+  if (want("neutral")) sections.push(neutralSection(blueprint, state, css, letter, dropped));
+  if (want("status")) sections.push(statusSection(blueprint, state, css, letter, dropped));
   // How a record opens: asked on its own, once a screen opens one.
   if (wanted === "record") {
     const order = RECORD_ORDER[state.productType] ?? RECORD_ORDER.application;
@@ -463,6 +482,170 @@ function typefaceSections(state, css, letter, dropped, context) {
   ];
 }
 
+const SHEET_MODES = [
+  { name: "light", selector: ":root", dark: false },
+  { name: "dark", selector: ".dark", dark: true },
+];
+// The recommendation for a choice, as the guide gives it, and what it rests on.
+const recommended = (blueprint, key) =>
+  recommendations(blueprint).find((item) => item.key === key) ?? null;
+// The options of a choice, the recommended one first.
+function inOrder(names, said) {
+  const first = [said?.option].flat()[0];
+  return names.includes(first) ? [first, ...names.filter((name) => name !== first)] : names;
+}
+// The background a mode has before any tone is written: the neutral family's where the blueprint
+// has one, else the floor's.
+function groundOf(state, css, mode, min) {
+  if (state.neutralFamily) {
+    const source = parseColor(String(state.sourceColor ?? "")) ?? { l: 0.5, c: 0, h: 0 };
+    return neutralRoles(state.neutralFamily, source, min, mode.dark)["--background"];
+  }
+  return (
+    parseColor(readVariable(withoutBlock(css), mode.selector, "--background") ?? "") ?? {
+      l: mode.dark ? 0.145 : 1,
+      c: 0,
+      h: 0,
+    }
+  );
+}
+
+// The neutral section: pure grey and grey leaning to the source colour, each drawn on the screen
+// with every neutral role its formula writes, in light and dark.
+function neutralSection(blueprint, state, css, letter, dropped) {
+  const min = THRESHOLDS[state.conformanceLevel]?.text ?? THRESHOLDS.AA.text;
+  const source = parseColor(String(state.sourceColor ?? ""));
+  const said = recommended(blueprint, "neutral_family");
+  const choice = LAYERS.find((layer) => layer.id === "foundations").choices.find(
+    (item) => item.key === "neutral_family",
+  );
+  const options = inOrder(Object.keys(choice.options), said).flatMap((family) => {
+    if (family === "tinted" && !source) {
+      dropped.push("neutral family tinted: it leans to the source colour, and none is chosen yet");
+      return [];
+    }
+    let written;
+    try {
+      written = SHEET_MODES.map((mode) => ({
+        mode,
+        values: neutralRoles(family, source ?? { l: 0.5, c: 0, h: 0 }, min, mode.dark),
+      }));
+    } catch (error) {
+      dropped.push(`neutral family ${family}: ${error.message}`);
+      return [];
+    }
+    const notes = written.map(({ mode, values }) => {
+      const pairs = NEUTRAL_ROLES.filter((entry) => entry.on).flatMap((entry) =>
+        entry.on.map((ground) => ({
+          what: `${entry.role} on ${ground}`,
+          ratio: contrast(values[entry.role], values[ground]),
+        })),
+      );
+      const lowest = [...pairs].sort((a, b) => a.ratio - b.ratio)[0];
+      const muted = pairs.find((pair) => pair.what === "--muted-foreground on --muted");
+      return `${mode.name}: every neutral pair reaches ${min}:1; --muted-foreground on --muted is ${muted.ratio.toFixed(2)}:1, the lowest is ${lowest.what} at ${lowest.ratio.toFixed(2)}:1`;
+    });
+    if (family === [said?.option].flat()[0]) {
+      notes.unshift(`recommended: ${said.basis.text}`);
+    }
+    return [
+      {
+        value: family,
+        label: `${family}: ${choice.options[family]}`,
+        notes,
+        swatches: written.map(({ mode, values }) => ({
+          mode: mode.name,
+          background: neutralValue(values["--background"]),
+          primary: neutralValue(values["--foreground"]),
+          onPrimary: neutralValue(values["--background"]),
+          tint: neutralValue(values["--muted"]),
+          tintText: neutralValue(values["--muted-foreground"]),
+        })),
+        css: written
+          .map(
+            ({ mode, values }) =>
+              `${mode.selector} {\n${Object.entries(values)
+                .map(([role, value]) => `  ${role}: ${neutralValue(value)};`)
+                .join("\n")}\n}`,
+          )
+          .join("\n"),
+        modes: ["light", "dark"],
+      },
+    ];
+  });
+  return {
+    id: "neutral",
+    key: "neutral_family",
+    title: "neutral family",
+    question:
+      "Which greys does the interface take? Every neutral role is written by the formula, so every pair of them reaches the contrast ratio.",
+    shots: ["ready", "empty"],
+    options: letter(options),
+  };
+}
+
+// The status section: each tone of the closed list, drawn with its value in light and dark on the
+// background the blueprint has so far. The error tone is always taken; the others are picked.
+function statusSection(blueprint, state, css, letter, dropped) {
+  const min = THRESHOLDS[state.conformanceLevel]?.text ?? THRESHOLDS.AA.text;
+  const said = recommended(blueprint, "status_tones");
+  const choice = LAYERS.find((layer) => layer.id === "foundations").choices.find(
+    (item) => item.key === "status_tones",
+  );
+  const options = STATUS.tones.flatMap((entry) => {
+    const tone = { ...entry, light: parseColor(entry.light), dark: parseColor(entry.dark) };
+    let written;
+    try {
+      written = SHEET_MODES.map((mode) => {
+        const ground = groundOf(state, css, mode, min);
+        const color = toneColor(tone, ground, min, mode.dark);
+        return { mode, ground, color, tint: over(color, TONE_TINT[mode.name], ground) };
+      });
+    } catch (error) {
+      dropped.push(`status tone ${entry.tone}: ${error.message}`);
+      return [];
+    }
+    const notes = written.map(
+      ({ mode, ground, color, tint }) =>
+        `${mode.name}: ${entry.role} ${formatOklch(color)}, ${contrast(color, ground).toFixed(2)}:1 on the background, ${contrast(color, tint).toFixed(2)}:1 on its own tint`,
+    );
+    if (entry.always) notes.unshift("always taken: every product says when something failed");
+    if ([said?.option].flat().includes(entry.tone))
+      notes.unshift(`recommended: ${said.basis.text}`);
+    return [
+      {
+        value: entry.tone,
+        label: `${entry.tone} (${entry.name}): ${choice.options[entry.tone]}`,
+        notes,
+        swatches: written.map(({ mode, ground, color, tint }) => ({
+          mode: mode.name,
+          background: formatOklch(ground),
+          primary: formatOklch(color),
+          onPrimary: formatOklch(ground),
+          tint: formatOklch(tint),
+          tintText: formatOklch(color),
+        })),
+        css: written
+          .map(
+            ({ mode, color }) => `${mode.selector} {\n  ${entry.role}: ${formatOklch(color)};\n}`,
+          )
+          .join("\n"),
+        modes: ["light", "dark"],
+      },
+    ];
+  });
+  return {
+    id: "status",
+    key: "status_tones",
+    many: true,
+    title: "status tones",
+    question:
+      "Which status tones does the product use? Pick the letters: the error tone is always taken, and a tone not picked writes no role.",
+    shots: ["ready"],
+    options: letter(options),
+  };
+}
+
 // The direction section: each direction the guide would show, drawn whole. Its colour is solved as
 // the guide would write it, with its own type scale and corner radius on the same page.
 function directionSection(blueprint, state, css, options, dropped) {
@@ -551,7 +734,7 @@ export function renderSheet(plan, images) {
         const swatches = (option.swatches ?? [])
           .map(
             (swatch) =>
-              `<div class="swatch" style="background:${escape(swatch.background)}"><span style="background:${escape(swatch.primary)};color:${escape(swatch.onPrimary)}">Aa</span><i style="color:${escape(swatch.primary)}">Aa</i><small style="color:${escape(swatch.mode === "dark" ? "#fafafa" : "#18181b")}">${escape(swatch.mode)}</small></div>`,
+              `<div class="swatch" style="background:${escape(swatch.background)}"><span style="background:${escape(swatch.tint ?? swatch.primary)};color:${escape(swatch.tintText ?? swatch.onPrimary)}">Aa</span><i style="color:${escape(swatch.primary)}">Aa</i><small style="color:${escape(swatch.mode === "dark" ? "#fafafa" : "#18181b")}">${escape(swatch.mode)}</small></div>`,
           )
           .join("");
         const notes = option.notes.map((note) => `<li>${escape(note)}</li>`).join("");
@@ -799,7 +982,7 @@ async function main() {
   const all = (flag) => args.flatMap((arg, index) => (arg === flag ? [args[index + 1]] : []));
   if (!value("--target")) {
     stderr.write(
-      "usage: node specimen.mjs --target DIR [--section direction|color|around|type|radius|typeface|review|record|all] [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]\n",
+      "usage: node specimen.mjs --target DIR [--section direction|color|around|type|radius|typeface|neutral|status|review|record|all] [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]\n",
     );
     exit(2);
   }

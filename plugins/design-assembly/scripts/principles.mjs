@@ -71,6 +71,14 @@ const DEFAULTS = {
     option: "text",
     text: "the foundations layer page: headings in the text typeface, as the floor sets them, so a screen has one typeface",
   }),
+  neutral_family: () => ({
+    option: "grey",
+    text: "the floor's own neutral family is pure grey: kept, no screen changes hue, and the formula moves a text colour only where its pair is below the threshold",
+  }),
+  status_tones: () => ({
+    option: ["error"],
+    text: "the floor has only the error tone, and its screens use no other: a tone no screen uses is a role nothing reads, and one can be added when a screen needs it",
+  }),
   record_panel: (type) =>
     type === "content-site"
       ? { option: "in-place", text: "the patterns layer page: in place for a content site" }

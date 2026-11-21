@@ -1,0 +1,22 @@
+{
+  "id": "status-tones",
+  "question": "Tông trạng thái của kho này: giữ --destructive của sàn (floor), hay để công thức tông trạng thái viết riêng tông lỗi từ danh sách sắc độ đóng (error)? Thêm tông thành công, cảnh báo hay thông tin thì chọn trong new, trên bảng mẫu.",
+  "recommendation": "Giữ --destructive của sàn (floor); keep lấy ứng viên đầu, floor",
+  "basis": "Đo trên một bản sao bỏ đi của kho này ngày 2026-11-22. Sàn của kho này đã làm đậm --destructive ở giao diện sáng thành oklch(0.48 0.2 27.325) để chữ lỗi trên nền nhạt 10% của chính nó đạt ngưỡng: 7,16:1 trên --background, 5,95:1 trên nền nhạt 10%, 4,86:1 trên nền nhạt 20% lúc rê chuột. Công thức với tông lỗi viết oklch(0.553 0.226 27.32): đạt mọi cặp bảng khai (5,38:1 trên --background, 4,50:1 trên nền nhạt 10%) nhưng nút «Xoá» lúc rê chuột xuống 3,71:1, trạng thái đề bài để ngoài và không lệnh kiểm nào đo. Giao diện tối gần như không đổi (6,91:1 so với 6,84:1). Màn của kho này chỉ dùng tông lỗi, nên chưa cần thành công, cảnh báo hay thông tin; khi cần, chạy lại new và chọn công thức. Dễ đảo: lời đáp nằm trong bản thiết kế, đổi rồi chạy lại new.",
+  "hard_to_undo": false,
+  "where": "0083",
+  "if_refused": "Để công thức viết tông lỗi: --destructive ở giao diện sáng nhạt đi thành oklch(0.553 0.226 27.32), mọi cặp bảng khai vẫn đạt, nút «Xoá» lúc rê chuột xuống 3,71:1",
+  "item": "decision:color-roles-status",
+  "candidates": [
+    {
+      "name": "floor",
+      "why": "giữ --destructive của sàn, oklch(0.48 0.2 27.325): 7,16:1 trên nền, 5,95:1 trên nền nhạt 10%, 4,86:1 lúc rê chuột"
+    },
+    {
+      "name": "error",
+      "why": "công thức với riêng tông lỗi: oklch(0.553 0.226 27.32), 5,38:1 trên nền, 4,50:1 trên nền nhạt 10%, 3,71:1 lúc rê chuột"
+    }
+  ],
+  "replaces": ["color-roles-status"],
+  "asked_on": "2026-11-22"
+}

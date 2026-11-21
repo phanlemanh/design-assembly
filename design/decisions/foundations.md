@@ -10,6 +10,8 @@ Status: decided (user).
 - corner radius: `floor`
 - text typeface: `floor` (answered by Manh Phan on 2026-11-21)
 - heading typeface: `text` (answered by Manh Phan on 2026-11-21)
+- neutral family: not answered yet: the floor's declarations stay as they are
+- status tones: not answered yet: the floor's declarations stay as they are
 
 ## Why
 

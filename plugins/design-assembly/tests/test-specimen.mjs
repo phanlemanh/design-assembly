@@ -204,6 +204,8 @@ test("the plan is the same on every run, and writes nothing to the repository", 
     "radius",
     "text-font",
     "heading-font",
+    "neutral",
+    "status",
   ]);
 });
 
