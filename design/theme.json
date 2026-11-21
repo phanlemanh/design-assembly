@@ -5,7 +5,9 @@
     "sourceColor": "#0246ff",
     "conformanceLevel": "AA",
     "typeScale": "standard",
-    "cornerRadius": "floor"
+    "cornerRadius": "floor",
+    "textFont": "floor",
+    "headingFont": "text"
   },
   "checks": {
     "tonal-palette": [
@@ -89,6 +91,20 @@
     "checks-in-gate": [
       {
         "kind": "gate"
+      }
+    ],
+    "typeface": [
+      {
+        "kind": "value",
+        "scope": ":root",
+        "variable": "--font-sans",
+        "expected": "\"Geist Variable\", sans-serif"
+      },
+      {
+        "kind": "value",
+        "scope": ":root",
+        "variable": "--font-heading",
+        "expected": "var(--font-sans)"
       }
     ],
     "font-loaded": [

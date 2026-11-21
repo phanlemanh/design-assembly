@@ -116,8 +116,10 @@ trị hay đỏ cổng, lựa chọn mới là một câu chờ chủ repo.
 
 - Hợp đồng đổi ba chỗ: tầng nền thêm `text_font` và `heading_font` (và khoá `not_yet`, `answered`); sổ token thêm nhóm
   `font`; bảng quyết định chuẩn thêm hai dòng, `typeface` và `font-loaded`.
-- Kho này: chủ repo chưa đáp. Câu hỏi nằm trên hàng chờ (`design/waiting/typeface-of-text-and-headings.json`), khuyến
-  nghị giữ font của sàn cho cả văn bản và tiêu đề. Khối máy sinh của kho không đổi; cổng giữ thêm dòng `font-loaded`.
+- Kho này: máy không đáp; câu hỏi được đặt lên hàng chờ (`design/waiting/typeface-of-text-and-headings.json`) với
+  khuyến nghị giữ font của sàn. Chủ repo đáp cùng ngày 2026-11-21: «Giữ font của sàn». Lời đáp được ghi vào bản thiết kế
+  kèm tên và ngày (văn bản `floor`, tiêu đề `text`); khối máy sinh nay nêu đúng giá trị sàn khai, nên không màn nào đổi,
+  và cổng giữ dòng `typeface` cùng dòng `font-loaded`.
 - Sáu dòng giới hạn mới: `font-weight-and-letter-spacing-unheld`, `font-loading-code-not-written`,
   `typeface-not-asked-of-adopted-repo`, `font-loaded-reads-first-family-by-name`, `font-package-read-where-installed`,
   `font-loader-reader-unproven`. Dòng `no-tokens-beyond-color-radius-text` thu hẹp: tệp token nay có cả kiểu chữ.

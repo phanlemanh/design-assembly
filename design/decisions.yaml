@@ -318,3 +318,9 @@ decisions:
     source: "src/index.css, the typeface each of --font-sans and --font-heading names first"
     check: "tool:tools/design-assembly/check.mjs"
     note: "the first typeface of each list, against what the adapter of the build can see load it: an @font-face rule or a font package of the stylesheet, or the build's own font loader in a layout file; that the file holds the weights a screen uses is not checked"
+  - id: typeface
+    layer: foundations
+    kind: closed
+    source: "design/blueprint.json, text typeface floor, heading typeface text"
+    check: "tool:tools/design-assembly/check.mjs"
+    note: "answered by Manh Phan on 2026-11-21"

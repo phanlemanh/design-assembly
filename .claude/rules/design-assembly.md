@@ -28,6 +28,8 @@ your recommendation.
 
 ## Type
 
+- Running text is set in the floor's font (`"Geist Variable", sans-serif`) and headings in the text typeface, as `design/blueprint.json` decides: the generated block of the stylesheet names them as `--font-sans` and `--font-heading`, and the gate holds both.
+- Never name a typeface in a screen or a component: text takes `--font-sans` from the page, and a heading takes `--font-heading`. Another typeface is the owner's answer in the guide, never a class.
 - Every typeface the stylesheet names is loaded, or is one every device has: a new one comes with what loads it (an @font-face rule, a font package the stylesheet imports, or the build's own font loader), or the gate fails.
 
 ## A table of data

@@ -31,9 +31,11 @@
         "source_color": "#0246ff",
         "type_scale": "standard",
         "spacing_unit": "4px",
-        "corner_radius": "floor"
+        "corner_radius": "floor",
+        "text_font": "floor",
+        "heading_font": "text"
       },
-      "why": "Chủ kho chọn bằng mắt trên bảng mẫu ngày 2026-11-12, trên màn thật của kho: giữ màu gốc lam #0246ff, thang chữ chuẩn của sàn và bo góc của sàn. Khoảng cách chỉ có một phương án.",
+      "why": "Chủ kho chọn bằng mắt trên bảng mẫu ngày 2026-11-12, trên màn thật của kho: giữ màu gốc lam #0246ff, thang chữ chuẩn của sàn và bo góc của sàn. Khoảng cách chỉ có một phương án. Ngày 2026-11-21 chủ kho giữ font của sàn («Giữ font của sàn»), đáp câu typeface-of-text-and-headings của hàng chờ: văn bản dùng font của sàn, tiêu đề cùng họ với văn bản.",
       "rejected": [
         {
           "option": "Màu gốc: lục lam, lục, hổ phách, đỏ (bốn màu khởi đầu)",
@@ -51,7 +53,17 @@
           "option": "modular, major-third",
           "why": "Đã thử trên trình duyệt ngày 2026-11-11: text-xs xuống 10px, và nút của bộ linh kiện sàn vẫn giữ cỡ chữ riêng nên thang không đồng nhất."
         }
-      ]
+      ],
+      "answered": {
+        "text_font": {
+          "by": "Manh Phan",
+          "on": "2026-11-21"
+        },
+        "heading_font": {
+          "by": "Manh Phan",
+          "on": "2026-11-21"
+        }
+      }
     },
     "components": {
       "status": "planned"

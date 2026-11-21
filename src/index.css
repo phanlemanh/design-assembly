@@ -157,4 +157,9 @@
   --primary-foreground: oklch(0.205 0 0);
   --ring: oklch(0.608 0.211 263.68);
 }
+
+@theme inline {
+  --font-sans: "Geist Variable", sans-serif;
+  --font-heading: var(--font-sans);
+}
 /* design-assembly:tokens:end */
