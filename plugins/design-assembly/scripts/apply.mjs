@@ -1073,6 +1073,13 @@ export const OWNER_CALLS = {
 export const RULES_PAGE = ".claude/rules/design-assembly.md";
 // The section of the rules page whose lines no check holds: a person reviews them.
 export const UNHELD_SECTION = "No check holds these: a person reviews them";
+// The words of the rules page that say what the gate takes as a button for an action: the brief
+// reads the line that holds them for the actions slot of every sheet.
+export const TOAST_BUTTON = "a toast's button the screen raises";
+// The words of the rules page that say a row's actions button takes no name for each action, and
+// that two rules meet at a row's waiting state behind it: the brief reads these lines too.
+export const NO_NAME_EACH = "takes no name for each action";
+export const WAITING_WORDS = "which gives way is the owner's";
 
 // What the owner fixed before any value, as the lines of the rules page: each principle that is
 // theirs, the direction they took, and how an agent uses them. A principle the owner did not fix
@@ -1198,7 +1205,9 @@ export function rulesPage(checks, has, blueprint = null) {
         : "The first column stays in place too only where that leaves room to read the columns between."),
     rows &&
       (has("src/components/ui/row-actions.tsx")
-        ? "A row shows one action as a button. Two or more go behind one button on the row, at every width: `RowActions` (`src/components/ui/row-actions.tsx`), given a `name` that says which row it acts on and the actions as buttons, those that can be taken back first and a delete last. Two text buttons do not fit beside the data at 320px, and one rule for every width keeps one way to reach each state. The button shows only an ellipsis, ⋯, so it takes the same small room at every width; a screen reader hears its name. Its list floats below the button and never widens the column; one is open at a time; pressing an action closes it and gives focus back to the row's button, which you hold with `pending` while the action waits; from one second of `pending` on, it turns itself into a turning circle and a screen reader hears `busyName`, which says what it is doing: each row keeps its own clock, so write no timer of your own. A state behind it is reached by pressing the row's button, then the action. Never build a list of a row's actions of a screen's own."
+        ? "A row shows one action as a button. Two or more go behind one button on the row, at every width: `RowActions` (`src/components/ui/row-actions.tsx`), given a `name` that says which row it acts on and the actions as buttons, those that can be taken back first and a delete last. Two text buttons do not fit beside the data at 320px, and one rule for every width keeps one way to reach each state. The button shows only an ellipsis, ⋯, so it takes the same small room at every width; a screen reader hears its name. Its list floats below the button and never widens the column; one is open at a time; pressing an action closes it and gives focus back to the row's button, which you hold with `pending` while the action waits; from one second of `pending` on, it turns itself into a turning circle and a screen reader hears `busyName`, which says what it is doing: each row keeps its own clock, so write no timer of your own. A state behind it is reached by pressing the row's button, then the action. It " +
+          NO_NAME_EACH +
+          ": each is a button of the screen, inside a list a screen reader hears as `name`, and the name each button is heard by is its own words, which the screen chooses from the repository's words; where no page says them, ask. Never build a list of a row's actions of a screen's own."
         : "A row shows one action as a button. Two or more go behind one button on the row, at every width, that opens them as a list of buttons: two text buttons do not fit beside the data at 320px, and one rule for every width keeps one way to reach each state. It is a disclosure, not an ARIA menu, so every action stays a button the browser test can press and every state behind it can be listed. The actions that can be taken back come first, a delete comes last."),
     rows &&
       "Each row waits on its own: while one row's action waits, the other rows can still be used.",
@@ -1229,6 +1238,9 @@ export function rulesPage(checks, has, blueprint = null) {
   section("States", [
     held("state-matrix") &&
       "Every screen in `src/screens.ts` declares the states listed in `design/states.json`. A screen that loads no data is excused in that file, with a reason: that is a person's decision.",
+    held("state-matrix") &&
+      has("src/components/ui/row-actions.tsx") &&
+      `A state is listed with words it puts on the page, which the browser test waits for. \`RowActions\` says a row's action is waiting only by \`busyName\`, which a screen reader hears and which puts no word on the page, so a row's waiting state behind it has no words of its own. Two rules meet there, and ${WAITING_WORDS}: do not list such a state with words the page shows before it, such as the row's name; the brief of the screen gives the question to ask.`,
   ]);
   const notify = has("src/lib/notify.ts");
   section("Telling a person", [
@@ -1283,7 +1295,7 @@ export function rulesPage(checks, has, blueprint = null) {
       : held("state-matrix") &&
         "The gate reads `src/screens.ts` as written: list each screen and each of its states in full there, never built by a function or spread from another list, or the gate does not see them.",
     held("screen-actions") &&
-      `${entryOf} also says what it shows (\`shows\`, entities of \`ontology/\`), the action a role must hold to open it (\`entry\`, or null for every role) and the actions it has buttons for (\`actions\`). Every action of \`ontology/actions.yaml\` is offered on a screen to every role that may run it; an action that has no screen is listed under \`no_screen\`${sharedFile} with \`later: <where>\`, or \`never: <reason>\` with \`decided_by\`, the person who decided, never you. The gate fails when an action is offered to nobody who may run it, when a screen shows a record to a role that may not view it, and when a button is one no role that opens its screen may press.`,
+      `${entryOf} also says what it shows (\`shows\`, entities of \`ontology/\`), the action a role must hold to open it (\`entry\`, or null for every role) and the actions it has buttons for (\`actions\`). A button for an action is any button a person presses on the screen, ${TOAST_BUTTON} among them, such as the undo of an action done there: list its action in \`actions\`, so the gate checks that whoever opens the screen may run it. The gate reads the row alone, so it cannot tell a toast's button from one drawn on the screen: an action whose only button is a toast's still needs one of its own, on this screen or another. Every action of \`ontology/actions.yaml\` is offered on a screen to every role that may run it; an action that has no screen is listed under \`no_screen\`${sharedFile} with \`later: <where>\`, or \`never: <reason>\` with \`decided_by\`, the person who decided, never you. The gate fails when an action is offered to nobody who may run it, when a screen shows a record to a role that may not view it, and when a button is one no role that opens its screen may press.`,
     held("navigation-in-frame") &&
       (has("src/components/app-frame.tsx")
         ? "Moving between screens is the frame's. Once there is more than one screen, `src/App.tsx` draws `AppFrame` (`src/components/app-frame.tsx`) with the list of screens, each given a `title` from the repository's words: it moves between them without loading the page again, marks the open one, leaves a screen's toasts behind and draws the toaster once. A screen never links to another screen: the gate fails when one does."

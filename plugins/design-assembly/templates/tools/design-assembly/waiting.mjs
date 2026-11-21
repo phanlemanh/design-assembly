@@ -64,12 +64,26 @@ export const SCREEN_SLOTS = [
   "touched-screens",
 ];
 
+// The slots whose question is one for every screen it concerns, by their ids, and whether the
+// item names what the question is about: principles and direction are the repository's, the same
+// on every sheet; a change to the data model is named by the names it is about, sorted and joined
+// with +, and is one question for every screen whose row or branch has those names.
+export const SHARED_SLOTS = { principles: false, "model-changes": true };
+const NAMES = "[A-Za-z0-9_.-]+(?:\\+[A-Za-z0-9_.-]+)*";
+const SHARED = new RegExp(
+  `^(?:${Object.entries(SHARED_SLOTS)
+    .map(([slot, keyed]) => (keyed ? `${slot}:${NAMES}` : slot))
+    .join("|")})$`,
+);
+
 // The items a question can name, each written `kind:which`. A row of the decision ledger, a page of
 // a kind of screen (its file name, without .md), the root colour line (its value, as written), a
 // need a block is taken in for (its key), what a ledger lists as made before it (the ledger's
 // name), the block of a need that is retired or merged (the need's key), or one slot of the brief
 // of one screen (the screen's id in the ledger of screens, a colon, the slot's id). Pattern and
-// colour are the owner's calls: an agent that asks one does not go on. A slot of a screen is not:
+// colour are the owner's calls: an agent that asks one does not go on. One slot asked for every
+// screen it concerns is written `screens:principles`, or `screens:model-changes:NAMES`. A slot of a
+// screen is not:
 // nothing a branch changes tells the gate that a screen was built on an open slot, so the gate
 // could not hold the stop; the agent goes on with its recommendation, as for any question.
 export const ITEMS = {
@@ -80,10 +94,24 @@ export const ITEMS = {
   before: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: false },
   block: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: false },
   screen: { which: new RegExp(`^[^\\s:,/\\\\]+:(${SCREEN_SLOTS.join("|")})$`), owners: false },
+  screens: { which: SHARED, owners: false },
 };
 
 // The item for one slot of the brief of one screen.
 export const screenItem = (screen, slot) => `screen:${screen}:${slot}`;
+// The item for one slot asked once for every screen it concerns, with the names it is about where
+// the slot takes them.
+export const sharedItem = (slot, names = []) =>
+  SHARED_SLOTS[slot] ? `screens:${slot}:${names.join("+")}` : `screens:${slot}`;
+// The names a shared item is about, or null where it is not one of that slot.
+export function sharedNames(item, slot) {
+  const head = `screens:${slot}:`;
+  return typeof item === "string" && item.startsWith(head) && SHARED.test(item.slice(8))
+    ? item.slice(head.length).split("+")
+    : null;
+}
+// Whether a name can stand in a shared item.
+export const sharedName = (name) => /^[A-Za-z0-9_.-]+$/.test(String(name));
 
 // How a value answers a question with candidates, by the kind of its item: the name of one
 // candidate for a need, the made-by-hand choice included; for what came before a ledger, the names
@@ -141,7 +169,8 @@ export function itemProblem(item) {
   if (typeof item !== "string") return "an item is written kind:which";
   const at = item.indexOf(":");
   const kind = at === -1 ? item : item.slice(0, at);
-  const rule = ITEMS[kind];
+  // Only a kind of its own: a word every object has, such as constructor, is no kind.
+  const rule = Object.hasOwn(ITEMS, kind) ? ITEMS[kind] : undefined;
   if (at === -1 || !rule) {
     return `an item is one of ${Object.keys(ITEMS)
       .map((name) => `${name}:…`)

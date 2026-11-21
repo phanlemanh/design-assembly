@@ -1549,9 +1549,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials", "spec"],
+      "where": ["trials", "spec", "d0077"],
       "status": "open",
-      "note": "A state a person only hears, such as a row's button named for what it is doing, cannot be listed for the browser test, which waits for words on the page."
+      "note": "A state a person only hears, such as a row's button named for what it is doing, cannot be listed for the browser test, which waits for words on the page; the rules page and the brief name the two rules that meet there and put the choice to the owner, and until the owner answers such a state stays unlisted."
     },
     {
       "id": "state-test-waits-one-second",
@@ -3207,9 +3207,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-18",
-      "where": ["trials"],
+      "where": ["trials", "d0077"],
       "status": "open",
-      "note": "The browser test waits for a state's words to be on the page and never asks that they were absent before its steps, so a state listed with words the page always shows, as a row's waiting state may be since the row's actions button puts none on the page, passes before the state is reached."
+      "note": "The browser test waits for a state's words to be on the page and never asks that they were absent before its steps, so a state listed with words the page always shows, as a row's waiting state may be since the row's actions button puts none on the page, passes before the state is reached; the rules page tells a builder not to list such a state with words the page shows before it, and no check holds that line."
     },
     {
       "id": "row-waiting-words-need-a-second-clock",
@@ -3523,7 +3523,7 @@
       "opened": "2026-11-21",
       "where": ["spec", "d0073"],
       "status": "open",
-      "note": "A finding an eye gives of the same fault the measure found is a second finding with its own number, and the harvest prints a second line for the ledger of escapes for one fault: in the trial of decision 0073 the pale words of the empty state stood twice."
+      "note": "A finding an eye gives of the same fault the measure found is a second finding with its own number, and the harvest prints a second line for the ledger of escapes for one fault."
     },
     {
       "id": "review-rule-line-held-read-from-its-section",
@@ -3545,7 +3545,7 @@
       "opened": "2026-11-21",
       "where": ["spec", "d0073"],
       "status": "open",
-      "note": "An eye's finding that text is too faint, resting on the contrast row, is harvested as an escape even where the measure read the same text at or above the level asked: in the trial of decision 0073 both such findings of the eye were of text the measure read at 4.5:1 and 5.3:1, where 4.5:1 is asked."
+      "note": "An eye's finding that text is too faint, resting on the contrast row, is harvested as an escape even where the measure read the same text at or above the level asked, as at 4.5:1 or 5.3:1 where 4.5:1 is asked."
     },
     {
       "id": "review-ground-read-from-the-elements-around",
@@ -3723,9 +3723,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-21",
-      "where": ["spec", "d0074"],
+      "where": ["spec", "d0074", "d0077"],
       "status": "open",
-      "note": "The components slot lists every component of the ledger and the frame of the kind; it does not say which of them this screen needs, and their props and variants are in the answer for a machine alone."
+      "note": "The components slot lists every component of the ledger and the frame of the kind; it does not say which of them this screen needs, and their props and variants are in the answer for a machine alone. The places of a row's actions button (the name each action behind it is heard by, and the words of a row's waiting state) are named for every screen whose row lists two or more actions, said of a row's actions where they go behind it, since the row does not say which actions are a row's and which stand beside the heading."
     },
     {
       "id": "brief-words-and-checks-named-not-read",
@@ -3747,7 +3747,7 @@
       "opened": "2026-11-21",
       "where": ["spec", "d0074", "trials"],
       "status": "open",
-      "note": "Two independent builders have built a screen from a sheet, once each: counted the same way, the first had 11 places to guess against 9 for the last builder without a sheet, and the second 14, of which 11 reached the waiting list against 2. The copies differ in more than the sheet, and the second builder named kinds of choice the first did not, because the sheet told it to look for them; two runs do not say whether the sheet lowers the number of places a builder has to guess."
+      "note": "No run of an independent builder has shown yet that a builder who builds a screen from the sheet has to guess in fewer places than one who builds it without the sheet, and only such runs can show it."
     },
     {
       "id": "brief-sheet-look-unseen-by-the-owner",
@@ -3811,9 +3811,9 @@
       "severity": "low",
       "plan": "keep",
       "opened": "2026-11-21",
-      "where": ["spec", "d0075"],
+      "where": ["spec", "d0075", "d0077"],
       "status": "open",
-      "note": "The brief refuses to queue where the tool a repository copied is older than the one that reads a question about a slot of a screen. The call it prints for one slot is the decision sheet's own, which has no such refusal: run there, it writes a question that repository's gate reads as broken until the tool is upgraded."
+      "note": "The brief refuses to queue where the tool a repository copied is older than the one that reads a question about a slot of a screen. The call it prints for one slot is the decision sheet's own, which has no such refusal: run there, it writes a question that repository's gate reads as broken until the tool is upgraded. Where the tool is older than the one that reads a question asked once for every screen, the sheet asks each such question under the screen's own item, as before, so the same thing to decide is still asked once a screen there; a stamp the sheet cannot read counts as such an older tool."
     },
     {
       "id": "brief-sheet-narrows-what-the-builder-asks",
@@ -3822,9 +3822,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-21",
-      "where": ["trials", "d0076"],
+      "where": ["trials", "d0076", "d0077"],
       "status": "open",
-      "note": "A builder that runs the brief may queue the open slots of the sheet and decide the rest alone: the first builder trial asked no question of its own. In the second, after the sheet and the rules page said the twelve slots are not every question, the builder asked eleven of its own with decide --ask, ten before building and one while building, about the shape, the names and the words of the new concept, the look of a control, sample data, the order of the list, what the screen is for and what the other screens do. What is still open: it still decided alone three choices the sheet names no place for (the spoken name of a control behind a row's actions button, the words a waiting state waits for when the page shows none, whether an action with a button only on a toast counts among the screen's actions); nothing sees what a builder chose outside the twelve slots; and two runs do not say a third builder asks as much."
+      "note": "A builder that runs the brief may queue the open slots of the sheet and decide the rest alone. The sheet and the rules page say that the twelve slots are not every question of a screen, and the sheet names where other choices hide and what they are: the name, the shape and the words of a new concept, the look of a control, whether a toast's button counts among the actions of the screen's row, the name each button behind a row's actions button is heard by, and the words of a row's waiting state, which is put to the owner. What is still open: nothing sees what a builder chooses outside the twelve slots and the places the sheet names, and only a builder's run shows whether a builder asks them."
     },
     {
       "id": "brief-settled-by-rows-the-builder-wrote",
@@ -3833,9 +3833,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-21",
-      "where": ["trials", "d0076"],
+      "where": ["trials", "d0076", "d0077"],
       "status": "open",
-      "note": "The sheet reads the working tree, and now sets it beside what the repository had where the branch left the main one: what the branch wrote into the data model for the screen opens the slot of changes to the data model by name, with a question about each name and its shape, and a line read from a row, an action or a field the branch wrote says so. What is still open: the slots read from the screen's own row (its kind, what it shows, its actions, its states, its title) are marked and stay settled, since the row is where the sheet tells a builder to write them; with no git, no commit, no main branch git knows or a shallow checkout nothing is compared and the sheet only says so; the same addition opens that slot on the sheet of every screen that shows the record, one question each; and a slot asked once is not asked again when the branch writes more."
+      "note": "The sheet reads the working tree, and now sets it beside what the repository had where the branch left the main one: what the branch wrote into the data model for the screen opens the slot of changes to the data model by name, with a question about each name and its shape, and a line read from a row, an action or a field the branch wrote says so. What is still open: the slots read from the screen's own row (its kind, what it shows, its actions, its states, its title) are marked and stay settled, since the row is where the sheet tells a builder to write them; with no git, no commit, no main branch git knows or a shallow checkout nothing is compared and the sheet only says so; a change to the data model is one question for every screen whose row or branch has its names, and a branch that writes more is asked again under the larger set of names while the first question still waits beside it; with a tool older than 0.26.0 the same addition is still asked once a screen; and another slot asked once is not asked again when the branch writes more."
     },
     {
       "id": "brief-touched-screens-recommends-no-change",
@@ -3894,9 +3894,11 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-21",
-      "where": ["trials"],
-      "status": "open",
-      "note": "A builder that changes several screens and queues the open slots of each sheet writes one question a screen for what is one thing to decide: in the second builder trial the question of principles and direction, the same on every sheet, and the question of one addition to the data model each went three times onto the waiting list, so ten questions stood there for four things to decide."
+      "where": ["trials", "d0077"],
+      "status": "closed",
+      "note": "A builder that changes several screens and queues the open slots of each sheet writes one question a screen for what is one thing to decide: in the second builder trial the question of principles and direction, the same on every sheet, and the question of one addition to the data model each went three times onto the waiting list, so ten questions stood there for four things to decide.",
+      "closed": "2026-11-21",
+      "closed_by": "decision 0077 and tests/test-brief-trial-13.mjs: the question of principles and direction is asked once for every screen, under the item screens:principles, and a question about a change to the data model once for every screen whose row or branch has its names, under screens:model-changes:NAMES; the sheet of each screen reads it as its own slot's, asked or answered, and a question under one screen's own item is still read for that screen. In the trial's situation the three sheets queue 6 questions where they queued 10. What is left: a repository whose tool is older than 0.26.0 is still asked once a screen, as limit brief-asks-through-an-older-tool says"
     },
     {
       "id": "screen-actions-toast-button-unsaid",
@@ -3905,9 +3907,9 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-21",
-      "where": ["trials"],
+      "where": ["trials", "d0077"],
       "status": "open",
-      "note": "The rules page says a screen's row lists the actions it has buttons for and does not say whether a button on a toast counts: two builders in a row listed an action whose only button is a toast's undo, and the gate takes the row either way."
+      "note": "The rules page says that a toast's button counts among the actions of a screen's row, and the actions slot of the brief says so from that line, but the gate reads the row alone and cannot tell a toast's button from one drawn on the screen: an action whose only button anywhere is a toast's counts as offered, and nothing holds that a toast is never the only way."
     },
     {
       "id": "trial-builder-reads-findings-through-the-sheet",
@@ -3916,9 +3918,11 @@
       "severity": "medium",
       "plan": "keep",
       "opened": "2026-11-21",
-      "where": ["trials"],
-      "status": "open",
-      "note": "The brief prints the open rows of its own limits, and since the first builder trial some of those rows say what that trial found (that the builder asked no question of its own and decided nine choices alone), so a later builder reads the findings of the trial before it in the plugin's own output, which the protocol forbids the coordinating session to tell it."
+      "where": ["trials", "d0077"],
+      "status": "closed",
+      "note": "The brief prints the open rows of its own limits, and since the first builder trial some of those rows say what that trial found (that the builder asked no question of its own and decided nine choices alone), so a later builder reads the findings of the trial before it in the plugin's own output, which the protocol forbids the coordinating session to tell it.",
+      "closed": "2026-11-21",
+      "closed_by": "decision 0077 and tests/test-brief-trial-13.mjs: no open limit of the areas brief, review and document, the ones a sheet or a record prints, names a trial or says what a builder did, and the part of a sheet on what it does not see is checked the same way, in the terminal and on the page; a row that rests on a trial names it in its where alone. What is left: only a builder's run shows whether the reworded part still teaches a builder the test"
     }
   ]
 }

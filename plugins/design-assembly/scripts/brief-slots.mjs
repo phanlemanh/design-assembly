@@ -10,7 +10,8 @@
 // what the repository had where this branch left the main one (brief-branch.mjs): a line read
 // from a row this branch wrote says so, and a question that waits is held against what stands
 // now. Read-only, and read from the repository alone.
-import { existsSync, readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -31,11 +32,17 @@ import {
   readWaiting,
   SCREEN_SLOTS,
   screenItem,
+  SHARED_SLOTS,
+  sharedItem,
+  sharedName,
+  sharedNames,
 } from "../templates/tools/design-assembly/waiting.mjs";
+import { older } from "./asking.mjs";
 import { branchOf, modelWritten, rowWritten } from "./brief-branch.mjs";
 import { MEASURES, PLACES, READERS, STANDS } from "./brief-readers.mjs";
 import { BASES } from "./document.mjs";
 import { callOf } from "./queue.mjs";
+import { readStamp, releaseOf, TOOL_COPY, treeHash } from "./stamp.mjs";
 
 export { READERS };
 
@@ -46,6 +53,11 @@ export const CATALOGUE = "references/brief-slots.json";
 export const SLOT_STATES = ["settled", "asked", "open"];
 // When a slot is held by no ledger: on every sheet, or while the screen is not built.
 const UNHELD_WHEN = ["always", "planned"];
+// The first version of the tool whose waiting list reads a question asked once for every screen it
+// concerns. A repository whose tool is older is asked one question a screen, as before.
+export const SHARED_SINCE = "0.26.0";
+// How long the names of a shared question may make its id before the id is a short hash of them.
+const NAMED_ID = 100;
 
 export const readCatalogue = (plugin = PLUGIN) =>
   JSON.parse(readFileSync(path.join(plugin, CATALOGUE), "utf8"));
@@ -225,6 +237,8 @@ function contextOf(target, facts, catalogue) {
       return mine ? { branch: mine.change === "added" ? "new" : "changed" } : {};
     },
     keys,
+    // Whether the repository's tool reads a question asked once for every screen it concerns.
+    shares: sharesQuestions(target),
     kind: kindOf(readPages(target), facts.screen.family),
     raw,
     model: modelOf(raw),
@@ -235,6 +249,41 @@ function contextOf(target, facts, catalogue) {
     branch,
     numberOf: (id) => catalogue.slots.find((slot) => slot.id === id)?.number ?? id,
   };
+}
+
+// Whether this repository's tool reads a question asked once for every screen it concerns: a
+// stamp of SHARED_SINCE or later; with no stamp, a copy of the tool that is exactly the tool of
+// such a release, or no copy at all, where no gate reads the waiting list. A stamp the sheet
+// cannot read (a folder, a file that is not the stamp) and a copy it cannot name are taken for an
+// older tool, and the question is asked in the form every tool reads.
+function sharesQuestions(target) {
+  try {
+    const stamp = readStamp(target);
+    if (stamp !== null) return !older(stamp.version, SHARED_SINCE);
+    const copy = path.join(target, TOOL_COPY);
+    if (!existsSync(copy)) return true;
+    const version = statSync(copy).isDirectory() ? releaseOf(treeHash(copy)) : null;
+    return version !== null && !older(version, SHARED_SINCE);
+  } catch {
+    return false;
+  }
+}
+
+// The item a slot's question is asked under once for every screen it concerns, with its id and
+// the names it is about; null where the question is one screen's own. Principles and direction
+// are the repository's; a change to the data model is shared where its reader names what it is
+// about (the names this branch wrote or a row names that the model lacks) and nothing of the
+// screen's own row is missing, each name one an item can hold.
+function sharedOf(slot, found) {
+  if (!Object.hasOwn(SHARED_SLOTS, slot.id)) return null;
+  if (!SHARED_SLOTS[slot.id])
+    return { item: sharedItem(slot.id), id: `screens-${slot.id}`, names: null };
+  const names = found.shared?.names;
+  if (!Array.isArray(names) || names.length === 0 || !names.every(sharedName)) return null;
+  const key = names.join("+");
+  const short =
+    key.length <= NAMED_ID ? key : createHash("sha256").update(key).digest("hex").slice(0, 12);
+  return { item: sharedItem(slot.id, names), id: `screens-${slot.id}-${short}`, names };
 }
 
 // The words of a recommendation of the catalogue, with what the sheet measured put where the
@@ -248,16 +297,27 @@ const filled = (words, fill = {}) =>
 // is found again; the id is the name of the question's file.
 function questionOf(slot, found, context) {
   const { screen, status } = context;
-  const read = found.why.join("; ");
+  // A question asked once for every screen it concerns names no one screen, and says what it read
+  // of all of them: whichever sheet asks it first writes the same question.
+  const shared = context.shares ? sharedOf(slot, found) : null;
+  const read = (shared && found.shared?.why ? found.shared.why : found.why).join("; ");
+  const whose = shared
+    ? shared.names
+      ? `For every screen whose row or branch names ${shared.names.join(", ")}`
+      : "For every screen of this repository"
+    : `For the screen ${screen.id}, ${status === "built" ? "which is built" : "declared ahead and not built yet"}`;
+  const once = shared
+    ? ` This is one question for every ${shared.names ? "such screen" : "screen"}: the sheet of each reads its answer.`
+    : "";
   // What the sheet measured for this slot, and which of the catalogue's recommendations what it
   // read or measured calls for: the slot's own where neither names another.
   const measured = MEASURES[slot.id]?.(context) ?? null;
-  const which = found.case ?? measured?.case;
+  const which = (shared && found.shared ? found.shared.case : found.case) ?? measured?.case;
   const recommend = slot.ask.cases?.[which]?.recommend ?? slot.ask.recommend;
   return {
-    item: screenItem(screen.id, slot.id),
-    id: questionId(screen.id, slot.id),
-    question: `For the screen ${screen.id}, ${status === "built" ? "which is built" : "declared ahead and not built yet"}, slot ${slot.number}, ${slot.name}: ${slot.question} Nothing in the repository settles it: ${read}.`,
+    item: shared?.item ?? screenItem(screen.id, slot.id),
+    id: shared?.id ?? questionId(screen.id, slot.id),
+    question: `${whose}, slot ${slot.number}, ${slot.name}: ${slot.question} Nothing in the repository settles it: ${read}.${once}`,
     recommendation: filled(recommend, measured?.fill),
     basis: {
       kind: slot.ask.basis.kind,
@@ -274,17 +334,23 @@ const questionId = (screen, slot) => `screen-${screen}-${slot}`;
 
 // The question of the waiting list about one slot of one screen, with the file it is kept in: the
 // one the owner answered where there is one, else the one that waits; null where nobody asked. A
-// question is about the slot when its item says so, or when it has the id the sheet asks under
-// and names no item, as the decision sheet finds a question asked before.
-function standingOf(waiting, screen, slot) {
+// question is about the slot when it is the slot's question for every screen (`shared`, its item,
+// or for a change to the data model one whose names hold every name this screen's is about), when
+// its item names the slot of this screen, or when it has the id the sheet asks under and names no
+// item, as the decision sheet finds a question asked before.
+function standingOf(waiting, screen, slot, shared = null) {
   const item = screenItem(screen, slot);
   const id = questionId(screen, slot).toLowerCase();
-  const rows = (waiting?.rows ?? []).filter(
-    (row) =>
-      row.kind !== "permission" &&
-      (row.item === item || (row.item === undefined && String(row.id).toLowerCase() === id)),
-  );
-  const row = rows.find((candidate) => candidate.answer) ?? rows[0] ?? null;
+  const rows = (waiting?.rows ?? []).filter((row) => row.kind !== "permission");
+  const exact = (row) => shared !== null && row.item === shared.item;
+  const covers = (row) => {
+    const names = shared?.names ? sharedNames(row.item, slot) : null;
+    return names !== null && !exact(row) && shared.names.every((name) => names.includes(name));
+  };
+  const own = (row) =>
+    row.item === item || (row.item === undefined && String(row.id).toLowerCase() === id);
+  const about = [...rows.filter(exact), ...rows.filter(covers), ...rows.filter(own)];
+  const row = about.find((candidate) => candidate.answer) ?? about[0] ?? null;
   return row === null ? null : { row, file: waiting.files[row.id] };
 }
 
@@ -329,8 +395,8 @@ function standsNow(slot, row, context) {
 // A slot the repository settles while a question about it still waits on the owner: the question,
 // with its recommendation held against what the repository says now. Nothing where no question
 // waits.
-function stillWaits(slot, context, waiting) {
-  const stands = standingOf(waiting, context.screen.id, slot.id);
+function stillWaits(slot, found, context, waiting) {
+  const stands = standingOf(waiting, context.screen.id, slot.id, sharedOf(slot, found));
   if (!stands || stands.row.answer) return {};
   const { row, file } = stands;
   return {
@@ -348,7 +414,7 @@ function stillWaits(slot, context, waiting) {
 // answer, asked and waiting, or open, with the question to ask and the call that asks it. An open
 // slot whose question the decision sheet would refuse gives no call, and says why.
 function unsettled(slot, found, context, { waiting, target, plugin }) {
-  const stands = standingOf(waiting, context.screen.id, slot.id);
+  const stands = standingOf(waiting, context.screen.id, slot.id, sharedOf(slot, found));
   if (stands?.row.answer) {
     const { row, file } = stands;
     return {
@@ -392,6 +458,38 @@ function unsettled(slot, found, context, { waiting, target, plugin }) {
   };
 }
 
+// A place beyond the slots that carries a question of its own, by where that question stands: the
+// owner's answer, the question that waits, or the very call that asks it. The question is one for
+// the repository and names no screen, so it is looked up by its id. A place with no question is
+// given as it is.
+function placeAsked(place, waiting, where) {
+  if (!place.ask) return place;
+  const { ask, ...rest } = place;
+  const rows = (waiting?.rows ?? []).filter(
+    (row) => row.kind !== "permission" && String(row.id).toLowerCase() === ask.id.toLowerCase(),
+  );
+  const row = rows.find((candidate) => candidate.answer) ?? rows[0] ?? null;
+  if (row === null) return { ...rest, ask, call: callOf(ask, where) };
+  const file = waiting.files[row.id];
+  if (row.answer) {
+    return {
+      ...rest,
+      settled_by: {
+        id: row.id,
+        file,
+        answer: row.answer,
+        said: row.said ?? null,
+        by: row.by,
+        on: row.on,
+      },
+    };
+  }
+  return {
+    ...rest,
+    asked: { id: row.id, file, question: row.question, recommendation: row.recommendation ?? null },
+  };
+}
+
 // The twelve slots of one screen, in the catalogue's order, with what the readers found beside
 // their answers, for the answer a machine reads, how the sheet stands against the main branch,
 // and the places beyond the slots where a choice of this screen hides. A slot no ledger holds, on every sheet or while
@@ -429,18 +527,19 @@ export function slotsOf(
       why: found.why,
       ...(mine ? { written_on_branch: true } : {}),
       ...(settled
-        ? stillWaits(slot, context, list)
+        ? stillWaits(slot, found, context, list)
         : unsettled(slot, found, context, { waiting: list, target, plugin })),
     };
   });
   const { compared, main, on_main, why } = context.branch;
   const places = catalogue.slots.flatMap((slot) =>
-    (PLACES[slot.id]?.(context) ?? []).map((place) => ({
-      slot: slot.id,
-      number: slot.number,
-      name: slot.name,
-      ...place,
-    })),
+    (PLACES[slot.id]?.(context) ?? []).map((place) =>
+      placeAsked(
+        { slot: slot.id, number: slot.number, name: slot.name, ...place },
+        list,
+        plugin ? { target, plugin } : { target },
+      ),
+    ),
   );
   return { slots, data, branch: { compared, main, on_main, why }, places };
 }

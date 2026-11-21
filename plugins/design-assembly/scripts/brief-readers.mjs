@@ -31,6 +31,7 @@ import {
   KINDS_FOLDER,
   SIZES_FILE,
 } from "../templates/tools/design-assembly/screens.mjs";
+import { NO_NAME_EACH, TOAST_BUTTON, WAITING_WORDS } from "./apply.mjs";
 import { Refusal } from "./command.mjs";
 import { plural } from "./document.mjs";
 import { ROW_PREFIX } from "./principles.mjs";
@@ -75,6 +76,12 @@ function lineOf(text, pattern) {
     .split(/\r?\n/)
     .findIndex((line) => pattern.test(line));
   return at === -1 ? {} : { line: at + 1 };
+}
+// Where the rules page says something, by words it holds: the page, the line and its section, or
+// null where no line of the page holds them.
+function rulesLine({ facts }, words) {
+  const found = (facts.rules.lines ?? []).find((line) => String(line.text).includes(words));
+  return found ? { file: facts.rules.file, line: found.line, section: found.section } : null;
 }
 // A source with its comments blanked and every line kept, strings left as they are: a line found
 // in it is the line of the file, and a path named only in a comment is not found.
@@ -350,6 +357,18 @@ function actions(context) {
   } else if (row[keys.actions].length === 0) {
     plain("The screen has no button for an action of the data model", keys.actions);
   } else told.push(...list(row[keys.actions]).map((name) => actionOf(name, "button", context)));
+  // What the gate takes as a button for an action, as the rules page says it: read from its line,
+  // and said only where the page says it.
+  const toast = Array.isArray(row[keys.actions]) ? rulesLine(context, TOAST_BUTTON) : null;
+  if (toast) {
+    told.push({
+      line: answer(
+        `A button for an action is any one a person presses on this screen, ${TOAST_BUTTON} among them: the gate reads \`${keys.actions}\` alone and cannot tell where a button is drawn`,
+        toast,
+      ),
+      data: null,
+    });
+  }
   return {
     answer: told.map((item) => item.line),
     why: [...why, ...told.map((item) => item.why).filter(Boolean)],
@@ -666,6 +685,9 @@ function widthsAndChecks({ facts }) {
 // What of the data model this branch wrote has to do with the screen: an action the row names or
 // one of an entity the row shows, an entity the row shows, and a field of such an entity.
 function writtenFor({ branch, row, keys }) {
+  return writtenOf(branch, row, keys);
+}
+function writtenOf(branch, row, keys) {
   const asked = [named(row[keys.entry]), ...list(row[keys.actions])].filter(Boolean);
   const shown = list(row[keys.shows]);
   return branch.model.filter(
@@ -681,8 +703,10 @@ function writtenFor({ branch, row, keys }) {
 // it shows, opens with or offers, since what the screen needs of the model is then not known; and
 // where this branch wrote the action, the entity or the field itself: the repository had not
 // settled it, and its name and its shape are the branch's own choice.
-function modelChanges(context) {
-  const { row, keys, at, model, raw, branch } = context;
+// What one row of the ledger of screens asks of the data model: the keys it leaves unsaid, the
+// actions and entities it names that the model lacks, what this branch wrote that has to do with
+// it, and every one of those names, sorted.
+function concernOf({ keys, model, raw, branch }, row) {
   const unsaid = [keys.shows, keys.entry, keys.actions].filter(
     (key) => !(key in row) || (key !== keys.entry && !Array.isArray(row[key])),
   );
@@ -693,6 +717,65 @@ function modelChanges(context) {
     actions: asked.filter((name) => !known.has(name)),
     entities: shown.filter((name) => !hasEntity(raw, name)),
   };
+  const written = writtenOf(branch, row, keys);
+  const names = [
+    ...new Set([...lost.actions, ...lost.entities, ...written.map((item) => item.name)]),
+  ].sort();
+  return { unsaid, asked, shown, lost, written, names };
+}
+
+// The question of slot 10 that is one for several screens: this screen's names, and those of
+// every other screen of the ledger that shares one of them, and of the screens those share one
+// with, until none is added. Read from the whole ledger, it is the same whichever of those
+// screens asks it first. A row that leaves a key unsaid is the screen's own question, and is not
+// in it. `why` and `case` are said of the whole group, as the slot's own are of one row.
+function sharedConcern(context, own) {
+  const { others, branch } = context;
+  const rows = others
+    .map((item) => concernOf(context, item))
+    .filter((item) => item.unsaid.length === 0 && item.names.length > 0);
+  const group = [own];
+  let names = new Set(own.names);
+  for (let grew = true; grew;) {
+    grew = false;
+    for (const item of rows) {
+      if (!group.includes(item) && item.names.some((name) => names.has(name))) {
+        group.push(item);
+        names = new Set([...names, ...item.names]);
+        grew = true;
+      }
+    }
+  }
+  const union = (pick) => [...new Set(group.flatMap(pick))].sort();
+  const actions = union((item) => item.lost.actions);
+  const entities = union((item) => item.lost.entities);
+  const wrote = new Set(group.flatMap((item) => item.written));
+  const written = branch.model.filter((item) => wrote.has(item));
+  const why = [
+    ...actions.map(
+      (name) =>
+        `a row of the ledger of screens names the action ${name}, which the data model (${ACTIONS}) does not have`,
+    ),
+    ...entities.map(
+      (name) =>
+        `a row of the ledger of screens shows ${name}, which the data model (${MODEL}/entities) has no entity for`,
+    ),
+    ...(written.length > 0 ? [writtenWords(branch, written)] : []),
+  ];
+  return {
+    names: [...names].sort(),
+    why,
+    ...(actions.length + entities.length === 0 && written.length > 0 ? { case: "written" } : {}),
+  };
+}
+
+const writtenWords = (branch, written) =>
+  `this branch wrote into the data model (${MODEL}) what ${branch.main} does not have: it ${written.map((item) => item.says).join(", ")}; each name and its shape is this branch's own choice, which nothing the repository had settles`;
+
+function modelChanges(context) {
+  const { row, at, branch } = context;
+  const own = concernOf(context, row);
+  const { unsaid, asked, shown, lost } = own;
   const lacking = [
     ...lost.actions.map(
       (name) => `the row names the action ${name}, which the data model (${ACTIONS}) does not have`,
@@ -706,15 +789,8 @@ function modelChanges(context) {
         ]
       : []),
   ];
-  const written = writtenFor(context);
-  const why = [
-    ...lacking,
-    ...(written.length > 0
-      ? [
-          `this branch wrote into the data model (${MODEL}) what ${branch.main} does not have: it ${written.map((item) => item.says).join(", ")}; each name and its shape is this branch's own choice, which nothing the repository had settles`,
-        ]
-      : []),
-  ];
+  const { written } = own;
+  const why = [...lacking, ...(written.length > 0 ? [writtenWords(branch, written)] : [])];
   const nothing = `The row names nothing the data model lacks: its ${plural(asked.length, "action", "actions")} and ${plural(shown.length, "entity", "entities")} are in it`;
   // Where nothing was compared, what a builder wrote into the model a minute ago reads as the
   // repository's own: the line says so, with why.
@@ -731,6 +807,9 @@ function modelChanges(context) {
     why,
     // Only what this branch wrote keeps the slot open: the question is then about what is written.
     ...(lacking.length === 0 && written.length > 0 ? { case: "written" } : {}),
+    // What the question is about, by name, where nothing of the row is unsaid: the same names
+    // open the slot on the sheet of every screen that has them, and are one thing to decide.
+    ...(why.length > 0 && unsaid.length === 0 ? { shared: sharedConcern(context, own) } : {}),
     data: {
       model_changes: {
         ...lost,
@@ -1012,9 +1091,84 @@ function wordsPlace(context) {
   ];
 }
 
+// Slot 3: whether a toast's button counts among the actions of the row is on no page this sheet
+// reads, where the rules page does not say it and the row lists its actions.
+function actionsPlace(context) {
+  const { row, keys, at } = context;
+  if (!Array.isArray(row[keys.actions]) || rulesLine(context, TOAST_BUTTON)) return [];
+  return [
+    {
+      says: `Whether a button on a toast the screen raises, such as an undo, counts among the actions of the screen's row is said on no page this sheet reads: the gate reads \`${keys.actions}\` alone, and cannot tell where a button is drawn`,
+      source: at(keys.actions),
+    },
+  ];
+}
+
+// The components of the ledger that say a control is waiting by a name a screen reader hears
+// alone, where the screen's row lists two or more actions: a row's two or more actions go behind
+// one such button. The row does not say which of its actions are a row's and which stand beside
+// the heading, so what the sheet says of it is said of a row's actions, where they go behind it.
+// A component whose props are not a list is passed over.
+function heardOnly({ target, row, keys }) {
+  if (list(row[keys.actions]).length < 2) return null;
+  const ledger = componentLedger(target);
+  const found = (ledger?.components ?? []).filter(
+    (item) => Array.isArray(item.props) && item.props.map(String).includes("busyName"),
+  );
+  return found.length === 0 ? null : { found, source: ledger.source };
+}
+const propsOf = (item) => item.props.map((prop) => `\`${prop}\``).join(", ");
+const fileOf = (item) => (typeof item.file === "string" ? ` (${item.file})` : "");
+
+// Slot 5, beside the variants: the spoken name of each button behind a row's actions button. The
+// component takes a name for the row's button and its list, and none for each action in it.
+function namesPlace(context) {
+  const heard = heardOnly(context);
+  if (heard === null) return [];
+  const told = rulesLine(context, NO_NAME_EACH);
+  return heard.found.map((item) => ({
+    says: `Where a row's actions of this screen go behind ${item.name}${fileOf(item)}, as two or more do: it takes ${propsOf(item)}, the names a screen reader hears of a row's button, of its list and of the button while it waits. None of them names a button inside the list, so the name each action behind it is heard by is this screen's own choice${told ? ", as the rules page says" : ""}: where no page gives those words, ask it`,
+    source: heard.source,
+  }));
+}
+
+// The id of the question the sheet asks about a row's waiting state behind such a button: one for
+// the repository, whichever screen asks it.
+export const WAITING_QUESTION = "row-waiting-state-words";
+
+// Slot 4: two rules pull against each other at a row's waiting state behind such a button. A state
+// is listed with words it puts on the page, which the browser test waits for; the button says it
+// is waiting only by a name a screen reader hears. Which gives way is the owner's: the place
+// carries the question, asked once for every screen.
+function statesPlace(context) {
+  const heard = heardOnly(context);
+  if (heard === null || context.registry === null) return [];
+  const [item] = heard.found;
+  const told = rulesLine(context, WAITING_WORDS);
+  return [
+    {
+      says: `Where a row's actions of this screen go behind ${item.name}${fileOf(item)}, as two or more do: it says a row's action is waiting only by \`busyName\`, a name a screen reader hears that puts no word on the page, while every state of this screen is listed with words the page shows, which the browser test waits for. A row's waiting state behind it has no words of its own, and which rule gives way is the owner's${told ? ", as the rules page says" : ""}`,
+      source: heard.source,
+      ask: {
+        id: WAITING_QUESTION,
+        question: `A row's actions behind ${item.name} say they are waiting only by \`busyName\`, which a screen reader hears and which puts no word on the page, and every state of a screen is listed with words the page shows, which the browser test waits for. Which gives way for a row's waiting state: list it with words the screen puts on the page only while the row waits, leave it out of the screen's states, or have ${item.name} put its \`busyName\` on the page too?`,
+        recommendation: `Leave a row's waiting state behind ${item.name} out of the screen's states until the owner answers, and say so in the change's description: listed with words the page shows before it is reached, such as the row's name, the state passes the browser test before it is reached, and tells nothing.`,
+        basis: `The floor's rule that a state is listed with the words it puts on the page, which the browser test waits for; ${item.name}${fileOf(item)} takes ${propsOf(item)}, and none of them puts a word on the page while it waits.`,
+        hard_to_undo: false,
+      },
+    },
+  ];
+}
+
+// Slot 5 holds two places: the variants a control may take, and the name of each action behind a
+// row's actions button.
+const componentPlaces = (context) => [...componentsPlace(context), ...namesPlace(context)];
+
 export const PLACES = {
   kind: kindPlace,
-  components: componentsPlace,
+  actions: actionsPlace,
+  states: statesPlace,
+  components: componentPlaces,
   words: wordsPlace,
 };
 
