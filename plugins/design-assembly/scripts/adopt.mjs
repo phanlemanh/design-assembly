@@ -58,6 +58,15 @@ import {
   resolve,
 } from "../templates/tools/design-assembly/styles.mjs";
 import { readBlock, THRESHOLDS, withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
+import { readWaiting } from "../templates/tools/design-assembly/waiting.mjs";
+import {
+  PAIRS as TABLE_PAIRS,
+  pairChecks,
+  pairSays,
+  pairWaits,
+  ROLES_FILE,
+  wordsFromListed,
+} from "./color-roles.mjs";
 import { declaredFonts, readLoads } from "../templates/tools/design-assembly/fonts.mjs";
 import { COMPONENTS_DECISION, readFolder } from "../templates/tools/design-assembly/components.mjs";
 import { KINDS_FOLDER, readPages } from "../templates/tools/design-assembly/screens.mjs";
@@ -93,11 +102,12 @@ const PRODUCT_TYPES = Object.keys(
     .choices.find((choice) => choice.key === "product_type").options,
 );
 
-// The pairs of color roles the tool can check today: the primary on the background, and the text
-// on the primary.
+// The pairs of colour roles the table declares, the two of the primary colour first: the primary on
+// the background, and the text on the primary.
+const PRIMARY_FIRST = ["--primary", "--primary-foreground"];
 const PAIRS = [
-  ["--primary", "--background"],
-  ["--primary-foreground", "--primary"],
+  ...TABLE_PAIRS.filter((pair) => PRIMARY_FIRST.includes(pair.foreground)),
+  ...TABLE_PAIRS.filter((pair) => !PRIMARY_FIRST.includes(pair.foreground)),
 ];
 // Decisions about a value the stylesheet holds. The guide generates these; adopting keeps them.
 const VALUES = ["color-contrast", "type-scale-values", "spacing-values", "radius-value"];
@@ -127,12 +137,19 @@ const declares = (css, name) => new RegExp(`(^|[\\s;{])${literally(name)}\\s*:`,
 export function contrastToday(styles) {
   // Every dark selector the stylesheet uses applies together: a pair is read through all of them.
   const scopes = darkScopes(styles);
-  const dark = scopes.some((scope) => PAIRS.flat().some((name) => ownValue(styles, scope, name)));
+  const names = PAIRS.flatMap((pair) => [pair.foreground, pair.background]);
+  const dark = scopes.some((scope) => names.some((name) => ownValue(styles, scope, name)));
   const modes = [{ name: "light", scope: ":root" }];
   if (dark) modes.push({ name: "dark", scope: scopes.length === 1 ? scopes[0] : scopes });
   return modes.map((mode) => ({
     ...mode,
-    pairs: PAIRS.map(([foreground, background]) => {
+    // A role this stylesheet does not declare is not one of its roles: its pairs are left out,
+    // all but the two of the primary colour, which every stylesheet the tool reads is asked for.
+    pairs: PAIRS.filter(
+      (pair) =>
+        PRIMARY_FIRST.includes(pair.foreground) ||
+        [pair.foreground, pair.background].every((name) => resolve(styles, ":root", name)),
+    ).map(({ foreground, background, kind }) => {
       const found = [foreground, background].map((name) => [
         name,
         resolve(styles, mode.scope, name),
@@ -142,16 +159,21 @@ export function contrastToday(styles) {
         const why = blocked[1]
           ? `${blocked[0]} is written as ${blocked[1].value}`
           : `${blocked[0]} is not declared`;
-        return { foreground, background, ratio: null, why };
+        return { foreground, background, kind, ratio: null, why };
       }
-      return { foreground, background, ratio: contrast(found[0][1].color, found[1][1].color) };
+      return {
+        foreground,
+        background,
+        kind,
+        ratio: contrast(found[0][1].color, found[1][1].color),
+      };
     }),
   }));
 }
 
 // Checks this plugin's tool could hold for the values the stylesheet has now, per decision, and
 // what could not be read.
-function valueCandidates(styles, level, open) {
+function valueCandidates(styles, level, open, words = {}) {
   const candidates = {};
   const failing = [];
   const unreadable = [];
@@ -165,32 +187,35 @@ function valueCandidates(styles, level, open) {
     const blind = pairs.filter((pair) => pair.ratio === null);
     const seen = pairs.filter((pair) => pair.ratio !== null);
     if (level && seen.length > 0) {
-      const min = THRESHOLDS[level].text;
-      const below = seen.filter((pair) => pair.ratio < min);
-      if (below.length > 0) {
+      const minOf = (pair) =>
+        pair.kind === "non-text" ? THRESHOLDS[level].nonText : THRESHOLDS[level].text;
+      const measured = seen.map((pair) => ({ ...pair, min: minOf(pair) }));
+      const below = measured.filter((pair) => pair.ratio < pair.min);
+      // A pair below its threshold whose roles are the repository's own, or kept by the owner's
+      // word, is a broken state: nothing is adopted. One whose roles still wait on the owner waits
+      // with them, named with its number.
+      const broken = below.filter((pair) => pairWaits(pair, words).length === 0);
+      if (broken.length > 0) {
         failing.push({
           id: "color-contrast",
-          why: below
-            .map((pair) => `${label(pair)} is ${pair.ratio.toFixed(2)}:1, below ${min}:1`)
+          why: broken
+            .map((pair) => `${label(pair)} is ${pair.ratio.toFixed(2)}:1, below ${pair.min}:1`)
             .join("; "),
         });
       } else {
         const modes = [...new Set(seen.map((pair) => pair.mode))];
         const whole = blind.length === 0;
+        const waiting = below.map(
+          (pair) => `${pairSays(pair)} and waits on ${pairWaits(pair, words).join(", ")}`,
+        );
         candidates["color-contrast"] = {
-          what: `the primary color roles reach ${min}:1 in ${modes.join(" and ")} mode (${seen.length} pairs)`,
+          what: `every pair of the table of colour roles that can be read reaches its threshold in ${modes.join(" and ")} mode (${seen.length} pairs)${waiting.length > 0 ? `, but for ${waiting.length}: ${waiting.join("; ")}` : ""}`,
           row: {
             kind: "formula",
-            source: `WCAG 2.2 level ${level}, contrast ratio for text`,
-            note: `the primary color roles in ${modes.join(" and ")} mode${whole ? "" : "; the pairs that could not be read are not checked"}`,
+            source: `WCAG 2.2 level ${level}, contrast ratio for text and for parts that are not text`,
+            note: `every pair of the plugin's table of colour roles (${ROLES_FILE}) in ${modes.join(" and ")} mode${waiting.length > 0 ? `; ${waiting.length} below the threshold wait on the owner and are named on every run` : ""}${whole ? "" : "; the pairs that could not be read are not checked"}`,
           },
-          checks: seen.map((pair) => ({
-            kind: "contrast",
-            scope: pair.scope,
-            foreground: pair.foreground,
-            background: pair.background,
-            min,
-          })),
+          checks: pairChecks(measured, words),
         };
       }
     }
@@ -352,7 +377,25 @@ export function adoption(
     if (blind.length > 0) {
       result.unreadable.push({ id: "color-contrast", why: `${blind.join("; ")}. Not checked` });
     }
-    const { candidates, failing, unreadable } = valueCandidates(styles, level, open);
+    // The owner's word for each question of the table of colour roles: on the waiting list, since
+    // a repository that adopts its values has no blueprint to hold it.
+    let listed;
+    try {
+      listed =
+        readWaiting(
+          root,
+          existing.map((row) => String(row.id)),
+        )?.rows ?? [];
+    } catch {
+      // A waiting list that cannot be read gives no word: the decision sheet reports it.
+      listed = [];
+    }
+    const { candidates, failing, unreadable } = valueCandidates(
+      styles,
+      level,
+      open,
+      wordsFromListed(listed),
+    );
     result.failing.push(...failing);
     result.unreadable.push(...unreadable);
     // The design tokens file is new to the repository, so writing it changes nothing it has. One

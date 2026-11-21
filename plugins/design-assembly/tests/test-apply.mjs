@@ -259,7 +259,7 @@ test("a later rule that lowers the contrast makes the check fail, and the rate d
   edit(dir, "src/index.css", (css) => `${css}\n:root {\n  --primary: oklch(0.9 0.05 264);\n}\n`);
   const result = check(dir, "--rate");
   assert.equal(result.status, 1);
-  assert.match(result.stderr, /color-contrast: --primary on --background in :root/);
+  assert.match(result.stderr, /color-contrast: --primary on --background in light mode \(:root\)/);
   assert.match(result.stderr, /below 4\.5:1/);
   assert.match(result.stdout, /FAILING {2}formula {2}color-contrast/);
 });

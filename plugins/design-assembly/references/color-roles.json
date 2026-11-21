@@ -1,0 +1,187 @@
+{
+  "version": 1,
+  "about": "Every colour role of the stylesheet of the floor this plugin serves, one entry each, named the way the stylesheet adapter names them: where its value comes from, and the pairs of text and ground it is measured in. A role's value comes from one of three sources. formula: the guide writes it from a choice of the owner through the formula named. follows: it takes the value of another role, once the owner's word for its question says so; until then the floor's value stays. floor: kept from the floor, by the owner's word with a name and a day. A role whose question has no word yet waits on the owner. Each role is text on the grounds in `on`, measured at the conformance level's threshold for text, and a part that is not text against the grounds in `against`, measured at the threshold for parts that are not text. A role measured in no pair says why in `unmeasured`.",
+  "modes": { ":root": "light", ".dark": "dark" },
+  "formulas": {
+    "primary-on-background": "the source colour itself when it reaches the threshold on the background of each mode, else the nearest lightness of its hue that does",
+    "text-on-primary": "the floor's near-white or near-black, whichever has the higher contrast on the primary",
+    "ring-is-primary": "the primary of the same mode"
+  },
+  "questions": {
+    "color-roles-sidebar": {
+      "question": "Do the sidebar's primary, its text and its focus ring follow the primary colour, or are they kept from the floor?",
+      "sources": ["follows", "floor"],
+      "recommended": "follows",
+      "why": "The sidebar marks the page a person is on with its primary: kept from the floor, it is the floor's colour and not the owner's in at least one mode."
+    },
+    "color-roles-neutral": {
+      "question": "Are the neutral roles (background, text, card, popover, secondary, muted, accent, border, input and the sidebar's own) kept from the floor?",
+      "sources": ["floor"],
+      "later": "the neutral family (pure grey, or grey leaning to the source colour), a choice a later version of this plugin brings"
+    },
+    "color-roles-status": {
+      "question": "Is the destructive role kept from the floor?",
+      "sources": ["floor"],
+      "later": "the status tones the product uses, a choice a later version of this plugin brings"
+    },
+    "color-roles-chart": {
+      "question": "Are the five chart roles kept from the floor?",
+      "sources": ["floor"],
+      "recommended": "floor",
+      "why": "No formula writes chart colours in this version: kept from the floor, or set by a person outside the guide."
+    }
+  },
+  "roles": [
+    { "role": "--background", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--foreground",
+      "source": "floor",
+      "asks": "color-roles-neutral",
+      "on": ["--background"]
+    },
+    { "role": "--card", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--card-foreground",
+      "source": "floor",
+      "asks": "color-roles-neutral",
+      "on": ["--card"]
+    },
+    { "role": "--popover", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--popover-foreground",
+      "source": "floor",
+      "asks": "color-roles-neutral",
+      "on": ["--popover"]
+    },
+    {
+      "role": "--primary",
+      "source": "formula",
+      "formula": "primary-on-background",
+      "choice": "source_color",
+      "on": ["--background"]
+    },
+    {
+      "role": "--primary-foreground",
+      "source": "formula",
+      "formula": "text-on-primary",
+      "choice": "source_color",
+      "on": ["--primary"]
+    },
+    { "role": "--secondary", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--secondary-foreground",
+      "source": "floor",
+      "asks": "color-roles-neutral",
+      "on": ["--secondary"]
+    },
+    { "role": "--muted", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--muted-foreground",
+      "source": "floor",
+      "asks": "color-roles-neutral",
+      "on": ["--muted", "--background"]
+    },
+    { "role": "--accent", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--accent-foreground",
+      "source": "floor",
+      "asks": "color-roles-neutral",
+      "on": ["--accent"]
+    },
+    {
+      "role": "--destructive",
+      "source": "floor",
+      "asks": "color-roles-status",
+      "on": ["--background"]
+    },
+    {
+      "role": "--border",
+      "source": "floor",
+      "asks": "color-roles-neutral",
+      "unmeasured": "a border sets parts apart; it is not what a person reads, and the floor's own is lighter than 3:1 by design"
+    },
+    {
+      "role": "--input",
+      "source": "floor",
+      "asks": "color-roles-neutral",
+      "unmeasured": "the edge of a field, drawn by the component with its own ground: the review measures it on the screen"
+    },
+    {
+      "role": "--ring",
+      "source": "formula",
+      "formula": "ring-is-primary",
+      "choice": "source_color",
+      "against": ["--background"]
+    },
+    {
+      "role": "--chart-1",
+      "source": "floor",
+      "asks": "color-roles-chart",
+      "unmeasured": "a chart's colours are read beside each other on its plot, which the table does not know"
+    },
+    {
+      "role": "--chart-2",
+      "source": "floor",
+      "asks": "color-roles-chart",
+      "unmeasured": "as --chart-1"
+    },
+    {
+      "role": "--chart-3",
+      "source": "floor",
+      "asks": "color-roles-chart",
+      "unmeasured": "as --chart-1"
+    },
+    {
+      "role": "--chart-4",
+      "source": "floor",
+      "asks": "color-roles-chart",
+      "unmeasured": "as --chart-1"
+    },
+    {
+      "role": "--chart-5",
+      "source": "floor",
+      "asks": "color-roles-chart",
+      "unmeasured": "as --chart-1"
+    },
+    { "role": "--sidebar", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--sidebar-foreground",
+      "source": "floor",
+      "asks": "color-roles-neutral",
+      "on": ["--sidebar"]
+    },
+    {
+      "role": "--sidebar-primary",
+      "source": "follows",
+      "of": "--primary",
+      "asks": "color-roles-sidebar"
+    },
+    {
+      "role": "--sidebar-primary-foreground",
+      "source": "follows",
+      "of": "--primary-foreground",
+      "asks": "color-roles-sidebar",
+      "on": ["--sidebar-primary"]
+    },
+    { "role": "--sidebar-accent", "source": "floor", "asks": "color-roles-neutral" },
+    {
+      "role": "--sidebar-accent-foreground",
+      "source": "floor",
+      "asks": "color-roles-neutral",
+      "on": ["--sidebar-accent"]
+    },
+    {
+      "role": "--sidebar-border",
+      "source": "floor",
+      "asks": "color-roles-neutral",
+      "unmeasured": "as --border"
+    },
+    {
+      "role": "--sidebar-ring",
+      "source": "follows",
+      "of": "--ring",
+      "asks": "color-roles-sidebar",
+      "against": ["--sidebar"]
+    }
+  ]
+}

@@ -272,10 +272,13 @@ export function collectFacts(target) {
   }));
   const color = (name) => colors.find((item) => item.name === name);
   // The pairs the gate itself checks, so the book can say which ratios are held and which are
-  // only measured here.
-  const heldPairs = (theme.checks?.["color-contrast"] ?? []).map(
-    (check) => `${check.foreground.replace(/^--/, "")} on ${check.background.replace(/^--/, "")}`,
-  );
+  // only measured here. A pair the gate names while it waits on the owner is not held, in either
+  // mode, until the owner answers.
+  const named = (check) =>
+    `${check.foreground.replace(/^--/, "")} on ${check.background.replace(/^--/, "")}`;
+  const contrastChecks = theme.checks?.["color-contrast"] ?? [];
+  const waiting = contrastChecks.filter((check) => check.waits).map(named);
+  const heldPairs = contrastChecks.map(named).filter((pair) => !waiting.includes(pair));
   const pair = (text, ground) => {
     const a = color(text);
     const b = color(ground);

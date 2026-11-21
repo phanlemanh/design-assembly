@@ -285,7 +285,7 @@ test("a repository's own brand colour is held where it can be read, and the rest
   assert.equal(broken.status, 1);
   assert.match(
     broken.stderr,
-    /color-contrast: --primary on --background in :root has a contrast ratio of/,
+    /color-contrast: --primary on --background in light mode \(:root\) has a contrast ratio of/,
   );
 });
 

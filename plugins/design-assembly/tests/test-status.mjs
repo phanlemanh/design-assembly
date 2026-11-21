@@ -25,6 +25,8 @@ import { readCapabilities, socketsOf } from "../scripts/capabilities.mjs";
 import { fullStatus, report, STAMP, status, treeHash } from "../scripts/status.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
 
+import { passingFloor, roleWords } from "./helpers/answered-roles.mjs";
+
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ROOT = path.resolve(PLUGIN, "../..");
 const STATUS = path.join(PLUGIN, "scripts/status.mjs");
@@ -51,9 +53,10 @@ const empty = () => {
   return dir;
 };
 // A repository with the real floor of this one: its stylesheet without the generated block.
+// The floor of the sample application, kept with a muted text that reaches the threshold.
 function floor() {
   const dir = empty();
-  put(dir, "src/index.css", withoutBlock(text(ROOT, "src/index.css")));
+  put(dir, "src/index.css", passingFloor(withoutBlock(text(ROOT, "src/index.css"))));
   put(dir, "Makefile", text(ROOT, "Makefile"));
   return dir;
 }
@@ -88,6 +91,9 @@ function build(source) {
     text_font: { by: "Owner Name", on: "2026-11-21" },
     heading_font: { by: "Owner Name", on: "2026-11-21" },
   };
+  // The colour roles came later too: where the person gave the answers, the owner spoke to each
+  // question of the table of colour roles, as a repository of this version has it.
+  if (source === "user") layers.foundations.roles = roleWords();
   put(dir, "design/blueprint.json", JSON.stringify({ version: 1, status: "approved", layers }));
   const run = spawnSync(execPath, [path.join(PLUGIN, "scripts/apply.mjs"), "--target", dir]);
   assert.equal(run.status, 0, String(run.stderr));
@@ -115,7 +121,15 @@ function snapshot(dir, at = "") {
 }
 const cli = (...args) => spawnSync(execPath, [STATUS, ...args], { encoding: "utf8" });
 const ids = (result) => result.waiting.map((item) => item.id);
-const CALLS = ["product-type", "conformance-level", "source-color"];
+// The questions of the table of colour roles a guided repository is asked until the owner speaks
+// to each, after the person's calls.
+const ROLE_QUESTIONS = [
+  "color-roles-sidebar",
+  "color-roles-neutral",
+  "color-roles-status",
+  "color-roles-chart",
+];
+const CALLS = ["product-type", "conformance-level", "source-color", ...ROLE_QUESTIONS];
 // The block of one row in the ledger text, from its `- id:` line to the next row.
 const rowBlock = (id) => new RegExp(`  - id: ${id}\\n(?:    .*\\n)*`);
 
@@ -184,9 +198,10 @@ test("an answer the guide proposed waits on the owner until a person confirms it
   // The decision sheet records a person's answer to a row nobody confirmed.
   assert.equal(color.answer, "/design-assembly:decide");
   assert.equal(color.source, "ledger");
+  // The questions of the table of colour roles are answered in the guide.
   assert.deepEqual(
     result.next.map((step) => step.command),
-    ["/design-assembly:decide"],
+    ["/design-assembly:decide", "/design-assembly:new"],
   );
   // The other direction: the row as a person leaves it, with no note that it is a proposal.
   edit(dir, LEDGER, (ledger) =>
@@ -195,7 +210,7 @@ test("an answer the guide proposed waits on the owner until a person confirms it
       (whole, before) => before,
     ),
   );
-  assert.deepEqual(ids(status(dir)), ["product-type", "conformance-level"]);
+  assert.deepEqual(ids(status(dir)), ["product-type", "conformance-level", ...ROLE_QUESTIONS]);
   // And a repository whose answers a person gave has nothing waiting at all.
   const answered = status(applied("user"));
   assert.deepEqual(answered.waiting, []);
@@ -383,8 +398,9 @@ test("a person gets one screen: the tier, a line per rhythm, what waits with its
   for (const rhythm of result.rhythms) {
     assert.ok(printed.includes(`  ${rhythm.name}: ${rhythm.says}`), rhythm.id);
   }
-  assert.match(printed, /^waiting on the owner: 3$/m);
-  for (const item of result.waiting) {
+  assert.match(printed, /^waiting on the owner: 7$/m);
+  // The first five in full; the rest by name, as a long list does.
+  for (const item of result.waiting.slice(0, 5)) {
     assert.ok(printed.includes(`${item.id}: ${item.question}`), item.id);
     assert.ok(printed.includes(`recommendation: ${item.recommendation}`), item.id);
     assert.ok(printed.includes(`because: ${item.basis}`), item.id);
@@ -541,12 +557,12 @@ test("rows of the ledger nobody confirmed and rows of the waiting list are count
   assert.deepEqual(ids(result), [...CALLS, "Q1", "Q2"]);
   assert.deepEqual(
     result.next.map((step) => step.command),
-    ["/design-assembly:decide"],
+    ["/design-assembly:decide", "/design-assembly:new"],
   );
   assert.match(result.next[0].why, /^5 answers wait on the owner/);
   assert.match(
     report(result),
-    /^waiting on the owner: 5 \(3 in the ledgers, 2 in the waiting list\)$/m,
+    /^waiting on the owner: 9 \(7 in the ledgers, 2 in the waiting list\)$/m,
   );
   // What the ledgers alone say stays what the decision sheet is built on: it never lists a row of
   // the waiting list, which the sheet reads for itself.

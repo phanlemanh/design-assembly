@@ -120,6 +120,13 @@ export function shapeProblems(table, context) {
           at(`plug ${plug.id} points to ${script}, which is not a file of the plugin`);
         }
       }
+      // A reference file of the plugin the plug reads, such as the table of colour roles.
+      for (const reference of list(plug.references)) {
+        const full = path.join(context.plugin, reference);
+        if (!existsSync(full) || !statSync(full).isFile()) {
+          at(`plug ${plug.id} reads ${reference}, which is not a file of the plugin`);
+        }
+      }
       for (const ledger of list(plug.reads)) {
         if (!context.ledgers.includes(ledger))
           at(`plug ${plug.id} reads ${ledger}, which is not a ledger of the contract`);

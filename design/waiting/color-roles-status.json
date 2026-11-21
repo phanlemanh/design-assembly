@@ -1,0 +1,11 @@
+{
+  "id": "color-roles-status",
+  "question": "Vai --destructive của kho này giữ giá trị của sàn không?",
+  "recommendation": "Chưa giữ: chờ lựa chọn tông trạng thái mà mục 9.2, lát 2 đưa vào",
+  "basis": "Đo trên kho này ngày 2026-11-21: --destructive trên --background là 7,16:1 ở giao diện sáng và 6,84:1 ở giao diện tối, đều đạt 4,5:1. Giá trị sáng oklch(0.48 0.2 27.325) đã được kho này làm đậm hơn của sàn, để chữ trên nền nhạt 10% của chính nó đạt 4,5:1; nền nhạt ấy dùng độ trong suốt, cổng không đo. Giữ bây giờ thì không màn nào đổi và không phép kiểm nào đỏ; chờ thì tông trạng thái của lát 2 quyết vai này cùng các tông khác. Dễ đảo: lời đáp nằm trong bản thiết kế, đổi rồi chạy lại new.",
+  "hard_to_undo": false,
+  "where": "0082",
+  "if_refused": "Giữ của sàn ngay: không gì đổi; lát 2 vẫn hỏi tông trạng thái",
+  "item": "decision:color-roles-status",
+  "asked_on": "2026-11-21"
+}

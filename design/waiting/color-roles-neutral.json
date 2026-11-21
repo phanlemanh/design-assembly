@@ -1,0 +1,11 @@
+{
+  "id": "color-roles-neutral",
+  "question": "Mười chín vai trung tính của kho này (nền, chữ, thẻ, hộp nổi, phụ, mờ, nhấn, viền, ô nhập, và phần trung tính của thanh bên) giữ giá trị của sàn không?",
+  "recommendation": "Chưa giữ: chờ lựa chọn họ trung tính (xám thuần, hay xám ngả về màu gốc) mà mục 9.2, lát 2 đưa vào",
+  "basis": "Đo trên kho này ngày 2026-11-21: --muted-foreground trên --muted ở giao diện sáng là 4,34:1, dưới 4,5:1 của mức AA, một giá trị của sàn; --sidebar-ring trên --sidebar ở giao diện sáng là 2,48:1, dưới 3:1 (cặp này cũng chờ câu thanh bên). Mọi cặp trung tính khác đạt ngưỡng ở cả hai giao diện. Giữ của sàn bây giờ thì cặp chữ mờ thành phép kiểm và cổng đỏ cho tới khi có công thức; không đổi màu nào để cặp ấy đạt. Lát 2 viết các vai này bằng công thức cho đủ tương phản ngay từ lúc viết. Dễ đảo: lời đáp nằm trong bản thiết kế, đổi rồi chạy lại new.",
+  "hard_to_undo": false,
+  "where": "0082",
+  "if_refused": "Giữ của sàn ngay: cặp --muted-foreground trên --muted (4,34:1) thành phép kiểm và cổng đỏ cho tới lát 2",
+  "item": "decision:color-roles-neutral",
+  "asked_on": "2026-11-21"
+}

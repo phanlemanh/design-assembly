@@ -31,6 +31,7 @@ import {
   spelled,
 } from "../scripts/document.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
+import { passingFloor, roleWords } from "./helpers/answered-roles.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ROOT = path.resolve(PLUGIN, "../..");
@@ -145,7 +146,7 @@ const empty = () => {
 // every person's call as a proposal nobody confirmed, "user" records them as a person's.
 function build(source) {
   const dir = empty();
-  put(dir, "src/index.css", withoutBlock(text(ROOT, "src/index.css")));
+  put(dir, "src/index.css", passingFloor(withoutBlock(text(ROOT, "src/index.css"))));
   put(dir, "Makefile", text(ROOT, "Makefile"));
   put(dir, "package.json", `${JSON.stringify({ name: "throwaway-shop", private: true })}\n`);
   const choices = {
@@ -175,6 +176,9 @@ function build(source) {
     text_font: { by: "Owner Name", on: "2026-11-21" },
     heading_font: { by: "Owner Name", on: "2026-11-21" },
   };
+  // The colour roles came later too: where a person gave the answers, the owner spoke to each
+  // question of the table of colour roles.
+  if (source === "user") layers.foundations.roles = roleWords();
   put(dir, "design/blueprint.json", JSON.stringify({ version: 1, status: "approved", layers }));
   const run = spawnSync(execPath, [path.join(PLUGIN, "scripts/apply.mjs"), "--target", dir]);
   assert.equal(run.status, 0, String(run.stderr));
@@ -681,7 +685,8 @@ test("the status report says what waits and with which command; the audit report
   const report = wordsOf(text(out, "status-report.html"));
   const data = JSON.parse(run(status, ["--target", dir, "--json"]).stdout);
   assert.ok(data.waiting.length > 0);
-  for (const item of data.waiting) {
+  // The first five in full, as the screen gives them; the rest are named.
+  for (const item of data.waiting.slice(0, 5)) {
     assert.ok(report.includes(item.question), item.id);
     assert.ok(report.includes(item.recommendation), item.id);
   }

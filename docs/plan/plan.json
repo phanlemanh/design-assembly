@@ -409,7 +409,8 @@
         {
           "id": "9.2",
           "what": "Các vai màu ngoài màu chính",
-          "state": "todo"
+          "state": "doing",
+          "ref": "wiki/specs/0012-foundations-wide-enough.md; hai lát: lát 1 xong (tiêu chí 6, 7, 9 và 10: bảng vai màu plugins/design-assembly/references/color-roles.json, mỗi vai của sàn một mục với nguồn và các cặp nó được đo, status --roles in ra; bốn câu hỏi gom theo câu sẽ quyết chúng (thanh bên, trung tính, trạng thái, biểu đồ), lời chủ repo ghi vào bản thiết kế ở foundations.roles kèm tên và ngày; ba vai thanh bên đi theo màu chính ở cả hai giao diện khi chủ repo nói; cổng đo 15 cặp mỗi giao diện theo ngưỡng của mức tuân thủ, cặp dưới ngưỡng có vai chờ lời được nêu kèm con số và chỉ thành phép kiểm khi chủ repo đáp; upgrade và adopt không đổi giá trị và cổng xanh; lỗi font đứng dưới dòng typeface), wiki/decisions/0082-the-table-of-colour-roles-and-contrast-on-every-pair.md, chứng bằng plugins/design-assembly/tests/test-color-roles.mjs, plugin 0.31.0; kho này: giá trị không đổi, hai cặp của sàn dưới ngưỡng ở giao diện sáng (--muted-foreground trên --muted 4,34:1; --sidebar-ring trên --sidebar 2,48:1), bốn câu chờ chủ repo (design/waiting/color-roles-*.json); lát 2 chưa dựng (tiêu chí 8 và 11: họ trung tính và tông trạng thái là lựa chọn, kho này đáp)"
         },
         {
           "id": "9.3",
