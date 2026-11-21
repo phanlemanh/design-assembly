@@ -36,6 +36,7 @@ import {
   sharedItem,
   sharedName,
   sharedNames,
+  replacedBy,
 } from "../templates/tools/design-assembly/waiting.mjs";
 import { older } from "./asking.mjs";
 import { branchOf, modelWritten, rowWritten } from "./brief-branch.mjs";
@@ -278,7 +279,11 @@ function sharedOf(slot, found) {
   if (!Object.hasOwn(SHARED_SLOTS, slot.id)) return null;
   if (!SHARED_SLOTS[slot.id])
     return { item: sharedItem(slot.id), id: `screens-${slot.id}`, names: null };
-  const names = found.shared?.names;
+  return sharedFor(slot, found.shared?.names);
+}
+
+// The shared item and id of slot 10 for these names, or null where they cannot stand in an item.
+function sharedFor(slot, names) {
   if (!Array.isArray(names) || names.length === 0 || !names.every(sharedName)) return null;
   const key = names.join("+");
   const short =
@@ -295,11 +300,13 @@ const filled = (words, fill = {}) =>
 // the catalogue's recommendation for that slot, and what it rests on, with what the sheet
 // measured and read of this repository. The item names the slot of the screen, so that the answer
 // is found again; the id is the name of the question's file.
-function questionOf(slot, found, context) {
+function questionOf(slot, found, context, part = null) {
   const { screen, status } = context;
   // A question asked once for every screen it concerns names no one screen, and says what it read
-  // of all of them: whichever sheet asks it first writes the same question.
-  const shared = context.shares ? sharedOf(slot, found) : null;
+  // of all of them: whichever sheet asks it first writes the same question. `part` is what is left
+  // to ask of slot 10 once questions about some of its names are there: the names, the questions
+  // that wait and that this one replaces, and what it says of them.
+  const shared = part ? sharedFor(slot, part.names) : context.shares ? sharedOf(slot, found) : null;
   const read = (shared && found.shared?.why ? found.shared.why : found.why).join("; ");
   const whose = shared
     ? shared.names
@@ -317,7 +324,7 @@ function questionOf(slot, found, context) {
   return {
     item: shared?.item ?? screenItem(screen.id, slot.id),
     id: shared?.id ?? questionId(screen.id, slot.id),
-    question: `${whose}, slot ${slot.number}, ${slot.name}: ${slot.question} Nothing in the repository settles it: ${read}.${once}`,
+    question: `${whose}, slot ${slot.number}, ${slot.name}: ${slot.question} Nothing in the repository settles it: ${read}.${once}${part?.note ? ` ${part.note}` : ""}`,
     recommendation: filled(recommend, measured?.fill),
     basis: {
       kind: slot.ask.basis.kind,
@@ -326,6 +333,7 @@ function questionOf(slot, found, context) {
         .join(" "),
     },
     hard_to_undo: slot.ask.hard_to_undo,
+    ...(part?.replaces.length > 0 ? { replaces: part.replaces } : {}),
   };
 }
 
@@ -341,7 +349,10 @@ const questionId = (screen, slot) => `screen-${screen}-${slot}`;
 function standingOf(waiting, screen, slot, shared = null) {
   const item = screenItem(screen, slot);
   const id = questionId(screen, slot).toLowerCase();
-  const rows = (waiting?.rows ?? []).filter((row) => row.kind !== "permission");
+  const newer = replacedBy(waiting?.rows ?? []);
+  const rows = (waiting?.rows ?? []).filter(
+    (row) => row.kind !== "permission" && (row.answer || !newer.has(row.id)),
+  );
   const exact = (row) => shared !== null && row.item === shared.item;
   const covers = (row) => {
     const names = shared?.names ? sharedNames(row.item, slot) : null;
@@ -356,15 +367,126 @@ function standingOf(waiting, screen, slot, shared = null) {
 
 // What the owner answered, as a line of the slot's answer: their words, or the recommendation
 // they kept or refused, read from the question's own file, with their name and the day.
-function answeredLine({ row, file }) {
+function answeredLine({ row, file }, names = null) {
   const recommended = row.recommendation ?? `what was asked («${row.question}»)`;
-  const says =
+  const said =
     row.answer === "keep"
       ? `The owner kept the recommendation: ${recommended}`
       : row.answer === "refuse"
         ? `The owner refused the recommendation «${recommended}»${row.said ? `: ${row.said}` : ", and said nothing in its place"}`
         : `The owner answered: ${row.said}`;
+  // An answer about some of the names of the slot says which: it is not an answer about the rest.
+  const says = names
+    ? `For ${names.join(", ")}: ${said.charAt(0).toLowerCase()}${said.slice(1)}`
+    : said;
   return { says, source: { file, row: row.id, by: row.by, on: row.on } };
+}
+
+// The questions of slot 10 asked for every screen whose names all stand among this screen's group,
+// where none is about all of them: the answers that cover some, the names no answer covers, the
+// questions that wait and that a newer one replaces by none, and the one of those that is about
+// every name left. Null where the waiting list has no such question. A question another replaces
+// is passed over; an answer is never replaced.
+function modelParts(waiting, shared) {
+  const newer = replacedBy(waiting?.rows ?? []);
+  const within = (waiting?.rows ?? [])
+    .filter((row) => row.kind !== "permission" && (row.answer || !newer.has(row.id)))
+    .map((row) => ({
+      row,
+      file: waiting.files[row.id],
+      names: sharedNames(row.item, "model-changes"),
+    }))
+    .filter(
+      (item) => item.names !== null && item.names.every((name) => shared.names.includes(name)),
+    );
+  if (within.length === 0) return null;
+  const answered = within.filter((item) => item.row.answer);
+  const covered = new Set(answered.flatMap((item) => item.names));
+  const rest = shared.names.filter((name) => !covered.has(name));
+  const waits = within.filter((item) => !item.row.answer);
+  const waitsForRest =
+    rest.length > 0
+      ? (waits.find((item) => rest.every((name) => item.names.includes(name))) ?? null)
+      : null;
+  return { answered, rest, waits, waitsForRest };
+}
+
+// Slot 10 where questions about some of its names are there: settled where answers cover every
+// name, asked where one question waits for the rest, else open with a question about the names no
+// answer covers, which replaces the questions that wait for fewer of them. Each answer says the
+// names it covers, and `why` says which names are still to ask.
+function inParts(slot, found, context, parts, { waiting, target, plugin }) {
+  const lines = parts.answered.map((item) => answeredLine(item, item.names));
+  const first = parts.answered[0]?.row;
+  if (parts.rest.length === 0) {
+    return {
+      state: "settled",
+      answer: [...found.answer, ...lines],
+      settled_by: {
+        id: first.id,
+        file: waiting.files[first.id],
+        answer: first.answer,
+        said: first.said ?? null,
+        by: first.by,
+        on: first.on,
+      },
+    };
+  }
+  const answers = parts.answered.map(
+    (item) => `${item.row.id} answers ${item.names.join(", ")} already`,
+  );
+  const left =
+    answers.length > 0 ? [`${answers.join("; ")}; still to ask: ${parts.rest.join(", ")}`] : [];
+  if (parts.waitsForRest) {
+    const { row, file } = parts.waitsForRest;
+    return {
+      state: "asked",
+      answer: [...found.answer, ...lines],
+      why: [...found.why, ...left],
+      asked: {
+        id: row.id,
+        file,
+        question: row.question,
+        recommendation: row.recommendation ?? null,
+        basis: row.basis ?? null,
+        hard_to_undo: row.hard_to_undo ?? null,
+        ...standsNow(slot, row, context),
+      },
+    };
+  }
+  const replaces = parts.waits.map((item) => item.row.id);
+  const asked = new Set(parts.waits.flatMap((item) => item.names));
+  const added = parts.rest.filter((name) => !asked.has(name));
+  const replacing =
+    replaces.length > 0
+      ? [
+          `It replaces ${replaces.join(", ")}, which ${replaces.length === 1 ? "waits" : "wait"} on the owner about ${[...asked].sort().join(", ")}; added since it was asked: ${added.join(", ")}`,
+        ]
+      : [];
+  const note = [
+    ...answers.map((words) => `${words}; this question is about ${parts.rest.join(", ")} alone`),
+    ...replacing,
+  ]
+    .map((words) => `${words}.`)
+    .join(" ");
+  const ask = questionOf(slot, found, context, { names: parts.rest, replaces, note });
+  const why = [
+    ...found.why,
+    ...left,
+    ...replacing.map((words) =>
+      words.replace(/^It replaces/, "a question about fewer names waits: the new one replaces"),
+    ),
+  ];
+  const refused = unaskable(ask, waiting);
+  if (refused)
+    return { state: "open", answer: [...found.answer, ...lines], why, cannot_ask: refused };
+  return {
+    state: "open",
+    answer: [...found.answer, ...lines],
+    why,
+    ask,
+    call: callOf({ ...ask, basis: ask.basis.text }, plugin ? { target, plugin } : { target }),
+  };
 }
 
 // Why the decision sheet would refuse the question of a slot, or null: the waiting list cannot
@@ -414,7 +536,12 @@ function stillWaits(slot, found, context, waiting) {
 // answer, asked and waiting, or open, with the question to ask and the call that asks it. An open
 // slot whose question the decision sheet would refuse gives no call, and says why.
 function unsettled(slot, found, context, { waiting, target, plugin }) {
-  const stands = standingOf(waiting, context.screen.id, slot.id, sharedOf(slot, found));
+  const shared = sharedOf(slot, found);
+  const stands = standingOf(waiting, context.screen.id, slot.id, shared);
+  // Questions about some of the names of slot 10 are read where the repository's tool reads them,
+  // and none is about all of them.
+  const parts = !stands && shared?.names && context.shares ? modelParts(waiting, shared) : null;
+  if (parts) return inParts(slot, found, context, parts, { waiting, target, plugin });
   if (stands?.row.answer) {
     const { row, file } = stands;
     return {

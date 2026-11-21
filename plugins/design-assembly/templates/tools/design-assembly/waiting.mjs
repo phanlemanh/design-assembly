@@ -31,6 +31,9 @@ export const ROW_KEYS = [
   // What the owner picks from, when the question is a choice among named things, the one the
   // recommendation names first. See CHOICES.
   "candidates",
+  // The questions that waited and that this one takes the place of, by their ids: a question that
+  // asks the same thing about more than they did. A question another replaces waits no longer.
+  "replaces",
   "answer",
   "said",
   "by",
@@ -207,6 +210,16 @@ export function rowProblems(row, at) {
   if (row.item !== undefined && itemProblem(row.item)) {
     found.push(`${at}: item: ${itemProblem(row.item)}`);
   }
+  if (
+    row.replaces !== undefined &&
+    !(
+      Array.isArray(row.replaces) &&
+      row.replaces.length > 0 &&
+      row.replaces.every((id) => typeof id === "string" && ID.test(id) && id !== row.id)
+    )
+  ) {
+    found.push(`${at}: replaces is a list of the ids of other questions`);
+  }
   const candidates = row.candidates === undefined ? null : candidatesProblem(row.candidates);
   if (candidates) found.push(`${at}: ${candidates}`);
   if (row.asked_on !== undefined && !isDay(row.asked_on)) {
@@ -370,6 +383,17 @@ export function readWaiting(root, ledgerIds = []) {
 export function folderRows(root) {
   const { rows, problems } = readFolder(root);
   return { rows, problems };
+}
+
+// The questions another one replaces, each by its id with the id of the one that replaces it: a
+// question waits no longer once a newer one takes its place.
+export function replacedBy(rows = []) {
+  const found = new Map();
+  for (const row of rows) {
+    if (row?.kind === "permission" || !Array.isArray(row?.replaces)) continue;
+    for (const id of row.replaces) if (!found.has(id)) found.set(id, row.id);
+  }
+  return found;
 }
 
 // The file one question is written to when the list is a folder.

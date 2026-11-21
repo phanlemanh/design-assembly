@@ -388,10 +388,12 @@ test("a question that waits under one screen's own item is still read, and only 
   assert.equal(open.ask.item, "screens:principles");
 });
 
-test("a question about the data model covers each screen whose own names it holds, and a new name asks again", () => {
-  const dir = trial();
-  queueAll(dir);
-  // The branch writes one more action of the same records: the question asked does not hold it.
+// The order both builders of the trials took: run the brief and queue, then write one more name
+// into the data model, then run the brief again.
+const MODEL_ITEM = "screens:model-changes:Order.shelved+restoreOrder+shelveOrder";
+const MODEL_ID = "screens-model-changes-Order.shelved+restoreOrder+shelveOrder";
+const MORE_ITEM = "screens:model-changes:Order.shelved+restoreOrder+shelveAll+shelveOrder";
+const writeMore = (dir) =>
   edit(dir, "ontology/actions.yaml", (text) =>
     lines(
       text.trimEnd(),
@@ -401,12 +403,149 @@ test("a question about the data model covers each screen whose own names it hold
       "    roles: [manager]",
     ),
   );
+const decideSheet = (dir) => {
+  const called = spawnSync(execPath, [DECIDE, "--target", dir, "--json"], { encoding: "utf8" });
+  assert.ok([EXIT.done, EXIT.work].includes(called.status), called.stderr);
+  return JSON.parse(called.stdout);
+};
+const answerWith = (dir, line) => {
+  const file = path.join(mkdtempSync(path.join(tmpdir(), "design-brief-13-answers-")), "a.txt");
+  removals.push(() => rmSync(path.dirname(file), { recursive: true, force: true }));
+  writeFileSync(file, `${line}\n`);
+  const called = spawnSync(
+    execPath,
+    [DECIDE, "--target", dir, "--answers", file, "--by", "Owner", "--on", "2026-12-01"],
+    { encoding: "utf8" },
+  );
+  assert.ok([EXIT.done, EXIT.work].includes(called.status), called.stderr);
+};
+
+test("a name written after the question of the data model was queued leaves the owner one question, about every name", () => {
+  const dir = trial();
+  queueAll(dir);
+  const first = readFileSync(path.join(dir, WAITING_FOLDER, `${MODEL_ID}.json`), "utf8");
+  writeMore(dir);
+  // The sheet asks again, about every name the branch has written, and says which question the
+  // new one replaces and which names were added since.
   const result = sheet(dir, NEW);
-  assert.equal(slotOf(result, "model-changes").state, "open");
   const open = result.open.find((slot) => slot.id === "model-changes");
+  assert.equal(open.ask.item, MORE_ITEM);
+  assert.deepEqual(open.ask.replaces, [MODEL_ID]);
+  assert.match(open.ask.question, new RegExp(`replaces ${MODEL_ID.replace(/[.+]/g, "\\$&")}`));
+  assert.match(open.ask.question, /added since it was asked: shelveAll/);
+  assert.match(open.call, new RegExp(`--replaces '${MODEL_ID.replace(/[.+]/g, "\\$&")}'`));
+  assert.match(told(dir, NEW), /replaces .*added since it was asked: shelveAll/);
+  // Queued, the new question is one more file; the first file is not written over.
+  const called = run([NEW, "--target", dir, "--queue"]);
+  assert.equal(called.status, EXIT.work, called.stderr);
+  assert.equal(readFileSync(path.join(dir, WAITING_FOLDER, `${MODEL_ID}.json`), "utf8"), first);
+  const rows = readWaiting(dir).rows;
+  const newer = rows.find((item) => item.item === MORE_ITEM);
+  assert.deepEqual(newer.replaces, [MODEL_ID]);
+  // The decision sheet puts one question about the data model to the owner, and shows the first
+  // as replaced, not as waiting; it takes no answer for the replaced one.
+  const decided = decideSheet(dir);
+  const model = decided.questions.filter((item) => item.id.startsWith("screens-model-changes-"));
+  assert.deepEqual(
+    model.map((item) => item.id),
+    [newer.id],
+  );
+  assert.deepEqual(decided.replaced, [
+    { id: MODEL_ID, source: "waiting-list", replaced_by: newer.id },
+  ]);
+  const answers = path.join(mkdtempSync(path.join(tmpdir(), "design-brief-13-answers-")), "a.txt");
+  removals.push(() => rmSync(path.dirname(answers), { recursive: true, force: true }));
+  writeFileSync(answers, `${MODEL_ID} keep\n`);
+  const refused = spawnSync(
+    execPath,
+    [DECIDE, "--target", dir, "--answers", answers, "--by", "Owner", "--on", "2026-12-01"],
+    { encoding: "utf8" },
+  );
+  assert.equal(refused.status, EXIT.wrong);
+  assert.match(refused.stderr, new RegExp(`replaced by ${newer.id.replace(/[.+]/g, "\\$&")}`));
+  // Every sheet reads the newer question, and none asks again.
+  for (const id of [NEW, BUILT, LATE]) {
+    assert.equal(slotOf(sheet(dir, id), "model-changes").asked.id, newer.id, id);
+  }
+  assert.deepEqual(
+    queueAll(dir).filter((name) => name.startsWith("screens-model-changes-")),
+    [`${MODEL_ID}.json`, `${newer.id}.json`].sort(),
+  );
+});
+
+test("a question the owner answered before a name was added settles those names alone, and the rest is asked", () => {
+  const dir = trial();
+  queueAll(dir);
+  answerWith(dir, `${MODEL_ID} keep`);
+  writeMore(dir);
+  const result = sheet(dir, NEW);
+  const slot = slotOf(result, "model-changes");
+  // The answer about three names does not read as an answer about four.
+  assert.equal(slot.state, "open");
+  const said = slot.answer.find((line) => line.source.row === MODEL_ID);
+  assert.ok(said, "the sheet does not show the answer the owner gave");
+  assert.match(said.says, /^For Order\.shelved, restoreOrder, shelveOrder: the owner kept/);
+  // Only what the answer does not cover is asked, and nothing answered is replaced.
+  const open = result.open.find((item) => item.id === "model-changes");
+  assert.equal(open.ask.item, "screens:model-changes:shelveAll");
+  assert.equal(open.ask.replaces, undefined);
+  assert.match(
+    open.ask.question,
+    new RegExp(
+      `${MODEL_ID.replace(/[.+]/g, "\\$&")} answers Order\.shelved, restoreOrder, shelveOrder`,
+    ),
+  );
+  assert.match(told(dir, NEW), /still to ask: shelveAll/);
+  // Asked, then answered: the slot is settled by the two answers, each for its own names.
+  assert.equal(run([NEW, "--target", dir, "--queue"]).status, EXIT.work);
+  assert.equal(slotOf(sheet(dir, NEW), "model-changes").state, "asked");
+  answerWith(dir, "screens-model-changes-shelveAll keep");
+  const settled = slotOf(sheet(dir, NEW), "model-changes");
+  assert.equal(settled.state, "settled");
+  assert.deepEqual(
+    settled.answer.filter((line) => line.source.by).map((line) => line.source.row),
+    [MODEL_ID, "screens-model-changes-shelveAll"],
+  );
+  for (const id of [BUILT, LATE])
+    assert.equal(slotOf(sheet(dir, id), "model-changes").state, "settled", id);
+});
+
+test("decide --ask refuses to replace a question that is not one waiting on the owner", () => {
+  const dir = trial();
+  queueAll(dir);
+  answerWith(dir, "screens-principles keep");
+  const ask = (replaces) =>
+    spawnSync(
+      execPath,
+      [
+        DECIDE,
+        "--target",
+        dir,
+        "--ask",
+        "Q?",
+        "--recommend",
+        "R.",
+        "--because",
+        "B.",
+        "--easy-to-undo",
+        "--item",
+        MORE_ITEM,
+        "--replaces",
+        replaces,
+      ],
+      { encoding: "utf8" },
+    );
+  for (const [bad, said] of [
+    ["no-such-question", /no-such-question is not a question of the waiting list/],
+    ["screens-principles", /screens-principles was answered/],
+  ]) {
+    const refused = ask(bad);
+    assert.equal(refused.status, EXIT.wrong, bad);
+    assert.match(refused.stderr, said, bad);
+  }
   assert.equal(
-    open.ask.item,
-    "screens:model-changes:Order.shelved+restoreOrder+shelveAll+shelveOrder",
+    readWaiting(dir).rows.some((item) => item.item === MORE_ITEM),
+    false,
   );
 });
 

@@ -35,6 +35,7 @@ export function callOf(ask, { target, plugin = PLUGIN }) {
     ask.hard_to_undo ? "--hard-to-undo" : "--easy-to-undo",
     ...(ask.item ? ["--item", quote(ask.item)] : []),
     ...(ask.id ? ["--id", quote(ask.id)] : []),
+    ...(ask.replaces?.length > 0 ? ["--replaces", quote(ask.replaces.join(","))] : []),
   ].join(" ");
 }
 
@@ -70,6 +71,7 @@ export function askAll(target, asks, { on, who }) {
       easy: ask.hard_to_undo !== true,
       item: ask.item,
       id: ask.id,
+      replaces: ask.replaces,
       on,
     });
     if (existsSync(path.join(target, asked.file))) {

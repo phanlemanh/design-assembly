@@ -162,13 +162,14 @@ test("with no answers the sheet lists every question, ends with 1, and leaves th
 test("the machine gets the keys the specification lists: each question with its recommendation, its basis, and whether it is hard to undo", () => {
   const dir = repo();
   const result = JSON.parse(cli("--target", dir, "--json").stdout);
-  // The four lists of the sheet, between the two keys every command that writes gives.
+  // The five lists of the sheet, between the two keys every command that writes gives.
   assert.deepEqual(Object.keys(result), [
     "dry_run",
     "questions",
     "answered",
     "elsewhere",
     "permissions",
+    "replaced",
     "files",
   ]);
   assert.deepEqual(result, { dry_run: false, ...sheet(dir), files: [] });
@@ -729,7 +730,13 @@ test("a call the ledger has no row for is listed, counted, and sent to the comma
 
 test("a repository with nothing waiting: no ledger and no waiting list, or a waiting list alone", () => {
   const bare = empty();
-  assert.deepEqual(sheet(bare), { questions: [], answered: [], elsewhere: [], permissions: [] });
+  assert.deepEqual(sheet(bare), {
+    questions: [],
+    answered: [],
+    elsewhere: [],
+    permissions: [],
+    replaced: [],
+  });
   const run = cli("--target", bare);
   assert.equal(run.status, 0);
   assert.match(run.stdout, /^decision sheet: no question waits on the owner/m);
