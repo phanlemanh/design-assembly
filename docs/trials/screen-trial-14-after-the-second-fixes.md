@@ -323,4 +323,4 @@ Dòng ấy đòi: một tác tử độc lập dựng một màn chỉ từ brie
   chỗ chênh nằm trong độ lệch của hai lượt cùng điều kiện.
 
 Mục 5.7 xong: cả phần sửa và lượt chạy lại đều đã làm. Giai đoạn 5 chưa đóng; đóng hay không là lời của chủ repo. Mục 5.3
-(bài kiểm trình duyệt theo vai) cũng còn `todo`.
+(bài kiểm trình duyệt theo vai) còn đang làm: đề bài 0011 đã duyệt, chưa lát nào dựng.
