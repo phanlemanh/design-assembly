@@ -322,5 +322,8 @@ Dòng ấy đòi: một tác tử độc lập dựng một màn chỉ từ brie
   cao hơn 11. Số chỗ tự quyết lặng lẽ, chỗ chủ repo không bao giờ thấy, là 3, bằng lần 13 và thấp hơn 9 của lần 12. Một
   chỗ chênh nằm trong độ lệch của hai lượt cùng điều kiện.
 
+**Lời chủ repo, ngày 2026-11-21:** «Đạt», đáp câu «Dòng «xong khi» của giai đoạn 5 coi là đạt sau lượt thử 14?», sau khi
+được nêu cả ba điều nên nói kèm ở trên. Dòng ấy nay coi là đạt; giai đoạn 5 chỉ đóng khi mục 5.3 xong.
+
 Mục 5.7 xong: cả phần sửa và lượt chạy lại đều đã làm. Giai đoạn 5 chưa đóng; đóng hay không là lời của chủ repo. Mục 5.3
 (bài kiểm trình duyệt theo vai) còn đang làm: đề bài 0011 đã duyệt, chưa lát nào dựng.
