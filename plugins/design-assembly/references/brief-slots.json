@@ -1,5 +1,5 @@
 {
-  "about": "The slots of a screen brief (specification 0010): every choice a builder of one screen meets, as a closed list. `reads` says where the answer of a slot is read from; a slot with nothing to read from says so with `unheld`, whose `when` is `always`, or `planned` for a slot a ledger holds only once the screen is built. A slot is never dropped from a sheet: one with no answer is open and says why. `ask` is what an open slot puts to the owner: `recommend`, what a builder goes on with until the owner answers, `basis`, what that rests on (a `principle`, a `standard` or a `measurement`; the sheet adds what it read of the repository), and `hard_to_undo`. A recommendation never makes up an answer the sheet has no source for: where only the owner has it, it says where the answer is written before the screen is built. Adding or removing a slot is the owner's call.",
+  "about": "The slots of a screen brief (specification 0010): every choice a builder of one screen meets, as a closed list. `reads` says where the answer of a slot is read from; a slot with nothing to read from says so with `unheld`, whose `when` is `always`, or `planned` for a slot a ledger holds only once the screen is built. A slot is never dropped from a sheet: one with no answer is open and says why. `ask` is what an open slot puts to the owner: `recommend`, what a builder goes on with until the owner answers, `basis`, what that rests on (a `principle`, a `standard` or a `measurement`; the sheet adds what it read of the repository), and `hard_to_undo`. `cases` holds another `recommend` for a case the sheet reads or measures, by the case's name, with {name} where the sheet puts what it measured; the slot's own `recommend` stands where no case is named. The slots are the choices every screen meets and not every question of one screen: the sheet says so, and names where other choices hide. A recommendation never makes up an answer the sheet has no source for: where only the owner has it, it says where the answer is written before the screen is built. Adding or removing a slot is the owner's call.",
   "version": 1,
   "states": {
     "settled": "the repository answers it, and the sheet names the file and the row or line the answer comes from",
@@ -176,6 +176,11 @@
       ],
       "ask": {
         "recommend": "Add each action and entity the row names and the data model lacks to the data model first, in the same change, and say in the change's description that the data model changed, so that a person reviews it before it merges.",
+        "cases": {
+          "written": {
+            "recommend": "Keep what this branch wrote into the data model as it is written until the owner answers, and say in the change's description that the data model changed, with each name and its shape, so that a person reviews it before it merges. Where another shape was possible (a field of its own, or one more value of a field that is there), say which was taken and why."
+          }
+        },
         "basis": {
           "kind": "standard",
           "text": "The floor's rule that a screen never names a concept or an action the data model does not have."
@@ -214,9 +219,14 @@
       },
       "ask": {
         "recommend": "Change no other screen: build this one alone, and where another screen must change, that is a change of that screen, with a sheet of its own.",
+        "cases": {
+          "look": {
+            "recommend": "Do not take it that no other screen changes. Before this screen is built, look at {screens}, for what the sheet read of each: change in the same change each one that must change for this screen to work, after a sheet of its own (run the brief of that screen first), leave the others as they are, and say in the change's description which screens changed and why."
+          }
+        },
         "basis": {
           "kind": "measurement",
-          "text": "What the rows of the other screens of the ledger name: a screen that shares nothing with this one has no reason to change."
+          "text": "What the rows of the other screens of the ledger name, and what the data model says of the actions on the records this screen shows: a screen that shares nothing with this one has no reason to change, and one that shares a record or an action is looked at before it is left alone."
         },
         "hard_to_undo": false
       }

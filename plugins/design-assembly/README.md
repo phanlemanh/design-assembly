@@ -54,8 +54,13 @@ scale, shape). Density, elevation, motion and iconography are not.
   call of the decision sheet that asks it. It asks nothing itself and answers nothing: with
   `--queue` each open slot becomes one new file of the waiting list (item
   `screen:<screen id>:<slot>`), all of them or none, and nothing else is written. It ends with 0
-  once all twelve are settled. The rules page tells a builder to run it first, where the
-  repository has a ledger of screens.
+  once all twelve are settled. The twelve slots are the choices every screen meets and not every
+  question of one screen: the sheet says so, names where other choices of this screen hide (read
+  from the repository), and gives the call that asks one. It compares the working tree with where
+  the branch left the main one: a line read from what the branch wrote says so, what the branch
+  wrote into the data model opens slot 10 by name, and a question that waits is held against what
+  stands in the repository now; with no git or no main branch it says what it could not compare.
+  The rules page tells a builder to run it first, where the repository has a ledger of screens.
 - `/design-assembly:review` reviews one screen that is already built, by its picture. It draws the
   screen at every declared width, in light and in dark (and in every state with `--states`), and
   measures on what was drawn, with no model called, the contrast of text on its ground and text

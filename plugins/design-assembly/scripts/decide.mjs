@@ -22,6 +22,11 @@ import { fileURLToPath } from "node:url";
 import { LEDGERS, newerLedgers } from "../templates/tools/design-assembly/contract.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { LEDGER, readLedger } from "../templates/tools/design-assembly/ledger.mjs";
+import { ledgerText } from "../templates/tools/design-assembly/screen-fragments.mjs";
+import {
+  readScreenLedger,
+  SCREEN_LEDGER,
+} from "../templates/tools/design-assembly/screen-ledger.mjs";
 import {
   answerProblem,
   folderRows,
@@ -545,7 +550,8 @@ const USAGE = `usage: node decide.mjs [--target DIR] [--only ID[,ID]] [--answers
              recommendation, except for a call that is the owner's alone (see --item).
   --item     What the question is about, when it is one item: decision:ID (a row of the ledger),
              pattern:NAME (a new page of a kind of screen), source-color:VALUE (the root colour)
-             or screen:ID:SLOT (one slot of the brief of one screen). A new kind of screen and
+             or screen:ID:SLOT (one slot of the brief of one screen, which the ledger of
+             screens must have). A new kind of screen and
              the brand colour are the owner's calls: the agent stops, and the gate stays red
              until the owner keeps it.
   --id       The question's id, and the name of its file. Without it, made from the item, or
@@ -609,6 +615,31 @@ function askCall(root, state, call) {
   });
 }
 
+// Why a question about a slot of a screen cannot be asked, or null: the item names a screen the
+// ledger of screens does not have, so no sheet would ever read the question or its answer. An
+// item of another kind is not looked up here.
+const SCREEN_ITEM = "screen:";
+function strangerScreen(root, item) {
+  if (!item.startsWith(SCREEN_ITEM)) return null;
+  const id = item.slice(SCREEN_ITEM.length, item.lastIndexOf(":"));
+  const text = ledgerText(root);
+  if (text === null) {
+    return `this repository keeps no ledger of screens (${SCREEN_LEDGER}), so there is no screen ${id} to ask about`;
+  }
+  let screens;
+  try {
+    screens = readScreenLedger(text).screens.map((screen) => String(screen?.id));
+  } catch (error) {
+    return `the ledger of screens (${SCREEN_LEDGER}) cannot be read (${error.message}), so the screen ${id} cannot be looked up`;
+  }
+  if (screens.length === 0) {
+    return `the ledger of screens (${SCREEN_LEDGER}) lists no screen, so there is no screen ${id} to ask about`;
+  }
+  return screens.includes(id)
+    ? null
+    : `${id} is not a screen of the ledger of screens; it has: ${screens.join(", ")}. No sheet would read a question about it`;
+}
+
 // A question an agent asks, as one new file of the waiting list, made in memory: its file, what
 // the file holds, the list once it is in, and the sheet after. Refused, and nothing written, when
 // the question is not whole, when the list is one shared file, or when its id waits already. The
@@ -631,6 +662,8 @@ export function askOf(root, state, ask) {
   if (ask.item !== undefined && itemProblem(ask.item)) {
     throw refused(`--item: ${itemProblem(ask.item)}`);
   }
+  const stranger = ask.item === undefined ? null : strangerScreen(root, ask.item);
+  if (stranger) throw refused(`--item: ${stranger}`);
   if (state.list?.shape === "file") {
     throw refused(
       `the waiting list is one shared file, ${WAITING_LIST}, and asking would change it: split it first, with --split`,

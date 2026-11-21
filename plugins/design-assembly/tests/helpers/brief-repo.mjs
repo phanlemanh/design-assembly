@@ -8,15 +8,17 @@ import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { env } from "node:process";
 
 export const BUILT = "orders";
 export const PLANNED = "returns";
 export const WIDTHS = [320, 1280];
 
 const json = (data) => `${JSON.stringify(data, null, 2)}\n`;
-const lines = (...text) => `${text.join("\n")}\n`;
+export const lines = (...text) => `${text.join("\n")}\n`;
 
-const row = ({ id, route, status, shows, actions }) => [
+// One row of the ledger of screens, as the lines of its file.
+export const row = ({ id, route, status, shows, actions }) => [
   `  - id: ${id}`,
   `    route: ${route}`,
   `    title: ${id}Title`,
@@ -229,9 +231,11 @@ export const DROPS = {
 
 // Writes a fresh copy and gives its folder, with a way to remove it. `change` names files by
 // path: a text replaces the file, a function is given the file's text and returns the new one, and
-// null leaves the file out. The copy is a repository of its own with no commit.
-export function briefRepository(change = {}) {
-  const dir = mkdtempSync(path.join(tmpdir(), "design-brief-"));
+// null leaves the file out. The copy is a repository of its own with no commit; with `under`, it
+// is that folder of a larger repository, and `root` is where git is.
+export function briefRepository(change = {}, { under = "" } = {}) {
+  const root = mkdtempSync(path.join(tmpdir(), "design-brief-"));
+  const dir = path.join(root, under);
   const files = { ...FILES };
   for (const [file, to] of Object.entries(change)) {
     if (to === null) delete files[file];
@@ -241,6 +245,50 @@ export function briefRepository(change = {}) {
     mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
     writeFileSync(path.join(dir, file), text);
   }
-  spawnSync("git", ["init", "--quiet"], { cwd: dir });
-  return { dir, remove: () => rmSync(dir, { recursive: true, force: true }) };
+  spawnSync("git", ["init", "--quiet"], { cwd: root });
+  return { dir, root, remove: () => rmSync(root, { recursive: true, force: true }) };
+}
+
+// Git in a copy, as a person with a name, on one fixed day: a commit made by a test is the same
+// commit whenever the test runs.
+export function git(dir, ...args) {
+  const run = spawnSync(
+    "git",
+    ["-c", "user.name=Test", "-c", "user.email=test@example.invalid", ...args],
+    {
+      cwd: dir,
+      encoding: "utf8",
+      env: {
+        ...env,
+        GIT_AUTHOR_DATE: "2026-10-05T12:00:00Z",
+        GIT_COMMITTER_DATE: "2026-10-05T12:00:00Z",
+      },
+    },
+  );
+  if (run.status !== 0) throw new Error(`git ${args.join(" ")}: ${run.stderr}`);
+  return run.stdout;
+}
+
+// Everything in the copy as one commit of the branch it is on.
+export function commitAll(dir, message) {
+  git(dir, "add", "--all");
+  git(dir, "commit", "--quiet", "--message", message);
+}
+
+// A copy whose main branch holds the sample with the built screen alone, and that stands on a
+// branch of its own, `work`, with nothing changed yet: what a builder is handed. `change` is as
+// for briefRepository, and is part of what the main branch holds; so is `where`.
+export function branchRepository(change = {}, where = {}) {
+  const made = briefRepository(
+    {
+      "design/screens.yaml": (text) => text.slice(0, text.indexOf(`  - id: ${PLANNED}\n`)),
+      ...change,
+    },
+    where,
+  );
+  // Whatever name this machine gives a first branch, the one of the copy is main.
+  git(made.root, "symbolic-ref", "HEAD", "refs/heads/main");
+  commitAll(made.root, "The sample");
+  git(made.root, "checkout", "--quiet", "-b", "work");
+  return made;
 }

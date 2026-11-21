@@ -362,6 +362,13 @@
           "state": "done",
           "ref": "wiki/specs/0007-widen-the-entry-the-system-and-the-intent.md, việc 1; wiki/decisions/0070-the-rules-page-opens-with-what-the-owner-fixed.md; chủ repo nhận làm ngay ngày 2026-11-20 («Duyệt cả bốn», câu 3)",
           "command": "new"
+        },
+        {
+          "id": "5.6",
+          "what": "Sửa điều lượt thử 12 chỉ ra ở lệnh brief, rồi chạy lại lượt thử",
+          "state": "doing",
+          "ref": "docs/trials/screen-trial-12-with-the-brief.md; chủ repo chọn ngày 2026-11-21 («Sửa rồi chạy lại», đáp câu «Đi hướng nào với dòng «xong khi» của giai đoạn 5?»); phần sửa: wiki/decisions/0076-the-brief-after-its-first-builder-trial.md, chứng bằng plugins/design-assembly/tests/test-brief-trial-12.mjs, plugin 0.25.0; lượt thử thứ hai chưa chạy và cần lời chủ repo, mục chỉ xong khi lượt ấy đã chạy",
+          "command": "brief"
         }
       ],
       "done_when": [

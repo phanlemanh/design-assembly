@@ -95,15 +95,13 @@ const NO_MAIN = `name the main branch with "main" on the check in design/theme.j
 const pageName = (file) => path.posix.basename(file, ".md");
 const isPage = (name) => name.endsWith(".md") && !NOT_A_KIND.includes(name);
 
-// What this branch adds, read from git: its base, the pages of kinds of screen that were not there,
-// the root colour line there and now, and the judgments of the ledger it writes or changes.
-// Null outside git. With `problem` when git is there and cannot say. With `born` when the base has
-// no decision ledger, and nothing else. `main` names the main branch where it has another name.
-// `history` is how a shallow checkout's history is fetched, as for HISTORY.
-export function branchFacts(
-  root,
-  { pages, stylesheet, ledger, main: named = null, history = HISTORY },
-) {
+// Where this branch left the main one, read from git: the commit they share (`base`), the name
+// of the main branch, and git itself for what is read next. Null outside git. With `problem` when
+// git is there and cannot say. With `unborn` when the repository has no commit yet. `main` names
+// the main branch where it has another name. `history` is how a shallow checkout's history is
+// fetched, as for HISTORY; with `fetch` false nothing is fetched, and a shallow checkout that
+// lacks the main branch is a problem, said as such.
+export function branchBase(root, { main: named = null, history = HISTORY, fetch = true } = {}) {
   // Never waits on a prompt for a password or a passphrase: a fetch that needs one fails, and
   // says so. `timed` also gives up after a while, for a call that goes to the remote.
   const quiet = { ...env, GIT_TERMINAL_PROMPT: "0", ...sshOverride(root) };
@@ -124,9 +122,7 @@ export function branchFacts(
     if (/not a git repository/i.test(said)) return null;
     return { problem: said.split("\n")[0] || "git gave no reason" };
   }
-  // No commit yet: the repository starts here, with the person who answers, and there is nothing
-  // before it to compare with.
-  if (git("rev-parse", "--verify", "--quiet", "HEAD").status !== 0) return unborn(null, null);
+  if (git("rev-parse", "--verify", "--quiet", "HEAD").status !== 0) return { unborn: true };
   const known = (name) => git("rev-parse", "--verify", "--quiet", `${name}^{commit}`).status === 0;
   // Each main branch git knows, with where this branch left it. The newest of those is the base: a
   // fork point every other one is an ancestor of.
@@ -140,6 +136,12 @@ export function branchFacts(
   // the main branch is then the one fetched.
   let fetched;
   if (forksOf(names).length === 0 && isShallow(git)) {
+    if (!fetch) {
+      return {
+        problem:
+          "a shallow checkout that lacks the main branch, and nothing is fetched to read this",
+      };
+    }
     const got = fetchMain(git, named, history);
     if (got.problem) return { problem: got.problem };
     fetched = got.fetched;
@@ -163,6 +165,21 @@ export function branchFacts(
   const isAncestor = (a, b) => git("merge-base", "--is-ancestor", a, b).status === 0;
   const { name: main, base } =
     forks.find((fork) => forks.every((other) => isAncestor(other.base, fork.base))) ?? forks[0];
+  return { git, base, main, ...(fetched ? { fetched } : {}) };
+}
+
+// What this branch adds, read from git: its base, the pages of kinds of screen that were not there,
+// the root colour line there and now, and the judgments of the ledger it writes or changes.
+// Null outside git. With `problem` when git is there and cannot say. With `born` when the base has
+// no decision ledger, and nothing else. `main` names the main branch where it has another name.
+// `history` is how a shallow checkout's history is fetched, as for HISTORY.
+export function branchFacts(root, { pages, stylesheet, ledger, main: named = null, history }) {
+  const found = branchBase(root, { main: named, ...(history ? { history } : {}) });
+  if (found === null || found.problem) return found;
+  // No commit yet: the repository starts here, with the person who answers, and there is nothing
+  // before it to compare with.
+  if (found.unborn) return unborn(null, null);
+  const { git, base, main, fetched } = found;
   // A file at the base, named from the target: its text, or null where the base has no such file.
   // Anything else git says is not an absence, and is thrown, never read as "nothing there".
   const atBase = (file) => {

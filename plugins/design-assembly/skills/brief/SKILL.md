@@ -14,6 +14,9 @@ The sheet asks no question itself and answers none. What is open is the owner's 
 question goes through the decision sheet, `/design-assembly:decide`.
 Never answer a slot for the owner, and never fill an open slot with your own choice unasked.
 
+The twelve slots are the choices every screen meets. They are not every question of this screen:
+a sheet with nothing open does not mean nothing is left to ask (section 5).
+
 Scripts are in `${CLAUDE_PLUGIN_ROOT}/scripts/` (if the variable is not expanded, use the `scripts/`
 folder two levels above this file).
 
@@ -75,9 +78,41 @@ same screen: one reader gives both.
   slash in it, or another question has the id already): tell the user, who settles it by hand.
 
 `summary` counts them: `settled`, `asked`, `open`, how many the owner's answer settled
-(`settled_by_answer`) and how many settled slots wait on another (`settled_waiting`). `asked` and
-`open` list the slots in those states. A settled slot means the repository says something, not
-that it says enough for this screen: read the answers.
+(`settled_by_answer`), how many settled slots wait on another (`settled_waiting`), how many rest
+on what this branch wrote (`settled_on_branch`) and how many questions that wait recommend what
+the repository no longer does (`against`). `asked` and `open` list the slots in those states. A
+settled slot means the repository says something, not that it says enough for this screen: read
+the answers.
+
+### What this branch wrote
+
+The sheet reads the working tree, and sets it beside what the repository had where this branch
+left the main one, the base the gate's own checks compare with. `branch` says how: `compared`,
+the name of the main branch, and `why` where nothing or not everything was compared (no git, no
+commit yet, no main branch git knows, a shallow checkout, or nothing committed past the main
+branch, where only what is not committed is compared). Nothing is fetched.
+
+- A line read from a row of the ledger of screens, or from an action or a field of the data
+  model, that this branch wrote carries `branch` in its source (`new` or `changed`) and reads
+  «written on this branch». It is what the builder declared a minute ago, not what the repository
+  had settled: the slot stays settled, and you say so when you report it.
+- What this branch wrote into the data model for the screen opens slot 10 by name: the action,
+  the entity or the field, added, changed or removed. Its name and its shape are this branch's
+  own choice; the question puts them to the owner.
+- Where nothing was compared, the sheet cannot tell, and says so on its third line and in slot 10. Do not read a slot as settled by the repository there if you wrote its source yourself.
+
+### A question that waits, held against what stands now
+
+Run the sheet again after building. A question that waits carries `against`: what in the
+repository now goes against its recommendation, where the sheet can read it (other screens this
+branch changed while the recommendation was to change none; a place in the screen list that is
+not the last while the recommendation was the last). `now` is what stands beside a
+recommendation in other words, which the sheet cannot judge. Both are read against the main
+branch, whenever the question was asked. A slot the repository now settles
+while its question still waits carries the question in `waits`. Where `against` is not empty,
+tell the user: the owner would read a recommendation the change already went against. Ask the
+question again in words that fit what was built, or undo what goes against it; never edit the
+question's file to fit.
 
 A recommendation never makes up an answer the sheet has no source for. Where only the owner has
 the answer (what the screen shows, of which kind it is), it says where the answer is written
@@ -100,13 +135,33 @@ before the screen is built, and that is what you do.
 - A repository whose copied tool is older than the one that reads this kind of question refuses
   `--queue` and says so: run the upgrade first.
 
-## 5. What you do after
+## 5. Beyond the twelve slots
+
+`beyond` says it on every sheet, and so does the text: the slots are not every question of this
+screen. Any other choice that no ledger, component or page of a kind settles is still the owner's.
+Ask each one, one question each, with `/design-assembly:decide --ask "QUESTION" --recommend TEXT
+--because TEXT --easy-to-undo` (or `--hard-to-undo`), and go on with your recommendation;
+`beyond.call` is that call for this repository. Queuing the open slots does not do this for you:
+`--queue` writes the slots' questions and no more.
+
+`beyond.places` names where such choices hide on this screen, each read from the repository and
+listed only while it is there: what a person comes to this screen for, where the page of the kind
+says it of its reference screen alone; which look a control takes, where components have more
+than one; the name in code and the word a reader sees for a concept that is new to the data
+model, where no place the repository keeps its words in names it yet. The list is a help, not the
+whole of it: the shape of a new concept, sample data, the spoken name of a control, what another
+screen does with what this one adds are asked the same way when no page settles them.
+
+## 6. What you do after
 
 - Tell the user how the sheet stands in one line (`summary`), then the slots that are open or
-  asked, each with its question and recommendation. Do not paste the whole sheet unless asked;
+  asked, each with its question and recommendation, then what you will ask beyond the slots. Do not paste the whole sheet unless asked;
   with `--out`, show the document.
 - Build only when the user asked for the screen. Build from the settled slots, like the reference
   screen the first slot names, and in the frame the components slot names.
-- After building, run the checks the sheet lists, then `/design-assembly:review <screen id>`.
+- Slot 12 recommends from what the rows and the data model say: where it names screens to look
+  at, look at each before you build, run the brief of each one you change, and say which changed.
+- After building, run the sheet again and read `against`, run the checks the sheet lists, then
+  `/design-assembly:review <screen id>`.
 - The sheet says at its end what it does not see. Repeat those limits when they touch what the
   user asked; do not present a sheet with nothing open as "the screen is fully specified".
