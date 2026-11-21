@@ -165,6 +165,15 @@
         "model": "ontology"
       }
     ],
+    "screen-actions-seen": [
+      {
+        "kind": "screen-actions-seen",
+        "test": "tests/e2e/screen-actions-seen.spec.ts",
+        "door": "tests/e2e/roles.ts",
+        "file": "design/screens.yaml",
+        "model": "ontology"
+      }
+    ],
     "state-matrix": [
       {
         "kind": "states",

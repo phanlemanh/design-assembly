@@ -43,7 +43,7 @@ function ConfirmDelete(props: {
         </DialogHeader>
         <DialogFooter>
           <DialogClose render={<Button variant="outline" />}>{LABELS.cancel}</DialogClose>
-          <Button variant="destructive" onClick={props.onConfirm}>
+          <Button variant="destructive" data-model-action="deleteItem" onClick={props.onConfirm}>
             {LABELS.deleteAction}
           </Button>
         </DialogFooter>
@@ -74,6 +74,7 @@ function DeleteButton({
       ref={ref}
       variant="outline"
       size="sm"
+      data-model-action="deleteItem"
       aria-label={slow ? LABELS.deletingItem(item.name) : LABELS.deleteItem(item.name)}
       disabled={pending}
       focusableWhenDisabled
@@ -161,6 +162,7 @@ export function ReferenceScreen() {
           label: LABELS.undo,
           run: () => undoAdd(item),
           close: LABELS.close,
+          action: "deleteItem",
         });
       },
       () => {
@@ -171,6 +173,7 @@ export function ReferenceScreen() {
           label: LABELS.retry,
           run: addFirst,
           close: LABELS.close,
+          action: "createItem",
         });
       },
     );
@@ -190,6 +193,7 @@ export function ReferenceScreen() {
           label: LABELS.retry,
           run: () => undoAdd(item),
           close: LABELS.close,
+          action: "deleteItem",
         }),
     );
   }
@@ -219,6 +223,7 @@ export function ReferenceScreen() {
           label: LABELS.retry,
           run: () => runDelete(item),
           close: LABELS.close,
+          action: "deleteItem",
         });
       },
     );
@@ -257,6 +262,7 @@ export function ReferenceScreen() {
                 />
               }
               onAction={addFirst}
+              runs="createItem"
               actionRef={noticeAction}
               pending={adding}
             />

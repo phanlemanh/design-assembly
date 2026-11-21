@@ -180,6 +180,12 @@
       "templates": "1f2436eb07d2a4cb89d0af787a60ec968a297f51",
       "scripts": "2b0dd67dfe9ffa23ab77ddaa07dcbabe295f3f21",
       "tool": "47f10a34b3a705e349ed45fb757a41273b1f1f9d"
+    },
+    {
+      "version": "0.27.0",
+      "templates": "08995ab1098b7c30bc6a259f12a118483d0c9bc4",
+      "scripts": "104441b9c4bec941a39c435d1e2d2331ad7e7fae",
+      "tool": "76e5b19b320a59eef89c18d83e93afb8802688b5"
     }
   ]
 }

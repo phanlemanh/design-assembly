@@ -68,6 +68,7 @@ import {
   gateProblem,
   patternsPlan,
   RULES_PAGE,
+  ledgerButtons,
   rulesPage,
   targetPlan,
   tokensPlan,
@@ -531,6 +532,8 @@ export function adoption(
                 item.file,
                 item.types,
                 item.registry,
+                item.test,
+                item.door,
                 ...Object.values(item.ledgers ?? {}),
               ])
               .filter(Boolean)
@@ -679,6 +682,7 @@ export function adoption(
       all,
       (file) => file in result.files || read(root, file) !== null,
       fixed.blueprint,
+      { buttons: ledgerButtons(root) },
     );
   }
   return result;
