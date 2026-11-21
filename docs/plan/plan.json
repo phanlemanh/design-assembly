@@ -454,60 +454,143 @@
       "needs_owner": ["Tạo repo cho lõi"]
     }
   ],
+  "parked_groups": [
+    {
+      "id": "screen-build",
+      "name": "Dựng màn và soát màn",
+      "note": "Cùng giai đoạn đang mở và cùng mã của brief, review và trang luật; làm chung với các đợt sửa sau lượt thử."
+    },
+    {
+      "id": "seam",
+      "name": "Chỗ giáp repo-standards",
+      "note": "Cùng một lượt đọc bước cổng, các tệp mk và hợp đồng giữa hai kho; là phần đầu của mục 6.1."
+    },
+    {
+      "id": "reference-repo",
+      "name": "Repo kiểm chứng",
+      "note": "Cùng cần làm trên repo kiểm chứng; nên đi sau nhóm chỗ giáp, để một lần lên đời mang theo các sửa của nhóm ấy."
+    },
+    {
+      "id": "who-answers",
+      "name": "Ai trả lời, ai giữ lời đáp",
+      "note": "Chờ một quyết định của chủ repo trước khi dựng gì."
+    },
+    {
+      "id": "breadth",
+      "name": "Repo khác kiểu",
+      "note": "Chỉ đáng làm khi một repo thật đụng tới."
+    },
+    {
+      "id": "small",
+      "name": "Việc nhỏ lẻ",
+      "note": "Không chặn gì; mỗi việc làm riêng được, lúc nào cũng được."
+    }
+  ],
   "parked": [
     {
       "on": "2026-11-15",
       "what": "Mười chín giới hạn mức nặng đang mở (đếm ngày 2026-11-18)",
       "stage": 5,
-      "why_not_now": "Chỉ sửa khi một repo thật đụng tới"
+      "why_not_now": "Chỉ sửa khi một repo thật đụng tới",
+      "group": "screen-build"
     },
     {
       "on": "2026-11-15",
       "what": "Tài liệu kiến trúc còn vẽ năm chặng cũ",
       "stage": 6,
-      "why_not_now": "Chờ chủ repo duyệt kiến trúc"
+      "why_not_now": "Chờ chủ repo duyệt kiến trúc",
+      "group": "small"
     },
     {
       "on": "2026-11-15",
       "what": "Bốn tiêu chí của đề bài 0002 nêu tên một repo",
       "stage": 0,
-      "why_not_now": "Là một câu của hàng chờ, trả lời qua decide"
+      "why_not_now": "Là một câu của hàng chờ, trả lời qua decide",
+      "group": "small"
     },
     {
       "on": "2026-11-15",
       "what": "Bài kiểm bảng mẫu và cuốn sổ của plugin dùng chung một thư mục đầu ra, nên nhiều bản chạy cùng lúc trong một thư mục làm việc xoá tệp của nhau",
       "stage": 0,
-      "why_not_now": "Một bản make check không gặp; chỉ lộ khi đo độ ổn định bằng nhiều bản song song"
+      "why_not_now": "Một bản make check không gặp; chỉ lộ khi đo độ ổn định bằng nhiều bản song song",
+      "group": "small"
     },
     {
       "on": "2026-11-17",
       "what": "Sáu giới hạn mở từ lượt đo độ rộng, đứng đầu là repo nhiều gói mà audit đọc ra rỗng (audit-workspace-reads-top-src-only)",
       "stage": 7,
-      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 2; chặn mục 7.3 nếu repo cùng họ thứ hai là một repo nhiều gói"
+      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 2; chặn mục 7.3 nếu repo cùng họ thứ hai là một repo nhiều gói",
+      "group": "breadth"
     },
     {
       "on": "2026-11-18",
       "what": "Bảy điều tác tử của lần chạy thử 11 báo đã được kiểm ngày 2026-11-18, cả bảy đứng vững, và mỗi điều đã nằm ở một dòng sổ giới hạn: bốn dòng mới (state-words-present-before-the-state, row-waiting-words-need-a-second-clock, empty-state-link-fails-the-gate, unused-words-unflagged) và bốn dòng đã có (spoken-only-state-unlisted, row-change-logic-not-shipped, post-action-rules-uncheck, decide-ask-trusts-the-agent-to-ask); chưa điều nào được sửa",
       "stage": 5,
-      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 8; thuộc việc dựng màn không phải đoán"
+      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 8; thuộc việc dựng màn không phải đoán",
+      "group": "screen-build"
     },
     {
       "on": "2026-11-19",
       "what": "Lệnh change: --to (đổi một quyết định đã chốt) và --migrate (đưa giá trị viết vòng về giá trị của hệ), theo đề bài 0004; đề bài 0006 chỉ dựng --retire và --merge-into",
       "stage": 5,
-      "why_not_now": "Đổi quyết định và sửa mã màn, không thuộc kho dùng lại; không chặn điều kiện đóng của giai đoạn 3 (đề bài 0006, câu hỏi 8); giai đoạn 4 đóng mà không mang việc này, chủ repo dời sang giai đoạn 5 ngày 2026-11-20 (đề bài 0007, câu 2)"
+      "why_not_now": "Đổi quyết định và sửa mã màn, không thuộc kho dùng lại; không chặn điều kiện đóng của giai đoạn 3 (đề bài 0006, câu hỏi 8); giai đoạn 4 đóng mà không mang việc này, chủ repo dời sang giai đoạn 5 ngày 2026-11-20 (đề bài 0007, câu 2)",
+      "group": "screen-build"
     },
     {
       "on": "2026-11-20",
       "what": "Cửa vào cho repo không có sàn: phục vụ ở mức «Chỉ luật», và status luôn kết bằng một bước kế hoặc một câu nói rõ điều còn thiếu (đề bài 0007, việc 2 và câu 1)",
       "stage": 6,
-      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; phần Repo Standards gọi plugin là mục 6.1"
+      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; phần Repo Standards gọi plugin là mục 6.1",
+      "group": "seam"
     },
     {
       "on": "2026-11-20",
       "what": "Tương phản ở giao diện tối không có phép kiểm nào: nút «Xoá» trong hộp thoại xác nhận 4,25:1 (3,55:1 khi rê chuột), mô tả của toast lỗi 1,7:1; cổng chỉ đo giao diện sáng và axe không đo hai nút trong chân hộp thoại; muted-foreground trên muted (4,34:1) không xuất hiện trên màn nào ở trạng thái nghỉ. Thuộc giới hạn contrast-two-pairs-only và hover-contrast-unchecked",
       "stage": 5,
-      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5 (một tác tử dựng màn chỉ từ brief, số chỗ phải đoán không tăng); ứng dụng mẫu chưa có công tắc giao diện tối"
+      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5 (một tác tử dựng màn chỉ từ brief, số chỗ phải đoán không tăng); ứng dụng mẫu chưa có công tắc giao diện tối",
+      "group": "screen-build"
+    },
+    {
+      "on": "2026-11-21",
+      "what": "Đo lại sau khi sổ thiết kế rời PR: tiêu chí 11 của đề bài 0005 (30 PR gộp kế tiếp ở repo kiểm chứng) chưa chạy, và việc tách mảnh design/behaviors.md còn chờ phép đo ấy; phiên giám sát của repo-standards nêu ngày 2026-11-21 (docs/reports/2026-11-20-decision-to-merge-trace.md của kho ấy); phía kho này đã đối chiếu, phía kho kia chưa kiểm ở đây",
+      "stage": 6,
+      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; giai đoạn 8 đã đóng bằng ba dòng «xong khi» của nó; đo trên repo kiểm chứng. Chủ repo cho phép ngày 2026-11-21 («Tôi cho phép», sau khi được báo mục này cần lời cho phép); mỗi bước ở repo ấy vẫn nêu trước khi làm.",
+      "group": "reference-repo"
+    },
+    {
+      "on": "2026-11-21",
+      "what": "Repo kiểm chứng tụt xa bản plugin (dấu bản công cụ 0.7.1 khi plugin là 0.25.1), không mục nào đưa nó lên tiếp, và giới hạn upgrade-leaves-gate-step (lệnh nâng không ghi mk/design-assembly.mk) chưa có chặng; phiên giám sát của repo-standards nêu ngày 2026-11-21 (docs/reports/2026-11-20-decision-to-merge-trace.md của kho ấy); phía kho này đã đối chiếu, phía kho kia chưa kiểm ở đây",
+      "stage": 6,
+      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; lên đời ở repo kiểm chứng. Chủ repo cho phép ngày 2026-11-21 («Tôi cho phép», sau khi được báo mục này cần lời cho phép); mỗi bước ở repo ấy vẫn nêu trước khi làm.",
+      "group": "reference-repo"
+    },
+    {
+      "on": "2026-11-21",
+      "what": "Hợp đồng của lệnh affected với bộ chọn bài của repo-standards: bốn khoá all, why, screens[].route, grep chưa được ghim bằng bài kiểm nào ở kho này, và lời của giới hạn affected-not-used-by-a-runner đã cũ nếu bên kia đã dùng lệnh; phiên giám sát của repo-standards nêu ngày 2026-11-21 (docs/reports/2026-11-20-decision-to-merge-trace.md của kho ấy); phía kho này đã đối chiếu, phía kho kia chưa kiểm ở đây",
+      "stage": 6,
+      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; thuộc việc hai kho bên cạnh gọi và đọc (mục 6.1)",
+      "group": "seam"
+    },
+    {
+      "on": "2026-11-21",
+      "what": "Giới hạn mức nặng owner-calls-trusts-a-written-answer còn ghi giao cho repo-standards, trong khi bên ấy cho biết chủ repo đã chọn không dựng phần nhận (RS5a): dòng này cần một chủ mới hoặc một quyết định ở kho này; phiên giám sát của repo-standards nêu ngày 2026-11-21 (docs/reports/2026-11-20-decision-to-merge-trace.md của kho ấy); phía kho này đã đối chiếu, phía kho kia chưa kiểm ở đây",
+      "stage": 7,
+      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; là lời chủ repo, và hợp với giai đoạn 7 khi có nhiều repo và nhiều người trả lời",
+      "group": "who-answers"
+    },
+    {
+      "on": "2026-11-21",
+      "what": "Bước cổng plugin cài (mk/design-assembly.mk) có đích design-derived nhưng không khai vào DERIVED_TARGETS và DERIVED_FILES của repo-standards; hai cơ chế cho vật dẫn xuất đang sống cạnh nhau mà chưa có ghi chép nào nói đó là chủ ý; phiên giám sát của repo-standards nêu ngày 2026-11-21 (docs/reports/2026-11-20-decision-to-merge-trace.md của kho ấy); phía kho này đã đối chiếu, phía kho kia chưa kiểm ở đây",
+      "stage": 6,
+      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; thuộc việc Repo Standards gọi plugin (mục 6.1)",
+      "group": "seam"
+    },
+    {
+      "on": "2026-11-21",
+      "what": "Chưa có danh sách các chuỗi plugin đọc trong Makefile, mk/ và workflow của kho chủ để bên repo-standards ghim bằng bài kiểm; giới hạn stack-couplings-beyond-names chỉ nói «khoảng hai mươi chỗ»; phiên giám sát của repo-standards nêu ngày 2026-11-21 (docs/reports/2026-11-20-decision-to-merge-trace.md của kho ấy); phía kho này đã đối chiếu, phía kho kia chưa kiểm ở đây",
+      "stage": 6,
+      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; thuộc việc hai kho bên cạnh gọi và đọc (mục 6.1)",
+      "group": "seam"
     }
   ]
 }
