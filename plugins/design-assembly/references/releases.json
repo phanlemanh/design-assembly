@@ -198,6 +198,12 @@
       "templates": "f46590714f08cdbe18f7d43741552a4d71bf10c3",
       "scripts": "cfdd0a96a7bb2357f70ae716b9e780c30110dc89",
       "tool": "4ed551f4e907343fc4537ee5d9b78697a031d380"
+    },
+    {
+      "version": "0.30.0",
+      "templates": "1e956631fa6dfcad8c6ab791571559cf85a338d8",
+      "scripts": "a4030943a1c5a10dc15fe0398ff8745ed3f32fa0",
+      "tool": "6ad3ee707481483da9476a86923b156175dfec88"
     }
   ]
 }

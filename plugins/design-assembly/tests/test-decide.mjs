@@ -805,6 +805,10 @@ const fromPage = (row) => /^[A-D]\d+$/.test(row.id);
 // A question asked since the page: about a block to take in, or, from item 9.1 on, about a row of
 // the ledger a new choice of the plugin writes once the owner answers it (the typeface).
 const PAGE_ITEMS = /^(?:(?:need|before):|decision:typeface$)/;
+// From item 9.1, slice 2, on: the licence of a font row of the sources ledger that a command
+// proposed. The waiting list has no kind of item for it, so the question names none, and its id
+// names the row, as status reads it.
+const FONT_LICENCE = /^font-licence-([a-z0-9]+(?:-[a-z0-9]+)*)$/;
 // The rows of every table of the page, in order: the section heading, then the cells of the row.
 function pageRows(page) {
   const rows = [];
@@ -826,6 +830,12 @@ test("this repository's waiting list is data: 25 questions and 2 permissions, an
   const rows = all.filter(fromPage);
   // Every other question was asked by a command since, about a block or a choice the plugin added.
   for (const row of all.filter((item) => !fromPage(item))) {
+    const font = FONT_LICENCE.exec(row.id)?.[1];
+    if (font) {
+      assert.equal(row.item, undefined, row.id);
+      assert.ok(existsSync(path.join(ROOT, `design/sources/${font}.json`)), row.id);
+      continue;
+    }
     assert.match(String(row.item), PAGE_ITEMS, row.id);
   }
   const expected = [

@@ -28,10 +28,17 @@ import {
 } from "../templates/tools/design-assembly/screens.mjs";
 import {
   DEFAULT_STYLESHEET,
+  expand,
   findStylesheet,
   loadStyles,
   resolve,
 } from "../templates/tools/design-assembly/styles.mjs";
+import {
+  declaredFonts,
+  firstFamily,
+  readLoads,
+} from "../templates/tools/design-assembly/fonts.mjs";
+import { readFontSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { buildTheme, THRESHOLDS } from "../templates/tools/design-assembly/theme.mjs";
 import { tokenCss, TOKENS } from "../templates/tools/design-assembly/tokens.mjs";
 import {
@@ -110,6 +117,14 @@ export const WORDS = {
   fontStack: "font",
   fontNote:
     "The font file is not inside this book: a device without it shows the next one in the list.",
+  fontRoles: { "text and headings": "Text and headings", text: "Text", headings: "Headings" },
+  fontFrom: "from",
+  fontLicence: "licence",
+  fontNoLicence: "licence not written yet",
+  fontDiffers: "the pin no longer holds",
+  fontLoadedBy: "loaded by",
+  fontNotLoaded: "nothing read here loads it",
+  fontNoRow: "no row in the sources ledger",
   radius: "Corner radius",
   spacing: "Spacing scale",
   unit: "unit",
@@ -286,7 +301,10 @@ export function collectFacts(target) {
   let source = null;
   if (theme.inputs?.sourceColor && level) {
     try {
-      const built = buildTheme(theme.inputs, styles.css);
+      const built = buildTheme(theme.inputs, styles.css, {
+        sources: readFontSources(target),
+        stylesheet,
+      });
       source = {
         color: theme.inputs.sourceColor,
         moved: Object.fromEntries(
@@ -337,6 +355,7 @@ export function collectFacts(target) {
     ),
     source,
     font: /var\(/.test(value("--font-sans") ?? "var(") ? null : value("--font-sans"),
+    fonts: fontFacts(target, styles, stylesheet),
     type,
     radius: Object.entries(tokens.radius ?? {}).map(([step, token]) => ({
       step,
@@ -593,6 +612,7 @@ function typeSheet(facts, w) {
       <div>
         <h3>${escape(w.typeScale)}</h3>
         <ol class="type">${steps}</ol>
+        ${fontLines(facts, w)}
         ${facts.font ? `<p class="muted">${escape(w.fontStack)}: <code>${escape(facts.font)}</code> · ${escape(w.fontNote)}</p>` : ""}
       </div>
       <div>
@@ -1054,6 +1074,62 @@ function closing(w, audience) {
   );
 }
 
+// The fonts the stylesheet names for running text and for headings, each with where it comes
+// from: its row of the sources ledger where there is one, with what the row pins, its licence and
+// whether the pin still holds; and what loads it, as the adapter of the build reads it. A family
+// every device has is no font to name. Text and headings in one font are one entry.
+function fontFacts(target, styles, stylesheet) {
+  const { loads } = readLoads(target, styles.css, stylesheet);
+  const rows = readFontSources(target);
+  const found = [];
+  declaredFonts(styles).forEach((variable, index) => {
+    const first = firstFamily(expand(styles, ":root", `var(${variable})`));
+    if (first.generic !== undefined) return;
+    const key = first.variable ?? first.name.toLowerCase();
+    const same = found.find((font) => font.key === key);
+    if (same) {
+      same.role = "text and headings";
+      return;
+    }
+    const row = rows.find((item) =>
+      first.variable ? item.variable === first.variable : item.family?.toLowerCase() === key,
+    );
+    const load = first.variable
+      ? loads.find((item) => item.variable === first.variable)
+      : loads.find((item) => item.family?.toLowerCase() === key);
+    found.push({
+      key,
+      role: index === 0 ? "text" : "headings",
+      family: first.name ?? row?.family ?? `var(${first.variable})`,
+      row: row?.file ?? null,
+      from: row?.from ?? null,
+      licence: row?.licence ?? null,
+      // How the row's pin differs from what the repository holds now, or null.
+      differs: row?.drift[0] ?? null,
+      loaded: load?.by ?? null,
+    });
+  });
+  return found.map((font) =>
+    Object.fromEntries(Object.entries(font).filter(([name]) => name !== "key")),
+  );
+}
+
+// The lines of the type sheet that name each font and where it comes from.
+function fontLines(facts, w) {
+  return (facts.fonts ?? [])
+    .map((font) => {
+      const source = font.row
+        ? `${escape(w.fontFrom)} ${escape(font.from ?? "?")} (<code>${escape(font.row)}</code>) · ${
+            font.licence
+              ? `${escape(w.fontLicence)}: ${escape(font.licence)}`
+              : escape(w.fontNoLicence)
+          }${font.differs ? ` · ${escape(w.fontDiffers)}: ${escape(font.differs)}` : ""}`
+        : `${font.loaded ? `${escape(w.fontLoadedBy)} ${escape(font.loaded)}` : escape(w.fontNotLoaded)} · ${escape(w.fontNoRow)}`;
+      return `<p class="muted">${escape(w.fontRoles[font.role] ?? font.role)}: <b>${escape(font.family)}</b> · ${source}</p>`;
+    })
+    .join("\n        ");
+}
+
 // The book as one page that needs nothing else: its pictures are inside it.
 export function renderBook(
   facts,
@@ -1063,6 +1139,7 @@ export function renderBook(
     ...WORDS,
     ...words,
     tierStates: { ...WORDS.tierStates, ...words.tierStates },
+    fontRoles: { ...WORDS.fontRoles, ...words.fontRoles },
     questions: { ...WORDS.questions, ...words.questions },
     // The words of each example, one rule at a time: a rule the repository's file names keeps
     // every word it leaves out.

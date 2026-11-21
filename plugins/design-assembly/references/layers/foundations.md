@@ -120,15 +120,15 @@ stylesheet cannot change it unnoticed.
 Two choices, asked after the corner radius and shown on the sheet `specimen.mjs --section
 typeface` draws, text first:
 
-| Option   | Why                                                             | Trade-off                                             | Label       |
-| -------- | --------------------------------------------------------------- | ----------------------------------------------------- | ----------- |
-| `floor`  | The font the floor already names and loads: nothing new to load | It is the floor's, not the brand's                    | `automated` |
-| `system` | The font each device uses for its own interface: no file at all | It looks a little different on every operating system | `automated` |
-| `source` | A font of the brand, with its row in the sources ledger         | Not in this version: its row comes with the next one  | none        |
+| Option        | Why                                                                          | Trade-off                                                                        | Label       |
+| ------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------- | ----------- |
+| `floor`       | The font the floor already names and loads: nothing new to load              | It is the floor's, not the brand's                                               | `automated` |
+| `system`      | The font each device uses for its own interface: no file at all              | It looks a little different on every operating system                            | `automated` |
+| `source:<id>` | A font of the brand, with its row in the sources ledger, pinned and licensed | Its row and its licence come first; on some stacks a person writes what loads it | `automated` |
 
-Headings take `text` (the same typeface), `floor` or `system`. A brand font is asked for in the
-words of the person, and recorded nowhere yet: say that its row in the sources ledger, with its pin
-and its licence, comes with the next version, and that the guide never fetches a font.
+Headings take `text` (the same typeface), `floor`, `system` or `source:<id>`. A font's row is
+written from what the repository already holds, a package its lockfile pins or font files in it,
+by `scripts/font-source.mjs`; the licence is the owner's to write. The guide never fetches a font.
 
 **Held by:** a check that both variables resolve to the decided values, and a check that the first
 typeface each names is loaded by the repository, as its build loads one, or is a family every
@@ -166,8 +166,8 @@ Choice keys:
   `major-third` or `perfect-fourth`.
 - `spacing_unit`: `4px`.
 - `corner_radius`: `floor`, `none`, `extra-small`, `small`, `medium` or `large`.
-- `text_font`: `floor` or `system`.
-- `heading_font`: `text`, `floor` or `system`. The two are written together.
+- `text_font`: `floor`, `system` or `source:<id>`, the id of a font row of the sources ledger.
+- `heading_font`: `text`, `floor`, `system` or `source:<id>`. The two are written together.
 
 When the person gave a typeface, or confirmed the one proposed, write who and when beside it:
 `"answered": { "text_font": { "by": "<their name>", "on": "YYYY-MM-DD" }, "heading_font": { ... } }`.

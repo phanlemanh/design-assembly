@@ -1,5 +1,5 @@
 {
-  "about": "The closed list of what a user of a design system needs done. Each capability has one socket this plugin keeps, and plugs that fill it. A socket says which ledgers of the contract only it may write (keys of LEDGERS in templates/tools/design-assembly/contract.mjs), what it hands out, which commands hold it, who decides, and its two faces: what a person is shown and asked, and what becomes a rule a machine holds. A plug here is this plugin's own; a plug from outside is one file in references/plugs/ that names the socket it fills, so this file names no outside tool. A capability with no default plug points to an open row of references/limits.json. A route is a command that leads a person through several sockets; it is not a plug. `reads` on a plug names ledgers its scripts read and do not write. `unseen_writes` names ledgers whose writers the static check cannot see, each with the limit row that says so. A socket marked `closed` takes no plug from outside: it is the core. A machine face whose rule no check holds yet says `unheld` with the limit row that says so, instead of `held_by`. A plug marked `step_of` is the step of a route that the list of spec 0008 names by the route.",
+  "about": "The closed list of what a user of a design system needs done. Each capability has one socket this plugin keeps, and plugs that fill it. A socket says which ledgers of the contract only it may write (keys of LEDGERS in templates/tools/design-assembly/contract.mjs), what it hands out, which commands hold it, who decides, and its two faces: what a person is shown and asked, and what becomes a rule a machine holds. A plug here is this plugin's own; a plug from outside is one file in references/plugs/ that names the socket it fills, so this file names no outside tool. A capability with no default plug points to an open row of references/limits.json. A route is a command that leads a person through several sockets; it is not a plug. `reads` on a plug names ledgers its scripts read and do not write. `unseen_writes` names ledgers whose writers the static check cannot see, each with the limit row that says so. A socket marked `closed` takes no plug from outside: it is the core. A machine face whose rule no check holds yet says `unheld` with the limit row that says so, instead of `held_by`. A plug marked `step_of` is the step of a route that the list of spec 0008 names by the route. A plug marked `writes_through` writes the ledgers of the socket it names, in that socket's shape, instead of ledgers of its own: a route through its socket may write them too.",
   "stages": [
     "know",
     "decide",
@@ -16,6 +16,7 @@
         "discovery",
         "decision",
         "foundations",
+        "brand-assets",
         "components",
         "interaction-patterns",
         "screen-kinds",
@@ -25,7 +26,7 @@
     {
       "id": "adopt",
       "script": "scripts/adopt.mjs",
-      "through": ["decision", "foundations", "screen-build"]
+      "through": ["decision", "foundations", "brand-assets", "screen-build"]
     },
     {
       "id": "change",
@@ -253,19 +254,30 @@
       "name": "brand assets",
       "socket": {
         "writes": [],
-        "outputs": ["the logo, the fonts and the icon set, recorded through the reference socket"],
+        "outputs": [
+          "the fonts, as rows of the sources ledger recorded through the reference socket; the logo and the icon set have no place yet"
+        ],
         "checks": ["make design-assembly"],
         "decides": "owner",
         "human": {
-          "shows": "the assets the repository holds",
-          "asks": "which logo, fonts and icons the product uses"
+          "shows": "the fonts the repository loads, and where each comes from",
+          "asks": "which font the product uses, and the licence a font is used under"
         },
         "machine": {
-          "rules": "a screen uses only the assets that are recorded",
-          "unheld": "capability-brand-assets-has-no-plug"
+          "rules": "a typeface the stylesheet names is loaded, and a font of the sources ledger is chosen only with its pin and its licence",
+          "held_by": "make design-assembly"
         }
       },
-      "plugs": [],
+      "plugs": [
+        {
+          "id": "font-source",
+          "kind": "command",
+          "default": true,
+          "scripts": ["scripts/font-source.mjs"],
+          "writes_through": "reference",
+          "step_of": "new"
+        }
+      ],
       "limit": "capability-brand-assets-has-no-plug",
       "layers": ["foundations"],
       "tiers": ["foundations"]

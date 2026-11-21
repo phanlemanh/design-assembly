@@ -1,0 +1,10 @@
+{
+  "id": "font-licence-geist",
+  "question": "Giấy phép của font Geist Variable (gói @fontsource-variable/geist 5.3.0), font của sàn mà kho này giữ cho văn bản và tiêu đề, là giấy phép nào? Lời của chủ repo được viết vào licence của design/sources/geist.json.",
+  "recommendation": "Font dùng theo SIL Open Font License 1.1, như tệp LICENSE của gói nói",
+  "basis": "Đo trên kho này ngày 2026-11-21: package-lock.json ghim @fontsource-variable/geist ở 5.3.0 và ghi gói nêu giấy phép OFL-1.1; tệp LICENSE trong gói đã cài nói font được cấp phép theo SIL Open Font License, Version 1.1. Dòng nguồn design/sources/geist.json được ghi từ tệp khoá, không tải gì, và còn thiếu giấy phép nên chưa được giữ; máy không điền giấy phép thay người. Dễ đảo: sửa một dòng trong tệp ấy.",
+  "hard_to_undo": false,
+  "where": "0081",
+  "if_refused": "Dòng design/sources/geist.json vẫn chưa được giữ và font không chọn được từ sổ nguồn; kho này vẫn dùng font của sàn như chủ repo đã đáp. Chủ repo viết giấy phép bằng lời của mình vào dòng ấy, hoặc bỏ dòng đi",
+  "asked_on": "2026-11-21"
+}

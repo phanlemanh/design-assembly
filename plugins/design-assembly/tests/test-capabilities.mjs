@@ -224,3 +224,40 @@ test("a plug file that cannot be read is named, not thrown", (t) => {
     "references/plugs/lost.json: names no socket",
   ]);
 });
+
+test("the brand assets socket has a plug for fonts, which writes its rows in the ledger of the reference socket; logo and icons stay open", () => {
+  const brand = capability(table, "brand-assets");
+  const plug = brand.plugs.find((item) => item.id === "font-source");
+  assert.ok(plug, "no plug for fonts");
+  assert.deepEqual(plug.scripts, ["scripts/font-source.mjs"]);
+  // The sources ledger stays the reference socket's: the plug writes through it, and no second
+  // socket claims the ledger.
+  assert.equal(plug.writes_through, "reference");
+  assert.deepEqual(brand.socket.writes, []);
+  assert.deepEqual(capability(table, "reference").socket.writes, ["sources"]);
+  // The limit is narrowed to the logo and the icon set, not closed.
+  const limit = LIMITS.find((row) => row.id === brand.limit);
+  assert.equal(limit.status, "open");
+  assert.match(limit.note, /logo/);
+  assert.match(limit.note, /icon/);
+  assert.doesNotMatch(limit.note, /a logo, a font or an icon set/);
+  // The writer is seen: the script reaches the sources ledger, and the routes that run it may.
+  const script = scripts.find((item) => item.path === "scripts/font-source.mjs");
+  assert.ok(writesOf(script.text).includes("sources"), "the font script is not seen writing");
+  assert.deepEqual(scriptProblems(table, scripts), []);
+  for (const route of ["new", "adopt"]) {
+    assert.ok(table.routes.find((item) => item.id === route).through.includes("brand-assets"));
+  }
+  // A plug that writes through a socket that is not one is red.
+  const lost = copy();
+  capability(lost, "brand-assets").plugs[0].writes_through = "no-such";
+  assert.deepEqual(shapeProblems(lost, context), [
+    "brand-assets: plug font-source writes through no-such, which is not a capability",
+  ]);
+  // Without writing through the reference socket, the script reaches a ledger it does not hold.
+  const alone = copy();
+  delete capability(alone, "brand-assets").plugs[0].writes_through;
+  assert.deepEqual(scriptProblems(alone, [script]), [
+    "scripts/font-source.mjs: can write and reaches ledger sources, which no socket of this script holds",
+  ]);
+});

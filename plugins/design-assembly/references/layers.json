@@ -1,5 +1,5 @@
 {
-  "about": "The layers of a design system, in the order the guide visits them. One list: the guide, the ledger and the audit all use these ids. A layer is the artifact its decisions constrain. `title` and every choice `name` are terms from vocabulary.json. A layer with `built: false` is announced in one line and skipped. A choice may list under `not_yet` a value it names and does not take in this version, with the sentence that says what is missing.",
+  "about": "The layers of a design system, in the order the guide visits them. One list: the guide, the ledger and the audit all use these ids. A layer is the artifact its decisions constrain. `title` and every choice `name` are terms from vocabulary.json. A layer with `built: false` is announced in one line and skipped. A choice may say under `sourced` that it also takes a row of the sources ledger: `kind` is the kind of source, `prefix` what the value starts with before the row's id, and `says` what such a value means.",
   "layers": [
     {
       "id": "context",
@@ -81,8 +81,10 @@
             "floor": "The floor's own font, which its stylesheet already names and loads.",
             "system": "The font each device uses for its own interface: no file to load, and it looks a little different on every system."
           },
-          "not_yet": {
-            "source": "A font with its row in the sources ledger, its pin and its licence: that row comes with the next version of this plugin, so this value cannot be chosen yet."
+          "sourced": {
+            "kind": "font",
+            "prefix": "source:",
+            "says": "A font with its row in the sources ledger, its pin and its licence: the value is `source:` and the row's id, and it can be chosen once a person has written the licence."
           }
         },
         {
@@ -93,8 +95,10 @@
             "floor": "The floor's own heading font, as its stylesheet names it.",
             "system": "The font each device uses for its own interface: no file to load."
           },
-          "not_yet": {
-            "source": "A font with its row in the sources ledger, its pin and its licence: that row comes with the next version of this plugin, so this value cannot be chosen yet."
+          "sourced": {
+            "kind": "font",
+            "prefix": "source:",
+            "says": "A font with its row in the sources ledger, its pin and its licence: the value is `source:` and the row's id, and it can be chosen once a person has written the licence."
           }
         }
       ]

@@ -15,7 +15,13 @@ import {
   spellingProblems,
 } from "./intake-ledger.mjs";
 import { readYaml } from "./yaml.mjs";
-import { SOURCES_FOLDER } from "./sources-ledger.mjs";
+import {
+  FONT_FIELDS,
+  FONT_STYLES,
+  fontRowProblems,
+  isFont,
+  SOURCES_FOLDER,
+} from "./sources-ledger.mjs";
 import { parseLedger } from "./ledger.mjs";
 import { ledgerText, readFragments } from "./screen-fragments.mjs";
 import { FRAGMENTS_SHARED, fragmentsFolder, readScreenLedger } from "./screen-ledger.mjs";
@@ -292,8 +298,10 @@ export const LEDGERS = {
   sources: {
     folder: SOURCES_FOLDER,
     ending: ".json",
-    question: "which outside libraries blocks are picked from, in what order, at which pin",
-    writer: "a person, or the repository's own tool that pins a source; one file per source",
+    question:
+      "which outside libraries blocks are picked from, in what order, at which pin; and which fonts the product uses, from where, at which pin, under which licence",
+    writer:
+      "a person, or the repository's own tool that pins a source; a font's row, the guide or adopt from what the repository holds, and its licence a person; one file per source",
     version: 1,
     format: "json-sources",
     root: {
@@ -331,6 +339,43 @@ export const LEDGERS = {
       install: text,
       // What taking an item in needs, in a sentence; never a key.
       licence: text,
+    },
+    // A source of the kind `font`: the same row, with no catalog, the family the stylesheet names,
+    // the variable a font loader of the build sets for it when it has one, a pin the row itself
+    // holds, and the licence the font is used under, which a person writes. `own` says the
+    // repository loaded the font before the row was written; `proposed` says which command wrote
+    // the row and when, and that a person has not finished it.
+    font: {
+      catalog: text,
+      family: required({ ...text, pattern: FONT_FIELDS.family }),
+      variable: { ...text, pattern: FONT_FIELDS.variable },
+      pin: {
+        type: "object",
+        fields: {
+          // The package the lockfile pins, and the version it pins it at.
+          package: text,
+          version: text,
+          // Or each font file, by its path from the repository's root, with its hash; a file may
+          // say the weight or the range of weights it holds, and its style.
+          files: list({
+            type: "object",
+            fields: {
+              file: required({ ...text, pattern: FONT_FIELDS.file }),
+              sha256: required({ ...text, pattern: "^[0-9a-f]{64}$" }),
+              weight: { ...text, pattern: FONT_FIELDS.weight },
+              style: { ...text, values: FONT_STYLES },
+            },
+            open: true,
+          }),
+        },
+        open: true,
+      },
+      own: { type: "boolean" },
+      proposed: {
+        type: "object",
+        fields: { by: required(text), on: required(day) },
+        open: true,
+      },
     },
     open: true,
   },
@@ -550,13 +595,18 @@ function sourceProblems(textOfFile, file) {
   if (typeOf(data) !== "object") return [`${file} is ${typeOf(data)}, the contract says object`];
   const newer = newerProblem("sources", data, file);
   if (newer) return [newer];
-  const problems = objectProblems(data, LEDGERS.sources.root, LEDGERS.sources.open, file);
+  // A font is a source of its own kind: what the row of a library requires, less its catalog,
+  // more what a font says of itself.
+  const font = isFont(data);
+  const root = font ? { ...LEDGERS.sources.root, ...LEDGERS.sources.font } : LEDGERS.sources.root;
+  const problems = objectProblems(data, root, LEDGERS.sources.open, file);
   const name = path.basename(file);
   if (typeof data.id === "string" && name !== `${data.id}.json`) {
     problems.push(
       `${file} is named ${name} and its id is ${data.id}: a source's file is named after its id`,
     );
   }
+  if (font) return [...problems, ...fontRowProblems(data, file)];
   if (!("pin" in data) && !("pin_file" in data)) {
     problems.push(
       `${file}.pin is missing: a source holds its pin, or names the file it is kept in under pin_file`,

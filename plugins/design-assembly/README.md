@@ -119,7 +119,9 @@ scale, shape). Density, elevation, motion and iconography are not.
 - The typeface of running text and of headings is a choice of the foundations too: the floor's
   font or the system font. The gate holds the values the generated block names, and that each
   typeface the stylesheet names is loaded, as the adapter of the repository's build sees it load.
-  Nothing is fetched. A font of the brand comes in through the sources ledger, in the next version.
+  Nothing is fetched. A font of the brand comes in through its row of the sources ledger, of the
+  kind `font`, with its pin and its licence: `scripts/font-source.mjs` writes the row from a
+  package the lockfile pins or files already in the repository, and a person writes the licence.
 - `scripts/apply.mjs` derives a tonal palette and the primary color roles from one source color,
   writes them into the repository's stylesheet, adds its rows to the ledger
   `design/decisions.yaml`, and installs the checks that hold them.

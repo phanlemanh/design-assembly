@@ -179,9 +179,14 @@ test("on the floor: rows for the proofs it has, checks around its values, nothin
   ]);
   const checked = check(dir);
   assert.equal(checked.status, 0, checked.stderr);
-  // The six values and checks around them, the shapes of the ledgers adopting leaves, the decision
-  // sheet and the wall.
-  assert.match(checked.stdout, /9 decisions held by \d+ checks, each seen failing/);
+  // The six values and checks around them, the typefaces as found, the shapes of the ledgers
+  // adopting leaves, the decision sheet and the wall.
+  assert.match(checked.stdout, /10 decisions held by \d+ checks, each seen failing/);
+  assert.equal(rows.typeface.source, "the stylesheet's typefaces, as found");
+  // The floor's font package is not installed in this throwaway copy: what it loads cannot be read,
+  // so font-loaded is not added, and adopting says why.
+  assert.equal(rows["font-loaded"], undefined);
+  assert.match(result.stdout, /font-loaded: .*@fontsource-variable\/geist.*not installed here/);
 
   // Adopting leaves the page of rules too, written from what it now holds.
   const page = text(dir, ".claude/rules/design-assembly.md");

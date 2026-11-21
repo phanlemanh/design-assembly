@@ -1082,9 +1082,11 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-13",
-      "where": ["trials", "spec"],
-      "status": "open",
-      "note": "The book's type page does not name the repository's fonts, though the book's own reference says it must."
+      "where": ["trials", "spec", "d0081"],
+      "status": "closed",
+      "note": "The book's type page does not name the repository's fonts, though the book's own reference says it must.",
+      "closed": "2026-11-21",
+      "closed_by": "decision 0081 and tests/test-font-source.mjs: the book's type page names each font the stylesheet names for text and headings, with its row of the sources ledger, what the row pins, its licence or that none is written yet, and whether the pin still holds; a font with no row is named with what loads it and that the ledger has no row for it. What is left: the font file itself is still not carried in the book (book-sheets-partial)"
     },
     {
       "id": "book-widths-message-misleads",
@@ -3409,7 +3411,7 @@
       "opened": "2026-11-20",
       "where": ["spec", "d0069"],
       "status": "open",
-      "note": "The brand assets socket has no plug, so a logo, a font or an icon set has no place to be recorded and no check that a screen uses only recorded assets."
+      "note": "The brand assets socket has a plug for fonts only: a logo and an icon set have no place to be recorded and no check that a screen uses only recorded ones."
     },
     {
       "id": "capability-content-has-no-plug",
@@ -4067,9 +4069,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-21",
-      "where": ["d0080", "spec"],
+      "where": ["d0080", "spec", "d0081"],
       "status": "open",
-      "note": "The guide writes no code that loads a font, on any stack: the floor's font and the system font need none, and on the second build stack, whose font loader is called in a layout file, a person writes it; the font-loaded check holds what they write."
+      "note": "The guide writes loading code only for a font of the sources ledger kept as files, on the first build stack, as an @font-face rule per file in its block: for a font that is a package it prints the import line a person writes at the top of the stylesheet, and on the second build stack it writes none and prints what a person writes in a layout file; the font-loaded check holds what they write."
     },
     {
       "id": "typeface-not-asked-of-adopted-repo",
@@ -4078,9 +4080,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-21",
-      "where": ["d0080", "spec"],
+      "where": ["d0080", "spec", "d0081"],
       "status": "open",
-      "note": "A repository that adopted its values is not asked the typeface: status lists the question only where the guide wrote the block, and reading a repository's own typeface comes with the sources ledger."
+      "note": "A repository that adopted its values keeps its own typefaces as found, held by the rows typeface and font-loaded, with a row of the sources ledger proposed for each font it loads, and is never asked whether it wants another typeface: status lists the question only where the guide wrote the block."
     },
     {
       "id": "font-loaded-reads-first-family-by-name",
@@ -4114,6 +4116,61 @@
       "where": ["d0080", "spec"],
       "status": "open",
       "note": "On the second build stack a font of its loader counts as loaded only through the CSS variable a call in a layout file sets with `variable`, never by the family's name, which the loader replaces with one it makes up. Whether the class that sets that variable is put on the page is not seen, and the reader was tried on throwaway repositories written for its test only, never on a repository of that stack."
+    },
+    {
+      "opened": "2026-11-21",
+      "status": "open",
+      "id": "font-pin-reads-one-lockfile",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "fix",
+      "where": ["d0081"],
+      "note": "A font that is a package is pinned by the version package-lock.json pins it at, and that file alone is read: a repository whose packages are locked by another package manager's lockfile gets no row from the guide or adopt, and the pin of a row a person wrote is not compared there, which the reader says."
+    },
+    {
+      "opened": "2026-11-21",
+      "status": "open",
+      "id": "font-pin-of-unchosen-font-unheld",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "where": ["d0081"],
+      "note": "The gate compares a font's pin with what the repository holds only for a font the typeface names: the row of a font nobody chose, such as the repository's own font kept as found, may drift from the lockfile or its files without the gate turning red, and only the book and the readers of the row say so."
+    },
+    {
+      "opened": "2026-11-21",
+      "status": "open",
+      "id": "font-licence-is-words",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "where": ["d0081", "spec"],
+      "note": "The licence of a font row is a person's sentence, never a key: the gate holds that it is written, not that it allows the use, and the licence the lockfile says a package states is shown to the person and never written for them."
+    },
+    {
+      "opened": "2026-11-21",
+      "status": "open",
+      "id": "own-font-row-from-reading",
+      "area": "adopt",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "where": ["d0081"],
+      "note": "Adopting proposes the row of a repository's own font from what the adapters read: a package the stylesheet imports, an @font-face rule whose every address is a file of the repository, or a call of the second stack's local font loader whose paths are files of the repository, named in the call itself; a font loaded any other way, a call that names its files through a variable, or a rule that loads from an address outside, gets no row and a sentence that a person writes it, and the family of a font set only by a loader's variable is named after its first file, and an address from the root of the site is looked for in the first stack's default public folder, never in one its settings name instead."
+    },
+    {
+      "opened": "2026-11-21",
+      "status": "open",
+      "id": "font-row-written-from-guide-by-command",
+      "area": "guide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "where": ["d0081"],
+      "note": "In the guide the row of a brand font is written by a command the agent runs on the person's word, font-source, not by the guide's own writing step: the guide takes a font only once its row is whole, so a font the person names and the agent does not write a row for is refused, never chosen silently."
     }
   ]
 }

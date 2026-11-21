@@ -15,6 +15,8 @@ import { fileURLToPath } from "node:url";
 
 import { SLIPS_FILE } from "../templates/tools/design-assembly/governance.mjs";
 import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
+import { pinnedPackage } from "../templates/tools/design-assembly/adapters/lockfile.mjs";
+import { readFontSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { readWaiting } from "../templates/tools/design-assembly/waiting.mjs";
 import { finish, readCall, refuse, start } from "./command.mjs";
 import { principleCall } from "./principles.mjs";
@@ -96,6 +98,56 @@ const STANDARD = json("references/standard-decisions.json").decisions;
 // The row the typeface choice writes, and the item a question about it names on the waiting list.
 const TYPEFACE = "typeface";
 
+// The rows of the waiting list, or none: a waiting list that cannot be read is the decision
+// sheet's to report.
+function listedRows(root, rows) {
+  try {
+    return (
+      readWaiting(
+        root,
+        rows.map((row) => String(row.id)),
+      )?.rows ?? []
+    );
+  } catch {
+    return [];
+  }
+}
+
+// The id of the question that asks the licence of a font of the sources ledger, here and on the
+// waiting list.
+export const licenceAskId = (font) => `font-licence-${font.id}`;
+
+// The licence of each font row a command wrote and no person finished: the row has its pin and no
+// licence, so it is not held and the font cannot be chosen. No tool writes a licence; the question
+// waits here until a person does. A question of the same id that waits on the waiting list is the
+// list's to show; one the owner answered there still waits here, until the answer is in the row.
+export function fontLicenceAsks(root, rows, audited) {
+  const fonts = readFontSources(root).filter((font) => font.waits);
+  if (fonts.length === 0) return [];
+  const listed = listedRows(root, rows);
+  const answer = audited.values === "generated" ? "/design-assembly:new" : "/design-assembly:adopt";
+  return fonts.flatMap((font) => {
+    const asked = listed.findLast((row) => row.id === licenceAskId(font));
+    if (asked && !asked.answer) return [];
+    const stated = font.pin?.package ? pinnedPackage(root, font.pin.package).license : null;
+    const written = `${font.file} was written by ${font.proposed.by} on ${font.proposed.on} from ${font.from}, and has no licence, so the row is not held and the font cannot be chosen`;
+    return [
+      {
+        id: licenceAskId(font),
+        source: "sources",
+        question: `Which licence is the font ${font.title} used under?`,
+        recommendation: asked
+          ? `Write the owner's answer into licence of ${font.file}, in their words: the decision sheet recorded it and changed no row of the sources ledger.`
+          : `Write the licence the font is used under into licence of ${font.file}, in the owner's words: no tool writes one.${stated ? ` The lockfile says its package states ${stated}: read it first.` : ""}`,
+        basis: asked
+          ? `${MEASURED}the owner answered ${asked.id} of the waiting list by ${asked.by} on ${asked.on}, and ${font.file} still has no licence`
+          : `${MEASURED}${written}`,
+        answer,
+      },
+    ];
+  });
+}
+
 // The typeface, asked of a repository the guide wrote before the choice existed: its ledger has no
 // row for it, and no question of the waiting list asks it. Its stylesheet keeps the floor's
 // typeface until the owner answers in the guide. An answer given on the waiting list waits too,
@@ -104,16 +156,7 @@ const TYPEFACE = "typeface";
 export function typefaceAsk(root, rows, audited) {
   if (audited.values !== "generated" || rows.length === 0) return null;
   if (rows.some((row) => String(row.id) === TYPEFACE)) return null;
-  let listed = null;
-  try {
-    listed = readWaiting(
-      root,
-      rows.map((row) => String(row.id)),
-    );
-  } catch {
-    // A waiting list that cannot be read is the decision sheet's to report.
-  }
-  const asked = (listed?.rows ?? []).findLast((row) => row.item === `decision:${TYPEFACE}`);
+  const asked = listedRows(root, rows).findLast((row) => row.item === `decision:${TYPEFACE}`);
   // A question that waits is the waiting list's to show. One the owner answered reaches no blueprint
   // by itself: it waits again, here, for the guide to write it.
   if (asked && !asked.answer) return null;
@@ -393,7 +436,11 @@ function readLedgers(root) {
   return {
     audit: audited,
     broken,
-    waiting: [...waitingOf(audited, rows, readBlueprint(root)), ...(typeface ? [typeface] : [])],
+    waiting: [
+      ...waitingOf(audited, rows, readBlueprint(root)),
+      ...(typeface ? [typeface] : []),
+      ...fontLicenceAsks(root, rows, audited),
+    ],
     tool: toolOf(root),
     sockets: socketsOf(root),
     seen: seenStepOf(root, rows, audited),

@@ -222,11 +222,20 @@ In **hand it to Claude**, do not stop here: draw the sheet for the final review 
 
 After the corner radius, ask the typeface of running text, then of headings, on the sheet
 `specimen.mjs --target <repo> --section typeface` draws: the floor's font and the system font for
-text; the same as text, the floor's and the system font for headings. Recommend the floor's font,
-with headings in the same typeface, and say what that rests on as the preview's `recommendations`
-give it. A font of the brand cannot be chosen in this version: the guide refuses `source` with
-the sentence that says its row in the sources ledger comes with the next version. Say that
-sentence, and never fetch, copy or name a font file for the person.
+text; the same as text, the floor's and the system font for headings; then each font of the
+sources ledger whose row is whole. Recommend the floor's font, with headings in the same typeface,
+and say what that rests on as the preview's `recommendations` give it.
+
+A font of the brand comes in through its row of the sources ledger, `design/sources/<id>.json`,
+and is chosen as `source:<id>`. Never fetch, download or copy a font. Write the row only from what
+the repository already holds, with `node <plugin>/scripts/font-source.mjs --target <repo> --family
+"<name>"` and one of: `--package <name>`, a package the repository's lockfile already pins (the
+row takes the pinned version); or `--files <path>,<path>`, font files already in the repository
+(each is hashed where it is). A font that is neither: say that the person installs the package or
+puts the files in the repository first, and stop there. The row has no licence: ask the owner for
+the licence the font is used under, show what the command printed the lockfile states, and never
+write a licence yourself. Until the licence is in the row the font cannot be chosen, the sheet
+leaves it out and says why, and `status` names the licence as the next step.
 
 A letter is the person's answer: write `text_font` and `heading_font` to
 `layers.foundations.choice`, and beside them who answered and when,
@@ -325,9 +334,12 @@ the preview again.
    judgment have no check by design: the product type, the conformance level and the source color
    are a person's calls.
 7. Repeat the `typeface:` and `font-loaded:` lines. The gate now holds that the typeface the
-   stylesheet names is loaded, as the repository's build loads one. Where the person wants a
-   font the floor does not load, the loading code is theirs to write on a stack whose adapter
-   does not write it: this version writes it on none. Say so.
+   stylesheet names is loaded, as the repository's build loads one. A font of the sources ledger
+   kept as files is loaded by the block itself on the first build stack, which writes an
+   `@font-face` rule for each file. A font that is a package: the person writes the one import
+   line the guide prints at the top of the stylesheet, then runs the guide again. On the second
+   build stack the guide writes no loading code: the person calls the build's font loader in a
+   layout file, as the line printed says. The gate is red until something loads it. Say so.
 8. Say how far the contrast check reaches: the primary on the background and the text on the
    primary, in light and dark. The other color roles are not checked in this version.
 9. Lines that start with `note:` and `hint:` mean different things. A `note:` says a rule is not

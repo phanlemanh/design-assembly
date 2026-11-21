@@ -101,30 +101,31 @@ function repository(content) {
 
 // ---- the choice ---------------------------------------------------------------------------------
 
-test("the foundations layer asks the typeface of text and of headings, and names the third kind it cannot take yet", () => {
+test("the foundations layer asks the typeface of text and of headings, and takes a font of the sources ledger beside", () => {
   const textFont = foundationsOf("text_font");
   const headingFont = foundationsOf("heading_font");
   assert.deepEqual(Object.keys(textFont.options), ["floor", "system"]);
   assert.deepEqual(Object.keys(headingFont.options), ["text", "floor", "system"]);
   for (const choice of [textFont, headingFont]) {
-    assert.deepEqual(Object.keys(choice.not_yet), ["source"]);
-    // One sentence, that says what is missing and when it comes.
-    assert.match(choice.not_yet.source, /sources ledger/);
-    assert.match(choice.not_yet.source, /next version/);
-    assert.equal(choice.not_yet.source.split(/\.\s/).length, 1);
+    assert.equal(choice.sourced.prefix, "source:");
+    assert.match(choice.sourced.says, /sources ledger/);
   }
 });
 
-test("a font from the sources ledger is refused with one sentence; an unknown value is refused as any other", () => {
-  const asked = blueprintProblems(blueprint({ text_font: "source", heading_font: "text" }));
+test("a font from the sources ledger needs its row; an unknown value is refused as any other", () => {
+  const asked = blueprintProblems(blueprint({ text_font: "source:brand", heading_font: "text" }), {
+    sources: [],
+  });
   assert.equal(asked.length, 1, asked.join("\n"));
-  assert.match(asked[0], /^foundations: text typeface source: .*sources ledger.*next version/);
+  assert.match(
+    asked[0],
+    /^foundations: text typeface source:brand: .*sources ledger has no font row/,
+  );
   assert.doesNotMatch(asked[0], /must be one of/);
-  const heading = blueprintProblems(blueprint({ text_font: "floor", heading_font: "source" }));
-  assert.equal(heading.length, 1);
-  assert.match(heading[0], /^foundations: heading typeface source: /);
   const strange = blueprintProblems(blueprint({ text_font: "comic", heading_font: "text" }));
-  assert.deepEqual(strange, ["foundations: text typeface must be one of floor, system"]);
+  assert.deepEqual(strange, [
+    "foundations: text typeface must be one of floor, system, or source:<id> for a font of the sources ledger",
+  ]);
 });
 
 test("a blueprint decided before the typeface existed is not wrong: the choice waits", () => {
@@ -217,8 +218,8 @@ test("the block names the typeface of text and of headings; without an answer it
   // The block that names fonts is read by the framework's theme, after the floor's own.
   assert.match(system, /@theme inline \{\n {2}--font-sans: /);
   assert.throws(
-    () => buildTheme({ ...base, textFont: "source", headingFont: "text" }, FLOOR_CSS),
-    /sources ledger/,
+    () => buildTheme({ ...base, textFont: "source:brand", headingFont: "text" }, FLOOR_CSS),
+    /sources ledger has no font row/,
   );
 });
 

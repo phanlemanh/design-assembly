@@ -166,10 +166,16 @@ test("the page of the contract names every ledger and every key the shapes name"
   for (const [kind, ledger] of Object.entries(LEDGERS)) {
     assert.ok(page.includes(`\`${kind}\``), kind);
     if (ledger.file) assert.ok(page.includes(ledger.file), ledger.file);
+    // A source of the kind font names its own keys beside a library's, its pin's among them.
+    const kinds = { ...ledger.root, ...ledger.font };
     const keys = [
-      ...Object.keys(ledger.root ?? {}),
+      ...Object.keys(kinds),
       ...Object.keys(ledger.head ?? {}),
-      ...Object.values(ledger.root ?? {}).flatMap((spec) => Object.keys(spec.items?.fields ?? {})),
+      ...Object.values(kinds).flatMap((spec) => Object.keys(spec.items?.fields ?? {})),
+      ...Object.values(ledger.font ?? {}).flatMap((spec) => Object.keys(spec.fields ?? {})),
+      ...Object.values(ledger.font?.pin?.fields ?? {}).flatMap((spec) =>
+        Object.keys(spec.items?.fields ?? {}),
+      ),
     ];
     for (const key of keys) assert.ok(page.includes(`\`${key}\``), `${kind}.${key}`);
     if (ledger.version)

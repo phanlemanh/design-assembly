@@ -77,7 +77,9 @@ import { lintProbes } from "./lint.mjs";
 import { probesFor, ruleOf } from "./probes.mjs";
 import { buildTheme, readBlock, renderBlock, withoutBlock } from "./theme.mjs";
 import { tokensProblem } from "./tokens.mjs";
+import { buildOf } from "./adapters/index.mjs";
 import { fontProblems, readLoads, unloadedCopy } from "./fonts.mjs";
+import { readFontSources } from "./sources-ledger.mjs";
 import {
   branchFacts,
   branchDone,
@@ -99,6 +101,15 @@ export const FILES = {
   css: DEFAULT_STYLESHEET,
   gate: "mk/design-assembly.mk",
 };
+
+// What a font of the sources ledger is read from when the block is written again: the fonts of
+// the ledger as the repository holds them now, the stylesheet the block sits in, and the build's
+// own way to write what loads a font, where it has one.
+export const fontContext = (state) => ({
+  sources: state.fontSources ?? [],
+  stylesheet: state.stylesheet,
+  faces: state.fontFaces ?? null,
+});
 
 // One entry per kind of check. `run` returns null when the check passes, else what is wrong.
 // `change` returns the same state altered so that the check must fail.
@@ -188,9 +199,10 @@ const KINDS = {
       if (block === null) return `the generated block is missing from ${state.stylesheet}`;
       let expected;
       try {
-        expected = renderBlock(buildTheme(state.theme.inputs, state.css));
+        expected = renderBlock(buildTheme(state.theme.inputs, state.css, fontContext(state)));
       } catch (error) {
-        // The stylesheet no longer gives what the decided inputs need, such as the floor's font.
+        // The repository no longer gives what the decided inputs need, such as the floor's font,
+        // or the row of a chosen font with its licence and a pin that still holds.
         return `the generated block cannot be written again from what was decided: ${error.message}`;
       }
       if (block === expected) return null;
@@ -1140,6 +1152,10 @@ export function readState(root) {
     fonts: checks.some((check) => check.kind === "font-loaded")
       ? readLoads(root, styles.css, stylesheet)
       : null,
+    // The fonts of the sources ledger, each with how its pin differs from the repository today,
+    // and how the repository's build writes what loads one.
+    fontSources: readFontSources(root),
+    fontFaces: buildOf(root).fontFaces ?? null,
     files: Object.fromEntries(named),
     // The fragments of each such ledger kept as a folder, or null where it is one file.
     fragments: Object.fromEntries(
