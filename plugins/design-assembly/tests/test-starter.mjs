@@ -159,17 +159,69 @@ test("status names each ledger a repository should have from birth and has not",
   );
 });
 
-test("a repository with a brand colour of its own is not laid as a floor", () => {
-  const css = withoutBlock(own("src/index.css")).replace(
-    /(:root \{[^}]*?--primary: )[^;]+;/,
-    "$1#0246ff;",
-  );
+// The stylesheet of a repository whose setup was given a brand colour: the floor's, with that
+// colour as its primary color role.
+const BRAND = "#0246ff";
+const branded = () =>
+  withoutBlock(own("src/index.css")).replace(/(:root \{[^}]*?--primary: )[^;]+;/, `$1${BRAND};`);
+
+test("a repository born with a brand colour gets every ledger from birth, and nothing of it is the floor's", () => {
+  const css = branded();
+  assert.match(css, new RegExp(`--primary: ${BRAND};`));
   const dir = born({ "src/index.css": css });
-  const refused = starter(dir);
+  const result = starter(dir);
+  assert.equal(result.status, 1, result.stderr);
+  assert.equal(text(dir, "src/index.css"), css);
+  assert.deepEqual(missingAtBirth(dir), []);
+  // What it holds is the repository's own: no value is named as the floor's.
+  const theme = JSON.parse(text(dir, "design/theme.json"));
+  assert.ok(theme.adopted.length > 0);
+  assert.equal(theme.adopted_from_floor, undefined);
+  const checked = check(dir);
+  assert.equal(checked.status, 0, checked.stderr);
+
+  // The brand colour is not confirmed for anyone: that call waits on a person.
+  const status = run(STATUS, "--target", dir);
+  assert.equal(status.status, 1, status.stderr);
+  assert.match(status.stdout, /ledgers from birth: all \d+ are here/);
+  assert.match(status.stdout, /source-color: /);
+
+  // Laying them again changes nothing, byte for byte.
+  const files = ["design/decisions.yaml", "design/theme.json", "design/states.json"];
+  const first = files.map((file) => text(dir, file));
+  const again = starter(dir);
+  assert.equal(again.status, 1, again.stderr);
+  assert.match(again.stdout, /rows to add: 0/);
+  assert.doesNotMatch(again.stdout, /^\s+(create|update)\s/m);
+  assert.deepEqual(
+    files.map((file) => text(dir, file)),
+    first,
+  );
+
+  // The guide still does not write over the colour, or over any value held here.
+  writeFileSync(path.join(dir, "design/blueprint.json"), blueprint());
+  const refused = run(APPLY, "--target", dir);
   assert.equal(refused.status, 2);
-  assert.match(refused.stderr, /primary color role of its own \(#0246ff\)/);
-  assert.match(refused.stderr, /without --starter/);
-  assert.equal(existsSync(path.join(dir, "design/decisions.yaml")), false);
+  assert.match(refused.stderr, /generating would replace/);
+  assert.equal(text(dir, "src/index.css"), css);
+});
+
+test("a brand colour given after the ledgers were laid takes nothing more for the floor's", () => {
+  const dir = born();
+  assert.equal(starter(dir).status, 1);
+  const laid = JSON.parse(text(dir, "design/theme.json"));
+  assert.equal(laid.adopted.includes("color-contrast"), false);
+  writeFileSync(
+    path.join(dir, "src/index.css"),
+    text(dir, "src/index.css").replace(/(:root \{[^}]*?--primary: )[^;]+;/, `$1${BRAND};`),
+  );
+  // With the level stated, this run has a value to record that the first one had not: the
+  // contrast of the brand colour, which is the repository's own.
+  const again = starter(dir, "--conformance-level", "AA");
+  assert.equal(again.status, 1, again.stderr);
+  const theme = JSON.parse(text(dir, "design/theme.json"));
+  assert.ok(theme.adopted.includes("color-contrast"), theme.adopted.join(", "));
+  assert.deepEqual(theme.adopted_from_floor, laid.adopted_from_floor);
 });
 
 test("what came from the floor does not stop the guide; what a repository adopted still does", () => {
@@ -209,14 +261,23 @@ test("a value adopted later without --starter is the repository's own, and the g
   assert.doesNotMatch(refused.stderr, /radius-value/);
 });
 
-test("a repository that adopted values of its own is not laid as a floor afterwards", () => {
+test("a repository that adopted values of its own gets its missing ledgers, and keeps the values", () => {
   const dir = born();
   assert.equal(run(ADOPT, "--target", dir, "--conformance-level", "AA").status, 1);
-  const refused = starter(dir);
+  const before = JSON.parse(text(dir, "design/theme.json"));
+  assert.equal(existsSync(path.join(dir, "design/states.json")), false);
+  const result = starter(dir);
+  assert.equal(result.status, 1, result.stderr);
+  assert.deepEqual(missingAtBirth(dir), []);
+  // Nothing it adopted becomes the floor's.
+  const theme = JSON.parse(text(dir, "design/theme.json"));
+  assert.deepEqual(theme.adopted, before.adopted);
+  assert.equal(theme.adopted_from_floor, undefined);
+  assert.equal(check(dir).status, 0, check(dir).stderr);
+  writeFileSync(path.join(dir, "design/blueprint.json"), blueprint());
+  const refused = run(APPLY, "--target", dir);
   assert.equal(refused.status, 2);
   assert.match(refused.stderr, /hold values adopted from this repository/);
-  assert.match(refused.stderr, /without --starter/);
-  assert.equal(existsSync(path.join(dir, "design/states.json")), false);
 });
 
 test("status says when none of the ledgers from birth is there yet, and how to lay them", () => {
