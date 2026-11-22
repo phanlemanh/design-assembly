@@ -354,3 +354,11 @@ nằm gần đầu trên của ước tính. Con số của phiên điều phố
 
 Phiên điều phối mở bằng Fable 5.2 (ba lượt trả lời đầu, lúc đọc cách làm), rồi chạy bằng Opus 5.5 từ lúc dựng bản sao
 tới hết.
+
+## Sau lượt này
+
+Chủ repo bảo sửa và chạy lại («Sửa rồi chạy lại»), và dựng luôn lệnh in («Dựng luôn (Khuyến nghị)»). Ba dòng
+`guide-leaves-sidebar-and-chart-waiting`, `no-command-prints-value-row-and-check` và
+`source-color-answer-has-no-name-or-day` đã đóng bằng quyết định
+[0084](../../wiki/decisions/0084-the-guide-asks-every-colour-question-and-one-command-prints-what-holds-each-value.md).
+Lượt chạy lại là [lượt 16](guide-trial-16-after-the-colour-questions.md).

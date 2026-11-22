@@ -415,8 +415,8 @@
         {
           "id": "9.3",
           "what": "Độ nổi, chuyển động, mật độ: chỉ mảng nào một lượt thử chỉ ra",
-          "state": "doing",
-          "ref": "docs/trials/guide-trial-15-foundations-wide-enough.md; lượt thử 15 ngày 2026-11-22, vai dẫn dắt, đề chuẩn, chủ repo cho chạy («Cho chạy»): tiêu chí 13 xong (10 chỗ phải đoán theo mảng: kiểu chữ 1, vai màu 2, độ nổi 0, chuyển động 0, mật độ 0, còn lại thuộc mảng khác; ba mảng thành dòng giới hạn elevation-not-built, motion-not-built, density-not-built); tiêu chí 12 chưa: cổng xanh và kiểu chữ có lời chủ repo, nhưng 8 vai màu (thanh bên, biểu đồ) còn chờ vì cuộc dẫn dắt không hỏi hai câu ấy (guide-leaves-sidebar-and-chart-waiting), và không lệnh nào in giá trị cạnh dòng sổ và lệnh kiểm (no-command-prints-value-row-and-check); sửa cuộc dẫn dắt và chạy thêm một lượt là lời chủ repo"
+          "state": "done",
+          "ref": "docs/trials/guide-trial-15-foundations-wide-enough.md, docs/trials/guide-trial-16-after-the-colour-questions.md; chủ repo cho chạy lượt thử 15 («Cho chạy»): tiêu chí 13 xong (theo mảng: kiểu chữ 1, vai màu 2, độ nổi 0, chuyển động 0, mật độ 0; ba mảng thành dòng giới hạn elevation-not-built, motion-not-built, density-not-built, không đề bài nào); tiêu chí 12 chưa ở lượt 15 (8 vai thanh bên và biểu đồ chờ, không lệnh nào in đủ); chủ repo bảo sửa và chạy lại («Sửa rồi chạy lại», «Dựng luôn (Khuyến nghị)»): wiki/decisions/0084-the-guide-asks-every-colour-question-and-one-command-prints-what-holds-each-value.md, plugin 0.33.0, chứng bằng plugins/design-assembly/tests/test-roles-held.mjs; lượt thử 16 chứng tiêu chí 12: cổng xanh, status.mjs --target <repo> --roles in «whole: 33 of 33», kiểu chữ và 31 vai màu có lời chủ repo kèm tên và ngày; 8 chỗ phải đoán, độ nổi, chuyển động, mật độ vẫn 0; đóng giai đoạn 9 là lời chủ repo"
         }
       ],
       "done_when": [

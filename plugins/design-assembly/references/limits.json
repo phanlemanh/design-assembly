@@ -4386,6 +4386,17 @@
       "where": ["trials", "spec"],
       "status": "open",
       "note": "The type sheet prints the size of every step in pixels beside each modular scale but not beside the floor's standard one, which it draws with its step names only, so a person comparing the three reads numbers for two of them."
+    },
+    {
+      "id": "guide-preview-refuses-before-foundations",
+      "area": "guide",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-22",
+      "where": ["trials", "spec"],
+      "status": "open",
+      "note": "The guide's page says that from the design principles on every recommendation rests on what the preview gives under recommendations, but the preview refuses, ending with 2, while the context or the foundations layer is still pending, so at the stops of the principles and of the directions no recommendation can be read from it, and step 1 calls the start an end with 1."
     }
   ]
 }

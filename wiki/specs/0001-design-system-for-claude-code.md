@@ -762,6 +762,16 @@ vì lần 7 đến 9 chưa được đếm. Không chỗ nào thuộc độ nổ
 hạn, không thành đề bài. Mười hai dòng sổ giới hạn mới, một dòng sổ lỗi lọt; chi tiết ở
 `docs/trials/guide-trial-15-foundations-wide-enough.md`.
 
+### Chạy thử lần mười sáu (2026-11-22)
+
+Vai dẫn dắt chạy lại, đề chuẩn nguyên văn, sau quyết định 0084: trang skill `new` hỏi câu thanh bên, câu biểu đồ và câu
+giấy phép font trước bước duyệt cuối, màu gốc ghi ai đáp và ngày nào, và `status --roles` in từng giá trị cạnh dòng sổ
+và lệnh kiểm giữ nó. Cùng bản sao, đề, mô hình và người đếm với lần mười lăm; plugin 0.33.0 lấy từ nhánh, và một câu
+niêm phong mới cho giấy phép từ lời chủ repo. Tác tử hỏi cả ba câu ấy; cổng xanh, độ phủ 32 trên 40; lệnh in ra «whole:
+33 of 33», nên dòng «done when» của giai đoạn 9 được chứng. Sau khi kiểm còn 8 chỗ phải đoán, so với 10: 1 vào hàng chờ,
+3 được hỏi người, 4 tự quyết lặng lẽ; độ nổi, chuyển động, mật độ vẫn không có chỗ nào. Một dòng giới hạn mới (bản xem
+trước từ chối khi tầng nền còn chờ), một dòng sổ lỗi lọt; chi tiết ở `docs/trials/guide-trial-16-after-the-colour-questions.md`.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.
