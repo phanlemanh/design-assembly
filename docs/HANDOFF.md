@@ -10,18 +10,20 @@ trữ, không có thư mục tạm của phiên cũ, và **không thừa hưởn
 
 ## Máy này
 
-Các kho đặt cạnh nhau dưới thư mục nhà, vì lệnh của kho này tìm kho bên cạnh theo đường tương đối (`mk/plugin.mk`).
+Các kho đặt cạnh nhau dưới `~/dev`, vì lệnh của kho này tìm kho bên cạnh theo đường tương đối (`mk/plugin.mk`).
+Ở thư mục nhà, mỗi kho còn một lối tắt cùng tên trỏ vào `~/dev`; kho này được chuyển vào `~/dev` ngày 2026-11-22.
 
-| Thư mục              | Là gì                                            | Quyền của máy                                |
-| -------------------- | ------------------------------------------------ | -------------------------------------------- |
-| `~/design-assembly`  | Kho này, `phanlemanh/design-assembly`, công khai | Làm việc ở đây                               |
-| `~/onehub-inventory` | Repo kiểm chứng; mọi lệnh `*-reference` đọc nó   | Chỉ đọc; mỗi bước sửa phải nêu trước khi làm |
-| `~/delivery-loop`    | Kho kit nghiệm thu                               | Chỉ đọc, không bao giờ sửa hay đẩy           |
-| `~/repo-standards`   | Kho Repo Standards                               | Chỉ đọc, không bao giờ sửa hay đẩy           |
+| Thư mục                  | Là gì                                            | Quyền của máy                                |
+| ------------------------ | ------------------------------------------------ | -------------------------------------------- |
+| `~/dev/design-assembly`  | Kho này, `phanlemanh/design-assembly`, công khai | Làm việc ở đây                               |
+| `~/dev/onehub-inventory` | Repo kiểm chứng; mọi lệnh `*-reference` đọc nó   | Chỉ đọc; mỗi bước sửa phải nêu trước khi làm |
+| `~/dev/delivery-loop`    | Kho kit nghiệm thu                               | Chỉ đọc, không bao giờ sửa hay đẩy           |
+| `~/dev/repo-standards`   | Kho Repo Standards                               | Chỉ đọc, không bao giờ sửa hay đẩy           |
 
 Thứ nằm trên đĩa và vẫn còn sau khi đổi tài khoản:
 
-- **Ghi nhớ của máy** ở `~/.claude/projects/-Users-manh-macmini-design-assembly/memory/`: ba ghi nhớ (plugin phục vụ mọi
+- **Ghi nhớ của máy** ở `~/.claude/projects/-Users-manh-macmini-dev-design-assembly/memory/` (chép từ thư mục cũ
+  `-Users-manh-macmini-design-assembly`, vẫn để lại): ba ghi nhớ (plugin phục vụ mọi
   repo ở mọi giai đoạn; hai repo của giai đoạn 2 chỉ đọc; dòng `Plan:` và dòng đồng tác giả viết liền nhau).
 - **Ghi chú bàn giao của các phiên phụ** ở
   `~/Library/Application Support/Claude/side-session-notes/local_d57afc66-dd1b-4021-8d2c-29086cfbfd84/`: mỗi lát một
