@@ -17,6 +17,7 @@ decisions:
     layer: foundations
     kind: judgment
     source: "design/blueprint.json"
+    note: "answered by Manh Phan on 2026-11-22"
   - id: tonal-palette
     layer: foundations
     kind: formula

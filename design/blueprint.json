@@ -56,6 +56,10 @@
         }
       ],
       "answered": {
+        "source_color": {
+          "by": "Manh Phan",
+          "on": "2026-11-22"
+        },
         "text_font": {
           "by": "Manh Phan",
           "on": "2026-11-21"
