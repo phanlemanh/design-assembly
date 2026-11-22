@@ -174,9 +174,17 @@ test("a branch says which item it serves, or that it is off the plan and why", (
     /off-plan with no reason/,
   );
   assert.deepEqual(commitProblems(plan, ["feat: x\n\nPlan: off-plan — the owner asked today"]), []);
-  // An item of a stage that is not open yet is named as such.
+  // An item of a stage that is not open yet is named as such: the first such item of the plan of
+  // record, whichever stage is open today.
+  const { open } = position(plan);
+  const later = plan.stages.find(
+    (stage) => stage.state !== "done" && !open.has(stage.id) && (stage.items ?? []).length > 0,
+  );
+  const item = later.items[0].id;
   assert.match(
-    commitProblems(plan, ["feat: x\n\nPlan: 6.1"]).join("\n"),
-    /Plan: 6\.1 is an item of stage 6, which is not open/,
+    commitProblems(plan, [`feat: x\n\nPlan: ${item}`]).join("\n"),
+    new RegExp(
+      `Plan: ${item.replace(".", "\\.")} is an item of stage ${later.id}, which is not open`,
+    ),
   );
 });

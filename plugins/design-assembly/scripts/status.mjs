@@ -34,6 +34,7 @@ import {
   wordsOf,
 } from "./color-roles.mjs";
 import { finish, readCall, refuse, start } from "./command.mjs";
+import { heldLines, heldRoles } from "./roles-held.mjs";
 import { principleCall } from "./principles.mjs";
 import { sheet, WAITING_FOLDER, WAITING_LIST } from "./decide.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
@@ -926,10 +927,17 @@ async function main(args) {
       : rows.length > 0
         ? wordsFromListed(listedRows(call.target, rows))
         : null;
+    // A repository the guide or adopting wrote: each value beside its source, its rows and their
+    // checks. Elsewhere, the table alone.
+    const held = blueprint ? heldRoles(call.target) : null;
+    const foundations = blueprint?.layers?.foundations;
+    const lines = held
+      ? heldLines(held)
+      : rolesLines(words, foundations?.choice ?? null, foundations?.answered ?? null);
     return finish({
       json: call.json,
-      result: { roles: COLOR_ROLES.roles, pairs: PAIRS, words },
-      text: `${rolesLines(words, blueprint?.layers?.foundations?.choice ?? null).join("\n")}\n`,
+      result: { roles: COLOR_ROLES.roles, pairs: PAIRS, words, ...(held ? { held } : {}) },
+      text: `${lines.join("\n")}\n`,
       work: false,
     });
   }

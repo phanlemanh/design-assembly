@@ -391,7 +391,7 @@
     {
       "id": 9,
       "name": "Nền đủ mảng",
-      "state": "current",
+      "state": "done",
       "parallel": [],
       "items": [
         {
@@ -415,18 +415,23 @@
         {
           "id": "9.3",
           "what": "Độ nổi, chuyển động, mật độ: chỉ mảng nào một lượt thử chỉ ra",
-          "state": "todo"
+          "state": "done",
+          "ref": "docs/trials/guide-trial-15-foundations-wide-enough.md, docs/trials/guide-trial-16-after-the-colour-questions.md; chủ repo cho chạy lượt thử 15 («Cho chạy»): tiêu chí 13 xong (theo mảng: kiểu chữ 1, vai màu 2, độ nổi 0, chuyển động 0, mật độ 0; ba mảng thành dòng giới hạn elevation-not-built, motion-not-built, density-not-built, không đề bài nào); tiêu chí 12 chưa ở lượt 15 (8 vai thanh bên và biểu đồ chờ, không lệnh nào in đủ); chủ repo bảo sửa và chạy lại («Sửa rồi chạy lại», «Dựng luôn (Khuyến nghị)»): wiki/decisions/0084-the-guide-asks-every-colour-question-and-one-command-prints-what-holds-each-value.md, plugin 0.33.0, chứng bằng plugins/design-assembly/tests/test-roles-held.mjs; lượt thử 16 chứng tiêu chí 12: cổng xanh, status.mjs --target <repo> --roles in «whole: 33 of 33», kiểu chữ và 31 vai màu có lời chủ repo kèm tên và ngày; 8 chỗ phải đoán, độ nổi, chuyển động, mật độ vẫn 0; đóng giai đoạn 9 là lời chủ repo"
         }
       ],
       "done_when": [
         "Một repo đi hết new có kiểu chữ và mọi vai màu do chủ repo chốt, mỗi giá trị có lệnh kiểm giữ"
       ],
-      "needs_owner": ["Duyệt đề bài của giai đoạn"]
+      "needs_owner": ["Duyệt đề bài của giai đoạn"],
+      "closed": {
+        "on": "2026-11-22",
+        "evidence": "Trên nhánh claude/item-9-3-guide-trial-15 (PR #90), plugin 0.33.0. Dòng «xong khi»: lượt thử 16 (docs/trials/guide-trial-16-after-the-colour-questions.md), vai dẫn dắt, đề chuẩn nguyên văn, chủ repo bảo chạy lại ngày 2026-11-22 («Sửa rồi chạy lại»): trên một bản sao bỏ đi ở e56e77c, một lượt new với lời đáp niêm phong cho cổng xanh (make check của bản sao thoát 0 khi phiên điều phối chạy lại: 44 bài đơn vị, 32 bài trình duyệt, 36 quyết định giữ bằng 69 lệnh kiểm), và node <plugin>/scripts/status.mjs --target <bản sao> --roles in «whole: 33 of 33 values have the owner's word and a row of the ledger with its check», không dòng not whole nào: kiểu chữ và 31 vai màu có nguồn là lời chủ repo kèm tên và ngày, mỗi giá trị có dòng sổ và lệnh kiểm giữ nó (quyết định 0084). Mảng 3: lượt 15 và 16 không chỉ ra chỗ đoán nào ở độ nổi, chuyển động, mật độ; ba dòng giới hạn elevation-not-built, motion-not-built, density-not-built. Chủ repo đóng giai đoạn («Đóng giai đoạn 9»), đáp câu «Đóng giai đoạn 9 bằng bằng chứng của lượt thử 16?»"
+      }
     },
     {
       "id": 6,
       "name": "Hai kho bên cạnh gọi và đọc",
-      "state": "later",
+      "state": "current",
       "parallel": [],
       "items": [
         {

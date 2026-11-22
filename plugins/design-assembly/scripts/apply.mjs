@@ -454,11 +454,20 @@ export function blueprintProblems(blueprint, { preview = false, sources } = {}) 
 // blueprint with the answer, and the decision sheet writes it when the owner confirms a proposal.
 function answeredProblems(layer, entry, values) {
   const found = [];
-  for (const choice of layer.choices.filter((item) => LATER_CHOICES.includes(item.key))) {
+  for (const choice of layer.choices) {
     if (values[choice.key] === undefined) continue;
     const owners = entry.source === "user" || (entry.confirmed ?? []).includes(choice.key);
-    if (!owners) continue;
     const said = entry.answered?.[choice.key];
+    // A later choice must say who gave it; any other may, and then says it whole.
+    const later = LATER_CHOICES.includes(choice.key);
+    if (!later && said === undefined) continue;
+    if (later && !owners) continue;
+    if (!owners) {
+      found.push(
+        `${layer.id}: answered.${choice.key} says who gave ${choice.name}, and the blueprint records it as a proposal: write the layer as the owner's, or list it under confirmed`,
+      );
+      continue;
+    }
     const named = typeof said?.by === "string" && said.by.trim() !== "" && isDay(said?.on);
     if (!named) {
       found.push(
@@ -1736,13 +1745,18 @@ function decisions(blueprint, theme, foundations, styles, before = []) {
     }
     return {};
   };
-  const call = (id, layer, key) => ({
-    id,
-    layer,
-    kind: "judgment",
-    source: recorded,
-    ...proposed(layer, key),
-  });
+  // A judgment the owner gave says who gave it and when, where the blueprint has it.
+  const call = (id, layer, key) => {
+    const said = blueprint.layers[layer]?.answered?.[key];
+    const pending = proposed(layer, key);
+    return {
+      id,
+      layer,
+      kind: "judgment",
+      source: recorded,
+      ...(pending.note ? pending : said ? { note: `answered by ${said.by} on ${said.on}` } : {}),
+    };
+  };
   const rows = [
     call("product-type", "context", "product_type"),
     call("conformance-level", "context", "conformance_level"),
