@@ -4,7 +4,7 @@ Status: decided (user).
 
 ## Choice
 
-- source color: `#0246ff`
+- source color: `#0246ff` (answered by Manh Phan on 2026-11-22)
 - type scale: `standard`
 - spacing scale: `4px`
 - corner radius: `floor`
