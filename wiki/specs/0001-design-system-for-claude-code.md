@@ -749,6 +749,19 @@ Nó chạy lại phiếu cho màn mới sau khi dựng. Cổng xanh, không dừ
 13, so với 14 của lần 13: 10 chỗ vào hàng chờ, 3 chỗ tự quyết lặng lẽ, đều là loại khác ba loại của lần 13. Một dòng sổ
 giới hạn thu hẹp, ba dòng mới; chi tiết ở `docs/trials/screen-trial-14-after-the-second-fixes.md`.
 
+### Chạy thử lần mười lăm (2026-11-22)
+
+Vai dẫn dắt, đề chuẩn nguyên văn, cho mục 9.3: lượt đầu của vai này từ lần chín, trên bản sao ở `e56e77c` với plugin
+0.32.0, tác tử Opus 5.5. Năm câu niêm phong được thêm cho kiểu chữ, họ trung tính, tông trạng thái, thanh bên và biểu đồ,
+từ lời chủ repo đã đáp cho kho này. Tác tử hỏi 8 lần; hai câu (nguyên tắc, hướng thiết kế) không có tệp và được ghi sau
+lượt chạy. Cổng xanh, độ phủ 32 trên 40 câu lõi. Kiểu chữ và 23 trên 31 vai màu có giá trị có nguồn là lời chủ repo; ba
+vai thanh bên và năm vai biểu đồ còn chờ, vì trang skill chỉ nhắc hai câu ấy ở bước dựng không dừng. Không lệnh nào in
+từng giá trị cạnh dòng sổ và lệnh kiểm giữ nó. Vì vậy dòng «done when» của giai đoạn 9 chưa được chứng. Sau khi kiểm còn
+10 chỗ phải đoán: 3 vào hàng chờ, 1 được hỏi người, 6 tự quyết lặng lẽ. Đây là điểm đầu của chuỗi đếm cho vai dẫn dắt,
+vì lần 7 đến 9 chưa được đếm. Không chỗ nào thuộc độ nổi, chuyển động hay mật độ, nên ba mảng ấy thành ba dòng giới
+hạn, không thành đề bài. Mười hai dòng sổ giới hạn mới, một dòng sổ lỗi lọt; chi tiết ở
+`docs/trials/guide-trial-15-foundations-wide-enough.md`.
+
 ## Domain impact
 
 Không có khái niệm nghiệp vụ nào. Plugin không được chứa bối cảnh của một sản phẩm.

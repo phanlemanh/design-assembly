@@ -4248,6 +4248,138 @@
       "where": ["d0083"],
       "status": "open",
       "note": "An answer «keep» to a question of the table on the waiting list takes the question's first candidate where the question lists candidates. Without candidates it is read as the table's recommendation for that question on the day the question was asked (the formula from 2026-11-22, to wait before), not as the words of the question's own recommendation, which the machine does not read; decide --ask cannot write candidates, so a question that recommends something else than the table needs them added, or an answer with the word of the source."
+    },
+    {
+      "id": "guide-leaves-sidebar-and-chart-waiting",
+      "area": "guide",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-22",
+      "where": ["trials", "spec"],
+      "status": "open",
+      "note": "The guide asks the neutral family and the status tones on their sheets before the final review, but names the sidebar and chart questions of the table of colour roles, and the licence of the row it proposes for the floor's own font, only in the build step that runs without stopping, so nothing makes it ask them and a guided repository can end with those roles kept from the floor until the owner answers on the waiting list."
+    },
+    {
+      "id": "no-command-prints-value-row-and-check",
+      "area": "status",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-22",
+      "where": ["trials", "spec"],
+      "status": "open",
+      "note": "No command prints each value of the foundations beside its row of the decisions ledger and the check that holds it: status --roles gives each colour role's source, the owner's word and the pairs it is measured in, but neither its value, nor its row, nor its check, and leaves out the typeface, while the values stand in design/tokens.json and the rows with their checks in design/decisions.yaml."
+    },
+    {
+      "id": "source-color-answer-has-no-name-or-day",
+      "area": "guide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-22",
+      "where": ["trials", "spec"],
+      "status": "open",
+      "note": "The owner's answer of the source colour is kept as the source of the foundations layer, with no name and day beside it as the typeface and the questions of the table of colour roles have, so status --roles gives the owner's source colour as the source of the primary roles without saying who gave it or when."
+    },
+    {
+      "id": "guide-reads-out-a-note-the-gate-prints-as-debt",
+      "area": "guide",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-22",
+      "where": ["trials", "spec"],
+      "status": "open",
+      "note": "The guide's page says to read out a note: line for each pair of the floor below the threshold that waits on the owner, but the guide prints no such line: the pair is named by the gate alone, as a debt line of color-contrast."
+    },
+    {
+      "id": "audit-next-silent-on-the-waiting-list",
+      "area": "audit",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-22",
+      "where": ["trials", "spec"],
+      "status": "open",
+      "note": "After the guide the audit's next line says nothing more is to be generated or adopted, and its summary names no proposed principle as unconfirmed, while status lists the proposed principles and the questions the guide left waiting on the owner, so the two reports disagree on whether anything is left."
+    },
+    {
+      "id": "held-label-says-working-at-once",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-22",
+      "where": ["trials", "spec"],
+      "status": "open",
+      "note": "HeldLabel, the part the guide installs for the words of a control while its action waits, shows its waiting words from the moment the control is held and keeps no clock, while the rules page says a control says it is working from one second on, and no check tells the two apart."
+    },
+    {
+      "id": "held-control-name-words-unsaid",
+      "area": "rules",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-22",
+      "where": ["trials", "spec"],
+      "status": "open",
+      "note": "The rules page says which name a row's actions button is heard by while it waits, but not a single control held with HeldLabel, whose name must hold the words it shows: no page says those words, so a screen makes them up."
+    },
+    {
+      "id": "result-module-absent-without-toast",
+      "area": "rules",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-22",
+      "where": ["trials", "spec"],
+      "status": "open",
+      "note": "The rules page says the result of an action is told through the repository's one module for it, and the guide installs that module only with a toast, so where none is installed no page says how a screen tells that an action failed."
+    },
+    {
+      "id": "elevation-not-built",
+      "area": "guide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-22",
+      "where": ["trials", "spec"],
+      "status": "open",
+      "note": "The foundations have no choice, token or check for elevation, the shadows and layers that set one surface above another: the stylesheet keeps the floor's, and spec 0012 builds it only once a measured trial points at a place where it had to be chosen, which none has."
+    },
+    {
+      "id": "motion-not-built",
+      "area": "guide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-22",
+      "where": ["trials", "spec"],
+      "status": "open",
+      "note": "The foundations have no choice, token or check for motion, the durations and easing of what moves on a screen: the stylesheet and the component library keep their own, and spec 0012 builds it only once a measured trial points at a place where it had to be chosen, which none has."
+    },
+    {
+      "id": "density-not-built",
+      "area": "guide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-22",
+      "where": ["trials", "spec"],
+      "status": "open",
+      "note": "The foundations have no choice for density, how close the parts of a screen stand, beyond the spacing unit and the rule of when a table is dense: spec 0012 builds it only once a measured trial points at a place where it had to be chosen, which none has."
+    },
+    {
+      "id": "type-sheet-standard-prints-no-sizes",
+      "area": "specimen",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-22",
+      "where": ["trials", "spec"],
+      "status": "open",
+      "note": "The type sheet prints the size of every step in pixels beside each modular scale but not beside the floor's standard one, which it draws with its step names only, so a person comparing the three reads numbers for two of them."
     }
   ]
 }

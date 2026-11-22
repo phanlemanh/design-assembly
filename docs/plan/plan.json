@@ -415,7 +415,8 @@
         {
           "id": "9.3",
           "what": "Độ nổi, chuyển động, mật độ: chỉ mảng nào một lượt thử chỉ ra",
-          "state": "todo"
+          "state": "doing",
+          "ref": "docs/trials/guide-trial-15-foundations-wide-enough.md; lượt thử 15 ngày 2026-11-22, vai dẫn dắt, đề chuẩn, chủ repo cho chạy («Cho chạy»): tiêu chí 13 xong (10 chỗ phải đoán theo mảng: kiểu chữ 1, vai màu 2, độ nổi 0, chuyển động 0, mật độ 0, còn lại thuộc mảng khác; ba mảng thành dòng giới hạn elevation-not-built, motion-not-built, density-not-built); tiêu chí 12 chưa: cổng xanh và kiểu chữ có lời chủ repo, nhưng 8 vai màu (thanh bên, biểu đồ) còn chờ vì cuộc dẫn dắt không hỏi hai câu ấy (guide-leaves-sidebar-and-chart-waiting), và không lệnh nào in giá trị cạnh dòng sổ và lệnh kiểm (no-command-prints-value-row-and-check); sửa cuộc dẫn dắt và chạy thêm một lượt là lời chủ repo"
         }
       ],
       "done_when": [
