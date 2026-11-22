@@ -394,6 +394,89 @@ test("an upgrade that would leave the gate red stops the same way, and says why"
   assert.equal(treeHash(path.join(dir, TOOL_COPY)), INSTALLED);
 });
 
+// The gate step an older plugin installed: the step of a version that hooked its derived files into
+// the tests on its own, before the gate's shared lists.
+const OLDER_STEP = `CHECK_TARGETS += design-assembly
+
+.PHONY: design-assembly design-derived
+design-assembly: ## Check every design decision this tool holds
+\t@node tools/design-assembly/check.mjs
+
+design-derived: ## Write again every derived file this repository keeps out of git
+\t@if [ -f tools/design-assembly/derived.mjs ]; then node tools/design-assembly/derived.mjs --quiet; fi
+
+ifneq ($(filter test,$(CHECK_TARGETS)),)
+test: design-derived
+endif
+`;
+const STEP = "mk/design-assembly.mk";
+const INSTALLED_STEP = readFileSync(path.join(PLUGIN, "templates", STEP), "utf8");
+
+test("upgrade writes the gate step too: an older plugin's step becomes the installed one, said before it is written", () => {
+  const dir = older();
+  put(dir, STEP, OLDER_STEP);
+  const before = snapshot(dir);
+  const preview = upgrade(dir, "--dry-run", "--json");
+  assert.equal(preview.status, 0, preview.stderr);
+  const plan = JSON.parse(preview.stdout);
+  assert.equal(plan.gate_step.path, STEP);
+  assert.equal(plan.gate_step.change, "update");
+  // The lines of the older step the installed one does not have are named, comments left out.
+  assert.ok(
+    plan.gate_step.dropped.includes(
+      "design-assembly: ## Check every design decision this tool holds",
+    ),
+  );
+  assert.ok(plan.gate_step.dropped.every((line) => !line.startsWith("#") && line.trim() !== ""));
+  assert.ok(plan.files.some((file) => file.path === STEP && file.change === "update"));
+  assert.equal(plan.gate.green, true, JSON.stringify(plan.gate));
+  assert.deepEqual(snapshot(dir), before, "the preview wrote something");
+  const shown = upgrade(dir, "--dry-run").stdout;
+  assert.match(
+    shown,
+    /gate step: mk\/design-assembly\.mk differs from the installed plugin's, and is written again/,
+  );
+  assert.doesNotMatch(shown, /upgrade-leaves-gate-step/);
+
+  const real = upgrade(dir, "--json");
+  assert.equal(real.status, 0, real.stderr);
+  assert.equal(text(dir, STEP), INSTALLED_STEP);
+  assert.ok(changed(before, snapshot(dir)).includes(STEP));
+  assert.equal(JSON.parse(upgrade(dir, "--json").stdout).gate_step, null);
+});
+
+test("a repository on the installed tool whose gate step alone is older, or gone, gets the installed step", () => {
+  const dir = applied();
+  put(dir, STEP, OLDER_STEP);
+  const result = upgrade(dir, "--json");
+  assert.equal(result.status, 0, result.stderr);
+  const data = JSON.parse(result.stdout);
+  assert.deepEqual(data.tool_files, []);
+  assert.deepEqual(data.files, [{ path: STEP, change: "update" }]);
+  assert.equal(text(dir, STEP), INSTALLED_STEP);
+
+  rmSync(path.join(dir, STEP));
+  const gone = JSON.parse(upgrade(dir, "--dry-run", "--json").stdout);
+  assert.deepEqual(gone.gate_step, { path: STEP, change: "create", dropped: [] });
+  // The gate is said as it would be with the step written, not as it is without it.
+  assert.equal(gone.gate.green, true, JSON.stringify(gone.gate));
+  assert.equal(upgrade(dir).status, 0);
+  assert.equal(text(dir, STEP), INSTALLED_STEP);
+});
+
+test("a line a person added to the gate step is named before upgrade replaces the step", () => {
+  const dir = applied();
+  put(dir, STEP, `${INSTALLED_STEP}\nmy-own: ## A target of the repository's own\n\t@echo mine\n`);
+  const plan = JSON.parse(upgrade(dir, "--dry-run", "--json").stdout);
+  assert.deepEqual(plan.gate_step.dropped, [
+    "my-own: ## A target of the repository's own",
+    "\t@echo mine",
+  ]);
+  const shown = upgrade(dir, "--dry-run").stdout;
+  assert.match(shown, /drops: my-own: ## A target of the repository's own/);
+  assert.match(shown, /drops: @echo mine/);
+});
+
 test("a wrong call, or a repository with no copy of the tool, ends with 2 and writes nothing", () => {
   const dir = older();
   const before = snapshot(dir);

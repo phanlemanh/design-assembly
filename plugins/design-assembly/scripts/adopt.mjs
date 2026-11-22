@@ -33,6 +33,7 @@ import {
   ledgerText as screensText,
   readFragments,
 } from "../templates/tools/design-assembly/screen-fragments.mjs";
+import { readMakefile } from "../templates/tools/design-assembly/host-make.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { whereRulesApply } from "../templates/tools/design-assembly/lint.mjs";
 import {
@@ -655,7 +656,7 @@ export function adoption(
         stylesheet: result.stylesheet,
         ...styles,
         gate: vendored()[FILES.gate],
-        makefile: read(root, "Makefile"),
+        makefile: readMakefile(root),
         // What loads a typeface, as the adapter of the repository's build reads it.
         fonts: readLoads(root, styles.css, result.stylesheet),
         displays: columns.displays ?? {},

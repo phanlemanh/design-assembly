@@ -26,7 +26,7 @@ Read this when you build (step 6 of the guide) or explain a failing check.
 | `tests/screens-ledger.test.ts`       | The test that the ledger of screens and the code list the same titles and states, read while the code runs. Installed once, then the repository's own | The repository                                                             |
 | The typed table parts and their test | Table parts that apply the column type. Installed once, then the repository's own                                                                     | The repository                                                             |
 | `tools/design-assembly/`             | The checks. They belong to the plugin: change them in the plugin and run the guide again                                                              | Nobody, in the repository                                                  |
-| `mk/design-assembly.mk`              | Adds `design-assembly` to `make check`, and `make design-rate`                                                                                        | Nobody, in the repository                                                  |
+| `mk/design-assembly.mk`              | Adds `design-assembly` to `make check` and `design-derived` to the gate's shared derived targets, and `make design-rate`                              | Nobody, in the repository                                                  |
 | `.claude/rules/design-assembly.md`   | The rules the tool holds in this repository, for the agent that builds next. Written from what is installed                                           | The scripts only                                                           |
 
 ## The ledger
@@ -167,10 +167,16 @@ it is drawn with. Look a component up here before reading its source. The shape 
 - Whatever of the repository's own reads the file before the gate runs, a test for instance, finds
   none on a clean checkout. `node tools/design-assembly/derived.mjs` writes every derived file the
   repository keeps out of git and says which it wrote; it writes nothing in a repository that keeps
-  none. The gate runs it first. The plugin's make step has it as `make design-derived`, and runs it
-  before `make test` when the tests are a step of the gate (`test` is in `CHECK_TARGETS` where the
-  step is included). There it says only what it wrote, and it is skipped where the installed tool
-  has no such command yet. A test run some other way, by its runner alone, does not get it.
+  none. The gate runs it first. The plugin's make step has it as `make design-derived`, and adds it
+  to the gate's shared list of derived targets (`DERIVED_TARGETS`), which a gate that keeps that
+  list runs before its checks; it names the files it writes in the shared list of derived files
+  (`DERIVED_FILES`), though a gate whose check of that list flags only files that carry a stamp of
+  a drawn file does not flag these, which carry none: the tool's own check of files kept out of git
+  is what catches a copy in git. On a gate laid before those lists, it runs before `make test` when the tests
+  are a step of the gate (`test` is in `CHECK_TARGETS` where the step is included). There it says
+  only what it wrote, and it is skipped where the installed tool has no such command yet. A test
+  run some other way, by its runner alone, does not get it. Every string the plugin reads in a
+  repository's `Makefile`, `mk/` files and workflows is listed in `references/host-strings.json`.
 - A control (a component that renders something a person activates: a button, an input, a
   trigger, an item) is marked `control: true`, with `min_height`: the smallest height its own
   classes declare, over all its variants. A control without `min_height` takes its height from
@@ -428,6 +434,39 @@ change how a repository runs its tests; a repository's own runner may take the p
   `id`, `route`, `sizes` and `why`), `unmapped`, and `grep`, a pattern that picks the tests whose
   names hold one of the routes. Tests that name no screen are the runner's to keep.
 - It ends with 0 with an answer, and with 2 on a wrong call or a repository it cannot read.
+
+## The facts of the screens a feature touches
+
+`node tools/design-assembly/screen-facts.mjs`, or `make design-screen-facts`, prints the screens a
+feature touches, for a tool that reads them instead of having them declared again, such as an
+acceptance kit. It only reads, and it is called as the affected command is.
+
+- `--screens` names the screens by id or by route, repeated or split by commas: `make
+design-screen-facts SCREENS=a,b`. Without it, every screen of the ledger.
+- The ledger is read through the one reader every tool uses: one file, or one file per screen. A
+  ledger that spells the keys of the contract its own way says so under `keys`, or the call says
+  it with `--keys entry=…,actions=…`.
+- What a screen must have is the state table's `required`, and nothing for a screen whose route the
+  table excuses. Who holds an action is read from `ontology/actions.yaml` and
+  `ontology/roles.yaml`, a role holding what the roles it inherits from hold.
+- With `--json`: `ledger` (the file or the folder read), `states_table` (or null when there is
+  none), `unknown` (the names asked for that the ledger does not have), `keys_not_found` and
+  `screens`, each with
+  `id`, `route`, `title`, `family`, `status`, `states` (as the ledger lists them), `must_have`
+  (null without a state table), `exempt` (the reason, or null), `entry` (`action` and `roles`; an
+  action of null opens for every role; null when the ledger says nothing of it) and `actions` (each
+  with `name` and `roles`). A list of roles is null when the repository declares no actions, and
+  empty when no role holds the action.
+- `keys_not_found` names each key of the contract, `entry` or `actions`, that no screen of the
+  ledger carries as the reader spells it, with `key` and `looked_for`. A ledger that spells its keys
+  its own way and says so nowhere the reader looks reads as one whose screens have none: then each
+  `actions` is null, not empty, so a caller can tell "not found" from "no button". The answer still
+  ends with 0, its ids, routes and states being read; a ledger where some screens carry the key and
+  others do not is not this case.
+- It ends with 0 with every screen asked for, and with 1 when a screen asked for is not in the
+  ledger; the answer is printed on both, `unknown` naming what the ledger lacks. A repository with
+  no state table ends with 0, each `must_have` null. It ends with 2, and prints nothing on its
+  standard output, on a wrong call or a repository it cannot read.
 
 ## Kinds of screen
 
@@ -931,9 +970,11 @@ It stops and writes nothing, ending with `1`, when writing the ledgers again wou
 or when the gate would be red. `--accept-lost-entries` and `--accept-red-gate` say the person read
 that and accepts it; the skill asks the person before passing either.
 
-It writes the tool folder, the stamp, and the ledgers the tool writes. It never writes a ledger row
-a person wrote, the stylesheet, a tool of the repository's own, or the gate step
-`mk/design-assembly.mk`, which it compares and names when it differs. A repository with no copy of
+It writes the tool folder, the stamp, the gate step `mk/design-assembly.mk` and the ledgers the
+tool writes. The gate step is the plugin's whole: one that differs from the installed plugin's, or
+is missing, is written again, said under `gate step` before it is, and the gate after upgrading is
+measured with it. It never writes a ledger row a person wrote, the stylesheet, the Makefile, or a
+tool of the repository's own. A repository with no copy of
 the tool has nothing to upgrade: that is a wrong call, ending with `2`. `--remove`, in the
 specification, is not built (limit `upgrade-has-no-remove`).
 

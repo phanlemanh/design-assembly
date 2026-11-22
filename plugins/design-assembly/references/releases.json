@@ -228,6 +228,12 @@
       "templates": "ae517cd80652603a88c9b5f5b57bd252f912383a",
       "scripts": "bb9637cafcf3c238188c26e261f86b42ddacc4e5",
       "tool": "0f3757aef29787ebe2e34a2ef640b08d1a59e516"
+    },
+    {
+      "version": "0.35.0",
+      "templates": "a5077d7c3f911c073012bdf8baa54fd83100f87b",
+      "scripts": "8f1bfafa4625983080fc686af7404f57d921a989",
+      "tool": "059b0a9eee317d326f58df41734a484d98072b4a"
     }
   ]
 }
