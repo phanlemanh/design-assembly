@@ -495,6 +495,10 @@ export function floorProblem(target) {
   return gateProblem(target);
 }
 
+// The key of the tool data that names, one by one, the adopted values that came from the floor:
+// laid by `adopt --starter`, never by adopting a repository's own values.
+export const FROM_FLOOR = "adopted_from_floor";
+
 // The decisions whose values the guide generates.
 const GENERATED_VALUES = ["color-contrast", "type-scale-values", "spacing-values", "radius-value"];
 // Above this chroma a primary color role has a hue of its own: the floor's default is a grey.
@@ -506,8 +510,13 @@ const OWN_HUE_CHROMA = 0.05;
 export function ownValuesProblem(target) {
   const read = (file) =>
     existsSync(path.join(target, file)) ? readFileSync(path.join(target, file), "utf8") : null;
-  const adopted = (JSON.parse(read(FILES.theme) ?? "{}").adopted ?? []).filter((id) =>
-    GENERATED_VALUES.includes(id),
+  const theme = JSON.parse(read(FILES.theme) ?? "{}");
+  // Values laid on a floor came from the floor, not from the repository: the guide may write over
+  // them, as it would over the floor itself. Each is named; any other adopted value is the
+  // repository's own.
+  const floor = theme[FROM_FLOOR] ?? [];
+  const adopted = (theme.adopted ?? []).filter(
+    (id) => GENERATED_VALUES.includes(id) && !floor.includes(id),
   );
   if (adopted.length > 0) {
     return `${adopted.join(", ")} hold values adopted from this repository, and generating would replace them`;
@@ -519,6 +528,22 @@ export function ownValuesProblem(target) {
     return `${FILES.css} already declares a primary color role of its own (${primary.value}), and generating would replace it`;
   }
   return null;
+}
+
+// Whether the floor's browser checks run here: the routes they open and the accessibility package.
+function browserTestHere(target) {
+  const read = (file) =>
+    existsSync(path.join(target, file)) ? readFileSync(path.join(target, file), "utf8") : null;
+  const uses = JSON.parse(read("package.json") ?? "{}");
+  const installed = { ...uses.dependencies, ...uses.devDependencies };
+  return read(ROUTES) !== null && browser.accessibilityPackage in installed;
+}
+
+// The table of screen widths a repository starts from, where the floor's browser checks run and
+// the repository has none: the file and its text, or nothing.
+export function startingSizes(target) {
+  if (!browserTestHere(target) || existsSync(path.join(target, SIZES_FILE))) return {};
+  return { [SIZES_FILE]: renderJson({ version: 1, widths: STARTER_WIDTHS }, lineWidth(target)) };
 }
 
 // A path the acceptance kit is told to read from this repository, or null.
@@ -1168,13 +1193,11 @@ export function templatesPlan(target, { starter, code = false, pending = {}, lay
   }
 
   // The widths and the browser test: where the floor's browser checks already run.
-  const uses = JSON.parse(read("package.json") ?? "{}");
-  const installed = { ...uses.dependencies, ...uses.devDependencies };
-  if (read(ROUTES) !== null && browser.accessibilityPackage in installed) {
+  if (browserTestHere(target)) {
     let sizes = read(SIZES_FILE);
     if (sizes === null && starter) {
-      sizes = renderJson({ version: 1, widths: STARTER_WIDTHS }, lineWidth(target));
-      files[SIZES_FILE] = sizes;
+      Object.assign(files, startingSizes(target));
+      sizes = files[SIZES_FILE];
     }
     let test = read(PAGES_TEST);
     if (test === null && code) {

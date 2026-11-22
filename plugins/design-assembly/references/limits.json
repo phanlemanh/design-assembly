@@ -4397,6 +4397,28 @@
       "where": ["trials", "spec"],
       "status": "open",
       "note": "The guide's page says that from the design principles on every recommendation rests on what the preview gives under recommendations, but the preview refuses, ending with 2, while the context or the foundations layer is still pending, so at the stops of the principles and of the directions no recommendation can be read from it, and step 1 calls the start an end with 1."
+    },
+    {
+      "id": "birth-set-reads-default-paths",
+      "area": "status",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-22",
+      "where": ["d0085"],
+      "status": "open",
+      "note": "The ledgers a repository has from birth are looked for at the contract's own paths, so a tokens file or a component manifest the acceptance kit's settings move elsewhere is said to be missing on the line of the rhythm the repository is born, although adopting and the guide write it where the kit reads."
+    },
+    {
+      "id": "starter-takes-every-value-for-the-floors",
+      "area": "adopt",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-22",
+      "where": ["d0085"],
+      "status": "open",
+      "note": "Laying the ledgers with adopt --starter refuses a repository whose primary color role has a hue of its own, and takes every other value it finds for the floor's: a repository that kept the grey primary but changed its corner radius or type scale has those values recorded as the floor's, and the guide may write over them without --replace."
     }
   ]
 }

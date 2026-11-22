@@ -3,7 +3,8 @@
 // configuration, the tests or a row that is already in the ledger, and it adds a check only when
 // that check passes on the repository as it is and was seen failing on a changed copy.
 // Usage: node adopt.mjs [--target DIR] [--dry-run] [--conformance-level AA|AAA]
-//                       [--product-type TYPE] [--record ID[,ID]] [--hold ID[,ID]] [--json]
+//                       [--product-type TYPE] [--record ID[,ID]] [--hold ID[,ID]] [--starter]
+//                       [--json]
 // Exit: 0 done; 1 something still needs a person's answer; 2 a wrong call, or a repository that
 // cannot be read.
 import { existsSync, readFileSync } from "node:fs";
@@ -87,7 +88,10 @@ import {
   writeFiles,
   writtenFiles,
   DECISION_SHEET,
+  FROM_FLOOR,
   OWNER_CALLS,
+  ownValuesProblem,
+  startingSizes,
 } from "./apply.mjs";
 import { licenceStep, ownFonts, today } from "./font-source.mjs";
 import { findProofs } from "./proofs.mjs";
@@ -292,7 +296,7 @@ function valueCandidates(styles, level, open, words = {}) {
 // What adopting would add to the repository at `root`, and what it leaves for a person.
 export function adoption(
   root,
-  { conformanceLevel = null, productType = null, record = [], hold = [] } = {},
+  { conformanceLevel = null, productType = null, record = [], hold = [], starter = false } = {},
 ) {
   if (productType !== null && !PRODUCT_TYPES.includes(productType)) {
     throw new Error(`product type must be one of ${PRODUCT_TYPES.join(", ")}`);
@@ -304,6 +308,21 @@ export function adoption(
   if (strangers.length > 0) {
     throw new Error(
       `--record takes ${RECORDABLE.join(", ")}; it cannot write a row for ${strangers.join(", ")}`,
+    );
+  }
+
+  // Laying the ledgers on a floor reads every value it finds as the floor's. A repository with
+  // values of its own keeps them through adopting as usual.
+  const before = JSON.parse(read(root, FILES.theme) ?? "null");
+  const kept = (before?.adopted ?? []).filter((id) => !(before?.[FROM_FLOOR] ?? []).includes(id));
+  const own = !starter
+    ? null
+    : kept.length > 0
+      ? `${kept.join(", ")} hold values adopted from this repository`
+      : ownValuesProblem(root);
+  if (own) {
+    throw new Error(
+      `${own}. Laying the ledgers on a floor would take it for the floor's: run adopt without --starter, which keeps it`,
     );
   }
 
@@ -341,6 +360,9 @@ export function adoption(
     in_ledger: have.size,
     files: {},
   };
+  // The ledgers a repository has from birth that only a person writes after that: laid on a floor
+  // in the form the guide starts from, each to be confirmed or changed by a person.
+  const starting = {};
   const taken = (id) =>
     [result.rows, result.pointed, result.holdable].some((list) => list.some((r) => r.id === id));
   // Open: no row yet, or a row of the repository's that has no check.
@@ -442,7 +464,8 @@ export function adoption(
     }
     // Column types: only where the repository keeps the table of them. Adopting writes no table
     // and installs no code: which column types a product has is a person's list.
-    const columns = columnsPlan(root, { starter: false, code: false });
+    const columns = columnsPlan(root, { starter, code: false });
+    if (starter && !columns.problem) Object.assign(starting, columns.files);
     const named = [...new Set(Object.values(columns.displays ?? {}))];
     if (columns.nothing && named.length > 0 && open("display-kind")) {
       result.person.push({
@@ -465,7 +488,8 @@ export function adoption(
     for (const item of columns.failing ?? []) if (open(item.id)) result.failing.push(item);
     // States, words and error messages: held where the repository meets the rule today. The list
     // of required states is a person's file, so adopting writes none.
-    const patterns = patternsPlan(root, { starter: false });
+    const patterns = patternsPlan(root, { starter });
+    if (starter) Object.assign(starting, patterns.files, startingSizes(root));
     for (const [id, item] of Object.entries(patterns.held).filter(([key]) => open(key))) {
       const row = { kind: item.row.kind, source: item.row.source, note: item.row.note };
       candidates[id] = { what: item.what, row, checks: item.checks };
@@ -539,11 +563,14 @@ export function adoption(
     // held from here on. A ledger that differs gets no row, and the differences are said.
     if (open("ledger-shapes")) {
       const planned = { tokens: tokens.file, components: components.file };
-      const pending = Object.fromEntries(
-        Object.values(artifacts)
-          .filter((artifact) => artifact.file)
-          .map((artifact) => [artifact.file, artifact.content]),
-      );
+      const pending = {
+        ...starting,
+        ...Object.fromEntries(
+          Object.values(artifacts)
+            .filter((artifact) => artifact.file)
+            .map((artifact) => [artifact.file, artifact.content]),
+        ),
+      };
       const ledgers = {};
       const wrong = [];
       for (const [kind, ledger] of Object.entries(LEDGERS)) {
@@ -633,6 +660,7 @@ export function adoption(
         fonts: readLoads(root, styles.css, result.stylesheet),
         displays: columns.displays ?? {},
         files: {
+          ...starting,
           ...Object.fromEntries(
             Object.values(artifacts)
               .filter((artifact) => artifact.file)
@@ -766,10 +794,12 @@ export function adoption(
   const said =
     (conformanceLevel && conformanceLevel !== recorded) ||
     (productType && productType !== knownType);
-  if (tooled.length > 0 || said) {
+  Object.assign(result.files, starting);
+  if (tooled.length > 0 || said || starter) {
     const adopted = [
       ...new Set([...(theme?.adopted ?? []), ...tooled.filter((id) => VALUES.includes(id))]),
     ];
+    const floorValues = starter ? adopted : (theme?.[FROM_FLOOR] ?? []);
     const data = {
       version: 1,
       ...(result.stylesheet ? { stylesheet: result.stylesheet } : {}),
@@ -779,6 +809,9 @@ export function adoption(
         ...(productType ? { productType } : {}),
       },
       ...(adopted.length > 0 ? { adopted } : {}),
+      // Laid on a floor, the values adopted are the floor's, named one by one, and the guide may
+      // replace them. A value adopted later without --starter is the repository's own.
+      ...(floorValues.length > 0 ? { [FROM_FLOOR]: floorValues } : {}),
       checks: { ...theme?.checks, ...checks },
       // What a person wrote of the change map is theirs: kept as it is.
       ...(theme?.affected ? { affected: theme.affected } : {}),
@@ -929,7 +962,7 @@ export function report(result) {
 
 const USAGE = `usage: node adopt.mjs [--target DIR] [--dry-run] [--conformance-level AA|AAA]
                       [--product-type ${PRODUCT_TYPES.join("|")}] [--record ID[,ID]]
-                      [--hold ID[,ID]] [--json]
+                      [--hold ID[,ID]] [--starter] [--json]
 
   --target             The repository to adopt. The folder this is run from when not given.
   --dry-run            Show what would be added. Nothing is written.
@@ -940,6 +973,12 @@ const USAGE = `usage: node adopt.mjs [--target DIR] [--dry-run] [--conformance-l
                        has said which. One line is added to each row; nothing else in it changes.
   --record             Write a row for a person's call the script can only see, once the person
                        has confirmed it. Takes: ${RECORDABLE.join(", ")}.
+  --starter            On a repository that has just been given its floor, also lay the ledgers
+                       it has from birth that a person keeps after that (states, screens, screen
+                       widths, column types), in the form the guide starts from. Asks nothing:
+                       every value found is the floor's, and the guide may replace it. Refused
+                       where the primary color role has a hue of its own, or where values of the
+                       repository's own were adopted before.
   --json               One JSON document: the rows added and how each is held, what the lint
                        re-run shows, what needs a person, and the files written or that would be.
 
@@ -956,6 +995,7 @@ const FLAGS = {
   "--product-type": "value",
   "--record": "value",
   "--hold": "value",
+  "--starter": "switch",
 };
 
 function main(args) {
@@ -975,6 +1015,7 @@ function main(args) {
       productType: call.flags["--product-type"] ?? null,
       record: list("--record"),
       hold: list("--hold"),
+      starter: call.flags["--starter"] === true,
     });
   } catch (error) {
     throw new Refusal(error.message);

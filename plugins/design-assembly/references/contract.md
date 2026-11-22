@@ -19,21 +19,21 @@ a screen kind, must have its shape.
 
 ## The ledgers
 
-| Ledger         | File                             | Question                                                         | Writer                                     | Shape |
-| -------------- | -------------------------------- | ---------------------------------------------------------------- | ------------------------------------------ | ----- |
-| `decisions`    | `design/decisions.yaml`          | What the repository decided, and what holds each decision        | People, and the guide for its own rows     | 1     |
-| `blueprint`    | `design/blueprint.json`          | What the person answered, layer by layer                         | The person, through the guide              | 1     |
-| `tokens`       | `design/tokens.json`             | Which values exist                                               | `make design-tokens`                       | none  |
-| `components`   | `design/component-registry.json` | Which components exist, where, and of what                       | `make design-components`                   | 2     |
-| `column-types` | `design/column-types.json`       | Which column types the repository has                            | A person                                   | 1     |
-| `columns`      | `design/columns.json`            | How each column type is aligned and sized, and each field's type | `make design-columns`                      | 1     |
-| `states`       | `design/states.json`             | Which states every screen declares, and which are excused        | A person                                   | 1     |
-| `screen-sizes` | `design/screen-sizes.json`       | The widths every page is checked at                              | A person                                   | 1     |
-| `parts`        | `design/parts.json`              | The parts of the code from the top down                          | A person                                   | 1     |
-| `screens`      | `design/screens.yaml`            | Which screens exist, of which kind, with which states            | A person or an agent, with each new screen | 1     |
-| `intake`       | `design/intake.yaml`             | Which need got which block, from where, approved by whom, when   | The round that takes the block in, once    | 1     |
-| `sources`      | `design/sources/<id>.json`       | Which outside libraries and fonts come in, at which pin          | A person, the pinning tool, `font-source`  | 1     |
-| `screen-kinds` | `design/patterns/<kind>.md`      | How a screen of each kind is built                               | A person                                   | none  |
+| Ledger         | File                             | Question                                                         | Writer                                     | From birth  | Shape |
+| -------------- | -------------------------------- | ---------------------------------------------------------------- | ------------------------------------------ | ----------- | ----- |
+| `decisions`    | `design/decisions.yaml`          | What the repository decided, and what holds each decision        | People, and the guide for its own rows     | yes         | 1     |
+| `blueprint`    | `design/blueprint.json`          | What the person answered, layer by layer                         | The person, through the guide              | first entry | 1     |
+| `tokens`       | `design/tokens.json`             | Which values exist                                               | `make design-tokens`                       | yes         | none  |
+| `components`   | `design/component-registry.json` | Which components exist, where, and of what                       | `make design-components`                   | yes         | 2     |
+| `column-types` | `design/column-types.json`       | Which column types the repository has                            | A person                                   | yes         | 1     |
+| `columns`      | `design/columns.json`            | How each column type is aligned and sized, and each field's type | `make design-columns`                      | first entry | 1     |
+| `states`       | `design/states.json`             | Which states every screen declares, and which are excused        | A person                                   | yes         | 1     |
+| `screen-sizes` | `design/screen-sizes.json`       | The widths every page is checked at                              | A person                                   | yes         | 1     |
+| `parts`        | `design/parts.json`              | The parts of the code from the top down                          | A person                                   | first entry | 1     |
+| `screens`      | `design/screens.yaml`            | Which screens exist, of which kind, with which states            | A person or an agent, with each new screen | yes         | 1     |
+| `intake`       | `design/intake.yaml`             | Which need got which block, from where, approved by whom, when   | The round that takes the block in, once    | first entry | 1     |
+| `sources`      | `design/sources/<id>.json`       | Which outside libraries and fonts come in, at which pin          | A person, the pinning tool, `font-source`  | first entry | 1     |
+| `screen-kinds` | `design/patterns/<kind>.md`      | How a screen of each kind is built                               | A person                                   | first entry | none  |
 
 ### decisions
 
@@ -220,6 +220,17 @@ required: `nhom`, `doi_tuong`, `khuon` (with `ten`), `nhan_dien`, `mau_dang_chay
 `cam_ho`, `thay_cho`, `khe_tuy_chon`, `luat`, `nhan_viec`, `lop_trinh_bay` and
 `thanh_phan_tang_ngan`. No other key. The keys are in the kit's own language: they are its format,
 which this plugin reads and does not rename.
+
+## From birth
+
+A ledger marked **yes** is there from the day a repository is born: once the floor is laid,
+`adopt --starter` lays it without asking anyone (the decisions, tokens and components as adopting
+always writes them, the others in the form the guide starts from), and `status`
+names each one that is missing on the line of the rhythm "the repository is born". A ledger marked
+**first entry** comes with its first entry, which only a person or a later round brings: the
+person's first answer, a block taken in, a data model's columns, a part, a source, a page about a
+kind of screen. Its absence is not a gap. The mark is `born` in the contract, `with-the-floor` or
+`with-its-first-entry`, and is read at the contract's own paths.
 
 ## Not a ledger: the waiting list
 
