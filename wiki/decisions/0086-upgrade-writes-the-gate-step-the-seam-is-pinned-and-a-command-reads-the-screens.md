@@ -95,6 +95,13 @@ thuộc mục 6.1; lệnh đọc màn cũng phục vụ mục 6.2. Chủ repo du
    - Mã thoát: 0 khi đủ, 1 khi một màn được hỏi không có trong sổ (câu trả lời vẫn in ra), 2 khi gọi sai. Repo không có
      bảng trạng thái vẫn thoát 0, mỗi `must_have` là null: bản đầu thoát 1, và kit, như bộ chọn bài, coi mọi mã khác 0
      là «quay về khai tay».
+   - Sổ viết khoá theo cách riêng mà không nói ở chỗ lệnh đọc được thì không màn nào có khoá của hợp đồng. Khi ấy khoá
+     `keys_not_found` nêu từng khoá không tìm thấy (`entry`, `actions`), và `actions` của mỗi màn là null chứ không phải
+     danh sách rỗng, để bên gọi phân biệt «không tìm thấy» với «không có nút». Lệnh vẫn thoát 0, vì mã, đường dẫn và
+     trạng thái vẫn đọc được. Phiên điều phối bắt được chỗ này khi chạy lệnh, chỉ đọc, trên repo kiểm chứng: sổ ấy viết
+     `vao`, `nut`, chỉ nói trong lời chú thích, nên lệnh trả mọi màn không hành động mà vẫn thoát 0. Cách viết
+     `entry=vao,actions=nut` nằm ở Makefile của kho này, không ở repo ấy, nên lệnh không tự tìm được; bên gọi truyền
+     `--keys`.
    - Các khoá được ghim ở `tests/test-screen-facts.mjs` và ghi ở `references/checks.md`.
    - Giới hạn mới `screen-facts-read-default-paths`: lệnh chỉ đọc sổ, bảng và mô hình ở chỗ quen.
 
@@ -104,6 +111,6 @@ thuộc mục 6.1; lệnh đọc màn cũng phục vụ mục 6.2. Chủ repo du
   cổng (bộ đọc `make_wiring.py` của họ nhận ra `design-derived`, như bài kiểm ở kho này thử lại bằng chính biểu thức
   của họ), và bốn khoá của `affected`.
 - Kit nghiệm thu (lát 4) có một lệnh để gọi thay cho khai lại.
-- Bài kiểm của plugin thêm mười bảy bài: bảy ở `tests/test-seam.mjs`, bảy ở `tests/test-screen-facts.mjs`, ba ở
+- Bài kiểm của plugin thêm mười tám bài: bảy ở `tests/test-seam.mjs`, tám ở `tests/test-screen-facts.mjs`, ba ở
   `tests/test-upgrade.mjs`.
 - Mục 6.1 vẫn «todo»: lời gọi của Repo Standards là lát sau, cần lời cho phép riêng ở kho ấy.

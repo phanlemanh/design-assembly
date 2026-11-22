@@ -13,7 +13,10 @@
 //   --keys     how the ledger spells the keys of the contract, when it does not say so itself
 // Ends with 0 with every screen asked for, with 1 when a screen asked for is not in the ledger (the
 // answer is printed all the same), and with 2 on a wrong call or a repository it cannot read. A
-// repository with no state table ends with 0: each screen's must_have is null, which says so.
+// repository with no state table ends with 0: each screen's must_have is null, which says so. A
+// ledger in which no screen has the key of the entry, or of the actions, as the reader spells it,
+// ends with 0 too: its ids, routes and states still read, and keys_not_found names the keys, so a
+// caller that does not know the repository's spelling can tell "not found" from "none".
 import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 import process, { argv, cwd, stderr, stdout } from "node:process";
@@ -71,7 +74,7 @@ function statesOf(root) {
 
 // Each screen as the kit reads it. `model` is null when the repository declares no actions: then
 // who holds an action cannot be said, and each list of roles is null.
-export function screenFacts(screen, keys, states, model) {
+export function screenFacts(screen, keys, states, model, unseen = []) {
   const route = named(screen.route);
   const excused = states && route !== null && route in states.exempt;
   const holders = (action) =>
@@ -92,7 +95,10 @@ export function screenFacts(screen, keys, states, model) {
       entry === undefined
         ? null
         : { action: entry, roles: entry === null ? (model?.roles ?? null) : holders(entry) },
-    actions: list(screen[keys.actions]).map((name) => ({ name, roles: holders(name) })),
+    // Null when no screen of the ledger has the key: not found, which an empty list would hide.
+    actions: unseen.includes("actions")
+      ? null
+      : list(screen[keys.actions]).map((name) => ({ name, roles: holders(name) })),
   };
 }
 
@@ -109,6 +115,12 @@ export function factsOf(root, asked = [], callKeys = {}) {
   const declared = readModel(root);
   const model = declared.present ? modelOf(declared) : null;
   const screens = ledger.screens.filter((screen) => screen && screen.id !== undefined);
+  // The keys of the contract no screen of the ledger carries, as the reader spells them. A ledger
+  // where some screens have one and others do not is not this case.
+  const unseen =
+    screens.length === 0
+      ? []
+      : ["entry", "actions"].filter((key) => !screens.some((screen) => keys[key] in screen));
   const unknown = [];
   const chosen =
     asked.length === 0
@@ -123,8 +135,9 @@ export function factsOf(root, asked = [], callKeys = {}) {
   return {
     ledger: where,
     states_table: states === null ? null : STATES_FILE,
-    screens: [...new Set(chosen)].map((screen) => screenFacts(screen, keys, states, model)),
+    screens: [...new Set(chosen)].map((screen) => screenFacts(screen, keys, states, model, unseen)),
     unknown,
+    keys_not_found: unseen.map((key) => ({ key, looked_for: keys[key] })),
   };
 }
 
@@ -184,11 +197,17 @@ function textOf(result) {
         `    opens for: ${roles(screen.entry.roles)}${screen.entry.action ? ` (${screen.entry.action})` : ""}`,
       );
     }
-    if (screen.actions.length > 0) {
+    if (screen.actions?.length > 0) {
       lines.push(
         `    actions: ${screen.actions.map((item) => `${item.name} (${roles(item.roles)})`).join("; ")}`,
       );
     }
+  }
+  if (result.keys_not_found.length > 0) {
+    const [first, ...rest] = result.keys_not_found.map((item) => item.looked_for);
+    lines.push(
+      `no screen of the ledger has the key ${first}${rest.map((key) => `, nor ${key}`).join("")}: if the ledger spells it otherwise, say so under keys in the ledger or with --keys`,
+    );
   }
   if (result.unknown.length > 0) {
     lines.push(`not in the ledger of screens: ${result.unknown.join(", ")}`);

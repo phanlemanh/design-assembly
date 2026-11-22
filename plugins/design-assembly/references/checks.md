@@ -450,12 +450,19 @@ design-screen-facts SCREENS=a,b`. Without it, every screen of the ledger.
   table excuses. Who holds an action is read from `ontology/actions.yaml` and
   `ontology/roles.yaml`, a role holding what the roles it inherits from hold.
 - With `--json`: `ledger` (the file or the folder read), `states_table` (or null when there is
-  none), `unknown` (the names asked for that the ledger does not have) and `screens`, each with
+  none), `unknown` (the names asked for that the ledger does not have), `keys_not_found` and
+  `screens`, each with
   `id`, `route`, `title`, `family`, `status`, `states` (as the ledger lists them), `must_have`
   (null without a state table), `exempt` (the reason, or null), `entry` (`action` and `roles`; an
   action of null opens for every role; null when the ledger says nothing of it) and `actions` (each
   with `name` and `roles`). A list of roles is null when the repository declares no actions, and
   empty when no role holds the action.
+- `keys_not_found` names each key of the contract, `entry` or `actions`, that no screen of the
+  ledger carries as the reader spells it, with `key` and `looked_for`. A ledger that spells its keys
+  its own way and says so nowhere the reader looks reads as one whose screens have none: then each
+  `actions` is null, not empty, so a caller can tell "not found" from "no button". The answer still
+  ends with 0, its ids, routes and states being read; a ledger where some screens carry the key and
+  others do not is not this case.
 - It ends with 0 with every screen asked for, and with 1 when a screen asked for is not in the
   ledger; the answer is printed on both, `unknown` naming what the ledger lacks. A repository with
   no state table ends with 0, each `must_have` null. It ends with 2, and prints nothing on its

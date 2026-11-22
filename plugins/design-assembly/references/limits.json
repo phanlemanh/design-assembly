@@ -4442,7 +4442,7 @@
       "opened": "2026-11-22",
       "where": ["d0086"],
       "status": "open",
-      "note": "The screen facts command reads the ledger of screens, the state table and the model at their usual paths only, as the affected command does, so a repository that keeps one of them elsewhere gets no screen, no state that must be had, or no roles."
+      "note": "The screen facts command reads the ledger of screens, the state table and the model at their usual paths only, as the affected command does, and the spelling of the ledger's keys only from its keys or the call, so a repository that keeps one of them elsewhere, or names its spelling only in prose, gets no screen, no state that must be had, no roles, or keys_not_found in place of its actions."
     }
   ]
 }

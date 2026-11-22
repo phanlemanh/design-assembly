@@ -231,9 +231,9 @@
     },
     {
       "version": "0.35.0",
-      "templates": "8bc610b96829557f5d0d6612558e0c7f7e952938",
+      "templates": "a5077d7c3f911c073012bdf8baa54fd83100f87b",
       "scripts": "8f1bfafa4625983080fc686af7404f57d921a989",
-      "tool": "919fcf09bf2251f3c9625310db19999ad5739dc1"
+      "tool": "059b0a9eee317d326f58df41734a484d98072b4a"
     }
   ]
 }

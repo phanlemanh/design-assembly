@@ -20,7 +20,7 @@ const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const TOOL = path.join(PLUGIN, "templates/tools/design-assembly/screen-facts.mjs");
 
 // The keys of the answer and of each screen in it: the contract the kit reads.
-const ANSWER_KEYS = ["ledger", "screens", "states_table", "unknown"];
+const ANSWER_KEYS = ["keys_not_found", "ledger", "screens", "states_table", "unknown"];
 const SCREEN_KEYS = [
   "actions",
   "entry",
@@ -212,10 +212,38 @@ test("the key spelling may be given on the call instead, as the reference reposi
   );
   assert.deepEqual(orders.entry, { action: "listOrders", roles: ["clerk", "manager"] });
   assert.equal(orders.actions.length, 2);
-  // Without it, the keys of the contract are read, and this ledger has none of them.
-  const plain = answer(dir).screens.find((screen) => screen.id === "orders");
-  assert.equal(plain.entry, null);
-  assert.deepEqual(plain.actions, []);
+  assert.deepEqual(answer(dir, "--keys", "entry=vao,actions=nut").keys_not_found, []);
+});
+
+test("a ledger spelled its own way and read without being told says which keys it did not find, never an empty answer", () => {
+  const dir = folder({
+    "design/screens.yaml": LEDGER.replace(/^keys:\n(?: {2}.*\n)+/m, ""),
+    "design/states.json": STATES,
+    ...MODEL,
+  });
+  const said = facts(dir, "--json");
+  // Ids, routes and states still read: the answer is usable, and ends with 0.
+  assert.equal(said.status, 0, said.stderr);
+  const result = JSON.parse(said.stdout);
+  assert.deepEqual(result.keys_not_found, [
+    { key: "entry", looked_for: "entry" },
+    { key: "actions", looked_for: "actions" },
+  ]);
+  const orders = result.screens.find((screen) => screen.id === "orders");
+  assert.equal(orders.route, "/orders");
+  assert.ok(orders.states.includes("loading"));
+  // Not found is not none: no screen's actions read as an empty list.
+  assert.equal(orders.entry, null);
+  assert.ok(result.screens.every((screen) => screen.actions === null));
+  const text = facts(dir).stdout;
+  assert.match(text, /no screen of the ledger has the key entry, nor actions/);
+  assert.match(text, /--keys/);
+
+  // A ledger where some screens have the key and others do not is not that case.
+  const some = answer(oneFile());
+  assert.deepEqual(some.keys_not_found, []);
+  assert.deepEqual(some.screens.find((screen) => screen.id === "welcome").actions, []);
+  assert.deepEqual(answer(ROOT).keys_not_found, []);
 });
 
 test("without a model the roles cannot be said; without a state table what a screen must have cannot be said, and the answer still ends with 0", () => {
