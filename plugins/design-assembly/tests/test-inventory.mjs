@@ -572,6 +572,24 @@ test("the frame's entries are the module scripts of the page, not a commented on
   assert.equal(item(result, "AppFrame").state, "in-use");
 });
 
+test("the frame's entries read comments as a browser does: closed at the first end, or never", () => {
+  for (const [page, used] of [
+    // `<!-` is no opening, so the comment is the inner one and the script after it is loaded.
+    ['<!-<!-- x -->-<script type="module" src="/src/old.tsx"></script>\n', true],
+    // `<!-->` closes at once, so the script after it is loaded.
+    ['<!--><script type="module" src="/src/old.tsx"></script>\n', true],
+    // A comment never closed hides the rest of the page.
+    ['<!-- <script type="module" src="/src/old.tsx"></script>\n', false],
+  ]) {
+    const dir = storeRepo();
+    put(dir, "index.html", `${page}<script type="module" src="/src/main.tsx"></script>\n`);
+    put(dir, "src/old.tsx", 'import { Orphan } from "@/components/orphan";\nOrphan;\n');
+    put(dir, "src/components/orphan.tsx", COMPONENT("Orphan"));
+    const result = inventory(dir);
+    assert.equal(item(result, "Orphan").state, used ? "in-use" : "unused", page);
+  }
+});
+
 test("a block with neither name nor need is named blind as unnamed, never as nothing", () => {
   const dir = storeRepo();
   put(
