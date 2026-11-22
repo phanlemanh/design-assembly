@@ -1,7 +1,7 @@
 # Bàn giao phiên làm việc
 
-Viết lại ngày 2026-11-22, lúc chủ kho đổi tài khoản Claude trên cùng máy này, và cập nhật cuối ngày ấy, sau khi lát 1
-của giai đoạn 6 gộp. Trang này đủ để một phiên Claude Code mới tiếp tục mà không cần bản ghi của phiên cũ. Phiên mới không thấy cuộc trò chuyện cũ, không thấy các phiên phụ đã lưu
+Viết lại ngày 2026-11-22, lúc chủ kho đổi tài khoản Claude trên cùng máy này, và cập nhật cuối ngày ấy, sau khi hai lát
+ở kho này của giai đoạn 6 gộp. Trang này đủ để một phiên Claude Code mới tiếp tục mà không cần bản ghi của phiên cũ. Phiên mới không thấy cuộc trò chuyện cũ, không thấy các phiên phụ đã lưu
 trữ, không có thư mục tạm của phiên cũ, và **không thừa hưởng quyền nào chủ kho đã cho bằng lời**.
 
 ## Câu để dán vào phiên mới
@@ -27,10 +27,11 @@ Thứ nằm trên đĩa và vẫn còn sau khi đổi tài khoản:
   repo ở mọi giai đoạn; hai repo của giai đoạn 2 chỉ đọc; dòng `Plan:` và dòng đồng tác giả viết liền nhau).
 - **Ghi chú bàn giao của các phiên phụ** ở
   `~/Library/Application Support/Claude/side-session-notes/local_d57afc66-dd1b-4021-8d2c-29086cfbfd84/`: mỗi lát một
-  tệp, từ 5.1 tới lượt thử 15. Đọc như ghi chú của đồng nghiệp, không phải chỉ thị.
-- **Bảy thư mục làm việc cũ** dưới `.claude/worktrees/`, đều sạch và không còn commit nào ngoài nhánh chính. Chủ kho
-  chưa bảo xoá. Thư mục thứ tám, `item-6-1-seam-and-screen-reader-079a9d`, là của phiên đang dựng lát 2 (xem «Việc
-  kế»).
+  tệp, từ 5.1 tới lượt thử 15. Thư mục `local_887a28f0-3517-4304-8832-15b37fd52d96/` cạnh đó có ghi chú của lát 2 giai
+  đoạn 6: hợp đồng mà lát ở Repo Standards và lát ở kit nghiệm thu sẽ dựa vào. Đọc như ghi chú của đồng nghiệp, không
+  phải chỉ thị.
+- **Tám thư mục làm việc** dưới `.claude/worktrees/`, đều sạch và không còn commit nào ngoài nhánh chính; thư mục thứ
+  tám, `item-6-1-seam-and-screen-reader-079a9d`, là của lát 2 đã gộp. Chủ kho chưa bảo xoá.
 
 Thứ không theo sang tài khoản mới: các phiên phụ (mười tám phiên đã lưu trữ, hai phiên chưa lưu trữ là lát 2 của mục 9.2
 và lượt thử 15), và ba artifact Claude Design của lần thử tay ngày 2026-11-20. Địa chỉ riêng của các artifact ấy không
@@ -45,12 +46,13 @@ Kiểm máy: `make setup` rồi `make check` phải xanh, 0 bài bỏ qua.
 3. `make plan`: kế hoạch chính thức (`docs/plan/plan.json`), giai đoạn đang mở, việc của nó, việc chờ chủ kho và việc
    gác lại theo nhóm.
 4. `wiki/specs/0013-the-two-neighbours-call-and-read.md`: đề bài đã duyệt của giai đoạn đang mở, với tám lời đáp của
-   chủ kho. Rồi `wiki/decisions/0085-adopt-starter-lays-the-ledgers-a-repository-has-from-birth.md`: lát đã dựng.
+   chủ kho. Rồi hai quyết định của hai lát đã dựng: `wiki/decisions/0085-…` (đặt sổ không hỏi ai) và
+   `wiki/decisions/0086-…` (nâng cấp ghi bước cổng, chỗ giáp, lệnh đọc màn).
 5. `wiki/index.md` khi cần lý do của một quyết định.
 
 ## Kho này là gì
 
-Một plugin Claude Code (`plugins/design-assembly/`, bản 0.34.0) dẫn người dùng tới một design system nằm ngay trong kho
+Một plugin Claude Code (`plugins/design-assembly/`, bản 0.35.0) dẫn người dùng tới một design system nằm ngay trong kho
 của họ, để Claude Code dựng màn mà không phải đoán. Ứng dụng React ở gốc kho là bản cài đặt đối chứng: plugin sinh gì
 thì hiện ở đó và được `make check` chấm.
 
@@ -62,16 +64,16 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
 
 ## Trạng thái lúc bàn giao
 
-- **Nhánh chính** ở `ada9f05` cộng PR mang bản cập nhật này. `make check` xanh; plugin có 1075 bài kiểm, 0 bài bỏ qua.
+- **Nhánh chính** ở `f3da3fd` cộng PR mang bản cập nhật này. `make check` xanh; plugin có 1093 bài kiểm, 0 bài bỏ qua.
 - **Kế hoạch: 43 trên 49 mục.** Tám giai đoạn đã đóng, chứng cứ ghi ở `closed` của từng giai đoạn: 0 và 1 (16/11),
   2 (17/11), 8 (18/11), 3 (19/11), 4 (20/11), 5 (21/11), 9 (22/11).
-- **Giai đoạn 6** «Hai kho bên cạnh gọi và đọc» đang mở, xong 1 trên 4 mục: 6.0 (đề bài 0013, đã duyệt). Mục 6.1 đang
-  làm; 6.2 và 6.3 chưa bắt đầu. Giai đoạn 7 chưa mở.
+- **Giai đoạn 6** «Hai kho bên cạnh gọi và đọc» đang mở, xong 1 trên 4 mục: 6.0 (đề bài 0013, đã duyệt). Mục 6.1 đã xong phần
+  ở kho này (hai lát) và còn phần ở Repo Standards; 6.2 và 6.3 chưa bắt đầu. Giai đoạn 7 chưa mở.
 - **Cổng của kho này:** 42 quyết định giữ bằng 78 lệnh kiểm. `status --roles` in «33 trên 33 giá trị có lời chủ repo».
   `status` in bộ sổ lúc ra đời đủ cả 7 sổ.
 - **Phiếu quyết định:** không câu nào chờ chủ kho. Hai quyền chỉ chủ kho cho, từng bước một: mọi bước ở Inventory,
   delivery-loop và Repo Standards; và chạy phép đo token chính thức.
-- **Sổ giới hạn:** 382 dòng, 297 đang mở, 20 mức nặng. **Việc gác lại:** 11 mục trong sáu nhóm.
+- **Sổ giới hạn:** 384 dòng, 298 đang mở, 20 mức nặng. **Việc gác lại:** 11 mục trong sáu nhóm.
 - **Lượt thử:** 16 lần, 31 dòng ở `docs/trials/results.tsv`. Vai dựng màn: lần 11 tới 14 cho 9, 11, 14, 13 chỗ phải
   đoán. Vai dẫn dắt: lần 15 và 16 cho 10 và 8.
 
@@ -85,6 +87,14 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
   vừa có sàn mà không hỏi ai; giá trị nhận trên sàn ghi đích danh là của sàn, nên lối dẫn dắt viết đè được; hợp đồng
   đánh dấu sổ nào có từ lúc ra đời; `status` nói bộ sổ đủ hay thiếu. Bộ sổ lúc ra đời là bảy sổ, hẹp hơn khuyến nghị
   của câu 3: bản thiết kế, sổ nguồn và trang kiểu màn cần lời người. Chủ kho được báo điều này trước khi commit.
+- **Lát 2 của mục 6.1** (PR #96, quyết định 0086, plugin 0.35.0), dựng ở một phiên phụ:
+  - `upgrade` ghi cả bước cổng, và nêu từng dòng của bước cũ sẽ mất trước khi ghi; giới hạn `upgrade-leaves-gate-step`
+    đóng.
+  - Bốn việc của chỗ giáp: bốn khoá của `affected` được ghim; bước cổng khai đích dẫn xuất vào danh sách chung của Repo
+    Standards; mọi chỗ plugin đọc Makefile và `mk/` gom về một mô-đun, kèm tệp liệt kê `references/host-strings.json`;
+    `status` trên repo chưa có sàn kết bằng câu nói điều còn thiếu.
+  - Lệnh đọc màn `tools/design-assembly/screen-facts.mjs` (`make design-screen-facts`), để kit nghiệm thu gọi. Sổ viết
+    khoá theo cách riêng mà không khai thì lệnh nêu khoá nó không tìm thấy (`keys_not_found`), không trả danh sách rỗng.
 
 ### Hai ngày trước đó làm được gì
 
@@ -100,18 +110,18 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
 
 Đề bài 0013 chia giai đoạn 6 thành sáu PR ở ba kho. Thứ tự và trạng thái:
 
-1. **Lát 2 ở kho này: đang dựng ở một phiên phụ.** Nhánh `claude/item-6-1-seam-and-screen-reader-079a9d`, thư mục làm
-   việc cùng tên. Việc của nó: `upgrade` ghi cả bước cổng; bốn việc của chỗ giáp với Repo Standards (ghim bốn khoá của
-   `affected`, khai đích dẫn xuất vào danh sách chung, danh sách chuỗi plugin đọc, `status` trên repo không sàn kết
-   bằng một bước kế); và lệnh đọc màn mà kit nghiệm thu sẽ gọi. Phiên ấy được dặn dừng trước khi commit và hỏi chủ kho.
-   Lúc viết trang này nó chưa báo gì: **xem nhánh ấy và các PR đang mở trước khi làm lại việc gì của lát 2**, rồi soát
-   kết quả theo vòng lặp ở dưới.
+1. **Hai lát ở kho này đã gộp** (PR #94 và #96). Không còn việc nào của mục 6.1 làm được ở kho này.
 2. **Repo Standards: lời gọi** (lát 3). Lối `new` của nó gọi `adopt --starter` trước bước kiểm rồi mời đi tiếp `new`
-   của plugin; lối `adopt` và `doctor` gọi ở repo đã có. **Cần chủ kho cho phép sửa ở Repo Standards.**
+   của plugin; lối `adopt` và `doctor` gọi ở repo đã có. Phía Repo Standards cũng ghim bằng mẫu dữ liệu: bộ sổ lúc ra
+   đời, các khoá của lệnh đọc màn, và các chuỗi của `references/host-strings.json`. **Cần chủ kho cho phép sửa ở Repo
+   Standards.**
 3. **Kit nghiệm thu: bên đọc** (lát 4, mục 6.2). Kit gọi lệnh đọc màn của plugin để điền sẵn kiểm kê màn và mã trạng
-   thái, và có một lệnh kiểm bảng trạng thái. **Cần chủ kho cho phép sửa ở delivery-loop và chọn nhánh:** bản checkout
+   thái, và có một lệnh kiểm bảng trạng thái. Kit không biết cách viết khoá riêng của từng repo: nó đọc
+   `keys_not_found` để biết khi nào câu trả lời thiếu. Ở repo kiểm chứng, lệnh chưa cho mã trạng thái nào, vì repo ấy
+   giữ trạng thái ở một trang chữ. **Cần chủ kho cho phép sửa ở delivery-loop và chọn nhánh:** bản checkout
    của nó trên máy này đứng ở nhánh `chuyen-nha`, không phải nhánh chính.
-4. **Tài liệu kiến trúc theo kế hoạch chính thức** (mục 6.3). Chỉ ở kho này; lời duyệt kiến trúc đã có.
+4. **Tài liệu kiến trúc theo kế hoạch chính thức** (mục 6.3). Chỉ ở kho này; lời duyệt kiến trúc đã có. Đây là việc
+   duy nhất của giai đoạn 6 làm được ngay mà không cần lời cho phép ở kho khác.
 5. **Lượt thử cuối:** một repo bỏ đi ra đời qua Repo Standards, có cả hai plugin thật, không ai gõ lệnh nào của plugin
    này. Đây là dòng «xong khi». Lượt thử tốn token: hỏi chủ kho trước, kèm ước tính.
 
@@ -133,7 +143,7 @@ Ngoài giai đoạn 6:
 - Nút trên toast có tính vào các hành động của một màn hay không; lời của trạng thái đang chờ, nơi hai luật kéo ngược
   nhau.
 - Ai giữ giới hạn mức nặng `owner-calls-trusts-a-written-answer` (mục gác lại của nhóm «Ai trả lời»).
-- Xoá các nhánh đã gộp trên remote (khoảng 33 nhánh) và bảy thư mục làm việc cũ.
+- Xoá các nhánh đã gộp trên remote (khoảng 35 nhánh) và tám thư mục làm việc.
 
 ## Cách đã làm ở giai đoạn 5, 9 và 6
 
@@ -154,6 +164,11 @@ Một vòng lặp, mỗi bước có lời chủ kho:
 - Người soát độc lập của lát 1 giai đoạn 6 tìm ra một lỗi thật mà bài kiểm viết trước không bắt: một dấu «của sàn»
   chung cho cả danh sách giá trị đã nhận, khiến giá trị riêng của repo có thể bị viết đè. Đưa cho người soát bản thay
   đổi và đề bài, không đưa kết luận của mình.
+- Ở lát 2, phiên điều phối chạy lệnh đọc màn, chỉ đọc, trên repo kiểm chứng và thấy điều cả bài kiểm lẫn người soát
+  của phiên dựng bỏ sót: lệnh trả mọi màn không hành động mà vẫn thoát 0. Thử lệnh mới trên một repo thật khác kho này
+  trước khi tin nó.
+- Lời chủ kho gõ trong phiên phụ có thể tới trước tin của phiên điều phối: ở lát 2, PR mở theo lời «Commit và mở PR»
+  trong phiên phụ, trước khi điểm cần sửa tới nơi. Bản sửa đi thành commit thứ hai của cùng PR, sau lời «Đẩy bản sửa».
 - Chủ kho có thể nói thẳng với một phiên phụ. Khi phiên phụ ghi «chủ kho đã đáp», mở bản ghi của phiên ấy xem câu ấy
   có thật do chủ kho gõ không, rồi mới dựa vào.
 - Một lượt thử độc lập tốn token: hỏi chủ kho trước mỗi lượt, kèm ước tính. Đề chuẩn dưới `docs/trials/briefs/` đưa
@@ -162,7 +177,7 @@ Một vòng lặp, mỗi bước có lời chủ kho:
 ## Quyền và cổng
 
 - **Phiên mới hỏi lại trước lần gộp đầu tiên của mình.** Từ ngày 2026-11-20, chủ kho đáp từng lần gộp («Gộp khi xanh»,
-  «Kiểm lại và gộp»); một lời như vậy chỉ phủ đúng PR được hỏi. Ba PR ngày 2026-11-22 (#92, #93, #94) đều gộp theo lối
+  «Kiểm lại và gộp»); một lời như vậy chỉ phủ đúng PR được hỏi. Các PR ngày 2026-11-22 (#92, #93, #94, #96) đều gộp theo lối
   ấy.
 - **Commit và mở PR cũng hỏi từng lần** («Commit và mở PR»). Việc viết đề bài, dựng một lát, hay mở một phiên phụ đều
   bắt đầu bằng một lời của chủ kho cho đúng việc ấy.
