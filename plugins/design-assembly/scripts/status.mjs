@@ -13,6 +13,7 @@ import path from "node:path";
 import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
+import { BORN, LEDGERS, missingAtBirth } from "../templates/tools/design-assembly/contract.mjs";
 import { SLIPS_FILE } from "../templates/tools/design-assembly/governance.mjs";
 import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
 import { pinnedPackage } from "../templates/tools/design-assembly/adapters/lockfile.mjs";
@@ -66,6 +67,7 @@ const LIMITS = json("references/limits.json").limits;
 // Named from the plugin's own folder: installed elsewhere, the plugin has no `plugins/` around it.
 const LIMITS_FILE = "references/limits.json of this plugin";
 const UPGRADE = "/design-assembly:upgrade";
+const STARTER = "/design-assembly:adopt --starter";
 
 // How many waiting answers a person is shown in full. The rest are named, and --json has them all.
 const SHOWN = 5;
@@ -458,7 +460,7 @@ function intakeSays(ledger) {
 }
 
 // One line per rhythm of a repository's life, each read from the repository as it is now.
-function rhythmsOf(audit, broken) {
+function rhythmsOf(audit, broken, birth) {
   const c = audit.coverage;
   const l = audit.ledger;
   const shaped = audit.contract.filter((item) => item.differs.length === 0).length;
@@ -471,7 +473,8 @@ function rhythmsOf(audit, broken) {
         ? `${SLIPS_FILE}: no line yet`
         : `${SLIPS_FILE}: ${audit.slips.count} line(s)${audit.slips.latest ? `, the latest on ${audit.slips.latest}` : ""}`;
   const says = {
-    start: VALUES[audit.values],
+    // The ledgers it has from birth belong to the repository being born.
+    start: `${VALUES[audit.values]}; ${birthSays(birth)}`,
     adopt: l
       ? `${l.total} row(s) in the ledger; ${c.answered} of ${c.core} core decisions answered (${c.held} held and re-run here, ${c.claimed} claimed and not re-run, ${c.recorded} recorded)`
       : "no ledger: nothing is recorded yet",
@@ -581,16 +584,32 @@ function readLedgers(root) {
     tool: toolOf(root),
     sockets: socketsOf(root),
     seen: seenStepOf(root, rows, audited),
+    birth: birthOf(root),
   };
 }
 
-function resultOf({ audit, broken, tool, sockets, seen }, waiting) {
+// The ledgers the contract says a repository has from birth: how many there are, and which this
+// repository has not.
+function birthOf(root) {
+  const all = Object.values(LEDGERS).filter((ledger) => ledger.born === BORN.floor).length;
+  return { all, missing: missingAtBirth(root) };
+}
+
+function birthSays({ all, missing }) {
+  if (missing.length === 0) return `ledgers from birth: all ${all} are here`;
+  if (missing.length === all) {
+    return `ledgers from birth: none of ${all} is here yet; on a floor, ${STARTER} lays them`;
+  }
+  return `ledgers from birth: ${missing.length} missing: ${missing.join(", ")}`;
+}
+
+function resultOf({ audit, broken, tool, sockets, seen, birth }, waiting) {
   return {
     tier: audit.tier,
     // Core decisions only, as the audit counts them. Two numbers: a claim was not run again here.
     held: audit.coverage.held,
     claimed: audit.coverage.claimed,
-    rhythms: rhythmsOf(audit, broken),
+    rhythms: rhythmsOf(audit, broken, birth),
     waiting,
     tool,
     next: nextOf(audit, waiting, broken, tool, seen),

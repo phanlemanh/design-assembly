@@ -12,6 +12,20 @@ Scripts are in `${CLAUDE_PLUGIN_ROOT}/scripts/` (if the variable is not expanded
 folder two levels above this file). `references/checks.md` says what each file and each kind of
 check is: read it before explaining a result.
 
+## When a repository has only just been given its floor
+
+A tool that sets repositories up (or a person) may lay the ledgers right after the floor, before
+anyone is asked anything: `adopt.mjs --target <repo> --starter`. It does what this page describes,
+and also lays the ledgers a repository has from birth that a person keeps after that (states,
+screens, screen widths, column types) in the form the guide starts from. It asks nothing and passes
+no answer for anyone: every value it finds is recorded as the floor's, each call only a person can
+make stays on the waiting list that `status` prints, and the guide may later replace what came from
+the floor. It ends with 1 while answers wait. It refuses a repository whose primary color role has
+a hue of its own, or one that adopted values of its own before: that repository keeps its values
+through adopting without `--starter`. A value adopted later without `--starter` is the
+repository's own, and the guide does not write over it unless a person says to replace it. After it,
+offer the guide (`/design-assembly:new`) now or later; never answer its questions yourself.
+
 ## 1. Audit first
 
 Run `/design-assembly:audit`. Anything `BYPASSED` or `FAILING` is the repository's own work and
