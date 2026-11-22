@@ -52,7 +52,10 @@ It ends with:
   `plugged in here` follows only when a plug from outside (`references/plugs/`) is found in this
   repository. The whole board is in `--json`.
 - `status does not see`: the limits of this report, by id, in `references/limits.json`.
-- `next`, then `then`: the commands to run, in order.
+- `next`, then `then`: the commands to run, in order. On a repository with no design floor (no
+  stylesheet, or a Makefile that does not include `mk/*.mk`), the last line says what is missing
+  instead, and the guide and adopting are not offered: they would refuse. Say what is missing, and
+  that the plugin builds on a floor and does not lay one.
 
 ## 3. Say it to the person
 
@@ -85,6 +88,7 @@ It ends with:
 | `tool`    | `recorded` (the tool stamp or `null`), `installed`, `copy`, `differs`, `says`                                   |
 | `next`    | Commands in order: `command`, `why`. Empty when this version has nothing to run                                 |
 | `sockets` | One entry per capability: `id`, `name`, `plug`, `state` (`plugged`, `empty`), `limit`, `outside` (`id`, `here`) |
+| `missing` | What the repository lacks before the plugin can build on it, as one sentence, or `null` on a floor              |
 | `files`   | Only with `--out`: each file written, `path` and `change` (`create` or `update`)                                |
 
 `source` is `ledger` or `waiting-list`.

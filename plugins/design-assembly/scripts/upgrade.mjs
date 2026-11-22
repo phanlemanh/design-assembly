@@ -2,9 +2,9 @@
 // Before it writes anything it says, every time: which tool files change; which ledgers the tool
 // writes would be written again differently, entry by entry (added, removed, changed); which
 // decisions change state; and whether the design-assembly step of the repository's gate would be
-// green or red afterwards. It writes the tool folder, the tool stamp and those machine-written
-// ledgers, and nothing else: never a ledger row a person wrote, the stylesheet, or a tool of the
-// repository's own. When upgrading would lose an entry from a ledger, or leave the gate red, it
+// green or red afterwards. It writes the tool folder, the tool stamp, the gate step beside them and
+// those machine-written ledgers, and nothing else: never a ledger row a person wrote, the
+// stylesheet, the Makefile, or a tool of the repository's own. When upgrading would lose an entry from a ledger, or leave the gate red, it
 // writes nothing and ends with 1, unless the person said they accept exactly that.
 // Usage: node upgrade.mjs [--target DIR] [--dry-run] [--json] [--accept-lost-entries]
 //                         [--accept-red-gate] [--out DIR [--format html|pdf]]
@@ -29,6 +29,7 @@ import { regenerated as columnsNow } from "../templates/tools/design-assembly/co
 import { regenerated as componentsNow } from "../templates/tools/design-assembly/components.mjs";
 import { newerLedgers } from "../templates/tools/design-assembly/contract.mjs";
 import { keptOutOfGit } from "../templates/tools/design-assembly/derived.mjs";
+import { GATE_STEP } from "../templates/tools/design-assembly/host-make.mjs";
 import { regenerated as tokensNow } from "../templates/tools/design-assembly/tokens.mjs";
 import { sameContent } from "./apply.mjs";
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
@@ -50,8 +51,7 @@ const LIMITS = JSON.parse(readFileSync(path.join(PLUGIN, "references/limits.json
 const LIMITS_FILE = "references/limits.json of this plugin";
 const UPGRADE = "/design-assembly:upgrade";
 const THEME = "design/theme.json";
-// The gate step the plugin installs beside the tool. Upgrade compares it and does not write it.
-const GATE_STEP = "mk/design-assembly.mk";
+// The gate step the plugin installs beside the tool: upgrade writes it too, whole, when it differs.
 const GATE_SOURCE = path.join(PLUGIN, "templates", GATE_STEP);
 
 // What the person passes to say they accept what the preview showed. Never passed for them.
@@ -189,10 +189,12 @@ async function before(root) {
 }
 
 // The same under the installed tool, on the repository as the upgrade would leave it: its files as
-// they are, with the ledgers the tool writes as it would write them. And the step of the gate.
+// they are, with the ledgers the tool writes and the gate step as it would write them. And the step
+// of the gate.
 function after(root, written) {
   const state = readState(root);
   state.files = { ...state.files, ...written };
+  if (GATE_STEP in written) state.gate = written[GATE_STEP];
   if (state.theme === null || state.ledger === null) {
     const missing = `${THEME} or the ledger is missing, so the gate step of this tool fails`;
     return { view: null, gate: { green: false, problems: [missing] } };
@@ -232,6 +234,16 @@ function parsed(text) {
   }
 }
 
+// The lines of `before` that `after` does not have, blank lines and comments left out, in order.
+export function droppedLines(before, after) {
+  if (before === null) return [];
+  const kept = new Set(after.split("\n").map((line) => line.trimEnd()));
+  return before
+    .split("\n")
+    .map((line) => line.trimEnd())
+    .filter((line) => line.trim() !== "" && !line.trim().startsWith("#") && !kept.has(line));
+}
+
 // Everything the upgrade of the repository at `root` would do, and what stops it. Nothing written.
 export async function upgradePlan(root, accept = {}) {
   // Read first, whatever comes next: a repository that cannot be read is said to be so.
@@ -261,16 +273,18 @@ export async function upgradePlan(root, accept = {}) {
   const to = { version: VERSION, tree: installedTree() };
   const tool = toolChanges(root);
   const stamped = stamp?.version === to.version && stamp?.tree === to.tree;
+  // The gate step is the plugin's whole: one that is not the installed plugin's is written again.
   const gateStep = read(root, GATE_STEP);
-  const left =
-    gateStep !== null && gateStep !== readFileSync(GATE_SOURCE, "utf8")
-      ? [
-          {
-            path: GATE_STEP,
-            why: "the gate step differs from the one the installed plugin has; upgrade does not write it (limit upgrade-leaves-gate-step)",
-          },
-        ]
-      : [];
+  const installedStep = readFileSync(GATE_SOURCE, "utf8");
+  // Upgrade cannot tell a hand edit from an older plugin's step: it names every line of the
+  // repository's step the installed one does not have, so a person sees what goes.
+  const gateChange =
+    gateStep === installedStep
+      ? null
+      : {
+          ...fileChange(GATE_STEP, gateStep === null ? "create" : "update"),
+          dropped: droppedLines(gateStep, installedStep),
+        };
 
   // The ledgers are written again only when the tool changes: on the installed tool, a ledger
   // that is out of date is the gate's to say.
@@ -305,6 +319,7 @@ export async function upgradePlan(root, accept = {}) {
       written[made.file] = made.content;
     }
   }
+  if (gateChange) written[GATE_STEP] = installedStep;
   const was = tool.length > 0 ? await before(root) : { view: null };
   const now = after(root, written);
   const decisions = changedStates(was.view, now.view);
@@ -312,7 +327,7 @@ export async function upgradePlan(root, accept = {}) {
 
   const lost = ledgers.filter((ledger) => ledger.removed.length > 0);
   const losing = lost.reduce((sum, ledger) => sum + ledger.removed.length, 0);
-  const changes = tool.length > 0 || !stamped;
+  const changes = tool.length > 0 || !stamped || gateChange !== null;
   const blocked = [];
   const accepted = [];
   if (changes && losing > 0) {
@@ -352,7 +367,7 @@ export async function upgradePlan(root, accept = {}) {
     gate: now.gate,
     blocked,
     accepted,
-    left,
+    gate_step: gateChange,
     not_seen: unseen,
     files,
     written,
@@ -438,7 +453,20 @@ export function report(plan, dryRun) {
   if (!plan.gate.green) {
     for (const line of plan.gate.problems.slice(0, SHOWN)) lines.push(`  ${line}`);
   }
-  for (const item of plan.left) lines.push(`not written: ${item.path}: ${item.why}`);
+  if (plan.gate_step) {
+    lines.push(
+      plan.gate_step.change === "create"
+        ? `gate step: ${plan.gate_step.path} is missing, and is written as the installed plugin's`
+        : `gate step: ${plan.gate_step.path} differs from the installed plugin's, and is written again`,
+    );
+    for (const line of plan.gate_step.dropped.slice(0, SHOWN))
+      lines.push(`  drops: ${line.trim()}`);
+    if (plan.gate_step.dropped.length > SHOWN) {
+      lines.push(
+        `  and ${plan.gate_step.dropped.length - SHOWN} more lines it drops, listed with --json`,
+      );
+    }
+  }
   for (const item of plan.accepted) lines.push(`accepted by the person: ${item}`);
   lines.push("", "files:");
   if (plan.files.length === 0) lines.push("  nothing to write");
@@ -469,12 +497,14 @@ export function documentOf(plan, dryRun, origin) {
   const losing = plan.ledgers.flatMap((ledger) =>
     ledger.removed.map((key) => `${ledger.file}: ${key}`),
   );
-  const current = plan.tool_files.length === 0;
+  // Only the gate step may differ: the tool is current, and the step is written all the same.
+  const toolCurrent = plan.tool_files.length === 0;
+  const current = toolCurrent && plan.gate_step === null;
   const stopped = plan.blocked.length > 0;
   const measured = (text) => ({ kind: "measurement", text });
   const conclusion = current
     ? `This repository already runs the tool of version ${plan.to.version}.`
-    : `Upgrading from ${fromText(plan.from)} to version ${plan.to.version} changes ${plural(plan.tool_files.length, "tool file", "tool files")} and ${plural(plan.ledgers.length, "ledger", "ledgers")}; ${stopped ? "it stops and waits on you" : plan.gate.green ? "the gate stays green" : "the gate is red, as you accepted"}.`;
+    : `Upgrading from ${fromText(plan.from)} to version ${plan.to.version} changes ${plural(plan.tool_files.length, "tool file", "tool files")}${plan.gate_step ? ", the gate step" : ""} and ${plural(plan.ledgers.length, "ledger", "ledgers")}; ${stopped ? "it stops and waits on you" : plan.gate.green ? "the gate stays green" : "the gate is red, as you accepted"}.`;
   const attention = [
     losing.length > 0 && {
       title: `${plural(losing.length, "ledger entry would be lost", "ledger entries would be lost")}`,
@@ -488,7 +518,7 @@ export function documentOf(plan, dryRun, origin) {
       title: `${plural(plan.decisions.length, "decision changes state", "decisions change state")}`,
       detail: plan.decisions.map((item) => `${item.id}: ${item.from} to ${item.to}`).join("; "),
     },
-    !current && {
+    !toolCurrent && {
       title: `${plural(plan.tool_files.length, "tool file changes", "tool files change")}`,
       detail: "The repository's copy becomes the installed plugin's tool, and the stamp says so.",
     },
@@ -523,16 +553,21 @@ export function documentOf(plan, dryRun, origin) {
               ...[...ledger.added, ...ledger.changed].slice(0, 10),
             ],
       })),
-    !current && {
+    !toolCurrent && {
       severity: "note",
       title: "The tool files that change",
       evidence: plan.tool_files.map((file) => `${file.change} ${file.path}`),
     },
-    ...plan.left.map((item) => ({
+    plan.gate_step && {
       severity: "note",
-      title: `${item.path} is not written`,
-      evidence: [item.why],
-    })),
+      title: `${plan.gate_step.path} is written as the installed plugin's`,
+      evidence: [
+        plan.gate_step.change === "create"
+          ? "the repository has no gate step"
+          : "the repository's gate step differs from the installed plugin's",
+        ...plan.gate_step.dropped.slice(0, 10).map((line) => `it drops: ${line.trim()}`),
+      ],
+    },
   ].filter(Boolean);
   const recommendations = [
     ...plan.blocked.map((item) => ({
@@ -575,6 +610,7 @@ export function documentOf(plan, dryRun, origin) {
       `The repository's copy of the tool, ${TOOL_COPY}, against the installed plugin's`,
       `The tool stamp, ${STAMP}: ${plan.from.stamp ? `version ${plan.from.stamp.version}` : "none in this repository"}`,
       "The ledgers the tool writes, written again by the installed tool",
+      `The gate step, ${GATE_STEP}, against the installed plugin's`,
       "The design-assembly step of the repository's gate, on the repository as the upgrade would leave it",
     ],
     decision: {
@@ -608,11 +644,11 @@ const USAGE = `usage: node upgrade.mjs [--target DIR] [--dry-run] [--json] [--ac
   --accept-lost-entries  The person read the entries the ledgers would lose, and accepts it.
   --accept-red-gate      The person read why the gate would be red, and accepts it.
   --json                 One JSON document: from, to, tool_files, ledgers, decisions, gate,
-                         blocked, accepted, files.
+                         blocked, accepted, gate_step, files.
   --out                  Also write the release notes into that folder.
 
-  Writes the tool folder, the tool stamp and the ledgers the tool writes. Never a ledger row a
-  person wrote, the stylesheet, or a tool of the repository's own.
+  Writes the tool folder, the tool stamp, the gate step and the ledgers the tool writes. Never a
+  ledger row a person wrote, the stylesheet, the Makefile, or a tool of the repository's own.
 
   Ends with 0 when there is nothing to upgrade or the upgrade is done (or, previewed, can be
   done), 1 when it stopped because an entry would be lost or the gate would be red, 2 on a wrong

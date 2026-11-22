@@ -579,7 +579,7 @@
     },
     {
       "on": "2026-11-21",
-      "what": "Repo kiểm chứng tụt xa bản plugin (dấu bản công cụ 0.7.1 khi plugin là 0.25.1), không mục nào đưa nó lên tiếp, và giới hạn upgrade-leaves-gate-step (lệnh nâng không ghi mk/design-assembly.mk) chưa có chặng; phiên giám sát của repo-standards nêu ngày 2026-11-21 (docs/reports/2026-11-20-decision-to-merge-trace.md của kho ấy); phía kho này đã đối chiếu, phía kho kia chưa kiểm ở đây",
+      "what": "Repo kiểm chứng tụt xa bản plugin (dấu bản công cụ 0.7.1 khi plugin là 0.25.1), không mục nào đưa nó lên tiếp, và giới hạn upgrade-leaves-gate-step (lệnh nâng không ghi mk/design-assembly.mk) chưa có chặng (giới hạn ấy đóng ở plugin 0.35.0, quyết định 0086: lệnh nâng nay ghi cả bước cổng; repo kiểm chứng vẫn chưa được đưa lên); phiên giám sát của repo-standards nêu ngày 2026-11-21 (docs/reports/2026-11-20-decision-to-merge-trace.md của kho ấy); phía kho này đã đối chiếu, phía kho kia chưa kiểm ở đây",
       "stage": 6,
       "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; lên đời ở repo kiểm chứng. Chủ repo cho phép ngày 2026-11-21 («Tôi cho phép», sau khi được báo mục này cần lời cho phép); mỗi bước ở repo ấy vẫn nêu trước khi làm.",
       "group": "reference-repo"

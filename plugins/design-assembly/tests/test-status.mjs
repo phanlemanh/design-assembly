@@ -144,7 +144,10 @@ test("the machine gets the keys the specification lists, and nothing it cannot r
     "tool",
     "next",
     "sockets",
+    "missing",
   ]);
+  // On a floor, nothing is missing before the plugin can build.
+  assert.equal(result.missing, null);
   assert.deepEqual(result.tier, { id: "audit", state: "reached", next: "foundations" });
   // Held and claimed are two numbers, never one: a claim was not run again here.
   assert.equal(typeof result.held, "number");
