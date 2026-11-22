@@ -1,6 +1,6 @@
 ---
 name: upgrade
-description: Bring the installed plugin's tool into a repository that already runs a copy of it — first a preview that lists the tool files that change, the entries of the machine-written ledgers that would be added, removed or changed, the decisions that change state and whether the repository's gate stays green, then the upgrade itself, which writes the tool folder, the tool stamp and those ledgers and nothing else. Use when the user says "upgrade", "update the tool", "take the new version of the plugin", "bring the fix into the repository", or after status says the repository's copy of the tool is not the installed plugin's. Not for a repository that has no copy of the tool yet (that is adopt, or the guide).
+description: Bring the installed plugin's tool into a repository that already runs a copy of it — first a preview that lists the tool files that change, the entries of the machine-written ledgers that would be added, removed or changed, the decisions that change state and whether the repository's gate stays green, then the upgrade itself, which writes the tool folder, the tool stamp, the gate step and those ledgers and nothing else. Use when the user says "upgrade", "update the tool", "take the new version of the plugin", "bring the fix into the repository", or after status says the repository's copy of the tool is not the installed plugin's. Not for a repository that has no copy of the tool yet (that is adopt, or the guide).
 ---
 
 # Upgrade a repository to the installed plugin's tool
@@ -50,7 +50,11 @@ It ends with:
   under the installed tool, such as `held -> FAILING` or `FAILING -> held`.
 - `gate after upgrading`: green or red, with why. This is the design-assembly step of the
   repository's gate, not the whole of its `make check`.
-- `not written`: a file upgrade compares and leaves alone, such as the gate step.
+- `gate step`: the gate step `mk/design-assembly.mk` differs from the installed plugin's, or is
+  missing, and is written again. It is the plugin's file, not the repository's. Under it, each
+  `drops:` line is a line of the repository's step the installed one does not have: upgrade cannot
+  tell an older plugin's line from one a person added, so read them to the person before you run
+  it, because the upgrade replaces them.
 - `upgrade does not see`: its open limits, by id, in `references/limits.json`.
 
 ## 3. Upgrade
@@ -63,25 +67,25 @@ When the preview ended with `1`, follow the rule above. On a yes, run it again w
 and with the flag the `stopped:` line names. On a no, write nothing and say the repository keeps
 its copy.
 
-It never writes a ledger row a person wrote, the stylesheet, or a tool of the repository's own. It
-does not remove the plugin from a repository (limit `upgrade-has-no-remove`).
+It never writes a ledger row a person wrote, the stylesheet, the Makefile, or a tool of the
+repository's own. It does not remove the plugin from a repository (limit `upgrade-has-no-remove`).
 
 ## 4. With `--json`
 
-| Key          | Holds                                                                                          |
-| ------------ | ---------------------------------------------------------------------------------------------- |
-| `dry_run`    | Whether this was a preview                                                                     |
-| `from`       | `version` (or `null`: unknown), `tree` of the copy, `stamp` (or `null`), `edited`              |
-| `to`         | `version` and `tree` of the installed plugin's tool                                            |
-| `tool_files` | Each file of the tool folder: `path`, `change` (`create`, `update`, `delete`)                  |
-| `ledgers`    | Each machine-written ledger that would differ: `ledger`, `file`, `added`, `removed`, `changed` |
-| `decisions`  | Each row whose state changes: `id`, `from`, `to`                                               |
-| `gate`       | `green`, and `problems`, one line each                                                         |
-| `blocked`    | Why it stopped: `why`, and `accept`, the flag the person would pass                            |
-| `accepted`   | The flags the person passed that this run needed                                               |
-| `left`       | Files compared and not written: `path`, `why`                                                  |
-| `not_seen`   | What could not be said, such as the states before when the copy cannot be run                  |
-| `files`      | Each file written, or that would be: `path`, `change`; with `--out`, the document last         |
+| Key          | Holds                                                                                              |
+| ------------ | -------------------------------------------------------------------------------------------------- |
+| `dry_run`    | Whether this was a preview                                                                         |
+| `from`       | `version` (or `null`: unknown), `tree` of the copy, `stamp` (or `null`), `edited`                  |
+| `to`         | `version` and `tree` of the installed plugin's tool                                                |
+| `tool_files` | Each file of the tool folder: `path`, `change` (`create`, `update`, `delete`)                      |
+| `ledgers`    | Each machine-written ledger that would differ: `ledger`, `file`, `added`, `removed`, `changed`     |
+| `decisions`  | Each row whose state changes: `id`, `from`, `to`                                                   |
+| `gate`       | `green`, and `problems`, one line each                                                             |
+| `blocked`    | Why it stopped: `why`, and `accept`, the flag the person would pass                                |
+| `accepted`   | The flags the person passed that this run needed                                                   |
+| `gate_step`  | The gate step, when it is written again: `path`, `change`, `dropped` (lines it loses); else `null` |
+| `not_seen`   | What could not be said, such as the states before when the copy cannot be run                      |
+| `files`      | Each file written, or that would be: `path`, `change`; with `--out`, the document last             |
 
 ## 5. The release notes, a document to hand over
 

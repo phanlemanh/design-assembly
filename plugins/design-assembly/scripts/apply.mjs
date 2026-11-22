@@ -74,6 +74,11 @@ import {
   SOURCE_FOLDER,
   starterParts,
 } from "../templates/tools/design-assembly/governance.mjs";
+import {
+  joinsMkFiles,
+  MK_FOLDER,
+  readMakefile,
+} from "../templates/tools/design-assembly/host-make.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { isDay, WAITING_FOLDER } from "../templates/tools/design-assembly/waiting.mjs";
 import {
@@ -480,8 +485,7 @@ function answeredProblems(layer, entry, values) {
 
 // Why this plugin's checks could not join the repository's gate, or null.
 export function gateProblem(target) {
-  const makefile = path.join(target, "Makefile");
-  if (!existsSync(makefile) || !/^-?include mk\/\*\.mk/m.test(readFileSync(makefile, "utf8"))) {
+  if (!joinsMkFiles(readMakefile(target))) {
     return "the Makefile does not include mk/*.mk, so the checks could not join make check";
   }
   return null;
@@ -1740,7 +1744,7 @@ export function vendored() {
     }
   };
   // The tool's adapters sit in a folder of their own beside it.
-  for (const folder of ["tools/design-assembly", "mk"]) copy(folder);
+  for (const folder of ["tools/design-assembly", MK_FOLDER]) copy(folder);
   files[STAMP] = stampText();
   return files;
 }

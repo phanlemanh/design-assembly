@@ -19,7 +19,13 @@ import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
 import { pinnedPackage } from "../templates/tools/design-assembly/adapters/lockfile.mjs";
 import { readFontSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { readWaiting } from "../templates/tools/design-assembly/waiting.mjs";
-import { darkScopes, loadStyles, resolve } from "../templates/tools/design-assembly/styles.mjs";
+import {
+  darkScopes,
+  DEFAULT_STYLESHEET,
+  findStylesheet,
+  loadStyles,
+  resolve,
+} from "../templates/tools/design-assembly/styles.mjs";
 import {
   COLOR_ROLES,
   measurePairs,
@@ -41,7 +47,7 @@ import { sheet, WAITING_FOLDER, WAITING_LIST } from "./decide.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { audit, AUDIT, DECIDE, PERSON_CALLS, UNCONFIRMED } from "./audit.mjs";
 import { socketsOf } from "./capabilities.mjs";
-import { seenMissing } from "./apply.mjs";
+import { gateProblem, seenMissing } from "./apply.mjs";
 import {
   SEEN_DECISION,
   SEEN_TEST,
@@ -514,8 +520,9 @@ export function seenStepOf(root, rows, audited) {
 
 // The commands to run next, in order: what is broken first, then what answers the owner, then what
 // the audit decides from the files, then what the browser test by role still lacks. Only commands
-// this plugin has.
-function nextOf(audit, waiting, broken, tool, seen = null) {
+// this plugin has. On a repository with no floor, the guide and adopting would refuse, so the
+// audit's command is not offered: what is missing is said instead.
+function nextOf(audit, waiting, broken, tool, seen = null, missing = null) {
   const next = [];
   if (broken.length > 0) {
     next.push({
@@ -547,7 +554,7 @@ function nextOf(audit, waiting, broken, tool, seen = null) {
   }
   // The audit's last line names a command when the scripts have something left to do.
   const named = /^(\/design-assembly:[a-z-]+),? (.*)$/.exec(audit.next);
-  if (named && !next.some((step) => step.command === named[1])) {
+  if (named && !missing && !next.some((step) => step.command === named[1])) {
     next.push({ command: named[1], why: named[2] });
   }
   if (seen) next.push(seen);
@@ -585,7 +592,26 @@ function readLedgers(root) {
     sockets: socketsOf(root),
     seen: seenStepOf(root, rows, audited),
     birth: birthOf(root),
+    missing: missingFloor(root),
   };
+}
+
+// What the repository lacks before this plugin can build on it, or null: a stylesheet, found where
+// adopting finds one (the tool data's, the components settings', or the usual path), and a Makefile
+// that lets the gate step join make check.
+function missingFloor(root) {
+  let theme;
+  try {
+    theme = JSON.parse(readFileSync(path.join(root, "design/theme.json"), "utf8"));
+  } catch {
+    theme = null;
+  }
+  const named = typeof theme?.stylesheet === "string" ? theme.stylesheet : null;
+  const stylesheet = named && existsSync(path.join(root, named)) ? named : findStylesheet(root);
+  if (stylesheet === null) {
+    return `${named ?? DEFAULT_STYLESHEET} is missing, and no stylesheet is named elsewhere: this repository has no design floor to build on`;
+  }
+  return gateProblem(root);
 }
 
 // The ledgers the contract says a repository has from birth: how many there are, and which this
@@ -603,7 +629,7 @@ function birthSays({ all, missing }) {
   return `ledgers from birth: ${missing.length} missing: ${missing.join(", ")}`;
 }
 
-function resultOf({ audit, broken, tool, sockets, seen, birth }, waiting) {
+function resultOf({ audit, broken, tool, sockets, seen, birth, missing }, waiting) {
   return {
     tier: audit.tier,
     // Core decisions only, as the audit counts them. Two numbers: a claim was not run again here.
@@ -612,9 +638,12 @@ function resultOf({ audit, broken, tool, sockets, seen, birth }, waiting) {
     rhythms: rhythmsOf(audit, broken, birth),
     waiting,
     tool,
-    next: nextOf(audit, waiting, broken, tool, seen),
+    next: nextOf(audit, waiting, broken, tool, seen, missing),
     // The socket board: which plug fills each socket of the capability table, and which is empty.
     sockets,
+    // What the repository lacks before this plugin can build on it: its design floor, or the
+    // Makefile line that lets the gate step join make check. Null on a floor.
+    missing,
   };
 }
 
@@ -714,10 +743,16 @@ export function report(result) {
     `status does not see: ${blind.map((limit) => limit.id).join(", ")} (${LIMITS_FILE})`,
     "",
   );
-  if (next.length === 0) lines.push("next: nothing to run now");
+  if (next.length === 0 && !result.missing) lines.push("next: nothing to run now");
   next.forEach((step, index) => {
     lines.push(`${index === 0 ? "next:" : "then:"} ${step.command}, ${step.why}`);
   });
+  // A repository with no floor is told what is missing, last, never that nothing is left to do.
+  if (result.missing) {
+    lines.push(
+      `${next.length === 0 ? "next:" : "then:"} nothing more this plugin can run here yet: ${result.missing}. The plugin builds on a design floor and does not lay one; once one is laid, ${STARTER} lays the ledgers`,
+    );
+  }
   return `${lines.join("\n")}\n`;
 }
 

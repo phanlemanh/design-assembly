@@ -2640,8 +2640,10 @@
       "plan": "fix",
       "opened": "2026-11-16",
       "where": ["d0047"],
-      "status": "open",
-      "note": "Upgrade writes the tool folder, the stamp and the ledgers the tool writes, and not the gate step mk/design-assembly.mk beside them, so a change the plugin makes to its gate step reaches no repository that adopted it before; upgrade says when that file differs, and writes nothing to it."
+      "status": "closed",
+      "note": "Upgrade writes the tool folder, the stamp and the ledgers the tool writes, and not the gate step mk/design-assembly.mk beside them, so a change the plugin makes to its gate step reaches no repository that adopted it before; upgrade says when that file differs, and writes nothing to it.",
+      "closed": "2026-11-22",
+      "closed_by": "upgrade writes the gate step whole when it is not the installed plugin's, or is missing, and says so before it writes; the gate after upgrading is measured with the new step; held by two plugin tests on a repository whose step an older plugin wrote, one with an older tool and one whose step alone differs"
     },
     {
       "id": "upgrade-gate-is-the-tool-step-only",
@@ -2798,7 +2800,7 @@
       "opened": "2026-11-16",
       "where": ["d0051"],
       "status": "open",
-      "note": "A derived file kept out of git is written by the gate, by derived.mjs and by the plugin's make step before make test. A test run by its runner alone, as an acceptance kit runs one test file, gets none of them, and on a clean checkout finds no file. The make step also reaches no repository through upgrade, which does not write it (limit upgrade-leaves-gate-step)."
+      "note": "A derived file kept out of git is written by the gate, by derived.mjs and by the plugin's make step, in the gate's derived step or before make test, so a test run by its runner alone, as an acceptance kit runs one test file, gets none of them and on a clean checkout finds no file."
     },
     {
       "id": "screen-copy-left-at-old-path",
@@ -4419,6 +4421,28 @@
       "where": ["d0085"],
       "status": "open",
       "note": "Laying the ledgers with adopt --starter refuses a repository whose primary color role has a hue of its own, and takes every other value it finds for the floor's: a repository that kept the grey primary but changed its corner radius or type scale has those values recorded as the floor's, and the guide may write over them without --replace."
+    },
+    {
+      "id": "host-strings-found-by-names",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-22",
+      "where": ["d0086"],
+      "status": "open",
+      "note": "The test that holds every string the plugin reads in a repository's make files and workflows finds a reading by the names of those files, of the gate's lists and of the gate step, so a module that matches make text by a pattern naming none of them is not caught."
+    },
+    {
+      "id": "screen-facts-read-default-paths",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-22",
+      "where": ["d0086"],
+      "status": "open",
+      "note": "The screen facts command reads the ledger of screens, the state table and the model at their usual paths only, as the affected command does, so a repository that keeps one of them elsewhere gets no screen, no state that must be had, or no roles."
     }
   ]
 }
