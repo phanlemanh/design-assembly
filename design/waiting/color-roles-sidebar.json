@@ -7,5 +7,8 @@
   "where": "0082",
   "if_refused": "Giữ của sàn: ba vai giữ giá trị sàn ở cả hai giao diện, cặp --sidebar-ring trên --sidebar ở giao diện sáng (2,48:1) thành phép kiểm và cổng đỏ",
   "item": "decision:color-roles-sidebar",
-  "asked_on": "2026-11-21"
+  "asked_on": "2026-11-21",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-22"
 }
