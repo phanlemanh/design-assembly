@@ -455,8 +455,8 @@
         {
           "id": "6.3",
           "what": "Tài liệu kiến trúc theo kế hoạch chính thức",
-          "state": "todo",
-          "ref": "wiki/specs/0013-the-two-neighbours-call-and-read.md, tiêu chí 12; thay việc gác lại «Tài liệu kiến trúc còn vẽ năm chặng cũ» (2026-11-15), chủ repo nhận ngày 2026-11-22 («Duyệt cả tám», câu 8)"
+          "state": "done",
+          "ref": "docs/architecture/meta-layer.html: mục «Lộ trình và tiêu chí đạt» và hình 5 vẽ theo mười giai đoạn của kế hoạch này, tên, trạng thái, ngày đóng và dòng «xong khi» lấy từ tệp này; bảng khái niệm ghi delivery-loop đọc sổ màn và trạng thái qua lệnh đọc màn của plugin, phía plugin đã dựng, phía kit chưa; các ô «hôm nay» đối chiếu được với repo thì ghi ngày 2026-11-22, ô còn lại giữ ngày 2026-11-13; wiki/specs/0013-the-two-neighbours-call-and-read.md, tiêu chí 12; thay việc gác lại «Tài liệu kiến trúc còn vẽ năm chặng cũ» (2026-11-15), chủ repo nhận ngày 2026-11-22 («Duyệt cả tám», câu 8)"
         }
       ],
       "done_when": ["Một repo mới ra đời qua Repo Standards có đủ bộ sổ mà không ai gọi tay"],
@@ -597,6 +597,13 @@
       "stage": 6,
       "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 6; chủ repo chọn không chuyển sàn ở giai đoạn này (đề bài 0013, câu 5, «Duyệt cả tám» ngày 2026-11-22); cần đề bài riêng",
       "group": "floor-move"
+    },
+    {
+      "on": "2026-11-22",
+      "what": "Lệnh status còn in «the command is not built in this version of the plugin» ở dòng của nhịp «một tính năng cần khối mới», dù lệnh intake đã có từ mục 3.3 của giai đoạn 3; một bài kiểm của plugin và trang hướng dẫn của lệnh status đang ghim câu ấy; thấy khi đối chiếu tài liệu kiến trúc (mục 6.3)",
+      "stage": 3,
+      "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 6; sửa là đổi script của plugin, tức một bản plugin mới, không thuộc mục 6.3",
+      "group": "small"
     }
   ]
 }
