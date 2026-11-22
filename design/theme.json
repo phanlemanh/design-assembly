@@ -7,7 +7,19 @@
     "typeScale": "standard",
     "cornerRadius": "floor",
     "textFont": "floor",
-    "headingFont": "text"
+    "headingFont": "text",
+    "colorRoles": {
+      "color-roles-sidebar": "follows",
+      "color-roles-neutral": "formula",
+      "color-roles-status": "floor",
+      "color-roles-chart": "floor"
+    },
+    "follows": {
+      "--sidebar-primary": "--primary",
+      "--sidebar-primary-foreground": "--primary-foreground",
+      "--sidebar-ring": "--ring"
+    },
+    "neutralFamily": "grey"
   },
   "checks": {
     "tonal-palette": [
@@ -67,9 +79,7 @@
         "scope": ":root",
         "foreground": "--muted-foreground",
         "background": "--muted",
-        "min": 4.5,
-        "waits": "color-roles-neutral",
-        "measured": 4.34
+        "min": 4.5
       },
       {
         "kind": "contrast",
@@ -125,9 +135,7 @@
         "scope": ":root",
         "foreground": "--sidebar-ring",
         "background": "--sidebar",
-        "min": 3,
-        "waits": "color-roles-sidebar, color-roles-neutral",
-        "measured": 2.48
+        "min": 3
       },
       {
         "kind": "contrast",

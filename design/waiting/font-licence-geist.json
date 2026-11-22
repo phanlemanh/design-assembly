@@ -6,5 +6,8 @@
   "hard_to_undo": false,
   "where": "0081",
   "if_refused": "Dòng design/sources/geist.json vẫn chưa được giữ và font không chọn được từ sổ nguồn; kho này vẫn dùng font của sàn như chủ repo đã đáp. Chủ repo viết giấy phép bằng lời của mình vào dòng ấy, hoặc bỏ dòng đi",
-  "asked_on": "2026-11-21"
+  "asked_on": "2026-11-21",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-22"
 }

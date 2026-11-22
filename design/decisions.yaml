@@ -27,7 +27,7 @@ decisions:
     kind: formula
     source: "WCAG 2.2 level AA, contrast ratio for text and for parts that are not text"
     check: "tool:tools/design-assembly/check.mjs"
-    note: "every pair of the plugin's table of colour roles (references/color-roles.json) in light and dark mode, 30 in all: text at the threshold for text, a ring at the threshold for parts that are not text; 2 below the threshold wait on the owner and are named on every run"
+    note: "every pair of the plugin's table of colour roles (references/color-roles.json) in light and dark mode, 30 in all: text at the threshold for text, a ring at the threshold for parts that are not text"
   - id: type-scale-values
     layer: foundations
     kind: standard

@@ -7,5 +7,8 @@
   "where": "0082",
   "if_refused": "Không giữ: năm vai chờ một màu biểu đồ do người đặt, qua dòng sổ brand-exceptions",
   "item": "decision:color-roles-chart",
-  "asked_on": "2026-11-21"
+  "asked_on": "2026-11-21",
+  "answer": "keep",
+  "by": "Manh Phan",
+  "on": "2026-11-22"
 }
