@@ -11,7 +11,7 @@
       "name": "design-assembly",
       "source": "./plugins/design-assembly",
       "description": "Audits a repository's design system against the standard decisions, adopts the values and proofs it already has, and guides a person through the decision layers, leaving checks that can fail.",
-      "version": "0.35.1",
+      "version": "0.36.1",
       "category": "development",
       "keywords": ["design-system", "determinism", "tokens", "components", "claude-code"]
     }

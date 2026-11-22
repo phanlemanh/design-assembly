@@ -18,13 +18,25 @@ A tool that sets repositories up (or a person) may lay the ledgers right after t
 anyone is asked anything: `adopt.mjs --target <repo> --starter`. It does what this page describes,
 and also lays the ledgers a repository has from birth that a person keeps after that (states,
 screens, screen widths, column types) in the form the guide starts from. It asks nothing and passes
-no answer for anyone: every value it finds is recorded as the floor's, each call only a person can
-make stays on the waiting list that `status` prints, and the guide may later replace what came from
-the floor. It ends with 1 while answers wait. It refuses a repository whose primary color role has
-a hue of its own, or one that adopted values of its own before: that repository keeps its values
-through adopting without `--starter`. A value adopted later without `--starter` is the
-repository's own, and the guide does not write over it unless a person says to replace it. After it,
-offer the guide (`/design-assembly:new`) now or later; never answer its questions yourself.
+no answer for anyone: each call only a person can make stays on the waiting list that `status`
+prints. It ends with 1 while answers wait.
+
+Whose the values are depends on what the repository shows:
+
+- On a floor with nothing of the repository's own (its primary color role is still a grey, and it
+  adopted no value before), every value found is recorded as the floor's, and the guide may later
+  replace it. Offer the guide (`/design-assembly:new`) now or later.
+- Where the primary color role has a hue of its own, such as a brand colour given when the
+  repository was set up, or where values of the repository's own were adopted before, the ledgers
+  are laid all the same and nothing is taken for the floor's: every value is the repository's, as
+  this page records it. The guide is not for that repository: the next step is this skill from
+  step 1, which asks the person whether that colour is the decided brand colour.
+
+A value adopted later without `--starter` is the repository's own, and the guide does not write
+over it unless a person says to replace it. `status` says which of the two a repository is, on the
+line of the rhythm "the repository is born": a grey default, or a primary color role of its own
+that the guide is not for. Its `next:` line names this skill in both cases, while answers wait.
+Never answer a question of the guide or of this page yourself.
 
 ## 1. Audit first
 
