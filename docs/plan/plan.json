@@ -435,14 +435,28 @@
       "parallel": [],
       "items": [
         {
+          "id": "6.0",
+          "what": "Đề bài chi tiết cho cả giai đoạn, chủ repo duyệt",
+          "state": "done",
+          "ref": "wiki/specs/0013-the-two-neighbours-call-and-read.md; chủ repo bảo viết đề bài ngày 2026-11-22 («Viết đề bài 0013»); chủ repo duyệt đề bài và đáp cả tám câu hỏi theo khuyến nghị cùng ngày («Duyệt cả tám»), trong đó có lời duyệt kiến trúc (câu 1); sáu PR ở ba kho, chưa PR nào dựng"
+        },
+        {
           "id": "6.1",
           "what": "Repo Standards gọi plugin sau khi đặt nền, và ở repo đã có",
-          "state": "todo"
+          "state": "todo",
+          "ref": "wiki/specs/0013-the-two-neighbours-call-and-read.md, mảng 1 và 2; mang theo bốn việc gác lại của nhóm «Chỗ giáp repo-standards» (cửa vào cho repo không có sàn; bốn khoá của lệnh affected; đích dẫn xuất của bước cổng; danh sách chuỗi plugin đọc), chủ repo nhận ngày 2026-11-22 («Duyệt cả tám», câu 8)"
         },
         {
           "id": "6.2",
           "what": "Kit nghiệm thu đọc sổ màn và bảng trạng thái thay cho khai lại",
-          "state": "todo"
+          "state": "todo",
+          "ref": "wiki/specs/0013-the-two-neighbours-call-and-read.md, mảng 3"
+        },
+        {
+          "id": "6.3",
+          "what": "Tài liệu kiến trúc theo kế hoạch chính thức",
+          "state": "todo",
+          "ref": "wiki/specs/0013-the-two-neighbours-call-and-read.md, tiêu chí 12; thay việc gác lại «Tài liệu kiến trúc còn vẽ năm chặng cũ» (2026-11-15), chủ repo nhận ngày 2026-11-22 («Duyệt cả tám», câu 8)"
         }
       ],
       "done_when": ["Một repo mới ra đời qua Repo Standards có đủ bộ sổ mà không ai gọi tay"],
@@ -481,14 +495,9 @@
       "note": "Cùng giai đoạn đang mở và cùng mã của brief, review và trang luật; làm chung với các đợt sửa sau lượt thử."
     },
     {
-      "id": "seam",
-      "name": "Chỗ giáp repo-standards",
-      "note": "Cùng một lượt đọc bước cổng, các tệp mk và hợp đồng giữa hai kho; là phần đầu của mục 6.1."
-    },
-    {
       "id": "reference-repo",
       "name": "Repo kiểm chứng",
-      "note": "Cùng cần làm trên repo kiểm chứng; nên đi sau nhóm chỗ giáp, để một lần lên đời mang theo các sửa của nhóm ấy."
+      "note": "Cùng cần làm trên repo kiểm chứng; nên đi sau mục 6.1, để một lần lên đời mang theo các sửa của chỗ giáp với repo-standards."
     },
     {
       "id": "who-answers",
@@ -504,6 +513,11 @@
       "id": "small",
       "name": "Việc nhỏ lẻ",
       "note": "Không chặn gì; mỗi việc làm riêng được, lúc nào cũng được."
+    },
+    {
+      "id": "floor-move",
+      "name": "Sàn thiết kế chuyển nhà",
+      "note": "Cần đề bài riêng; đụng năm tệp của Repo Standards mà plugin hôm nay không được sửa."
     }
   ],
   "parked": [
@@ -513,13 +527,6 @@
       "stage": 5,
       "why_not_now": "Chỉ sửa khi một repo thật đụng tới",
       "group": "screen-build"
-    },
-    {
-      "on": "2026-11-15",
-      "what": "Tài liệu kiến trúc còn vẽ năm chặng cũ",
-      "stage": 6,
-      "why_not_now": "Chờ chủ repo duyệt kiến trúc",
-      "group": "small"
     },
     {
       "on": "2026-11-15",
@@ -558,13 +565,6 @@
     },
     {
       "on": "2026-11-20",
-      "what": "Cửa vào cho repo không có sàn: phục vụ ở mức «Chỉ luật», và status luôn kết bằng một bước kế hoặc một câu nói rõ điều còn thiếu (đề bài 0007, việc 2 và câu 1)",
-      "stage": 6,
-      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; phần Repo Standards gọi plugin là mục 6.1",
-      "group": "seam"
-    },
-    {
-      "on": "2026-11-20",
       "what": "Tương phản ở giao diện tối không có phép kiểm nào: nút «Xoá» trong hộp thoại xác nhận 4,25:1 (3,55:1 khi rê chuột), mô tả của toast lỗi 1,7:1; cổng chỉ đo giao diện sáng và axe không đo hai nút trong chân hộp thoại; muted-foreground trên muted (4,34:1) không xuất hiện trên màn nào ở trạng thái nghỉ. Thuộc giới hạn contrast-two-pairs-only và hover-contrast-unchecked",
       "stage": 5,
       "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5 (một tác tử dựng màn chỉ từ brief, số chỗ phải đoán không tăng); ứng dụng mẫu chưa có công tắc giao diện tối",
@@ -586,31 +586,17 @@
     },
     {
       "on": "2026-11-21",
-      "what": "Hợp đồng của lệnh affected với bộ chọn bài của repo-standards: bốn khoá all, why, screens[].route, grep chưa được ghim bằng bài kiểm nào ở kho này, và lời của giới hạn affected-not-used-by-a-runner đã cũ nếu bên kia đã dùng lệnh; phiên giám sát của repo-standards nêu ngày 2026-11-21 (docs/reports/2026-11-20-decision-to-merge-trace.md của kho ấy); phía kho này đã đối chiếu, phía kho kia chưa kiểm ở đây",
-      "stage": 6,
-      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; thuộc việc hai kho bên cạnh gọi và đọc (mục 6.1)",
-      "group": "seam"
-    },
-    {
-      "on": "2026-11-21",
       "what": "Giới hạn mức nặng owner-calls-trusts-a-written-answer còn ghi giao cho repo-standards, trong khi bên ấy cho biết chủ repo đã chọn không dựng phần nhận (RS5a): dòng này cần một chủ mới hoặc một quyết định ở kho này; phiên giám sát của repo-standards nêu ngày 2026-11-21 (docs/reports/2026-11-20-decision-to-merge-trace.md của kho ấy); phía kho này đã đối chiếu, phía kho kia chưa kiểm ở đây",
       "stage": 7,
       "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; là lời chủ repo, và hợp với giai đoạn 7 khi có nhiều repo và nhiều người trả lời",
       "group": "who-answers"
     },
     {
-      "on": "2026-11-21",
-      "what": "Bước cổng plugin cài (mk/design-assembly.mk) có đích design-derived nhưng không khai vào DERIVED_TARGETS và DERIVED_FILES của repo-standards; hai cơ chế cho vật dẫn xuất đang sống cạnh nhau mà chưa có ghi chép nào nói đó là chủ ý; phiên giám sát của repo-standards nêu ngày 2026-11-21 (docs/reports/2026-11-20-decision-to-merge-trace.md của kho ấy); phía kho này đã đối chiếu, phía kho kia chưa kiểm ở đây",
+      "on": "2026-11-22",
+      "what": "Sàn thiết kế chuyển từ Repo Standards sang plugin, như trang ranh giới ba kho hứa: năm tệp của sàn, câu hỏi màu thương hiệu và loại bề mặt, cùng việc ai ghi design/behaviors.md và design/terms.json (hôm nay Repo Standards dựng, trang ranh giới gọi là sổ của plugin)",
       "stage": 6,
-      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; thuộc việc Repo Standards gọi plugin (mục 6.1)",
-      "group": "seam"
-    },
-    {
-      "on": "2026-11-21",
-      "what": "Chưa có danh sách các chuỗi plugin đọc trong Makefile, mk/ và workflow của kho chủ để bên repo-standards ghim bằng bài kiểm; giới hạn stack-couplings-beyond-names chỉ nói «khoảng hai mươi chỗ»; phiên giám sát của repo-standards nêu ngày 2026-11-21 (docs/reports/2026-11-20-decision-to-merge-trace.md của kho ấy); phía kho này đã đối chiếu, phía kho kia chưa kiểm ở đây",
-      "stage": 6,
-      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; thuộc việc hai kho bên cạnh gọi và đọc (mục 6.1)",
-      "group": "seam"
+      "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 6; chủ repo chọn không chuyển sàn ở giai đoạn này (đề bài 0013, câu 5, «Duyệt cả tám» ngày 2026-11-22); cần đề bài riêng",
+      "group": "floor-move"
     }
   ]
 }

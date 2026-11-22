@@ -21,6 +21,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 ## Specs
 
 - [0012 Nền đủ mảng — kiểu chữ, font thương hiệu và mọi vai màu do chủ repo chốt, mỗi giá trị có lệnh kiểm giữ](specs/0012-foundations-wide-enough.md) — đề bài của mục 9.0 cho cả giai đoạn 9, chủ repo duyệt 2026-11-21 và đáp cả sáu câu hỏi theo khuyến nghị; ba mảng, mười bốn tiêu chí, năm lát
+- [0013 Hai kho bên cạnh gọi và đọc — Repo Standards gọi plugin, kit nghiệm thu đọc sổ màn và bảng trạng thái](specs/0013-the-two-neighbours-call-and-read.md) — đề bài của mục 6.0 cho cả giai đoạn 6, chủ repo duyệt 2026-11-22 và đáp cả tám câu hỏi theo khuyến nghị; ba mảng, mười ba tiêu chí, sáu PR ở ba kho, tám câu hỏi
 - [0011 Bài kiểm trình duyệt theo vai — mở từng màn dưới từng vai để thấy đúng nút](specs/0011-the-browser-test-by-role.md) — đề bài của mục 5.3, chủ repo duyệt 2026-11-21 và đáp cả năm câu hỏi theo khuyến nghị; bảng kỳ vọng của cổng, cửa vai của repo, dấu của thao tác trên điều khiển, hai lát
 - [0010 Lệnh brief — phiếu giao việc để tác tử dựng một màn mà không phải đoán](specs/0010-the-screen-brief.md) — đề bài của mục 5.1, chủ repo duyệt 2026-11-21 và đáp cả năm câu hỏi theo khuyến nghị; mười hai ô, ba trạng thái, mười một tiêu chí, hai lát; chưa dựng
 - [0009 Lệnh review — soát một màn đã dựng bằng hình, mắt soát là một phích cắm](specs/0009-review-a-drawn-screen.md) — đề bài của mục 5.2, chủ repo duyệt 2026-11-20 và đáp cả năm câu hỏi theo khuyến nghị; mười tiêu chí, hai lát; chưa dựng
