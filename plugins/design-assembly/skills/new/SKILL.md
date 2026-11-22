@@ -151,9 +151,10 @@ choose. Only a principle with `source: user` settles anything. The preview print
 each value of the blueprint that goes against a principle the owner fixed: read it out; the person
 may keep the value knowingly.
 
-Eight answers belong to the person, because they are taste or brand: the product type, when the
+Ten answers belong to the person, because they are taste or brand: the product type, when the
 repository does not already record it; the source color; the type scale; the corner radius; the
-typeface of text and of headings; the neutral family; the status tones; and the list-detail
+typeface of text and of headings; the neutral family; the status tones; whether the sidebar
+follows the primary colour; whether the chart roles are kept from the floor; and the list-detail
 layout. The
 conformance level is theirs too when a contract or a regulator sets it; otherwise it is AA. In
 **review each layer**, ask for them. In **hand it to Claude**, propose them, record
@@ -175,7 +176,8 @@ value rests on.
   a direction goes against.
 - **A letter is the person's answer for all three values.** `choices.json` gives, for that letter,
   `direction` and the choice keys: write `direction` to `layers.foundations.direction` and the
-  rest to `layers.foundations.choice`, with `source: user`.
+  rest to `layers.foundations.choice`, with `source: user`, and beside them who gave the source
+  color and when: `"answered": { "source_color": { "by": "<their name>", "on": "<today>" } }`.
 - A colour of the owner's own is kept in every direction: the directions then differ in type and
   shape only. A colour the guide proposed is not the owner's, and each direction brings its own.
 - Then refine: only the values the person wants changed are asked one by one, on the sheets
@@ -204,6 +206,10 @@ the sheet is, where one picture of the whole sheet is, and what each letter stan
   `"confirmed": ["source_color"]`: only those rows stop saying they are a proposal. The same
   holds when a person simply says a proposed value is right. Never write a value the sheet did
   not show, and never list a key the person did not answer.
+- The source color the person gave is written with who gave it and when, under
+  `answered.source_color`, `{ "by": "<their name>", "on": "<today>" }`, with the name the person
+  goes by in this repository. The row of the source color then says so, and `status --roles` names
+  it beside each role the formula writes from it. A source color you proposed has none.
 - The person has a colour of their own: pass it with `--color <colour>`, once per colour, and it
   is drawn first.
 - "Warmer", "lighter", "less loud": run `--around <colour>`. It draws one step in each direction
@@ -280,6 +286,26 @@ A brand that has its own colour for a status tone gives it under
 you. The guide writes the colour as given, adds the row `brand-exceptions`, and measures it like
 every role: below the threshold it refuses, and says the ratio.
 
+### The sidebar, the chart roles and the font's licence
+
+Then the two questions of the table of colour roles that no sheet draws, each once, in words
+(`status.mjs --roles` prints the table; `references/color-roles.json` has each question's
+`question`, `recommended` and `why`): `color-roles-sidebar`, whether the sidebar's primary, its
+text and its ring follow the primary colour or are kept from the floor; and `color-roles-chart`,
+whether the five chart roles are kept from the floor. Ask them here, before the final review, not
+in the build step: the build does not stop. Recommend what the table recommends and give its
+`why`. The person's words are their answer: write it under `layers.foundations.roles.<question>`,
+`{ "source": "follows" | "floor", "by": "<their name>", "on": "<today>" }`, the source the question
+takes. A question the person leaves open waits on the owner; say so, and say which roles keep the
+floor's value until then.
+
+The typeface the person chose may need a row of the sources ledger that the build writes without
+its licence: the floor's own font, or a font the repository loads from a package or from files.
+Ask the licence now, beside these two: show what the lockfile states for the font's package (its
+`license` entry), and ask the licence the font is used under. Write nothing yet. After the build
+writes the row (step 6, `adopt.mjs` proposes it), put the person's words into its `licence`, as
+they gave them, then run `make design-assembly`. Never write a licence they did not give.
+
 ### How a record opens
 
 The interaction patterns layer asks one thing, and it is seen too: how a record of a list opens
@@ -316,6 +342,8 @@ Then run the preview again, `apply.mjs --target <repo> --dry-run`, and show:
 - the primary for light and dark and the contrast ratio each reaches, and any note that the source
   color had to move;
 - the type scale and the corner radius, and any note about small type sizes;
+- the typeface, the neutral family, the status tones, and the owner's word for each question of
+  the table of colour roles, with any question still open and the licence of a font, if asked;
 - the files that would be created or updated.
 
 On approval, set `status: approved`. The approval is the person's: never set it for them. If the
@@ -351,12 +379,12 @@ the preview again.
    its text and its ring follow the primary colour once the owner says so; the neutral roles and
    the status tones are written by their formulas once the owner chose a neutral family and the
    tones; the chart roles keep the floor's value. Each of those is a question of the table, asked
-   once for its group: write the owner's answer into the blueprint under
+   once for its group in step 4, before the final review, and written into the blueprint under
    `layers.foundations.roles.<question>`, with `source` (`follows`, `formula` or `floor`, as the
    question takes), `by` (their name) and `on` (the day, YYYY-MM-DD). Never a value, and never on
-   the owner's behalf. A question with
-   no answer waits on the owner, and `status` names it. Say so if the person expects the whole theme to
-   turn to their colour.
+   the owner's behalf. This step does not stop to ask: a question with no answer waits on the
+   owner, and `status` names it. Say so if the person expects the whole theme to turn to their
+   colour.
 
 2. `node ${CLAUDE_PLUGIN_ROOT}/scripts/adopt.mjs --target <repo>`, with no flags. The guide writes
    only the rows for what it generated; this adds the rows for what the floor already proves with
@@ -371,6 +399,11 @@ the preview again.
    reached and what the next one misses. `held` means this plugin's tool ran the check now and saw
    it fail on a changed copy; `claimed` means another check is named and was not run here. Never
    add the two.
+   Then `node ${CLAUDE_PLUGIN_ROOT}/scripts/status.mjs --target <repo> --roles`: one line per
+   colour role and per typeface, with its value in light and dark, where it comes from with the
+   owner's word, and the rows of the ledger and the checks that hold it, then a `whole:` line.
+   Read out the `whole:` line and every `not whole:` line: a value without the owner's word, or
+   without a row and its check.
 6. `make design-rate` prints a different count: every row of the ledger that names a check, held
    and claimed together, over all rows. Give it only with that explanation. Decisions of kind
    judgment have no check by design: the product type, the conformance level and the source color

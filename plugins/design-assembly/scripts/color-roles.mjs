@@ -265,12 +265,16 @@ export function pairChecks(measured, words, before = []) {
 }
 
 // Where a role's value comes from, in words, with the owner's word where the table asks one.
-function sourceWords(entry, words, choice = null) {
+// `answered` is the blueprint's record of who gave a choice of the foundations and when: a role
+// a formula writes from the source colour names it where the blueprint has it.
+export function sourceWords(entry, words, choice = null, answered = null) {
   const word = entry.asks ? words?.[entry.asks] : null;
   const said = word ? `, the owner's word (${entry.asks}, ${word.by} on ${word.on})` : "";
   const named = entry.choice?.replace("_", " ");
   if (entry.source === "formula" && !entry.asks) {
-    return `the formula ${entry.formula}, from the owner's ${named}`;
+    const given = answered?.[entry.choice];
+    const owner = given ? `, the owner's word (${given.by} on ${given.on})` : "";
+    return `the formula ${entry.formula}, from the owner's ${named}${owner}`;
   }
   if (entry.source === "formula") {
     // A role the floor does not have is written only where the owner chose its tone.
@@ -318,9 +322,10 @@ function pairWords(entry) {
 // The table as words, one line per role: its source and its pairs. `words` is a repository's
 // owner's word for each question, or null for the table alone.
 // `choice` is the foundations' choices, for the values a formula reads.
-export function rolesLines(words = null, choice = null) {
+export function rolesLines(words = null, choice = null, answered = null) {
   return COLOR_ROLES.roles.map(
-    (entry) => `${entry.role}: ${sourceWords(entry, words, choice)}. ${pairWords(entry)}.`,
+    (entry) =>
+      `${entry.role}: ${sourceWords(entry, words, choice, answered)}. ${pairWords(entry)}.`,
   );
 }
 
