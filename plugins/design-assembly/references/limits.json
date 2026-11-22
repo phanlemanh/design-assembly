@@ -4420,7 +4420,7 @@
       "opened": "2026-11-22",
       "where": ["d0085"],
       "status": "open",
-      "note": "Laying the ledgers with adopt --starter refuses a repository whose primary color role has a hue of its own, and takes every other value it finds for the floor's: a repository that kept the grey primary but changed its corner radius or type scale has those values recorded as the floor's, and the guide may write over them without --replace."
+      "note": "Laying the ledgers with adopt --starter takes every value it finds for the floor's where nothing was adopted before and the primary color role is a grey, or the guide's generated block is there: a repository that kept the grey primary but changed its corner radius or type scale has those values recorded as the floor's, and the guide may write over them without --replace."
     },
     {
       "id": "host-strings-found-by-names",
@@ -4443,6 +4443,28 @@
       "where": ["d0086"],
       "status": "open",
       "note": "The screen facts command reads the ledger of screens, the state table and the model at their usual paths only, as the affected command does, and the spelling of the ledger's keys only from its keys or the call, so a repository that keeps one of them elsewhere, or names its spelling only in prose, gets no screen, no state that must be had, no roles, or keys_not_found in place of its actions."
+    },
+    {
+      "id": "starter-cannot-tell-the-floors-values-beside-a-brand-colour",
+      "area": "adopt",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-22",
+      "where": ["d0087"],
+      "status": "open",
+      "note": "Laying the ledgers with adopt --starter on a repository whose primary color role has a hue of its own records every value it holds as the repository's, so a corner radius or a type scale the floor gave is said to be adopted from the repository, and the guide generates none of them until a person passes --replace, which gives up the colour too."
+    },
+    {
+      "id": "next-names-adopt-after-the-ledgers-are-laid",
+      "area": "status",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-22",
+      "where": ["d0087"],
+      "status": "open",
+      "note": "Once adopt --starter laid the ledgers, the next line of status and of the audit names the adopt skill on a grey floor and on a repository with a brand colour alike, while answers wait, so only the line of the rhythm the repository is born says whether the guide is for that repository."
     }
   ]
 }

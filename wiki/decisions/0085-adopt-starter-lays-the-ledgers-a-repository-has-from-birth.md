@@ -5,6 +5,7 @@ links:
   - wiki/specs/0013-the-two-neighbours-call-and-read.md
   - wiki/decisions/0007-adopt-existing-values.md
   - wiki/decisions/0005-output-tiers-and-boundaries.md
+  - wiki/decisions/0087-adopt-starter-lays-the-ledgers-where-a-repository-has-values-of-its-own.md
 sources:
   - plugins/design-assembly/scripts/adopt.mjs
   - plugins/design-assembly/scripts/apply.mjs
@@ -24,6 +25,9 @@ sources:
 
 Đã nhận, 2026-11-22. Lát 1 của đề bài [0013](../specs/0013-the-two-neighbours-call-and-read.md), tiêu chí 1, 2 và 3,
 thuộc mục 6.1. Chủ repo duyệt đề bài («Duyệt cả tám») rồi bảo dựng lát này («Dựng lát 1»). Plugin 0.34.0.
+
+Lời từ chối ở điểm 1 của mục Decision đã được thay bởi quyết định
+[0087](0087-adopt-starter-lays-the-ledgers-where-a-repository-has-values-of-its-own.md), 2026-11-22. Phần còn lại vẫn đúng.
 
 ## Context
 

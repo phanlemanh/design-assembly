@@ -312,20 +312,13 @@ export function adoption(
     );
   }
 
-  // Laying the ledgers on a floor reads every value it finds as the floor's. A repository with
-  // values of its own keeps them through adopting as usual.
-  const before = JSON.parse(read(root, FILES.theme) ?? "null");
-  const kept = (before?.adopted ?? []).filter((id) => !(before?.[FROM_FLOOR] ?? []).includes(id));
-  const own = !starter
-    ? null
-    : kept.length > 0
-      ? `${kept.join(", ")} hold values adopted from this repository`
-      : ownValuesProblem(root);
-  if (own) {
-    throw new Error(
-      `${own}. Laying the ledgers on a floor would take it for the floor's: run adopt without --starter, which keeps it`,
-    );
-  }
+  // Laying the ledgers reads every value it finds as the floor's only where the repository shows
+  // nothing of its own. Where its primary color role has a hue of its own, or it adopted values
+  // of its own before (the two things that stop the guide), the ledgers are laid all the same and
+  // nothing more is taken for the floor's: each value is the repository's, as adopting without
+  // --starter records it.
+  const theme = JSON.parse(read(root, FILES.theme) ?? "null");
+  const onFloor = starter && ownValuesProblem(root) === null;
 
   const ledgerText = read(root, LEDGER);
   const existing = ledgerText === null ? [] : parseLedger(ledgerText);
@@ -341,7 +334,6 @@ export function adoption(
       `--hold takes rows of the ledger that have no check; ${notHoldable.join(", ")} is not one`,
     );
   }
-  const theme = JSON.parse(read(root, FILES.theme) ?? "null");
   const result = {
     stylesheet: theme?.stylesheet ?? findStylesheet(root),
     files_read: [],
@@ -800,7 +792,7 @@ export function adoption(
     const adopted = [
       ...new Set([...(theme?.adopted ?? []), ...tooled.filter((id) => VALUES.includes(id))]),
     ];
-    const floorValues = starter ? adopted : (theme?.[FROM_FLOOR] ?? []);
+    const floorValues = onFloor ? adopted : (theme?.[FROM_FLOOR] ?? []);
     const data = {
       version: 1,
       ...(result.stylesheet ? { stylesheet: result.stylesheet } : {}),
@@ -811,7 +803,8 @@ export function adoption(
       },
       ...(adopted.length > 0 ? { adopted } : {}),
       // Laid on a floor, the values adopted are the floor's, named one by one, and the guide may
-      // replace them. A value adopted later without --starter is the repository's own.
+      // replace them. A value adopted without --starter, or on a repository that has values of
+      // its own, is the repository's own.
       ...(floorValues.length > 0 ? { [FROM_FLOOR]: floorValues } : {}),
       checks: { ...theme?.checks, ...checks },
       // What a person wrote of the change map is theirs: kept as it is.
@@ -977,9 +970,10 @@ const USAGE = `usage: node adopt.mjs [--target DIR] [--dry-run] [--conformance-l
   --starter            On a repository that has just been given its floor, also lay the ledgers
                        it has from birth that a person keeps after that (states, screens, screen
                        widths, column types), in the form the guide starts from. Asks nothing:
-                       every value found is the floor's, and the guide may replace it. Refused
-                       where the primary color role has a hue of its own, or where values of the
-                       repository's own were adopted before.
+                       every value found is the floor's, and the guide may replace it. Where
+                       the primary color role has a hue of its own, or values of the
+                       repository's own were adopted before, the ledgers are laid all the same
+                       and every value stays the repository's.
   --json               One JSON document: the rows added and how each is held, what the lint
                        re-run shows, what needs a person, and the files written or that would be.
 
