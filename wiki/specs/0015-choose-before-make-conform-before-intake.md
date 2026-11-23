@@ -1,7 +1,7 @@
 ---
 type: spec
 title: Chọn trước, tạo sau — lấy về, chuẩn hoá, rồi mới nhập kho
-status: needs-approval
+status: approved
 tier: 1
 links:
   - wiki/specs/0006-the-reusable-store.md
@@ -27,13 +27,15 @@ sources:
   - "chủ repo, 2026-11-24: «Cách tôi mô phỏng lại cách làm của con người hay những đội top tier là dùng lại và tối ưu, như cách tạo kho, thì qua thời gian cải tiến nó và nó nhất quán với hành vi chung của cả hệ thống»"
   - "chủ repo, 2026-11-24: «bao giờ khi lấy từ kho ngoài về thì đều không chuẩn và chấp nhận việc này nhưng phải có giải pháp để chuẩn nó, tinh chỉnh trước sau đó mới nhập kho»"
   - "chủ repo, 2026-11-24: «Viết đề bài»"
+  - "chủ repo, 2026-11-24: «Duyệt cả chín», đáp câu «Duyệt đề bài 0015 theo khuyến nghị của cả chín câu hỏi không?»"
 ---
 
 # 0015 Chọn trước, tạo sau — lấy về, chuẩn hoá, rồi mới nhập kho
 
 Máy viết ngày 2026-11-24 theo lời chủ repo («Viết đề bài»), sau lượt đo ReUI ở ổ linh kiện (PR #119) và một lượt đọc
-repo kiểm chứng. Đề bài chờ duyệt; chưa gì được dựng, và kế hoạch chưa đổi. Việc này ngoài kế hoạch hôm nay: nó nối
-tiếp giai đoạn 10, và nếu được làm trước thì giai đoạn 7 chậm lại (câu hỏi 1).
+repo kiểm chứng. Chủ repo duyệt đề bài và đáp cả chín câu hỏi theo khuyến nghị cùng ngày («Duyệt cả chín»). Chưa gì
+được dựng. Kế hoạch có thêm giai đoạn 11, đứng ngay sau giai đoạn 10 và trước giai đoạn 7; đề bài này là mục 11.0, ghi
+xong khi giai đoạn 11 mở, vì luật kế hoạch để mọi mục của giai đoạn chưa mở ở `todo`.
 
 ## Intent
 
@@ -246,11 +248,11 @@ Mỗi dòng chứng bằng một lệnh hay một bản ghi lượt thử.
 
 Không đổi mô hình nghiệp vụ của kho này; `ontology/` không đổi. Hợp đồng sổ đổi, cần người duyệt như mọi thay đổi hợp
 đồng: sổ nhập kho thêm bản ghi chuẩn hoá và mã băm của mọi tệp; sổ nguồn ngoài thêm thư mục của nguồn và vị trí trên
-thang. Thêm một tên lệnh nếu câu hỏi 2 được nhận, và các từ ở mục «Từ ngữ» vào `references/vocabulary.json`.
+thang. Thêm tên lệnh `conform` (câu hỏi 2), và các từ ở mục «Từ ngữ» vào `references/vocabulary.json`.
 
 ## Plan
 
-Sáu lát sau lời duyệt, mỗi lát một PR, theo thứ tự:
+Sáu lát sau lời duyệt, là các mục 11.1 tới 11.6 của kế hoạch, mỗi lát một PR, theo thứ tự:
 
 1. **Luật và lời khuyên** (tiêu chí 1, 2, 16): bản quyết định, `plugs` ở ổ linh kiện, phạm vi của 0096, và các dòng
    giới hạn cho điều chưa dựng.
@@ -261,8 +263,8 @@ Sáu lát sau lời duyệt, mỗi lát một PR, theo thứ tự:
 5. **Cổng giữ việc chọn** (tiêu chí 11).
 6. **Kho tốt dần và lượt thử** (tiêu chí 12, 13, 14, 15).
 
-Lát 1 đủ để lời khuyên của hệ thôi ngược với luật của repo kiểm chứng. Các lát sau không chờ nhau, trừ lát 6 cần lát 2
-và 3.
+Lát 1 đủ để lời khuyên của hệ thôi ngược với luật của repo kiểm chứng. Nó sửa phạm vi của quyết định 0096, nên cần PR
+#119 vào nhánh chính trước. Các lát sau không chờ nhau, trừ lát 6 cần lát 2 và 3.
 
 ## Test plan
 
@@ -284,24 +286,42 @@ Mỗi câu kèm một khuyến nghị.
 1. **Việc này đứng ở đâu trong kế hoạch?** Khuyến nghị: một giai đoạn mới ngay sau giai đoạn 10, trước giai đoạn 7,
    và lát 1 làm ngay. Căn cứ: lời khuyên của `plugs` sẽ ngược với luật của repo kiểm chứng ngay khi PR #119 gộp. Từ
    chối thì nó vào danh sách để lại, và PR #119 chỉ thêm một câu về phạm vi.
+   Đã nhận: giai đoạn 11 đứng ngay sau giai đoạn 10, trước giai đoạn 7. Lát 1 (mục 11.1) làm ngay theo lời chủ repo,
+   không chờ giai đoạn 11 mở.
+
 2. **Chuẩn hoá là một lệnh riêng hay một nhịp của `intake`?** Khuyến nghị: lệnh riêng, tên `conform`. Căn cứ: nó chạy
    nhiều lần cho một món, kể cả sau khi đã nhập kho, mỗi khi nguồn ra bản mới. Từ chối thì `intake` gánh thêm việc
    và phải chạy lại cho món đã có dòng sổ.
+   Đã nhận: lệnh riêng, tên `conform`.
+
 3. **Mức «bắt buộc» gồm đúng năm điều ở mục «Đủ chuẩn»?** Khuyến nghị: có. Từ chối theo hướng chặt hơn thì một món cỡ
    `filters` phải sửa trọn 71 lỗi kiểu mới được dùng.
+   Đã nhận: đúng năm điều ấy.
+
 4. **Cho vá mã của nhà cung cấp, hay chỉ cho bọc?** Khuyến nghị: cho vá, chỉ bằng bản vá ghi lại, và với linh kiện đơn
    thì bọc trước. Căn cứ: câu tiếng Anh cho trình đọc màn hình của lượt đo nằm trong một tệp của mã gốc
    (`cascader-i18n.tsx`), và chưa ai thử xem lớp bọc có đổi được nó không. Từ chối thì
    luật là «không bao giờ sửa» như repo kiểm chứng, và những chỗ lớp bọc không tới thành điều khai miễn.
+   Đã nhận: cho vá, chỉ bằng bản vá ghi lại; linh kiện đơn thì bọc trước. Sửa tay vẫn cấm.
+
 5. **Thư mục của nguồn ngoài khai ở đâu?** Khuyến nghị: một khoá của tệp nguồn trong sổ nguồn ngoài, để mọi công cụ
    đọc cùng một chỗ. Từ chối thì mỗi công cụ tự biết, như hôm nay.
+   Đã nhận: một khoá của tệp nguồn trong sổ nguồn ngoài.
+
 6. **Luật này áp cho ổ linh kiện, hay mọi ổ?** Khuyến nghị: chỉ ổ linh kiện. Ở các ổ khác, phích ngoài và phích của
    plugin là hai bên làm cùng một việc, và tiêu chí 5 của đề bài 0014 vẫn hợp.
+   Đã nhận: chỉ ổ linh kiện.
+
 7. **Tệp linh kiện mới không dòng sổ: cổng đỏ hay chỉ báo?** Khuyến nghị: đỏ cho tệp thêm sau ngày repo có sổ; tệp
    có từ trước vào danh sách «có từ trước» một lần, theo lời chủ repo. Từ chối thì nó vẫn chỉ là một dòng báo cáo.
+   Đã nhận: đỏ cho tệp thêm sau ngày repo có sổ.
+
 8. **Gửi sang Repo Standards hai việc?** Một: phép kiểm của sàn đọc thư mục nhà cung cấp từ sổ nguồn ngoài, thay vì
    viết sẵn một thư mục. Hai: dòng «không cài khối có sẵn» của trang luật giao diện nhường cho luật ba tầng. Khuyến
    nghị: gửi cả hai, sau khi lát 2 có hình dạng sổ. Từ chối thì ở repo dùng sàn ấy, mọi món ngoài phải khai miễn
    phép kiểm của sàn.
+   Đã nhận: gửi cả hai, sau khi lát 2 có hình dạng sổ. Mỗi lần gửi vẫn nêu trước gửi gì.
+
 9. **Lượt thử dùng lại `filters`?** Khuyến nghị: có, vì đã có số của lối cũ để đặt cạnh. Ước tính và trần nêu khi hỏi
    lời cho đo.
+   Đã nhận: dùng lại `filters`. Lượt thử vẫn cần lời cho đo riêng, kèm ước tính và trần.

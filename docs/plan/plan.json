@@ -513,6 +513,65 @@
       ]
     },
     {
+      "id": 11,
+      "name": "Chọn trước, tạo sau",
+      "state": "later",
+      "parallel": [],
+      "items": [
+        {
+          "id": "11.0",
+          "what": "Đề bài chi tiết cho cả giai đoạn, chủ repo duyệt",
+          "state": "todo",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, đã duyệt ngày 2026-11-24 («Duyệt cả chín»): giai đoạn này đứng ngay sau giai đoạn 10 và trước giai đoạn 7, lát 1 làm ngay; chuẩn hoá là lệnh riêng tên conform; mức bắt buộc gồm năm điều; cho vá mã nhà cung cấp chỉ bằng bản vá ghi lại, linh kiện đơn thì bọc trước; thư mục của nguồn ngoài là một khoá của sổ nguồn ngoài; luật chỉ áp cho ổ linh kiện; tệp linh kiện mới không dòng sổ làm cổng đỏ; gửi hai việc sang Repo Standards sau khi lát 2 có hình dạng sổ; lượt thử dùng lại filters; mục này ghi xong khi giai đoạn 11 mở"
+        },
+        {
+          "id": "11.1",
+          "what": "Luật và lời khuyên: bản quyết định «chọn trước, tạo sau» cho ổ linh kiện, plugs ở ổ linh kiện bày thang của repo thay vì so nguồn ngoài với intake, phạm vi của quyết định 0096, và các dòng giới hạn cho điều chưa dựng",
+          "state": "todo",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 1, 2 và 16; theo câu hỏi 1 chủ repo cho làm ngay, không chờ giai đoạn mở («Duyệt cả chín», 2026-11-24); cần PR #119 vào nhánh chính trước, vì lát này sửa phạm vi của quyết định 0096"
+        },
+        {
+          "id": "11.2",
+          "what": "Sổ và trạng thái: bản ghi chuẩn hoá, mã băm của mọi tệp, trạng thái «lấy về», câu hỏi nêu trước số tệp và gói, intake từ chối ghi dòng sổ khi món chưa chuẩn",
+          "state": "todo",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 3 đến 6; đổi hợp đồng sổ, cần người duyệt"
+        },
+        {
+          "id": "11.3",
+          "what": "Lệnh conform: bản vá ghi lại trên bản gốc đã ghim, chạy lại ra cùng kết quả, dừng khi một bản vá không khớp; inventory báo sửa tay ở mọi tệp của món",
+          "state": "todo",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 7 và 8, câu hỏi 2 và 4"
+        },
+        {
+          "id": "11.4",
+          "what": "Thang do repo khai: repo đặt nguồn ngoài trước hay sau bộ khởi đầu và kho của họ; find và intake theo thứ tự ấy và đọc được danh mục repo đã ghim",
+          "state": "todo",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 9 và 10"
+        },
+        {
+          "id": "11.5",
+          "what": "Cổng giữ việc chọn: đỏ khi một tệp linh kiện mới không có dòng sổ, khi một dòng tạo tay thiếu chữ đã tra hay ứng viên gần nhất, khi một nhu cầu có hai dòng sổ",
+          "state": "todo",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 11, câu hỏi 7"
+        },
+        {
+          "id": "11.6",
+          "what": "Kho tốt dần và lượt thử: change mở rộng một khối, inventory báo món đứng sau bản ghim; rồi lượt thử lấy lại filters qua lối mới và đo lần dùng thứ hai",
+          "state": "todo",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 12 đến 15, câu hỏi 9; lượt thử hỏi chủ repo trước vì tốn token"
+        }
+      ],
+      "done_when": [
+        "Trên bản sao của ứng dụng mẫu, một món của nguồn ngoài đi trọn lấy về, chuẩn hoá, nhập kho: cổng xanh, không luật nào tắt ngoài danh sách khai miễn; và lần dùng thứ hai của khối ấy được đo, đặt cạnh lần đầu"
+      ],
+      "needs_owner": [
+        "Duyệt mỗi thay đổi hợp đồng sổ",
+        "Cho phép từng lượt thử tốn token",
+        "Duyệt từng điều khai miễn của một món",
+        "Cho gửi từng yêu cầu sang Repo Standards"
+      ]
+    },
+    {
       "id": 7,
       "name": "Lõi của họ sản phẩm",
       "state": "later",
