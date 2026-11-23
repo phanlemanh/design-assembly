@@ -23,6 +23,7 @@ import { fileURLToPath } from "node:url";
 import { candidateFrom } from "../scripts/bring-in.mjs";
 import { bringOut } from "../scripts/bring-out.mjs";
 import { readState, runChecks } from "../templates/tools/design-assembly/check.mjs";
+import { regenerated } from "../templates/tools/design-assembly/components.mjs";
 import {
   designMdProblems,
   DESIGN_MD,
@@ -33,14 +34,8 @@ import {
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ROOT = path.resolve(PLUGIN, "../..");
 const BRING_OUT = path.join(PLUGIN, "scripts/bring-out.mjs");
-const LEDGERS = [
-  "design/tokens.json",
-  "design/blueprint.json",
-  "design/theme.json",
-  "design/component-registry.json",
-  "design/sources",
-  "design/decisions.yaml",
-];
+// The whole design folder: the ledgers, and the pages of screen kinds the component manifest reads.
+const LEDGERS = ["design"];
 
 const made = [];
 after(() => made.forEach((dir) => rmSync(dir, { recursive: true, force: true })));
@@ -55,7 +50,7 @@ const cli = (...args) => spawnSync(execPath, [BRING_OUT, ...args], { encoding: "
 function copyRepo() {
   const dir = mkdtempSync(path.join(tmpdir(), "design-bring-out-"));
   made.push(dir);
-  for (const file of [...LEDGERS, "src/index.css", "tools/design-assembly", "Makefile", "mk"]) {
+  for (const file of [...LEDGERS, "src", "tools/design-assembly", "Makefile", "mk"]) {
     if (existsSync(path.join(ROOT, file)))
       cpSync(path.join(ROOT, file), path.join(dir, file), { recursive: true });
   }
@@ -175,7 +170,7 @@ test("criterion 14, broken: a bundle file changed by hand, or left behind a ledg
     new RegExp(`${file.replaceAll(".", "\\.")} differs from what the design ledgers give`),
   );
   bringOut(dir, { dryRun: false });
-  const registry = JSON.parse(read(dir, "design/component-registry.json"));
+  const registry = regenerated(dir).data;
   registry.components = registry.components.slice(1);
   put(dir, "design/component-registry.json", `${JSON.stringify(registry, null, 2)}\n`);
   assert.match(exportsCheck(dir).problem, /components\.md was written from the design ledgers at/);
@@ -261,4 +256,55 @@ test("review: a repository whose copy of the tool is older than the exports is r
   const broken = copyRepo();
   put(broken, "design/theme.json", "{ no");
   assert.throws(() => bringOut(broken, { dryRun: true }), /design\/theme\.json is not JSON/);
+});
+
+// ---- review of PR #109 ---------------------------------------------------------------------------
+
+test("review: the exports stand on a clean clone, where the component manifest is not yet written", () => {
+  const dir = copyRepo();
+  rmSync(path.join(dir, "design/component-registry.json"), { force: true });
+  bringOut(dir, { dryRun: false });
+  assert.ok(!existsSync(path.join(dir, "design/component-registry.json")));
+  assert.equal(exportsCheck(dir).problem, null);
+  assert.match(read(dir, `${SYSTEM_FOLDER}/components.md`), /\bItemList\b/);
+  // Written by the tool alone, as a repository that took this version of it would, the gate agrees.
+  const tool = spawnSync(
+    execPath,
+    [path.join(PLUGIN, "templates/tools/design-assembly/exports.mjs"), "--write", "--target", dir],
+    {
+      encoding: "utf8",
+    },
+  );
+  assert.equal(tool.status, 0, tool.stderr);
+  assert.equal(exportsCheck(dir).problem, null);
+});
+
+test("review: the tool's writer refuses a --target with no folder, with the reason and 2", () => {
+  const tool = spawnSync(
+    execPath,
+    [path.join(PLUGIN, "templates/tools/design-assembly/exports.mjs"), "--write", "--target"],
+    {
+      encoding: "utf8",
+    },
+  );
+  assert.equal(tool.status, 2);
+  assert.match(tool.stderr, /^usage: /);
+});
+
+test("review: a name from the ledgers that YAML or Markdown would read otherwise is quoted or escaped", () => {
+  const dir = copyRepo();
+  const tokens = JSON.parse(read(dir, "design/tokens.json"));
+  tokens.color['we: ird "q"'] = { $type: "color", $value: "#123456" };
+  put(dir, "design/tokens.json", `${JSON.stringify(tokens, null, 2)}\n`);
+  const registry = regenerated(dir).data;
+  registry.components = [
+    ...registry.components,
+    { name: "Odd*Name_", category: "component", file: "src/x.tsx", level: "atom", source: "own" },
+  ];
+  put(dir, "design/component-registry.json", `${JSON.stringify(registry, null, 2)}\n`);
+  bringOut(dir, { dryRun: false });
+  const text = read(dir, DESIGN_MD);
+  assert.match(text, /^ {2}"we: ird \\"q\\"": "#123456"$/m);
+  assert.deepEqual(designMdProblems(text), []);
+  assert.match(read(dir, `${SYSTEM_FOLDER}/components.md`), /\*\*Odd\\\*Name\\_\*\*/);
 });
