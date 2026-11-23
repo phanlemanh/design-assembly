@@ -1465,19 +1465,36 @@ const FONT_WORDS = {
 };
 
 // The lines of the rules page about the typeface: only where the repository holds its rows.
-function typefaceRules(checks, blueprint) {
+// `fonts` is what the build loads, as its adapter reads it, and `stylesheet` the repository's
+// stylesheet: where no guide chose the typefaces, they are the stylesheet's as found, and a
+// variable the stylesheet does not set is the one the build's font loader sets.
+function typefaceRules(checks, blueprint, { fonts = [], stylesheet } = {}) {
   const values = Object.fromEntries(
     (checks.typeface ?? []).map((check) => [check.variable, check.expected]),
   );
   const [textVariable, headingVariable] = FONT_VARIABLES;
   const choice = blueprint?.layers?.foundations?.choice ?? {};
+  const decided = LATER_CHOICES.some((key) => choice[key] !== undefined);
+  const unset = (variable) => {
+    const load = fonts.find((item) => item.variable === variable);
+    return load
+      ? `the typeface ${load.by} sets as \`${variable}\``
+      : `\`${variable}\`, which the stylesheet does not set`;
+  };
   const words = (key, variable) =>
-    sourceFontId(choice[key]) !== null
-      ? `\`${values[variable]}\`, the font of \`${sourceFontFile(choice[key])}\``
-      : (FONT_WORDS[choice[key]]?.(values[variable]) ?? `\`${values[variable]}\``);
+    values[variable] === undefined
+      ? unset(variable)
+      : sourceFontId(choice[key]) !== null
+        ? `\`${values[variable]}\`, the font of \`${sourceFontFile(choice[key])}\``
+        : (FONT_WORDS[choice[key]]?.(values[variable]) ?? `\`${values[variable]}\``);
+  const held = [textVariable, headingVariable].filter((variable) => variable in values);
+  const holds = held.length === 2 ? "both" : `\`${held[0]}\` to it`;
+  const where = stylesheet ? `\`${stylesheet}\`` : "the stylesheet";
   return [
     "typeface" in checks &&
-      `Running text is set in ${words("text_font", textVariable)} and headings in ${words("heading_font", headingVariable)}, as \`${BLUEPRINT}\` decides: the generated block of the stylesheet names them as \`${textVariable}\` and \`${headingVariable}\`, and the gate holds both.`,
+      (decided
+        ? `Running text is set in ${words("text_font", textVariable)} and headings in ${words("heading_font", headingVariable)}, as \`${BLUEPRINT}\` decides: the generated block of the stylesheet names them as \`${textVariable}\` and \`${headingVariable}\`, and the gate holds both.`
+        : `Running text is set in ${words("text_font", textVariable)} and headings in ${words("heading_font", headingVariable)}, as ${where} sets them today, adopted as found: the gate holds ${holds}.`),
     "typeface" in checks &&
       `Never name a typeface in a screen or a component: text takes \`${textVariable}\` from the page, and a heading takes \`${headingVariable}\`. Another typeface is the owner's answer in the guide, never a class.`,
     "font-loaded" in checks &&
@@ -1520,7 +1537,8 @@ function colourRules(checks, blueprint) {
   ];
 }
 
-// `facts.buttons` is whether the ledger of screens gives some screen a button for an action.
+// `facts.buttons` is whether the ledger of screens gives some screen a button for an action;
+// `facts.fonts` and `facts.stylesheet`, what the build loads and the stylesheet, for the typeface.
 export function rulesPage(checks, has, blueprint = null, facts = {}) {
   const held = (id) => id in checks;
   // Where a screen is entered in the ledger: its own file, or the one file every screen shares.
@@ -1556,7 +1574,7 @@ export function rulesPage(checks, has, blueprint = null, facts = {}) {
     if (shown.length > 0) lines.push("", `## ${title}`, "", ...shown.map((item) => `- ${item}`));
   };
   section(FIXED_SECTION, fixedFirst(blueprint, held("decision-sheet")));
-  section("Type", typefaceRules(checks, blueprint));
+  section("Type", typefaceRules(checks, blueprint, facts));
   section("Colour", colourRules(checks, blueprint));
   const typed = has("src/components/ui/typed-table.tsx");
   section("A table of data", [

@@ -1034,10 +1034,17 @@ test("the handoff book names the font and where it comes from, from the sources 
     bare.map((font) => [font.role, font.family, font.row]),
     [["text and headings", "Brand Sans", null]],
   );
-  assert.match(bare[0].loaded, /the package brand-type, which src\/index\.css imports/);
+  assert.deepEqual(bare[0].loaded, {
+    via: "package",
+    file: "src/index.css",
+    specifier: "brand-type",
+  });
   const unlisted = renderBook(collectFacts(dir));
   assert.match(unlisted, /Brand Sans/);
-  assert.match(unlisted, /the package brand-type, which src\/index\.css imports/);
+  assert.match(
+    unlisted,
+    /the package <code>brand-type<\/code>, which <code>src\/index\.css<\/code> imports/,
+  );
   assert.match(unlisted, /no row in the sources ledger/);
 
   put(dir, ROW, pretty(packaged()));
