@@ -32,6 +32,11 @@
       "id": "change",
       "script": "scripts/change.mjs",
       "through": ["components", "upgrade-and-change"]
+    },
+    {
+      "id": "bring-out",
+      "script": "scripts/bring-out.mjs",
+      "through": ["handoff", "decision"]
     }
   ],
   "unseen_writes": {
@@ -611,6 +616,13 @@
           "kind": "command",
           "default": true,
           "scripts": ["scripts/book.mjs", "scripts/examples.mjs"]
+        },
+        {
+          "id": "bring-out",
+          "kind": "command",
+          "default": false,
+          "scripts": ["scripts/bring-out.mjs", "templates/tools/design-assembly/exports.mjs"],
+          "reads": ["tokens", "blueprint", "components", "sources"]
         }
       ],
       "layers": [

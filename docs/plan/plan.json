@@ -499,8 +499,8 @@
         {
           "id": "10.4",
           "what": "Cầu nối ra: xuất hệ từ sổ, DESIGN.md trước rồi một hệ loại Design System trong Claude (đẩy lên và đặt mặc định chỉ khi chủ repo cho), cổng đỏ khi bản xuất cũ; rồi lượt thử của dòng «xong khi»",
-          "state": "todo",
-          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 10, 13 và 14, câu hỏi 6; việc 6 của wiki/specs/0007-widen-the-entry-the-system-and-the-intent.md"
+          "state": "doing",
+          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 10, 13 và 14, câu hỏi 6; việc 6 của wiki/specs/0007-widen-the-entry-the-system-and-the-intent.md; lát 1 (tiêu chí 10 và phần sinh, cổng của tiêu chí 14) ngày 2026-11-23 theo lời chủ repo («Dựng mục 10.4»): wiki/decisions/0092-bring-out-writes-the-ledgers-out-and-the-gate-holds-them.md; lát 2 còn lời cho phép gửi ra ngoài, lượt đẩy, câu hỏi đặt mặc định và dòng của status"
         }
       ],
       "done_when": [

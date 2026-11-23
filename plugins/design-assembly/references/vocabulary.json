@@ -670,6 +670,12 @@
       "meaning": "A whole direction read from what a tool from outside made (a token file, a DESIGN.md, an export of variables, or a system of tokens and a README), shown beside the plugin's directions on the sheet and never written to a ledger; a value of it against one the owner settled is a question, and the ledger wins until the owner answers.",
       "source": "The specification of outside plugs, 2026-11-23",
       "trust": "coined"
+    },
+    {
+      "term": "export of the ledgers",
+      "meaning": "A file written from the design ledgers for a tool that does not read them, a DESIGN.md or a design system bundle, stamped with the state of the ledgers it was written from; the gate is red when a ledger changes and the export is not written again, and an export is never read back as a ledger.",
+      "source": "The specification of outside plugs, 2026-11-23",
+      "trust": "coined"
     }
   ]
 }

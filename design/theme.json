@@ -600,6 +600,33 @@
         "rule": "shadcn/no-raw-colors",
         "at": "src/App.tsx"
       }
+    ],
+    "design-exports": [
+      {
+        "kind": "export",
+        "file": "DESIGN.md",
+        "name": "design-assembly"
+      },
+      {
+        "kind": "export",
+        "file": "design/export/system/README.md",
+        "name": "design-assembly"
+      },
+      {
+        "kind": "export",
+        "file": "design/export/system/tokens.json",
+        "name": "design-assembly"
+      },
+      {
+        "kind": "export",
+        "file": "design/export/system/components.md",
+        "name": "design-assembly"
+      },
+      {
+        "kind": "export",
+        "file": "design/export/system/assets.json",
+        "name": "design-assembly"
+      }
     ]
   },
   "affected": {
