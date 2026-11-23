@@ -72,8 +72,18 @@ const FIXTURE_PLUGS = [
     sends: "The design values of the repository, to the fixture service.",
     measured: measured(["direction", "brand-assets", "handoff"]),
     recommended_by_owner: {
-      "brand-assets": { record: "d0088", said: "Keep at handoff and brand", on: "2026-11-23" },
-      handoff: { record: "d0088", said: "Keep at handoff and brand", on: "2026-11-23" },
+      "brand-assets": {
+        record: "d0088",
+        said: "Keep at handoff and brand",
+        on: "2026-11-23",
+        sends: "The design values of the repository, to the fixture service.",
+      },
+      handoff: {
+        record: "d0088",
+        said: "Keep at handoff and brand",
+        on: "2026-11-23",
+        sends: "The design values of the repository, to the fixture service.",
+      },
     },
     detect: { file: "fixtures/house-system" },
   },
@@ -182,6 +192,7 @@ test("criterion 1: each socket gives the plugin's plug, the outside candidates, 
     record: "d0088",
     said: "Keep at handoff and brand",
     on: "2026-11-23",
+    sends: "The design values of the repository, to the fixture service.",
   });
   const components = socketOf(board, "components").candidates[0];
   assert.equal(components.measured, "unmeasured");
@@ -860,5 +871,19 @@ test("review: --reask says which row left, with the plug, name and day it carrie
   for (const page of ["new", "adopt"]) {
     const text = read(PLUGIN, `skills/${page}/SKILL.md`);
     assert.match(text, /may leave questions on the waiting list/, page);
+  }
+});
+
+test("review: the owner's named exception at handoff and brand assets holds only for the place the word was said of", () => {
+  const caps = copy(real);
+  const system = caps.plugs.find((plug) => plug.id === "claude-design");
+  system.detect = { file: "fixtures/claude-design" };
+  system.sends = "The whole repository, to another service.";
+  const dir = empty();
+  put(dir, "fixtures/claude-design", "here\n");
+  const board = boardOf(dir, caps);
+  for (const id of ["handoff", "brand-assets"]) {
+    const asked = recommendationOf(socketOf(board, id));
+    assert.notEqual(asked.candidates[0].name, "claude-design", id);
   }
 });

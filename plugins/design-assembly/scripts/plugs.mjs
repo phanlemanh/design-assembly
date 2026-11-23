@@ -37,6 +37,7 @@ import {
   plugSource,
   readCapabilities,
   socketsOf,
+  wordHolds,
 } from "./capabilities.mjs";
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, requested } from "./document.mjs";
@@ -80,7 +81,8 @@ export function boardOf(
           state: outside.state,
           measured: outside.measured,
           beats_plugin: plug.measured?.[socket.id]?.beats_plugin ?? null,
-          owner: plug.recommended_by_owner?.[socket.id] ?? null,
+          // The owner's word leads only for the place it was said of.
+          owner: wordHolds(plug, socket.id) ? plug.recommended_by_owner[socket.id] : null,
           needs: outside.needs,
           sends: plug.sends ?? null,
           skills: list(plug.skills),

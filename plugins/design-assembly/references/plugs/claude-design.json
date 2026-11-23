@@ -28,12 +28,14 @@
     "brand-assets": {
       "record": "d0088",
       "said": "Keep at handoff and brand",
-      "on": "2026-11-23"
+      "on": "2026-11-23",
+      "sends": "The design values and files of the repository it is given, to a private artifact of the person's Claude account."
     },
     "handoff": {
       "record": "d0088",
       "said": "Keep at handoff and brand",
-      "on": "2026-11-23"
+      "on": "2026-11-23",
+      "sends": "The design values and files of the repository it is given, to a private artifact of the person's Claude account."
     }
   }
 }
