@@ -11,7 +11,9 @@
 // review-harvest.mjs). Only with --queue does anything reach the repository: the questions of the
 // harvest, each as one new file of the waiting list, the way the decision sheet asks them.
 // Usage: node review.mjs <screen id> [--target DIR] [--states] [--findings FILE [--queue]] [--json]
-//                        [--out DIR [--format html|pdf]]
+//                        [--skill NAME]... [--out DIR [--format html|pdf]]
+// --skill lists the skills of the session: where the owner chose an eye for the socket and the
+// session has not it, the review is the command's run alone, and says it falls back.
 // Exit: 0 nothing was found; 1 there are findings, a picture asked for was not drawn, or the
 // record was written in fewer formats than asked; 2 a wrong call, a screen the ledger does not
 // have, a findings file that cannot be harvested, or a repository with no build the plugin can draw.
@@ -26,7 +28,7 @@ import { today } from "./decide.mjs";
 import { originOf } from "./family.mjs";
 import { findingsOf } from "./measure.mjs";
 import {
-  eyesOf,
+  eyeChoice,
   finderOf,
   harvestOf,
   listedOf,
@@ -42,12 +44,13 @@ import { eyeLimit, recordOf } from "./review-record.mjs";
 import { drawScreen, SHOTS_FOLDER } from "./review-shots.mjs";
 
 const USAGE =
-  "usage: node review.mjs <screen id> [--target DIR] [--states] [--findings FILE [--queue]] [--json] [--out DIR [--format html|pdf]]\n";
+  "usage: node review.mjs <screen id> [--target DIR] [--states] [--findings FILE [--queue]] [--skill NAME]... [--json] [--out DIR [--format html|pdf]]\n";
 const FLAGS = {
   ...DOCUMENT_FLAGS,
   "--states": "switch",
   "--findings": "value",
   "--queue": "switch",
+  "--skill": "list",
 };
 // What every answer says of the eye: this command has none.
 export const NO_EYE = {
@@ -91,10 +94,21 @@ const eyeOf = (read) => ({
 export async function review(
   target,
   id,
-  { all = false, keep = false, findings = null, file = undefined, on = today() } = {},
+  {
+    all = false,
+    keep = false,
+    findings = null,
+    file = undefined,
+    on = today(),
+    skills = null,
+  } = {},
 ) {
   const facts = factsOf(target, id);
-  const read = findings === null ? null : readFindings(findings, facts, { file });
+  // The owner's choice of a plug for the socket says which eyes may look; a session listed without
+  // the chosen eye falls back to the command's run alone.
+  const choice = eyeChoice(target, skills);
+  const read =
+    findings === null ? null : readFindings(findings, facts, { file, eyes: choice.eyes });
   const drawn = await drawScreen(target, facts.screen, { widths: facts.widths, all, keep });
   // Which pictures there are is known only once they are drawn: a state the screen list does not
   // say how to reach, or a dark theme the application lacks, draws none; and a picture's page size
@@ -134,7 +148,8 @@ export async function review(
       ...seen,
       findings: combined,
       eye: read ? eyeOf(read) : NO_EYE,
-      eyes: eyesOf(),
+      eyes: choice.eyes,
+      falling_back: choice.falling_back,
       harvest: listedOf(target, harvestOf(combined, facts, { target, on })),
     },
     // The pack is what an eye reads before it looks: the machine's findings alone.
@@ -224,14 +239,17 @@ function harvestLines(result) {
   return lines;
 }
 
-// What the answer says of the eye: which one looked, or that none did and which the board names.
-function eyeLines(result) {
+// What the answer says of the eye: which one looked, or that none did and which the board names,
+// and the line of a socket that falls back to the command's run alone.
+export function eyeLines(result) {
+  const back = result.falling_back ? [result.falling_back] : [];
   if (result.eye.looked) {
     return [
       `seen by ${result.eye.by}: ${plural(result.eye.findings, "finding", "findings")} of its own, beside what the machine measured`,
       `  ${eyeLimit()?.note ?? result.eye.why}`,
     ];
   }
+  if (back.length > 0) return [...back, `no eye has looked at the pictures: ${NO_EYE.why}`];
   const names = result.eyes.flatMap((eye) => eye.names);
   return [
     `no eye has looked at the pictures: ${NO_EYE.why}`,
@@ -316,6 +334,7 @@ async function main(args) {
     keep: out !== null,
     findings,
     file: call.flags["--findings"],
+    skills: call.flags["--skill"] ?? null,
   });
   const { pack, left, pictures } = reviewed;
   // The questions are made before anything is written: a question that cannot be asked leaves

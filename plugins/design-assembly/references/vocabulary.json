@@ -658,6 +658,12 @@
       "meaning": "What does the work at a socket: one of this plugin's own, or a tool from outside described by a plug file, chosen for a repository by its owner. The command that shows them and puts the choice to the owner is plugs.",
       "source": "The specification of capabilities, sockets and plugs, 2026-11-20; the setup step of 2026-11-23",
       "trust": "coined"
+    },
+    {
+      "term": "plugs board",
+      "meaning": "The document the plugs command hands over: every socket of the capability table by stage, what it does, who works it, and each plug from outside with where it stands, its measure or an invitation to measure it, and what it needs and sends, set on the document frame.",
+      "source": "The setup step of 2026-11-23",
+      "trust": "coined"
     }
   ]
 }

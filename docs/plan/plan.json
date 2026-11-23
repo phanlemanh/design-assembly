@@ -481,8 +481,8 @@
         {
           "id": "10.1",
           "what": "Bước thiết lập: máy tự nhìn phiên và repo, một trang toàn cảnh hai mươi ổ, tối đa bốn câu chọn phích trên hàng chờ (hệ Design System của Claude là khuyến nghị mặc định ở ổ bàn giao và ổ tài sản thương hiệu), lựa chọn ghi có tên và ngày, status có cột đã chọn, lối lùi khi phích vắng; new và adopt gọi bước một lần",
-          "state": "doing",
-          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 1 đến 8; lát 1 (tiêu chí 1, 2, 4, 5, 6, 7) theo lời chủ repo ngày 2026-11-23 («Dựng lát 1»): wiki/decisions/0089-plugs-command-asks-where-a-measured-plug-is-here.md; lát 2 còn tiêu chí 3, 8, trang toàn cảnh và lời gọi từ new, adopt"
+          "state": "done",
+          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 1 đến 8; lát 1 (tiêu chí 1, 2, 4, 5, 6, 7) theo lời chủ repo ngày 2026-11-23 («Dựng lát 1»): wiki/decisions/0089-plugs-command-asks-where-a-measured-plug-is-here.md; lát 2 (tiêu chí 3, 8, trang toàn cảnh, new và adopt gọi bước một lần) theo lời chủ repo ngày 2026-11-23 («Dựng lát 2»): wiki/decisions/0090-plugs-sees-the-session-falls-back-and-shows-the-board.md"
         },
         {
           "id": "10.2",

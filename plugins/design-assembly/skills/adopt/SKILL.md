@@ -43,6 +43,22 @@ Never answer a question of the guide or of this page yourself.
 Run `/design-assembly:audit`. Anything `BYPASSED` or `FAILING` is the repository's own work and
 comes first: adopting does not fix it.
 
+### Then the plugs, once
+
+Right after the audit, and before the preview, run the setup step of the plugs once:
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/plugs.mjs --target <repo> --short --session`, and pass what
+this session holds: `--skill <name>` for each skill the session lists, `--server <name>` for each server it
+has, and `--needs-sign-in <name>` for each server that is there and waits for a sign-in. Pass the
+names as the session lists them; the command matches only the names the plug files declare.
+
+- When it ends with `0` and says no measured plug is in the repository or this session, the step
+  does not stop: say its line in one sentence and go on.
+- When it ends with `1`, questions about plugs wait on the decision sheet. Say so, with the
+  recommendation of each. Go on with the plugin's own plug at every socket while they wait: a
+  recommendation is not an answer, and nothing is acted on until the person answers.
+- A line that starts with `falling back` says a chosen plug is not here: say it as it is.
+- Run it once in this guide; the person runs `/design-assembly:plugs` again whenever they like.
+
 ## 2. Preview
 
 `node ${CLAUDE_PLUGIN_ROOT}/scripts/adopt.mjs --target <repo> --dry-run`. Nothing is written.

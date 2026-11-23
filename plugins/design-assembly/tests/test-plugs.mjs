@@ -19,7 +19,11 @@ import { execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { readCapabilities } from "../scripts/capabilities.mjs";
+import { fallbackOf, readCapabilities } from "../scripts/capabilities.mjs";
+import { documentProblems } from "../scripts/document.mjs";
+import { eyeChoice, eyesOf } from "../scripts/review-harvest.mjs";
+import { eyeLines } from "../scripts/review.mjs";
+import { documentOf } from "../scripts/plugs-page.mjs";
 import {
   boardOf,
   carryOut,
@@ -199,19 +203,21 @@ test("criterion 1: the command prints the board, and --json is one document by t
   assert.match(shown.stdout, /stitch +absent, unmeasured, needs account, network/);
   assert.match(
     shown.stdout,
-    /^No outside plug that was measured is in this repository; every socket keeps the plugin's plug\.$/m,
+    /^No outside plug that was measured is in this repository or this session; every socket keeps the plugin's plug\.$/m,
   );
   const data = cli("--target", dir, "--json");
   assert.equal(data.status, 0, data.stderr);
   const result = JSON.parse(data.stdout);
   assert.deepEqual(Object.keys(result), [
     "sockets",
+    "session_listed",
     "questions",
     "later",
     "rows",
     "files",
     "dry_run",
   ]);
+  assert.equal(result.session_listed, false);
   assert.equal(result.sockets.length, 20);
   assert.deepEqual(result.questions, []);
   assert.deepEqual(result.files, []);
@@ -492,7 +498,9 @@ test("the skill of the command exists, runs the script, asks nothing itself and 
   assert.match(skill, /scripts\/plugs\.mjs --target/);
   assert.match(skill, /answers nothing for anyone and asks nothing itself/);
   assert.match(skill, /\/design-assembly:decide/);
-  assert.match(skill, /Matching the skills and servers of the session/);
+  assert.match(skill, /--skill <name>/);
+  assert.match(skill, /in-session/);
+  assert.match(skill, /falling back/);
 });
 
 test("a waiting list kept as one shared file still shows the board, and stops only a run that would change it", () => {
@@ -536,5 +544,199 @@ test("the closing line is printed only where no measured plug is in the reposito
   }
   const settled = run(dir);
   assert.deepEqual(settled.questions, []);
-  assert.doesNotMatch(report(settled), /No outside plug that was measured is in this repository/);
+  assert.doesNotMatch(
+    report(settled),
+    /No outside plug that was measured is in this repository or this session/,
+  );
+});
+
+// ---- slice 2: the session, the fallback, the page, and the routes that call the step ----------
+
+const SESSION = (fields = {}) => ({ skills: [], servers: [], signIn: [], ...fields });
+
+test("criterion 3: the session's skills and servers are matched to the plug files by the names they declare, and only those", () => {
+  const dir = fixtureRepo();
+  const at = (session, socket, id) =>
+    socketOf(boardOf(dir, fixtureCaps(), undefined, session), socket).candidates.find(
+      (candidate) => candidate.id === id,
+    ).state;
+  // A skill listed under a plugin's name, or bare, is the plug that declares that name.
+  assert.equal(at(SESSION({ skills: ["far-eye"] }), "design-review", "far-eye"), "in-session");
+  assert.equal(
+    at(SESSION({ skills: ["their-plugin:far-eye"] }), "design-review", "far-eye"),
+    "in-session",
+  );
+  // A name the plug files do not declare is nobody's, however close.
+  for (const skills of [["far"], ["far-eye-2"], ["their-plugin:far-eye-2"], ["far-eye:x"]]) {
+    assert.equal(at(SESSION({ skills }), "design-review", "far-eye"), "absent", skills.join());
+  }
+  // A server is matched to the servers a plug declares, never to its skills, and the other way.
+  const servers = boardOf(dir, fixtureCaps(), undefined, SESSION({ servers: ["far-eye"] }));
+  assert.equal(socketOf(servers, "design-review").candidates[0].state, "absent");
+  const blocks = fixtureCaps();
+  blocks.plugs.find((plug) => plug.id === "loose-blocks").detect = { file: "fixtures/none" };
+  const listed = boardOf(dir, blocks, undefined, SESSION({ servers: ["their-host:loose-blocks"] }));
+  assert.equal(socketOf(listed, "components").candidates[0].state, "in-session");
+  // A server that is there and not given access needs a sign-in.
+  const waiting = boardOf(dir, blocks, undefined, SESSION({ signIn: ["loose-blocks"] }));
+  assert.equal(socketOf(waiting, "components").candidates[0].state, "needs-sign-in");
+  // A plug in the repository stays in-repo whatever the session holds.
+  assert.equal(
+    at(SESSION({ skills: ["sharp-builder"] }), "screen-build", "sharp-builder"),
+    "in-repo",
+  );
+});
+
+test("criterion 3: a measured plug the session holds is asked about, as one the repository holds", () => {
+  const dir = empty();
+  const asked = plan(dir, {
+    caps: fixtureCaps(),
+    on: ON,
+    session: SESSION({ skills: ["their-plugin:far-eye"] }),
+  });
+  assert.deepEqual(
+    asked.questions.map((question) => question.id),
+    ["plug-design-review"],
+  );
+  assert.equal(asked.questions[0].candidates[0].name, "far-eye");
+  // The command takes the session as flags, and the real plug files: the reviewer skill of the
+  // design review socket is measured and does not beat the plugin's plug, so the plugin's comes first.
+  const real = cli("--target", empty(), "--json", "--skill", "some-plugin:design-critique");
+  assert.equal(real.status, 1, real.stderr);
+  const [question] = JSON.parse(real.stdout).questions;
+  assert.equal(question.id, "plug-design-review");
+  assert.deepEqual(
+    question.candidates.map((candidate) => candidate.name),
+    ["review", "design-critique"],
+  );
+  // A server that waits for a sign-in is shown, with how to give it access, and is not asked about.
+  const signIn = cli("--target", empty(), "--needs-sign-in", "reui");
+  assert.equal(signIn.status, 0, signIn.stderr);
+  assert.match(signIn.stdout, /reui +needs-sign-in, unmeasured/);
+  assert.match(
+    signIn.stdout,
+    /^reui waits for a sign-in: give its server access in the session, then run this again\.$/m,
+  );
+});
+
+test("criterion 8: a socket whose chosen plug from outside the session does not have falls back to the plugin's plug, and says so", () => {
+  const dir = fixtureRepo();
+  put(
+    dir,
+    "design/decisions.yaml",
+    'version: 1\ndecisions:\n  - id: plug-design-review\n    layer: governance\n    kind: judgment\n    source: "plug:far-eye"\n    note: "confirmed by Owner Name on 2026-11-23"\n',
+  );
+  const missing = socketOf(boardOf(dir, fixtureCaps(), undefined, SESSION()), "design-review");
+  assert.equal(missing.chosen.state, "chosen-but-missing");
+  assert.equal(
+    fallbackOf(missing),
+    "falling back at the design review socket: far-eye was chosen and is not here; the plugin's plug review works it until it is",
+  );
+  const here = socketOf(
+    boardOf(dir, fixtureCaps(), undefined, SESSION({ skills: ["far-eye"] })),
+    "design-review",
+  );
+  assert.equal(here.chosen.state, "in-session");
+  assert.equal(fallbackOf(here), null);
+  // A run that lists no session does not say the plug is missing from it.
+  const unlisted = carryOut(dir, plan(dir, { caps: fixtureCaps(), on: ON }), true);
+  assert.doesNotMatch(report(unlisted), /falling back/);
+  assert.match(
+    report(unlisted),
+    /^far-eye was chosen for the design review socket and the repository does not show it; the session was not listed/m,
+  );
+  // The board prints the line.
+  const result = carryOut(
+    dir,
+    plan(dir, { caps: fixtureCaps(), on: ON, session: SESSION() }),
+    true,
+  );
+  assert.match(report(result), /^falling back at the design review socket: far-eye was chosen/m);
+});
+
+test("criterion 8, on the design review route: the eye the owner chose looks only where the session has it, else the command's run alone, saying so", () => {
+  const dir = empty();
+  const caps = copy(real);
+  const [eye] = eyesOf(caps);
+  // No choice: every eye the board names, as before.
+  assert.deepEqual(eyeChoice(dir, null, caps), {
+    eyes: eyesOf(caps),
+    chosen: null,
+    falling_back: null,
+  });
+  put(
+    dir,
+    "design/decisions.yaml",
+    `version: 1\ndecisions:\n  - id: plug-design-review\n    layer: governance\n    kind: judgment\n    source: "plug:${eye.id}"\n    note: "confirmed by Owner Name on 2026-11-23"\n`,
+  );
+  // The session has it: that eye, and no other.
+  const held = eyeChoice(dir, [`some-plugin:${eye.names[0]}`], caps);
+  assert.deepEqual(held.eyes, [eye]);
+  assert.equal(held.falling_back, null);
+  // The session does not: no eye, and the line that says the plugin's plug works alone.
+  const lacking = eyeChoice(dir, ["some-plugin:another-skill"], caps);
+  assert.deepEqual(lacking.eyes, []);
+  assert.match(
+    lacking.falling_back,
+    new RegExp(
+      `^falling back at the design review socket: ${eye.id} was chosen and is not here; the plugin's plug review works it until it is$`,
+    ),
+  );
+  // The review's answer for a person carries the line.
+  assert.match(
+    eyeLines({ eye: { looked: false }, eyes: [], falling_back: lacking.falling_back }).join("\n"),
+    /^falling back at the design review socket/m,
+  );
+  // The owner chose the plugin's own plug: no eye from outside is handed the pictures.
+  put(
+    dir,
+    "design/decisions.yaml",
+    'version: 1\ndecisions:\n  - id: plug-design-review\n    layer: governance\n    kind: judgment\n    source: "plug:review"\n    note: "confirmed by Owner Name on 2026-11-23"\n',
+  );
+  assert.deepEqual(eyeChoice(dir, null, caps).eyes, []);
+});
+
+test("the overview page: every socket by stage, each candidate with its state, its measure or an invitation to measure it, and what it needs", () => {
+  const dir = empty();
+  const out = empty();
+  const shown = cli("--target", dir, "--out", out);
+  assert.equal(shown.status, 0, shown.stderr);
+  assert.match(shown.stdout, /^document: .*plugs-board\.html$/m);
+  const page = read(out, "plugs-board.html");
+  for (const item of real.table.capabilities) assert.ok(page.includes(item.name), item.id);
+  assert.match(page, /claude-design/);
+  assert.match(page, /measured in decision d0088/);
+  assert.match(page, /unmeasured: it can be measured on a throwaway copy/);
+  assert.match(page, /sends: The design values and files of the repository/);
+  const data = JSON.parse(cli("--target", dir, "--out", empty(), "--json").stdout);
+  assert.equal(data.files.length, 1);
+  assert.match(data.files[0].path, /plugs-board\.html$/);
+  const doc = documentOf(plan(dir, { on: ON }), { name: "fixture", date: null, revision: null });
+  assert.deepEqual(documentProblems(doc), []);
+});
+
+test("--short gives one line where nothing is asked, and the questions where some are", () => {
+  const dir = empty();
+  const short = cli("--target", dir, "--short");
+  assert.equal(short.status, 0, short.stderr);
+  assert.deepEqual(short.stdout.trim().split("\n"), [
+    "Plugs: 20 sockets: 2 are closed, 8 have only the plugin's plug, 10 have plugs from outside, 5 of them a measured one.",
+    "No outside plug that was measured is in this repository or this session; every socket keeps the plugin's plug.",
+  ]);
+  const asking = cli("--target", empty(), "--short", "--skill", "design-critique");
+  assert.equal(asking.status, 1);
+  assert.match(asking.stdout, /^Waiting on the owner: 1 question/m);
+  assert.doesNotMatch(asking.stdout, /^ {2}audit/m);
+});
+
+test("new and adopt call the step once, before the direction layer, and go on when it asks nothing", () => {
+  for (const skill of ["new", "adopt"]) {
+    const page = read(PLUGIN, `skills/${skill}/SKILL.md`);
+    assert.match(page, /scripts\/plugs\.mjs --target <repo> --short/, skill);
+    assert.match(page, /--skill/, skill);
+    assert.match(page, /once/, skill);
+    assert.match(page, /does not stop/, skill);
+  }
+  const guide = read(PLUGIN, "skills/new/SKILL.md");
+  assert.ok(guide.indexOf("plugs.mjs") < guide.indexOf("### Directions first"));
 });

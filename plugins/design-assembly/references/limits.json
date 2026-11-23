@@ -4486,9 +4486,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0089"],
-      "status": "open",
-      "note": "The plugs command reads the repository only, so a plug that a session holds as a skill or a server reads absent, no question is asked for it, and the state needs-sign-in is never given."
+      "where": ["d0089", "d0090"],
+      "status": "closed",
+      "note": "The plugs command reads the repository only, so a plug that a session holds as a skill or a server reads absent, no question is asked for it, and the state needs-sign-in is never given.",
+      "closed": "2026-11-23",
+      "closed_by": "d0090"
     },
     {
       "id": "plugs-chosen-session-plug-reads-missing",
@@ -4497,9 +4499,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0089"],
+      "where": ["d0089", "d0090"],
       "status": "open",
-      "note": "A plug chosen for a socket that only a session can hold, such as a design tool behind an account, reads chosen-but-missing in plugs and in status on every run, because neither looks at the session."
+      "note": "A plug chosen for a socket that only a session can hold, such as a design tool behind an account, reads chosen-but-missing in status on every run, because status does not look at the session; the plugs command and the review see it when the skill lists the session."
     },
     {
       "id": "plugs-no-fallback-when-missing",
@@ -4508,9 +4510,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0089"],
-      "status": "open",
-      "note": "A route that reaches a socket whose chosen plug from outside is missing does not yet fall back to the plugin's plug with a line that says so; nothing reads the chosen plug when a route runs."
+      "where": ["d0089", "d0090"],
+      "status": "closed",
+      "note": "A route that reaches a socket whose chosen plug from outside is missing does not yet fall back to the plugin's plug with a line that says so; nothing reads the chosen plug when a route runs.",
+      "closed": "2026-11-23",
+      "closed_by": "d0090"
     },
     {
       "id": "plugs-no-overview-page",
@@ -4519,9 +4523,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0089"],
-      "status": "open",
-      "note": "The board of every socket is printed on the screen and given as data, but no page on the frame every document of this plugin shares shows it."
+      "where": ["d0089", "d0090"],
+      "status": "closed",
+      "note": "The board of every socket is printed on the screen and given as data, but no page on the frame every document of this plugin shares shows it.",
+      "closed": "2026-11-23",
+      "closed_by": "d0090"
     },
     {
       "id": "plugs-new-and-adopt-do-not-call-it",
@@ -4530,9 +4536,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0089"],
-      "status": "open",
-      "note": "The new and adopt routes do not call the setup step once before the direction layer, so a repository meets the plugs only when someone runs the command."
+      "where": ["d0089", "d0090"],
+      "status": "closed",
+      "note": "The new and adopt routes do not call the setup step once before the direction layer, so a repository meets the plugs only when someone runs the command.",
+      "closed": "2026-11-23",
+      "closed_by": "d0090"
     },
     {
       "id": "plugs-measure-records-checked-here-only",
@@ -4566,6 +4574,50 @@
       "where": ["d0089"],
       "status": "open",
       "note": "If the plugs command stops between writing the row of a choice and taking its answered question off the waiting list, status, the decision sheet and the gate read the waiting list as broken, because both carry the id plug-<socket>, until plugs runs again and takes the question away."
+    },
+    {
+      "id": "plugs-account-tool-declares-no-session-name",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0090"],
+      "status": "open",
+      "note": "The plug file of the design tool behind an account declares no skill name and no server name, so no session shows it as in-session, and the owner's named exception at the handoff and brand assets sockets cannot be asked until a person adds the names it is listed under."
+    },
+    {
+      "id": "plugs-fallback-read-by-the-review-route-only",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0090"],
+      "status": "open",
+      "note": "Only the review command reads the chosen plug of its socket when it runs and falls back to its own run with a line; every other route says a fallback only through the line of the plugs step that new and adopt run once, because no other route calls a plug from outside yet."
+    },
+    {
+      "id": "plugs-session-listed-by-the-skill",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0090"],
+      "status": "open",
+      "note": "Which skills and servers a session holds is listed by the skill that runs the command, from what the session shows it, and no run with a person and a real session has yet shown the list is whole."
+    },
+    {
+      "id": "plugs-measure-invitation-gives-no-estimate",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0090"],
+      "status": "open",
+      "note": "The plugs board invites a person to have an unmeasured plug measured on a throwaway copy without the estimate in tokens the specification asks for, because no plug file records one; the estimate is given only when the measurement is asked."
     }
   ]
 }

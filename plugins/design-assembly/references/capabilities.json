@@ -42,6 +42,7 @@
       "id": "audit",
       "stage": "know",
       "name": "audit",
+      "plain": "Says how far the design system has got and what it still lacks.",
       "socket": {
         "writes": [],
         "outputs": ["the audit report and the tier reached"],
@@ -76,6 +77,7 @@
       "id": "inventory",
       "stage": "know",
       "name": "store inventory",
+      "plain": "Takes stock of the blocks and components the repository already has.",
       "socket": {
         "writes": [],
         "outputs": ["findings of the store, by ledger"],
@@ -110,6 +112,7 @@
       "id": "discovery",
       "stage": "decide",
       "name": "discovery",
+      "plain": "Sets the few principles the design favours when two good options pull apart.",
       "socket": {
         "writes": [],
         "outputs": ["the design principles and the product context"],
@@ -140,6 +143,7 @@
       "id": "reference",
       "stage": "decide",
       "name": "reference",
+      "plain": "Gathers real products to look at before a choice is made.",
       "socket": {
         "writes": ["sources"],
         "outputs": ["a row of the sources ledger, pinned"],
@@ -163,6 +167,7 @@
       "id": "direction",
       "stage": "decide",
       "name": "direction",
+      "plain": "Shows whole looks on the product's own screen so the owner picks one.",
       "socket": {
         "writes": [],
         "outputs": ["candidate directions, drawn on the repository's own screen"],
@@ -193,6 +198,7 @@
       "id": "decision",
       "stage": "decide",
       "name": "decision",
+      "plain": "Puts every open question to the owner and records the answers.",
       "socket": {
         "writes": ["decisions", "blueprint"],
         "outputs": ["a decision row with a name and a date"],
@@ -229,6 +235,7 @@
       "id": "foundations",
       "stage": "build-the-system",
       "name": "foundations",
+      "plain": "Turns the chosen look into colours, type, spacing and corners that are checked.",
       "socket": {
         "writes": ["tokens"],
         "outputs": ["the stylesheet, the design tokens, and the checks around them"],
@@ -269,6 +276,7 @@
       "id": "brand-assets",
       "stage": "build-the-system",
       "name": "brand assets",
+      "plain": "Keeps the fonts, logo and icons the product uses, and where each comes from.",
       "socket": {
         "writes": [],
         "outputs": [
@@ -303,6 +311,7 @@
       "id": "components",
       "stage": "build-the-system",
       "name": "components",
+      "plain": "Takes a block in for a need, or finds the one the repository already has.",
       "socket": {
         "writes": ["intake", "components"],
         "outputs": ["a row of the intake ledger, and the component manifest"],
@@ -338,6 +347,7 @@
       "id": "interaction-patterns",
       "stage": "build-the-system",
       "name": "interaction patterns",
+      "plain": "Says what a screen shows while it loads, when it is empty and when it fails.",
       "socket": {
         "writes": ["states", "screen-sizes", "parts"],
         "outputs": ["the behaviours page and the table of states"],
@@ -367,6 +377,7 @@
       "id": "content",
       "stage": "build-the-system",
       "name": "content",
+      "plain": "Keeps the words the product uses for each thing.",
       "socket": {
         "writes": [],
         "outputs": ["the table of terms"],
@@ -390,6 +401,7 @@
       "id": "screen-kinds",
       "stage": "build-the-system",
       "name": "screen kinds",
+      "plain": "Keeps a model screen for each kind of screen.",
       "socket": {
         "writes": ["screen-kinds"],
         "outputs": ["the page of one kind of screen"],
@@ -413,6 +425,7 @@
       "id": "screen-brief",
       "stage": "use-the-system",
       "name": "screen brief",
+      "plain": "Hands the builder of one screen one sheet of what is settled and what is open.",
       "socket": {
         "writes": [],
         "outputs": [
@@ -455,6 +468,7 @@
       "id": "screen-build",
       "stage": "use-the-system",
       "name": "screen build",
+      "plain": "Builds a screen from the rules without guessing.",
       "socket": {
         "writes": ["screens", "columns", "column-types"],
         "outputs": [
@@ -505,6 +519,7 @@
       "id": "design-review",
       "stage": "use-the-system",
       "name": "design review",
+      "plain": "Looks at a built screen and says what to change.",
       "socket": {
         "writes": [],
         "outputs": [
@@ -546,6 +561,7 @@
       "id": "accessibility-report",
       "stage": "use-the-system",
       "name": "accessibility report",
+      "plain": "Says which accessibility level the product meets and where it falls short.",
       "socket": {
         "writes": [],
         "outputs": ["a conformance report"],
@@ -568,6 +584,7 @@
       "id": "handoff",
       "stage": "hand-over",
       "name": "showcase and hand-over",
+      "plain": "Draws the system as a book people can read and hand over.",
       "socket": {
         "writes": [],
         "outputs": ["the handoff book and the release notes"],
@@ -604,6 +621,7 @@
       "id": "cross-repo",
       "stage": "hand-over",
       "name": "shared across repositories",
+      "plain": "Keeps blocks alike across two repositories.",
       "socket": {
         "writes": [],
         "outputs": ["decision records and blocks raised to a shared store"],
@@ -627,6 +645,7 @@
       "id": "upgrade-and-change",
       "stage": "keep-and-change",
       "name": "upgrade and change",
+      "plain": "Brings a newer tool in, and says what a change reaches before it is made.",
       "socket": {
         "writes": [],
         "outputs": ["the ledgers changed in step, and a green gate"],
@@ -656,6 +675,7 @@
       "id": "governance",
       "stage": "keep-and-change",
       "name": "governance",
+      "plain": "Keeps every known limit and every slip, each with its plan.",
       "socket": {
         "writes": [],
         "outputs": ["the limits ledger and the ledger of escapes"],
