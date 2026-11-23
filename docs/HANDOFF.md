@@ -257,6 +257,9 @@ Ngoài giai đoạn đang mở:
 
 ### Đang chờ lời chủ kho
 
+Các câu dưới đây, trừ hai dòng đầu (hỏi ở đúng lúc chạy), được gom thành một phiếu, mỗi câu một khuyến nghị và điều đổi ở
+tệp nào: [phiếu quyết định ngày 2026-11-23](owner-decision-sheet-2026-11-23.md). Lời chủ kho ghi ở phiếu.
+
 - Mỗi lượt đo phích ngoài của mục 10.2, và mỗi phích cần tài khoản hay gửi dữ liệu ra ngoài (giai đoạn 10).
 - Lượt thử có người của mục 10.4, dòng «xong khi» của giai đoạn 10.
 - Sáu «quyết định cho chủ repo» của PR #106 và bốn của PR #110: chủ kho đã gộp, chưa đáp từng câu.
