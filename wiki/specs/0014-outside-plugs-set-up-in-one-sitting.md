@@ -1,7 +1,7 @@
 ---
 type: spec
 title: Cắm đồ bên cạnh — một bước thiết lập chọn phích cho từng ổ, và hai cầu nối mang thứ chúng làm vào sổ và ra ngoài
-status: needs-approval
+status: approved
 tier: 1
 links:
   - wiki/specs/0007-widen-the-entry-the-system-and-the-intent.md
@@ -30,12 +30,19 @@ sources:
   - "trang công khai đọc ngày 2026-11-23 bởi một phiên phụ, không gửi gì về kho này: claude.com/blog/claude-design-stays-on-brand-for-daily-work, support.claude.com/en/articles/17440474, github.com/google-labs-code/design.md docs/spec.md, github.com/google-labs-code/stitch-skills, github.com/nexu-io/open-design, developers.figma.com/docs/figma-mcp-server, reui.io/docs/mcp, docs.mobbin.com/mcp"
   - "chủ repo, 2026-11-23: «Với kit design assembly hiện tại thì đã nối các năng lực khác vào chưa ví dụ như claude design, stitch-skills,... mở phiên hỏi đáp về việc này»"
   - "chủ repo, 2026-11-23: «Đưa vào lộ trình thực hiện tiếp tục, và thiết lập luôn ux cho người dùng bước này cách họ thiết lập tốt nhất đảm bảo hiệu quả cao nhất cho kit.»"
+  - "chủ repo, 2026-11-23: «Duyệt theo khuyến nghị cả bảy câu, khuyến nghị tích hợp claude design và hệ design mặc định của claude và trong kho,...»"
+  - "danh sách loại artifact của tài khoản Claude, đọc ngày 2026-11-23 trong phiên này (chỉ đọc, không gửi gì của kho): có loại «Design System», một hệ được đánh dấu mặc định thì Claude dùng cho mọi bản trình chiếu và thiết kế; tài khoản chưa có hệ nào"
+  - "mô tả công cụ đồng bộ design system của Claude Code (/design-sync), đọc ngày 2026-11-23: chủ repo tự khởi động, đồng bộ từng linh kiện một, không thay cả khối; trang riêng claude.ai/design đóng trước ngày 2026-12-14, dự án chuyển thành artifact trong Claude"
 ---
 
 # 0014 Cắm đồ bên cạnh — một bước thiết lập chọn phích cho từng ổ, và hai cầu nối
 
 Máy viết ngày 2026-11-23 theo lời chủ repo, sau một phiên hỏi đáp chỉ đọc về việc plugin đã nối với công cụ thiết kế
-nào. Đây là bản chờ duyệt: chưa gì được dựng. Nó là mục 10.0 của giai đoạn 10 mới trong kế hoạch.
+nào. Nó là mục 10.0 của giai đoạn 10 mới trong kế hoạch. Chủ repo duyệt đề bài và đáp cả bảy câu hỏi theo khuyến nghị
+cùng ngày («Duyệt theo khuyến nghị cả bảy câu»), và thêm một yêu cầu: tích hợp Claude Design và hệ design mặc định của
+Claude với hệ trong kho. Yêu cầu ấy thành mục [«Claude Design và hệ mặc định của Claude»](#claude-design-và-hệ-mặc-định-của-claude)
+và tiêu chí 14, 15. Chưa gì được dựng. Mục 10.0 ghi xong khi giai đoạn 10 mở, vì luật kế hoạch để mọi mục của giai
+đoạn chưa mở ở `todo`.
 
 ## Intent
 
@@ -209,6 +216,38 @@ Việc 6 của đề bài 0007. Cả hai công cụ đã thử đều mang ý đ
 mà bản xuất chưa sinh lại, đúng như trang luật hôm nay. Bản xuất đầu tiên là `DESIGN.md` theo đặc tả của nó, và phải qua
 bộ kiểm của đặc tả ấy (câu hỏi 6); dạng của Claude Design đi sau.
 
+### Claude Design và hệ mặc định của Claude
+
+Yêu cầu thêm của chủ repo khi duyệt: tích hợp Claude Design và hệ design mặc định của Claude với hệ trong kho. «Hệ
+trong kho» ở đây là sổ của repo. Điều đọc được ngày 2026-11-23 trong phiên này, chỉ đọc, không gửi gì của kho:
+
+- Claude Design đang chuyển vào Claude: trang riêng claude.ai/design đóng trước ngày 2026-12-14, dự án thành artifact.
+- Trong Claude, một design system là một artifact loại «Design System». Nó gồm README, token (màu theo cả hai chủ đề,
+  thang chữ và font, khoảng cách, bo góc), linh kiện có bản xem sống, hướng dẫn và tài sản. Một hệ được đánh dấu mặc
+  định thì Claude dùng nó cho mọi bản trình chiếu và thiết kế, không hỏi lại. Tài khoản của chủ repo hôm nay chưa có hệ
+  nào.
+- Trong Claude Code, `/design-sync` đồng bộ một bộ linh kiện tại chỗ với một dự án design system. Chủ repo tự khởi động
+  nó. Nó đồng bộ từng linh kiện một, không thay cả khối.
+
+Vậy một sản phẩm có thể có ba bản của cùng một hệ: sổ của repo, hệ mặc định của tài khoản Claude, và dự án Claude
+Design. Không có cầu nối thì ba bản lệch nhau mà không gì báo (bài học 1 của lần thử tay). Có cầu nối thì sổ thắng, và
+mọi bản trình chiếu hay thiết kế Claude làm cho sản phẩm ấy theo đúng token của repo. Thiết kế:
+
+1. **Ra, trong 10.4, là bản xuất thứ hai sau `DESIGN.md`.** Sổ sinh một bộ đúng hình dạng loại «Design System»: README
+   từ trang luật, token từ sổ màu, sổ chữ, sổ khoảng cách, bản xem linh kiện từ sổ linh kiện, tài sản từ sổ nguồn. Bộ
+   mang dấu «sinh từ sổ ở bản X», và cổng đỏ khi sổ đổi mà bộ chưa sinh lại. Đẩy bộ lên Claude là việc của skill, chỉ
+   sau lời cho phép gửi dữ liệu ra ngoài của repo và phích ấy (câu hỏi 7), và in trước gửi gì, đi đâu. Đẩy xong thì
+   máy hỏi đúng một câu: «Đặt hệ này làm mặc định trong Claude?». Khuyến nghị là có khi tài khoản chưa có hệ mặc định
+   nào, như hôm nay.
+2. **Vào, trong 10.3.** Khi `new` hay `adopt` mở và tài khoản đã có hệ mặc định, hay chủ repo nêu một dự án Claude
+   Design, skill đọc hệ ấy, chỉ đọc. Cầu nối vào đưa nó thành một hướng ứng viên trên bảng mẫu với cùng luật như mọi
+   nguồn ngoài: biểu thức tính ra giá trị cuối, giá trị ngược dòng sổ đã chốt thành câu hỏi.
+3. **Trong bước thiết lập.** Nhịp 1 thêm một dòng skill nhìn được: tài khoản có hệ mặc định không, tên gì, và bản đã
+   đẩy lần cuối sinh từ bản sổ nào. `status` in dòng «bản trên Claude sinh từ bản X, sổ đang ở bản Y» từ bản ghi tại
+   chỗ của lần đẩy cuối; script không gọi Claude.
+4. **Không làm.** Script không gọi Claude. Không ghi gì vào tài khoản của chủ repo khi chưa có lời cho phép. Không thay
+   cả dự án một lần, theo luật của `/design-sync`. Không đặt hệ mặc định khi chủ repo chưa đáp.
+
 ## Acceptance criteria
 
 Mỗi dòng chứng bằng một lệnh hay một bản ghi lượt thử.
@@ -235,6 +274,12 @@ Mỗi dòng chứng bằng một lệnh hay một bản ghi lượt thử.
 13. Dòng «xong khi» của giai đoạn: một lượt thử có người trên một repo mới, chủ repo chọn phích cho các ổ trong một lượt
     không quá bốn câu, và một màn dựng qua phích ngoài đã chọn vẫn qua cổng, số chỗ đoán không tăng và số lần quyết thay
     bằng 0.
+14. Cầu nối ra sinh từ sổ một bộ đúng hình dạng loại «Design System» của Claude (README, token cả hai chủ đề, chữ,
+    khoảng cách, bo góc, bản xem linh kiện, tài sản), kèm dấu bản; cổng đỏ khi sổ đổi mà bộ chưa sinh lại. Có bài kiểm
+    bằng mẫu dữ liệu, không mạng. Đẩy lên Claude và đặt làm mặc định chỉ xảy ra sau lời đáp của chủ repo, và lượt ấy in
+    trước gửi gì đi đâu.
+15. Cầu nối vào đọc một mẫu hệ kiểu Claude (token và README) thành một hướng ứng viên; giá trị ngược sổ thành câu hỏi.
+    Có bài kiểm bằng mẫu dữ liệu.
 
 ## Domain impact
 
@@ -250,8 +295,9 @@ Bốn mục sau đề bài, mỗi mục một hay hai PR, theo thứ tự:
    lựa chọn, cột mới của `status`, lối lùi; `new` và `adopt` gọi bước một lần.
 2. **10.2 Đo các phích ưu tiên** (tiêu chí 11): mỗi phích một lượt thử trên bản sao bằng đề chuẩn, mỗi lượt hỏi chủ
    repo trước vì tốn token; thêm tệp phích còn thiếu (Open Design, Figma, ux-ui-craft) khi có ổ cho chúng.
-3. **10.3 Cầu nối vào** (tiêu chí 9).
-4. **10.4 Cầu nối ra** (tiêu chí 10), rồi lượt thử của dòng «xong khi» (tiêu chí 13).
+3. **10.3 Cầu nối vào** (tiêu chí 9 và 15), gồm hệ mặc định của Claude.
+4. **10.4 Cầu nối ra** (tiêu chí 10 và 14): `DESIGN.md` trước, rồi hệ trong Claude; rồi lượt thử của dòng «xong khi»
+   (tiêu chí 13).
 
 ## Test plan
 
@@ -274,21 +320,34 @@ Mỗi câu kèm một khuyến nghị.
 1. **Giai đoạn 10 đi trước giai đoạn 7?** Khuyến nghị: có. Giai đoạn 7 cần chủ repo tạo repo cho lõi, việc ấy chưa có;
    giai đoạn 10 không chờ ai và có ích cho mọi repo, kể cả repo Repo Standards vừa đặt. Nếu không, giai đoạn 10 đứng
    sau 7 và không mục nào bị chậm.
+   Đã nhận: giai đoạn 10 đứng ngay sau giai đoạn 6.
+
 2. **Lựa chọn phích ghi ở đâu?** Khuyến nghị: thành dòng của sổ quyết định (mỗi ổ một dòng `plug-<ổ>`), vì lựa chọn
    phích là một quyết định của chủ repo, `decide` đã đọc dòng sổ, và hợp đồng không thêm sổ. Từ chối thì thêm một sổ
    riêng, cần duyệt hợp đồng.
+   Đã nhận: mỗi ổ một dòng `plug-<ổ>` trong sổ quyết định; hợp đồng không thêm sổ.
+
 3. **Tên lệnh là `plugs`?** Khuyến nghị: có, theo tên khung đã dùng trong mã (`references/plugs/`). Từ chối thì đặt
    tên khác trước khi dựng 10.1; tên phải vào `references/vocabulary.json`.
+   Đã nhận: `/design-assembly:plugs`.
+
 4. **Một lượt tối đa bốn câu?** Khuyến nghị: có. Đó là cỡ Claude Design dùng cho một lượt hỏi, và đủ cho năm ổ có ứng
    viên ngoài hôm nay. Từ chối thì không giới hạn, và bước có thể thành một tràng câu hỏi.
+   Đã nhận: tối đa bốn câu một lượt.
+
 5. **Thứ tự đo ở 10.2?** Khuyến nghị: frontend-design ở ổ dựng màn trước, rồi Open Design và Stitch ở ổ hướng đi qua
    `DESIGN.md`, rồi ReUI qua `intake`, rồi Claude Design sau ngày 2026-12-14, rồi Figma và Mobbin. Căn cứ: frontend-design
    chạy tại chỗ, không tài khoản, và ổ dựng màn được dùng ở mọi màn; Claude Design đang đổi chỗ ở (trang riêng đóng ngày
    2026-12-14) nên số đo trước ngày ấy dễ mất giá trị; Figma và Mobbin cần tài khoản, Figma ghế miễn phí chỉ 20 lượt một
    tháng.
+   Đã nhận theo thứ tự trên; Claude Design đo sau ngày 2026-12-14, nhưng cầu nối với nó dựng trong 10.3 và 10.4 bằng mẫu dữ liệu, không chờ số đo.
+
 6. **Cầu nối ra nhắm định dạng nào trước?** Khuyến nghị: `DESIGN.md` trước, Claude Design sau. Căn cứ: `DESIGN.md` có
    đặc tả viết ra và bộ kiểm chạy được, và ít nhất ba công cụ đọc nó (Stitch, stitch-skills, Open Design); định dạng
    xuất của Claude Design chưa thấy trang nào của Anthropic nêu, và công cụ đang chuyển chỗ. Điều này đảo một dòng
    «ngoài phạm vi» của đề bài 0007 (đọc hay xuất `DESIGN.md`); lời duyệt câu này là lời bỏ dòng ấy.
+   Đã nhận: `DESIGN.md` trước; dòng «ngoài phạm vi» của 0007 về `DESIGN.md` bỏ. Theo yêu cầu thêm của chủ repo, hệ trong Claude là bản xuất thứ hai, nằm trong 10.4, không để sau.
+
 7. **Lời cho phép gửi dữ liệu ra ngoài theo repo hay theo lần?** Khuyến nghị: theo repo và theo phích, ghi thành dòng,
    rút lại được; mỗi lượt vẫn in trước gửi gì đi đâu. Từ chối thì hỏi mỗi lần, chậm hơn nhưng chặt hơn.
+   Đã nhận: theo repo và theo phích, ghi thành dòng, rút lại được.
