@@ -48,6 +48,13 @@ test("the table has twenty capabilities, each socket with its four fields and pl
   assert.equal(table.capabilities.length, 20);
   assert.deepEqual(shapeProblems(table, context), []);
 
+  for (const item of table.capabilities) assert.ok(item.plain.length <= 90, item.id);
+  const wordy = copy();
+  capability(wordy, "audit").plain = "says how far it has got";
+  assert.deepEqual(shapeProblems(wordy, context), [
+    "audit: says in no plain sentence of at most 90 characters what the socket is for",
+  ]);
+
   const noChecks = copy();
   capability(noChecks, "audit").socket.checks = [];
   assert.deepEqual(shapeProblems(noChecks, context), ["audit: the socket names no check"]);

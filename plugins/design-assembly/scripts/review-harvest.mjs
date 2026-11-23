@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 import { SLIPS_FILE } from "../templates/tools/design-assembly/governance.mjs";
 import { LEDGER } from "../templates/tools/design-assembly/ledger.mjs";
 import { RULES_PAGE, UNHELD_SECTION } from "./apply.mjs";
-import { readCapabilities } from "./capabilities.mjs";
+import { fallbackOf, NO_SESSION, PRESENT, readCapabilities, socketsOf } from "./capabilities.mjs";
 import { Refusal } from "./command.mjs";
 import { readState } from "./decide.mjs";
 import { askAll, callOf, standing } from "./queue.mjs";
@@ -51,6 +51,25 @@ export function eyesOf({ plugs } = readCapabilities()) {
   return plugs
     .filter((plug) => list(plug.sockets).includes(SOCKET) && plug.kind === "skill")
     .map((plug) => ({ id: plug.id, names: [...list(plug.names)] }));
+}
+
+// The eyes this review hands the pictures to, once the owner's choice for the socket is read: every
+// eye the board names when nobody chose; the one chosen, where the session has it or the session
+// was not listed; none when the plugin's own plug was chosen, or when the session listed has not
+// the chosen eye, and then the line that says the command's run works alone. `skills` are the
+// names of the session's skills, or null when the call did not list them.
+export function eyeChoice(root, skills = null, caps = readCapabilities()) {
+  const all = eyesOf(caps);
+  const session = skills === null ? NO_SESSION : { ...NO_SESSION, skills };
+  const socket = socketsOf(root, caps, undefined, session).find((item) => item.id === SOCKET);
+  const chosen = socket?.chosen ?? null;
+  if (chosen === null) return { eyes: all, chosen: null, falling_back: null };
+  const eye = all.filter((item) => item.id === chosen.plug);
+  if (eye.length === 0) return { eyes: [], chosen, falling_back: null };
+  if (skills !== null && !PRESENT.includes(chosen.state)) {
+    return { eyes: [], chosen, falling_back: fallbackOf(socket) };
+  }
+  return { eyes: eye, chosen, falling_back: null };
 }
 
 // ---- the contract --------------------------------------------------------------------------------

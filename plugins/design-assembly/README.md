@@ -42,7 +42,9 @@ scale, shape). Density, elevation, motion and iconography are not.
   whether it was measured and in which decision record, and what it needs. Where a measured plug is
   in the repository it puts the choice to the owner on the waiting list, four questions at most a
   round, and writes each answer as a row `plug-<socket>` of the decision ledger with the owner's
-  name and day. It sees the repository, not the session.
+  name and day. The skill passes the session's skills and servers, matched only to the names the
+  plug files declare; a chosen plug that is not here falls back to the plugin's plug, with a line
+  that says so. `--out DIR` writes the plugs board, and `new` and `adopt` run the step once.
 - `/design-assembly:change` retires a block of the store, or merges it into the block of another
   need. It says the impact first: the screens that reach the block's file (every screen when that
   cannot be traced), the frame, the components that import it, the checks that name its file, and

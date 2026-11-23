@@ -127,6 +127,9 @@ Show the user the record, or the pictures with the findings beside them. Do not 
 
 Only after a run with `--out DIR`, and only in this session: the pictures never leave it.
 
+0. Run the review with `--skill <name>` for each skill this session lists. When the owner chose
+   an eye for the socket and the session has not it, `eyes` is empty and `falling_back` holds a
+   line: say it as it is, and the review is the command's run alone.
 1. Read `eyes` in the `--json` answer. Each entry is a skill the socket board names as a plug of
    the design review socket, with the `names` a session lists it under. Find, among the skills this
    session lists, one whose name is one of those names, or ends with a colon and one of them. Use

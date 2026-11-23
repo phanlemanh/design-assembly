@@ -4,8 +4,12 @@
 // a measured plug is here, four at most a round; and, once the owner answered on the decision sheet,
 // the row of the decision ledger that records the choice with their name and day. It reads the
 // repository and the plugin's files; it calls no model and no network, and it answers nothing for
-// anyone. What a session holds (its skills and servers) is the skill's to see, not this script's.
-// Usage: node plugs.mjs [--target DIR] [--on DATE] [--dry-run] [--json]
+// anyone. What a session holds, the skill that runs it lists and passes in: the names of its skills
+// and servers, matched here to the names the plug files declare, and no other.
+// With --out it writes the overview page of every socket, on the frame every document shares.
+// Usage: node plugs.mjs [--target DIR] [--skill NAME]... [--server NAME]... [--needs-sign-in NAME]...
+//                       [--session]
+//                       [--on DATE] [--dry-run] [--short] [--json] [--out DIR [--format html|pdf]]
 // Exit: 0 no question waits; 1 a question waits on the owner; 2 a wrong call, a waiting list or a
 // plug file that cannot be read, or a question that recommends what may not be recommended. On 2
 // nothing is written. The call is read and ended by the common contract of every command.
@@ -24,8 +28,19 @@ import {
 } from "../templates/tools/design-assembly/waiting.mjs";
 import { writeFiles, writtenFiles } from "./apply.mjs";
 import { today } from "./asking.mjs";
-import { NONE, plugRowId, plugSource, readCapabilities, socketsOf } from "./capabilities.mjs";
+import {
+  fallbackOf,
+  NO_SESSION,
+  NONE,
+  PRESENT,
+  plugRowId,
+  plugSource,
+  readCapabilities,
+  socketsOf,
+} from "./capabilities.mjs";
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
+import { DOCUMENT_FLAGS, handOver, requested } from "./document.mjs";
+import { documentOf } from "./plugs-page.mjs";
 
 // At most this many questions about plugs wait at once; the rest are asked in a later round.
 export const ROUND = 4;
@@ -41,9 +56,14 @@ const socketOfId = (id) => (id.startsWith("plug-") ? id.slice("plug-".length) : 
 
 // Every socket with what the setup step shows of it: the plugin's plug, the plug chosen, and each
 // plug from outside with where it stands here, its measure, the owner's word, and what it needs.
-export function boardOf(root, caps = readCapabilities(), rows = readLedger(root) ?? []) {
+export function boardOf(
+  root,
+  caps = readCapabilities(),
+  rows = readLedger(root) ?? [],
+  session = NO_SESSION,
+) {
   const files = new Map(caps.plugs.map((plug) => [plug.id, plug]));
-  return socketsOf(root, caps, rows).map((socket) => {
+  return socketsOf(root, caps, rows, session).map((socket) => {
     const item = caps.table.capabilities.find((capability) => capability.id === socket.id);
     return {
       id: socket.id,
@@ -98,7 +118,7 @@ function basisOf(lead, present, socket) {
 export function recommendationOf(socket) {
   if (socket.closed) return null;
   const present = socket.candidates.filter(
-    (candidate) => candidate.state === "in-repo" && askable(candidate),
+    (candidate) => PRESENT.includes(candidate.state) && askable(candidate),
   );
   if (present.length === 0) return null;
   const lead =
@@ -212,12 +232,16 @@ function plugQuestions(root, rows, board) {
 // What a run does: the answered questions become rows and leave the waiting list; the sockets that
 // can be asked and are not are asked, up to the round. `files` holds the text of every file to
 // write, `removed` the questions to take away.
-export function plan(root, { caps = readCapabilities(), on = today() } = {}) {
+// `session` is what the session holds as the call listed it, or null when the call listed none: a
+// chosen plug is then not said to be missing from a session nobody looked at.
+export function plan(root, { caps = readCapabilities(), on = today(), session = null } = {}) {
+  const listed = session !== null;
+  session = session ?? NO_SESSION;
   if (caps.problems.length > 0) {
     throw new Refusal(`the plugin's plug files cannot be read: ${caps.problems.join("; ")}`);
   }
   let rows = readLedger(root) ?? [];
-  const before = boardOf(root, caps, rows);
+  const before = boardOf(root, caps, rows, session);
   const { questions, shared } = plugQuestions(root, rows, before);
   // In the order the route passes the sockets: the order of the capability table.
   const place = (question) => before.findIndex((socket) => socket.id === socketOfId(question.id));
@@ -241,7 +265,7 @@ export function plan(root, { caps = readCapabilities(), on = today() } = {}) {
     files[DECISIONS] = mergeLedger(ledger, added);
     rows = [...rows, ...added];
   }
-  const board = boardOf(root, caps, rows);
+  const board = boardOf(root, caps, rows, session);
   const open = questions
     .filter((question) => question.answer === undefined)
     .sort((a, b) => place(a) - place(b));
@@ -265,6 +289,7 @@ export function plan(root, { caps = readCapabilities(), on = today() } = {}) {
   }
   return {
     sockets: board,
+    session_listed: listed,
     questions: [...open, ...asked],
     later: toAsk.slice(room).map(({ socket }) => plugRowId(socket.id)),
     rows: written.map((entry) => entry.chose),
@@ -281,6 +306,7 @@ export function carryOut(root, planned, dryRun) {
   if (!dryRun) for (const file of removed) unlinkSync(path.join(root, file));
   return {
     sockets: planned.sockets,
+    session_listed: planned.session_listed,
     questions: planned.questions,
     later: planned.later,
     rows: planned.rows,
@@ -317,8 +343,20 @@ function socketLines(socket) {
   ];
 }
 
+// What the board says of each chosen plug that is not here: where the session was listed, the line
+// a route says as it falls back; where it was not, that this run cannot tell.
+function missingLines({ sockets, session_listed: listed }) {
+  if (listed) return sockets.map(fallbackOf).filter(Boolean);
+  return sockets
+    .filter((socket) => socket.chosen?.state === "chosen-but-missing")
+    .map(
+      (socket) =>
+        `${socket.chosen.plug} was chosen for the ${socket.name} socket and the repository does not show it; the session was not listed, so whether it is here is not known (run with --session and its skills and servers)`,
+    );
+}
+
 // The board and what waits, as a person reads it.
-export function report(result) {
+export function report(result, { short = false } = {}) {
   const { sockets, questions, later, rows } = result;
   const open = sockets.filter((socket) => !socket.closed);
   const outside = open.filter((socket) => socket.candidates.length > 0);
@@ -328,8 +366,17 @@ export function report(result) {
   const lines = [
     `Plugs: ${sockets.length} sockets: ${plural(sockets.length - open.length, "is", "are")} closed, ${open.length - outside.length} have only the plugin's plug, ${outside.length} have plugs from outside, ${measured.length} of them a measured one.`,
   ];
-  for (const stage of [...new Set(sockets.map((socket) => socket.stage))]) {
+  for (const stage of short ? [] : [...new Set(sockets.map((socket) => socket.stage))]) {
     lines.push(stage, ...sockets.filter((socket) => socket.stage === stage).flatMap(socketLines));
+  }
+  lines.push(...missingLines(result));
+  const waiting = sockets.flatMap((socket) =>
+    socket.candidates.filter((candidate) => candidate.state === "needs-sign-in"),
+  );
+  for (const id of [...new Set(waiting.map((candidate) => candidate.id))]) {
+    lines.push(
+      `${id} waits for a sign-in: give its server access in the session, then run this again.`,
+    );
   }
   for (const row of rows) {
     lines.push(`Written: ${row.id} chooses ${row.plug}, by ${row.by} on ${row.on}.`);
@@ -356,33 +403,63 @@ export function report(result) {
   const measuredHere = sockets.some((socket) => recommendationOf(socket) !== null);
   if (questions.length === 0 && later.length === 0 && !chosenOutside && !measuredHere) {
     lines.push(
-      "No outside plug that was measured is in this repository; every socket keeps the plugin's plug.",
+      "No outside plug that was measured is in this repository or this session; every socket keeps the plugin's plug.",
     );
   }
   return `${lines.join("\n")}\n`;
 }
 
-const USAGE = "usage: node plugs.mjs [--target DIR] [--on DATE] [--dry-run] [--json]\n";
+const USAGE =
+  "usage: node plugs.mjs [--target DIR] [--skill NAME]... [--server NAME]... [--needs-sign-in NAME]... [--session]\n" +
+  "                      [--on DATE] [--dry-run] [--short] [--json] [--out DIR [--format html|pdf]]\n";
+const FLAGS = {
+  ...DOCUMENT_FLAGS,
+  "--skill": "list",
+  "--server": "list",
+  "--needs-sign-in": "list",
+  "--on": "value",
+  "--dry-run": "switch",
+  "--short": "switch",
+  "--session": "switch",
+};
+
+// What the session holds, as the call lists it, or null when the call lists no session: --session
+// says the names given are all it holds, even none.
+function sessionOf(flags) {
+  const named = ["--skill", "--server", "--needs-sign-in"].some((flag) => flags[flag]);
+  if (!flags["--session"] && !named) return null;
+  return {
+    skills: flags["--skill"] ?? [],
+    servers: flags["--server"] ?? [],
+    signIn: flags["--needs-sign-in"] ?? [],
+  };
+}
 
 async function main(args) {
-  const call = readCall(args, { "--on": "value", "--dry-run": "switch" });
+  const call = readCall(args, FLAGS);
   if (call.problem) return refuse(call.problem, USAGE);
   if (call.help) return void stdout.write(USAGE);
   const on = call.flags["--on"] ?? today();
   if (!isDay(on)) return refuse(`--on ${on} is not a day written YYYY-MM-DD`, USAGE);
-  const result = carryOut(call.target, plan(call.target, { on }), call.flags["--dry-run"] === true);
+  // A wrong call for a document is refused before anything is read or written.
+  const asked = requested(call);
+  const planned = plan(call.target, { on, session: sessionOf(call.flags) });
+  const result = carryOut(call.target, planned, call.flags["--dry-run"] === true);
+  const handed = await handOver(asked, call.target, (origin) => documentOf(result, origin));
   return finish({
     json: call.json,
     result: {
       sockets: result.sockets,
+      session_listed: result.session_listed,
       questions: result.questions,
       later: result.later,
       rows: result.rows,
-      files: result.files,
+      files: [...result.files, ...(handed.data.files ?? [])],
       dry_run: result.dry_run,
+      ...(handed.data.not_written ? { not_written: handed.data.not_written } : {}),
     },
-    text: report(result),
-    work: result.questions.length > 0,
+    text: `${report(result, { short: call.flags["--short"] === true })}${handed.text}`,
+    work: result.questions.length > 0 || handed.work,
   });
 }
 

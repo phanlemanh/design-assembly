@@ -3,6 +3,7 @@
   "about": "A design tool that proposes directions and a system page from a brief or a repository.",
   "sockets": ["direction", "foundations", "brand-assets", "handoff"],
   "names": ["Claude Design"],
+  "skills": ["design-sync"],
   "needs": ["account", "network"],
   "sends": "The design values and files of the repository it is given, to a private artifact of the person's Claude account.",
   "measured": {

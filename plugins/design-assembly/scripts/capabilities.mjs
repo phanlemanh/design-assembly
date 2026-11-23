@@ -23,6 +23,8 @@ const CORE_FOLDERS = ["scripts", "templates/tools/design-assembly", "templates/m
 const CORE_TREES = ["skills"];
 const WRITE_CALL = /\b(writeFiles|writeFileSync|appendFileSync)\s*\(/;
 
+// The longest sentence that says, in plain words, what a socket is for.
+const PLAIN_MAX = 90;
 const readJson = (full) => JSON.parse(readFileSync(full, "utf8"));
 const filled = (value) => typeof value === "string" && value.trim() !== "";
 const list = (value) => (Array.isArray(value) ? value : []);
@@ -244,6 +246,9 @@ export function shapeProblems(table, context) {
     if (seen.has(item.id)) at("a second capability has this id");
     seen.add(item.id);
     if (!stages.includes(item.stage)) at(`stage ${item.stage} is not a stage of the table`);
+    if (!filled(item.plain) || !/^[A-Z].*\.$/.test(item.plain) || item.plain.length > PLAIN_MAX) {
+      at(`says in no plain sentence of at most ${PLAIN_MAX} characters what the socket is for`);
+    }
     const socket = item.socket ?? {};
     if (!Array.isArray(socket.writes)) at("the socket says nothing of the ledgers it writes");
     if (list(socket.outputs).length === 0) at("the socket names no output");
@@ -546,20 +551,56 @@ export function choiceOf(rows, socket) {
   };
 }
 
-// Where a plug from outside stands for a socket, as a repository shows it: its file or package is
-// here, or the ledger chose it and the repository does not show it, or neither. What a session
-// holds, the skill sees; this reads files only.
-const outsideState = (here, chosen, id) =>
-  here ? "in-repo" : chosen?.plug === id ? "chosen-but-missing" : "absent";
+// What a session holds, as the skill that runs a command lists it: the names of its skills, of its
+// servers, and of the servers that are there and wait for a sign-in. A command run with no session
+// given knows none.
+export const NO_SESSION = Object.freeze({ skills: [], servers: [], signIn: [] });
 
-// Where the chosen plug of a socket stands: one of the plugin's, the socket left empty, or an
-// outside plug in the repository or missing from it.
+// Whether a name a session lists is a name a plug file declares: the same name, or the name under a
+// plugin's or a host's prefix, which ends with a colon and the name.
+export const matchesName = (listed, declared) =>
+  filled(listed) && filled(declared) && (listed === declared || listed.endsWith(`:${declared}`));
+const listedIn = (names, declared) =>
+  list(declared).some((name) => list(names).some((listed) => matchesName(listed, name)));
+
+// Where a plug from outside stands in a session: one of its skills or servers is there, or one of
+// its servers is there and waits for a sign-in, or neither (null). Only the names its file
+// declares count.
+export function sessionState(plug, session = NO_SESSION) {
+  if (listedIn(session.skills, plug.skills) || listedIn(session.servers, plug.mcp_servers)) {
+    return "in-session";
+  }
+  return listedIn(session.signIn, plug.mcp_servers) ? "needs-sign-in" : null;
+}
+
+// Where a plug from outside stands for a socket: its file or package is in the repository, the
+// session holds it, its server waits for a sign-in, the ledger chose it and neither shows it, or
+// none of these.
+const outsideState = (here, inSession, chosen, id) =>
+  here ? "in-repo" : (inSession ?? (chosen?.plug === id ? "chosen-but-missing" : "absent"));
+
+// The states in which a plug from outside can do its work here.
+export const PRESENT = ["in-repo", "in-session"];
+
+// Where the chosen plug of a socket stands: one of the plugin's, the socket left empty, an outside
+// plug that is here (in the repository, or in the session, or waiting for a sign-in), or missing.
 function chosenState(chosen, item, outside) {
   if (list(item.plugs).some((plug) => plug.id === chosen.plug)) return "plugin";
   if (chosen.plug === NONE) return "empty";
-  return outside.find((plug) => plug.id === chosen.plug)?.state === "in-repo"
-    ? "in-repo"
-    : "chosen-but-missing";
+  const state = outside.find((plug) => plug.id === chosen.plug)?.state;
+  return [...PRESENT, "needs-sign-in"].includes(state) ? state : "chosen-but-missing";
+}
+
+// The line a route says where the plug chosen for a socket cannot work here, or null: it falls back
+// to the plugin's plug, or leaves the socket empty where the plugin has none, until the plug is here.
+export function fallbackOf(socket) {
+  const chosen = socket.chosen;
+  if (!chosen || ["plugin", "empty", ...PRESENT].includes(chosen.state)) return null;
+  const why = chosen.state === "needs-sign-in" ? "waits for a sign-in" : "is not here";
+  // A socket of the board names the plugin's plug `plug`; one of the setup step's, `plugin`.
+  const plugin = socket.plugin ?? socket.plug;
+  const keeps = plugin ? `the plugin's plug ${plugin} works it` : "the socket stays empty";
+  return `falling back at the ${socket.name} socket: ${chosen.plug} was chosen and ${why}; ${keeps} until it is`;
 }
 
 // The rows of the decision ledger, none when there is no ledger. A ledger that cannot be read is
@@ -568,8 +609,14 @@ const ledgerRows = (root) => readLedger(root) ?? [];
 
 // The socket board of a repository: each capability, the plug at its socket or that it is empty,
 // its limit, the plug the owner chose for it, and the plugs from outside that can fill it, with
-// whether each is plugged in here, where it stands, its measure and what it needs.
-export function socketsOf(root, { table, plugs } = readCapabilities(), rows = ledgerRows(root)) {
+// whether each is plugged in here, where it stands in the repository and the session given, its
+// measure and what it needs.
+export function socketsOf(
+  root,
+  { table, plugs } = readCapabilities(),
+  rows = ledgerRows(root),
+  session = NO_SESSION,
+) {
   return table.capabilities.map((item) => {
     const plug = list(item.plugs).find((candidate) => candidate.default === true);
     const chosen = choiceOf(rows, item.id);
@@ -580,7 +627,7 @@ export function socketsOf(root, { table, plugs } = readCapabilities(), rows = le
         return {
           id: candidate.id,
           here,
-          state: outsideState(here, chosen, candidate.id),
+          state: outsideState(here, sessionState(candidate, session), chosen, candidate.id),
           measured: candidate.measured?.[item.id]?.record ?? "unmeasured",
           needs: list(candidate.needs),
         };
