@@ -9,6 +9,8 @@
 // The direction section is asked first, on its own: whole directions, each a colour, a type scale
 // and a corner radius drawn together, before any single value is asked.
 // Usage: node specimen.mjs --target DIR [--section direction|color|around|type|radius|typeface|neutral|status|review|record|all]
+//        [--from PATH]... draws, on the direction section, the candidate direction of a source from
+//        outside (see bring-in.mjs) beside the plugin's.
 //          [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -16,6 +18,7 @@ import { argv, exit, stderr, stdout } from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { FILES } from "../templates/tools/design-assembly/check.mjs";
+import { candidateFrom } from "./bring-in.mjs";
 import { directionsFor } from "./directions.mjs";
 import { buildOf, openStage, reachState, setDark } from "./stage.mjs";
 import {
@@ -646,6 +649,64 @@ function statusSection(blueprint, state, css, letter, dropped) {
   };
 }
 
+// The candidate directions of sources from outside (the bridge in), drawn as every direction is,
+// after the plugin's: what they rest on is the source, and picking one writes its values as the
+// owner's answer, as for any direction. A source that cannot be read is left out, and said.
+function outsideOptions(files, state, css, dropped) {
+  return files.flatMap((file) => {
+    let candidate;
+    try {
+      candidate = candidateFrom(path.resolve(file));
+    } catch (error) {
+      dropped.push(`${file}: ${error.message}`);
+      return [];
+    }
+    const { values } = candidate;
+    const drawn = colorOption(
+      values.source_color,
+      candidate.name,
+      {
+        ...state,
+        typeScale: values.type_scale,
+        typeRatio: values.type_ratio ?? null,
+        cornerRadius: values.corner_radius,
+      },
+      css,
+    );
+    if (drawn.dropped) return [drawn];
+    const type =
+      values.type_scale === "modular" ? `modular, ${values.type_ratio}` : values.type_scale;
+    const fonts = [...new Set([candidate.fonts.text, candidate.fonts.heading].filter(Boolean))];
+    return [
+      {
+        ...drawn,
+        value: candidate.id,
+        label: `from ${path.basename(candidate.source.file)}: ${values.source_color}, ${type}, corner radius ${values.corner_radius}`,
+        choice: { ...values },
+        notes: [
+          `taken from ${candidate.source.file}, never written to a ledger: picking it writes its values as the owner's answer, as for any direction`,
+          ...(fonts.length > 0
+            ? [`fonts named: ${fonts.join(", ")} (a typeface is chosen with its source, not here)`]
+            : []),
+          `colour taken from ${candidate.picked.source_color}`,
+          ...(candidate.dark
+            ? [
+                `the source's own dark colour ${candidate.dark.source_color} is said, not drawn: dark is derived from the source colour, as for every direction`,
+              ]
+            : []),
+          ...candidate.assumed.map(
+            (key) => `not in the source, the floor's: ${key} ${values[key]}`,
+          ),
+          ...candidate.approximated.map(
+            (item) => `taken to the plugin's nearest: ${item.key} ${item.from} as ${item.to}`,
+          ),
+          ...drawn.notes,
+        ],
+      },
+    ];
+  });
+}
+
 // The direction section: each direction the guide would show, drawn whole. Its colour is solved as
 // the guide would write it, with its own type scale and corner radius on the same page.
 function directionSection(blueprint, state, css, options, dropped) {
@@ -687,6 +748,7 @@ function directionSection(blueprint, state, css, options, dropped) {
       ],
     };
   });
+  built.push(...outsideOptions(options.from ?? [], state, css, dropped));
   dropped.push(...built.filter((item) => item.dropped).map((item) => item.dropped));
   return {
     id: "direction",
@@ -982,7 +1044,7 @@ async function main() {
   const all = (flag) => args.flatMap((arg, index) => (arg === flag ? [args[index + 1]] : []));
   if (!value("--target")) {
     stderr.write(
-      "usage: node specimen.mjs --target DIR [--section direction|color|around|type|radius|typeface|neutral|status|review|record|all] [--color COLOR]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]\n",
+      "usage: node specimen.mjs --target DIR [--section direction|color|around|type|radius|typeface|neutral|status|review|record|all] [--color COLOR]... [--from PATH]... [--around COLOR] [--all-ratios] [--out DIR] [--plan]\n",
     );
     exit(2);
   }
@@ -997,6 +1059,7 @@ async function main() {
     colors: all("--color"),
     around,
     allRatios: args.includes("--all-ratios"),
+    from: all("--from"),
   });
   if (args.includes("--plan")) {
     stdout.write(`${JSON.stringify({ ...plan, choices: choices(plan) }, null, 2)}\n`);

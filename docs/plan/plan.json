@@ -493,8 +493,8 @@
         {
           "id": "10.3",
           "what": "Cầu nối vào: thứ công cụ ngoài làm ra (tệp token, DESIGN.md, biến, hệ mặc định của Claude) thành một hướng ứng viên, không ghi thẳng vào sổ",
-          "state": "todo",
-          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 9 và 15"
+          "state": "done",
+          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 9 và 15; dựng ngày 2026-11-23 theo lời chủ repo («Dựng mục 10.3»): wiki/decisions/0091-bring-in-reads-an-outside-source-into-a-candidate-direction.md"
         },
         {
           "id": "10.4",
