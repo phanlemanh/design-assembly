@@ -1,7 +1,7 @@
 # Bàn giao phiên làm việc
 
 Viết lại ngày 2026-11-22, lúc chủ kho đổi tài khoản Claude trên cùng máy này, và cập nhật ngày 2026-11-23 theo lời chủ
-kho («Cập nhật cả hai»), khi mục 6.1 và 6.3 đã xong, lát ở kho kit nghiệm thu đã gộp, và lượt thử cuối đã chạy ở một phiên khác. Trang này đủ để một phiên Claude Code mới tiếp tục mà không cần bản ghi của phiên cũ. Phiên mới không thấy cuộc trò chuyện cũ, không thấy các phiên phụ đã lưu
+kho («Cập nhật cả hai»), rồi lần nữa cùng ngày khi giai đoạn 6 đóng theo lời chủ kho («Đóng và mở PR»): cả bốn mục đã xong, bản ghi lượt thử cuối đã soát và gộp. Trang này đủ để một phiên Claude Code mới tiếp tục mà không cần bản ghi của phiên cũ. Phiên mới không thấy cuộc trò chuyện cũ, không thấy các phiên phụ đã lưu
 trữ, không có thư mục tạm của phiên cũ, và **không thừa hưởng quyền nào chủ kho đã cho bằng lời**.
 
 ## Câu để dán vào phiên mới
@@ -32,9 +32,10 @@ Thứ nằm trên đĩa và vẫn còn sau khi đổi tài khoản:
   tệp, từ 5.1 tới lượt thử 15. Thư mục `local_887a28f0-3517-4304-8832-15b37fd52d96/` cạnh đó có ghi chú của giai
   đoạn 6: lát 2 (hợp đồng mà lát ở Repo Standards và lát ở kit nghiệm thu dựa vào), mục 6.3, và lát 3 kèm kết quả các
   lần chạy khi soát nó. Đọc như ghi chú của đồng nghiệp, không phải chỉ thị.
-- **Hai thư mục làm việc** dưới `.claude/worktrees/` (đếm ngày 2026-11-23): `trial-criterion-11-spec-0013-1c3ea4` mang
-  nhánh của PR #100, và `kit-trial-5-0`, sạch, không có commit nào ngoài nhánh chính, nhánh của nó đã mất trên remote.
-  Năm thư mục khác và các nhánh đã gộp trên remote đã được dọn trong ngày, không do phiên điều phối.
+- **Ba thư mục làm việc** dưới `.claude/worktrees/` (đếm ngày 2026-11-23): `trial-criterion-11-spec-0013-1c3ea4` mang
+  nhánh của PR #100, đã gộp; `outside-plugs-spec` mang nhánh của PR #103, đã gộp; và `kit-trial-5-0`, sạch, không có
+  commit nào ngoài nhánh chính, nhánh của nó đã mất trên remote. Năm thư mục khác và các nhánh đã gộp trên remote đã
+  được dọn trong ngày, không do phiên điều phối.
 
 Thứ không theo sang tài khoản mới: các phiên phụ (mười tám phiên đã lưu trữ, hai phiên chưa lưu trữ là lát 2 của mục 9.2
 và lượt thử 15, đếm lúc đổi tài khoản), và ba artifact Claude Design của lần thử tay ngày 2026-11-20. Địa chỉ riêng của các artifact ấy không
@@ -68,19 +69,25 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
 
 ## Trạng thái lúc bàn giao
 
-- **Nhánh chính** ở `bdf2bcc` cộng PR mang bản cập nhật này. `make check` xanh ngày 2026-11-23; plugin có 1098 bài
-  kiểm, 0 bài bỏ qua. Một PR đang mở ở kho này: #100, bản ghi lượt thử cuối, do một phiên khác mở.
-- **Kế hoạch: 46 trên 49 mục.** Tám giai đoạn đã đóng, chứng cứ ghi ở `closed` của từng giai đoạn: 0 và 1 (16/11),
-  2 (17/11), 8 (18/11), 3 (19/11), 4 (20/11), 5 (21/11), 9 (22/11).
-- **Giai đoạn 6** «Hai kho bên cạnh gọi và đọc» đang mở, xong cả 4 mục: 6.0 (đề bài 0013, đã duyệt), 6.1 (Repo
-  Standards gọi plugin, ba lát ở hai kho), 6.2 (kit đọc sổ màn, PR #27 của kho kit) và 6.3 (tài liệu kiến trúc).
-  **Dòng «xong khi»:** một phiên khác đã chạy lượt thử cuối ngày 2026-11-23 và ghi là đạt, ở PR #100 chưa gộp; phiên điều phối chưa
-  soát bản ghi ấy, và giai đoạn chưa đóng. Giai đoạn 7 chưa mở.
+- **Nhánh chính** ở `cf016bd` cộng PR mang việc đóng giai đoạn 6. `make check` xanh ngày 2026-11-23; plugin 0.36.2 có
+  1098 bài kiểm, 0 bài bỏ qua. Không PR nào khác đang mở ở kho này.
+- **Kế hoạch: 47 trên 54 mục.** Chín giai đoạn đã đóng, chứng cứ ghi ở `closed` của từng giai đoạn: 0 và 1 (16/11),
+  2 (17/11), 8 (18/11), 3 (19/11), 4 (20/11), 5 (21/11), 9 (22/11), 6 (23/11).
+- **Giai đoạn 6** «Hai kho bên cạnh gọi và đọc» đóng ngày 2026-11-23, trong PR mang bản cập nhật này: 6.0 (đề bài
+  0013, đã duyệt), 6.1 (Repo Standards gọi plugin, ba lát ở hai kho), 6.2 (kit đọc sổ màn, PR #27 của kho kit) và 6.3
+  (tài liệu kiến trúc). **Dòng «xong khi»** có chứng cứ là lượt thử cuối (`docs/trials/born-through-repo-standards.md`,
+  PR #100): phiên điều phối soát độc lập, chạy lại ba lệnh trên một bản sao của repo vừa ra đời và ra đúng kết quả đã
+  ghi. Điều còn biết lúc đóng nằm ở `closed` của giai đoạn, đáng nhớ nhất: hai plugin được nạp trước cho phiên chạy,
+  còn lối của người dùng trên máy mới thì chưa chứng.
+- **Giai đoạn 10** «Cắm đồ bên cạnh» là giai đoạn đang mở, theo đề bài 0014 chủ kho duyệt ngày 2026-11-23 (PR #103,
+  gộp ở `cf016bd`, do một phiên hỏi đáp viết; phiên điều phối không soát PR ấy). Mục 10.0 (đề bài) xong; mục 10.2 đang
+  làm: một trên bảy phích đã đo, là hệ «Design System» của Claude (quyết định 0088). Chưa gì được dựng. Giai đoạn 7
+  «Lõi của họ sản phẩm» đứng sau nó.
 - **Cổng của kho này:** 42 quyết định giữ bằng 78 lệnh kiểm. `status --roles` in «33 trên 33 giá trị có lời chủ repo».
   `status` in bộ sổ lúc ra đời đủ cả 7 sổ.
 - **Phiếu quyết định:** không câu nào chờ chủ kho. Hai quyền chỉ chủ kho cho, từng bước một: mọi bước ở Inventory,
   delivery-loop và Repo Standards; và chạy phép đo token chính thức.
-- **Sổ giới hạn:** 386 dòng, 300 đang mở, 20 mức nặng. **Việc gác lại:** 12 mục trong sáu nhóm, thành 13 khi PR #100 gộp.
+- **Sổ giới hạn:** 387 dòng, 300 đang mở, 20 mức nặng. **Việc gác lại:** 14 mục trong sáu nhóm.
 - **Lượt thử:** 16 lần, 31 dòng ở `docs/trials/results.tsv`. Vai dựng màn: lần 11 tới 14 cho 9, 11, 14, 13 chỗ phải
   đoán. Vai dẫn dắt: lần 15 và 16 cho 10 và 8.
 
@@ -124,7 +131,8 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
   bản mới ở Inventory làm; phiên điều phối chỉ đọc dòng nhật ký của nó, không soát.
 - **Lát 4, ở kho kit** (mục 6.2): dựng ở một phiên phụ sau lời cho phép của chủ kho cho đúng lát ấy; chủ kho ký hai
   cổng của kit; PR #27 của kho ấy gộp ngày 2026-11-23. Xem «Việc kế».
-- **Lượt thử cuối** (tiêu chí 11): một phiên khác đã chạy, bản ghi ở PR #100 chưa gộp. Xem «Việc kế».
+- **Lượt thử cuối** (tiêu chí 11): một phiên khác đã chạy, phiên điều phối soát độc lập, PR #100 gộp ở `8d4db21`.
+  Xem «Việc kế».
 
 ### Hai ngày trước đó làm được gì
 
@@ -138,7 +146,8 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
 
 ## Việc kế
 
-Đề bài 0013 chia giai đoạn 6 thành sáu PR ở ba kho. Năm đã gộp; một đang mở, chờ lời chủ kho:
+Đề bài 0013 chia giai đoạn 6 thành sáu PR ở ba kho. Cả sáu đã gộp. Hai việc sau cùng, ghi lại để phiên sau biết chúng
+đã được chứng thế nào:
 
 1. **Kit nghiệm thu: bên đọc** (lát 4, mục 6.2, tiêu chí 9 và 10): **đã gộp.** PR #27 của kho kit gộp ngày 2026-11-23
    ở `b0f88c4`, từ đầu nhánh `ce649fd`, sau khi CI của PR xanh ở đúng đầu ấy. Lời gộp là dòng «gộp: khi CI xanh» chủ
@@ -163,22 +172,37 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
      người đọc được: chưa ai quyết lệnh đọc màn có nên đổi khoá thành chữ không.
    - Kit không biết cách viết khoá riêng của từng repo: nó đọc `keys_not_found` để biết khi nào câu trả lời thiếu. Ở
      repo kiểm chứng, lệnh đọc màn chưa cho mã trạng thái nào, vì repo ấy giữ trạng thái ở một trang chữ.
-   - Giới hạn `nothing-declared-to-kit` còn mở. Tiêu chí 13 bảo đóng nó hoặc thu hẹp đúng điều còn hở khi đóng giai
-     đoạn; sửa sổ giới hạn là sửa plugin, tức một bản plugin mới.
-2. **Lượt thử cuối** (tiêu chí 11, dòng «xong khi»). Một phiên khác, không phải phiên viết trang này, đã chạy ngày
-   2026-11-23 và mở PR #100 ở kho này: CI xanh, chưa gộp.
-   - Bản ghi `docs/trials/born-through-repo-standards.md`, trên nhánh của PR ấy, nói đạt: một thư mục rỗng ra đời qua
-     lối `new` của Repo Standards với plugin 0.36.1, hai plugin thật, không ai gõ lệnh nào của plugin; sau đó `status`
-     in đủ bảy sổ và cổng của repo mới xanh. Tốn 3,47 USD.
-   - Nó nói điều nó không chứng: lối của người dùng trên máy mới, nơi plugin chỉ bật từ phiên sau; và một repo ra đời
-     có màu thương hiệu.
-   - PR ấy thêm một việc gác lại (ba bằng chứng của sàn mà `adopt --starter` không giữ được) và không đổi trạng thái
-     mục nào. Nó ghi lời cho chạy của chủ kho, trần 40 USD.
-   - Phiên điều phối không mở PR ấy và chưa soát nó.
-   - PR ấy và PR mang bản cập nhật này cùng thêm một dòng ở đầu `wiki/log.md`: cái gộp sau phải gộp nhánh chính vào
-     trước.
+   - Giới hạn `nothing-declared-to-kit` đóng ngày 2026-11-23 và thu hẹp thành `design-floor-not-declared-to-kit`, theo
+     tiêu chí 13. Câu «chưa khai gì» hết đúng: kho này cài kit từ ngày 2026-11-20 và khai các lệnh cổng với nó, và kit
+     nay đọc màn qua lệnh của plugin mà không cần khai. Điều còn hở: `_acceptance/config.yaml` không khai bề mặt thiết
+     kế, tệp token hay sổ linh kiện, nên lệnh đọc bậc của kit (`design-floor-bac.mjs --root . --json`, kit 3.0.0) trên
+     kho này vẫn trả bậc M0. Khai hay không là việc của chủ kho (quyết định 0009). Sửa sổ giới hạn không cần bản plugin
+     mới: cổng chỉ đòi lên bản khi `templates/` hay `scripts/` đổi.
+2. **Lượt thử cuối** (tiêu chí 11, dòng «xong khi»): **đã gộp.** Một phiên khác, không phải phiên viết trang này, chạy
+   ngày 2026-11-23; PR #100 gộp cùng ngày ở `8d4db21`, sau khi CI xanh ở đúng đầu nhánh đã soát (`f70c45d`).
+   - Bản ghi `docs/trials/born-through-repo-standards.md` nói đạt: một thư mục rỗng ra đời qua lối `new` của Repo
+     Standards với plugin 0.36.1, hai plugin thật, không ai gõ lệnh nào của plugin; sau đó `status` in đủ bảy sổ và
+     cổng của repo mới xanh. Tốn 3,47 USD. Nó ghi lời cho chạy của chủ kho, trần 40 USD.
+   - **Phiên điều phối đã soát độc lập** (2026-11-23), trên một bản sao của repo vừa ra đời:
+     - `status` của plugin ở đúng bản đã dùng in ra khớp từng chữ với đầu ra đã lưu;
+     - `make check` của repo ấy thoát 0, và `doctor` của Repo Standards không thấy sổ nào thiếu;
+     - bản ghi từng bước cho thấy lời gọi plugin do `new` phát, ở lần gọi công cụ thứ 35 trên 44;
+     - lời cho chạy của chủ kho có trong bản ghi của phiên Repo Standards, trước lúc lượt chạy bắt đầu.
+   - Ba điểm nên sửa, phiên lượt thử đã sửa theo lời chủ kho («Gửi sang sửa»): bản ghi nay nói phiên chạy không phải
+     phòng sạch (một hook của máy đưa vào bản tóm tắt của một phiên trước, không bảo gọi plugin), chép nguyên văn lời
+     nhắc, và dòng nhật ký ghi đúng là tiêu chí của giai đoạn.
+   - Nó nói điều nó không chứng: lối của người dùng trên máy mới, nơi plugin chỉ bật từ phiên sau; một phiên trên máy
+     không có plugin hay hook riêng; và một repo ra đời có màu thương hiệu.
+   - PR ấy thêm một việc gác lại: ba bằng chứng của sàn mà `adopt --starter` không giữ được.
 
-Sau lượt thử cuối: đóng giai đoạn 6 (ngày và chứng cứ vào `closed`), theo lời chủ kho.
+Giai đoạn 6 đóng ngày 2026-11-23: ngày và chứng cứ nằm ở `closed` của giai đoạn trong `docs/plan/plan.json`. Tài liệu
+kiến trúc còn vẽ giai đoạn 6 đang mở, theo kế hoạch đọc ngày 2026-11-22, và chưa có giai đoạn 10; việc vẽ lại đã vào
+việc gác lại.
+
+**Việc kế là giai đoạn 10** «Cắm đồ bên cạnh», theo đề bài
+[0014](../wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md): một bước thiết lập chọn phích cho từng ổ (mục
+10.1), đo các phích ngoài theo thứ tự chủ kho chốt (mục 10.2, mỗi lượt đo hỏi chủ kho trước vì tốn token), cầu nối vào
+(10.3) và cầu nối ra (10.4). `make plan` in các mục. Phiên điều phối chưa đọc kỹ đề bài ấy: đọc nó trước khi dựng gì.
 
 Ngoài giai đoạn 6:
 
@@ -189,7 +213,8 @@ Ngoài giai đoạn 6:
 
 ### Đang chờ lời chủ kho
 
-- Lời gộp cho PR #100 (bản ghi lượt thử cuối), rồi lời đóng giai đoạn 6.
+- Mỗi lượt đo phích ngoài của mục 10.2, và mỗi phích cần tài khoản hay gửi dữ liệu ra ngoài (giai đoạn 10).
+- Có khai phần thiết kế của kho này với kit nghiệm thu không (giới hạn `design-floor-not-declared-to-kit`).
 - Bộ sổ lúc ra đời là bảy sổ thay cho mười sổ của câu 3: chủ kho đã được báo và bảo commit, chưa nói gì thêm.
 - Mức và hướng xử lý của các dòng giới hạn do máy đặt ở giai đoạn 5 và 9. Đáng chú ý: `unmarked-action-control-unseen`
   (nút cấm không mang dấu thì bài kiểm theo vai không thấy), đang ghi mức vừa, «giữ nguyên».

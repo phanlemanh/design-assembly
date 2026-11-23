@@ -431,7 +431,7 @@
     {
       "id": 6,
       "name": "Hai kho bên cạnh gọi và đọc",
-      "state": "current",
+      "state": "done",
       "parallel": [],
       "items": [
         {
@@ -460,19 +460,23 @@
         }
       ],
       "done_when": ["Một repo mới ra đời qua Repo Standards có đủ bộ sổ mà không ai gọi tay"],
-      "needs_owner": ["Duyệt kiến trúc", "Cho phép sửa ở từng kho"]
+      "needs_owner": ["Duyệt kiến trúc", "Cho phép sửa ở từng kho"],
+      "closed": {
+        "on": "2026-11-23",
+        "evidence": "Chứng cứ đối chiếu trên nhánh chính 8d4db21 (CI xanh ở đó), plugin 0.36.2. Dòng «xong khi»: lượt thử cuối, tiêu chí 11 của đề bài 0013 (docs/trials/born-through-repo-standards.md, PR #100), chủ repo cho chạy ngày 2026-11-23 («Cho chạy, trần 40 USD, ghi hạn mức trước sau»): một thư mục rỗng ra đời qua lối new của Repo Standards ở 83411c5 với design-assembly 0.36.1 ở 48fc3f6, cả hai plugin thật; lời nhắc duy nhất không nhắc tới design-assembly, và bước 6.4 của new tự gọi adopt --starter (lần gọi công cụ thứ 35 trên 44, thoát 1, bốn câu chờ người). Lệnh cho thấy, trên repo vừa ra đời ấy: node scripts/status.mjs --target . của plugin in «ledgers from birth: all 7 are here»; make check của repo ấy thoát 0 (24 bài đơn vị, 28 bài trình duyệt); doctor.py --json --design-assembly-version 0.36.1 của Repo Standards cho design_ledgers.missing rỗng. Phiên điều phối chạy lại cả ba lệnh ngày 2026-11-23 trên một bản sao của repo ấy, ra đúng kết quả đã ghi, và đối chiếu bản ghi từng bước của lượt chạy. Điều còn biết lúc đóng: hai plugin được nạp trước cho riêng phiên chạy bằng --plugin-dir, chủ repo nhận cách ấy là không gõ lệnh; lối của người dùng trên máy mới chưa chứng, vì ở đó plugin chỉ bật từ phiên sau, và bộ sổ chỉ có khi người cài plugin rồi gọi nó hoặc khi doctor nhắc; phiên chạy không phải phòng sạch (một hook của máy đưa vào bản tóm tắt của một phiên trước, không bảo gọi plugin); repo ra đời có màu thương hiệu (quyết định 0087) chưa chạy thật; cả vòng của kit nghiệm thu trên một repo thật có lệnh đọc màn chưa chạy. Các mục không nằm trên dòng «xong khi» có chứng cứ ở ref của chúng: 6.1 ba lát ở hai kho (PR #94, #96, #98 và PR #84 của Repo Standards), 6.2 bên đọc của kit (PR #27 của kho kit, gộp ở b0f88c4), 6.3 tài liệu kiến trúc. Tiêu chí 13: giới hạn nothing-declared-to-kit đóng và thu hẹp đúng điều còn hở thành design-floor-not-declared-to-kit, vì lệnh đọc bậc của kit (design-floor-bac.mjs --root . --json, kit 3.0.0) trên kho này vẫn trả bậc M0, «chưa khai design.surface_globs». Việc cần chủ repo: duyệt kiến trúc, đã có ngày 2026-11-22 («Duyệt cả tám», câu 1); cho phép sửa ở từng kho, đã có cho đúng lát 3 ở Repo Standards và cho đúng lát 4 ở delivery-loop («Cho phép», 2026-11-22). Chủ repo bảo chuẩn bị đóng ngày 2026-11-23 («Chuẩn bị đóng»), rồi bảo đóng cùng ngày («Đóng và mở PR»), sau khi được nêu các điều còn biết lúc đóng ở trên và rằng giới hạn được thu hẹp chứ không đóng hẳn. Giai đoạn mở kế tiếp là giai đoạn 10, theo đề bài 0014 chủ repo duyệt cùng ngày (PR #103): nó đứng ngay sau giai đoạn 6."
+      }
     },
     {
       "id": 10,
       "name": "Cắm đồ bên cạnh",
-      "state": "later",
+      "state": "current",
       "parallel": [],
       "items": [
         {
           "id": "10.0",
           "what": "Đề bài chi tiết cho cả giai đoạn, chủ repo duyệt",
-          "state": "todo",
-          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, đã duyệt ngày 2026-11-23 («Duyệt theo khuyến nghị cả bảy câu, khuyến nghị tích hợp claude design và hệ design mặc định của claude và trong kho,...»): giai đoạn này đứng ngay sau giai đoạn 6, lựa chọn phích ghi thành dòng plug-<ổ> của sổ quyết định, lệnh tên plugs, tối đa bốn câu một lượt, thứ tự đo như câu 5, DESIGN.md xuất trước, lời cho phép gửi ra ngoài theo repo và theo phích; ghi xong khi giai đoạn 10 mở; cùng ngày chủ repo quyết thêm («Đưa loại artifact Design System là loại đề xuất với người dùng mặc định vì đây là cái mà Claude đang làm tốt hơn của repo. Đưa đo claude design lên thực hiện sớm không cần đợi ngày 14/12»): hệ loại Design System của Claude là khuyến nghị mặc định ở bốn ổ hướng đi, nền, tài sản thương hiệu và bàn giao, và đo Claude Design đứng đầu mục 10.2"
+          "state": "done",
+          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, đã duyệt ngày 2026-11-23 («Duyệt theo khuyến nghị cả bảy câu, khuyến nghị tích hợp claude design và hệ design mặc định của claude và trong kho,...»): giai đoạn này đứng ngay sau giai đoạn 6, lựa chọn phích ghi thành dòng plug-<ổ> của sổ quyết định, lệnh tên plugs, tối đa bốn câu một lượt, thứ tự đo như câu 5, DESIGN.md xuất trước, lời cho phép gửi ra ngoài theo repo và theo phích; ghi xong ngày 2026-11-23, khi giai đoạn 10 mở trong cùng thay đổi đóng giai đoạn 6; cùng ngày chủ repo quyết thêm («Đưa loại artifact Design System là loại đề xuất với người dùng mặc định vì đây là cái mà Claude đang làm tốt hơn của repo. Đưa đo claude design lên thực hiện sớm không cần đợi ngày 14/12»): hệ loại Design System của Claude là khuyến nghị mặc định ở bốn ổ hướng đi, nền, tài sản thương hiệu và bàn giao, và đo Claude Design đứng đầu mục 10.2"
         },
         {
           "id": "10.1",
@@ -483,8 +487,8 @@
         {
           "id": "10.2",
           "what": "Đo các phích ngoài ưu tiên theo bốn thước, theo thứ tự chủ repo chốt: Claude Design (không chờ ngày 2026-12-14), ReUI, frontend-design, Stitch, rồi Open Design, Figma, Mobbin; mỗi phích một bản quyết định; thêm tệp phích còn thiếu",
-          "state": "todo",
-          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 11 và 16, câu hỏi 5 (thứ tự chủ repo đổi ngày 2026-11-23); mỗi lượt đo hỏi chủ repo trước vì tốn token; Claude Design đo ngày 2026-11-23, ngoài kế hoạch theo lời chủ repo («Cho đo Claude Design»): wiki/decisions/0088-claude-design-system-measured-on-four-measures.md, docs/trials/claude-design-system-measured.md; mục còn todo vì giai đoạn 10 chưa mở"
+          "state": "doing",
+          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 11 và 16, câu hỏi 5 (thứ tự chủ repo đổi ngày 2026-11-23); mỗi lượt đo hỏi chủ repo trước vì tốn token; Claude Design đo ngày 2026-11-23, ngoài kế hoạch theo lời chủ repo («Cho đo Claude Design»): wiki/decisions/0088-claude-design-system-measured-on-four-measures.md, docs/trials/claude-design-system-measured.md; mục đang làm từ ngày 2026-11-23, khi giai đoạn 10 mở: một trên bảy phích đã đo"
         },
         {
           "id": "10.3",
@@ -656,6 +660,13 @@
       "what": "Ba bằng chứng của sàn mà adopt --starter không giữ được, thấy ở lượt thử tiêu chí 11 (docs/trials/born-through-repo-standards.md): phép kiểm trình duyệt của sàn (tests/e2e/floor.spec.ts) không nêu decision:one-main-one-h1, decision:no-sideways-scroll, decision:wcag-aa, nên ba quyết định không vào sổ (sửa ở sàn của Repo Standards hay nhận tệp ấy ở known-proofs.json là lời chủ repo); color-role gắn với shadcn/no-raw-colors trong known-proofs.json trong khi trên sàn shadcn/no-arbitrary-values mới là luật từ chối mẫu text-[#ff0000]; mẫu của whole-class-names đặt lớp động trên một div, ngoài phạm vi của shadcn/require-static-classes (chỉ xét lớp của linh kiện)",
       "stage": 6,
       "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 6: bộ sổ lúc ra đời đủ và cổng xanh; hai việc cuối đổi script hay sổ tham chiếu của plugin, tức một bản plugin mới; việc đầu chạm sàn của Repo Standards, cần lời cho phép ở kho ấy",
+      "group": "small"
+    },
+    {
+      "on": "2026-11-23",
+      "what": "Tài liệu kiến trúc (docs/architecture/meta-layer.html) còn vẽ giai đoạn 6 đang mở, theo kế hoạch đọc ngày 2026-11-22: hình 5 và bảng của mục «Lộ trình và tiêu chí đạt», mục «Giai đoạn 6 đang đứng ở đâu» (còn ghi phía Repo Standards, phía delivery-loop và lượt thử cuối là «còn chờ»), dòng «Chưa dựng, hoặc mới dựng một phía» của bảng hôm nay, và hai đoạn ở mục 10 và mục 12 nói hai repo bên cạnh chưa gọi và chưa đọc; nó cũng chưa có giai đoạn 10, thêm vào kế hoạch ngày 2026-11-23",
+      "stage": 10,
+      "why_not_now": "Không chặn gì: tài liệu ghi ngày nó đọc kế hoạch, nên không nói sai về ngày ấy; vẽ lại hình 5 cùng năm chỗ chữ là một việc riêng, làm một lần, cùng với việc thêm giai đoạn 10 vào hình và bảng",
       "group": "small"
     }
   ]
