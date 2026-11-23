@@ -25,21 +25,26 @@ Một lượt, ngày 2026-11-23, từ 22:08 tới 22:37. Chủ repo cho đo sau 
 
 ## Thước 1: giữ được không
 
-| Đo gì                                         | Nhánh R (ReUI)                                                                                                                 | Nhánh P (tự tạo)                                         |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------- |
-| Đường vào `intake`                            | Phải viết tay nguồn ghim, danh mục 27 món, bản chụp kèm `sha256`; không lệnh nào ghim                                          | Có sẵn: «by-hand» là ứng viên duy nhất                   |
-| Chữ của nhu cầu tìm ra món                    | «filter status date» không ra gì; phải đổi sang chữ của danh mục («filter builder»)                                            | Không áp dụng                                            |
-| Dòng cài                                      | Hỏi có ghi đè `button.tsx`, `input.tsx` của repo không; không ai đáp thì thoát 0, không cài gì                                 | Không có                                                 |
-| Thứ dòng cài đưa vào                          | 32 tệp, 19 383 dòng (25 tệp ReUI, 7 linh kiện nền mới), 2 gói npm, khai registry `@reui`                                       | 1 tệp khối 84 dòng, 78 dòng bài kiểm                     |
-| Khối như được giao, trước khi ai dùng         | Cổng đỏ: 226 lỗi lint, 71 lỗi kiểu, 8 lỗi phép kiểm sàn, tệp chưa định dạng; mọi lỗi nằm trong tệp ReUI                        | Chưa có khối                                             |
-| Cổng lúc tác tử nói xong (phiên này chạy lại) | Xanh, 88 phép kiểm trình duyệt                                                                                                 | Xanh, 80 phép kiểm trình duyệt                           |
-| Sàn còn giữ khối không                        | Không: 16 tệp `@ts-nocheck`, 18 dòng tắt luật có lý do, một khối tắt luật trong cấu hình lint, cả thư mục ra khỏi bộ định dạng | Có: mọi luật của sàn áp nguyên                           |
-| Lỗi lọt qua cổng                              | 2: ô nổi không tên (tác tử sửa), câu tiếng Anh cho trình đọc màn hình (để lại)                                                 | 0                                                        |
-| Dòng sổ                                       | Đủ nguồn, ghim, mã băm, do `intake` ghi; mã băm của 1 trên 32 tệp                                                              | Tác tử viết tay vì bản sao không có plugin; không mã băm |
-| Sửa tệp chính sau lúc nhập                    | `inventory` báo «modified»                                                                                                     | Không so được (không mã băm)                             |
-| Sửa một trong 31 tệp còn lại                  | Không gì báo                                                                                                                   | Không áp dụng                                            |
-| Sửa bản chụp đã ghim                          | `find` báo bản chụp khác ghim; cổng vẫn xanh                                                                                   | Không áp dụng                                            |
-| ReUI ra bản mới                               | Không gì báo: registry phục vụ bản mới nhất, dòng cài gọi `shadcn@latest` thay bản 4.23.0 repo ghim                            | Không áp dụng                                            |
+| Đo gì                                         | Nhánh R (ReUI)                                                                                                                                                                                                                   | Nhánh P (tự tạo)                                         |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Đường vào `intake`                            | Phải viết tay nguồn ghim, danh mục 27 món, bản chụp kèm `sha256`; không lệnh nào ghim                                                                                                                                            | Có sẵn: «by-hand» là ứng viên duy nhất                   |
+| Chữ của nhu cầu tìm ra món                    | «filter status date» không ra gì; phải đổi sang chữ của danh mục («filter builder»)                                                                                                                                              | Không áp dụng                                            |
+| Dòng cài                                      | Trước khi hỏi đã sửa `components.json` (thêm registry `@reui`), `package.json` (2 gói) và `package-lock.json`; rồi hỏi có ghi đè `button.tsx`, `input.tsx` của repo không; không ai đáp thì thoát 0, chưa chép tệp linh kiện nào | Không có                                                 |
+| Thứ dòng cài đưa vào                          | 32 tệp, 19 383 dòng (25 tệp ReUI, 7 linh kiện nền mới), 2 gói npm, khai registry `@reui`                                                                                                                                         | 1 tệp khối 84 dòng, 78 dòng bài kiểm                     |
+| Khối như được giao, trước khi ai dùng         | Cổng đỏ: 226 lỗi lint, 71 lỗi kiểu, 8 lỗi phép kiểm sàn, tệp chưa định dạng; mọi lỗi nằm trong tệp ReUI                                                                                                                          | Chưa có khối                                             |
+| Cổng lúc tác tử nói xong (phiên này chạy lại) | Xanh, 88 phép kiểm trình duyệt                                                                                                                                                                                                   | Xanh, 80 phép kiểm trình duyệt                           |
+| Sàn còn giữ khối không                        | Không: 16 tệp `@ts-nocheck`, 18 dòng tắt luật có lý do, một khối tắt luật trong cấu hình lint, cả thư mục ra khỏi bộ định dạng                                                                                                   | Có: mọi luật của sàn áp nguyên                           |
+| Lỗi lọt qua cổng                              | 2: ô nổi không tên (tác tử sửa), câu tiếng Anh cho trình đọc màn hình (để lại)                                                                                                                                                   | 0                                                        |
+| Dòng sổ                                       | Đủ nguồn, ghim, mã băm, do `intake` ghi; mã băm của 1 trên 32 tệp                                                                                                                                                                | Tác tử viết tay vì bản sao không có plugin; không mã băm |
+| Sửa tệp chính sau lúc nhập                    | `inventory` báo «modified»                                                                                                                                                                                                       | Không so được (không mã băm)                             |
+| Sửa một trong 31 tệp còn lại                  | Không gì báo                                                                                                                                                                                                                     | Không áp dụng                                            |
+| Sửa bản chụp đã ghim                          | `find` báo bản chụp khác ghim; cổng vẫn xanh                                                                                                                                                                                     | Không áp dụng                                            |
+| ReUI ra bản mới                               | Không gì báo: registry phục vụ bản mới nhất, dòng cài gọi `shadcn@latest` thay bản 4.23.0 repo ghim                                                                                                                              | Không áp dụng                                            |
+
+Lần cài đầu có thoát 0, nhưng repo đã đổi: phiên này chạy `git diff` trên bản sao giữa lần cài đầu và lần cài thứ hai.
+Nó cho thấy `components.json` có thêm registry `@reui`, `package.json` có thêm `@tanstack/react-virtual` và
+`date-fns`, và `package-lock.json` cũng đổi. Nhật ký của lần cài đầu cũng ghi bước cài gói xong trước câu hỏi ghi đè.
+Lần cài thứ hai đáp «no» cho cả hai câu, và chép 32 tệp.
 
 Hai chỗ phiên này phải tự quyết khi ghim: bảo bộ định dạng chừa bản chụp ra (định dạng lại thì mã băm hỏng), và đổi chữ
 của nhu cầu cho khớp danh mục. Thêm một bước phải nhớ: ghi một dòng sổ làm các tệp xuất cũ đi, nên cổng đỏ tới khi
@@ -65,21 +70,37 @@ có người thứ hai đếm lại.
 
 ## Thước 3: chạy được ở đâu
 
-- Tìm qua máy chủ MCP cần mạng và một tài khoản ReUI, kể cả phần miễn phí (đăng nhập bằng trình duyệt).
+- Tìm qua máy chủ MCP cần mạng. Theo tài liệu của ReUI, nó cần một tài khoản ReUI, kể cả cho phần miễn phí (đăng nhập
+  bằng trình duyệt). Lượt này không kiểm được điều đó: mọi lần gọi đều đi dưới phiên chủ repo đã đăng nhập, nên không có
+  lần gọi nào khi chưa đăng nhập để so.
 - Dòng cài cần mạng: tệp từ reui.io, gói từ npm, và bản `shadcn` mới nhất từ npm. Phần miễn phí không cần khoá.
 - Sau lúc cài, khối nằm trong repo và chạy không cần mạng.
 
 ## Thước 4: tốn bao nhiêu
 
-| Nhánh | Token của tác tử (bộ đếm của phiên) | Phút | Lần gọi công cụ | Gói mới | Dòng mã tác tử viết, kể cả bài kiểm |
-| ----- | ----------------------------------- | ---- | --------------- | ------- | ----------------------------------- |
-| R     | 333 978                             | 20,6 | 103             | 2       | 441, cộng khoảng 80 câu chữ         |
-| P     | 236 855                             | 9,6  | 51              | 0       | 162                                 |
+| Ai              | Số công cụ báo | Token đã xử lý, không kể đọc lại bộ đệm | Kể cả đọc lại bộ đệm | Phút | Lần gọi công cụ | Gói mới | Dòng mã tác tử viết, kể cả bài kiểm |
+| --------------- | -------------- | --------------------------------------- | -------------------- | ---- | --------------- | ------- | ----------------------------------- |
+| Tác tử R        | 333 978        | 408 265                                 | 23 437 649           | 20,6 | 103             | 2       | 441, cộng khoảng 80 câu chữ         |
+| Tác tử P        | 236 855        | 234 307                                 | 8 439 550            | 9,6  | 51              | 0       | 162                                 |
+| Phiên điều phối | không có       | 175 454                                 | 22 004 821           |      |                 |         |                                     |
+| **Cả lượt**     |                | **818 026**                             | **53 882 020**       |      |                 |         |                                     |
 
-Cả lượt chạy khoảng 30 phút. Hai tác tử tốn 570 833 token. Phần máy của phiên này không có bộ đếm riêng nên không ghi
-số. Đọc tài liệu ReUI trước lượt đo, theo câu hỏi của chủ repo, tốn thêm 72 424 token. Ước tính trước là khoảng 450
-nghìn cho cả lượt, trần 700 nghìn, và trần 300 nghìn cho một tác tử. Tác tử R vượt trần của nó: phiên này không dừng
-được một tác tử đang chạy, nên chỉ biết số khi nó xong.
+Cả lượt chạy khoảng 30 phút. Số công cụ báo cho một tác tử là cỡ ngữ cảnh ở lượt trả lời cuối của nó, không phải tổng
+việc nó làm. Hai cột sau cộng từ nhật ký của từng tác tử và của phiên này, mỗi lượt trả lời một lần. Phần của phiên
+điều phối tính từ lúc chủ repo cho đo tới lúc mở PR. Đọc tài liệu ReUI trước lời cho đo, theo câu hỏi của chủ repo,
+không tính vào lượt: công cụ báo 72 424, đã xử lý 74 192.
+
+## Vượt lời cho đo
+
+Lời cho đo đi kèm ước tính khoảng 450 nghìn token cho cả lượt, trần 700 nghìn, và trần 300 nghìn cho một tác tử.
+
+- **Cả lượt vượt trần.** Theo số đã xử lý, cả lượt tốn 818 026 token, vượt trần 700 nghìn và gần gấp đôi ước tính.
+  Chỉ lấy số công cụ báo cho hai tác tử cộng phần của phiên điều phối thì đã là 746 287. Kể cả đọc lại bộ đệm thì tới
+  khoảng 54 triệu. Cách đếm nào cũng vượt.
+- **Tác tử R vượt trần của nó:** 333 978 theo số công cụ báo, 408 265 theo số đã xử lý.
+- Phiên này không dừng được một tác tử đang chạy, và không có bộ đếm cho chính nó trong lúc chạy, nên chỉ biết các số
+  này sau khi xong. Bản ghi đầu tiên chỉ nói tác tử R vượt; điều cả lượt vượt được thêm vào ngày 2026-11-24, sau khi
+  soát.
 
 ## Lượt này không cho thấy
 
@@ -88,6 +109,8 @@ nghìn cho cả lượt, trần 700 nghìn, và trần 300 nghìn cho một tác
 - Tác tử R không được gọi máy chủ MCP, nên các bước ReUI tự đề ra (`validate_usage`, `get_audit_checklist`) không chạy.
 - Hai tác tử không gọi `intake` hay `decide`, vì bản sao không có plugin. Dòng sổ của nhánh P vì vậy viết tay và không
   có mã băm, nên phần «sau lúc nhập» chỉ so được ở nhánh R.
+- Không lần gọi nào tới ReUI đi khi chưa đăng nhập. Việc cần tài khoản để tìm là theo tài liệu của ReUI, lượt này không
+  kiểm.
 - Không ai nhìn thanh lọc trong trình duyệt bằng mắt.
 - Khối Pro không được đo.
 - Số chỗ tự quyết là tự khai của tác tử, phiên này kiểm từng căn cứ đối chiếu được, chưa có người thứ hai đếm.
