@@ -95,24 +95,31 @@ function leaveOf(row) {
 
 // The question that asks the leave: the plug the owner named at the handoff socket is recommended
 // on their word; any other is not sent until the owner says so.
-function leaveQuestion(plug, on) {
-  const owner = plug.recommended_by_owner?.[SOCKET] ?? null;
+function leaveQuestion(plug, on, changed = null) {
+  const owner = changed ? null : (plug.recommended_by_owner?.[SOCKET] ?? null);
   const allow = {
     name: "allow",
     about: "Send it, for this repository and this plug only, until the leave is taken back.",
   };
   const notNow = { name: "not-now", about: "Keep it in the repository: nothing is sent." };
+  const now = `${BUNDLE.join(", ")}; to: ${plug.sends}`;
   return {
     id: leaveId(plug.id),
     kind: "question",
-    group: "sending out",
-    question: `May the design system bundle of this repository be sent to ${plug.id}, for this repository and this plug only?`,
-    recommendation: owner
-      ? "allow: the owner named this plug at the handoff socket"
-      : "not-now: nothing names this plug at the handoff socket",
-    basis: owner
-      ? `decision ${owner.record}, and the owner's word "${owner.said}" on ${owner.on}; what goes: the files of ${SYSTEM_FOLDER}; where: ${plug.sends}`
-      : `no word of the owner names ${plug.id} at the handoff socket; what would go: the files of ${SYSTEM_FOLDER}; where: ${plug.sends}`,
+    group: changed ? ASKED_AGAIN : "sending out",
+    question: changed
+      ? `Asked again: the leave was given for ${changed}. May the design system bundle of this repository now be sent to ${plug.id} as ${now}, for this repository and this plug only?`
+      : `May the design system bundle of this repository be sent to ${plug.id}, for this repository and this plug only?`,
+    recommendation: changed
+      ? "not-now: what goes, or where it goes, changed since the leave was given, and the owner's word named the plug, not the new place"
+      : owner
+        ? "allow: the owner named this plug at the handoff socket"
+        : "not-now: nothing names this plug at the handoff socket",
+    basis: changed
+      ? `the leave recorded ${changed}; what would go now: ${now}`
+      : owner
+        ? `decision ${owner.record}, and the owner's word "${owner.said}" on ${owner.on}; what goes: the files of ${SYSTEM_FOLDER}; where: ${plug.sends}`
+        : `no word of the owner names ${plug.id} at the handoff socket; what would go: the files of ${SYSTEM_FOLDER}; where: ${plug.sends}`,
     hard_to_undo: true,
     where: `${SYSTEM_FOLDER}, sent to ${plug.id}`,
     if_refused: "nothing is sent, and the bundle stays in the repository",
@@ -156,6 +163,14 @@ const chosenOf = (question) =>
       ? String(question.said).trim()
       : "not-now";
 
+// What the owner did with a question that gave no leave, in words that say what they did.
+const didOf = (question) =>
+  question.answer === "keep"
+    ? `kept ${chosenOf(question)}`
+    : question.answer === "value"
+      ? `answered ${chosenOf(question)}`
+      : "refused the question";
+
 // The row of the ledger that records the leave, with the owner's name and day.
 // What a leave is given for, as its row records it: the files that go, and where they go. A leave
 // counts only for what it records.
@@ -171,7 +186,11 @@ const leaveRow = (plug, note) => ({
 
 // The candidate the rule puts first for a plug: leave, where the owner named it at the handoff
 // socket; else not now. What `keep` means is read from this rule, never from a file.
-const firstByRule = (plug) => (plug.recommended_by_owner?.[SOCKET] ? "allow" : "not-now");
+// A leave asked again because what goes or where it goes changed is in a group of its own: the
+// owner's word named the plug, not the new place, so not now comes first there.
+const ASKED_AGAIN = "sending out, asked again";
+const firstByRule = (plug, question = null) =>
+  question?.group !== ASKED_AGAIN && plug.recommended_by_owner?.[SOCKET] ? "allow" : "not-now";
 
 // The waiting list, read without the id of the leave's own row, so a row and its question left
 // together by a run that stopped between them can be read and taken apart. One kept as a shared
@@ -201,7 +220,7 @@ function leaveState(root, plug, on) {
     return {
       given: false,
       drop: true,
-      ask: leaveQuestion(plug, on),
+      ask: leaveQuestion(plug, on, String(row.source).replace(/^leave: /, "")),
       says: `the leave was given for ${String(row.source).replace(/^leave: /, "")}; it would now go to ${plug.sends}: asked again, since what goes or where it goes changed (now ${BUNDLE.join(", ")})`,
     };
   }
@@ -221,9 +240,9 @@ function leaveState(root, plug, on) {
     };
   }
   const first = question.candidates?.[0]?.name;
-  if (first !== firstByRule(plug)) {
+  if (first !== firstByRule(plug, question)) {
     throw new Refusal(
-      `${questionFile(id)} leads with ${first}, which the rule does not give for ${plug.id}: ${firstByRule(plug)} comes first; take the file away and run this again to be asked anew`,
+      `${questionFile(id)} leads with ${first}, which the rule does not give for ${plug.id}: ${firstByRule(plug, question)} comes first; take the file away and run this again to be asked anew`,
     );
   }
   if (question.answer === undefined) {
@@ -232,7 +251,7 @@ function leaveState(root, plug, on) {
   if (chosenOf(question) !== "allow") {
     return {
       given: false,
-      says: `the owner refused on ${question.on}: nothing is sent; to ask again, run this with --reask`,
+      says: `${question.by} ${didOf(question)} on ${question.on}: nothing is sent; to ask again, run this with --reask`,
     };
   }
   return {
