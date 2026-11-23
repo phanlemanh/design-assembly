@@ -45,7 +45,9 @@ dòng `plug-screen-build`. Nên «dựng qua phích ngoài» hôm nay chỉ xả
      ghi thay chủ repo. Trong khoảng 9 đến 14 của lần 11 đến 14, tức «không tăng, không giảm» theo luật đọc đặt trước.
    - **Chạy được ở đâu:** tại chỗ, không tài khoản, không mạng lúc chạy; không gì của repo ra khỏi máy.
    - **Tốn bao nhiêu:** tác tử dựng 295 493 token, 58 lần gọi công cụ, 14 phút 51 giây; lần 12 đến 14 là 295 đến 339
-     nghìn. Cả lượt khoảng 450 nghìn, ước tính trước khoảng 550 nghìn.
+     nghìn. Phiên điều phối 308 705, 36 phút 10 giây từ lượt đầu tới lúc mở PR. Cả lượt 604 198 token, đếm bằng cỡ
+     ngữ cảnh của lần gọi mô hình cuối cộng chữ nó viết ra, ở mỗi bản ghi phiên: **vượt ước tính** khoảng 550 nghìn,
+     **dưới trần** 850 nghìn. Cách đếm và giờ nằm ở bản ghi lượt thử, phần thước 4.
 3. **Theo luật chọn của 0008, phích của plugin vẫn là mặc định ở ổ dựng màn.** Phích ngoài không thắng ở thước 1 hay 2:
    thước 1 đứng nhờ phích của plugin, thước 2 nằm trong độ lệch của các lượt cũ. Thước 3 không loại nó: nó đủ điều kiện
    làm phích chính nếu về sau thắng. Một nhánh, một lượt, nên `false` nghĩa là «chưa cho thấy thắng», không phải «thua».
@@ -60,7 +62,8 @@ dòng `plug-screen-build`. Nên «dựng qua phích ngoài» hôm nay chỉ xả
   nghị phích của plugin. Trước đây ổ ấy không có câu nào, vì phích chưa đo.
 - **Cho lượt thử của dòng «xong khi» (tiêu chí 13), chưa chạy:**
   - Trên bản sao của kho này, một màn dựng qua skill đã chọn vẫn qua cổng, số chỗ đoán nằm trong khoảng cũ, và số lần
-    quyết thay bằng 0. Ba điều của dòng «xong khi» giữ được với phích này.
+    quyết thay bằng 0. Ba điều của dòng «xong khi» giữ được với phích này trên bản sao của kho này, một kho đã có hướng
+    đi, trang luật và cổng.
   - Ba điều lượt này không chứng. Lượt ấy chạy trên một repo mới, nơi chưa có hướng đi, và skill bảo tự chọn bảng màu,
     font và bố cục: đó là chỗ một lần quyết thay dễ xảy ra nhất, và là chỗ lượt này không đo. Không lộ trình nào trao
     skill cho người dựng, nên lượt ấy cũng phải bảo tác tử bằng lời. Và lượt ấy nên đếm cả giá trị ngoài sổ, như lượt

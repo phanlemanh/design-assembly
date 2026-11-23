@@ -33,18 +33,20 @@ khoảng 550 nghìn token, 90 phút, trần 850 nghìn. Bản quyết định đ
 
 ## Lượt chạy
 
-Từ 22:39 tới 22:54, qua 58 lần gọi công cụ:
+Từ 22:39 tới 22:54, qua 58 lần gọi công cụ. Cách đếm: mỗi khối `tool_use` trong bản ghi của tác tử
+(`agent-transcript.jsonl`) là một lần gọi, đánh số theo thứ tự xuất hiện, khối trùng mã chỉ đếm một lần; 58 lần gọi ấy
+nằm trong 55 lượt trả lời của mô hình. Cột bên phải là số thứ tự ấy.
 
-| Bước                                                                                                    | Lần gọi |
-| ------------------------------------------------------------------------------------------------------- | ------- |
-| Đọc `AGENTS.md`, wiki, trang hành vi, hai trang luật, trang kiểu màn, mã, sổ quyết định                 | 1–13    |
-| **Gọi skill `frontend-design:frontend-design`**                                                         | 14      |
-| Ghi màn mới vào sổ màn, chạy phiếu của ba màn, `make check` trên bản sao chưa đổi                       | 15–23   |
-| Đổi mô hình dữ liệu, sổ màn, `brief --queue`, mười câu `decide --ask`                                   | 24–35   |
-| Dựng: hai hook, hai linh kiện, màn chính, màn mới, chữ, dữ liệu mẫu                                     | 36–43   |
-| Lint đỏ một lần, bài đơn vị đỏ 14 rồi 1, sửa; bài kiểm mới; thử làm sai mã để xem bài kiểm có bắt không | 44–54   |
-| `make check` lần 1 đỏ ở `design-exports`; `make design-exports`; lần 2 xanh                             | 55–57   |
-| Chụp màn ở 320 và 1440 px bằng một máy chủ xem trước tại chỗ, xem ảnh                                   | 58–66   |
+| Bước                                                                                                                     | Lần gọi |
+| ------------------------------------------------------------------------------------------------------------------------ | ------- |
+| Lập danh sách việc; đọc `AGENTS.md`, wiki, trang hành vi, hai trang luật, trang kiểu màn, mã, sổ quyết định              | 1–9     |
+| **Gọi skill `frontend-design:frontend-design`**                                                                          | 10      |
+| Ghi màn mới vào sổ màn, chạy phiếu; đọc bài kiểm, Makefile, mô hình dữ liệu; `make check` trên bản sao chưa đổi (lần 19) | 11–23   |
+| Đổi mô hình dữ liệu, sổ màn; phiếu của ba màn vào hàng chờ (`brief --queue`), mười câu `decide --ask`                    | 24–29   |
+| Dựng: chữ, dữ liệu mẫu, hai hook, linh kiện dùng chung, màn chính, màn mới, ghi trạng thái của màn                       | 30–37   |
+| Lint đỏ một lần, bài đơn vị đỏ 14 rồi 1, sửa; bài kiểm mới; thử làm sai mã để xem bài kiểm có bắt không                  | 38–48   |
+| `make check` lần 1 đỏ ở `design-exports`; `make design-exports`; lần 2 xanh                                              | 49–51   |
+| Chụp màn ở 320 và 1440 px bằng một máy chủ xem trước tại chỗ, xem ảnh, tắt máy chủ, soát cây làm việc                    | 52–58   |
 
 Tác tử không commit. Phiên điều phối giữ bài làm trong bản sao ở commit `9749e1a`: 44 tệp, thêm 1 152 dòng, bớt 248.
 
@@ -146,26 +148,43 @@ Bảng chỉ đếm chỗ tác tử khai. Một chỗ nó không khai: màn «Qu
 
 ## Thước 4: tốn bao nhiêu
 
-| Ai              | Token                                        | Lần gọi | Thời gian                     | Ước tính trước            |
-| --------------- | -------------------------------------------- | ------- | ----------------------------- | ------------------------- |
-| Tác tử dựng     | 295 493, theo bộ đếm của phiên               | 58      | 14 phút 51 giây (22:39–22:54) | 340 đến 420 nghìn         |
-| Phiên điều phối | khoảng 150 nghìn ngữ cảnh lúc viết trang này |         | khoảng 70 phút tới lúc mở PR  | 150 đến 200 nghìn         |
-| Cộng            | khoảng 450 nghìn                             |         |                               | khoảng 550 nghìn, 90 phút |
+| Ai              | Token   | Lần gọi | Thời gian                                      | Ước tính trước                            |
+| --------------- | ------- | ------- | ---------------------------------------------- | ----------------------------------------- |
+| Tác tử dựng     | 295 493 | 58      | 14 phút 51 giây (22:39:49–22:54:40)            | 340 đến 420 nghìn                         |
+| Phiên điều phối | 308 705 |         | 36 phút 10 giây (22:31:23–23:07:33)            | 150 đến 200 nghìn                         |
+| Cộng            | 604 198 |         | 36 phút 10 giây (tác tử chạy trong khoảng này) | khoảng 550 nghìn, 90 phút; trần 850 nghìn |
+
+**Lượt này vượt ước tính và ở dưới trần:** 604 198 token so với ước tính khoảng 550 nghìn (vượt khoảng 54 nghìn) và trần
+850 nghìn. Phần vượt nằm ở phiên điều phối (308 705 so với 150 đến 200 nghìn ước tính); tác tử dựng ở dưới ước tính của
+nó. Thời gian ở dưới ước tính 90 phút.
+
+Cách đếm, giống nhau cho hai dòng, chạy lại được trên hai bản ghi phiên:
+
+- Token là cỡ ngữ cảnh của lần gọi mô hình cuối cùng (`input_tokens` + `cache_read_input_tokens` +
+  `cache_creation_input_tokens`) cộng chữ lần gọi ấy viết ra (`output_tokens`), lấy từ trường `usage` của bản ghi. Với
+  tác tử dựng, lần gọi cuối lúc 22:54:40 cho 288 325 + 7 168 = 295 493, đúng số bộ đếm của phiên báo. Với phiên điều phối,
+  lần gọi cuối trước khi báo, lúc 23:07:58, cho 307 354 + 1 351 = 308 705. Phiên điều phối không bị nén ngữ cảnh trước lúc
+  báo, nên con số này phủ cả lượt của nó.
+- Bản báo cáo cuối của tác tử (7 168 token) nằm trong cả hai số, nên tổng đếm trùng chừng ấy.
+- Đây là cỡ ngữ cảnh, không phải token đã tính tiền: phần đọc lại từ bộ đệm (`cache_read_input_tokens` cộng qua mọi lần
+  gọi) lớn hơn nhiều và không nằm trong bảng.
+- Thời gian của phiên điều phối tính từ lượt đầu của phiên (22:31:23) tới lúc mở PR (23:07:33, giờ GitHub ghi cho PR #121,
+  16:07:33Z). Mọi giờ trong trang này là giờ máy, UTC+7.
 
 Tác tử dựng tốn bằng lần 12, ít hơn lần 13 và 14. Vòng lập kế hoạch của skill không xảy ra, nên không có phần token thêm
-mà ước tính đã tính cho nó. Con số của phiên điều phối là cỡ ngữ cảnh ước lượng, không phải tổng token đã tính tiền.
+mà ước tính đã tính cho nó.
 
 ## Điều tác tử báo, và kiểm thấy gì
 
 | Điều tác tử báo                                                                     | Kiểm thấy                                                                                                        |
 | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| Đã gọi skill                                                                        | Đúng: lần gọi 14; trang nạp vào là bản chính thức 1.1.1                                                          |
+| Đã gọi skill                                                                        | Đúng: lần gọi 10; trang nạp vào là bản chính thức 1.1.1                                                          |
 | `make check` xanh sau 2 vòng; vòng 1 đỏ ở `design-exports`                          | Đúng (bản ghi `check1.txt` của nó); trước đó lint đỏ một lần, bài đơn vị đỏ 14 rồi 1                             |
 | 16 câu trên hàng chờ, 6 phiếu xếp, 10 tự hỏi; không lần nào hỏi người               | Đúng: 16 tệp mới, không tệp nào có lời đáp                                                                       |
 | Skill và repo chỉ hai hướng: bảng màu, font, mở đầu gây ấn tượng; nó theo repo      | Đúng: 0 giá trị ngoài sổ (thước 1)                                                                               |
 | Từ skill nó giữ hai việc: chụp ảnh tự soát, một tên cho một việc suốt luồng         | Ảnh có trong thư mục nháp. Việc thứ hai không phân biệt được với trang chữ của repo                              |
 | Chạy thẳng `npx tsc`, `npx vitest`, Playwright, trái `AGENTS.md`                    | Đúng, như lần 14                                                                                                 |
-| Dùng `git stash` trong bản sao                                                      | Đúng: lần gọi 22 và 24, trong `.git` riêng của bản sao, đã áp lại và bỏ                                          |
+| Dùng `git stash` trong bản sao                                                      | Đúng: lần gọi 18 và 20, trong `.git` riêng của bản sao, đã áp lại và bỏ                                          |
 | `ui.md` nói đăng ký màn ở `src/screens.ts` là đủ; nói kiểm ở 1440 và 390 px         | Đúng, như lần 14; `ui.md` là trang của sàn, không sửa ở đây                                                      |
 | Lời gọi «ask it» của phiếu trỏ tới `plugins/…/decide.mjs` không có trong bản sao    | Đúng; do cách dựng bản sao (plugin chạy từ ngoài), không phải lỗi của phiếu                                      |
 | Không gì thấy trang kiểu màn (`nhan_viec`) nay không còn nói hết việc của màn chính | Đúng: không lệnh nào so `nhan_viec` với hành động của màn. Nằm trong `brief-sheet-narrows-what-the-builder-asks` |
