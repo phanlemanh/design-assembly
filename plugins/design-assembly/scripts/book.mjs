@@ -123,6 +123,10 @@ export const WORDS = {
   fontNoLicence: "licence not written yet",
   fontDiffers: "the pin no longer holds",
   fontLoadedBy: "loaded by",
+  // What loads a font: `{file}` and `{package}` are filled in, and shown as code.
+  fontByLoader: "the font loader in {file}",
+  fontByFace: "an @font-face rule of {file}",
+  fontByPackage: "the package {package}, which {file} imports",
   fontNotLoaded: "nothing read here loads it",
   fontNoRow: "no row in the sources ledger",
   radius: "Corner radius",
@@ -628,8 +632,18 @@ function typeSheet(facts, w) {
   );
 }
 
-// A page's own words as markup: headings, paragraphs, lists, code. Nothing else is understood,
-// and everything is written as text.
+// A line of a table, and its cells: the outer pipes dropped, an escaped pipe kept in its cell.
+const isRow = (line) => /^\s*\|.*\|\s*$/.test(line);
+const cells = (line) =>
+  line
+    .trim()
+    .replace(/^\|/, "")
+    .replace(/(?<!\\)\|$/, "")
+    .split(/(?<!\\)\|/)
+    .map((cell) => cell.trim().replace(/\\\|/g, "|"));
+
+// A page's own words as markup: headings, paragraphs, lists, tables, code. Nothing else is
+// understood, and everything is written as text.
 export function renderWords(markdown, { code = true } = {}) {
   const inline = (text) =>
     escape(text)
@@ -656,6 +670,23 @@ export function renderWords(markdown, { code = true } = {}) {
       const block = [];
       for (i += 1; i < lines.length && !/^```/.test(lines[i]); i += 1) block.push(lines[i]);
       if (code) out.push(`<pre>${escape(block.join("\n"))}</pre>`);
+      continue;
+    }
+    // A table: a row of cells between pipes, then a line of dashes under it.
+    if (
+      isRow(line) &&
+      /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$/.test(lines[i + 1] ?? "")
+    ) {
+      flush();
+      const head = cells(line);
+      const body = [];
+      for (i += 2; i < lines.length && isRow(lines[i]); i += 1) body.push(cells(lines[i]));
+      i -= 1;
+      const row = (items, tag) =>
+        `<tr>${items.map((cell) => `<${tag}>${inline(cell)}</${tag}>`).join("")}</tr>`;
+      out.push(
+        `<table><thead>${row(head, "th")}</thead><tbody>${body.map((items) => row(items, "td")).join("")}</tbody></table>`,
+      );
       continue;
     }
     const heading = /^#{1,6}\s+(.*)$/.exec(line);
@@ -1109,12 +1140,36 @@ function fontFacts(target, styles, stylesheet) {
       licence: row?.licence ?? null,
       // How the row's pin differs from what the repository holds now, or null.
       differs: row?.drift[0] ?? null,
-      loaded: load?.by ?? null,
+      // What loads it, as parts the words of the book are filled with; `by` is the adapter's
+      // own sentence, for a load of a kind the words have no label for.
+      loaded: load
+        ? Object.fromEntries(
+            (load.via ? ["via", "file", "specifier"] : ["by"])
+              .filter((name) => load[name] !== undefined)
+              .map((name) => [name, load[name]]),
+          )
+        : null,
     });
   });
   return found.map((font) =>
     Object.fromEntries(Object.entries(font).filter(([name]) => name !== "key")),
   );
+}
+
+// What loads a font, in the book's words: the label of its kind with the file and the package
+// filled in as code, or the adapter's sentence where the kind has no label.
+const LOAD_WORDS = { loader: "fontByLoader", "font-face": "fontByFace", package: "fontByPackage" };
+function loadWords(loaded, w) {
+  const label = w[LOAD_WORDS[loaded.via]];
+  if (typeof label !== "string") return escape(loaded.by ?? "");
+  const parts = { file: loaded.file, package: loaded.specifier };
+  return label
+    .split(/(\{(?:file|package)\})/)
+    .map((piece) => {
+      const name = /^\{(file|package)\}$/.exec(piece)?.[1];
+      return name ? `<code>${escape(parts[name] ?? "?")}</code>` : escape(piece);
+    })
+    .join("");
 }
 
 // The lines of the type sheet that name each font and where it comes from.
@@ -1127,7 +1182,7 @@ function fontLines(facts, w) {
               ? `${escape(w.fontLicence)}: ${escape(font.licence)}`
               : escape(w.fontNoLicence)
           }${font.differs ? ` · ${escape(w.fontDiffers)}: ${escape(font.differs)}` : ""}`
-        : `${font.loaded ? `${escape(w.fontLoadedBy)} ${escape(font.loaded)}` : escape(w.fontNotLoaded)} · ${escape(w.fontNoRow)}`;
+        : `${font.loaded ? `${escape(w.fontLoadedBy)} ${loadWords(font.loaded, w)}` : escape(w.fontNotLoaded)} · ${escape(w.fontNoRow)}`;
       return `<p class="muted">${escape(w.fontRoles[font.role] ?? font.role)}: <b>${escape(font.family)}</b> · ${source}</p>`;
     })
     .join("\n        ");
@@ -1242,6 +1297,9 @@ ${familyStyles(look)}
   .words p { margin: 0 0 10px; }
   .words ol, .words ul { margin: 0 0 10px; padding-left: 20px; }
   .words li { margin: 4px 0; }
+  .words table { margin: 0 0 10px; border-collapse: collapse; }
+  .words th, .words td { padding: 6px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  .words th { color: var(--muted); font-weight: 600; }
   .words pre { margin: 0 0 10px; padding: 12px 14px; overflow-x: auto; background: var(--surface); border-radius: var(--radius); font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; }
   .map { margin-top: 24px; }
   .strip { display: flex; flex-wrap: wrap; gap: 24px; }

@@ -493,3 +493,63 @@ test("the distances drawn are a few multiples of the unit, and the book does not
   assert.ok(!page.includes("is one of these steps"));
   assert.ok(page.includes("These are examples: the repository may allow other steps."));
 });
+
+test("a table in a page's own words is drawn as a table, its cells written as text", () => {
+  const words = renderWords(
+    [
+      "## Khe",
+      "",
+      "| Khe | Nội dung |",
+      "| --- | :------: |",
+      "| `title` | một <h1> |",
+      "| bộ lọc | chỉ khi có mục \\| hàng |",
+      "",
+      "After the table.",
+    ].join("\n"),
+  );
+  assert.doesNotMatch(words, /\| ---|\| Khe \|/);
+  assert.match(
+    words,
+    /<table><thead><tr><th>Khe<\/th><th>Nội dung<\/th><\/tr><\/thead><tbody><tr><td><code>title<\/code><\/td><td>một &lt;h1&gt;<\/td><\/tr><tr><td>bộ lọc<\/td><td>chỉ khi có mục \| hàng<\/td><\/tr><\/tbody><\/table>/,
+  );
+  assert.match(words, /<p>After the table\.<\/p>/);
+  // Pipes in a line that is no table stay words.
+  assert.match(renderWords("a | b"), /<p>a \| b<\/p>/);
+});
+
+test("what loads a font is said in the repository's own words, the file named as code", () => {
+  const dir = mkdtempSync(path.join(tmpdir(), "design-assembly-book-"));
+  made.push(dir);
+  const files = {
+    "package.json": JSON.stringify({ dependencies: { next: "16.0.0" } }),
+    "next.config.mjs": "export default {};\n",
+    "components.json": JSON.stringify({ tailwind: { css: "src/app/globals.css" } }),
+    "src/app/globals.css": ":root {\n  --font-heading: var(--font-sans);\n}\n",
+    "src/app/layout.tsx": [
+      'import { Inter } from "next/font/google";',
+      'const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });',
+      "export default function RootLayout({ children }) {",
+      "  return <html className={inter.variable}>{children}</html>;",
+      "}",
+      "",
+    ].join("\n"),
+  };
+  for (const [file, content] of Object.entries(files)) {
+    mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    writeFileSync(path.join(dir, file), content);
+  }
+  const facts = collectFacts(dir);
+  assert.ok(
+    facts.fonts.some((font) => font.loaded),
+    JSON.stringify(facts.fonts),
+  );
+  const page = renderBook(facts, {
+    words: { fontLoadedBy: "nạp bởi", fontByLoader: "trình nạp phông trong {file}" },
+  });
+  assert.ok(page.includes("nạp bởi trình nạp phông trong <code>src/app/layout.tsx</code>"), page);
+  assert.doesNotMatch(page, /the font loader in/);
+  // Without the file's words the label is the plugin's own.
+  assert.ok(
+    renderBook(facts).includes("loaded by the font loader in <code>src/app/layout.tsx</code>"),
+  );
+});
