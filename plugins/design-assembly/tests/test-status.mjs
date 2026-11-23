@@ -167,7 +167,15 @@ test("the machine gets the keys the specification lists, and nothing it cannot r
   assert.deepEqual(Object.keys(result.tool), ["recorded", "installed", "copy", "differs", "says"]);
   for (const step of result.next) assert.deepEqual(Object.keys(step), ["command", "why"]);
   for (const socket of result.sockets) {
-    assert.deepEqual(Object.keys(socket), ["id", "name", "plug", "state", "limit", "outside"]);
+    assert.deepEqual(Object.keys(socket), [
+      "id",
+      "name",
+      "plug",
+      "state",
+      "limit",
+      "chosen",
+      "outside",
+    ]);
   }
 });
 
@@ -616,6 +624,45 @@ test("the socket board: each capability with its plug or its limit, on two lines
   // A fixture repository holds nothing an outside plug detects: no plug is plugged in here.
   assert.doesNotMatch(printed, /plugged in here/);
   assert.ok(result.sockets.every((socket) => socket.outside.every((plug) => !plug.here)));
+});
+
+test("criterion 7: the board has a chosen column, a line for a plug chosen and not here, and the exit code does not change", () => {
+  const dir = applied("user");
+  assert.equal(cli("--target", dir).status, 0);
+  const before = status(dir);
+  assert.ok(before.sockets.every((socket) => socket.chosen === null));
+  assert.doesNotMatch(report(before), /chosen/);
+  edit(
+    dir,
+    LEDGER,
+    (ledger) =>
+      `${ledger}  - id: plug-handoff\n    layer: governance\n    kind: judgment\n    source: "plug:claude-design"\n    note: "confirmed by Owner Name on 2026-11-23"\n  - id: plug-direction\n    layer: governance\n    kind: judgment\n    source: "plug:directions"\n    note: "answered by Owner Name on 2026-11-23"\n`,
+  );
+  const result = status(dir);
+  const at = (id) => result.sockets.find((socket) => socket.id === id);
+  assert.deepEqual(at("handoff").chosen, {
+    plug: "claude-design",
+    by: "Owner Name",
+    on: "2026-11-23",
+    state: "chosen-but-missing",
+  });
+  assert.equal(
+    at("handoff").outside.find((plug) => plug.id === "claude-design").state,
+    "chosen-but-missing",
+  );
+  assert.equal(at("direction").chosen.state, "plugin");
+  assert.equal(at("foundations").chosen, null);
+  const printed = report(result);
+  assert.match(printed, /^ {2}chosen: directions \(direction\), claude-design \(handoff\)$/m);
+  assert.match(
+    printed,
+    /^ {2}chosen-but-missing: claude-design \(handoff\), which this repository does not show$/m,
+  );
+  assert.ok(printed.split("\n").length <= 40, "more than one screen");
+  // The exit code does not change: nothing more waits on the owner.
+  assert.deepEqual(result.waiting, before.waiting);
+  assert.equal(cli("--target", dir).status, 0);
+  assert.equal(cli("--target", dir, "--json").status, 0);
 });
 
 test("a board with no empty socket prints no empty part, and a plug is here only where its file is", () => {

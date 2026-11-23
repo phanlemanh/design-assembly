@@ -37,6 +37,12 @@ scale, shape). Density, elevation, motion and iconography are not.
   and writes one row with the owner's name and day. It never runs an install line and never writes
   a person's name before that person answered. `--before` lists what screens used before the ledger
   was kept, once the owner keeps it.
+- `/design-assembly:plugs` shows which plug works each socket of the capability table: the
+  plugin's own, the plugs from outside that can fill it, where each stands in the repository,
+  whether it was measured and in which decision record, and what it needs. Where a measured plug is
+  in the repository it puts the choice to the owner on the waiting list, four questions at most a
+  round, and writes each answer as a row `plug-<socket>` of the decision ledger with the owner's
+  name and day. It sees the repository, not the session.
 - `/design-assembly:change` retires a block of the store, or merges it into the block of another
   need. It says the impact first: the screens that reach the block's file (every screen when that
   cannot be traced), the frame, the components that import it, the checks that name its file, and

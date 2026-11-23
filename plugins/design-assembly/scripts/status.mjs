@@ -680,8 +680,9 @@ const TIER_NOTE = {
   claimed: "claimed: complete, but it rests on checks that were not re-run here",
 };
 
-// The socket board on the screen, in one or two lines: how many sockets have a default plug, which
-// are empty, and the plugs from outside that are plugged in here. The whole board is in --json.
+// The socket board on the screen, in one to four lines: how many sockets have a default plug, which
+// are empty, the plugs from outside that are plugged in here, the plugs chosen, and those chosen
+// and missing. The whole board is in --json.
 function boardLines(sockets) {
   const empty = sockets.filter((socket) => socket.state === "empty").map((socket) => socket.id);
   const plugged = sockets.length - empty.length;
@@ -691,12 +692,33 @@ function boardLines(sockets) {
       here.set(plug.id, [...(here.get(plug.id) ?? []), socket.id]);
     }
   }
+  // The plug the owner chose for a socket, and a chosen plug from outside the repository does not
+  // show: a session without it keeps the plugin's plug.
+  const chosen = sockets.filter((socket) => socket.chosen !== null);
+  const missing = chosen.filter((socket) => socket.chosen.state === "chosen-but-missing");
+  const named = (list) => list.map((socket) => `${socket.chosen.plug} (${socket.id})`).join(", ");
   return [
     `sockets: ${plugged} of ${sockets.length} with a default plug${empty.length > 0 ? `; empty: ${empty.join(", ")} (${LIMITS_FILE})` : ""}`,
     ...(here.size > 0
       ? [`  plugged in here: ${[...here].map(([id, at]) => `${id} (${at.join(", ")})`).join(", ")}`]
       : []),
+    ...(chosen.length > 0 ? [`  chosen: ${named(chosen)}`] : []),
+    ...(missing.length > 0
+      ? [`  chosen-but-missing: ${named(missing)}, which this repository does not show`]
+      : []),
   ];
+}
+
+// What the document says of a socket: its plug or its limit, and the plug chosen for it.
+function socketCell(socket) {
+  const plug =
+    socket.state === "plugged"
+      ? `plugged: ${socket.plug}${socket.limit ? `, with the limit ${socket.limit}` : ""}`
+      : `empty: ${socket.limit}`;
+  const chosen = socket.chosen
+    ? `; chosen: ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on} (${socket.chosen.state})`
+    : "";
+  return `${plug}${chosen}`;
 }
 
 export function report(result) {
@@ -936,12 +958,7 @@ export function documentOf(result, origin) {
         {
           title: "Each socket of the capability table",
           note: boardLines(result.sockets)[0],
-          rows: result.sockets.map((socket) => [
-            socket.name,
-            socket.state === "plugged"
-              ? `plugged: ${socket.plug}${socket.limit ? `, with the limit ${socket.limit}` : ""}`
-              : `empty: ${socket.limit}`,
-          ]),
+          rows: result.sockets.map((socket) => [socket.name, socketCell(socket)]),
         },
       ],
     },

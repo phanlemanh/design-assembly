@@ -4,5 +4,6 @@
   "kind": "skill",
   "sockets": ["content"],
   "names": ["ux-copy"],
+  "skills": ["ux-copy"],
   "needs": []
 }

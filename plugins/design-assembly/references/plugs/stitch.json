@@ -3,5 +3,6 @@
   "about": "A design tool that generates screens and a design description from a prompt.",
   "sockets": ["direction", "foundations"],
   "names": ["Stitch"],
-  "needs": ["account", "network"]
+  "needs": ["account", "network"],
+  "sends": "The prompt and the design description it is given, to the Stitch service under the person's account."
 }

@@ -19,6 +19,8 @@ import {
   plugProblems,
   reachProblems,
   readCapabilities,
+  recordProblems,
+  recordsIn,
   scriptFiles,
   scriptProblems,
   shapeProblems,
@@ -27,6 +29,7 @@ import {
 } from "../scripts/capabilities.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const ROOT = path.resolve(PLUGIN, "../..");
 const json = (file) => JSON.parse(readFileSync(path.join(PLUGIN, file), "utf8"));
 const LIMITS = json("references/limits.json").limits;
 const LAYERS = json("references/layers.json").layers;
@@ -140,6 +143,75 @@ test("the plugs from outside can be read: each fills a socket that takes plugs a
   );
 });
 
+test("criterion 2: a plug file declares its skill names and its server names apart, and a malformed one is red with its file", () => {
+  const skillPlug = real.plugs.find((plug) => plug.kind === "skill");
+  assert.ok(skillPlug.skills.length > 0, skillPlug.id);
+  assert.ok(real.plugs.some((plug) => (plug.mcp_servers ?? []).length > 0));
+  const at = "references/plugs/fixture.json";
+  const base = {
+    id: "fixture",
+    about: "A fixture plug.",
+    sockets: ["handoff"],
+    names: ["fixture"],
+    needs: [],
+    file: at,
+  };
+  const problems = (change) => plugProblems([{ ...base, ...change }], table);
+  assert.deepEqual(problems({}), []);
+  assert.deepEqual(problems({ skills: ["fixture"], mcp_servers: ["fixture-server"] }), []);
+  const cases = [
+    [{ colour: "red" }, `${at}: unknown key 'colour'`],
+    [{ about: " " }, `${at}: says nothing of what it does`],
+    [{ skills: "fixture" }, `${at}: skills is a list of written names, each once`],
+    [{ mcp_servers: ["a", "a"] }, `${at}: mcp_servers is a list of written names, each once`],
+    [{ mcp_servers: [""] }, `${at}: mcp_servers is a list of written names, each once`],
+    [{ kind: "skill" }, `${at}: is a skill and declares no skill name`],
+    [{ kind: "robot" }, `${at}: kind is skill, or left out`],
+    [{ needs: ["money"] }, `${at}: needs money, which is none of account, network`],
+    [{ needs: ["network"] }, `${at}: needs the network and does not say what it sends, or where`],
+    [{ detect: { file: "a", package: "b" } }, `${at}: detect names one file or one package`],
+    [
+      { measured: { direction: { record: "d0088", beats_plugin: false } } },
+      `${at}: measured at direction, a socket it does not fill`,
+    ],
+    [
+      { measured: { handoff: { record: "88", beats_plugin: false } } },
+      `${at}: measured at handoff points at 88, which is not a decision record such as d0088`,
+    ],
+    [
+      { measured: { handoff: { record: "d0088" } } },
+      `${at}: measured at handoff says neither true nor false of beating the plugin's plug`,
+    ],
+    [
+      { recommended_by_owner: { handoff: { record: "d0088", on: "2026-11-23" } } },
+      `${at}: recommended by the owner at handoff without the owner's words`,
+    ],
+    [
+      { recommended_by_owner: { handoff: { record: "d0088", said: "Yes", on: "today" } } },
+      `${at}: recommended by the owner at handoff on no day written YYYY-MM-DD`,
+    ],
+  ];
+  for (const [change, message] of cases) assert.deepEqual(problems(change), [message], message);
+});
+
+test("a measure points at a decision record that exists", () => {
+  const records = recordsIn(path.join(ROOT, "wiki/decisions"));
+  assert.ok(records.has("d0088"));
+  assert.ok(records.has("d0073"));
+  assert.deepEqual(recordProblems(real.plugs, records), []);
+  const measuredPlug = real.plugs.find((plug) => plug.measured);
+  const [socket] = Object.keys(measuredPlug.measured);
+  const lost = {
+    ...measuredPlug,
+    measured: { [socket]: { record: "d9999", beats_plugin: false } },
+    recommended_by_owner: { [socket]: { record: "d9998", said: "Yes", on: "2026-11-23" } },
+  };
+  assert.deepEqual(recordProblems([lost], records), [
+    `${lost.file}: measured at ${socket} points at d9999, which is no decision record`,
+    `${lost.file}: recommended by the owner at ${socket} points at d9998, which is no decision record`,
+  ]);
+});
+
 test("no overlap: one socket writes a ledger, and a script reaches only the ledgers of its sockets", () => {
   assert.deepEqual(overlapProblems(table), []);
   assert.deepEqual(scriptProblems(table, scripts), []);
@@ -204,6 +276,14 @@ test("clean core: no outside plug is named in the core, only in a plug's folder"
       part,
     );
   }
+  // A skill name or a server name is a name too, declared apart from the others.
+  const declared = [
+    { id: "apart", names: ["Apart"], skills: ["apart-skill"], mcp_servers: ["apart-mcp"] },
+  ];
+  assert.deepEqual(outsideNamesIn("run apart-skill, then apart-mcp", declared), [
+    "apart-mcp",
+    "apart-skill",
+  ]);
   // A word that holds a name is not the name.
   assert.deepEqual(outsideNamesIn("an axe-cores list, a premobbin step", real.plugs), []);
   assert.deepEqual(outsideNamesIn("checked with axe-core", real.plugs), ["axe-core"]);
@@ -217,7 +297,7 @@ test("a plug file that cannot be read is named, not thrown", (t) => {
   writeFileSync(path.join(dir, "references/plugs/broken.json"), "{ not json");
   writeFileSync(
     path.join(dir, "references/plugs/lost.json"),
-    JSON.stringify({ id: "lost", names: ["Lost"] }),
+    JSON.stringify({ id: "lost", about: "A plug that fills nothing.", names: ["Lost"], needs: [] }),
   );
   assert.deepEqual(readCapabilities(dir).problems, [
     "references/plugs/broken.json: not a JSON file",

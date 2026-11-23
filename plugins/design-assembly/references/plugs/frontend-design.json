@@ -4,5 +4,6 @@
   "kind": "skill",
   "sockets": ["screen-build"],
   "names": ["frontend-design"],
+  "skills": ["frontend-design"],
   "needs": []
 }

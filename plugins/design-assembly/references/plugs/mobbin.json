@@ -3,5 +3,7 @@
   "about": "A library of screens and flows of real products, searched for references of a kind of screen.",
   "sockets": ["reference"],
   "names": ["Mobbin"],
-  "needs": ["account", "network"]
+  "mcp_servers": ["mobbin"],
+  "needs": ["account", "network"],
+  "sends": "The words it searches for, to the Mobbin service under the person's account."
 }
