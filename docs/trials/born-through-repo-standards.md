@@ -26,26 +26,38 @@ Sau đó chủ repo nói thẳng trong phiên này: «Cho chạy». Lời đáp 
   `--permission-mode acceptEdits` và một danh sách công cụ được phép. Bản repo-setup 0.9.0 đang cài ở phạm vi user
   không lấn bản nạp bằng `--plugin-dir`: một phép thử trước cho thấy phiên chỉ thấy một `repo-setup:new`, nạp từ bản
   clone `83411c5`.
-- **Lời nhắc duy nhất** của người, nguyên văn ở bản sao lưu bằng chứng (mục cuối). Nó mở bằng `/repo-setup:new` và tả
-  một ứng dụng một trang cho thủ thư trường học: sách đang cho mượn, sách quá hạn. Người không rành kỹ thuật, giao hết
-  cho Claude, cần sàn thiết kế cho giao diện web, không có màu thương hiệu. Duyệt trước bước rà soát cuối, không tạo kho
-  GitHub, không đẩy, không chạy `make eval`. Lời nhắc **không nhắc tới design-assembly**.
+- **Lời nhắc duy nhất** của người, nguyên văn dưới đây. Nó mở bằng `/repo-setup:new` và tả một ứng dụng một trang cho
+  thủ thư trường học: sách đang cho mượn, sách quá hạn. Người không rành kỹ thuật, giao hết cho Claude, cần sàn thiết
+  kế cho giao diện web, không có màu thương hiệu. Duyệt trước bước rà soát cuối, không tạo kho GitHub, không đẩy, không
+  chạy `make eval`. Lời nhắc **không nhắc tới design-assembly**.
+
+  ```text
+  /repo-setup:new Set up this empty folder as a new repository. It will be a small web app, a single-page front end where a school librarian sees which books are on loan and which are overdue. I am not technical: I hand everything to you, take your recommendation at every layer. Use English for the conversation and the documents. It has screens, so it needs the design floor for a web front end; I have no brand colour, use the default. I approve the final review in advance: build it without stopping to ask me. Do not create a GitHub repository, do not push, and do not run `make eval`. A local commit at the end is fine.
+  ```
+
+- **Phiên không sạch hoàn toàn: ngoài lời nhắc còn có gì vào phiên.** Phiên chạy trên máy của chủ repo, nên các plugin
+  khác của máy và chín hook `SessionStart:startup` của chúng cũng chạy. Một hook trong số ấy đưa vào «Previous session
+  summary» của phiên Repo Standards (dự án `repo-standards`). Bản tóm tắt ấy nêu «design-assembly» một lần, trong tên một
+  phiên khác («Read the design-assembly fixture again at 0.36.1»), và hai lần tên phiên «Trial for criterion 11 of spec
+  0013». Nó không có lời bảo gọi plugin, không có `adopt`, `--starter` hay `6.4`. Phiên tự nêu lý do gọi plugin, ngay
+  trước lần gọi skill: «The repo-setup flow calls for the `--starter` path only», đúng điều bước 6.4 của
+  `new/SKILL.md` ở `83411c5` viết.
 - **Lần khởi động hỏng:** lần đầu, cờ `--allowedTools` nhận nhiều giá trị và nuốt luôn lời nhắc, nên `claude` thoát 1
   với «Input must be provided», trước khi gọi mô hình. Thư mục vẫn rỗng. Lần chạy thật đưa lời nhắc vào qua stdin.
 
 ## Kết quả
 
-| Kiểm                                 | Lệnh hay chỗ đọc                                                       | Kết quả                                                                        |
-| ------------------------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `new` tới bước gọi plugin (bước 6.4) | bản ghi stream-json của lượt lồng nhau                                 | Đạt: lần gọi công cụ thứ 35 trên 44, sau cài đặt và miền, trước `make check`   |
-| `adopt --starter` chạy, mã thoát     | cùng bản ghi: `Skill design-assembly:adopt --starter`, rồi `adopt.mjs` | Chạy, thoát **1**: sổ đã đặt, 4 câu chờ người. 34 dòng sổ, 57 tệp              |
-| Không ai gõ lệnh design-assembly     | lời nhắc, và mọi lượt «user» trong bản ghi                             | Đạt: chỉ có lời nhắc trên và kết quả công cụ; lời gọi do `new` phát            |
-| `status` in bộ sổ lúc ra đời đủ      | `node scripts/status.mjs --target .` của plugin `48fc3f6`, chạy sau    | Đạt: «ledgers from birth: all 7 are here»; thoát 1 vì có câu chờ               |
-| Dấu bản công cụ                      | `design/tool-stamp.json`                                               | `0.36.1`, cây `f53b645`; `status`: «version 0.36.1, as stamped»                |
-| Hàng chờ                             | `status`                                                               | 4: `product-type`, `conformance-level`, `source-color`, font licence của Geist |
-| Cổng xanh                            | `make check` của repo bỏ đi, chạy lại sau lượt                         | Thoát 0; mười bước, có `design-assembly`; 24 bài đơn vị, 28 bài trình duyệt    |
-| Repo Standards thấy cùng điều        | `doctor.py --json --design-assembly-version 0.36.1`                    | `design_ledgers.missing: []`, `behind: false`; điểm 100                        |
-| Lời mời đi tiếp                      | thư cuối của lượt lồng nhau                                            | Mời `/design-assembly:new`, đúng nhánh không màu thương hiệu của bước 8        |
+| Kiểm                                 | Lệnh hay chỗ đọc                                                       | Kết quả                                                                                               |
+| ------------------------------------ | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| `new` tới bước gọi plugin (bước 6.4) | bản ghi stream-json của lượt lồng nhau                                 | Đạt: lần gọi công cụ thứ 35 trên 44, sau cài đặt và miền, trước `make check`                          |
+| `adopt --starter` chạy, mã thoát     | cùng bản ghi: `Skill design-assembly:adopt --starter`, rồi `adopt.mjs` | Chạy, thoát **1**: sổ đã đặt, 4 câu chờ người. 34 dòng sổ, 57 tệp                                     |
+| Không ai gõ lệnh design-assembly     | lời nhắc, mọi lượt «user» và mọi kết quả hook trong bản ghi            | Đạt: lượt «user» chỉ có lời nhắc và kết quả công cụ; hook không bảo gọi plugin; lời gọi do `new` phát |
+| `status` in bộ sổ lúc ra đời đủ      | `node scripts/status.mjs --target .` của plugin `48fc3f6`, chạy sau    | Đạt: «ledgers from birth: all 7 are here»; thoát 1 vì có câu chờ                                      |
+| Dấu bản công cụ                      | `design/tool-stamp.json`                                               | `0.36.1`, cây `f53b645`; `status`: «version 0.36.1, as stamped»                                       |
+| Hàng chờ                             | `status`                                                               | 4: `product-type`, `conformance-level`, `source-color`, font licence của Geist                        |
+| Cổng xanh                            | `make check` của repo bỏ đi, chạy lại sau lượt                         | Thoát 0; mười bước, có `design-assembly`; 24 bài đơn vị, 28 bài trình duyệt                           |
+| Repo Standards thấy cùng điều        | `doctor.py --json --design-assembly-version 0.36.1`                    | `design_ledgers.missing: []`, `behind: false`; điểm 100                                               |
+| Lời mời đi tiếp                      | thư cuối của lượt lồng nhau                                            | Mời `/design-assembly:new`, đúng nhánh không màu thương hiệu của bước 8                               |
 
 Chi tiết từng dòng:
 
@@ -88,6 +100,9 @@ khoảng 80 nghìn token ngữ cảnh: các plugin và skill có sẵn trên má
   nó từ phiên sau, nên bước 6.4 nói một câu cách cài rồi đi tiếp, và bộ sổ chỉ có khi người cài plugin rồi gọi nó, hoặc
   khi `doctor` nhắc. CHANGELOG của Repo Standards đã ghi giới hạn ấy. Lượt này nạp plugin trước bằng `--plugin-dir`; chủ
   repo nhận cách ấy là không gõ lệnh (câu A).
+- **Một phiên trên máy không có plugin hay hook riêng.** Lượt này chạy trên máy có sẵn plugin khác và hook khởi động
+  phiên; một hook đưa vào bản tóm tắt của phiên Repo Standards (mục «Chạy trên gì»). Bản tóm tắt không bảo gọi plugin,
+  nhưng lượt này không chứng một phòng sạch.
 - **Repo ra đời có màu thương hiệu.** Chủ repo không yêu cầu lượt thứ hai; lối ấy (quyết định 0087) chưa chạy thật.
 - **Lối `adopt` và `doctor` của Repo Standards ở repo đã có** (tiêu chí 5): chỉ `doctor` chạy, trên repo vừa ra đời.
 - **Câu hỏi thật của người.** Lời nhắc giao hết cho Claude; không ai trả lời câu nào của `new`, nên lượt này không đo
@@ -117,6 +132,6 @@ hỏng gì.
 
 ## Bằng chứng
 
-Lời nhắc, bản ghi stream-json đầy đủ (441 dòng), bảng các lần gọi công cụ, đầu ra `status` và `make check` được sao vào
+Lời nhắc có nguyên văn ở mục «Chạy trên gì». Tệp lời nhắc `prompt.txt`, bản ghi stream-json đầy đủ (441 dòng), bảng các lần gọi công cụ, đầu ra `status` và `make check` được sao vào
 thư mục ghi chú chung của nhóm phiên, ngoài kho, trong thư mục `criterion-11-trial`. Repo bỏ đi nằm ở thư mục nháp của
 phiên, commit `e0e7db0`, và đi cùng thư mục ấy khi bị dọn.
