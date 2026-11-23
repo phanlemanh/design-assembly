@@ -214,6 +214,7 @@ test("criterion 1: the command prints the board, and --json is one document by t
     "questions",
     "later",
     "withdrawn",
+    "reasked",
     "rows",
     "files",
     "dry_run",
@@ -835,4 +836,29 @@ test("review: a recorded choice is asked again with --reask, without a hand edit
   );
   const skill = read(PLUGIN, "skills/plugs/SKILL.md");
   assert.match(skill, /--reask <socket>/);
+});
+
+test("review: --reask says which row left, with the plug, name and day it carried, and the pages say when to use it", () => {
+  const dir = fixtureRepo();
+  run(dir);
+  answer(dir, "plug-direction", { answer: "refuse", said: "later" });
+  run(dir);
+  const again = carryOut(
+    dir,
+    plan(dir, { caps: fixtureCaps(), on: ON, reask: ["direction"] }),
+    false,
+  );
+  assert.deepEqual(again.reasked, [
+    { id: "plug-direction", plug: "directions", by: "Owner Name", on: ON },
+  ]);
+  assert.match(
+    report(again),
+    /^Taken out: plug-direction, which chose directions by Owner Name on 2026-11-23; the socket is asked again in its turn\.$/m,
+  );
+  const skill = read(PLUGIN, "skills/plugs/SKILL.md");
+  assert.match(skill, /only when the person asks to choose again/i);
+  for (const page of ["new", "adopt"]) {
+    const text = read(PLUGIN, `skills/${page}/SKILL.md`);
+    assert.match(text, /may leave questions on the waiting list/, page);
+  }
 });

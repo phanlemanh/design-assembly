@@ -110,6 +110,8 @@ names as the session lists them; the command matches only the names the plug fil
   recommendation of each. Go on with the plugin's own plug at every socket while they wait: a
   recommendation is not an answer, and nothing is acted on until the person answers.
 - A line that starts with `falling back` says a chosen plug is not here: say it as it is.
+- The step may leave questions on the waiting list (`design/waiting/plug-<socket>.json`), and
+  writes nothing else; say so, since what comes next may say it writes nothing.
 - Run it once in this guide; the person runs `/design-assembly:plugs` again whenever they like.
 
 ## 2. Show the whole picture

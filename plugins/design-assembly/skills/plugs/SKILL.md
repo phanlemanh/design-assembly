@@ -64,7 +64,8 @@ A waiting question whose plugs from outside are known to be gone (not in the rep
 the session listed) is taken away, and the run says so with a line that starts with `Taken away`;
 the socket is asked again when a measured plug is here once more.
 
-To choose again for a socket whose choice is recorded: run this with `--reask <socket>` (the
+Only when the person asks to choose again for a socket whose choice is recorded, run this with
+`--reask <socket>` (the
 socket's id, as the board prints it). The row `plug-<socket>` is taken out of the decision ledger
 and the socket is asked again in its turn, on the decision sheet; nothing else changes.
 
