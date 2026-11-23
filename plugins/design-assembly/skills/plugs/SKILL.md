@@ -60,6 +60,14 @@ answer, run this command again: it writes each answer as a row `plug-<socket>` o
 ledger and takes the answered question off the waiting list. Running it again with the same answers
 asks nothing.
 
+A waiting question whose plugs from outside are known to be gone (not in the repository, and not in
+the session listed) is taken away, and the run says so with a line that starts with `Taken away`;
+the socket is asked again when a measured plug is here once more.
+
+To choose again for a socket whose choice is recorded: run this with `--reask <socket>` (the
+socket's id, as the board prints it). The row `plug-<socket>` is taken out of the decision ledger
+and the socket is asked again in its turn, on the decision sheet; nothing else changes.
+
 ## 4. When a chosen plug is not here
 
 A line that starts with `falling back` names a socket whose chosen plug is not in the repository or

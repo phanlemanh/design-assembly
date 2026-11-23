@@ -213,6 +213,7 @@ test("criterion 1: the command prints the board, and --json is one document by t
     "session_listed",
     "questions",
     "later",
+    "withdrawn",
     "rows",
     "files",
     "dry_run",
@@ -756,4 +757,82 @@ test("the reference system is seen in a session by its command design-sync, and 
   assert.equal(first("foundations"), "tokens");
   // The bare word of its other command is no name of it.
   assert.deepEqual(plan(dir, { on: ON, session: SESSION({ skills: ["design"] }) }).questions, []);
+});
+
+// ---- review of slice 1: a question that outlives its plug, and choosing again -------------------
+
+test("review: a waiting question whose plugs are known to be gone is taken away, and said; one not known to be gone stays", () => {
+  const dir = fixtureRepo();
+  run(dir);
+  rmSync(path.join(dir, "fixtures/house-system"));
+  const after = run(dir);
+  assert.deepEqual(
+    after.withdrawn.map((item) => [item.id, item.plugs]),
+    [
+      ["plug-direction", ["house-system"]],
+      ["plug-brand-assets", ["house-system"]],
+    ],
+  );
+  for (const id of ["plug-direction", "plug-brand-assets"]) {
+    assert.ok(!existsSync(path.join(dir, `design/waiting/${id}.json`)), id);
+  }
+  assert.ok(after.files.some((file) => file.change === "delete"));
+  assert.match(
+    report(after),
+    /^Taken away: plug-direction asked about house-system, which is no longer here\.$/m,
+  );
+  // The sockets still asked keep their questions, and handoff, with nothing here, is not asked.
+  assert.deepEqual(
+    after.questions.map((question) => question.id),
+    ["plug-foundations", "plug-screen-build"],
+  );
+  assert.deepEqual(after.later, []);
+  // A plug only a session holds, run with no session listed, is not known to be gone: it stays.
+  const caps = fixtureCaps();
+  delete caps.plugs.find((plug) => plug.id === "far-eye").detect;
+  const session = empty();
+  const held = SESSION({ skills: ["far-eye"] });
+  carryOut(session, plan(session, { caps, on: ON, session: held }), false);
+  assert.deepEqual(carryOut(session, plan(session, { caps, on: ON }), false).withdrawn, []);
+  assert.ok(existsSync(path.join(session, "design/waiting/plug-design-review.json")));
+  // Listed, and not in it: gone.
+  const listed = carryOut(session, plan(session, { caps, on: ON, session: SESSION() }), false);
+  assert.deepEqual(
+    listed.withdrawn.map((item) => item.id),
+    ["plug-design-review"],
+  );
+});
+
+test("review: a recorded choice is asked again with --reask, without a hand edit of the ledger", () => {
+  const dir = fixtureRepo();
+  run(dir);
+  answer(dir, "plug-direction", { answer: "refuse", said: "later" });
+  run(dir);
+  assert.equal(
+    readLedger(dir).find((row) => row.id === "plug-direction").source,
+    "plug:directions",
+  );
+  const again = carryOut(
+    dir,
+    plan(dir, { caps: fixtureCaps(), on: ON, reask: ["direction"] }),
+    false,
+  );
+  assert.equal(
+    readLedger(dir).find((row) => row.id === "plug-direction"),
+    undefined,
+  );
+  // Asked again in its turn: four questions wait already, so it comes in the next round.
+  assert.deepEqual(again.later, ["plug-direction"]);
+  assert.doesNotThrow(() =>
+    readWaiting(
+      dir,
+      readLedger(dir).map((row) => String(row.id)),
+    ),
+  );
+  assert.throws(
+    () => plan(dir, { caps: fixtureCaps(), on: ON, reask: ["nowhere"] }),
+    /--reask nowhere names no socket/,
+  );
+  const skill = read(PLUGIN, "skills/plugs/SKILL.md");
+  assert.match(skill, /--reask <socket>/);
 });
