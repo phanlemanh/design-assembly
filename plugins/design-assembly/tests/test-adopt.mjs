@@ -605,3 +605,38 @@ test("the brand colour question shows the colour, not only the variable that poi
     /source-color: --primary is var\(--brand-blue\) in src\/app\/globals\.css, which is #0246ff\./,
   );
 });
+
+test("the rules page names a typeface the build's font loader sets, and cites the stylesheet when no guide decided it", () => {
+  // A Next.js repository the guide never ran on: the stylesheet points headings at the variable
+  // that the font loader in the layout sets, and sets no typeface of its own for running text.
+  const dir = folder({
+    ...BRAND,
+    "package.json": JSON.stringify({ dependencies: { next: "16.0.0" } }),
+    "next.config.mjs": "export default {};\n",
+    "src/app/layout.tsx": [
+      'import { Inter } from "next/font/google";',
+      "",
+      'const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });',
+      "",
+      "export default function RootLayout({ children }) {",
+      "  return <html className={inter.variable}>{children}</html>;",
+      "}",
+      "",
+    ].join("\n"),
+    "src/app/globals.css": BRAND["src/app/globals.css"].replace(
+      ":root {",
+      ":root {\n  --font-heading: var(--font-sans);",
+    ),
+  });
+  const result = adopt(dir, "--conformance-level", "AA");
+  assert.ok(existsSync(path.join(dir, ".claude/rules/design-assembly.md")), result.stdout);
+  const page = text(dir, ".claude/rules/design-assembly.md");
+  const type = page.split("## Type")[1]?.split("\n## ")[0] ?? "";
+  assert.match(type, /Running text is set in/, page);
+  assert.doesNotMatch(type, /undefined/);
+  assert.match(type, /the font loader in src\/app\/layout\.tsx sets as `--font-sans`/);
+  // No blueprint: the values are the stylesheet's as found, not a decision of the guide.
+  assert.doesNotMatch(type, /design\/blueprint\.json/);
+  assert.doesNotMatch(type, /generated block/);
+  assert.match(type, /`src\/app\/globals\.css`/);
+});
