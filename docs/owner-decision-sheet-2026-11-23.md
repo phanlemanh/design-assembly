@@ -5,6 +5,10 @@ một khuyến nghị đứng đầu, căn cứ của nó, điều xảy ra nế
 Lời đáp được chép nguyên văn kèm ngày vào dòng «Lời chủ kho» của câu; câu nào đổi một tệp thì việc đổi đi thành một
 commit sau của cùng PR với trang này, và dòng ấy nói commit nào.
 
+**Ngày 2026-11-24, chủ kho đáp cả mười tám câu, mỗi câu một chạm, đều theo khuyến nghị.** Năm câu đổi tệp (3.3, 3.4,
+4.1, 4.2 và 4.3, cùng lời của 4.4 ghi vào 0077); câu 4.4 cần một bản plugin mới nên vào việc gác lại; câu 5.2 cho dọn
+sau khi các phiên đo của mục 10.2 xong.
+
 Nguồn, đọc ngày 2026-11-23 trên nhánh chính ở `acf3d2a` (plugin 0.48.0):
 
 - mục «Quyết định cho chủ repo» của PR #106 (sáu điểm) và PR #110 (bốn điểm), đọc bằng
@@ -44,7 +48,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Đổi gì:** Có → không tệp nào đổi. Không → bỏ khoá `measured` khỏi `references/plugs/design-critique.json` và nói
   lại trong 0089; không cần bản plugin mới (cổng chỉ đòi bản mới khi `scripts/` hay `templates/` đổi).
 - **Hôm nay ở nhánh chính:** như PR #106 tả, không PR sau nào đổi.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Coi là đã đo (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Không tệp nào đổi.
 
 ### 1.2 Phích chỉ phiên có, đã chọn, hiện là «thiếu» trong báo cáo trạng thái
 
@@ -62,7 +66,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Hôm nay ở nhánh chính: đã đổi một nửa.** PR #107 (quyết định 0090) cho skill liệt kê phiên: lệnh chọn phích thấy
   phích trong phiên, và khi không ai liệt kê phiên thì nó nói «không biết», không gọi là vắng. Câu còn lại chỉ là của
   báo cáo trạng thái.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Giữ «vắng» (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Không tệp nào đổi.
 
 ### 1.3 Dòng sổ ghi một lựa chọn phích
 
@@ -79,7 +83,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
   một bản plugin mới.
 - **Hôm nay ở nhánh chính: đã đổi một phần.** Hệ quả «một lựa chọn không có lối quay lại» đã được sửa: `plugs --reask
 <ổ>` bỏ dòng và hỏi lại (PR #111, #112, quyết định 0094). Hình dạng dòng thì như PR #106 tả.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Ghi vào sổ quyết định (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Không tệp nào đổi.
 
 ### 1.4 Từ chối ở một ổ
 
@@ -90,7 +94,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Nếu không nhận:** câu bị từ chối ở lại hàng chờ, hoặc được hỏi lại ở lần chạy sau; cần nói cách nào.
 - **Đổi gì:** Có → không tệp nào đổi. Không → `scripts/plugs.mjs` và bài kiểm, một bản plugin mới.
 - **Hôm nay ở nhánh chính:** như PR #106 tả.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Giữ phích của plugin (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Không tệp nào đổi.
 
 ## Nhóm 2. Lệnh chọn phích và lời cho phép gửi ra ngoài (PR #106, PR #110)
 
@@ -102,7 +106,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Nếu không nhận:** chủ kho nêu thứ tự khác; nó phải được ghi ở bảng năng lực, không ở lệnh.
 - **Đổi gì:** Có → không tệp nào đổi. Không → `references/capabilities.json`, và các bài kiểm của bảng.
 - **Hôm nay ở nhánh chính:** như PR #106 tả.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Theo bảng năng lực (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Không tệp nào đổi.
 
 ### 2.2 Lệnh chọn phích là một phích của ổ quyết định
 
@@ -115,7 +119,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Đổi gì:** Có → không tệp nào đổi. Không → `references/capabilities.json`, `scripts/capabilities.mjs`, một bản
   plugin mới.
 - **Hôm nay ở nhánh chính:** như PR #106 tả.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Phích của ổ quyết định (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Không tệp nào đổi.
 
 ### 2.3 Lời cho phép gửi ra ngoài đi qua hàng chờ
 
@@ -129,7 +133,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Đổi gì:** Có → không tệp nào đổi. Không → một đề bài nhỏ, rồi `scripts/send-out.mjs`, một bản plugin mới.
 - **Hôm nay ở nhánh chính:** như PR #110 tả. Sau đó PR #115 thêm: lời cho phép chỉ tính cho đúng các tệp và nơi đến
   dòng sổ ghi.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Qua hàng chờ (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Không tệp nào đổi.
 
 ### 2.4 Ứng viên đứng đầu của câu cho phép gửi
 
@@ -144,7 +148,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Hôm nay ở nhánh chính: đã đổi.** PR #110 tả «phích chủ kho đã nêu thì cho phép đứng đầu». PR #116 và #117 (quyết
   định 0095, theo lời chủ kho «Gửi sang sửa») thu hẹp: lời chủ kho nay ghi cả nơi nó được nói về, và «cho phép» chỉ
   đứng đầu khi phích còn gửi tới đúng nơi ấy, ở lần hỏi đầu, khi hỏi lại và khi chọn lại. Câu trên là câu đã thu hẹp.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Giữ luật ấy (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Không tệp nào đổi.
 
 ## Nhóm 3. Bản ghi lần đẩy, kit nghiệm thu, và ai giữ một giới hạn
 
@@ -158,7 +162,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Nếu không nhận:** thêm một sổ vào hợp đồng, có hình dạng và phép kiểm.
 - **Đổi gì:** Có → không tệp nào đổi. Không → `references/contract.md`, phép kiểm hình dạng, một bản plugin mới.
 - **Hôm nay ở nhánh chính:** như PR #110 tả.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Ngoài hợp đồng (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Không tệp nào đổi.
 
 ### 3.2 Câu «đặt làm mặc định» chỉ hỏi ở lần đẩy đầu
 
@@ -171,7 +175,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Nếu không nhận:** hỏi ở mỗi lần đẩy.
 - **Đổi gì:** Có → không tệp nào đổi. Không → `scripts/send-out.mjs`, một bản plugin mới.
 - **Hôm nay ở nhánh chính:** như PR #110 tả.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Chỉ lần đầu (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Không tệp nào đổi.
 
 ### 3.3 Khai phần thiết kế của kho này với kit nghiệm thu
 
@@ -192,7 +196,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Đổi gì:** Có → thêm ba khoá vào `_acceptance/config.yaml`; đóng dòng `design-floor-not-declared-to-kit` (không cần
   bản plugin mới); chạy lại lệnh đọc bậc của kit và ghi kết quả vào commit. Điều còn lại cần nói ra: trên một bản clone
   chưa chạy cổng, kit đọc M1 vì thiếu sổ linh kiện. Không → không tệp nào đổi.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Khai cả ba (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Đổi trong commit sau của PR này: ba khoá thêm vào `_acceptance/config.yaml`, dòng giới hạn `design-floor-not-declared-to-kit` đóng ngày 2026-11-24. Lệnh đọc bậc của kit chạy lại trên kho này sau khi cổng ghi sổ linh kiện: `{"bac":"M2","ly_do":"nguồn design/tokens.json · design/component-registry.json", …}`.
 
 ### 3.4 Ai giữ giới hạn mức nặng `owner-calls-trusts-a-written-answer`
 
@@ -207,7 +211,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Nếu không nhận:** dòng giữ giao cho Repo Standards, và việc gác lại ở lại; hoặc chủ kho nêu chủ khác.
 - **Đổi gì:** Có → sổ giới hạn: dòng ấy đổi `plan` thành `keep`, bỏ `repo`, ghi chú nói lý do; bỏ việc gác lại ấy khỏi
   `parked` của `docs/plan/plan.json`. Không cần bản plugin mới. Không → không tệp nào đổi.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Về kho này, giữ (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Đổi trong commit sau của PR này: dòng `owner-calls-trusts-a-written-answer` của sổ giới hạn nay ghi «giữ», bỏ giao cho kho bên cạnh, ghi chú nói lý do; việc gác lại của nhóm «Ai trả lời, ai giữ lời đáp» rời `parked` của kế hoạch.
 
 ## Nhóm 4. Những gì đang dùng mà chưa được nhận bằng lời
 
@@ -223,7 +227,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Đổi gì:** Có → ghi lời chủ kho vào mục Status của 0085. Không → đề bài mới, rồi `references/contract.md` (cột
   «From birth») và lối đặt sổ, một bản plugin mới.
 - **Hôm nay ở nhánh chính:** như 0085 tả; chủ kho được báo trước khi commit và bảo commit, chưa nói gì thêm.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Bảy sổ (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Đổi trong commit sau của PR này: lời ghi vào mục Status của 0085.
 
 ### 4.2 Câu chung cho nhiều màn trên hàng chờ
 
@@ -236,7 +240,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Nếu không nhận:** quay về hỏi theo từng màn, như công cụ trước 0.26.0.
 - **Đổi gì:** Có → ghi lời chủ kho vào mục Status của 0077. Không → đề bài mới; phiếu `brief`, bộ đọc hàng chờ trong
   `templates/`, một bản plugin mới.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Giữ câu chung (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Đổi trong commit sau của PR này: lời ghi vào mục Status của 0077.
 
 ### 4.3 Nút trên toast có tính vào hành động của màn
 
@@ -249,7 +253,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Nếu không nhận:** chỉ nút vẽ trên màn được tính; trang luật và ô 3 của phiếu `brief` đổi lời.
 - **Đổi gì:** Có → ghi lời chủ kho vào 0077. Không → mẫu trang luật trong `templates/`, phiếu `brief`, một bản plugin
   mới; trang luật của kho này nhận bản mới qua `make design-apply`.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Có tính (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Đổi trong commit sau của PR này: lời ghi vào mục Status của 0077.
 
 ### 4.4 Chữ của trạng thái chờ ở nút không hiện chữ
 
@@ -265,7 +269,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
   của 0077.
 - **Đổi gì:** Có → linh kiện và bài kiểm của nó trong `templates/owned/`, một bản plugin mới; kho đã nhận linh kiện giữ
   bản cũ tới khi chép lại; hai dòng giới hạn thu hẹp. Không → ghi lời chủ kho vào 0077, không tệp nào khác đổi.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Có, đặt chữ ẩn (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Lời ghi vào mục Status của 0077 trong commit sau của PR này. Việc đổi linh kiện mẫu là một bản plugin mới, nên **không làm ở PR này**: nó vào việc gác lại của kế hoạch (nhóm «Dựng màn và soát màn»), chờ một PR riêng.
 
 ## Nhóm 5. Sổ giới hạn và dọn máy
 
@@ -282,7 +286,7 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Nếu không nhận:** chủ kho nêu dòng nào đổi mức hay hướng.
 - **Đổi gì:** Có → không tệp nào đổi; bỏ dòng này khỏi «Đang chờ lời chủ kho» của trang bàn giao. Không → các dòng chủ
   kho nêu trong sổ giới hạn; không cần bản plugin mới.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Nhận như máy đặt (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Không tệp nào đổi ở sổ giới hạn; dòng của câu này rời «Đang chờ lời chủ kho» của trang bàn giao.
 
 ### 5.2 Dọn các thư mục làm việc và nhánh đã gộp
 
@@ -294,4 +298,4 @@ là các câu chủ kho nên đáp trước, vì chúng nói phích nào đượ
 - **Nếu không nhận:** để nguyên; không gì hỏng, chỉ chiếm chỗ.
 - **Đổi gì:** Không tệp nào trong kho đổi. Có → xoá thư mục và nhánh bằng lệnh, kể lại từng cái đã xoá; bỏ dòng này
   khỏi trang bàn giao. Đây là việc khó đảo ngược: nhánh đã xoá trên remote chỉ lấy lại được từ commit của nó.
-- **Lời chủ kho:** chưa có.
+- **Lời chủ kho:** «Dọn sau khi đo xong (Recommended)», ngày 2026-11-24, một chạm trong phiên làm phiếu. Chưa dọn gì: hai phiên đo của mục 10.2 chưa cùng xong lúc lời này được ghi. Trang bàn giao ghi lời cho dọn và điều kiện của nó.

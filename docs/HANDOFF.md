@@ -257,23 +257,17 @@ Ngoài giai đoạn đang mở:
 
 ### Đang chờ lời chủ kho
 
-Các câu dưới đây, trừ hai dòng đầu (hỏi ở đúng lúc chạy), được gom thành một phiếu, mỗi câu một khuyến nghị và điều đổi ở
-tệp nào: [phiếu quyết định ngày 2026-11-23](owner-decision-sheet-2026-11-23.md). Lời chủ kho ghi ở phiếu.
-
 - Mỗi lượt đo phích ngoài của mục 10.2, và mỗi phích cần tài khoản hay gửi dữ liệu ra ngoài (giai đoạn 10).
 - Lượt thử có người của mục 10.4, dòng «xong khi» của giai đoạn 10.
-- Sáu «quyết định cho chủ repo» của PR #106 và bốn của PR #110: chủ kho đã gộp, chưa đáp từng câu.
-- Có khai phần thiết kế của kho này với kit nghiệm thu không (giới hạn `design-floor-not-declared-to-kit`).
-- Bộ sổ lúc ra đời là bảy sổ thay cho mười sổ của câu 3: chủ kho đã được báo và bảo commit, chưa nói gì thêm.
-- Mức và hướng xử lý của các dòng giới hạn do máy đặt ở giai đoạn 5 và 9. Đáng chú ý: `unmarked-action-control-unseen`
-  (nút cấm không mang dấu thì bài kiểm theo vai không thấy), đang ghi mức vừa, «giữ nguyên».
-- Kiểu mục hàng chờ `screens:` và khoá `replaces` (cùng cờ `decide --ask --replaces`): đang dùng, chưa được nhận bằng
-  lời.
-- Nút trên toast có tính vào các hành động của một màn hay không; lời của trạng thái đang chờ, nơi hai luật kéo ngược
-  nhau.
-- Ai giữ giới hạn mức nặng `owner-calls-trusts-a-written-answer` (mục gác lại của nhóm «Ai trả lời»).
-- Dọn bốn thư mục làm việc và mười tám nhánh đã gộp trên remote. `kit-trial-5-0` sạch, nhánh của nó đã mất trên
-  remote; ba thư mục kia mang nhánh đã gộp.
+- Mục «Quyết định cho chủ repo» của PR #107, #108 và #109 (sáu, sáu và bốn điểm): chưa gom, chưa đáp.
+
+Mười tám câu khác đã được gom thành một [phiếu quyết định](owner-decision-sheet-2026-11-23.md) và chủ kho đáp cả mười
+tám theo khuyến nghị ngày 2026-11-24; lời đáp nguyên văn và điều đổi ở tệp nào ghi ở phiếu. Hai lời còn để lại việc:
+
+- Câu 4.4, linh kiện mẫu của dòng đặt tên đang chờ lên trang bằng chữ ẩn: một bản plugin mới, đã vào việc gác lại.
+- Câu 5.2, dọn bốn thư mục làm việc và mười tám nhánh đã gộp trên remote: có lời cho dọn, **sau khi hai phiên đo của
+  mục 10.2 xong**; mỗi thư mục xem sạch trước khi bỏ, kể lại từng cái đã xoá. `kit-trial-5-0` sạch, nhánh của nó đã
+  mất trên remote; ba thư mục kia mang nhánh đã gộp.
 
 ## Cách đã làm ở giai đoạn 5, 9, 6 và 10
 

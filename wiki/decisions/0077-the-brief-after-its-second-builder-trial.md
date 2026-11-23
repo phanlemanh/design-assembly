@@ -33,6 +33,11 @@ Accepted, 2026-11-21. Phần sửa của mục 5.7. Plugin lên 0.26.0. Mục 5.
 chạy, và lượt ấy cần lời chủ repo. **Câu trả lời `--json` của `brief` thêm khoá, không bỏ và không đổi nghĩa khoá nào.**
 Mười hai ô, ba trạng thái, `--queue`, ba mã thoát và lời phiếu nói các ô không giữ mọi câu hỏi giữ nguyên.
 
+Chủ repo đáp ba điểm của mục «Điều cần chủ repo nhìn lại» ngày 2026-11-24, trên
+[phiếu quyết định](../../docs/owner-decision-sheet-2026-11-23.md): điểm 1, câu 4.3 «Có tính (Recommended)»; điểm 4 và
+5, câu 4.2 «Giữ câu chung (Recommended)»; điểm 3, câu 4.4 «Có, đặt chữ ẩn (Recommended)». Điểm 3 đổi linh kiện mẫu của
+plugin, nên đi thành một việc riêng; tới khi việc ấy gộp, hai luật vẫn chọi như điểm 3 tả.
+
 ## Context
 
 Lượt thử 13 ([`screen-trial-13-after-the-fixes.md`](../../docs/trials/screen-trial-13-after-the-fixes.md)) đếm 14 chỗ
