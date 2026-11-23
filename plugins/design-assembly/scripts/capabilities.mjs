@@ -75,8 +75,11 @@ export const NEEDS = ["account", "network"];
 // A decision record, as the limits ledger names one: d and its four digits.
 export const RECORD = /^d\d{4}$/;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
-const isDay = (value) =>
-  DAY.test(String(value)) && new Date(`${value}T00:00:00Z`).toISOString().startsWith(value);
+const isDay = (value) => {
+  if (!DAY.test(String(value))) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
+};
 const isObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 
 // Whether a value is a list of written names, each once.

@@ -164,8 +164,12 @@ function candidatesProblem(candidates) {
 }
 
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
-export const isDay = (value) =>
-  DAY.test(String(value)) && new Date(`${value}T00:00:00Z`).toISOString().startsWith(value);
+// A day that is one: written YYYY-MM-DD, and a date of the calendar (no thirteenth month).
+export const isDay = (value) => {
+  if (!DAY.test(String(value))) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().startsWith(value);
+};
 
 // Why a written item is not one the gate can name, or null.
 export function itemProblem(item) {
