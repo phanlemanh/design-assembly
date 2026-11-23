@@ -37,6 +37,11 @@
       "id": "bring-out",
       "script": "scripts/bring-out.mjs",
       "through": ["handoff", "decision"]
+    },
+    {
+      "id": "send-out",
+      "script": "scripts/send-out.mjs",
+      "through": ["handoff", "decision"]
     }
   ],
   "unseen_writes": {
@@ -621,7 +626,11 @@
           "id": "bring-out",
           "kind": "command",
           "default": false,
-          "scripts": ["scripts/bring-out.mjs", "templates/tools/design-assembly/exports.mjs"],
+          "scripts": [
+            "scripts/bring-out.mjs",
+            "templates/tools/design-assembly/exports.mjs",
+            "scripts/send-out.mjs"
+          ],
           "reads": ["tokens", "blueprint", "components", "sources"]
         }
       ],

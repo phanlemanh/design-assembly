@@ -145,6 +145,7 @@ test("the machine gets the keys the specification lists, and nothing it cannot r
     "next",
     "sockets",
     "missing",
+    "pushed",
   ]);
   // On a floor, nothing is missing before the plugin can build.
   assert.equal(result.missing, null);

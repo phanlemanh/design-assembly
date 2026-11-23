@@ -47,6 +47,7 @@ import { sheet, WAITING_FOLDER, WAITING_LIST } from "./decide.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { audit, AUDIT, DECIDE, PERSON_CALLS, UNCONFIRMED } from "./audit.mjs";
 import { socketsOf } from "./capabilities.mjs";
+import { pushedLines } from "./send-out.mjs";
 import { gateProblem, seenMissing } from "./apply.mjs";
 import {
   SEEN_DECISION,
@@ -593,6 +594,7 @@ function readLedgers(root) {
     seen: seenStepOf(root, rows, audited),
     birth: birthOf(root),
     missing: missingFloor(root),
+    pushed: pushedLines(root),
   };
 }
 
@@ -629,7 +631,7 @@ function birthSays({ all, missing }) {
   return `ledgers from birth: ${missing.length} missing: ${missing.join(", ")}`;
 }
 
-function resultOf({ audit, broken, tool, sockets, seen, birth, missing }, waiting) {
+function resultOf({ audit, broken, tool, sockets, seen, birth, missing, pushed }, waiting) {
   return {
     tier: audit.tier,
     // Core decisions only, as the audit counts them. Two numbers: a claim was not run again here.
@@ -644,6 +646,8 @@ function resultOf({ audit, broken, tool, sockets, seen, birth, missing }, waitin
     // What the repository lacks before this plugin can build on it: its design floor, or the
     // Makefile line that lets the gate step join make check. Null on a floor.
     missing,
+    // Each copy of the design system sent out, and whether the ledgers have moved past it.
+    pushed,
   };
 }
 
@@ -721,6 +725,15 @@ function socketCell(socket) {
   return `${plug}${chosen}`;
 }
 
+// One line for each copy of the design system sent out: when, from which state of the ledgers, and
+// whether the ledgers have moved past it since.
+function pushedReport(pushed) {
+  return pushed.map(
+    (item) =>
+      `  pushed: ${item.plug} on ${item.on}, written from ${item.stamp}; ${item.behind ? `the ledgers are at ${item.ledgers}: the copy there is behind` : "the ledgers are at the same state"}`,
+  );
+}
+
 export function report(result) {
   const { tier, waiting, tool, next } = result;
   const above = tier.next ? `Next tier: ${tier.next}` : "No tier is above it";
@@ -759,6 +772,7 @@ export function report(result) {
     lines.push(`  ${UPGRADE} --dry-run says what bringing the installed tool in would change`);
   }
   lines.push(...boardLines(result.sockets));
+  lines.push(...pushedReport(result.pushed ?? []));
   // Where this report is blind, so that "nothing waits" does not read as more than it is.
   const blind = LIMITS.filter((limit) => limit.area === "status" && limit.status === "open");
   lines.push(

@@ -676,6 +676,12 @@
       "meaning": "A file written from the design ledgers for a tool that does not read them, a DESIGN.md or a design system bundle, stamped with the state of the ledgers it was written from; the gate is red when a ledger changes and the export is not written again, and an export is never read back as a ledger.",
       "source": "The specification of outside plugs, 2026-11-23",
       "trust": "coined"
+    },
+    {
+      "term": "leave to send out",
+      "meaning": "The owner's word that the design system bundle of one repository may go to one tool from outside, written as a row of the decision ledger with their name and day, and taken back the same way; nothing is sent without it.",
+      "source": "The specification of outside plugs, 2026-11-23, open question 7",
+      "trust": "coined"
     }
   ]
 }
