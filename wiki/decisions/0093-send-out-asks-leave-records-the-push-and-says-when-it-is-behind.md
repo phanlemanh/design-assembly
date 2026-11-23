@@ -64,5 +64,10 @@ chỗ của lần đẩy cuối; script không gọi Claude.
   (nay dừng trước khi ghi gì), lời cho phép đã rút không có lối hỏi lại (nay `--reask`), lời «hỏi một lần» nói rõ
   nghĩa. Điểm nhẹ đã sửa: báo xoá tệp đúng loại, câu đã đáp thiếu ứng viên không làm sập, bản ghi lần đẩy hỏng được
   bỏ qua, `--on` không đi kèm `--send` bị từ chối.
+- Sau soát PR #110 của phiên điều phối («Gửi sang sửa»): dòng lời cho phép ghi đúng các tệp đi và nơi đến; khi một trong
+  hai đổi (một bản plugin sau đổi `sends`, hay bộ thêm tệp), lời cho phép không còn giá trị, dòng bị bỏ và câu được hỏi
+  lại, nói đổi gì. Nghĩa của «keep» lấy từ luật (phích chủ repo nêu ở ổ bàn giao thì `allow`, không thì `not-now`); câu
+  có ứng viên đầu khác luật bị từ chối kèm tên tệp. Mã thoát giữ như hợp đồng chung: «không gửi gì» vì bị từ chối hay
+  đã rút cũng là 0, vì không gì chờ người; trang skill nói chỉ gửi khi lần chạy in cả `sends:` và `to:`.
 - Lựa chọn chờ chủ repo: lời cho phép cũng đi qua hàng chờ và tờ quyết định như mọi câu; `not-now` đứng đầu cho phích
   không ai nêu ở ổ bàn giao; bản ghi lần đẩy ở `design/export/pushed.json`, không phải một sổ của hợp đồng.

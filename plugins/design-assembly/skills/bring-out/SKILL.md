@@ -40,9 +40,12 @@ what the ledgers say now.
    leave it puts the question `send-<plug>` on the waiting list and ends with `1`: tell the user it
    waits on the decision sheet (`/design-assembly:decide`), and send nothing. Never answer it for
    them. A refusal, or leave taken back, sends nothing.
-2. With the leave it prints what goes (`sends:`) and where (`to:`). Say both to the user before
-   anything leaves the machine, then send the files the way the session reaches that tool, with
-   the user watching. If the user stops you, stop.
+2. With the leave it prints what goes (`sends:`) and where (`to:`). Send only when the run printed
+   both `sends:` and `to:` (with `--json`, when `send` is not null), never on the exit code alone:
+   a run that sends nothing because the leave was refused or taken back ends with `0` too. Say both
+   to the user before anything leaves the machine, then send the files the way the session reaches
+   that tool, with the user watching. If the user stops you, stop. A leave counts only for the
+   files and the place its row records: when either changed, it is asked again.
 3. After the push, run it again with `--pushed`, adding `--account-has-default` when the account
    already has a default system. It records the push in `design/export/pushed.json` and asks the
    question `default-<plug>` on the first push (and again only once that question is taken away):

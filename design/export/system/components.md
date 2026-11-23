@@ -2,68 +2,68 @@
 
 Written from the design ledgers at 3572f98d4876. Do not change it here: change a ledger, then write it again with make design-exports.
 
-- **AppFrame** (molecule), src/components/app\-frame.tsx: appName, navLabel, screens
-- **HeldLabel** (atom), src/components/held\-label.tsx
-- **ItemList** (organism), src/components/item\-list.tsx: list, label, empty, onOpen, actions, noResultsRef
-- **ItemRecord** (molecule), src/components/item\-record.tsx: item
-- **ItemTable** (organism), src/components/item\-table.tsx: label, items, onOpen, actions
-- **Notice** (molecule), src/components/notice.tsx: title, detail, action, onAction, runs, actionRef, pending
-- **WithRecord** (organism), src/components/record\-panel.tsx
-- **Alert** (atom), src/components/ui/alert.tsx
-- **AlertTitle** (atom), src/components/ui/alert.tsx
-- **AlertDescription** (atom), src/components/ui/alert.tsx
-- **AlertAction** (atom), src/components/ui/alert.tsx
-- **Badge** (atom), src/components/ui/badge.tsx: render
-- **Button** (atom), src/components/ui/button.tsx
-- **Card** (atom), src/components/ui/card.tsx: size
-- **CardHeader** (atom), src/components/ui/card.tsx
-- **CardFooter** (atom), src/components/ui/card.tsx
-- **CardTitle** (atom), src/components/ui/card.tsx
-- **CardAction** (atom), src/components/ui/card.tsx
-- **CardDescription** (atom), src/components/ui/card.tsx
-- **CardContent** (atom), src/components/ui/card.tsx
-- **Dialog** (molecule), src/components/ui/dialog.tsx
-- **DialogClose** (molecule), src/components/ui/dialog.tsx
-- **DialogContent** (molecule), src/components/ui/dialog.tsx: showCloseButton
-- **DialogDescription** (molecule), src/components/ui/dialog.tsx
-- **DialogFooter** (molecule), src/components/ui/dialog.tsx: showCloseButton
-- **DialogHeader** (molecule), src/components/ui/dialog.tsx
-- **DialogOverlay** (molecule), src/components/ui/dialog.tsx
-- **DialogPortal** (molecule), src/components/ui/dialog.tsx
-- **DialogTitle** (molecule), src/components/ui/dialog.tsx
-- **DialogTrigger** (molecule), src/components/ui/dialog.tsx
-- **Empty** (atom), src/components/ui/empty.tsx
-- **EmptyHeader** (atom), src/components/ui/empty.tsx
-- **EmptyTitle** (atom), src/components/ui/empty.tsx
-- **EmptyDescription** (atom), src/components/ui/empty.tsx
-- **EmptyContent** (atom), src/components/ui/empty.tsx
-- **EmptyMedia** (atom), src/components/ui/empty.tsx
-- **Input** (atom), src/components/ui/input.tsx: type
-- **Label** (atom), src/components/ui/label.tsx
-- **RowActions** (molecule), src/components/ui/row\-actions.tsx: name, pending, busyName, ref
-- **Select** (atom), src/components/ui/select.tsx
-- **SelectContent** (atom), src/components/ui/select.tsx: side, sideOffset, align, alignOffset, alignItemWithTrigger
-- **SelectGroup** (atom), src/components/ui/select.tsx
-- **SelectItem** (atom), src/components/ui/select.tsx
-- **SelectLabel** (atom), src/components/ui/select.tsx
-- **SelectScrollDownButton** (atom), src/components/ui/select.tsx
-- **SelectScrollUpButton** (atom), src/components/ui/select.tsx
-- **SelectSeparator** (atom), src/components/ui/select.tsx
-- **SelectTrigger** (atom), src/components/ui/select.tsx: size
-- **SelectValue** (atom), src/components/ui/select.tsx
-- **Skeleton** (atom), src/components/ui/skeleton.tsx
-- **Toaster** (atom), src/components/ui/sonner.tsx
-- **TableActionsHead** (molecule), src/components/ui/table\-actions.tsx
-- **TableActions** (molecule), src/components/ui/table\-actions.tsx
-- **Table** (atom), src/components/ui/table.tsx: aria\-label
-- **TableHeader** (atom), src/components/ui/table.tsx
-- **TableBody** (atom), src/components/ui/table.tsx
-- **TableFooter** (atom), src/components/ui/table.tsx
-- **TableHead** (atom), src/components/ui/table.tsx
-- **TableRow** (atom), src/components/ui/table.tsx
-- **TableCell** (atom), src/components/ui/table.tsx
-- **TableCaption** (atom), src/components/ui/table.tsx
-- **TypedTable** (template), src/components/ui/typed\-table.tsx: columns
-- **TypedRow** (molecule), src/components/ui/typed\-table.tsx
-- **TypedHead** (molecule), src/components/ui/typed\-table.tsx: field, header, values, style
-- **TypedCell** (molecule), src/components/ui/typed\-table.tsx: field
+- **AppFrame** (molecule), `src/components/app-frame.tsx`: appName, navLabel, screens
+- **HeldLabel** (atom), `src/components/held-label.tsx`
+- **ItemList** (organism), `src/components/item-list.tsx`: list, label, empty, onOpen, actions, noResultsRef
+- **ItemRecord** (molecule), `src/components/item-record.tsx`: item
+- **ItemTable** (organism), `src/components/item-table.tsx`: label, items, onOpen, actions
+- **Notice** (molecule), `src/components/notice.tsx`: title, detail, action, onAction, runs, actionRef, pending
+- **WithRecord** (organism), `src/components/record-panel.tsx`
+- **Alert** (atom), `src/components/ui/alert.tsx`
+- **AlertTitle** (atom), `src/components/ui/alert.tsx`
+- **AlertDescription** (atom), `src/components/ui/alert.tsx`
+- **AlertAction** (atom), `src/components/ui/alert.tsx`
+- **Badge** (atom), `src/components/ui/badge.tsx`: render
+- **Button** (atom), `src/components/ui/button.tsx`
+- **Card** (atom), `src/components/ui/card.tsx`: size
+- **CardHeader** (atom), `src/components/ui/card.tsx`
+- **CardFooter** (atom), `src/components/ui/card.tsx`
+- **CardTitle** (atom), `src/components/ui/card.tsx`
+- **CardAction** (atom), `src/components/ui/card.tsx`
+- **CardDescription** (atom), `src/components/ui/card.tsx`
+- **CardContent** (atom), `src/components/ui/card.tsx`
+- **Dialog** (molecule), `src/components/ui/dialog.tsx`
+- **DialogClose** (molecule), `src/components/ui/dialog.tsx`
+- **DialogContent** (molecule), `src/components/ui/dialog.tsx`: showCloseButton
+- **DialogDescription** (molecule), `src/components/ui/dialog.tsx`
+- **DialogFooter** (molecule), `src/components/ui/dialog.tsx`: showCloseButton
+- **DialogHeader** (molecule), `src/components/ui/dialog.tsx`
+- **DialogOverlay** (molecule), `src/components/ui/dialog.tsx`
+- **DialogPortal** (molecule), `src/components/ui/dialog.tsx`
+- **DialogTitle** (molecule), `src/components/ui/dialog.tsx`
+- **DialogTrigger** (molecule), `src/components/ui/dialog.tsx`
+- **Empty** (atom), `src/components/ui/empty.tsx`
+- **EmptyHeader** (atom), `src/components/ui/empty.tsx`
+- **EmptyTitle** (atom), `src/components/ui/empty.tsx`
+- **EmptyDescription** (atom), `src/components/ui/empty.tsx`
+- **EmptyContent** (atom), `src/components/ui/empty.tsx`
+- **EmptyMedia** (atom), `src/components/ui/empty.tsx`
+- **Input** (atom), `src/components/ui/input.tsx`: type
+- **Label** (atom), `src/components/ui/label.tsx`
+- **RowActions** (molecule), `src/components/ui/row-actions.tsx`: name, pending, busyName, ref
+- **Select** (atom), `src/components/ui/select.tsx`
+- **SelectContent** (atom), `src/components/ui/select.tsx`: side, sideOffset, align, alignOffset, alignItemWithTrigger
+- **SelectGroup** (atom), `src/components/ui/select.tsx`
+- **SelectItem** (atom), `src/components/ui/select.tsx`
+- **SelectLabel** (atom), `src/components/ui/select.tsx`
+- **SelectScrollDownButton** (atom), `src/components/ui/select.tsx`
+- **SelectScrollUpButton** (atom), `src/components/ui/select.tsx`
+- **SelectSeparator** (atom), `src/components/ui/select.tsx`
+- **SelectTrigger** (atom), `src/components/ui/select.tsx`: size
+- **SelectValue** (atom), `src/components/ui/select.tsx`
+- **Skeleton** (atom), `src/components/ui/skeleton.tsx`
+- **Toaster** (atom), `src/components/ui/sonner.tsx`
+- **TableActionsHead** (molecule), `src/components/ui/table-actions.tsx`
+- **TableActions** (molecule), `src/components/ui/table-actions.tsx`
+- **Table** (atom), `src/components/ui/table.tsx`: aria-label
+- **TableHeader** (atom), `src/components/ui/table.tsx`
+- **TableBody** (atom), `src/components/ui/table.tsx`
+- **TableFooter** (atom), `src/components/ui/table.tsx`
+- **TableHead** (atom), `src/components/ui/table.tsx`
+- **TableRow** (atom), `src/components/ui/table.tsx`
+- **TableCell** (atom), `src/components/ui/table.tsx`
+- **TableCaption** (atom), `src/components/ui/table.tsx`
+- **TypedTable** (template), `src/components/ui/typed-table.tsx`: columns
+- **TypedRow** (molecule), `src/components/ui/typed-table.tsx`
+- **TypedHead** (molecule), `src/components/ui/typed-table.tsx`: field, header, values, style
+- **TypedCell** (molecule), `src/components/ui/typed-table.tsx`: field
