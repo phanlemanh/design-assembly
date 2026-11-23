@@ -463,6 +463,52 @@
       "needs_owner": ["Duyệt kiến trúc", "Cho phép sửa ở từng kho"]
     },
     {
+      "id": 10,
+      "name": "Cắm đồ bên cạnh",
+      "state": "later",
+      "parallel": [],
+      "items": [
+        {
+          "id": "10.0",
+          "what": "Đề bài chi tiết cho cả giai đoạn, chủ repo duyệt",
+          "state": "todo",
+          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, đã duyệt ngày 2026-11-23 («Duyệt theo khuyến nghị cả bảy câu, khuyến nghị tích hợp claude design và hệ design mặc định của claude và trong kho,...»): giai đoạn này đứng ngay sau giai đoạn 6, lựa chọn phích ghi thành dòng plug-<ổ> của sổ quyết định, lệnh tên plugs, tối đa bốn câu một lượt, thứ tự đo như câu 5, DESIGN.md xuất trước, lời cho phép gửi ra ngoài theo repo và theo phích; ghi xong khi giai đoạn 10 mở; cùng ngày chủ repo quyết thêm («Đưa loại artifact Design System là loại đề xuất với người dùng mặc định vì đây là cái mà Claude đang làm tốt hơn của repo. Đưa đo claude design lên thực hiện sớm không cần đợi ngày 14/12»): hệ loại Design System của Claude là khuyến nghị mặc định ở bốn ổ hướng đi, nền, tài sản thương hiệu và bàn giao, và đo Claude Design đứng đầu mục 10.2"
+        },
+        {
+          "id": "10.1",
+          "what": "Bước thiết lập: máy tự nhìn phiên và repo, một trang toàn cảnh hai mươi ổ, tối đa bốn câu chọn phích trên hàng chờ (hệ Design System của Claude là khuyến nghị mặc định ở ổ bàn giao và ổ tài sản thương hiệu), lựa chọn ghi có tên và ngày, status có cột đã chọn, lối lùi khi phích vắng; new và adopt gọi bước một lần",
+          "state": "todo",
+          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 1 đến 8"
+        },
+        {
+          "id": "10.2",
+          "what": "Đo các phích ngoài ưu tiên theo bốn thước, theo thứ tự chủ repo chốt: Claude Design (không chờ ngày 2026-12-14), ReUI, frontend-design, Stitch, rồi Open Design, Figma, Mobbin; mỗi phích một bản quyết định; thêm tệp phích còn thiếu",
+          "state": "todo",
+          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 11 và 16, câu hỏi 5 (thứ tự chủ repo đổi ngày 2026-11-23); mỗi lượt đo hỏi chủ repo trước vì tốn token; Claude Design đo ngày 2026-11-23, ngoài kế hoạch theo lời chủ repo («Cho đo Claude Design»): wiki/decisions/0088-claude-design-system-measured-on-four-measures.md, docs/trials/claude-design-system-measured.md; mục còn todo vì giai đoạn 10 chưa mở"
+        },
+        {
+          "id": "10.3",
+          "what": "Cầu nối vào: thứ công cụ ngoài làm ra (tệp token, DESIGN.md, biến, hệ mặc định của Claude) thành một hướng ứng viên, không ghi thẳng vào sổ",
+          "state": "todo",
+          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 9 và 15"
+        },
+        {
+          "id": "10.4",
+          "what": "Cầu nối ra: xuất hệ từ sổ, DESIGN.md trước rồi một hệ loại Design System trong Claude (đẩy lên và đặt mặc định chỉ khi chủ repo cho), cổng đỏ khi bản xuất cũ; rồi lượt thử của dòng «xong khi»",
+          "state": "todo",
+          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 10, 13 và 14, câu hỏi 6; việc 6 của wiki/specs/0007-widen-the-entry-the-system-and-the-intent.md"
+        }
+      ],
+      "done_when": [
+        "Trên một repo mới, chủ repo chọn phích cho các ổ trong một lượt không quá bốn câu, và một màn dựng qua phích ngoài đã chọn vẫn qua cổng, số chỗ đoán không tăng và số lần quyết thay bằng 0"
+      ],
+      "needs_owner": [
+        "Cho phép từng lượt đo tốn token",
+        "Cho phép từng phích cần tài khoản hay gửi dữ liệu ra ngoài",
+        "Cho đẩy hệ của repo lên Claude và đặt làm mặc định"
+      ]
+    },
+    {
       "id": 7,
       "name": "Lõi của họ sản phẩm",
       "state": "later",

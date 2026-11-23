@@ -105,7 +105,8 @@ Vì vậy đề bài này không đề nghị sinh hướng đi bằng mô hình
 
 - Vòng tự dựng cả website, video, React Native, đẩy lên Stitch: đó là việc dựng sản phẩm.
 - Sinh hướng đi bằng mô hình: chủ repo đã chốt danh mục đóng (dòng `directions-from-a-closed-catalog`).
-- Đọc hoặc xuất `DESIGN.md` lúc này: chưa ai kiểm được đặc tả của nó.
+- Đọc hoặc xuất `DESIGN.md` lúc này: chưa ai kiểm được đặc tả của nó. Bỏ ngày 2026-11-23: đặc tả nay có bộ kiểm,
+  chủ repo duyệt câu hỏi 6 của [0014](0014-outside-plugs-set-up-in-one-sitting.md).
 - Phục vụ tác tử ngoài Claude Code.
 
 ### Độ tin
