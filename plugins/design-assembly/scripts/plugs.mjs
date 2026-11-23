@@ -287,6 +287,11 @@ export function plan(
     );
   const files = {};
   const dropped = reaskedRows(reask, before);
+  // Each row taken out, with the plug, the name and the day it carried, so the run can say so.
+  const reasked = dropped
+    .map((id) => ({ id, chose: before.find((socket) => plugRowId(socket.id) === id)?.chosen }))
+    .filter((item) => item.chose)
+    .map(({ id, chose }) => ({ id, plug: chose.plug, by: chose.by, on: chose.on }));
   if (written.length > 0 || dropped.length > 0) {
     // Read as text, so that every byte of the rows already there is kept.
     const full = path.join(root, DECISIONS);
@@ -331,6 +336,7 @@ export function plan(
     questions: [...open, ...asked],
     later: toAsk.slice(room).map(({ socket }) => plugRowId(socket.id)),
     withdrawn,
+    reasked,
     rows: written.map((entry) => entry.chose),
     files,
     removed: [...answered, ...withdrawn]
@@ -351,6 +357,7 @@ export function carryOut(root, planned, dryRun) {
     questions: planned.questions,
     later: planned.later,
     withdrawn: planned.withdrawn,
+    reasked: planned.reasked,
     rows: planned.rows,
     files: [...writtenFiles(lines), ...removed.map((file) => fileChange(file, "delete"))],
     dry_run: dryRun,
@@ -422,6 +429,11 @@ export function report(result, { short = false } = {}) {
   }
   for (const row of rows) {
     lines.push(`Written: ${row.id} chooses ${row.plug}, by ${row.by} on ${row.on}.`);
+  }
+  for (const item of result.reasked ?? []) {
+    lines.push(
+      `Taken out: ${item.id}, which chose ${item.plug} by ${item.by} on ${item.on}; the socket is asked again in its turn.`,
+    );
   }
   for (const item of result.withdrawn ?? []) {
     lines.push(
@@ -506,6 +518,7 @@ async function main(args) {
       questions: result.questions,
       later: result.later,
       withdrawn: result.withdrawn,
+      reasked: result.reasked,
       rows: result.rows,
       files: [...result.files, ...(handed.data.files ?? [])],
       dry_run: result.dry_run,
