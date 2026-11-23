@@ -625,7 +625,7 @@ test("criterion 3: a measured plug the session holds is asked about, as one the 
   // A server that waits for a sign-in is shown, with how to give it access, and is not asked about.
   const signIn = cli("--target", empty(), "--needs-sign-in", "reui");
   assert.equal(signIn.status, 0, signIn.stderr);
-  assert.match(signIn.stdout, /reui +needs-sign-in, unmeasured/);
+  assert.match(signIn.stdout, /reui +needs-sign-in, measured in d0096/);
   assert.match(
     signIn.stdout,
     /^reui waits for a sign-in: give its server access in the session, then run this again\.$/m,
@@ -733,7 +733,7 @@ test("--short gives one line where nothing is asked, and the questions where som
   const short = cli("--target", dir, "--short");
   assert.equal(short.status, 0, short.stderr);
   assert.deepEqual(short.stdout.trim().split("\n"), [
-    "Plugs: 20 sockets: 2 are closed, 8 have only the plugin's plug, 10 have plugs from outside, 5 of them a measured one.",
+    "Plugs: 20 sockets: 2 are closed, 8 have only the plugin's plug, 10 have plugs from outside, 6 of them a measured one.",
     "No outside plug that was measured is in this repository or this session; every socket keeps the plugin's plug.",
   ]);
   const asking = cli("--target", empty(), "--short", "--skill", "design-critique");
