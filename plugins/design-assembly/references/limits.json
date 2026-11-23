@@ -4631,6 +4631,50 @@
       "where": ["d0090"],
       "status": "open",
       "note": "The plug file of the design tool behind an account declares its sync command and no server name, because no page of its maker names the server, so a session that holds only its server and not the command shows it as absent."
+    },
+    {
+      "id": "bring-in-formats-read-from-samples",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0091"],
+      "status": "open",
+      "note": "The bridge in reads a token file, a DESIGN.md, an export of variables and a system folder from samples written for its tests after the public pages of each format, and no file a tool from outside really made has yet been read by it."
+    },
+    {
+      "id": "bring-in-reads-colour-type-and-corner-only",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0091"],
+      "status": "open",
+      "note": "The bridge in takes a source's primary colour, its type scale and its corner radius into the candidate, and leaves its spacing, its other colours, its motion and its components unread, so a direction drawn from it differs from the source in all of them."
+    },
+    {
+      "id": "bring-in-names-fonts-without-choosing",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0091"],
+      "status": "open",
+      "note": "The fonts a source names are said beside the candidate and never become the typeface of the direction, because a typeface is chosen with its source in the sources ledger."
+    },
+    {
+      "id": "bring-in-refusal-changes-nothing-by-itself",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0091"],
+      "status": "open",
+      "note": "When the owner refuses to keep a settled value against an outside one, the question records the refusal and nothing else changes until someone runs the guide again and picks the outside value."
     }
   ]
 }
