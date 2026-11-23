@@ -50,6 +50,11 @@ scale, shape). Density, elevation, motion and iconography are not.
   every expression and reference computed to its final value. The candidate is drawn beside the
   plugin's directions with `specimen --from`, and never written to a ledger; a value against one
   the owner settled is a question on the waiting list, and the ledger wins until they answer.
+- `/design-assembly:bring-out` writes the design ledgers out for tools that do not read them: a
+  `DESIGN.md` and a design system bundle under `design/export/system/` (a README, tokens of both
+  themes, the components and the assets), each stamped with the state of the ledgers. The gate goes
+  red when a ledger changes and an export is not written again (`make design-exports`). It sends
+  nothing anywhere.
 - `/design-assembly:change` retires a block of the store, or merges it into the block of another
   need. It says the impact first: the screens that reach the block's file (every screen when that
   cannot be traced), the frame, the components that import it, the checks that name its file, and

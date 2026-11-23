@@ -4675,6 +4675,61 @@
       "where": ["d0091"],
       "status": "open",
       "note": "When the owner refuses to keep a settled value against an outside one, the question records the refusal and nothing else changes until someone runs the guide again and picks the outside value."
+    },
+    {
+      "id": "bring-out-design-md-not-run-through-its-validator",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0092"],
+      "status": "open",
+      "note": "The DESIGN.md the bridge out writes is held by a check of this plugin that reads its front matter, its primary colour, its references and the order of its sections, and has not been run through the validator its specification publishes, which needs the network to install."
+    },
+    {
+      "id": "bring-out-components-listed-not-previewed",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0092"],
+      "status": "open",
+      "note": "The system bundle lists each component of the manifest with its level, file and properties and draws no preview of any, so a reader of the bundle sees names and not components."
+    },
+    {
+      "id": "bring-out-not-sent-anywhere",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0092"],
+      "status": "open",
+      "note": "Nothing yet sends the system bundle to an account, asks the owner first for leave to send it, records what was sent, or says in status that the copy on an account is behind the ledgers; the bundle stays in the repository."
+    },
+    {
+      "id": "bring-out-stamp-moves-with-any-blueprint-change",
+      "area": "capabilities",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-23",
+      "where": ["d0092"],
+      "status": "open",
+      "note": "The stamp of the exports covers the whole blueprint, so a change to the words of a layer's reasons makes every export stale though none of its values changed."
+    },
+    {
+      "id": "bring-out-not-rewritten-by-other-writers",
+      "area": "capabilities",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0092"],
+      "status": "open",
+      "note": "The guide, adopting, the upgrade and the make targets that write the tokens or the component manifest do not write the exports again, so in a repository that keeps exports any of them turns the gate red until make design-exports runs in the same change."
     }
   ]
 }

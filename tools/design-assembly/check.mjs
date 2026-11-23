@@ -86,6 +86,7 @@ import {
 } from "./theme.mjs";
 import { GATE_STEP, gateStepProblem, gateStepThatCannotFail, readMakefile } from "./host-make.mjs";
 import { tokensProblem } from "./tokens.mjs";
+import { exportProblem, inputsOf, unlistedProblems } from "./exports.mjs";
 import { buildOf } from "./adapters/index.mjs";
 import { fontProblems, readLoads, unloadedCopy } from "./fonts.mjs";
 import { readFontSources } from "./sources-ledger.mjs";
@@ -470,6 +471,31 @@ const KINDS = {
     // A new theme variable is a new token: the file on disk no longer matches.
     change(state) {
       return { ...state, css: `${state.css}\n@theme inline {\n  --color-changed-copy: #000;\n}\n` };
+    },
+  },
+  // An export of the design ledgers says what they say now: written from them, stamped with their
+  // state, never changed by hand.
+  export: {
+    run(state, check, id) {
+      const own = exportProblem(
+        exportInputs(state),
+        check.name,
+        check.file,
+        state.files?.[check.file],
+      );
+      // The first export also says which exports the tool data has stopped holding.
+      const listed = (state.theme?.checks?.[id] ?? []).filter((item) => item.kind === "export");
+      const missing = listed[0] === check ? unlistedProblems(listed.map((item) => item.file)) : [];
+      return [own, ...missing].filter(Boolean).join("; ") || null;
+    },
+    // A new colour in the tokens is a new state of the ledgers: the export on disk is behind it.
+    change(state) {
+      const tokens = parsedOr(state.files?.["design/tokens.json"], {});
+      const changed = {
+        ...tokens,
+        color: { ...tokens.color, "changed-copy": { $type: "color", $value: "#000000" } },
+      };
+      return { ...state, files: { ...state.files, "design/tokens.json": JSON.stringify(changed) } };
     },
   },
   // The component manifest says what the source says: the components exported, and their variants.
@@ -996,6 +1022,23 @@ const KINDS = {
 };
 // The kinds of check, for the plugin's own tests of a single check.
 export const KINDS_FOR_TEST = KINDS;
+
+// A JSON text as data, or the value given when it cannot be read.
+const parsedOr = (text, otherwise) => {
+  try {
+    return JSON.parse(text ?? "null") ?? otherwise;
+  } catch {
+    return otherwise;
+  }
+};
+
+// What the exports are written from, as the state of the gate holds it.
+const exportInputs = (state) =>
+  inputsOf({
+    files: state.files ?? {},
+    theme: state.theme,
+    sources: state.ledgerFolders?.[LEDGERS.sources.folder] ?? {},
+  });
 
 const lintKey = (id, check) => `${id}:${check.rule}`;
 

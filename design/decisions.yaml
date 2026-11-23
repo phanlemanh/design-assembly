@@ -325,3 +325,8 @@ decisions:
     source: "design/blueprint.json, text typeface floor, heading typeface text"
     check: "tool:tools/design-assembly/check.mjs"
     note: "answered by Manh Phan on 2026-11-21"
+  - id: design-exports
+    layer: governance
+    kind: formula
+    source: "the design ledgers, written out by make design-exports"
+    check: "tool:tools/design-assembly/check.mjs"

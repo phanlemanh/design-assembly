@@ -1,0 +1,14 @@
+{
+  "$description": "Written from the design ledgers at 3572f98d4876. Do not change it here: change a ledger, then write it again with make design-exports.",
+  "fonts": [
+    {
+      "id": "geist",
+      "family": "Geist Variable",
+      "pin": {
+        "package": "@fontsource-variable/geist",
+        "version": "5.3.0"
+      },
+      "licence": "SIL Open Font License 1.1, như tệp LICENSE của gói nói"
+    }
+  ]
+}
