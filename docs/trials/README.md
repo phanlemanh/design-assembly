@@ -21,6 +21,10 @@ Vai dựng màn có thêm một **nhánh đối chứng**: cùng đề, trên b�
 plugin. Nó trả lời câu chuỗi số này không trả lời được, là plugin có tác dụng hay không. Cách dựng
 và cách chấm ở [`control-arm.md`](control-arm.md); đã chạy một lần, chưa kết luận.
 
+Từ ngày 2026-11-23 có thêm đề [`briefs/component.md`](briefs/component.md) cho ổ linh kiện (mục 10.2): hai nhánh
+trên hai bản sao, khối lấy từ kho và khối tự tạo, cùng một nhu cầu. Nó đo phích, không phải vai, nên số của nó nằm ở
+bản ghi của từng phích, không ở `results.tsv`.
+
 ## Hai loại đề
 
 - **Đề chuẩn** nằm trong `briefs/`, không đổi giữa các lần. Nó cho chuỗi số so được với nhau. Sửa

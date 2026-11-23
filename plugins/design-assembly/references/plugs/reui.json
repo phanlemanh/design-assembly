@@ -4,8 +4,15 @@
   "sockets": ["components"],
   "names": ["ReUI"],
   "mcp_servers": ["reui"],
-  "needs": [],
+  "needs": ["account", "network"],
+  "sends": "The words it searches for and the names of components, to the ReUI service under the person's account; its install line fetches files from that service and packages from the package registry.",
   "detect": {
     "file": "src/components/reui"
+  },
+  "measured": {
+    "components": {
+      "record": "d0096",
+      "beats_plugin": false
+    }
   }
 }
