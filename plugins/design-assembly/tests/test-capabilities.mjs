@@ -20,6 +20,8 @@ import {
   reachProblems,
   readCapabilities,
   recordProblems,
+  wordProblems,
+  wordHolds,
   recordsIn,
   scriptFiles,
   scriptProblems,
@@ -373,5 +375,26 @@ test("the foundations socket reads the table of colour roles, through a plug who
   ];
   assert.deepEqual(shapeProblems(lost, context), [
     "foundations: plug color-roles reads references/no-such.json, which is not a file of the plugin",
+  ]);
+});
+
+test("review: the owner's word records the place it was said of, and a plug that sends elsewhere under an unchanged word is red", () => {
+  assert.deepEqual(wordProblems(real.plugs), []);
+  const system = real.plugs.find((plug) => plug.recommended_by_owner);
+  const [socket] = Object.keys(system.recommended_by_owner);
+  assert.equal(system.recommended_by_owner[socket].sends, system.sends);
+  assert.equal(wordHolds(system, socket), true);
+  const moved = { ...system, sends: "The whole repository, to another service." };
+  assert.equal(wordHolds(moved, socket), false);
+  assert.deepEqual(wordProblems([moved]).slice(0, 1), [
+    `${system.file}: the owner's word at ${socket} was said of "${system.sends}", and the plug now sends "The whole repository, to another service.": the word must be said again, or the entry taken out`,
+  ]);
+  // A word given for a plug that sends something says what it was said of.
+  const unsaid = {
+    ...system,
+    recommended_by_owner: { [socket]: { record: "d0088", said: "Yes", on: "2026-11-23" } },
+  };
+  assert.deepEqual(plugProblems([unsaid], table), [
+    `${system.file}: recommended by the owner at ${socket} without what it sends, the place the word was said of`,
   ]);
 });

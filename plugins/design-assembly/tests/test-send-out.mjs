@@ -362,3 +362,46 @@ test("review: what the owner did is said as they did it: kept not-now, answered 
     assert.doesNotMatch(said(fields), fields.answer === "keep" ? /refused/ : /kept/);
   }
 });
+
+// ---- review of PR #116 ---------------------------------------------------------------------------
+
+test("review: allow leads only where the owner's word was said of the place the question is about, on a first asking, a --reask and an asking again", () => {
+  const elsewhere = capsWith((plug) => {
+    plug.sends = "The whole repository, to another service.";
+  });
+  // Never given, and the plug now sends elsewhere: not-now first, and the basis says why.
+  const fresh = copyRepo();
+  sendOut(fresh, PLUG, { on: ON, caps: elsewhere });
+  const first = JSON.parse(read(fresh, `design/waiting/send-${PLUG}.json`));
+  assert.deepEqual(
+    first.candidates.map((item) => item.name),
+    ["not-now", "allow"],
+  );
+  assert.match(
+    first.basis,
+    /was said of .*private artifact.*; the plug now sends The whole repository/,
+  );
+  // The reviewer's case: asked again, kept not-now, then --reask: still not-now first.
+  const dir = withLeave();
+  sendOut(dir, PLUG, { on: ON, caps: elsewhere });
+  answer(dir, `send-${PLUG}`, { answer: "keep" });
+  sendOut(dir, PLUG, { on: ON, caps: elsewhere });
+  sendOut(dir, PLUG, { on: ON, caps: elsewhere, reask: true });
+  const again = JSON.parse(read(dir, `design/waiting/send-${PLUG}.json`));
+  assert.deepEqual(
+    again.candidates.map((item) => item.name),
+    ["not-now", "allow"],
+  );
+  assert.doesNotMatch(again.recommendation, /^allow/);
+  // Where only the files that go changed and the place is the word's own, allow leads again.
+  const grown = withLeave();
+  const ledger = read(grown, "design/decisions.yaml");
+  put(grown, "design/decisions.yaml", ledger.replace(/design\/export\/system\/README\.md, /, ""));
+  sendOut(grown, PLUG, { on: ON });
+  const regrown = JSON.parse(read(grown, `design/waiting/send-${PLUG}.json`));
+  assert.match(regrown.question, /^Asked again:/);
+  assert.deepEqual(
+    regrown.candidates.map((item) => item.name),
+    ["allow", "not-now"],
+  );
+});

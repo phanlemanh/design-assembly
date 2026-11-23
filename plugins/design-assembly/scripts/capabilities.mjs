@@ -121,6 +121,8 @@ function measureProblems(plug, where) {
         found.push(`${at} without the owner's words`);
       } else if (key === "recommended_by_owner" && !isDay(entry.on)) {
         found.push(`${at} on no day written YYYY-MM-DD`);
+      } else if (key === "recommended_by_owner" && filled(plug.sends) && !filled(entry.sends)) {
+        found.push(`${at} without what it sends, the place the word was said of`);
       }
     }
   }
@@ -186,6 +188,31 @@ export function plugProblems(plugs, table) {
     if (list(plug.names).filter(filled).length === 0) found.push(`${where}: declares no name`);
     return [...found, ...plugReachProblems(plug, where), ...measureProblems(plug, where)];
   });
+}
+
+// Whether the owner's word for a plug at a socket holds: there is one, and, where the plug sends
+// something out, it was said of what the plug sends now. A word names a plug for a place: the place
+// changed, the word no longer leads.
+export function wordHolds(plug, socket) {
+  const entry = isObject(plug.recommended_by_owner) ? plug.recommended_by_owner[socket] : undefined;
+  if (!isObject(entry)) return false;
+  return !filled(plug.sends) || entry.sends === plug.sends;
+}
+
+// The owner's words that no longer hold, one line each: a plug that sends elsewhere than its word
+// was said of. Run where the plugin is made, so a version that changes where a plug sends cannot
+// ship with the old word still leading.
+export function wordProblems(plugs) {
+  return plugs.flatMap((plug) =>
+    Object.entries(isObject(plug.recommended_by_owner) ? plug.recommended_by_owner : {})
+      .filter(
+        ([, entry]) => filled(plug.sends) && filled(entry?.sends) && entry.sends !== plug.sends,
+      )
+      .map(
+        ([socket, entry]) =>
+          `${plug.file ?? plug.id}: the owner's word at ${socket} was said of "${entry.sends}", and the plug now sends "${plug.sends}": the word must be said again, or the entry taken out`,
+      ),
+  );
 }
 
 // The decision records of a folder of records, each named as a plug file names it: d0088 for
