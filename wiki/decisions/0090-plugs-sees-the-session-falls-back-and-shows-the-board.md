@@ -19,6 +19,9 @@ sources:
   - plugins/design-assembly/references/limits.json
   - plugins/design-assembly/tests/test-plugs.mjs
   - "chủ repo, 2026-11-23: «Dựng lát 2»"
+  - "ảnh danh sách lệnh của một phiên Claude Code do chủ repo gửi ngày 2026-11-23: design, design-sync, design-revoke, design-consent, và các skill design:design-critique, design:ux-copy, design:accessibility-review, frontend-design:frontend-design"
+  - "trang công khai đọc ngày 2026-11-23: claude.com/blog/claude-design-stays-on-brand-for-daily-work (lệnh /design-sync); các trang bên thứ ba và một báo lỗi nêu /design-consent, /design-revoke và tên máy chủ claude-design hay claude_design, chưa trang nào của Anthropic xác nhận tên máy chủ"
+  - "chủ repo, 2026-11-23: «Add to PR #107»"
 ---
 
 # 0090 Lệnh plugs thấy phiên, lùi khi phích vắng, và bày bảng toàn cảnh
@@ -81,5 +84,11 @@ thật. Luật của đề bài 0008 giữ nguyên: script không gọi mô hìn
   (mục 7), câu «việc ổ làm» dài và khó đọc (mục 8), lời trong `new` và `adopt` có thể đọc thành làm theo khuyến nghị
   (mục 6), bước chạy trước bước kiểm repo trong `new` (mục 6), câu về `--dry-run` của trang. Ghi giới hạn: lời mời đo
   chưa có ước tính token (`plugs-measure-invitation-gives-no-estimate`).
-- Lựa chọn chờ chủ repo: chọn phích của plugin ở ổ soát thiết kế nghĩa là không mắt ngoài nào nhìn ảnh; chưa thêm tên
-  phiên nào cho tệp phích của hệ Claude vì chưa có nguồn xác nhận tên nó được liệt kê dưới.
+- Theo lời chủ repo («Add to PR #107»), tệp phích `claude-design` khai `skills: ["design-sync"]`: lệnh dựng sẵn của
+  Claude Code mà danh sách lệnh của phiên chủ repo cho thấy. Skill truyền cả lệnh dựng sẵn của phiên, không chỉ skill.
+  Không khai `design` (từ chung, đỏ phép «lõi sạch», và trùng một skill khác) và chưa khai tên máy chủ (chỉ nguồn bên
+  thứ ba). Với phiên có `design-sync`, bước hỏi ở bốn ổ của hệ Claude: khuyến nghị hệ Claude ở ổ bàn giao và ổ tài sản
+  thương hiệu, phích của plugin ở ổ hướng đi và ổ nền. Dòng `plugs-account-tool-declares-no-session-name` đóng; dòng
+  `plugs-account-tool-server-name-unconfirmed` mở. Danh sách lệnh của phiên ấy cũng xác nhận luật `tiền-tố:tên`
+  (`design:design-critique`, `frontend-design:frontend-design`).
+- Lựa chọn chờ chủ repo: chọn phích của plugin ở ổ soát thiết kế nghĩa là không mắt ngoài nào nhìn ảnh.

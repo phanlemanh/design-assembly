@@ -16,7 +16,7 @@ folder two levels above this file).
 ## 1. Run it
 
 `node ${CLAUDE_PLUGIN_ROOT}/scripts/plugs.mjs --target <repo> --session`, with what this session holds:
-`--skill <name>` for each skill the session lists, `--server <name>` for each server it has, and
+`--skill <name>` for each skill or slash command the session lists, `--server <name>` for each server it has, and
 `--needs-sign-in <name>` for each server that is there and waits for a sign-in, each as the
 session lists it. The command matches them only to the names the plug files declare (a name under
 a plugin's prefix, `prefix:name`, counts as the name); never add a name the session does not list. `--session` says the names given are all the session

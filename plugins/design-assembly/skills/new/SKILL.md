@@ -100,7 +100,7 @@ the repository, `proposed` for everything else, including a layer with a single 
 
 Once the repository is checked, and before any layer, run the setup step of the plugs once:
 `node ${CLAUDE_PLUGIN_ROOT}/scripts/plugs.mjs --target <repo> --short --session`, and pass what
-this session holds: `--skill <name>` for each skill the session lists, `--server <name>` for each server it
+this session holds: `--skill <name>` for each skill or slash command the session lists, `--server <name>` for each server it
 has, and `--needs-sign-in <name>` for each server that is there and waits for a sign-in. Pass the
 names as the session lists them; the command matches only the names the plug files declare.
 

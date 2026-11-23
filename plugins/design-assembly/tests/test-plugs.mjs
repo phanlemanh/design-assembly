@@ -740,3 +740,20 @@ test("new and adopt call the step once, before the direction layer, and go on wh
   const guide = read(PLUGIN, "skills/new/SKILL.md");
   assert.ok(guide.indexOf("plugs.mjs") < guide.indexOf("### Directions first"));
 });
+
+test("the reference system is seen in a session by its command design-sync, and is then asked about at the four sockets it fills", () => {
+  const dir = empty();
+  const asked = plan(dir, { on: ON, session: SESSION({ skills: ["design-sync"] }) });
+  const first = (socket) =>
+    asked.questions.find((question) => question.id === `plug-${socket}`).candidates[0].name;
+  assert.deepEqual(
+    asked.questions.map((question) => question.id),
+    ["plug-direction", "plug-foundations", "plug-brand-assets", "plug-handoff"],
+  );
+  assert.equal(first("handoff"), "claude-design");
+  assert.equal(first("brand-assets"), "claude-design");
+  assert.equal(first("direction"), "directions");
+  assert.equal(first("foundations"), "tokens");
+  // The bare word of its other command is no name of it.
+  assert.deepEqual(plan(dir, { on: ON, session: SESSION({ skills: ["design"] }) }).questions, []);
+});

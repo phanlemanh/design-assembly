@@ -4583,8 +4583,10 @@
       "plan": "fix",
       "opened": "2026-11-23",
       "where": ["d0090"],
-      "status": "open",
-      "note": "The plug file of the design tool behind an account declares no skill name and no server name, so no session shows it as in-session, and the owner's named exception at the handoff and brand assets sockets cannot be asked until a person adds the names it is listed under."
+      "status": "closed",
+      "note": "The plug file of the design tool behind an account declares no skill name and no server name, so no session shows it as in-session, and the owner's named exception at the handoff and brand assets sockets cannot be asked until a person adds the names it is listed under.",
+      "closed": "2026-11-23",
+      "closed_by": "d0090"
     },
     {
       "id": "plugs-fallback-read-by-the-review-route-only",
@@ -4618,6 +4620,17 @@
       "where": ["d0090"],
       "status": "open",
       "note": "The plugs board invites a person to have an unmeasured plug measured on a throwaway copy without the estimate in tokens the specification asks for, because no plug file records one; the estimate is given only when the measurement is asked."
+    },
+    {
+      "id": "plugs-account-tool-server-name-unconfirmed",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0090"],
+      "status": "open",
+      "note": "The plug file of the design tool behind an account declares its sync command and no server name, because no page of its maker names the server, so a session that holds only its server and not the command shows it as absent."
     }
   ]
 }
