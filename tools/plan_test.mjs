@@ -175,14 +175,27 @@ test("a branch says which item it serves, or that it is off the plan and why", (
   );
   assert.deepEqual(commitProblems(plan, ["feat: x\n\nPlan: off-plan — the owner asked today"]), []);
   // An item of a stage that is not open yet is named as such: the first such item of the plan of
-  // record, whichever stage is open today.
+  // record, whichever stage is open today. When the open stage is the last one, no stage of the
+  // plan of record waits, so the case is read on a copy of it with one more stage at the end.
   const { open } = position(plan);
-  const later = plan.stages.find(
-    (stage) => stage.state !== "done" && !open.has(stage.id) && (stage.items ?? []).length > 0,
-  );
+  const waits = (stage) =>
+    stage.state !== "done" && !open.has(stage.id) && (stage.items ?? []).length > 0;
+  const stageAfterTheLast = {
+    id: 99,
+    name: "A stage after the last",
+    state: "later",
+    parallel: [],
+    items: [{ id: "99.1", what: "An item that waits", state: "todo" }],
+    done_when: ["Something is shown by a command"],
+    needs_owner: [],
+  };
+  const withOneWaiting = plan.stages.some(waits)
+    ? plan
+    : { ...plan, stages: [...plan.stages, stageAfterTheLast] };
+  const later = withOneWaiting.stages.find(waits);
   const item = later.items[0].id;
   assert.match(
-    commitProblems(plan, [`feat: x\n\nPlan: ${item}`]).join("\n"),
+    commitProblems(withOneWaiting, [`feat: x\n\nPlan: ${item}`]).join("\n"),
     new RegExp(
       `Plan: ${item.replace(".", "\\.")} is an item of stage ${later.id}, which is not open`,
     ),

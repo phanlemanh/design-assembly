@@ -815,8 +815,21 @@
       "plan": "keep",
       "opened": "2026-11-12",
       "where": ["d0008", "d0009", "handoff"],
+      "status": "closed",
+      "note": "This repository has declared nothing to the acceptance kit, so the kit's own tier has not moved although both artifacts exist.",
+      "closed": "2026-11-23",
+      "closed_by": "the repository set the kit up on 2026-11-20 and declares its gate commands to it (_acceptance/config.yaml), and the kit's main branch now reads this repository's screens and their states through the plugin's reader (tools/design-assembly/screen-facts.mjs) with nothing declared; what is still not declared is the design floor, the open row design-floor-not-declared-to-kit"
+    },
+    {
+      "id": "design-floor-not-declared-to-kit",
+      "area": "checks",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-23",
+      "where": ["d0008", "d0009", "handoff"],
       "status": "open",
-      "note": "This repository has declared nothing to the acceptance kit, so the kit's own tier has not moved although both artifacts exist."
+      "note": "This repository's configuration of the acceptance kit declares no design surface, tokens file or component manifest, so the kit's own reader of the design floor still answers its lowest tier although both artifacts exist."
     },
     {
       "id": "agents-md-omits-plugins",
