@@ -50,8 +50,8 @@ const parse = (text) => {
 };
 
 // The plug file of a plug of the handoff socket that sends something out, or a refusal.
-function plugOf(id) {
-  const plug = readCapabilities().plugs.find((item) => item.id === id);
+function plugOf(id, caps = readCapabilities()) {
+  const plug = caps.plugs.find((item) => item.id === id);
   if (!plug || !(plug.sockets ?? []).includes(SOCKET) || !plug.sends) {
     throw new Refusal(`${id} is no plug of the ${SOCKET} socket that sends anything out`);
   }
@@ -157,13 +157,21 @@ const chosenOf = (question) =>
       : "not-now";
 
 // The row of the ledger that records the leave, with the owner's name and day.
+// What a leave is given for, as its row records it: the files that go, and where they go. A leave
+// counts only for what it records.
+const BUNDLE = SYSTEM_PARTS.map((part) => `${SYSTEM_FOLDER}/${part}`);
+const leaveSource = (plug) => `leave: ${BUNDLE.join(", ")}; to: ${plug.sends}`;
 const leaveRow = (plug, note) => ({
   id: leaveId(plug.id),
   layer: "governance",
   kind: "judgment",
-  source: `leave: the files of ${SYSTEM_FOLDER}, to ${plug.sends}`,
+  source: leaveSource(plug),
   note,
 });
+
+// The candidate the rule puts first for a plug: leave, where the owner named it at the handoff
+// socket; else not now. What `keep` means is read from this rule, never from a file.
+const firstByRule = (plug) => (plug.recommended_by_owner?.[SOCKET] ? "allow" : "not-now");
 
 // The waiting list, read without the id of the leave's own row, so a row and its question left
 // together by a run that stopped between them can be read and taken apart. One kept as a shared
@@ -186,8 +194,17 @@ function leaveState(root, plug, on) {
   const rows = readLedger(root) ?? [];
   const id = leaveId(plug.id);
   const question = (waitingOf(root, rows, plug)?.rows ?? []).find((row) => row.id === id);
-  const leave = leaveOf(rows.find((row) => String(row.id) === id));
+  const row = rows.find((item) => String(item.id) === id);
+  const leave = leaveOf(row);
   const stray = question ? questionFile(id) : null;
+  if (leave.state === "given" && row.source !== leaveSource(plug)) {
+    return {
+      given: false,
+      drop: true,
+      ask: leaveQuestion(plug, on),
+      says: `the leave was given for ${String(row.source).replace(/^leave: /, "")}; it would now go to ${plug.sends}: asked again, since what goes or where it goes changed (now ${BUNDLE.join(", ")})`,
+    };
+  }
   if (leave.state === "given") return { given: true, remove: stray };
   if (leave.state === "back") {
     return {
@@ -202,6 +219,12 @@ function leaveState(root, plug, on) {
       ask: leaveQuestion(plug, on),
       says: "the owner is asked for leave first",
     };
+  }
+  const first = question.candidates?.[0]?.name;
+  if (first !== firstByRule(plug)) {
+    throw new Refusal(
+      `${questionFile(id)} leads with ${first}, which the rule does not give for ${plug.id}: ${firstByRule(plug)} comes first; take the file away and run this again to be asked anew`,
+    );
   }
   if (question.answer === undefined) {
     return { given: false, waits: true, says: "the leave waits on the owner" };
@@ -253,9 +276,10 @@ export function sendOut(root, plugId, options = {}) {
     revoke = false,
     reask = false,
     by = null,
+    caps = readCapabilities(),
     dryRun = false,
   } = options;
-  const plug = plugOf(plugId);
+  const plug = plugOf(plugId, caps);
   const files = {};
   const removed = [];
   const done = (result) => {
@@ -284,6 +308,7 @@ export function sendOut(root, plugId, options = {}) {
   if (reask) return done(reasked(root, plug, on, files));
   const stamp = freshExports(root);
   const leave = leaveState(root, plug, on);
+  if (leave.drop) files[DECISIONS] = mergeLedger(read(root, DECISIONS), [], [leaveId(plug.id)]);
   if (leave.ask) files[questionFile(leave.ask.id)] = renderJson(leave.ask, lineWidth(root));
   if (leave.remove) removed.push(leave.remove);
   if (!leave.given)
@@ -291,7 +316,7 @@ export function sendOut(root, plugId, options = {}) {
   if (leave.row) files[DECISIONS] = mergeLedger(read(root, DECISIONS), [leave.row]);
   const send = {
     plug: plug.id,
-    files: SYSTEM_PARTS.map((part) => `${SYSTEM_FOLDER}/${part}`),
+    files: BUNDLE,
     to: plug.sends,
     stamp,
   };

@@ -308,3 +308,11 @@ test("review: a name from the ledgers that YAML or Markdown would read otherwise
   assert.deepEqual(designMdProblems(text), []);
   assert.match(read(dir, `${SYSTEM_FOLDER}/components.md`), /\*\*Odd\\\*Name\\_\*\*/);
 });
+
+test("review: a path in the component list is a code span, the file's own path, with no mark escaped in it", () => {
+  const dir = copyRepo();
+  bringOut(dir, { dryRun: false });
+  const list = read(dir, `${SYSTEM_FOLDER}/components.md`);
+  assert.match(list, /`src\/components\/app-frame\.tsx`/);
+  assert.doesNotMatch(list, /\\-/);
+});

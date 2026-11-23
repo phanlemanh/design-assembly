@@ -55,8 +55,15 @@ const quoted = (text) => JSON.stringify(String(text));
 // A key of the front matter: as it is where YAML reads it as itself, else quoted.
 const yamlKey = (text) =>
   /^[A-Za-z0-9_][A-Za-z0-9_-]*$/.test(String(text)) ? String(text) : quoted(text);
-// A text set in Markdown as itself: every character Markdown reads as a mark is escaped.
-const markdown = (text) => String(text).replace(/[\\`*_{}[\]()#+!|<>~-]/g, "\\$&");
+// A text set in Markdown as itself: the characters that mark text inside a line are escaped.
+const markdown = (text) => String(text).replace(/[\\`*_[\]<>]/g, "\\$&");
+// A path set in Markdown as itself: a code span, wide enough for any backtick inside it.
+const codeSpan = (text) => {
+  const ticks = "`".repeat(
+    Math.max(0, ...[...String(text).matchAll(/`+/g)].map((run) => run[0].length)) + 1,
+  );
+  return `${ticks}${ticks.length > 1 ? " " : ""}${text}${ticks.length > 1 ? " " : ""}${ticks}`;
+};
 
 // ---- what an export is made from ----------------------------------------------------------------
 
@@ -298,7 +305,7 @@ export function systemBundle(inputs, name) {
       "",
       ...components.map(
         (item) =>
-          `- **${markdown(item.name)}** (${markdown(item.level ?? item.category ?? "component")}), ${markdown(item.file)}${Array.isArray(item.props) && item.props.length > 0 ? `: ${item.props.map(markdown).join(", ")}` : ""}`,
+          `- **${markdown(item.name)}** (${markdown(item.level ?? item.category ?? "component")}), ${codeSpan(item.file)}${Array.isArray(item.props) && item.props.length > 0 ? `: ${item.props.map(markdown).join(", ")}` : ""}`,
       ),
       "",
     ].join("\n"),

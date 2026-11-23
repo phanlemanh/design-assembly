@@ -21,6 +21,7 @@ import { execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { readCapabilities } from "../scripts/capabilities.mjs";
 import { pushedOf, sendOut, PUSHED } from "../scripts/send-out.mjs";
 import { report, status } from "../scripts/status.mjs";
 import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
@@ -34,7 +35,7 @@ const PLUG = "claude-design";
 const COPIED = [
   "design",
   "DESIGN.md",
-  "src/index.css",
+  "src",
   "tools/design-assembly",
   "Makefile",
   "mk",
@@ -226,4 +227,79 @@ test("review: a waiting list kept as one shared file stops every run that would 
     () => sendOut(dir, PLUG, { on: ON }),
     /one shared file, design\/waiting-list\.json: split it first/,
   );
+});
+
+// ---- review of PR #110 ---------------------------------------------------------------------------
+
+// The plug files as they are, with one plug changed.
+function capsWith(change) {
+  const caps = JSON.parse(JSON.stringify(readCapabilities()));
+  change(caps.plugs.find((plug) => plug.id === PLUG));
+  return caps;
+}
+function withLeave() {
+  const dir = copyRepo();
+  sendOut(dir, PLUG, { on: ON });
+  answer(dir, `send-${PLUG}`, { answer: "keep" });
+  sendOut(dir, PLUG, { on: ON });
+  return dir;
+}
+
+test("review: a leave counts only for what its row records; where the bundle would go, or what goes, changed, it is asked again", () => {
+  const dir = withLeave();
+  const elsewhere = capsWith((plug) => {
+    plug.sends = "The whole repository, to another service.";
+  });
+  const moved = sendOut(dir, PLUG, { on: ON, caps: elsewhere });
+  assert.equal(moved.send, null);
+  assert.deepEqual(moved.waits, [`send-${PLUG}`]);
+  assert.match(
+    moved.says,
+    /the leave was given for .*private artifact.*; it would now go to The whole repository, to another service\.: asked again/,
+  );
+  assert.equal(rowOf(dir, `send-${PLUG}`), undefined);
+  assert.doesNotThrow(() =>
+    readWaiting(
+      dir,
+      (readLedger(dir) ?? []).map((row) => String(row.id)),
+    ),
+  );
+  // A row that recorded fewer files than now go is no leave for the files added.
+  const fewer = withLeave();
+  const ledger = read(fewer, "design/decisions.yaml");
+  put(fewer, "design/decisions.yaml", ledger.replace(/design\/export\/system\/README\.md, /, ""));
+  const grown = sendOut(fewer, PLUG, { on: ON });
+  assert.equal(grown.send, null);
+  assert.match(grown.says, /asked again/);
+});
+
+test("review: what keep means comes from the rule, not from the order a file gives; a question reordered by hand is refused with its file", () => {
+  const unnamed = capsWith((plug) => {
+    delete plug.recommended_by_owner;
+  });
+  const dir = copyRepo();
+  sendOut(dir, PLUG, { on: ON, caps: unnamed });
+  const file = `design/waiting/send-${PLUG}.json`;
+  const question = JSON.parse(read(dir, file));
+  assert.deepEqual(
+    question.candidates.map((item) => item.name),
+    ["not-now", "allow"],
+  );
+  put(
+    dir,
+    file,
+    `${JSON.stringify({ ...question, candidates: [...question.candidates].reverse() }, null, 2)}\n`,
+  );
+  answer(dir, `send-${PLUG}`, { answer: "keep" });
+  assert.throws(
+    () => sendOut(dir, PLUG, { on: ON, caps: unnamed }),
+    /design\/waiting\/send-claude-design\.json leads with allow, which the rule does not give for claude-design: not-now comes first/,
+  );
+  assert.equal(rowOf(dir, `send-${PLUG}`), undefined);
+});
+
+test("review: the skill sends only when the run printed what goes and where, never on the exit code alone", () => {
+  const skill = read(PLUGIN, "skills/bring-out/SKILL.md");
+  assert.match(skill, /only when the run printed\s+both `sends:` and `to:`/);
+  assert.match(skill, /never on the exit code alone/);
 });
