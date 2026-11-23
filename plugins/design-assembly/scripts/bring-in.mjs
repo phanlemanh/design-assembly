@@ -60,6 +60,58 @@ const base = (tokens) => tokens.filter((token) => token.mode === null || token.m
 const COLOUR_GROUPS = ["color", "colors", "colour", "colours", "palette", "brand", "theme"];
 const SHADE_DEFAULTS = ["main", "default", "base", "500"];
 
+// A colour as `#rrggbb`, from the ways a token file writes one: hexadecimal of three, four, six or
+// eight digits (the alpha left out), rgb() and rgba(), hsl() and hsla(), and what the colour module
+// reads. Null for anything else.
+export function colourHex(value) {
+  const text = String(value).trim();
+  const hex = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(text)?.[1];
+  if (hex) {
+    const full =
+      hex.length <= 4
+        ? [...hex.slice(0, 3)].map((digit) => digit + digit).join("")
+        : hex.slice(0, 6);
+    return `#${full.toLowerCase()}`;
+  }
+  const rgb =
+    /^rgba?\(\s*([\d.]+%?)[\s,]+([\d.]+%?)[\s,]+([\d.]+%?)(?:\s*[,/]\s*[\d.]+%?)?\s*\)$/i.exec(
+      text,
+    );
+  if (rgb)
+    return channelsToHex(
+      rgb
+        .slice(1, 4)
+        .map((part) => (part.endsWith("%") ? Number.parseFloat(part) * 2.55 : Number(part))),
+    );
+  const hsl =
+    /^hsla?\(\s*([\d.]+)(?:deg)?[\s,]+([\d.]+)%[\s,]+([\d.]+)%(?:\s*[,/]\s*[\d.]+%?)?\s*\)$/i.exec(
+      text,
+    );
+  if (hsl)
+    return channelsToHex(hslChannels(Number(hsl[1]), Number(hsl[2]) / 100, Number(hsl[3]) / 100));
+  return tokenHex(text)?.slice(0, 7) ?? null;
+}
+
+// Three channels from 0 to 255, as `#rrggbb`.
+const channelsToHex = (channels) =>
+  `#${channels
+    .map((value) =>
+      Math.round(Math.min(255, Math.max(0, value)))
+        .toString(16)
+        .padStart(2, "0"),
+    )
+    .join("")}`;
+
+// The channels of a colour written by its hue, saturation and lightness, from 0 to 255.
+function hslChannels(hue, saturation, lightness) {
+  const chroma = (1 - Math.abs(2 * lightness - 1)) * saturation;
+  const at = (n) => {
+    const k = (n + hue / 30) % 12;
+    return lightness - (chroma / 2) * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+  };
+  return [at(0), at(8), at(4)].map((value) => value * 255);
+}
+
 // How a token answers a name: 0 its path ends with it, 1 it is that colour's default shade, else
 // not at all.
 function nameRank(segments, name) {
@@ -69,11 +121,12 @@ function nameRank(segments, name) {
 
 // The colour a source names first among the names, with the token it came from: a token under a
 // group of colours before one elsewhere, the name itself before a shade of it, the shortest path
-// before a longer one. Null where no colour that can be read has any of the names.
-function colourOf(tokens, names) {
+// before a longer one. Null where no token has any of the names. The token a name picks is the
+// colour, or nothing: one that cannot be read is named, through `unreadable`, and never passed
+// over for the next name, so no colour is guessed.
+function colourOf(tokens, names, unreadable = () => null) {
   for (const name of names) {
     const ranked = tokens
-      .filter((token) => tokenHex(token.value) !== null)
       .map((token) => {
         const segments = segmentsOf(token).map((segment) => segment.toLowerCase());
         return { token, segments, rank: nameRank(segments, name) };
@@ -87,7 +140,10 @@ function colourOf(tokens, names) {
           a.segments.length - b.segments.length,
       );
     if (ranked.length > 0) {
-      return { hex: tokenHex(ranked[0].token.value).slice(0, 7), token: ranked[0].token.logical };
+      const { token } = ranked[0];
+      const hex = colourHex(token.value);
+      if (hex) return { hex, token: token.logical };
+      return unreadable(name, token);
     }
   }
   return null;
@@ -231,7 +287,11 @@ export function candidateFrom(file, kind = null) {
   const read = readSource(file, kind);
   const { tokens } = read;
   const names = ["primary", "brand", "accent"];
-  const colour = colourOf(base(tokens), names);
+  const colour = colourOf(base(tokens), names, (name, token) => {
+    throw new Refusal(
+      `${file}: its ${name} colour ${token.logical} is written ${token.value}, which cannot be read: nothing is guessed`,
+    );
+  });
   if (!colour) {
     throw new Refusal(
       `${file} names no primary colour that can be read, so there is no direction to draw`,
@@ -293,9 +353,20 @@ export function conflictsOf(root, candidate) {
   ).map((key) => ({ key, settled: choice[key], outside: candidate.values[key] }));
 }
 
-// A short hash of a path, the same for the same path on every run.
-const pathHash = (file) =>
-  createHash("sha256").update(path.resolve(file)).digest("hex").slice(0, 6);
+// A source as the repository names it: its path from the repository's root when it is inside, else
+// its file's name and that it is outside; never a path of the machine, which would land in a file
+// of the repository and differ from one checkout to the next.
+export function sourceOf(root, file) {
+  const relative = path.relative(path.resolve(root), path.resolve(file));
+  if (relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative)) {
+    return { shown: relative.split(path.sep).join("/"), key: relative.split(path.sep).join("/") };
+  }
+  const name = path.basename(file);
+  return { shown: `${name}, outside the repository`, key: `outside:${name}` };
+}
+
+// A short hash of a source's name in the repository, the same in every checkout.
+const sourceHash = (source) => createHash("sha256").update(source.key).digest("hex").slice(0, 6);
 
 const WORDS = {
   source_color: "source colour",
@@ -305,16 +376,16 @@ const WORDS = {
 };
 
 // The question a value against the owner's asks.
-function questionOf(candidate, conflict, on) {
+function questionOf(candidate, conflict, on, source) {
   const what = WORDS[conflict.key];
   return {
     // The path is in the id, hashed: two sources of one name ask apart.
-    id: `${candidate.id}-${pathHash(candidate.source.file)}-${conflict.key.replaceAll("_", "-")}`,
+    id: `${candidate.id}-${sourceHash(source)}-${conflict.key.replaceAll("_", "-")}`,
     kind: "question",
     group: "outside sources",
     question: `The outside direction ${candidate.name} has the ${what} ${conflict.outside}; the owner settled ${conflict.settled}. Keep ${conflict.settled}?`,
     recommendation: `Keep ${conflict.settled}: the ledger wins over an outside source.`,
-    basis: `the ledger wins (specification 0014): ${conflict.settled} is the owner's answer in ${BLUEPRINT}; ${conflict.outside} comes from ${candidate.source.file}`,
+    basis: `the ledger wins (specification 0014): ${conflict.settled} is the owner's answer in ${BLUEPRINT}; ${conflict.outside} comes from ${source.shown}`,
     hard_to_undo: false,
     where: `${BLUEPRINT}, foundations, ${conflict.key}`,
     if_refused: `nothing changes by itself: to take ${conflict.outside}, run the guide again and pick it; the ledger changes only then`,
@@ -327,7 +398,10 @@ function questionOf(candidate, conflict, on) {
 export function bringIn(root, from, { on = today(), dryRun = false, kind = null } = {}) {
   const candidate = candidateFrom(from, kind);
   const waiting = readWaiting(root, []);
-  const asked = conflictsOf(root, candidate).map((conflict) => questionOf(candidate, conflict, on));
+  const source = sourceOf(root, from);
+  const asked = conflictsOf(root, candidate).map((conflict) =>
+    questionOf(candidate, conflict, on, source),
+  );
   // A question that waits and asks other words, because the source's value changed, is asked anew;
   // one the owner answered stays as it is.
   const rowOf = (id) => (waiting?.rows ?? []).find((row) => row.id === id);

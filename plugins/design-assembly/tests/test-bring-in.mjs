@@ -448,3 +448,66 @@ test("review: too few sizes, or a step far from every ratio, keep the standard s
   assert.deepEqual(two.assumed, ["type_scale", "corner_radius"]);
   assert.ok(two.unread.some((item) => /too few sizes above the base/.test(item.why)));
 });
+
+// ---- review of PR #108 ---------------------------------------------------------------------------
+
+test("review: rgb(), hsl() and 8-digit hex are read; an unreadable primary is named and never replaced by another role's colour", () => {
+  const dir = empty();
+  const read = (colour) =>
+    candidateFrom(
+      put(
+        dir,
+        `c-${colour.length}-${colour.charCodeAt(4)}.json`,
+        JSON.stringify({ color: { primary: { $value: colour } } }),
+      ),
+    ).values.source_color;
+  assert.equal(read("rgb(10 20 30)"), "#0a141e");
+  assert.equal(read("rgb(10, 20, 30)"), "#0a141e");
+  assert.equal(read("rgba(10, 20, 30, 0.5)"), "#0a141e");
+  assert.equal(read("hsl(0 100% 50%)"), "#ff0000");
+  assert.equal(read("hsl(120, 100%, 25%)"), "#008000");
+  assert.equal(read("#0246ff80"), "#0246ff");
+  const unreadable = put(
+    dir,
+    "unreadable.json",
+    JSON.stringify({
+      color: { primary: { $value: "lab(50% 40 59)" }, accent: { $value: "#ff0000" } },
+    }),
+  );
+  assert.throws(
+    () => candidateFrom(unreadable),
+    /its primary colour color\.primary is written lab\(50% 40 59\), which cannot be read: nothing is guessed/,
+  );
+});
+
+test("review: the question names the source as the repository does, and two checkouts give it one id", () => {
+  const first = settledRepo();
+  const second = settledRepo();
+  const inside = (dir) => put(dir, "outside/tokens.json", JSON.stringify(TOKENS));
+  const a = bringIn(first, inside(first), { on: ON });
+  const b = bringIn(second, inside(second), { on: ON });
+  assert.deepEqual(
+    a.questions.map((item) => item.id),
+    b.questions.map((item) => item.id),
+  );
+  for (const question of a.questions) {
+    assert.ok(!question.basis.includes(first), question.basis);
+    assert.match(question.basis, /comes from outside\/tokens\.json/);
+  }
+  // A source outside the repository is named by its file alone, and said to be outside.
+  const away = empty();
+  const outside = put(away, "brand/tokens.json", JSON.stringify(TOKENS));
+  const c = bringIn(settledRepo(), outside, { on: ON });
+  for (const question of c.questions) {
+    assert.ok(!question.basis.includes(away), question.basis);
+    assert.match(question.basis, /comes from tokens\.json, outside the repository/);
+  }
+});
+
+test("review: a day that is no day is refused by the command's own message", () => {
+  const dir = settledRepo();
+  const file = put(dir, "outside/tokens.json", JSON.stringify(TOKENS));
+  const wrong = cli("--target", dir, "--from", file, "--on", "2026-13-40");
+  assert.equal(wrong.status, 2);
+  assert.match(wrong.stderr, /--on 2026-13-40 is not a day written YYYY-MM-DD/);
+});
