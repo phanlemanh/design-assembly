@@ -472,19 +472,19 @@
           "id": "10.0",
           "what": "Đề bài chi tiết cho cả giai đoạn, chủ repo duyệt",
           "state": "todo",
-          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, đã duyệt ngày 2026-11-23 («Duyệt theo khuyến nghị cả bảy câu, khuyến nghị tích hợp claude design và hệ design mặc định của claude và trong kho,...»): giai đoạn này đứng ngay sau giai đoạn 6, lựa chọn phích ghi thành dòng plug-<ổ> của sổ quyết định, lệnh tên plugs, tối đa bốn câu một lượt, thứ tự đo như câu 5, DESIGN.md xuất trước, lời cho phép gửi ra ngoài theo repo và theo phích; ghi xong khi giai đoạn 10 mở"
+          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, đã duyệt ngày 2026-11-23 («Duyệt theo khuyến nghị cả bảy câu, khuyến nghị tích hợp claude design và hệ design mặc định của claude và trong kho,...»): giai đoạn này đứng ngay sau giai đoạn 6, lựa chọn phích ghi thành dòng plug-<ổ> của sổ quyết định, lệnh tên plugs, tối đa bốn câu một lượt, thứ tự đo như câu 5, DESIGN.md xuất trước, lời cho phép gửi ra ngoài theo repo và theo phích; ghi xong khi giai đoạn 10 mở; cùng ngày chủ repo quyết thêm («Đưa loại artifact Design System là loại đề xuất với người dùng mặc định vì đây là cái mà Claude đang làm tốt hơn của repo. Đưa đo claude design lên thực hiện sớm không cần đợi ngày 14/12»): hệ loại Design System của Claude là khuyến nghị mặc định ở bốn ổ hướng đi, nền, tài sản thương hiệu và bàn giao, và đo Claude Design đứng đầu mục 10.2"
         },
         {
           "id": "10.1",
-          "what": "Bước thiết lập: máy tự nhìn phiên và repo, một trang toàn cảnh hai mươi ổ, tối đa bốn câu chọn phích trên hàng chờ, lựa chọn ghi có tên và ngày, status có cột đã chọn, lối lùi khi phích vắng; new và adopt gọi bước một lần",
+          "what": "Bước thiết lập: máy tự nhìn phiên và repo, một trang toàn cảnh hai mươi ổ, tối đa bốn câu chọn phích trên hàng chờ (hệ Design System của Claude là khuyến nghị mặc định ở bốn ổ), lựa chọn ghi có tên và ngày, status có cột đã chọn, lối lùi khi phích vắng; new và adopt gọi bước một lần",
           "state": "todo",
           "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 1 đến 8"
         },
         {
           "id": "10.2",
-          "what": "Đo các phích ngoài ưu tiên theo bốn thước, mỗi phích một bản quyết định; thêm tệp phích còn thiếu",
+          "what": "Đo các phích ngoài ưu tiên theo bốn thước, Claude Design trước, không chờ ngày 2026-12-14; mỗi phích một bản quyết định; thêm tệp phích còn thiếu",
           "state": "todo",
-          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 11, câu hỏi 5; mỗi lượt đo hỏi chủ repo trước vì tốn token"
+          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 11 và 16, câu hỏi 5 (thứ tự chủ repo đổi ngày 2026-11-23); mỗi lượt đo hỏi chủ repo trước vì tốn token"
         },
         {
           "id": "10.3",
