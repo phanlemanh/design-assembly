@@ -8,7 +8,7 @@
 // and servers, matched here to the names the plug files declare, and no other.
 // With --out it writes the overview page of every socket, on the frame every document shares.
 // Usage: node plugs.mjs [--target DIR] [--skill NAME]... [--server NAME]... [--needs-sign-in NAME]...
-//                       [--session]
+//                       [--session] [--reask SOCKET]...
 //                       [--on DATE] [--dry-run] [--short] [--json] [--out DIR [--format html|pdf]]
 // Exit: 0 no question waits; 1 a question waits on the owner; 2 a wrong call, a waiting list or a
 // plug file that cannot be read, or a question that recommends what may not be recommended. On 2
@@ -229,12 +229,41 @@ function plugQuestions(root, rows, board) {
   return { questions, shared: waiting?.shape === "file" };
 }
 
+// The rows a call asks to choose again, by their sockets: each named socket must be one of the board.
+function reaskedRows(sockets, board) {
+  for (const id of sockets) {
+    if (!board.some((socket) => socket.id === id)) {
+      throw new Refusal(`--reask ${id} names no socket of the capability table`);
+    }
+  }
+  return sockets.map(plugRowId);
+}
+
+// For a waiting question, the plugs from outside it asks about that are known to be gone: not in
+// the repository or the session, where the session was listed or the plug is one the repository
+// would show. A plug only a session holds, on a run that listed none, is not known to be gone.
+function goneOf(board, caps, listed) {
+  const detectable = (id) => Boolean(caps.plugs.find((plug) => plug.id === id)?.detect);
+  return (question) => {
+    const socket = board.find((item) => item.id === socketOfId(question.id));
+    return list(question.candidates)
+      .map((candidate) => socket?.candidates.find((item) => item.id === candidate?.name))
+      .filter(Boolean)
+      .filter((candidate) => !PRESENT.includes(candidate.state))
+      .filter((candidate) => listed || detectable(candidate.id))
+      .map((candidate) => candidate.id);
+  };
+}
+
 // What a run does: the answered questions become rows and leave the waiting list; the sockets that
 // can be asked and are not are asked, up to the round. `files` holds the text of every file to
 // write, `removed` the questions to take away.
 // `session` is what the session holds as the call listed it, or null when the call listed none: a
 // chosen plug is then not said to be missing from a session nobody looked at.
-export function plan(root, { caps = readCapabilities(), on = today(), session = null } = {}) {
+export function plan(
+  root,
+  { caps = readCapabilities(), on = today(), session = null, reask = [] } = {},
+) {
   const listed = session !== null;
   session = session ?? NO_SESSION;
   if (caps.problems.length > 0) {
@@ -257,20 +286,29 @@ export function plan(root, { caps = readCapabilities(), on = today(), session = 
       ),
     );
   const files = {};
-  if (written.length > 0) {
+  const dropped = reaskedRows(reask, before);
+  if (written.length > 0 || dropped.length > 0) {
     // Read as text, so that every byte of the rows already there is kept.
     const full = path.join(root, DECISIONS);
     const ledger = existsSync(full) ? readFileSync(full, "utf8") : null;
     const added = written.map((entry) => entry.row);
-    files[DECISIONS] = mergeLedger(ledger, added);
-    rows = [...rows, ...added];
+    files[DECISIONS] = mergeLedger(ledger, added, dropped);
+    rows = [...rows, ...added].filter((row) => !dropped.includes(String(row.id)));
   }
   const board = boardOf(root, caps, rows, session);
-  const open = questions
-    .filter((question) => question.answer === undefined)
+  const gone = goneOf(board, caps, listed);
+  const waiting = questions.filter((question) => question.answer === undefined);
+  const withdrawn = waiting
+    .sort((a, b) => place(a) - place(b))
+    .map((question) => ({ id: question.id, plugs: gone(question) }))
+    .filter((item) => item.plugs.length > 0);
+  const open = waiting
+    .filter((question) => !withdrawn.some((item) => item.id === question.id))
     .sort((a, b) => place(a) - place(b));
   const settled = new Set([
-    ...questions.map((question) => question.id),
+    ...questions
+      .filter((question) => !withdrawn.some((item) => item.id === question.id))
+      .map((question) => question.id),
     ...rows.map((row) => String(row.id)),
   ]);
   const toAsk = board
@@ -292,9 +330,12 @@ export function plan(root, { caps = readCapabilities(), on = today(), session = 
     session_listed: listed,
     questions: [...open, ...asked],
     later: toAsk.slice(room).map(({ socket }) => plugRowId(socket.id)),
+    withdrawn,
     rows: written.map((entry) => entry.chose),
     files,
-    removed: answered.map((question) => questionFile(question.id)),
+    removed: [...answered, ...withdrawn]
+      .map((question) => questionFile(question.id))
+      .filter((file) => !(file in files)),
   };
 }
 
@@ -309,6 +350,7 @@ export function carryOut(root, planned, dryRun) {
     session_listed: planned.session_listed,
     questions: planned.questions,
     later: planned.later,
+    withdrawn: planned.withdrawn,
     rows: planned.rows,
     files: [...writtenFiles(lines), ...removed.map((file) => fileChange(file, "delete"))],
     dry_run: dryRun,
@@ -381,6 +423,11 @@ export function report(result, { short = false } = {}) {
   for (const row of rows) {
     lines.push(`Written: ${row.id} chooses ${row.plug}, by ${row.by} on ${row.on}.`);
   }
+  for (const item of result.withdrawn ?? []) {
+    lines.push(
+      `Taken away: ${item.id} asked about ${item.plugs.join(", ")}, which ${item.plugs.length === 1 ? "is" : "are"} no longer here.`,
+    );
+  }
   if (questions.length > 0) {
     lines.push(
       `Waiting on the owner: ${plural(questions.length, "question", "questions")}; answer on the decision sheet (/design-assembly:decide), then run this again.`,
@@ -410,7 +457,7 @@ export function report(result, { short = false } = {}) {
 }
 
 const USAGE =
-  "usage: node plugs.mjs [--target DIR] [--skill NAME]... [--server NAME]... [--needs-sign-in NAME]... [--session]\n" +
+  "usage: node plugs.mjs [--target DIR] [--skill NAME]... [--server NAME]... [--needs-sign-in NAME]... [--session] [--reask SOCKET]...\n" +
   "                      [--on DATE] [--dry-run] [--short] [--json] [--out DIR [--format html|pdf]]\n";
 const FLAGS = {
   ...DOCUMENT_FLAGS,
@@ -421,6 +468,7 @@ const FLAGS = {
   "--dry-run": "switch",
   "--short": "switch",
   "--session": "switch",
+  "--reask": "list",
 };
 
 // What the session holds, as the call lists it, or null when the call lists no session: --session
@@ -443,7 +491,11 @@ async function main(args) {
   if (!isDay(on)) return refuse(`--on ${on} is not a day written YYYY-MM-DD`, USAGE);
   // A wrong call for a document is refused before anything is read or written.
   const asked = requested(call);
-  const planned = plan(call.target, { on, session: sessionOf(call.flags) });
+  const planned = plan(call.target, {
+    on,
+    session: sessionOf(call.flags),
+    reask: call.flags["--reask"] ?? [],
+  });
   const result = carryOut(call.target, planned, call.flags["--dry-run"] === true);
   const handed = await handOver(asked, call.target, (origin) => documentOf(result, origin));
   return finish({
@@ -453,6 +505,7 @@ async function main(args) {
       session_listed: result.session_listed,
       questions: result.questions,
       later: result.later,
+      withdrawn: result.withdrawn,
       rows: result.rows,
       files: [...result.files, ...(handed.data.files ?? [])],
       dry_run: result.dry_run,
