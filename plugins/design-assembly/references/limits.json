@@ -4633,6 +4633,39 @@
       "note": "The plug file of the design tool behind an account declares its sync command and no server name, because no page of its maker names the server, so a session that holds only its server and not the command shows it as absent."
     },
     {
+      "id": "plugs-skill-name-matches-a-namesake",
+      "area": "capabilities",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0097"],
+      "status": "open",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "note": "A plug file names its skill by a bare name, and the plugs command matches any skill of the session with that name, alone or under a prefix: a different skill that shares the name reads as the same plug, present and measured, though its measure was taken on another skill."
+    },
+    {
+      "id": "screen-build-plug-reached-only-when-told",
+      "area": "capabilities",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0097"],
+      "status": "open",
+      "kind": "no-check",
+      "severity": "medium",
+      "note": "The rules page and the brief do not read the plug the owner chose at the screen-build socket, so a builder uses an outside skill there only when a person tells it to, and nothing sees whether it did."
+    },
+    {
+      "id": "screen-build-plug-measured-beside-the-rules-page",
+      "area": "capabilities",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0097"],
+      "status": "open",
+      "kind": "unproven",
+      "severity": "medium",
+      "note": "The outside skill at the screen-build socket was measured once, on the standard brief, on a copy of this repository whose ledgers already fix a direction, with the rules page and the gate in place: on a repository with no direction fixed, where the skill tells a builder to choose its own palette, type and layout, nothing has measured how many choices it makes for the owner."
+    },
+    {
       "id": "bring-in-formats-read-from-samples",
       "area": "capabilities",
       "kind": "unproven",
