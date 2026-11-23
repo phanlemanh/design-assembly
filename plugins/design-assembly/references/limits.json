@@ -4705,9 +4705,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0092"],
-      "status": "open",
-      "note": "Nothing yet sends the system bundle to an account, asks the owner first for leave to send it, records what was sent, or says in status that the copy on an account is behind the ledgers; the bundle stays in the repository."
+      "where": ["d0092", "d0093"],
+      "status": "closed",
+      "note": "Nothing yet sends the system bundle to an account, asks the owner first for leave to send it, records what was sent, or says in status that the copy on an account is behind the ledgers; the bundle stays in the repository.",
+      "closed": "2026-11-23",
+      "closed_by": "d0093"
     },
     {
       "id": "bring-out-stamp-moves-with-any-blueprint-change",
@@ -4730,6 +4732,39 @@
       "where": ["d0092"],
       "status": "open",
       "note": "The guide, adopting, the upgrade and the make targets that write the tokens or the component manifest do not write the exports again, so in a repository that keeps exports any of them turns the gate red until make design-exports runs in the same change."
+    },
+    {
+      "id": "send-out-push-recorded-on-the-skills-word",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0093"],
+      "status": "open",
+      "note": "A push is recorded when the skill says it sent the bundle, and nothing reads the account to see that the copy there is the one recorded, so status trusts the record and not the account."
+    },
+    {
+      "id": "send-out-default-asked-not-set",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0093"],
+      "status": "open",
+      "note": "The question whether to make the sent system the default is asked and answered on the decision sheet, and nothing in the plugin reads the answer to set it: the skill or the owner sets it in the account."
+    },
+    {
+      "id": "send-out-account-default-from-the-skill",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0093"],
+      "status": "open",
+      "note": "Whether the account already has a default system is what the skill passes with --account-has-default, so a wrong word of the skill turns the recommendation of the default question the wrong way."
     }
   ]
 }

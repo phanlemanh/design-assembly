@@ -3,7 +3,12 @@
 // ledgers, and puts them under the gate: one check of the tool data per export, and the row of the
 // decision ledger that points at the tool. After a ledger changes, the gate is red until the exports
 // are written again. It reads and writes files of the repository only; it sends nothing anywhere.
+// With --send PLUG it reads, or asks, the owner's leave to send the system bundle to that plug, and
+// with it says what goes where (send-out.mjs); --pushed records a push the skill made, --revoke
+// takes the leave back.
 // Usage: node bring-out.mjs [--target DIR] [--name NAME] [--dry-run] [--json]
+//        node bring-out.mjs --send PLUG [--pushed [--account-has-default]] [--revoke --by NAME | --reask]
+//                           [--on DATE] [--target DIR] [--dry-run] [--json]
 // Exit: 0 the exports are written, or would be; 2 a wrong call, or a repository with no design
 // tokens file to write them from. On 2 nothing is written.
 import { existsSync, readFileSync } from "node:fs";
@@ -21,7 +26,10 @@ import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.m
 import { LEDGERS } from "../templates/tools/design-assembly/contract.mjs";
 import { mergeLedger, readLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
 import { writeFiles, writtenFiles } from "./apply.mjs";
+import { today } from "./asking.mjs";
 import { finish, readCall, Refusal, refuse, start } from "./command.mjs";
+import { sendOut } from "./send-out.mjs";
+import { isDay } from "../templates/tools/design-assembly/waiting.mjs";
 
 const THEME = "design/theme.json";
 // The file of the repository's copy of the tool that writes and checks the exports.
@@ -118,12 +126,66 @@ function report(result) {
   return `${lines.join("\n")}\n`;
 }
 
-const USAGE = "usage: node bring-out.mjs [--target DIR] [--name NAME] [--dry-run] [--json]\n";
+// What a run of --send says, as a person reads it.
+function sendReport(result) {
+  const lines = [];
+  if (result.send) {
+    lines.push(`sends: ${result.send.files.join(", ")}`, `to: ${result.send.to}`);
+    lines.push(`written from the design ledgers at ${result.send.stamp}`);
+  }
+  if (result.says) lines.push(result.says);
+  for (const id of result.waits)
+    lines.push(`waiting on the owner: ${id} (/design-assembly:decide)`);
+  for (const file of result.files) {
+    lines.push(`${result.dry_run ? "would" : "did"} ${file.change} ${file.path}`);
+  }
+  return `${lines.join("\n")}\n`;
+}
+
+const USAGE =
+  "usage: node bring-out.mjs [--target DIR] [--name NAME] [--dry-run] [--json]\n" +
+  "       node bring-out.mjs --send PLUG [--pushed [--account-has-default]] [--revoke --by NAME | --reask] [--on DATE] [--target DIR] [--dry-run] [--json]\n";
+const FLAGS = {
+  "--name": "value",
+  "--dry-run": "switch",
+  "--send": "value",
+  "--pushed": "switch",
+  "--account-has-default": "switch",
+  "--revoke": "switch",
+  "--reask": "switch",
+  "--by": "value",
+  "--on": "value",
+};
+
+// A run of --send, from its call.
+function sendCall(call) {
+  const on = call.flags["--on"] ?? today();
+  if (!isDay(on)) throw new Refusal(`--on ${on} is not a day written YYYY-MM-DD`);
+  const result = sendOut(call.target, call.flags["--send"], {
+    on,
+    pushed: call.flags["--pushed"] === true,
+    accountHasDefault: call.flags["--account-has-default"] === true,
+    revoke: call.flags["--revoke"] === true,
+    reask: call.flags["--reask"] === true,
+    by: call.flags["--by"] ?? null,
+    dryRun: call.flags["--dry-run"] === true,
+  });
+  return finish({
+    json: call.json,
+    result,
+    text: sendReport(result),
+    work: result.waits.length > 0,
+  });
+}
 
 async function main(args) {
-  const call = readCall(args, { "--name": "value", "--dry-run": "switch" });
+  const call = readCall(args, FLAGS);
   if (call.problem) return refuse(call.problem, USAGE);
   if (call.help) return void stdout.write(USAGE);
+  if (call.flags["--send"]) return sendCall(call);
+  for (const flag of ["--pushed", "--revoke", "--reask", "--account-has-default", "--by", "--on"]) {
+    if (call.flags[flag] !== undefined) return refuse(`${flag} goes with --send PLUG`, USAGE);
+  }
   const result = bringOut(call.target, {
     name: call.flags["--name"] ?? null,
     dryRun: call.flags["--dry-run"] === true,
