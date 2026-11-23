@@ -86,7 +86,7 @@ import {
 } from "./theme.mjs";
 import { GATE_STEP, gateStepProblem, gateStepThatCannotFail, readMakefile } from "./host-make.mjs";
 import { tokensProblem } from "./tokens.mjs";
-import { exportProblem, inputsOf, unlistedProblems } from "./exports.mjs";
+import { exportProblem, inputsOf, unlistedProblems, withManifest } from "./exports.mjs";
 import { buildOf } from "./adapters/index.mjs";
 import { fontProblems, readLoads, unloadedCopy } from "./fonts.mjs";
 import { readFontSources } from "./sources-ledger.mjs";
@@ -1035,7 +1035,7 @@ const parsedOr = (text, otherwise) => {
 // What the exports are written from, as the state of the gate holds it.
 const exportInputs = (state) =>
   inputsOf({
-    files: state.files ?? {},
+    files: withManifest(state.root, state.files ?? {}),
     theme: state.theme,
     sources: state.ledgerFolders?.[LEDGERS.sources.folder] ?? {},
   });

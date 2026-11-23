@@ -4765,6 +4765,28 @@
       "where": ["d0093"],
       "status": "open",
       "note": "Whether the account already has a default system is what the skill passes with --account-has-default, so a wrong word of the skill turns the recommendation of the default question the wrong way."
+    },
+    {
+      "id": "bring-out-design-md-has-no-components-block",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-23",
+      "where": ["d0092"],
+      "status": "open",
+      "note": "The DESIGN.md the bridge out writes has no components block in its front matter, though its specification describes one, because the component manifest holds names, levels and properties and no colour, type or corner of a component to write there."
+    },
+    {
+      "id": "bring-out-whitespace-only-edits-pass",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-23",
+      "where": ["d0092"],
+      "status": "open",
+      "note": "The gate compares a markdown export with what the ledgers give after taking every space out, so an edit by hand that changes only the spaces inside a value passes it."
     }
   ]
 }

@@ -18,6 +18,7 @@ import { argv, cwd, exit, stderr, stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { tokenHex } from "./color.mjs";
+import { regenerated } from "./components.mjs";
 import { BASE_PX, CORNER_RADII } from "./scale.mjs";
 
 export const DESIGN_MD = "DESIGN.md";
@@ -51,6 +52,11 @@ const px = (value) => {
   return Number((Number(found[1]) * (found[2] === "rem" ? BASE_PX : 1)).toFixed(4));
 };
 const quoted = (text) => JSON.stringify(String(text));
+// A key of the front matter: as it is where YAML reads it as itself, else quoted.
+const yamlKey = (text) =>
+  /^[A-Za-z0-9_][A-Za-z0-9_-]*$/.test(String(text)) ? String(text) : quoted(text);
+// A text set in Markdown as itself: every character Markdown reads as a mark is escaped.
+const markdown = (text) => String(text).replace(/[\\`*_{}[\]()#+!|<>~-]/g, "\\$&");
 
 // ---- what an export is made from ----------------------------------------------------------------
 
@@ -114,7 +120,7 @@ function shapeOf({ tokens, inputs, blueprint }) {
 const yamlColours = (rows, indent, prefix) =>
   rows.map(
     ([role, follows, value]) =>
-      `${indent}${role}: ${quoted(follows ? `{${prefix}${follows}}` : value)}`,
+      `${indent}${yamlKey(role)}: ${quoted(follows ? `{${prefix}${follows}}` : value)}`,
   );
 
 // The front matter: name, the stamp, colours of both themes, the type scale, corners and spacing.
@@ -133,12 +139,12 @@ function frontMatter(inputs, name, stamp) {
     ...yamlColours(colours.dark, "    ", "colors.dark."),
     "typography:",
     ...shape.sizes.flatMap(([step, size]) => [
-      `  ${step}:`,
+      `  ${yamlKey(step)}:`,
       ...(family(step) ? [`    fontFamily: ${quoted(family(step))}`] : []),
       `    fontSize: ${size}px`,
     ]),
     "rounded:",
-    ...shape.radii.map(([step, size]) => `  ${step}: ${size}px`),
+    ...shape.radii.map(([step, size]) => `  ${yamlKey(step)}: ${size}px`),
     "spacing:",
     `  unit: ${quoted(shape.unit)}`,
     "---",
@@ -206,12 +212,14 @@ export function designMdProblems(text, file = DESIGN_MD) {
   const paths = new Map();
   const stack = [];
   for (const line of front[1].split("\n")) {
-    const entry = /^( *)([^:#]+):\s*(.*)$/.exec(line);
+    const entry = /^( *)("(?:[^"\\]|\\.)*"|[^:#"]+):\s*(.*)$/.exec(line);
     if (!entry) continue;
     const depth = entry[1].length / 2;
     stack.length = depth;
-    stack[depth] = entry[2].trim();
-    if (entry[3] !== "") paths.set(stack.join("."), entry[3].replace(/^"(.*)"$/, "$1"));
+    stack[depth] = entry[2].startsWith('"') ? JSON.parse(entry[2]) : entry[2].trim();
+    if (entry[3] !== "") {
+      paths.set(stack.join("."), /^".*"$/.test(entry[3]) ? JSON.parse(entry[3]) : entry[3]);
+    }
   }
   if (!paths.has("colors.primary")) found.push(`${file}: its colours have no primary`);
   for (const [key, value] of paths) {
@@ -290,7 +298,7 @@ export function systemBundle(inputs, name) {
       "",
       ...components.map(
         (item) =>
-          `- **${item.name}** (${item.level ?? item.category ?? "component"}), \`${item.file}\`${Array.isArray(item.props) && item.props.length > 0 ? `: ${item.props.join(", ")}` : ""}`,
+          `- **${markdown(item.name)}** (${markdown(item.level ?? item.category ?? "component")}), ${markdown(item.file)}${Array.isArray(item.props) && item.props.length > 0 ? `: ${item.props.map(markdown).join(", ")}` : ""}`,
       ),
       "",
     ].join("\n"),
@@ -362,6 +370,25 @@ const EMPTY_INPUTS = { tokens: null, blueprint: null, inputs: {}, registry: null
 
 // ---- on disk ------------------------------------------------------------------------------------
 
+// The manifest the source gives, or null; tool data that cannot be read gives none here, and the
+// command that needs it says why.
+function derivedManifest(root) {
+  try {
+    return regenerated(root);
+  } catch {
+    return null;
+  }
+}
+
+// The files with the component manifest in them: the one on disk, or, where it is not written yet
+// (it is a derived file a repository may keep out of git, written by the gate), the one the source
+// gives, so the exports are the same on a clean clone as after the gate ran.
+export function withManifest(root, files) {
+  if (files[SOURCES.registry] !== null && files[SOURCES.registry] !== undefined) return files;
+  const made = derivedManifest(root);
+  return { ...files, [SOURCES.registry]: made ? made.content : null };
+}
+
 // The inputs of a repository, read from disk.
 export function readInputs(root) {
   const read = (file) =>
@@ -378,8 +405,11 @@ export function readInputs(root) {
       )
     : {};
   return inputsOf({
-    files: Object.fromEntries(
-      [SOURCES.tokens, SOURCES.blueprint, SOURCES.registry].map((file) => [file, read(file)]),
+    files: withManifest(
+      root,
+      Object.fromEntries(
+        [SOURCES.tokens, SOURCES.blueprint, SOURCES.registry].map((file) => [file, read(file)]),
+      ),
     ),
     theme: parse(read(SOURCES.theme)),
     sources,
@@ -400,6 +430,10 @@ function main() {
     exit(2);
   }
   const at = args.indexOf("--target");
+  if (at !== -1 && (args[at + 1] === undefined || args[at + 1].startsWith("--"))) {
+    stderr.write("usage: node tools/design-assembly/exports.mjs --write [--target DIR]\n");
+    exit(2);
+  }
   const root = path.resolve(at === -1 ? cwd() : args[at + 1]);
   const theme = parse(
     existsSync(path.join(root, SOURCES.theme))
