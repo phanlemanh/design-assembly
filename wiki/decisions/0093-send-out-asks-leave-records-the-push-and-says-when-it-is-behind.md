@@ -69,5 +69,10 @@ chỗ của lần đẩy cuối; script không gọi Claude.
   lại, nói đổi gì. Nghĩa của «keep» lấy từ luật (phích chủ repo nêu ở ổ bàn giao thì `allow`, không thì `not-now`); câu
   có ứng viên đầu khác luật bị từ chối kèm tên tệp. Mã thoát giữ như hợp đồng chung: «không gửi gì» vì bị từ chối hay
   đã rút cũng là 0, vì không gì chờ người; trang skill nói chỉ gửi khi lần chạy in cả `sends:` và `to:`.
+- Sau soát PR #115 («Gửi sang sửa»): câu hỏi lại vì tệp đi hay nơi đến đổi mang nhóm riêng («sending out, asked
+  again»), nói lời cho phép đã ghi gì và nay sẽ ra sao, và để `not-now` đứng đầu, vì lời chủ repo nêu phích, không nêu
+  nơi mới; luật «ứng viên đầu» và phép chặn câu sửa tay đọc cùng nhóm ấy. Nhóm là một trường của tệp câu hỏi, nên một
+  người sửa cả nhóm lẫn thứ tự vẫn qua được phép chặn, như với mọi tệp của hàng chờ. Lời in khi không gửi gì nói đúng việc
+  chủ repo đã làm: giữ `not-now`, đáp `not-now`, hay từ chối câu hỏi.
 - Lựa chọn chờ chủ repo: lời cho phép cũng đi qua hàng chờ và tờ quyết định như mọi câu; `not-now` đứng đầu cho phích
   không ai nêu ở ổ bàn giao; bản ghi lần đẩy ở `design/export/pushed.json`, không phải một sổ của hợp đồng.

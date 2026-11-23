@@ -303,3 +303,62 @@ test("review: the skill sends only when the run printed what goes and where, nev
   assert.match(skill, /only when the run printed\s+both `sends:` and `to:`/);
   assert.match(skill, /never on the exit code alone/);
 });
+
+// ---- review of PR #115 ---------------------------------------------------------------------------
+
+test("review: a leave asked again because the place changed says so, shows what it was for and what it would be, and does not lead with allow", () => {
+  const dir = withLeave();
+  const elsewhere = capsWith((plug) => {
+    plug.sends = "The whole repository, to another service.";
+  });
+  sendOut(dir, PLUG, { on: ON, caps: elsewhere });
+  const question = JSON.parse(read(dir, `design/waiting/send-${PLUG}.json`));
+  assert.deepEqual(rowProblems(question, question.id), []);
+  assert.match(question.question, /^Asked again:/);
+  assert.match(question.question, /private artifact/);
+  assert.match(question.question, /The whole repository, to another service\./);
+  assert.deepEqual(
+    question.candidates.map((item) => item.name),
+    ["not-now", "allow"],
+  );
+  assert.match(
+    question.recommendation,
+    /^not-now: what goes, or where it goes, changed since the leave was given/,
+  );
+  assert.doesNotMatch(question.basis, /the owner's word/);
+  // The guard follows the same rule: the run does not refuse its own question.
+  answer(dir, `send-${PLUG}`, { answer: "keep" });
+  const kept = sendOut(dir, PLUG, { on: ON, caps: elsewhere });
+  assert.equal(kept.send, null);
+  assert.match(kept.says, /kept not-now/);
+  // The owner's own allow gives the leave for the new place.
+  const other = withLeave();
+  sendOut(other, PLUG, { on: ON, caps: elsewhere });
+  answer(other, `send-${PLUG}`, { answer: "value", said: "allow" });
+  const allowed = sendOut(other, PLUG, { on: ON, caps: elsewhere });
+  assert.equal(allowed.send.to, "The whole repository, to another service.");
+});
+
+test("review: what the owner did is said as they did it: kept not-now, answered not-now, or refused the question", () => {
+  const unnamed = capsWith((plug) => {
+    delete plug.recommended_by_owner;
+  });
+  const said = (fields) => {
+    const dir = copyRepo();
+    sendOut(dir, PLUG, { on: ON, caps: unnamed });
+    answer(dir, `send-${PLUG}`, fields);
+    return sendOut(dir, PLUG, { on: ON, caps: unnamed }).says;
+  };
+  assert.match(said({ answer: "keep" }), /^Owner Name kept not-now on 2026-11-24: nothing is sent/);
+  assert.match(
+    said({ answer: "value", said: "not-now" }),
+    /^Owner Name answered not-now on 2026-11-24: nothing is sent/,
+  );
+  assert.match(
+    said({ answer: "refuse", said: "No" }),
+    /^Owner Name refused the question on 2026-11-24: nothing is sent/,
+  );
+  for (const fields of [{ answer: "keep" }, { answer: "refuse" }]) {
+    assert.doesNotMatch(said(fields), fields.answer === "keep" ? /refused/ : /kept/);
+  }
+});
