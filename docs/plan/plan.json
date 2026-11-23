@@ -476,7 +476,7 @@
         },
         {
           "id": "10.1",
-          "what": "Bước thiết lập: máy tự nhìn phiên và repo, một trang toàn cảnh hai mươi ổ, tối đa bốn câu chọn phích trên hàng chờ (hệ Design System của Claude là khuyến nghị mặc định ở bốn ổ), lựa chọn ghi có tên và ngày, status có cột đã chọn, lối lùi khi phích vắng; new và adopt gọi bước một lần",
+          "what": "Bước thiết lập: máy tự nhìn phiên và repo, một trang toàn cảnh hai mươi ổ, tối đa bốn câu chọn phích trên hàng chờ (hệ Design System của Claude là khuyến nghị mặc định ở ổ bàn giao và ổ tài sản thương hiệu), lựa chọn ghi có tên và ngày, status có cột đã chọn, lối lùi khi phích vắng; new và adopt gọi bước một lần",
           "state": "todo",
           "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 1 đến 8"
         },

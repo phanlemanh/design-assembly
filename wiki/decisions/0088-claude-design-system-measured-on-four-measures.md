@@ -11,13 +11,16 @@ sources:
   - plugins/design-assembly/references/plugs/claude-design.json
   - "chủ repo, 2026-11-23: «Đưa loại artifact Design System là loại đề xuất với người dùng mặc định vì đây là cái mà Claude đang làm tốt hơn của repo. Đưa đo claude design lên thực hiện sớm không cần đợi ngày 14/12»"
   - "chủ repo, 2026-11-23: «Cho đo Claude Design»"
+  - "chủ repo, 2026-11-23: «Keep at handoff and brand», đáp câu «Giữ hệ của Claude là khuyến nghị mặc định ở cả bốn ổ?»"
 ---
 
 # 0088 Hệ «Design System» của Claude được đo theo bốn thước
 
 ## Status
 
-Accepted, 2026-11-23, cho số đo. Phán quyết ở ổ hướng đi và ổ nền chờ lời chủ repo, theo tiêu chí 16 của đề bài 0014.
+Accepted, 2026-11-23. Chủ repo đáp câu hỏi của tiêu chí 16 cùng ngày («Keep at handoff and brand»): hệ của Claude là
+khuyến nghị mặc định ở ổ bàn giao và ổ tài sản thương hiệu; ở ổ hướng đi và ổ nền, khuyến nghị là lối của plugin, rồi
+xuất sang hệ của Claude.
 Đây là phích đầu tiên của mục 10.2. Giai đoạn 10 chưa mở, nên lượt đo ngoài kế hoạch, theo lời chủ repo.
 
 ## Context
@@ -63,8 +66,8 @@ Số đo dưới đây từ một lượt trên bản sao bỏ đi:
 
 ## Consequences
 
-- Câu hỏi cho chủ repo: giữ hệ của Claude là khuyến nghị mặc định ở cả bốn ổ, hay chỉ ở ổ bàn giao và tài sản thương
-  hiệu, còn ổ hướng đi và ổ nền khuyến nghị lối của plugin rồi xuất sang hệ của Claude.
+- Câu hỏi cho chủ repo đã được đáp: chỉ giữ ở ổ bàn giao và ổ tài sản thương hiệu. Đề bài 0014 thu ngoại lệ về hai ổ
+  ấy (nhịp 3, mục «Claude Design và hệ mặc định của Claude», tiêu chí 5).
 - Cầu nối vào (mục 10.3) phải tự tính nấc `calc()` và dựng lại quan hệ «theo» từ sổ, vì hệ của Claude không mang
   chúng. Cầu nối ra (mục 10.4) phải xuất quan hệ thành bí danh `{token}`, vì ngữ pháp của hệ có bí danh.
 - Số chỗ tự quyết là tự khai của một tác tử đóng cả hai vai. Một lượt có người thứ hai đếm lại sẽ làm số ấy chắc hơn.
