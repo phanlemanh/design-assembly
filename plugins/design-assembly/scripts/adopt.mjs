@@ -822,7 +822,12 @@ export function adoption(
       all,
       (file) => file in result.files || read(root, file) !== null,
       fixed.blueprint,
-      { buttons: ledgerButtons(root) },
+      {
+        buttons: ledgerButtons(root),
+        stylesheet: result.stylesheet,
+        // What loads a typeface the stylesheet leaves to the build, as the adapter reads it.
+        fonts: styles ? readLoads(root, styles.css, result.stylesheet).loads : [],
+      },
     );
   }
   return result;

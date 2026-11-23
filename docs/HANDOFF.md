@@ -56,7 +56,7 @@ Kiểm máy: `make setup` rồi `make check` phải xanh, 0 bài bỏ qua.
 
 ## Kho này là gì
 
-Một plugin Claude Code (`plugins/design-assembly/`, bản 0.36.1) dẫn người dùng tới một design system nằm ngay trong kho
+Một plugin Claude Code (`plugins/design-assembly/`, bản 0.36.2) dẫn người dùng tới một design system nằm ngay trong kho
 của họ, để Claude Code dựng màn mà không phải đoán. Ứng dụng React ở gốc kho là bản cài đặt đối chứng: plugin sinh gì
 thì hiện ở đó và được `make check` chấm.
 
@@ -68,7 +68,7 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
 
 ## Trạng thái lúc bàn giao
 
-- **Nhánh chính** ở `48fc3f6` cộng PR mang bản cập nhật này. `make check` xanh ngày 2026-11-23; plugin có 1095 bài
+- **Nhánh chính** ở `bdf2bcc` cộng PR mang bản cập nhật này. `make check` xanh ngày 2026-11-23; plugin có 1098 bài
   kiểm, 0 bài bỏ qua. Một PR đang mở ở kho này: #100, bản ghi lượt thử cuối, do một phiên khác mở.
 - **Kế hoạch: 45 trên 49 mục.** Tám giai đoạn đã đóng, chứng cứ ghi ở `closed` của từng giai đoạn: 0 và 1 (16/11),
   2 (17/11), 8 (18/11), 3 (19/11), 4 (20/11), 5 (21/11), 9 (22/11).
@@ -119,6 +119,9 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
 - **Một PR không qua phiên điều phối** (PR #99, plugin 0.36.1, ngoài kế hoạch): bộ đọc trang khởi động của Vite bỏ chú
   thích như trình duyệt làm. Một phiên khác làm theo lời chủ kho khi đưa plugin lên bản mới ở Inventory; phiên điều
   phối chỉ đọc dòng nhật ký của nó, không soát.
+- **Thêm một PR không qua phiên điều phối** (PR #101, plugin 0.36.2, ngoài kế hoạch, gộp ngày 2026-11-23): trang luật
+  nêu đúng phông mà trình nạp phông của bản dựng đặt, và sổ bàn giao vẽ bảng thành bảng. Cũng do phiên đưa plugin lên
+  bản mới ở Inventory làm; phiên điều phối chỉ đọc dòng nhật ký của nó, không soát.
 - **Lát 4, ở kho kit** (mục 6.2): đã dựng ở một phiên phụ sau lời cho phép của chủ kho cho đúng lát ấy; chủ kho đã ký
   Cổng Bằng chứng của kit; PR #27 của kho ấy chờ CI xanh và lời gộp. Xem «Việc kế».
 - **Lượt thử cuối** (tiêu chí 11): một phiên khác đã chạy, bản ghi ở PR #100 chưa gộp. Xem «Việc kế».
@@ -235,7 +238,7 @@ Một vòng lặp, mỗi bước có lời chủ kho:
 
 - **Phiên mới hỏi lại trước lần gộp đầu tiên của mình.** Từ ngày 2026-11-20, chủ kho đáp từng lần gộp («Gộp khi xanh»,
   «Kiểm lại và gộp»); một lời như vậy chỉ phủ đúng PR được hỏi. Các PR ngày 2026-11-22 ở kho này (#92 tới #98) và PR #84 ở Repo
-  Standards đều gộp theo lối ấy; PR #99 do một phiên khác gộp.
+  Standards đều gộp theo lối ấy; PR #99 và PR #101 do một phiên khác gộp.
 - **Commit và mở PR cũng hỏi từng lần** («Commit và mở PR»). Việc viết đề bài, dựng một lát, hay mở một phiên phụ đều
   bắt đầu bằng một lời của chủ kho cho đúng việc ấy.
 - Lời cũ của chủ kho ngày 2026-11-15, cho phiên điều phối toàn quyền xếp và gộp, ghi ở bản trước của trang này (xem
