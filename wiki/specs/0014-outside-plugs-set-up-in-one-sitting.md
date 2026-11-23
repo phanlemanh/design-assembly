@@ -362,8 +362,9 @@ Mỗi câu kèm một khuyến nghị.
    2026-12-14) nên số đo trước ngày ấy dễ mất giá trị; Figma và Mobbin cần tài khoản, Figma ghế miễn phí chỉ 20 lượt một
    tháng.
    Đã nhận theo thứ tự trên; cùng ngày chủ repo đổi: Claude Design đo đầu tiên và sớm, không chờ ngày 2026-12-14
-   («Đưa đo claude design lên thực hiện sớm không cần đợi ngày 14/12»). Thứ tự nay: Claude Design, rồi frontend-design,
-   rồi Open Design và Stitch qua `DESIGN.md`, rồi ReUI qua `intake`, rồi Figma và Mobbin. Rủi ro đã nêu ở căn cứ trên:
+   («Đưa đo claude design lên thực hiện sớm không cần đợi ngày 14/12»). Chủ repo chốt thứ tự cùng ngày («Claude Design, ReUI,
+   Frontend-design, Stitch,...»): Claude Design, rồi ReUI qua `intake`, rồi frontend-design ở ổ dựng màn, rồi Stitch qua
+   `DESIGN.md`; các phích còn lại theo sau theo thứ tự cũ: Open Design, rồi Figma và Mobbin. Rủi ro đã nêu ở căn cứ trên:
    số đo làm trước ngày ấy có thể phải đo lại khi trang riêng đóng. Lượt đo vẫn cần lời cho phép riêng vì tốn token và
    cần tài khoản.
 

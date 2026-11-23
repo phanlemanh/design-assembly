@@ -482,7 +482,7 @@
         },
         {
           "id": "10.2",
-          "what": "Đo các phích ngoài ưu tiên theo bốn thước, Claude Design trước, không chờ ngày 2026-12-14; mỗi phích một bản quyết định; thêm tệp phích còn thiếu",
+          "what": "Đo các phích ngoài ưu tiên theo bốn thước, theo thứ tự chủ repo chốt: Claude Design (không chờ ngày 2026-12-14), ReUI, frontend-design, Stitch, rồi Open Design, Figma, Mobbin; mỗi phích một bản quyết định; thêm tệp phích còn thiếu",
           "state": "todo",
           "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 11 và 16, câu hỏi 5 (thứ tự chủ repo đổi ngày 2026-11-23); mỗi lượt đo hỏi chủ repo trước vì tốn token"
         },
