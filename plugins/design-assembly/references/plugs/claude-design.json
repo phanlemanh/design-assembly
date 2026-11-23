@@ -3,5 +3,36 @@
   "about": "A design tool that proposes directions and a system page from a brief or a repository.",
   "sockets": ["direction", "foundations", "brand-assets", "handoff"],
   "names": ["Claude Design"],
-  "needs": ["account", "network"]
+  "needs": ["account", "network"],
+  "sends": "The design values and files of the repository it is given, to a private artifact of the person's Claude account.",
+  "measured": {
+    "direction": {
+      "record": "d0088",
+      "beats_plugin": false
+    },
+    "foundations": {
+      "record": "d0088",
+      "beats_plugin": false
+    },
+    "brand-assets": {
+      "record": "d0088",
+      "beats_plugin": false
+    },
+    "handoff": {
+      "record": "d0088",
+      "beats_plugin": false
+    }
+  },
+  "recommended_by_owner": {
+    "brand-assets": {
+      "record": "d0088",
+      "said": "Keep at handoff and brand",
+      "on": "2026-11-23"
+    },
+    "handoff": {
+      "record": "d0088",
+      "said": "Keep at handoff and brand",
+      "on": "2026-11-23"
+    }
+  }
 }

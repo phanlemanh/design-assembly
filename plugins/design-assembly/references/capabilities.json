@@ -214,6 +214,12 @@
           "kind": "core",
           "default": true,
           "scripts": ["scripts/decide.mjs"]
+        },
+        {
+          "id": "plugs",
+          "kind": "command",
+          "default": false,
+          "scripts": ["scripts/plugs.mjs"]
         }
       ],
       "layers": ["context", "foundations"],

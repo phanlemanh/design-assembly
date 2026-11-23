@@ -3,6 +3,7 @@
   "about": "A registry of components installed into the components folder beside the base library.",
   "sockets": ["components"],
   "names": ["ReUI"],
+  "mcp_servers": ["reui"],
   "needs": [],
   "detect": {
     "file": "src/components/reui"

@@ -4,5 +4,6 @@
   "kind": "skill",
   "sockets": ["accessibility-report"],
   "names": ["accessibility-review"],
+  "skills": ["accessibility-review"],
   "needs": []
 }

@@ -4478,6 +4478,94 @@
       "where": ["d0087"],
       "status": "open",
       "note": "Once adopt --starter laid the ledgers, the next line of status and of the audit names the adopt skill on a grey floor and on a repository with a brand colour alike, while answers wait, so only the line of the rhythm the repository is born says whether the guide is for that repository."
+    },
+    {
+      "id": "plugs-sees-no-session",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0089"],
+      "status": "open",
+      "note": "The plugs command reads the repository only, so a plug that a session holds as a skill or a server reads absent, no question is asked for it, and the state needs-sign-in is never given."
+    },
+    {
+      "id": "plugs-chosen-session-plug-reads-missing",
+      "area": "capabilities",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0089"],
+      "status": "open",
+      "note": "A plug chosen for a socket that only a session can hold, such as a design tool behind an account, reads chosen-but-missing in plugs and in status on every run, because neither looks at the session."
+    },
+    {
+      "id": "plugs-no-fallback-when-missing",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0089"],
+      "status": "open",
+      "note": "A route that reaches a socket whose chosen plug from outside is missing does not yet fall back to the plugin's plug with a line that says so; nothing reads the chosen plug when a route runs."
+    },
+    {
+      "id": "plugs-no-overview-page",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0089"],
+      "status": "open",
+      "note": "The board of every socket is printed on the screen and given as data, but no page on the frame every document of this plugin shares shows it."
+    },
+    {
+      "id": "plugs-new-and-adopt-do-not-call-it",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0089"],
+      "status": "open",
+      "note": "The new and adopt routes do not call the setup step once before the direction layer, so a repository meets the plugs only when someone runs the command."
+    },
+    {
+      "id": "plugs-measure-records-checked-here-only",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-23",
+      "where": ["d0089"],
+      "status": "open",
+      "note": "Whether the decision record a plug file's measure points at exists is checked only where the plugin is made, beside its records; a repository that installs the plugin sees the record's id and not the record."
+    },
+    {
+      "id": "plugs-remeasure-asks-nobody",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0089"],
+      "status": "open",
+      "note": "When a plug the owner named for a socket is measured again and loses to the plugin's plug, nothing puts a question to the owner; the owner's word keeps the recommendation until a person changes the plug file."
+    },
+    {
+      "id": "plugs-row-and-question-share-an-id",
+      "area": "capabilities",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0089"],
+      "status": "open",
+      "note": "If the plugs command stops between writing the row of a choice and taking its answered question off the waiting list, status, the decision sheet and the gate read the waiting list as broken, because both carry the id plug-<socket>, until plugs runs again and takes the question away."
     }
   ]
 }

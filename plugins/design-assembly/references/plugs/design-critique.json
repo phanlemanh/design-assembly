@@ -4,5 +4,12 @@
   "kind": "skill",
   "sockets": ["design-review"],
   "names": ["design-critique"],
-  "needs": []
+  "skills": ["design-critique"],
+  "needs": [],
+  "measured": {
+    "design-review": {
+      "record": "d0073",
+      "beats_plugin": false
+    }
+  }
 }

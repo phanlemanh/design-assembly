@@ -646,6 +646,18 @@
       "meaning": "A whole proposal of how the product looks, its colour, type and shape chosen to go together and shown on the product's own screens, so a person picks a direction before tuning any single value. The Vietnamese of the documents says hướng đi.",
       "source": "Common practice of design studios",
       "trust": "practice"
+    },
+    {
+      "term": "socket",
+      "meaning": "The place this plugin keeps for one capability of a design system: the ledgers only it writes, what it hands out, the checks that hold it, and who decides there. A closed socket takes no plug from outside.",
+      "source": "The specification of capabilities, sockets and plugs, 2026-11-20",
+      "trust": "coined"
+    },
+    {
+      "term": "plug",
+      "meaning": "What does the work at a socket: one of this plugin's own, or a tool from outside described by a plug file, chosen for a repository by its owner. The command that shows them and puts the choice to the owner is plugs.",
+      "source": "The specification of capabilities, sockets and plugs, 2026-11-20; the setup step of 2026-11-23",
+      "trust": "coined"
     }
   ]
 }
