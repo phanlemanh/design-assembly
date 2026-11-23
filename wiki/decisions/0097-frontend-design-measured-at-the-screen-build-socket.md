@@ -5,6 +5,7 @@ links:
   - wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md
   - wiki/specs/0008-capabilities-sockets-and-plugs.md
   - wiki/decisions/0088-claude-design-system-measured-on-four-measures.md
+  - wiki/decisions/0096-reui-measured-at-the-components-socket.md
   - wiki/decisions/0090-plugs-sees-the-session-falls-back-and-shows-the-board.md
 sources:
   - docs/trials/frontend-design-measured-at-screen-build.md
@@ -20,7 +21,8 @@ sources:
 ## Status
 
 Accepted, 2026-11-23. Phích thứ ba của mục 10.2, theo thứ tự chủ repo chốt ở câu hỏi 5 của đề bài 0014. Chủ repo cho
-chạy một nhánh sau khi nghe quy trình và ước tính.
+chạy một nhánh sau khi nghe quy trình và ước tính. Cùng 0088 (Claude Design) và 0096 (ReUI), mục 10.2 nay có ba trên
+bảy phích đã đo; còn bốn phích chưa đo: Stitch, Open Design, Figma, Mobbin.
 
 ## Context
 
