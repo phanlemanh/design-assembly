@@ -443,14 +443,14 @@
         {
           "id": "6.1",
           "what": "Repo Standards gọi plugin sau khi đặt nền, và ở repo đã có",
-          "state": "todo",
-          "ref": "wiki/specs/0013-the-two-neighbours-call-and-read.md, mảng 1 và 2; mang theo bốn việc gác lại của nhóm «Chỗ giáp repo-standards» (cửa vào cho repo không có sàn; bốn khoá của lệnh affected; đích dẫn xuất của bước cổng; danh sách chuỗi plugin đọc), chủ repo nhận ngày 2026-11-22 («Duyệt cả tám», câu 8)"
+          "state": "done",
+          "ref": "wiki/specs/0013-the-two-neighbours-call-and-read.md, mảng 1 và 2, tiêu chí 1 đến 7; lát 1 (PR #94, wiki/decisions/0085-adopt-starter-lays-the-ledgers-a-repository-has-from-birth.md): lối đặt sổ không hỏi ai, `new` chạy được sau nó, bộ sổ lúc ra đời có tên, giữ bằng plugins/design-assembly/tests/test-starter.mjs; lát 2 (PR #96, wiki/decisions/0086-upgrade-writes-the-gate-step-the-seam-is-pinned-and-a-command-reads-the-screens.md): `upgrade` ghi bước cổng và giới hạn upgrade-leaves-gate-step đóng, bốn việc của chỗ giáp, giữ bằng plugins/design-assembly/tests/test-seam.mjs và test-affected.mjs; sửa sau khi soát lát 3 (PR #98, wiki/decisions/0087-adopt-starter-lays-the-ledgers-where-a-repository-has-values-of-its-own.md): repo ra đời với màu thương hiệu cũng nhận bộ sổ; lát 3 ở Repo Standards (PR #84 của kho ấy, gộp ngày 2026-11-22 ở 9ad1ed6, CI nhánh chính của kho ấy xanh ở đúng commit ấy): lối `new` bật plugin, gọi `adopt --starter` trước bước kiểm và mời đi tiếp một lần; lối `adopt` gọi `audit` rồi `adopt`; `doctor` nêu sổ thiếu và bản công cụ tụt; bài kiểm chỗ giáp của kho ấy ghim bằng mẫu dữ liệu, đọc ở plugin 0.35.0; bốn việc gác lại của nhóm «Chỗ giáp repo-standards» (cửa vào cho repo không có sàn; bốn khoá của lệnh affected; đích dẫn xuất của bước cổng; danh sách chuỗi plugin đọc) đã rời `parked`, chủ repo nhận ngày 2026-11-22 («Duyệt cả tám», câu 8); lượt chạy hai plugin thật cùng nhau là tiêu chí 11, dòng «xong khi» của giai đoạn, không thuộc mục này: một phiên khác đã chạy ngày 2026-11-23, bản ghi ở PR #100 chưa gộp; chủ repo bảo ghi mục này xong ngày 2026-11-23 («Cập nhật cả hai»)"
         },
         {
           "id": "6.2",
           "what": "Kit nghiệm thu đọc sổ màn và bảng trạng thái thay cho khai lại",
-          "state": "todo",
-          "ref": "wiki/specs/0013-the-two-neighbours-call-and-read.md, mảng 3"
+          "state": "doing",
+          "ref": "wiki/specs/0013-the-two-neighbours-call-and-read.md, mảng 3, tiêu chí 9 và 10; phía plugin đã dựng: lệnh đọc màn (PR #96, tiêu chí 8); phía kit: chủ repo cho phép sửa ở delivery-loop cho lát này ngày 2026-11-22 («Cho phép»); vòng `dac-ta-ux-doc-so-man` của kit có bản thiết kế, hợp đồng mười tiêu chí và mười một eval trên nhánh claude/kit-reads-screen-ledger-b46eb4 của kho ấy; chủ repo duyệt Cổng Phạm vi và ký Cổng Bằng chứng của kit ngày 2026-11-23 bằng lệnh của kit, gõ trong phiên của lát ấy; kit đã dựng plugins/acceptance-gate/scripts/so-man.cjs (điền kiểm kê màn và mã trạng thái từ lệnh đọc màn, kiểm bảng trạng thái so với sổ) và một khối thông tin trên thẻ Cổng Phạm vi; PR #27 của kho ấy đang mở, chưa gộp; phiên điều phối soát độc lập ở 4625ed4: bài kiểm của lát đủ 64 ca không ca nào đỏ, lệnh của kit gọi lệnh đọc màn thật của kho này điền đúng 2 màn và 18 mã trạng thái, ba lỗi cố ý đều đỏ nêu đích danh; CI của PR ấy chưa xanh ở 4625ed4, chờ kit ghim lại bằng chứng"
         },
         {
           "id": "6.3",
