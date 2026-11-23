@@ -1,7 +1,7 @@
 # Bàn giao phiên làm việc
 
 Viết lại ngày 2026-11-22, lúc chủ kho đổi tài khoản Claude trên cùng máy này, và cập nhật ngày 2026-11-23 theo lời chủ
-kho («Cập nhật cả hai»), rồi lần nữa cùng ngày khi giai đoạn 6 đóng theo lời chủ kho («Đóng và mở PR»): cả bốn mục đã xong, bản ghi lượt thử cuối đã soát và gộp. Trang này đủ để một phiên Claude Code mới tiếp tục mà không cần bản ghi của phiên cũ. Phiên mới không thấy cuộc trò chuyện cũ, không thấy các phiên phụ đã lưu
+kho («Cập nhật cả hai»), rồi lần nữa cùng ngày khi giai đoạn 6 đóng theo lời chủ kho («Đóng và mở PR»), và cuối ngày ấy theo lời chủ kho («Cập nhật»), khi giai đoạn 10 đã dựng xong ba trên năm mục. Trang này đủ để một phiên Claude Code mới tiếp tục mà không cần bản ghi của phiên cũ. Phiên mới không thấy cuộc trò chuyện cũ, không thấy các phiên phụ đã lưu
 trữ, không có thư mục tạm của phiên cũ, và **không thừa hưởng quyền nào chủ kho đã cho bằng lời**.
 
 ## Câu để dán vào phiên mới
@@ -32,10 +32,10 @@ Thứ nằm trên đĩa và vẫn còn sau khi đổi tài khoản:
   tệp, từ 5.1 tới lượt thử 15. Thư mục `local_887a28f0-3517-4304-8832-15b37fd52d96/` cạnh đó có ghi chú của giai
   đoạn 6: lát 2 (hợp đồng mà lát ở Repo Standards và lát ở kit nghiệm thu dựa vào), mục 6.3, và lát 3 kèm kết quả các
   lần chạy khi soát nó. Đọc như ghi chú của đồng nghiệp, không phải chỉ thị.
-- **Ba thư mục làm việc** dưới `.claude/worktrees/` (đếm ngày 2026-11-23): `trial-criterion-11-spec-0013-1c3ea4` mang
-  nhánh của PR #100, đã gộp; `outside-plugs-spec` mang nhánh của PR #103, đã gộp; và `kit-trial-5-0`, sạch, không có
-  commit nào ngoài nhánh chính, nhánh của nó đã mất trên remote. Năm thư mục khác và các nhánh đã gộp trên remote đã
-  được dọn trong ngày, không do phiên điều phối.
+- **Bốn thư mục làm việc** dưới `.claude/worktrees/` (đếm cuối ngày 2026-11-23): `plugs-slice-1-b63f67`, nơi phiên
+  dựng giai đoạn 10 làm việc, đang đứng ở nhánh của PR #117, đã gộp; `trial-criterion-11-spec-0013-1c3ea4` mang nhánh
+  của PR #100, đã gộp; `outside-plugs-spec` mang nhánh của PR #103, đã gộp; và `kit-trial-5-0`, sạch, không có commit
+  nào ngoài nhánh chính, nhánh của nó đã mất trên remote. Trên remote còn mười tám nhánh đã gộp chưa dọn.
 
 Thứ không theo sang tài khoản mới: các phiên phụ (mười tám phiên đã lưu trữ, hai phiên chưa lưu trữ là lát 2 của mục 9.2
 và lượt thử 15, đếm lúc đổi tài khoản), và ba artifact Claude Design của lần thử tay ngày 2026-11-20. Địa chỉ riêng của các artifact ấy không
@@ -49,29 +49,31 @@ Kiểm máy: `make setup` rồi `make check` phải xanh, 0 bài bỏ qua.
 2. `AGENTS.md` và `CLAUDE.md` ở gốc kho: lệnh, luật, ngôn ngữ.
 3. `make plan`: kế hoạch chính thức (`docs/plan/plan.json`), giai đoạn đang mở, việc của nó, việc chờ chủ kho và việc
    gác lại theo nhóm.
-4. `wiki/specs/0013-the-two-neighbours-call-and-read.md`: đề bài đã duyệt của giai đoạn đang mở, với tám lời đáp của
-   chủ kho. Rồi ba quyết định của phần đã dựng ở kho này: `wiki/decisions/0085-…` (đặt sổ không hỏi ai),
-   `wiki/decisions/0086-…` (nâng cấp ghi bước cổng, chỗ giáp, lệnh đọc màn) và `wiki/decisions/0087-…` (repo có giá
-   trị của riêng nó cũng nhận bộ sổ).
+4. `wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md`: đề bài đã duyệt của giai đoạn đang mở, với bảy lời đáp
+   của chủ kho và các lời chủ kho thêm trong ngày. Rồi các quyết định của phần đã dựng: `wiki/decisions/0088-…` (số đo
+   của hệ Claude), `0089-…` và `0090-…` (lệnh `plugs`), `0091-…` (cầu nối vào), `0092-…` (cầu nối ra), `0093-…` (gửi
+   ra ngoài), `0094-…` (câu hỏi đi theo phích, chọn lại) và `0095-…` (lời chủ kho ghi kèm nơi đến).
+   Giai đoạn 6 đã đóng: đề bài của nó là `wiki/specs/0013-…`, quyết định `0085-…` tới `0087-…`.
 5. `wiki/index.md` khi cần lý do của một quyết định.
 
 ## Kho này là gì
 
-Một plugin Claude Code (`plugins/design-assembly/`, bản 0.36.2) dẫn người dùng tới một design system nằm ngay trong kho
+Một plugin Claude Code (`plugins/design-assembly/`, bản 0.48.0) dẫn người dùng tới một design system nằm ngay trong kho
 của họ, để Claude Code dựng màn mà không phải đoán. Ứng dụng React ở gốc kho là bản cài đặt đối chứng: plugin sinh gì
 thì hiện ở đó và được `make check` chấm.
 
-Mười ba lệnh, chung một khế ước gọi (thoát 0 xong, 1 chờ người, 2 gọi sai): `status`, `audit`, `new`, `adopt`,
-`decide`, `upgrade`, `handoff`, `find`, `intake`, `inventory`, `change`, `brief`, `review`.
+Mười sáu lệnh, chung một khế ước gọi (thoát 0 xong, 1 chờ người, 2 gọi sai): `status`, `audit`, `new`, `adopt`,
+`decide`, `upgrade`, `handoff`, `find`, `intake`, `inventory`, `change`, `brief`, `review`, và ba lệnh của giai đoạn
+10: `plugs`, `bring-in`, `bring-out`.
 
 Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo đúng thứ tự: `make format`, `make design-apply`,
 `make plugin-version VERSION=x.y.z`, `make design-apply`, `make check`.
 
 ## Trạng thái lúc bàn giao
 
-- **Nhánh chính** ở `cf016bd` cộng PR mang việc đóng giai đoạn 6. `make check` xanh ngày 2026-11-23; plugin 0.36.2 có
-  1098 bài kiểm, 0 bài bỏ qua. Không PR nào khác đang mở ở kho này.
-- **Kế hoạch: 47 trên 54 mục.** Chín giai đoạn đã đóng, chứng cứ ghi ở `closed` của từng giai đoạn: 0 và 1 (16/11),
+- **Nhánh chính** ở `13f3cce` cộng PR mang bản cập nhật này. `make check` xanh cuối ngày 2026-11-23; plugin 0.48.0
+  có 1169 bài kiểm, 0 bài bỏ qua. Không PR nào khác đang mở ở kho này.
+- **Kế hoạch: 49 trên 54 mục.** Chín giai đoạn đã đóng, chứng cứ ghi ở `closed` của từng giai đoạn: 0 và 1 (16/11),
   2 (17/11), 8 (18/11), 3 (19/11), 4 (20/11), 5 (21/11), 9 (22/11), 6 (23/11).
 - **Giai đoạn 6** «Hai kho bên cạnh gọi và đọc» đóng ngày 2026-11-23, trong PR mang bản cập nhật này: 6.0 (đề bài
   0013, đã duyệt), 6.1 (Repo Standards gọi plugin, ba lát ở hai kho), 6.2 (kit đọc sổ màn, PR #27 của kho kit) và 6.3
@@ -80,16 +82,48 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
   ghi. Điều còn biết lúc đóng nằm ở `closed` của giai đoạn, đáng nhớ nhất: hai plugin được nạp trước cho phiên chạy,
   còn lối của người dùng trên máy mới thì chưa chứng.
 - **Giai đoạn 10** «Cắm đồ bên cạnh» là giai đoạn đang mở, theo đề bài 0014 chủ kho duyệt ngày 2026-11-23 (PR #103,
-  gộp ở `cf016bd`, do một phiên hỏi đáp viết; phiên điều phối không soát PR ấy). Mục 10.0 (đề bài) xong; mục 10.2 đang
-  làm: một trên bảy phích đã đo, là hệ «Design System» của Claude (quyết định 0088). Chưa gì được dựng. Giai đoạn 7
-  «Lõi của họ sản phẩm» đứng sau nó.
-- **Cổng của kho này:** 42 quyết định giữ bằng 78 lệnh kiểm. `status --roles` in «33 trên 33 giá trị có lời chủ repo».
+  do một phiên hỏi đáp viết; phiên điều phối không soát PR ấy). Xong ba trên năm mục: 10.0 (đề bài), 10.1 (bước chọn
+  phích) và 10.3 (cầu nối vào). Mục 10.4 (cầu nối ra) đã dựng cả hai lát, còn lượt thử có người của dòng «xong khi».
+  Mục 10.2 đang làm: một trên bảy phích đã đo, là hệ «Design System» của Claude (quyết định 0088). Giai đoạn 7 «Lõi
+  của họ sản phẩm» đứng sau nó.
+- **Cổng của kho này:** 43 quyết định giữ bằng 83 lệnh kiểm. `status --roles` in «33 trên 33 giá trị có lời chủ repo».
   `status` in bộ sổ lúc ra đời đủ cả 7 sổ.
 - **Phiếu quyết định:** không câu nào chờ chủ kho. Hai quyền chỉ chủ kho cho, từng bước một: mọi bước ở Inventory,
   delivery-loop và Repo Standards; và chạy phép đo token chính thức.
-- **Sổ giới hạn:** 387 dòng, 300 đang mở, 20 mức nặng. **Việc gác lại:** 14 mục trong sáu nhóm.
+- **Sổ giới hạn:** 414 dòng, 321 đang mở, 20 mức nặng; 22 dòng mở trong ngày 2026-11-23, phần lớn của giai đoạn 10
+  (vùng `capabilities`). **Việc gác lại:** 14 mục trong sáu nhóm.
 - **Lượt thử:** 16 lần, 31 dòng ở `docs/trials/results.tsv`. Vai dựng màn: lần 11 tới 14 cho 9, 11, 14, 13 chỗ phải
-  đoán. Vai dẫn dắt: lần 15 và 16 cho 10 và 8.
+  đoán. Vai dẫn dắt: lần 15 và 16 cho 10 và 8. Ngoài chuỗi đếm ấy có hai bản ghi của ngày 2026-11-23: lượt thử cuối
+  của giai đoạn 6 (`born-through-repo-standards.md`) và số đo hệ của Claude (`claude-design-system-measured.md`).
+
+### Ngày 2026-11-23, giai đoạn 10
+
+Mười hai PR, từ plugin 0.37.0 tới 0.48.0. Một phiên phụ dựng; chủ kho nói thẳng với phiên ấy từng lời dựng và phần lớn
+lời gộp. Phiên điều phối soát độc lập, sáu PR đầu là soát sau khi gộp.
+
+- **Mục 10.1, bước chọn phích** (PR #106 và #107, quyết định 0089 và 0090): lệnh `plugs` bày hai mươi ổ với phích của
+  plugin và các ứng viên ngoài, mỗi ứng viên có trạng thái, nhãn đo và điều nó cần; hỏi tối đa bốn câu một lượt, chỉ ở
+  ổ có ứng viên đã đo và có mặt; lời đáp thành dòng `plug-<ổ>` của sổ quyết định. Skill truyền phiên có skill và máy
+  chủ nào; phích đã chọn mà vắng thì lùi về phích của plugin và nói đang lùi; có trang toàn cảnh; `new` và `adopt` gọi
+  bước một lần.
+- **Mục 10.3, cầu nối vào** (PR #108, quyết định 0091): lệnh `bring-in` đọc tệp token, `DESIGN.md`, bản xuất biến và
+  một mẫu hệ của Claude thành một hướng ứng viên; biểu thức thành giá trị cuối; giá trị ngược sổ thành câu hỏi.
+- **Mục 10.4, cầu nối ra** (PR #109 và #110, quyết định 0092 và 0093): lệnh `bring-out` sinh `DESIGN.md` và bộ hệ dưới
+  `design/export/system/` từ sổ, cổng đỏ khi bản xuất cũ hay bị sửa tay. `bring-out --send <phích>` giữ lời cho phép
+  gửi ra ngoài: script không tự gửi gì, chỉ in gửi gì và đi đâu khi đã có dòng cho phép; skill gửi, có người xem.
+- **Bảy PR sửa sau khi soát** (PR #111 tới #117, quyết định 0094 và 0095), mười tám điểm:
+  - `plugs`: câu hỏi bị rút khi phích của nó rời đi; `--reask <ổ>` để chọn lại, in dòng nào rời sổ;
+  - `bring-in`: đọc `rgb()`, `hsl()` và hex tám chữ số, không bao giờ lấy màu của vai khác thay màu chính; câu hỏi
+    không còn mang đường dẫn của máy;
+  - bản xuất đứng được trên bản clone mới (sổ linh kiện không nằm trong git), tên từ sổ được bọc;
+  - lời cho phép chỉ tính cho đúng các tệp và nơi đến dòng sổ ghi; «giữ khuyến nghị» tính theo luật, không theo tệp
+    câu hỏi; lời chủ kho trong tệp phích ghi kèm nơi đến lúc nói, và bài kiểm của plugin đỏ khi nơi đến đổi mà lời
+    chưa được nói lại.
+- **Chưa chứng:** cầu nối vào và ra mới chạy trên mẫu dữ liệu, chưa có bản xuất thật từ Claude Design hay Figma; bộ
+  kiểm chính thức của `DESIGN.md` chưa chạy (cần mạng); chưa lần gửi thật nào; lộ trình soát màn với phích vắng mặt
+  mới thử ở mức hàm.
+- **Chưa có lời đáp của chủ kho**, ngoài lời gộp: sáu «quyết định cho chủ repo» trong mô tả PR #106 (đáng chú ý:
+  `design-critique` được coi là đã đo theo quyết định 0073) và bốn trong PR #110.
 
 ### Ngày 2026-11-22, sau khi đổi tài khoản
 
@@ -199,12 +233,22 @@ Giai đoạn 6 đóng ngày 2026-11-23: ngày và chứng cứ nằm ở `closed
 kiến trúc còn vẽ giai đoạn 6 đang mở, theo kế hoạch đọc ngày 2026-11-22, và chưa có giai đoạn 10; việc vẽ lại đã vào
 việc gác lại.
 
-**Việc kế là giai đoạn 10** «Cắm đồ bên cạnh», theo đề bài
-[0014](../wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md): một bước thiết lập chọn phích cho từng ổ (mục
-10.1), đo các phích ngoài theo thứ tự chủ kho chốt (mục 10.2, mỗi lượt đo hỏi chủ kho trước vì tốn token), cầu nối vào
-(10.3) và cầu nối ra (10.4). `make plan` in các mục. Phiên điều phối chưa đọc kỹ đề bài ấy: đọc nó trước khi dựng gì.
+**Việc kế là hai mục còn lại của giai đoạn 10**, theo đề bài
+[0014](../wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md). Cả hai cần lời chủ kho trước khi chạy:
 
-Ngoài giai đoạn 6:
+1. **Mục 10.2, đo các phích ngoài** theo bốn thước, trên bản sao bỏ đi bằng đề chuẩn, mỗi phích một bản quyết định.
+   Thứ tự chủ kho chốt: Claude Design (đã đo), rồi ReUI qua `intake`, frontend-design ở ổ dựng màn, Stitch qua
+   `DESIGN.md`, rồi Open Design, Figma và Mobbin. Mỗi lượt đo hỏi chủ kho trước, kèm ước tính; lượt đo Claude Design
+   tốn khoảng 228 nghìn token. Phích nào cần tài khoản hay gửi dữ liệu ra ngoài thì nói trước gửi gì, đi đâu.
+2. **Mục 10.4, lượt thử của dòng «xong khi»** (tiêu chí 13): trên một repo mới, có người, chủ kho chọn phích cho các ổ
+   trong một lượt không quá bốn câu, và một màn dựng qua phích ngoài đã chọn vẫn qua cổng, số chỗ đoán không tăng, số
+   lần quyết thay bằng 0. Hôm nay lệnh `plugs` chưa hỏi câu nào trên repo thật: hai phích đã đo chỉ có ở phiên, và chỉ
+   hệ của Claude là khuyến nghị được, ở ổ bàn giao và ổ tài sản thương hiệu.
+
+Sau hai mục ấy: đóng giai đoạn 10, theo lời chủ kho, rồi giai đoạn 7 «Lõi của họ sản phẩm», cần chủ kho tạo repo cho
+lõi.
+
+Ngoài giai đoạn đang mở:
 
 - **Một việc nhỏ còn nợ, ngoài kế hoạch:** lệnh `status` thường chưa nêu các dòng chưa trọn của `status --roles`
   thành bước kế. Ghi ở `wiki/log.md` ngày 2026-11-22; chưa dựng.
@@ -214,6 +258,8 @@ Ngoài giai đoạn 6:
 ### Đang chờ lời chủ kho
 
 - Mỗi lượt đo phích ngoài của mục 10.2, và mỗi phích cần tài khoản hay gửi dữ liệu ra ngoài (giai đoạn 10).
+- Lượt thử có người của mục 10.4, dòng «xong khi» của giai đoạn 10.
+- Sáu «quyết định cho chủ repo» của PR #106 và bốn của PR #110: chủ kho đã gộp, chưa đáp từng câu.
 - Có khai phần thiết kế của kho này với kit nghiệm thu không (giới hạn `design-floor-not-declared-to-kit`).
 - Bộ sổ lúc ra đời là bảy sổ thay cho mười sổ của câu 3: chủ kho đã được báo và bảo commit, chưa nói gì thêm.
 - Mức và hướng xử lý của các dòng giới hạn do máy đặt ở giai đoạn 5 và 9. Đáng chú ý: `unmarked-action-control-unseen`
@@ -223,9 +269,10 @@ Ngoài giai đoạn 6:
 - Nút trên toast có tính vào các hành động của một màn hay không; lời của trạng thái đang chờ, nơi hai luật kéo ngược
   nhau.
 - Ai giữ giới hạn mức nặng `owner-calls-trusts-a-written-answer` (mục gác lại của nhóm «Ai trả lời»).
-- Xoá thư mục làm việc `kit-trial-5-0` (sạch, nhánh của nó đã mất trên remote).
+- Dọn bốn thư mục làm việc và mười tám nhánh đã gộp trên remote. `kit-trial-5-0` sạch, nhánh của nó đã mất trên
+  remote; ba thư mục kia mang nhánh đã gộp.
 
-## Cách đã làm ở giai đoạn 5, 9 và 6
+## Cách đã làm ở giai đoạn 5, 9, 6 và 10
 
 Một vòng lặp, mỗi bước có lời chủ kho:
 
@@ -255,6 +302,16 @@ Một vòng lặp, mỗi bước có lời chủ kho:
 - Lời cho phép ở một kho bên cạnh chỉ phủ đúng lát được hỏi. Lát gộp xong thì kho ấy lại là chỉ đọc.
 - Chủ kho có thể nói thẳng với một phiên phụ. Khi phiên phụ ghi «chủ kho đã đáp», mở bản ghi của phiên ấy xem câu ấy
   có thật do chủ kho gõ không, rồi mới dựa vào.
+- Ở giai đoạn 10, chủ kho nói thẳng với phiên dựng cả lời dựng lẫn lời gộp, nên sáu PR gộp trước khi phiên điều phối
+  soát. Soát sau khi gộp vẫn đáng làm: nó tìm ra mười tám điểm, trong đó có chỗ lời cho phép gửi ra ngoài còn hiệu
+  lực khi nơi đến đổi. Điểm tìm ra đi thành PR sửa riêng, soát lại ở đúng đầu nhánh rồi mới gộp.
+- Khi nhiều PR cùng lên bản plugin, chúng xếp chồng: gộp theo thứ tự, trỏ PR kế về nhánh chính sau mỗi lần gộp, và so
+  nội dung nhánh chính với đỉnh chồng đã soát.
+- Một lượt soát giao cho tác tử con cũng là báo cáo, chưa phải bằng chứng: phiên điều phối tự tái hiện từng phát hiện
+  trên một bản sao sạch trước khi báo chủ kho. Bản sao sạch (`git archive`, không có tệp nào ngoài git) đã lộ ra việc
+  bản xuất phụ thuộc sổ linh kiện, tệp chỉ cổng kiểm mới sinh.
+- Ở phần dữ liệu rời máy, hỏi «điều gì còn nhớ sau bước này»: một luật chỉ sống trong một câu hỏi thì mất khi câu hỏi
+  ấy được trả lời. Ba vòng sửa của phần gửi ra ngoài đều là cùng một gốc ấy.
 - Một lượt thử độc lập tốn token: hỏi chủ kho trước mỗi lượt, kèm ước tính. Đề chuẩn dưới `docs/trials/briefs/` đưa
   nguyên văn; màn của đề không bao giờ dựng trong kho này.
 
