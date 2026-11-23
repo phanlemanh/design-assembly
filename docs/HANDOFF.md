@@ -1,7 +1,7 @@
 # Bàn giao phiên làm việc
 
 Viết lại ngày 2026-11-22, lúc chủ kho đổi tài khoản Claude trên cùng máy này, và cập nhật ngày 2026-11-23 theo lời chủ
-kho («Cập nhật cả hai»), khi mục 6.1 và 6.3 đã xong, lát ở kho kit nghiệm thu đã có PR chờ gộp, và lượt thử cuối đã chạy ở một phiên khác. Trang này đủ để một phiên Claude Code mới tiếp tục mà không cần bản ghi của phiên cũ. Phiên mới không thấy cuộc trò chuyện cũ, không thấy các phiên phụ đã lưu
+kho («Cập nhật cả hai»), khi mục 6.1 và 6.3 đã xong, lát ở kho kit nghiệm thu đã gộp, và lượt thử cuối đã chạy ở một phiên khác. Trang này đủ để một phiên Claude Code mới tiếp tục mà không cần bản ghi của phiên cũ. Phiên mới không thấy cuộc trò chuyện cũ, không thấy các phiên phụ đã lưu
 trữ, không có thư mục tạm của phiên cũ, và **không thừa hưởng quyền nào chủ kho đã cho bằng lời**.
 
 ## Câu để dán vào phiên mới
@@ -13,13 +13,13 @@ trữ, không có thư mục tạm của phiên cũ, và **không thừa hưởn
 Các kho đặt cạnh nhau dưới `~/dev`, vì lệnh của kho này tìm kho bên cạnh theo đường tương đối (`mk/plugin.mk`).
 Ở thư mục nhà, mỗi kho còn một lối tắt cùng tên trỏ vào `~/dev`; kho này được chuyển vào `~/dev` ngày 2026-11-22.
 
-| Thư mục                    | Là gì                                                            | Quyền của máy                                                                       |
-| -------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `~/dev/design-assembly`    | Kho này, `phanlemanh/design-assembly`, công khai                 | Làm việc ở đây                                                                      |
-| `~/dev/onehub-inventory`   | Repo kiểm chứng; mọi lệnh `*-reference` đọc nó                   | Chỉ đọc; mỗi bước sửa phải nêu trước khi làm                                        |
-| `~/dev/delivery-loop`      | Kho kit nghiệm thu; bản checkout chính đứng ở nhánh `chuyen-nha` | Chỉ sửa cho lát 4, trong thư mục làm việc của lát ấy; bản checkout chính không đụng |
-| `~/dev/delivery-loop-main` | Bản sao thứ hai của kho kit, việc dở của chủ kho                 | Không đụng                                                                          |
-| `~/dev/repo-standards`     | Kho Repo Standards                                               | Chỉ đọc; lời cho phép sửa chỉ phủ lát 3, đã gộp                                     |
+| Thư mục                    | Là gì                                                            | Quyền của máy                                                              |
+| -------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `~/dev/design-assembly`    | Kho này, `phanlemanh/design-assembly`, công khai                 | Làm việc ở đây                                                             |
+| `~/dev/onehub-inventory`   | Repo kiểm chứng; mọi lệnh `*-reference` đọc nó                   | Chỉ đọc; mỗi bước sửa phải nêu trước khi làm                               |
+| `~/dev/delivery-loop`      | Kho kit nghiệm thu; bản checkout chính đứng ở nhánh `chuyen-nha` | Chỉ đọc: lời cho phép chỉ phủ lát 4, đã gộp; bản checkout chính không đụng |
+| `~/dev/delivery-loop-main` | Bản sao thứ hai của kho kit, việc dở của chủ kho                 | Không đụng                                                                 |
+| `~/dev/repo-standards`     | Kho Repo Standards                                               | Chỉ đọc; lời cho phép sửa chỉ phủ lát 3, đã gộp                            |
 
 Thứ nằm trên đĩa và vẫn còn sau khi đổi tài khoản:
 
@@ -70,11 +70,11 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
 
 - **Nhánh chính** ở `bdf2bcc` cộng PR mang bản cập nhật này. `make check` xanh ngày 2026-11-23; plugin có 1098 bài
   kiểm, 0 bài bỏ qua. Một PR đang mở ở kho này: #100, bản ghi lượt thử cuối, do một phiên khác mở.
-- **Kế hoạch: 45 trên 49 mục.** Tám giai đoạn đã đóng, chứng cứ ghi ở `closed` của từng giai đoạn: 0 và 1 (16/11),
+- **Kế hoạch: 46 trên 49 mục.** Tám giai đoạn đã đóng, chứng cứ ghi ở `closed` của từng giai đoạn: 0 và 1 (16/11),
   2 (17/11), 8 (18/11), 3 (19/11), 4 (20/11), 5 (21/11), 9 (22/11).
-- **Giai đoạn 6** «Hai kho bên cạnh gọi và đọc» đang mở, xong 3 trên 4 mục: 6.0 (đề bài 0013, đã duyệt), 6.1 (Repo
-  Standards gọi plugin, ba lát ở hai kho) và 6.3 (tài liệu kiến trúc). Mục 6.2 chờ gộp ở kho kit. **Dòng «xong
-  khi»:** một phiên khác đã chạy lượt thử cuối ngày 2026-11-23 và ghi là đạt, ở PR #100 chưa gộp; phiên điều phối chưa
+- **Giai đoạn 6** «Hai kho bên cạnh gọi và đọc» đang mở, xong cả 4 mục: 6.0 (đề bài 0013, đã duyệt), 6.1 (Repo
+  Standards gọi plugin, ba lát ở hai kho), 6.2 (kit đọc sổ màn, PR #27 của kho kit) và 6.3 (tài liệu kiến trúc).
+  **Dòng «xong khi»:** một phiên khác đã chạy lượt thử cuối ngày 2026-11-23 và ghi là đạt, ở PR #100 chưa gộp; phiên điều phối chưa
   soát bản ghi ấy, và giai đoạn chưa đóng. Giai đoạn 7 chưa mở.
 - **Cổng của kho này:** 42 quyết định giữ bằng 78 lệnh kiểm. `status --roles` in «33 trên 33 giá trị có lời chủ repo».
   `status` in bộ sổ lúc ra đời đủ cả 7 sổ.
@@ -122,8 +122,8 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
 - **Thêm một PR không qua phiên điều phối** (PR #101, plugin 0.36.2, ngoài kế hoạch, gộp ngày 2026-11-23): trang luật
   nêu đúng phông mà trình nạp phông của bản dựng đặt, và sổ bàn giao vẽ bảng thành bảng. Cũng do phiên đưa plugin lên
   bản mới ở Inventory làm; phiên điều phối chỉ đọc dòng nhật ký của nó, không soát.
-- **Lát 4, ở kho kit** (mục 6.2): đã dựng ở một phiên phụ sau lời cho phép của chủ kho cho đúng lát ấy; chủ kho đã ký
-  Cổng Bằng chứng của kit; PR #27 của kho ấy chờ CI xanh và lời gộp. Xem «Việc kế».
+- **Lát 4, ở kho kit** (mục 6.2): dựng ở một phiên phụ sau lời cho phép của chủ kho cho đúng lát ấy; chủ kho ký hai
+  cổng của kit; PR #27 của kho ấy gộp ngày 2026-11-23. Xem «Việc kế».
 - **Lượt thử cuối** (tiêu chí 11): một phiên khác đã chạy, bản ghi ở PR #100 chưa gộp. Xem «Việc kế».
 
 ### Hai ngày trước đó làm được gì
@@ -138,33 +138,33 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
 
 ## Việc kế
 
-Đề bài 0013 chia giai đoạn 6 thành sáu PR ở ba kho. Bốn đã gộp; hai đang mở, chờ lời chủ kho:
+Đề bài 0013 chia giai đoạn 6 thành sáu PR ở ba kho. Năm đã gộp; một đang mở, chờ lời chủ kho:
 
-1. **Kit nghiệm thu: bên đọc** (lát 4, mục 6.2, tiêu chí 9 và 10). PR #27 của kho kit, nhánh
-   `claude/kit-reads-screen-ledger-b46eb4`, làm ở một phiên phụ trong thư mục làm việc
-   `.claude/worktrees/b3-cat-sang-moc-3-0-fb48ef` của kho ấy.
-   - Kit đi theo vòng của chính nó, vòng `dac-ta-ux-doc-so-man`. Đã dựng: lệnh
+1. **Kit nghiệm thu: bên đọc** (lát 4, mục 6.2, tiêu chí 9 và 10): **đã gộp.** PR #27 của kho kit gộp ngày 2026-11-23
+   ở `b0f88c4`, từ đầu nhánh `ce649fd`, sau khi CI của PR xanh ở đúng đầu ấy. Lời gộp là dòng «gộp: khi CI xanh» chủ
+   kho gõ trong lệnh ký Cổng Bằng chứng của kit (đã đối chiếu bản ghi của phiên lát ấy).
+   - Kit đi theo vòng của chính nó, vòng `dac-ta-ux-doc-so-man`. Nó có lệnh
      `plugins/acceptance-gate/scripts/so-man.cjs` với hai lối, một lối điền sẵn kiểm kê màn và mã trạng thái từ lệnh
      đọc màn của plugin, một lối kiểm bảng trạng thái so với sổ; và một khối thông tin trên thẻ Cổng Phạm vi, không
      chặn cổng hay lệnh gộp nào. Ở repo không có lệnh đọc, hai lối im và thoát 0.
-   - **Chủ kho duyệt Cổng Phạm vi và ký Cổng Bằng chứng của kit ngày 2026-11-23**, bằng lệnh của kit gõ trong phiên ấy
-     (đã đối chiếu bản ghi của phiên).
    - **Phiên điều phối đã soát độc lập ở `4625ed4`** (2026-11-23), trên một bản sao bỏ đi của kho kit:
      - bài kiểm của lát chạy đủ 64 ca, không ca nào đỏ (bản sao phải có git, ba ca cần gốc nhánh);
      - lệnh của kit gọi lệnh đọc màn thật của kho này: điền đúng 2 màn và 18 mã trạng thái, bảng nó điền kiểm ra khớp;
      - ba lỗi cố ý (trạng thái sổ không có, màn sổ không có, thiếu trạng thái sổ bắt phải có) đều đỏ, nêu đích danh.
 
-     Chưa chứng: cả vòng của kit chạy trên một repo thật có lệnh đọc.
+     Hai commit sau bản ấy chỉ thêm bốn dòng vào sổ giới hạn của kit và ghim lại bằng chứng. Sau khi gộp, nhánh chính
+     của kho kit (đọc qua GitHub) giữ đúng lệnh và bộ bài kiểm đã soát.
 
-   - **CI của PR #27 chưa xanh ở `4625ed4`.** Bước cổng của kit đỏ vì bằng chứng của hồ sơ phải ghim lại sau khi nhánh
-     gộp nhánh chính của kho ấy; phiên của lát đang ghim lại, nên đầu nhánh sẽ đổi. Đầu nhánh đã lên `f8a37ea` (thêm bốn dòng vào sổ giới hạn của kit, mã không đổi); CI ở đó chưa có kết quả khi viết trang này. Trước khi báo chủ kho gộp: đọc lại
-     đầu nhánh, xem commit mới chỉ đổi hồ sơ bằng chứng, và CI xanh ở đúng đầu ấy. Lời gộp là của chủ kho.
+   - CI nhánh chính của kho kit ở `b0f88c4` xanh (đọc qua GitHub ngày 2026-11-23): bốn bước xanh, một bước bỏ qua.
+   - Chưa chứng: cả vòng của kit chạy trên một repo thật có lệnh đọc màn.
    - PR #25 của kho kit mở do một lần bấm nhầm và đã đóng theo lời chủ kho. PR #26 của kho ấy là việc khác của chủ kho,
      đã gộp.
    - Tên màn ở hàng kiểm kê là điều sổ màn ghi ở `title`. Ở kho này đó là khoá chữ (`overdueTitle`), không phải tên
      người đọc được: chưa ai quyết lệnh đọc màn có nên đổi khoá thành chữ không.
    - Kit không biết cách viết khoá riêng của từng repo: nó đọc `keys_not_found` để biết khi nào câu trả lời thiếu. Ở
      repo kiểm chứng, lệnh đọc màn chưa cho mã trạng thái nào, vì repo ấy giữ trạng thái ở một trang chữ.
+   - Giới hạn `nothing-declared-to-kit` còn mở. Tiêu chí 13 bảo đóng nó hoặc thu hẹp đúng điều còn hở khi đóng giai
+     đoạn; sửa sổ giới hạn là sửa plugin, tức một bản plugin mới.
 2. **Lượt thử cuối** (tiêu chí 11, dòng «xong khi»). Một phiên khác, không phải phiên viết trang này, đã chạy ngày
    2026-11-23 và mở PR #100 ở kho này: CI xanh, chưa gộp.
    - Bản ghi `docs/trials/born-through-repo-standards.md`, trên nhánh của PR ấy, nói đạt: một thư mục rỗng ra đời qua
@@ -189,7 +189,6 @@ Ngoài giai đoạn 6:
 
 ### Đang chờ lời chủ kho
 
-- Lời gộp cho PR #27 của kho kit (lát 4), khi CI của nó xanh ở đầu nhánh cuối.
 - Lời gộp cho PR #100 (bản ghi lượt thử cuối), rồi lời đóng giai đoạn 6.
 - Bộ sổ lúc ra đời là bảy sổ thay cho mười sổ của câu 3: chủ kho đã được báo và bảo commit, chưa nói gì thêm.
 - Mức và hướng xử lý của các dòng giới hạn do máy đặt ở giai đoạn 5 và 9. Đáng chú ý: `unmarked-action-control-unseen`
