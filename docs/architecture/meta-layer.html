@@ -250,7 +250,7 @@
       <header>
         <p class="eyebrow">
           Tài liệu kiến trúc · viết 2026-11-13 · ba vai được duyệt 2026-11-22 · đối chiếu với kế
-          hoạch 2026-11-22
+          hoạch 2026-11-24
         </p>
         <h1>Design-assembly: lớp meta tạo và giữ design system cho nhiều repo</h1>
         <p class="lede">
@@ -334,14 +334,16 @@
                 </td>
               </tr>
               <tr>
-                <td><strong>Đã có và đang chạy</strong><br />2026-11-22</td>
+                <td><strong>Đã có và đang chạy</strong><br />2026-11-24</td>
                 <td>
-                  Hợp đồng mười ba sổ, mỗi sổ một hình dạng, và các lệnh kiểm giữ nó. Mười ba lệnh
+                  Hợp đồng mười ba sổ, mỗi sổ một hình dạng, và các lệnh kiểm giữ nó. Mười sáu lệnh
                   chung một khế ước gọi: <code>status</code>, <code>audit</code>, <code>new</code>,
                   <code>adopt</code>, <code>decide</code>, <code>upgrade</code>,
                   <code>handoff</code>, <code>find</code>, <code>intake</code>,
                   <code>inventory</code>, <code>change</code>, <code>brief</code>,
-                  <code>review</code>. Công cụ cài trong repo có thêm hai lệnh đọc để bên khác gọi:
+                  <code>review</code>, và ba lệnh của giai đoạn 10: <code>plugs</code> chọn phích
+                  cho từng ổ, <code>bring-in</code> và <code>bring-out</code> là cầu nối vào và ra.
+                  Công cụ cài trong repo có thêm hai lệnh đọc để bên khác gọi:
                   <code>affected</code> nói một thay đổi chạm màn nào, <code>screen-facts</code> đọc
                   màn, trạng thái và hành động từ sổ màn. Một lối đặt bộ sổ lúc ra đời mà không hỏi
                   ai (<code>adopt --starter</code>). Kho dùng lại của một repo: sổ nhập kho và sổ
@@ -353,13 +355,15 @@
                 </td>
               </tr>
               <tr>
-                <td><strong>Chưa dựng, hoặc mới dựng một phía</strong><br />2026-11-22</td>
+                <td><strong>Chưa dựng, hoặc mới dựng một phía</strong><br />2026-11-24</td>
                 <td>
-                  Lời gọi từ Repo Standards và bên đọc của delivery-loop: thiết kế đã duyệt, phía
-                  plugin đã dựng, phía hai repo kia chưa (giai đoạn 6). Lõi của họ sản phẩm, việc
-                  thừa hưởng, kho chung của họ và việc nâng hạng (giai đoạn 7). Sàn thiết kế chuyển
-                  từ Repo Standards sang plugin: để sang bên, cần đề bài riêng. Bộ chỉ số đo hiệu
-                  quả: mới có sổ giới hạn và bảng kết quả của các lượt thử.
+                  Phích ngoài: bước chọn phích, cầu nối vào và cầu nối ra đã dựng, nhưng mới ba trên
+                  bảy phích được đo, và chưa lượt thử có người nào (giai đoạn 10). Lõi của họ sản
+                  phẩm, việc thừa hưởng, kho chung của họ và việc nâng hạng (giai đoạn 7). Sàn thiết
+                  kế chuyển từ Repo Standards sang plugin: để sang bên, cần đề bài riêng. Bộ chỉ số
+                  đo hiệu quả: mới có sổ giới hạn và bảng kết quả của các lượt thử. Lời gọi từ Repo
+                  Standards và bên đọc của delivery-loop đã dựng ở cả hai phía (giai đoạn 6, đóng
+                  2026-11-23).
                 </td>
               </tr>
             </tbody>
@@ -436,7 +440,8 @@
                 <td>một hình dạng</td>
                 <td>
                   ngày kiểm kê: không. Đã chốt 2026-11-22: <strong>đọc</strong>, qua lệnh đọc màn
-                  của plugin; phía plugin đã dựng, phía delivery-loop chưa
+                  của plugin; cả hai phía đã dựng, phía delivery-loop gộp ngày 2026-11-23 (đọc ngày
+                  2026-11-24)
                 </td>
                 <td>hình dạng khác</td>
                 <td>
@@ -516,8 +521,8 @@
             <strong>Sổ màn và trạng thái, phía delivery-loop:</strong> chủ repo đã chốt là
             delivery-loop đọc sổ màn và bảng trạng thái, bằng cách gọi lệnh đọc màn của plugin
             (<code>screen-facts</code>, quyết định 0086), thay cho việc khai lại bằng tay ở từng
-            tính năng. Lệnh đọc màn đã dựng và đã gộp. Phần đọc ở delivery-loop chưa dựng: nó chờ
-            chủ repo cho phép sửa ở repo ấy. Việc này mới xong một nửa.
+            tính năng. Lệnh đọc màn đã dựng và đã gộp; phần đọc ở delivery-loop đã dựng và đã gộp
+            ngày 2026-11-23 (đọc ngày 2026-11-24).
           </li>
           <li>
             <strong>Kho khối, thang dùng lại; danh mục thư viện mua:</strong> đã có, là sổ nhập kho
@@ -3227,11 +3232,13 @@
           </table>
         </div>
         <p>
-          Bảng trên là đích, và chủ repo đã duyệt ba vai ấy ngày 2026-11-22. Đọc cùng ngày, hai repo
-          bên cạnh đứng ở chỗ này: Repo Standards chưa gọi plugin ở đâu, vẫn đặt sàn thiết kế và hỏi
-          màu thương hiệu, và đã có lối riêng cho repo đã có; delivery-loop đọc sổ token, sổ linh
-          kiện và trang kiểu màn, còn màn và trạng thái của mỗi tính năng thì người khai lại bằng
-          tay. Giai đoạn 6 của kế hoạch dựng lời gọi và lời đọc (mục 14).
+          Bảng trên là đích, và chủ repo đã duyệt ba vai ấy ngày 2026-11-22. Đọc ngày 2026-11-24,
+          hai repo bên cạnh đã làm vai của mình: lối <code>new</code> của Repo Standards gọi
+          <code>adopt --starter</code> sau khi đặt sàn, và lối <code>adopt</code> của nó gọi
+          <code>audit</code> rồi <code>adopt</code> của plugin; delivery-loop điền sẵn kiểm kê màn
+          và mã trạng thái từ lệnh đọc màn của plugin, và kiểm bảng trạng thái so với sổ. Repo
+          Standards vẫn đặt sàn thiết kế và hỏi màu thương hiệu. Giai đoạn 6 của kế hoạch dựng lời
+          gọi và lời đọc ấy, và đóng ngày 2026-11-23 (mục 14).
         </p>
         <h3>Những gì chuyển chỗ</h3>
         <p>
@@ -4064,8 +4071,10 @@
           </table>
         </div>
         <p>
-          Hai lời gọi từ Repo Standards ở hai dòng đầu là thiết kế đã duyệt của giai đoạn 6; phía
-          Repo Standards chưa dựng (mục 14). Tới khi ấy, người gọi plugin bằng tay ở cả hai nhịp.
+          Hai lời gọi từ Repo Standards ở hai dòng đầu đã dựng ở giai đoạn 6 (đóng 2026-11-23, mục
+          14). Đọc ngày 2026-11-24, điều chưa chứng: trên một máy mới, plugin chỉ bật từ phiên sau,
+          nên ở đó người cài plugin rồi gọi nó, hoặc lệnh <code>doctor</code> của Repo Standards
+          nhắc.
         </p>
         <h3>Đường nhập kho</h3>
         <p>
@@ -4789,10 +4798,10 @@
         <figure id="hinh-5">
           <div class="scroll">
             <svg
-              viewBox="0 24 1000 476"
+              viewBox="0 24 1000 596"
               xmlns="http://www.w3.org/2000/svg"
               role="img"
-              aria-label="Lộ trình: mười giai đoạn của kế hoạch chính thức, theo thứ tự làm"
+              aria-label="Lộ trình: mười một giai đoạn của kế hoạch chính thức, theo thứ tự làm, và năm mục của giai đoạn 10"
             >
               <defs>
                 <marker
@@ -4837,17 +4846,17 @@
               />
               <line
                 x1="40"
-                y1="340"
+                y1="460"
                 x2="976"
-                y2="340"
+                y2="460"
                 stroke="rgba(45,49,66,0.22)"
                 stroke-width="1"
               />
               <line
                 x1="40"
-                y1="428"
+                y1="548"
                 x2="976"
-                y2="428"
+                y2="548"
                 stroke="rgba(45,49,66,0.22)"
                 stroke-width="1"
               />
@@ -4855,42 +4864,33 @@
                 x1="176"
                 y1="68"
                 x2="176"
-                y2="428"
+                y2="548"
                 stroke="rgba(45,49,66,0.22)"
                 stroke-width="1"
               />
               <line
-                x1="336"
+                x1="376"
                 y1="68"
-                x2="336"
-                y2="340"
+                x2="376"
+                y2="460"
                 stroke="rgba(45,49,66,0.22)"
                 stroke-width="0.8"
                 stroke-dasharray="4,4"
               />
               <line
-                x1="496"
+                x1="576"
                 y1="68"
-                x2="496"
-                y2="340"
+                x2="576"
+                y2="460"
                 stroke="rgba(45,49,66,0.22)"
                 stroke-width="0.8"
                 stroke-dasharray="4,4"
               />
               <line
-                x1="656"
+                x1="776"
                 y1="68"
-                x2="656"
-                y2="340"
-                stroke="rgba(45,49,66,0.22)"
-                stroke-width="0.8"
-                stroke-dasharray="4,4"
-              />
-              <line
-                x1="816"
-                y1="68"
-                x2="816"
-                y2="340"
+                x2="776"
+                y2="460"
                 stroke="rgba(45,49,66,0.22)"
                 stroke-width="0.8"
                 stroke-dasharray="4,4"
@@ -4904,7 +4904,7 @@
                 text-anchor="start"
                 letter-spacing="0.18em"
               >
-                THỨ 1 TỚI 5
+                THỨ 1 TỚI 4
               </text>
               <text
                 x="40"
@@ -4915,103 +4915,121 @@
                 text-anchor="start"
                 letter-spacing="0.18em"
               >
-                THỨ 6 TỚI 10
+                THỨ 5 TỚI 8
               </text>
               <text
                 x="40"
-                y="388"
+                y="372"
                 fill="#4f5d75"
                 font-size="9"
                 font-family="'Geist Mono', monospace"
                 text-anchor="start"
                 letter-spacing="0.18em"
               >
-                GIAI ĐOẠN 6
+                THỨ 9 TỚI 11
+              </text>
+              <text
+                x="40"
+                y="508"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="start"
+                letter-spacing="0.18em"
+              >
+                GIAI ĐOẠN 10
               </text>
               <line
-                x1="320"
+                x1="360"
                 y1="128"
-                x2="352"
+                x2="392"
                 y2="128"
                 stroke="#4f5d75"
                 stroke-width="1.2"
                 marker-end="url(#f5-arrow)"
               />
               <line
-                x1="480"
+                x1="560"
                 y1="128"
-                x2="512"
+                x2="592"
                 y2="128"
                 stroke="#4f5d75"
                 stroke-width="1.2"
                 marker-end="url(#f5-arrow)"
               />
               <line
-                x1="640"
+                x1="760"
                 y1="128"
-                x2="672"
+                x2="792"
                 y2="128"
                 stroke="#4f5d75"
                 stroke-width="1.2"
                 marker-end="url(#f5-arrow)"
               />
-              <line
-                x1="800"
-                y1="128"
-                x2="832"
-                y2="128"
+              <path
+                d="M 876 172 V 180 Q 876 188 868 188 H 284 Q 276 188 276 196 V 204"
+                fill="none"
                 stroke="#4f5d75"
                 stroke-width="1.2"
                 marker-end="url(#f5-arrow)"
               />
               <line
-                x1="320"
+                x1="360"
                 y1="248"
-                x2="352"
+                x2="392"
                 y2="248"
                 stroke="#4f5d75"
                 stroke-width="1.2"
                 marker-end="url(#f5-arrow)"
               />
               <line
-                x1="480"
+                x1="560"
                 y1="248"
-                x2="512"
+                x2="592"
                 y2="248"
                 stroke="#4f5d75"
                 stroke-width="1.2"
                 marker-end="url(#f5-arrow)"
               />
               <line
-                x1="640"
+                x1="760"
                 y1="248"
-                x2="672"
-                y2="248"
-                stroke="#4f5d75"
-                stroke-width="1.2"
-                marker-end="url(#f5-arrow)"
-              />
-              <line
-                x1="800"
-                y1="248"
-                x2="832"
+                x2="792"
                 y2="248"
                 stroke="#4f5d75"
                 stroke-width="1.2"
                 marker-end="url(#f5-arrow)"
               />
               <path
-                d="M 896 172 V 180 Q 896 188 888 188 H 264 Q 256 188 256 196 V 204"
+                d="M 876 292 V 300 Q 876 308 868 308 H 284 Q 276 308 276 316 V 324"
                 fill="none"
                 stroke="#4f5d75"
                 stroke-width="1.2"
                 marker-end="url(#f5-arrow)"
               />
-              <rect x="192" y="84" width="128" height="88" rx="6" fill="#f5f5f5" />
+              <line
+                x1="360"
+                y1="368"
+                x2="392"
+                y2="368"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f5-arrow)"
+              />
+              <line
+                x1="560"
+                y1="368"
+                x2="592"
+                y2="368"
+                stroke="#4f5d75"
+                stroke-width="1.2"
+                marker-end="url(#f5-arrow)"
+              />
+              <rect x="192" y="84" width="168" height="88" rx="6" fill="#f5f5f5" />
               <rect
                 x="192"
                 y="84"
-                width="128"
+                width="168"
                 height="88"
                 rx="6"
                 fill="#ffffff"
@@ -5019,7 +5037,7 @@
                 stroke-width="1"
               />
               <text
-                x="256"
+                x="276"
                 y="104"
                 fill="#4f5d75"
                 font-size="9"
@@ -5030,8 +5048,8 @@
                 GIAI ĐOẠN 0
               </text>
               <text
-                x="256"
-                y="131"
+                x="276"
+                y="133"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
@@ -5041,8 +5059,8 @@
                 Đặt nền
               </text>
               <text
-                x="256"
-                y="158"
+                x="276"
+                y="161"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
@@ -5050,11 +5068,11 @@
               >
                 đóng 2026-11-16
               </text>
-              <rect x="352" y="84" width="128" height="88" rx="6" fill="#f5f5f5" />
+              <rect x="392" y="84" width="168" height="88" rx="6" fill="#f5f5f5" />
               <rect
-                x="352"
+                x="392"
                 y="84"
-                width="128"
+                width="168"
                 height="88"
                 rx="6"
                 fill="#ffffff"
@@ -5062,7 +5080,7 @@
                 stroke-width="1"
               />
               <text
-                x="416"
+                x="476"
                 y="104"
                 fill="#4f5d75"
                 font-size="9"
@@ -5073,30 +5091,19 @@
                 GIAI ĐOẠN 1
               </text>
               <text
-                x="416"
-                y="122"
+                x="476"
+                y="133"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
                 font-weight="600"
               >
-                Cài được,
+                Cài được, lên đời được
               </text>
               <text
-                x="416"
-                y="138"
-                fill="#2d3142"
-                font-size="11"
-                font-family="'Geist', sans-serif"
-                text-anchor="middle"
-                font-weight="600"
-              >
-                lên đời được
-              </text>
-              <text
-                x="416"
-                y="158"
+                x="476"
+                y="161"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
@@ -5104,11 +5111,11 @@
               >
                 đóng 2026-11-16
               </text>
-              <rect x="512" y="84" width="128" height="88" rx="6" fill="#f5f5f5" />
+              <rect x="592" y="84" width="168" height="88" rx="6" fill="#f5f5f5" />
               <rect
-                x="512"
+                x="592"
                 y="84"
-                width="128"
+                width="168"
                 height="88"
                 rx="6"
                 fill="#ffffff"
@@ -5116,7 +5123,7 @@
                 stroke-width="1"
               />
               <text
-                x="576"
+                x="676"
                 y="104"
                 fill="#4f5d75"
                 font-size="9"
@@ -5127,8 +5134,8 @@
                 GIAI ĐOẠN 2
               </text>
               <text
-                x="576"
-                y="131"
+                x="676"
+                y="133"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
@@ -5138,8 +5145,8 @@
                 Đo độ rộng
               </text>
               <text
-                x="576"
-                y="158"
+                x="676"
+                y="161"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
@@ -5147,11 +5154,11 @@
               >
                 đóng 2026-11-17
               </text>
-              <rect x="672" y="84" width="128" height="88" rx="6" fill="#f5f5f5" />
+              <rect x="792" y="84" width="168" height="88" rx="6" fill="#f5f5f5" />
               <rect
-                x="672"
+                x="792"
                 y="84"
-                width="128"
+                width="168"
                 height="88"
                 rx="6"
                 fill="#ffffff"
@@ -5159,7 +5166,7 @@
                 stroke-width="1"
               />
               <text
-                x="736"
+                x="876"
                 y="104"
                 fill="#4f5d75"
                 font-size="9"
@@ -5170,30 +5177,19 @@
                 GIAI ĐOẠN 8
               </text>
               <text
-                x="736"
-                y="122"
+                x="876"
+                y="133"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
                 font-weight="600"
               >
-                Gỡ va chạm
+                Gỡ va chạm cho ba kho
               </text>
               <text
-                x="736"
-                y="138"
-                fill="#2d3142"
-                font-size="11"
-                font-family="'Geist', sans-serif"
-                text-anchor="middle"
-                font-weight="600"
-              >
-                cho ba kho
-              </text>
-              <text
-                x="736"
-                y="158"
+                x="876"
+                y="161"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
@@ -5201,11 +5197,11 @@
               >
                 đóng 2026-11-18
               </text>
-              <rect x="832" y="84" width="128" height="88" rx="6" fill="#f5f5f5" />
+              <rect x="192" y="204" width="168" height="88" rx="6" fill="#f5f5f5" />
               <rect
-                x="832"
-                y="84"
-                width="128"
+                x="192"
+                y="204"
+                width="168"
                 height="88"
                 rx="6"
                 fill="#ffffff"
@@ -5213,8 +5209,8 @@
                 stroke-width="1"
               />
               <text
-                x="896"
-                y="104"
+                x="276"
+                y="224"
                 fill="#4f5d75"
                 font-size="9"
                 font-family="'Geist Mono', monospace"
@@ -5224,8 +5220,8 @@
                 GIAI ĐOẠN 3
               </text>
               <text
-                x="896"
-                y="131"
+                x="276"
+                y="253"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
@@ -5235,8 +5231,8 @@
                 Kho dùng lại
               </text>
               <text
-                x="896"
-                y="158"
+                x="276"
+                y="281"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
@@ -5244,11 +5240,11 @@
               >
                 đóng 2026-11-19
               </text>
-              <rect x="192" y="204" width="128" height="88" rx="6" fill="#f5f5f5" />
+              <rect x="392" y="204" width="168" height="88" rx="6" fill="#f5f5f5" />
               <rect
-                x="192"
+                x="392"
                 y="204"
-                width="128"
+                width="168"
                 height="88"
                 rx="6"
                 fill="#ffffff"
@@ -5256,7 +5252,7 @@
                 stroke-width="1"
               />
               <text
-                x="256"
+                x="476"
                 y="224"
                 fill="#4f5d75"
                 font-size="9"
@@ -5267,30 +5263,19 @@
                 GIAI ĐOẠN 4
               </text>
               <text
-                x="256"
-                y="242"
+                x="476"
+                y="253"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
                 font-weight="600"
               >
-                Dẫn dắt
+                Dẫn dắt kiểu studio
               </text>
               <text
-                x="256"
-                y="258"
-                fill="#2d3142"
-                font-size="11"
-                font-family="'Geist', sans-serif"
-                text-anchor="middle"
-                font-weight="600"
-              >
-                kiểu studio
-              </text>
-              <text
-                x="256"
-                y="278"
+                x="476"
+                y="281"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
@@ -5298,11 +5283,11 @@
               >
                 đóng 2026-11-20
               </text>
-              <rect x="352" y="204" width="128" height="88" rx="6" fill="#f5f5f5" />
+              <rect x="592" y="204" width="168" height="88" rx="6" fill="#f5f5f5" />
               <rect
-                x="352"
+                x="592"
                 y="204"
-                width="128"
+                width="168"
                 height="88"
                 rx="6"
                 fill="#ffffff"
@@ -5310,7 +5295,7 @@
                 stroke-width="1"
               />
               <text
-                x="416"
+                x="676"
                 y="224"
                 fill="#4f5d75"
                 font-size="9"
@@ -5321,8 +5306,8 @@
                 GIAI ĐOẠN 5
               </text>
               <text
-                x="416"
-                y="242"
+                x="676"
+                y="245"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
@@ -5332,8 +5317,8 @@
                 Dựng màn
               </text>
               <text
-                x="416"
-                y="258"
+                x="676"
+                y="261"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
@@ -5343,8 +5328,8 @@
                 không phải đoán
               </text>
               <text
-                x="416"
-                y="278"
+                x="676"
+                y="281"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
@@ -5352,11 +5337,11 @@
               >
                 đóng 2026-11-21
               </text>
-              <rect x="512" y="204" width="128" height="88" rx="6" fill="#f5f5f5" />
+              <rect x="792" y="204" width="168" height="88" rx="6" fill="#f5f5f5" />
               <rect
-                x="512"
+                x="792"
                 y="204"
-                width="128"
+                width="168"
                 height="88"
                 rx="6"
                 fill="#ffffff"
@@ -5364,7 +5349,7 @@
                 stroke-width="1"
               />
               <text
-                x="576"
+                x="876"
                 y="224"
                 fill="#4f5d75"
                 font-size="9"
@@ -5375,8 +5360,8 @@
                 GIAI ĐOẠN 9
               </text>
               <text
-                x="576"
-                y="251"
+                x="876"
+                y="253"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
@@ -5386,8 +5371,8 @@
                 Nền đủ mảng
               </text>
               <text
-                x="576"
-                y="278"
+                x="876"
+                y="281"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
@@ -5395,32 +5380,20 @@
               >
                 đóng 2026-11-22
               </text>
-              <line x1="736" y1="292" x2="736" y2="306" stroke="#eb6c36" stroke-width="1.4" />
-              <text
-                x="736"
-                y="324"
-                fill="#ba4513"
-                font-size="14"
-                font-family="'Instrument Serif', 'Lora', serif"
-                text-anchor="middle"
-                font-style="italic"
-              >
-                đang ở đây
-              </text>
-              <rect x="672" y="204" width="128" height="88" rx="6" fill="#f5f5f5" />
+              <rect x="192" y="324" width="168" height="88" rx="6" fill="#f5f5f5" />
               <rect
-                x="672"
-                y="204"
-                width="128"
+                x="192"
+                y="324"
+                width="168"
                 height="88"
                 rx="6"
-                fill="rgba(235,108,54,0.08)"
-                stroke="#eb6c36"
-                stroke-width="1.4"
+                fill="#ffffff"
+                stroke="#2d3142"
+                stroke-width="1"
               />
               <text
-                x="736"
-                y="224"
+                x="276"
+                y="344"
                 fill="#4f5d75"
                 font-size="9"
                 font-family="'Geist Mono', monospace"
@@ -5430,8 +5403,8 @@
                 GIAI ĐOẠN 6
               </text>
               <text
-                x="736"
-                y="242"
+                x="276"
+                y="365"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
@@ -5441,8 +5414,8 @@
                 Hai kho bên cạnh
               </text>
               <text
-                x="736"
-                y="258"
+                x="276"
+                y="381"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
@@ -5452,20 +5425,75 @@
                 gọi và đọc
               </text>
               <text
-                x="736"
-                y="278"
+                x="276"
+                y="401"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                đóng 2026-11-23
+              </text>
+              <line x1="476" y1="412" x2="476" y2="426" stroke="#eb6c36" stroke-width="1.4" />
+              <text
+                x="476"
+                y="444"
+                fill="#ba4513"
+                font-size="14"
+                font-family="'Instrument Serif', 'Lora', serif"
+                text-anchor="middle"
+                font-style="italic"
+              >
+                đang ở đây
+              </text>
+              <rect x="392" y="324" width="168" height="88" rx="6" fill="#f5f5f5" />
+              <rect
+                x="392"
+                y="324"
+                width="168"
+                height="88"
+                rx="6"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <text
+                x="476"
+                y="344"
+                fill="#4f5d75"
+                font-size="9"
+                font-family="'Geist Mono', monospace"
+                text-anchor="middle"
+                letter-spacing="0.18em"
+              >
+                GIAI ĐOẠN 10
+              </text>
+              <text
+                x="476"
+                y="373"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                Cắm đồ bên cạnh
+              </text>
+              <text
+                x="476"
+                y="401"
                 fill="#ba4513"
                 font-size="10"
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
               >
-                đang mở
+                đang mở, 3 trên 5 mục
               </text>
-              <rect x="832" y="204" width="128" height="88" rx="6" fill="#f5f5f5" />
+              <rect x="592" y="324" width="168" height="88" rx="6" fill="#f5f5f5" />
               <rect
-                x="832"
-                y="204"
-                width="128"
+                x="592"
+                y="324"
+                width="168"
                 height="88"
                 rx="6"
                 fill="#ffffff"
@@ -5474,8 +5502,8 @@
                 stroke-dasharray="4,4"
               />
               <text
-                x="896"
-                y="224"
+                x="676"
+                y="344"
                 fill="#4f5d75"
                 font-size="9"
                 font-family="'Geist Mono', monospace"
@@ -5485,30 +5513,19 @@
                 GIAI ĐOẠN 7
               </text>
               <text
-                x="896"
-                y="242"
+                x="676"
+                y="373"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
                 font-weight="600"
               >
-                Lõi của họ
+                Lõi của họ sản phẩm
               </text>
               <text
-                x="896"
-                y="258"
-                fill="#2d3142"
-                font-size="11"
-                font-family="'Geist', sans-serif"
-                text-anchor="middle"
-                font-weight="600"
-              >
-                sản phẩm
-              </text>
-              <text
-                x="896"
-                y="278"
+                x="676"
+                y="401"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
@@ -5516,11 +5533,11 @@
               >
                 để sau
               </text>
-              <rect x="192" y="356" width="168" height="56" rx="6" fill="#f5f5f5" />
+              <rect x="192" y="476" width="136" height="56" rx="6" fill="#f5f5f5" />
               <rect
                 x="192"
-                y="356"
-                width="168"
+                y="476"
+                width="136"
                 height="56"
                 rx="6"
                 fill="#ffffff"
@@ -5528,136 +5545,165 @@
                 stroke-width="1"
               />
               <text
-                x="276"
-                y="382"
+                x="260"
+                y="502"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
                 font-weight="600"
               >
-                Phía plugin
+                10.0 Đề bài
               </text>
               <text
-                x="276"
-                y="398"
+                x="260"
+                y="518"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
               >
-                đã dựng, đã gộp
+                đã duyệt
               </text>
-              <rect x="392" y="356" width="168" height="56" rx="6" fill="#f5f5f5" />
+              <rect x="350" y="476" width="136" height="56" rx="6" fill="#f5f5f5" />
               <rect
-                x="392"
-                y="356"
-                width="168"
+                x="350"
+                y="476"
+                width="136"
                 height="56"
                 rx="6"
                 fill="#ffffff"
-                stroke="#4f5d75"
+                stroke="#2d3142"
                 stroke-width="1"
-                stroke-dasharray="4,4"
               />
               <text
-                x="476"
-                y="382"
+                x="418"
+                y="502"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
                 font-weight="600"
               >
-                Repo Standards gọi
+                10.1 Chọn phích
               </text>
               <text
-                x="476"
-                y="398"
+                x="418"
+                y="518"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
               >
-                chờ lời cho phép sửa
+                đã dựng
               </text>
-              <rect x="592" y="356" width="168" height="56" rx="6" fill="#f5f5f5" />
+              <rect x="508" y="476" width="136" height="56" rx="6" fill="#f5f5f5" />
               <rect
-                x="592"
-                y="356"
-                width="168"
+                x="508"
+                y="476"
+                width="136"
+                height="56"
+                rx="6"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
+              />
+              <text
+                x="576"
+                y="502"
+                fill="#2d3142"
+                font-size="11"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+                font-weight="600"
+              >
+                10.2 Đo phích ngoài
+              </text>
+              <text
+                x="576"
+                y="518"
+                fill="#4f5d75"
+                font-size="10"
+                font-family="'Geist', sans-serif"
+                text-anchor="middle"
+              >
+                3 trên 7 đã đo
+              </text>
+              <rect x="666" y="476" width="136" height="56" rx="6" fill="#f5f5f5" />
+              <rect
+                x="666"
+                y="476"
+                width="136"
                 height="56"
                 rx="6"
                 fill="#ffffff"
-                stroke="#4f5d75"
+                stroke="#2d3142"
                 stroke-width="1"
-                stroke-dasharray="4,4"
               />
               <text
-                x="676"
-                y="382"
+                x="734"
+                y="502"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
                 font-weight="600"
               >
-                Delivery-loop đọc
+                10.3 Cầu nối vào
               </text>
               <text
-                x="676"
-                y="398"
+                x="734"
+                y="518"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
               >
-                chờ lời cho phép sửa
+                đã dựng
               </text>
-              <rect x="792" y="356" width="168" height="56" rx="6" fill="#f5f5f5" />
+              <rect x="824" y="476" width="136" height="56" rx="6" fill="#f5f5f5" />
               <rect
-                x="792"
-                y="356"
-                width="168"
+                x="824"
+                y="476"
+                width="136"
                 height="56"
                 rx="6"
-                fill="#ffffff"
-                stroke="#4f5d75"
-                stroke-width="1"
-                stroke-dasharray="4,4"
+                fill="rgba(235,108,54,0.08)"
+                stroke="#eb6c36"
+                stroke-width="1.4"
               />
               <text
-                x="876"
-                y="382"
+                x="892"
+                y="502"
                 fill="#2d3142"
                 font-size="11"
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
                 font-weight="600"
               >
-                Lượt thử cuối
+                10.4 Cầu nối ra
               </text>
               <text
-                x="876"
-                y="398"
+                x="892"
+                y="518"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
                 text-anchor="middle"
               >
-                là dòng «xong khi»
+                còn lượt thử có người
               </text>
               <line
                 x1="40"
-                y1="456"
+                y1="576"
                 x2="976"
-                y2="456"
+                y2="576"
                 stroke="rgba(45,49,66,0.12)"
                 stroke-width="0.8"
               />
               <text
                 x="40"
-                y="480"
+                y="600"
                 fill="#4f5d75"
                 font-size="9"
                 font-family="'Geist Mono', monospace"
@@ -5666,10 +5712,10 @@
               >
                 CHÚ GIẢI
               </text>
-              <rect x="136" y="468" width="24" height="16" rx="4" fill="#f5f5f5" />
+              <rect x="136" y="588" width="24" height="16" rx="4" fill="#f5f5f5" />
               <rect
                 x="136"
-                y="468"
+                y="588"
                 width="24"
                 height="16"
                 rx="4"
@@ -5679,7 +5725,7 @@
               />
               <text
                 x="168"
-                y="480"
+                y="600"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
@@ -5687,10 +5733,10 @@
               >
                 đã đóng, đã dựng
               </text>
-              <rect x="276" y="468" width="24" height="16" rx="4" fill="#f5f5f5" />
+              <rect x="276" y="588" width="24" height="16" rx="4" fill="#f5f5f5" />
               <rect
                 x="276"
-                y="468"
+                y="588"
                 width="24"
                 height="16"
                 rx="4"
@@ -5700,18 +5746,18 @@
               />
               <text
                 x="308"
-                y="480"
+                y="600"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
                 text-anchor="start"
               >
-                đang mở
+                đang mở, đang làm
               </text>
-              <rect x="372" y="468" width="24" height="16" rx="4" fill="#f5f5f5" />
+              <rect x="412" y="588" width="24" height="16" rx="4" fill="#f5f5f5" />
               <rect
-                x="372"
-                y="468"
+                x="412"
+                y="588"
                 width="24"
                 height="16"
                 rx="4"
@@ -5721,8 +5767,8 @@
                 stroke-dasharray="4,4"
               />
               <text
-                x="404"
-                y="480"
+                x="444"
+                y="600"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
@@ -5731,17 +5777,17 @@
                 để sau, còn chờ
               </text>
               <line
-                x1="508"
-                y1="476"
-                x2="532"
-                y2="476"
+                x1="548"
+                y1="596"
+                x2="572"
+                y2="596"
                 stroke="#4f5d75"
                 stroke-width="1.2"
                 marker-end="url(#f5-arrow)"
               />
               <text
-                x="540"
-                y="480"
+                x="580"
+                y="600"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
@@ -5750,26 +5796,27 @@
                 thứ tự làm
               </text>
               <text
-                x="624"
-                y="480"
+                x="664"
+                y="600"
                 fill="#4f5d75"
                 font-size="10"
                 font-family="'Geist', sans-serif"
                 text-anchor="start"
               >
-                Trạng thái đọc từ kế hoạch, ngày 2026-11-22.
+                Trạng thái đọc từ kế hoạch, ngày 2026-11-24.
               </text>
             </svg>
           </div>
           <figcaption>
-            <span>Hình 5</span> Mười giai đoạn theo thứ tự làm: tám đã đóng, giai đoạn 6 đang mở,
-            giai đoạn 7 để sau.
+            <span>Hình 5</span> Mười một giai đoạn theo thứ tự làm: chín đã đóng, giai đoạn 10 đang
+            mở, giai đoạn 7 để sau; dải dưới là năm mục của giai đoạn 10.
           </figcaption>
         </figure>
         <p>
           Lộ trình là kế hoạch chính thức của repo này. Chủ repo duyệt nó ngày 2026-11-15 với tám
-          giai đoạn, rồi thêm giai đoạn 8 ngày 2026-11-16 và giai đoạn 9 ngày 2026-11-20. Kế hoạch
-          xếp việc theo nhịp của vòng đời (mục 11) và mức phục vụ (mục 8), không theo repo.
+          giai đoạn, rồi thêm giai đoạn 8 ngày 2026-11-16, giai đoạn 9 ngày 2026-11-20 và giai đoạn
+          10 ngày 2026-11-23. Kế hoạch xếp việc theo nhịp của vòng đời (mục 11) và mức phục vụ (mục
+          8), không theo repo.
         </p>
         <p>
           Hình vẽ các giai đoạn theo thứ tự làm, không theo số: giai đoạn 8 và 9 mang số của lúc
@@ -5777,9 +5824,10 @@
           đúng; ngày đóng và bằng chứng được ghi vào kế hoạch. Tên giai đoạn và hai cột cuối của
           bảng chép nguyên từ kế hoạch, nên mang chữ của kế hoạch: «kho» ở đó có chỗ chỉ kho mã;
           «repo kiểm chứng» là Inventory; «ứng dụng mẫu» là ứng dụng của repo đối chứng; «cuốn hướng
-          dẫn» là cuốn sổ bàn giao; «lệnh bản đồ màn» là lệnh <code>affected</code>. Cột «Cần chủ
-          repo» nêu điều kế hoạch cần ở chủ repo, đã có hay chưa: ở giai đoạn 6, lời duyệt kiến trúc
-          đã có ngày 2026-11-22, lời cho phép sửa ở từng repo thì chưa.
+          dẫn» là cuốn sổ bàn giao; «lệnh bản đồ màn» là lệnh <code>affected</code>; «phích» là thứ
+          cắm vào một ổ của bảng năng lực. Cột «Cần chủ repo» nêu điều kế hoạch cần ở chủ repo: ở
+          giai đoạn 10, lời cho đo đã có cho ba phích đã đo, lời cho đẩy hệ của repo lên Claude thì
+          chưa.
         </p>
         <div class="scroll">
           <table class="wide">
@@ -5900,9 +5948,22 @@
               </tr>
               <tr>
                 <td><strong>6. Hai kho bên cạnh gọi và đọc</strong></td>
-                <td class="when"><strong>Đang mở</strong></td>
+                <td class="when">Đóng 2026-11-23</td>
                 <td>Một repo mới ra đời qua Repo Standards có đủ bộ sổ mà không ai gọi tay</td>
                 <td>Duyệt kiến trúc; Cho phép sửa ở từng kho</td>
+              </tr>
+              <tr>
+                <td><strong>10. Cắm đồ bên cạnh</strong></td>
+                <td class="when"><strong>Đang mở</strong></td>
+                <td>
+                  Trên một repo mới, chủ repo chọn phích cho các ổ trong một lượt không quá bốn câu,
+                  và một màn dựng qua phích ngoài đã chọn vẫn qua cổng, số chỗ đoán không tăng và số
+                  lần quyết thay bằng 0
+                </td>
+                <td>
+                  Cho phép từng lượt đo tốn token; Cho phép từng phích cần tài khoản hay gửi dữ liệu
+                  ra ngoài; Cho đẩy hệ của repo lên Claude và đặt làm mặc định
+                </td>
               </tr>
               <tr>
                 <td><strong>7. Lõi của họ sản phẩm</strong></td>
@@ -5914,37 +5975,44 @@
           </table>
         </div>
 
-        <h3>Giai đoạn 6 đang đứng ở đâu</h3>
+        <h3>Giai đoạn 10 đang đứng ở đâu</h3>
         <p>
-          Giai đoạn 6 biến hai vai «gọi» và «đọc» của mục 10 thành lời gọi và lời đọc có thật. Chủ
-          repo duyệt đề bài của nó ngày 2026-11-22, và ở câu 1 của đề bài ấy duyệt kiến trúc: ba vai
-          giữ nguyên. Sàn thiết kế không chuyển sang plugin ở giai đoạn này.
+          Giai đoạn 10 cho một repo cắm đồ của bên ngoài vào các ổ của bảng năng lực, như hệ thiết
+          kế của Claude, một bộ linh kiện hay một mắt soát màn, mà cổng vẫn giữ. Chủ repo duyệt đề
+          bài của nó (đề bài 0014) ngày 2026-11-23, và nó mở cùng ngày, khi giai đoạn 6 đóng. Ba
+          trên năm mục đã xong.
         </p>
         <ul>
           <li>
-            <strong>Phía plugin đã dựng và đã gộp.</strong> Một lối đặt bộ sổ lúc ra đời mà không
-            hỏi ai, trên repo vừa có sàn. Lệnh lên đời ghi cả bước cổng. Chỗ giáp với Repo Standards
-            được ghim bằng bài kiểm ở phía repo này. Một lệnh đọc màn để delivery-loop gọi.
+            <strong>Đã dựng và đã gộp:</strong> đề bài (mục 10.0); bước chọn phích (mục 10.1), lệnh
+            <code>plugs</code>, hỏi tối đa bốn câu một lượt, chỉ ở ổ có phích ngoài đã đo và có mặt,
+            và ghi lựa chọn có tên và ngày; cầu nối vào (mục 10.3), lệnh <code>bring-in</code>, đọc
+            thứ công cụ ngoài làm ra thành một hướng ứng viên, không ghi thẳng vào sổ.
           </li>
           <li>
-            <strong>Còn chờ ở Repo Standards:</strong> lời gọi plugin lúc repo ra đời, và ở repo đã
-            có. Cần chủ repo cho phép sửa ở repo ấy.
+            <strong>Đã dựng, còn lượt thử:</strong> cầu nối ra (mục 10.4), lệnh
+            <code>bring-out</code>, xuất hệ từ sổ, <code>DESIGN.md</code> trước, cổng đỏ khi bản
+            xuất cũ; gửi ra ngoài chỉ khi chủ repo cho, theo repo và theo phích. Còn lượt thử có
+            người, là dòng «xong khi» của giai đoạn.
           </li>
           <li>
-            <strong>Còn chờ ở delivery-loop:</strong> bên đọc. Nó sẽ điền sẵn kiểm kê màn và mã
-            trạng thái từ sổ màn, và sẽ có một lệnh kiểm bảng trạng thái. Cần chủ repo cho phép sửa
-            ở repo ấy.
+            <strong>Đang làm:</strong> đo các phích ngoài (mục 10.2), theo thứ tự chủ repo chốt:
+            Claude Design, ReUI, frontend-design, Stitch, rồi Open Design, Figma, Mobbin. Ba trên
+            bảy đã đo: hệ thiết kế của Claude (quyết định 0088), ReUI ở ổ linh kiện (quyết định
+            0096) và frontend-design ở ổ dựng màn (quyết định 0097); hai phích sau không thắng phích
+            của plugin.
           </li>
           <li>
-            <strong>Còn chờ, sau cùng:</strong> một lượt thử. Một repo bỏ đi ra đời qua Repo
-            Standards, có cả hai plugin thật, không ai gõ lệnh nào của design-assembly. Đây là dòng
-            «xong khi» của giai đoạn.
+            <strong>Cần chủ repo:</strong> lời cho từng lượt đo tốn token, cho từng phích cần tài
+            khoản hay gửi dữ liệu ra ngoài, và cho đẩy hệ của repo lên Claude.
           </li>
         </ul>
         <p>
-          Các mục của từng giai đoạn, bằng chứng lúc đóng và việc để sang bên nằm ở
-          <code>docs/plan/plan.json</code>; <code>make plan</code> in giai đoạn đang mở. Tài liệu
-          này không chép lại chúng. Trạng thái ở mục này đọc từ kế hoạch ngày 2026-11-22.
+          Giai đoạn 6 đóng ngày 2026-11-23: một repo bỏ đi ra đời qua Repo Standards, có cả hai
+          plugin thật, và có đủ bộ sổ mà không ai gõ lệnh nào của design-assembly. Các mục của từng
+          giai đoạn, bằng chứng lúc đóng và việc để sang bên nằm ở <code>docs/plan/plan.json</code>;
+          <code>make plan</code> in giai đoạn đang mở. Tài liệu này không chép lại chúng. Trạng thái
+          ở mục này đọc từ kế hoạch ngày 2026-11-24.
         </p>
         <h3>Tầm nhìn đạt khi</h3>
         <ol>
@@ -5993,8 +6061,9 @@
           Mục đích của plugin là «Claude Code dựng màn mà không phải đoán», nên đo thẳng câu đó: ba
           tác tử độc lập dựng cùng một màn, đếm những quyết định chúng làm khác nhau hoặc tự đoán.
           Lần thử năm có sáu chỗ phải đoán; lần thử sáu, sau khi thêm sáu luật, còn ba hành vi chưa
-          có luật. Đích là 0. Với bộ đề cố định, bốn lượt dựng màn gần nhất, lần 11 tới 14, cho 9,
-          11, 14 và 13 chỗ phải đoán.
+          có luật. Đích là 0. Với bộ đề cố định, các lượt dựng màn lần 11 tới 14 cho 9, 11, 14 và 13
+          chỗ phải đoán; lần 17 (2026-11-23, có skill frontend-design, đo cho mục 10.2 của kế hoạch)
+          cho 12, cả 12 vào hàng chờ (đọc ngày 2026-11-24).
         </p>
         <h3>Sáu chỉ số đỡ</h3>
         <div class="scroll">
@@ -6124,7 +6193,7 @@
                   hay đã đóng
                 </td>
                 <td>Giới hạn đang nằm rải trong các bản ghi quyết định, không đếm được</td>
-                <td>2026-11-22: có, 384 dòng, 298 đang mở</td>
+                <td>2026-11-24: có, 427 dòng, 333 đang mở</td>
               </tr>
               <tr>
                 <td>Thực thi</td>
@@ -6157,7 +6226,7 @@
                 <td></td>
                 <td>6. <strong>Bộ đề thử cố định và chuỗi số theo mốc</strong></td>
                 <td>Sáu lần thử dùng sáu bộ đề khác nhau, nên số không so được với nhau</td>
-                <td>2026-11-22: có, ba bộ đề cố định và một bảng kết quả, 31 dòng qua 16 lượt</td>
+                <td>2026-11-24: có, bốn bộ đề cố định và một bảng kết quả, 32 dòng qua 17 lượt</td>
               </tr>
               <tr>
                 <td></td>
@@ -6225,17 +6294,17 @@
                 <td>Plugin đã làm gì</td>
                 <td>Dẫn dắt trọn, cài phần, mọi lệnh kiểm</td>
                 <td>
-                  Đã nhận và đã lên đời ba lần, lần gần nhất tới bản 0.7.1 ngày 2026-11-17; plugin
-                  nay là 0.35.0. Bốn câu về màu chờ chủ repo
+                  Đã nhận và đã lên đời ba lần, lần gần nhất tới bản 0.7.1 ngày 2026-11-17; plugin,
+                  đọc ngày 2026-11-24, là 0.49.0. Bốn câu về màu chờ chủ repo
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
         <p>
-          Repo đối chứng: 42 quyết định do 78 lệnh kiểm giữ, mỗi lệnh đã được thấy đỏ trên một bản
-          bị đổi. Mười sáu lượt thử bằng tác tử độc lập, ghi ở bảng kết quả; lượt gần nhất ngày
-          2026-11-22.
+          Repo đối chứng, đọc ngày 2026-11-24: 43 quyết định do 83 lệnh kiểm giữ, mỗi lệnh đã được
+          thấy đỏ trên một bản bị đổi. Mười bảy lượt thử bằng tác tử độc lập, ghi ở bảng kết quả;
+          lượt gần nhất, lần 17, ngày 2026-11-23.
         </p>
         <p>
           Giới hạn đã biết của chính kiến trúc này: ngoài repo đối chứng, nó mới chạy thật trên một
@@ -6490,7 +6559,9 @@
             đoạn đang mở, các mục của nó và việc để sang bên.
           </li>
           <li>
-            Đề bài của giai đoạn đang mở, với lời duyệt kiến trúc ba vai:
+            Đề bài của giai đoạn đang mở (giai đoạn 10, đọc ngày 2026-11-24):
+            <code>wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md</code>. Đề bài của giai
+            đoạn 6, với lời duyệt kiến trúc ba vai:
             <code>wiki/specs/0013-the-two-neighbours-call-and-read.md</code>.
           </li>
           <li>
@@ -6509,10 +6580,10 @@
         </ul>
       </section>
       <footer>
-        Kiểm kê ba repo bên cạnh làm ngày 2026-11-13, chỉ đọc. Lộ trình, bộ sổ và các ô ghi ngày
-        2026-11-22 đối chiếu với kế hoạch và với repo này vào ngày ấy. Sơ đồ vẽ bằng bộ màu mặc
-        định; repo chưa chọn bộ màu sơ đồ riêng. Trong tài liệu này, «repo» là kho mã và «kho» là
-        nơi chứa thứ dùng lại.
+        Kiểm kê ba repo bên cạnh làm ngày 2026-11-13, chỉ đọc. Lộ trình và các ô ghi ngày 2026-11-24
+        đối chiếu với kế hoạch và với repo này vào ngày ấy; bộ sổ và các ô ghi ngày 2026-11-22, vào
+        ngày 2026-11-22. Sơ đồ vẽ bằng bộ màu mặc định; repo chưa chọn bộ màu sơ đồ riêng. Trong tài
+        liệu này, «repo» là kho mã và «kho» là nơi chứa thứ dùng lại.
       </footer>
     </div>
   </body>
