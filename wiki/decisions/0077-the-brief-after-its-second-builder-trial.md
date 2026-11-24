@@ -34,7 +34,7 @@ chạy, và lượt ấy cần lời chủ repo. **Câu trả lời `--json` c�
 Mười hai ô, ba trạng thái, `--queue`, ba mã thoát và lời phiếu nói các ô không giữ mọi câu hỏi giữ nguyên.
 
 Chủ repo đáp ba điểm của mục «Điều cần chủ repo nhìn lại» ngày 2026-11-24, trên
-[phiếu quyết định](../../docs/owner-decision-sheet-2026-11-23.md): điểm 1, câu 4.3 «Có tính (Recommended)»; điểm 4 và
+[trang câu hỏi gom cho chủ kho](../../docs/owner-decision-sheet-2026-11-23.md): điểm 1, câu 4.3 «Có tính (Recommended)»; điểm 4 và
 5, câu 4.2 «Giữ câu chung (Recommended)»; điểm 3, câu 4.4 «Có, đặt chữ ẩn (Recommended)». Điểm 3 đổi linh kiện mẫu của
 plugin, nên đi thành một việc riêng; tới khi việc ấy gộp, hai luật vẫn chọi như điểm 3 tả.
 

@@ -30,7 +30,7 @@ Lời từ chối ở điểm 1 của mục Decision đã được thay bởi qu
 [0087](0087-adopt-starter-lays-the-ledgers-where-a-repository-has-values-of-its-own.md), 2026-11-22. Phần còn lại vẫn đúng.
 
 Điểm 5 (bộ sổ lúc ra đời là bảy sổ, hẹp hơn câu 3 của đề bài 0013) được chủ repo nhận ngày 2026-11-24, câu 4.1 của
-[phiếu quyết định](../../docs/owner-decision-sheet-2026-11-23.md): «Bảy sổ (Recommended)».
+[trang câu hỏi gom cho chủ kho](../../docs/owner-decision-sheet-2026-11-23.md): «Bảy sổ (Recommended)».
 
 ## Context
 

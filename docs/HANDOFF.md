@@ -88,7 +88,7 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
   của họ sản phẩm» đứng sau nó.
 - **Cổng của kho này:** 43 quyết định giữ bằng 83 lệnh kiểm. `status --roles` in «33 trên 33 giá trị có lời chủ repo».
   `status` in bộ sổ lúc ra đời đủ cả 7 sổ.
-- **Phiếu quyết định:** không câu nào chờ chủ kho. Hai quyền chỉ chủ kho cho, từng bước một: mọi bước ở Inventory,
+- **Hàng chờ và phiếu quyết định của plugin** (lệnh `decide`): không câu nào chờ chủ kho. Hai quyền chỉ chủ kho cho, từng bước một: mọi bước ở Inventory,
   delivery-loop và Repo Standards; và chạy phép đo token chính thức.
 - **Sổ giới hạn:** 414 dòng, 321 đang mở, 20 mức nặng; 22 dòng mở trong ngày 2026-11-23, phần lớn của giai đoạn 10
   (vùng `capabilities`). **Việc gác lại:** 14 mục trong sáu nhóm.
@@ -261,13 +261,17 @@ Ngoài giai đoạn đang mở:
 - Lượt thử có người của mục 10.4, dòng «xong khi» của giai đoạn 10.
 - Mục «Quyết định cho chủ repo» của PR #107, #108 và #109 (sáu, sáu và bốn điểm): chưa gom, chưa đáp.
 
-Mười tám câu khác đã được gom thành một [phiếu quyết định](owner-decision-sheet-2026-11-23.md) và chủ kho đáp cả mười
-tám theo khuyến nghị ngày 2026-11-24; lời đáp nguyên văn và điều đổi ở tệp nào ghi ở phiếu. Hai lời còn để lại việc:
+Mười tám câu khác, chưa từng nằm trên hàng chờ của plugin, đã được gom thành một [trang câu hỏi gom cho chủ kho](owner-decision-sheet-2026-11-23.md) (không phải phiếu của lệnh `decide`) và chủ kho đáp cả mười
+tám theo khuyến nghị ngày 2026-11-24; lời đáp nguyên văn và điều đổi ở tệp nào ghi ở trang ấy. Hai lời còn để lại việc, và một điều cần biết:
 
 - Câu 4.4, linh kiện mẫu của dòng đặt tên đang chờ lên trang bằng chữ ẩn: một bản plugin mới, đã vào việc gác lại.
 - Câu 5.2, dọn bốn thư mục làm việc và mười tám nhánh đã gộp trên remote: có lời cho dọn, **sau khi hai phiên đo của
   mục 10.2 xong**; mỗi thư mục xem sạch trước khi bỏ, kể lại từng cái đã xoá. `kit-trial-5-0` sạch, nhánh của nó đã
   mất trên remote; ba thư mục kia mang nhánh đã gộp.
+- Câu 3.3, khai phần thiết kế với kit nghiệm thu: từ nay mỗi vòng nghiệm thu của kit trên kho này, ở bước S1, ghi
+  `design-floor.json` và một dòng `usage-report.md` vào hồ sơ của vòng, và lần đầu trên máy tải qua mạng một chỉ mục
+  tri thức đã ghim (`DESIGN_FLOOR_KHONG_MANG=1` cấm tải); vòng chạm màn mà hồ sơ không có lượt chấm thiết kế thì dừng ở
+  S4. Câu hỏi chủ kho thấy chỉ nêu bậc; trang câu hỏi ghi phần này sau lời đáp, ngày 2026-11-24.
 
 ## Cách đã làm ở giai đoạn 5, 9, 6 và 10
 
