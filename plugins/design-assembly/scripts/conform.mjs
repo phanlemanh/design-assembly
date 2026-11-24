@@ -12,6 +12,7 @@
 // and runs no install line.
 // Usage: node conform.mjs --need KEY [--source ID --item NAME --file PATH...] [--taken-down]
 //        [--patch PATH --reason SENTENCE] [--exempt RULE --file PATH --reason SENTENCE]
+//        [--unexempt RULE --file PATH]
 //        [--dry-run] [--target DIR] [--json]
 // Exit: 0 the record holds, or what was asked is written; 1 something waits: a file changed with no
 // patch, a patch that cannot be applied again, a rule turned off with no exemption; 2 a wrong call,
@@ -33,7 +34,7 @@ import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.m
 import { pinSha256, SOURCES_FOLDER } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { writeFiles, writtenFiles } from "./apply.mjs";
 import { finish, readCall, Refusal, refuse, start } from "./command.mjs";
-import { unexempted } from "./conform-rules.mjs";
+import { exemptionRefused, mandatoryOff, mandatoryRules, unexempted } from "./conform-rules.mjs";
 import { insideRoot } from "./store.mjs";
 
 const NEED = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -205,6 +206,20 @@ function patchedRecord(root, record, { file, reason }) {
   };
 }
 
+// Takes an exemption out of the record: the way back for a rule that is now mandatory, or one the
+// owner refused, once the code is patched. The rule the file turns off is then held again.
+function unexemptedRecord(record, { rule, file }) {
+  if (!file) throw new Refusal(`--unexempt needs --file${NOTHING}`);
+  const kept = record.exemptions.filter((entry) => !(entry.rule === rule && entry.file === file));
+  if (kept.length === record.exemptions.length) {
+    throw new Refusal(`the record does not let ${file} off ${rule}${NOTHING}`);
+  }
+  return {
+    record: { ...record, exemptions: kept },
+    said: `took the exemption ${rule} for ${file} out of the record`,
+  };
+}
+
 // Records a rule the item is let off, in one of its files, or for its folder in a configuration.
 function exemptedRecord(root, record, { rule, file, reason }) {
   if (!file || !reason) {
@@ -222,6 +237,9 @@ function exemptedRecord(root, record, { rule, file, reason }) {
   if (record.exemptions.some((entry) => entry.rule === rule && entry.file === file)) {
     throw new Refusal(`the record already lets ${file} off ${rule}${NOTHING}`);
   }
+  // A rule the repository's decision ledger holds is mandatory (the addendum of spec 0015).
+  const refused = exemptionRefused(root, record, { rule, file });
+  if (refused) throw new Refusal(`${refused}${NOTHING}`);
   return {
     record: { ...record, exemptions: [...record.exemptions, { rule, file, reason }] },
     said: `recorded the exemption ${rule} for ${file}: ${reason}`,
@@ -358,15 +376,25 @@ export function recordProblems(root, record) {
       );
     }
   }
-  problems.push(...unexempted(root, record, (file) => readText(root, file)));
+  // A mandatory rule is named as one to patch; any other rule turned off needs its exemption.
+  const mandatory = mandatoryRules(root);
+  const codeOf = (file) => readText(root, file);
+  problems.push(...mandatoryOff(root, record, codeOf, mandatory));
+  problems.push(...unexempted(root, record, codeOf, mandatory));
   return problems;
 }
+
+// What the record exempts that a row of the decision ledger holds: a record written before the
+// rule was mandatory, named here and never by the gate, and conformed again only once it is gone.
+const mandatoryExempted = (root, record) =>
+  mandatoryOff(root, { ...record, conformed: [] }, () => null, mandatoryRules(root));
 
 // ---- the command --------------------------------------------------------------------------------------
 
 const USAGE =
   "usage: node conform.mjs --need KEY [--source ID --item NAME --file PATH...] [--taken-down]\n" +
   "                        [--patch PATH --reason SENTENCE] [--exempt RULE --file PATH --reason SENTENCE]\n" +
+  "                        [--unexempt RULE --file PATH]\n" +
   "                        [--dry-run] [--target DIR] [--json]\n";
 const FLAGS = {
   "--need": "value",
@@ -377,6 +405,7 @@ const FLAGS = {
   "--patch": "value",
   "--reason": "value",
   "--exempt": "value",
+  "--unexempt": "value",
   "--dry-run": "switch",
 };
 
@@ -387,6 +416,7 @@ function askedOf(flags) {
     flags["--taken-down"] ? "taken-down" : null,
     flags["--patch"] ? "patch" : null,
     flags["--exempt"] ? "exempt" : null,
+    flags["--unexempt"] ? "unexempt" : null,
   ].filter(Boolean);
   if (asked.length > 1) return { problem: `ask one thing at a time, not ${asked.join(" and ")}` };
   return { asked: asked[0] ?? "check" };
@@ -405,6 +435,10 @@ export function conform(root, flags, { dryRun = false } = {}) {
     });
   } else {
     const record = readRecord(root, need);
+    // A record that still exempts a mandatory rule is not written again until the exemption is out.
+    // Taking an exemption out is the way back, and is never refused for it.
+    const [held] = ["check", "unexempt"].includes(asked) ? [] : mandatoryExempted(root, record);
+    if (held) throw new Refusal(`${held}${NOTHING}`);
     if (asked === "patch") {
       made = patchedRecord(root, record, { file: flags["--patch"], reason: flags["--reason"] });
     } else if (asked === "exempt") {
@@ -414,6 +448,9 @@ export function conform(root, flags, { dryRun = false } = {}) {
         file,
         reason: flags["--reason"],
       });
+    } else if (asked === "unexempt") {
+      const [file] = flags["--file"] ?? [];
+      made = unexemptedRecord(record, { rule: flags["--unexempt"], file });
     } else if (asked === "taken-down") {
       made = retakenRecord(root, record);
     } else {

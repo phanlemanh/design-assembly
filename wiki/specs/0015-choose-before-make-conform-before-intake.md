@@ -280,7 +280,7 @@ Mỗi dòng chứng bằng một lệnh hay một bản ghi lượt thử.
 16. Quyết định [0096](../decisions/0096-reui-measured-at-the-components-socket.md) ghi rõ kết luận của nó đúng cho repo chưa có bước chuẩn hoá, và tệp phích của ReUI theo luật mới.
 17. Phép «lõi sạch» vẫn xanh: tên công cụ ngoài chỉ nằm trong thư mục phích cắm.
 
-Tiêu chí 18 tới 26 nằm ở mục «Phần bổ sung: mục 11.7 và 11.8» bên dưới, chờ chủ repo duyệt.
+Tiêu chí 18 tới 26 nằm ở mục «Phần bổ sung: mục 11.7 và 11.8» bên dưới, chủ repo đã duyệt.
 
 ## Domain impact
 
@@ -320,9 +320,10 @@ Standards, vòng giao việc hay repo kiểm chứng.
 
 ## Phần bổ sung: mục 11.7 và 11.8
 
-Máy viết ngày 2026-11-24 theo lời chủ repo («Viết bổ sung»), sửa cùng ngày sau lần soát đầu («Gửi sang sửa»). **Chờ
-chủ repo duyệt; chưa gì được dựng.** Phần này chỉ nói điều đề bài đã duyệt chưa nói. Mức «bắt buộc» của mục «Đủ
-chuẩn» giữ nguyên.
+Máy viết ngày 2026-11-24 theo lời chủ repo («Viết bổ sung»), sửa cùng ngày sau lần soát đầu («Gửi sang sửa»). **Chủ
+repo duyệt ngày 2026-11-24, khi gộp PR 133, cùng tám khuyến nghị của nó.** Mục 11.8 dựng ngày 2026-11-24
+([0105](../decisions/0105-a-mandatory-rule-is-never-exempted.md)); mục 11.7 chưa dựng. Phần này chỉ nói điều đề bài
+đã duyệt chưa nói. Mức «bắt buộc» của mục «Đủ chuẩn» giữ nguyên.
 
 ### Vì sao có phần này
 

@@ -1,6 +1,6 @@
 ---
 name: inventory
-description: Take stock of the store of a repository — how many components, blocks and kinds of screen it holds, what the starter kit and the pinned outside sources offer, the state of each piece (in use, unused, retired, retired and still in use) — and find six kinds of trouble: a piece no screen uses, one the code uses that the intake ledger does not record, one thing taken twice, a block behind the pin of its source, a block changed from its source with no reason recorded, and a component written in one screen that other screens import. Use when the user or an agent asks "what do we have", "what is unused", "is the store clean", "take an inventory", "which blocks are out of date", or before retiring or merging a block. Not for finding a piece for a need (that is find) or for whether a decision is held (that is the audit).
+description: Take stock of the store of a repository — how many components, blocks and kinds of screen it holds, what the starter kit and the pinned outside sources offer, the state of each piece (in use, unused, retired, retired and still in use) — and find seven kinds of trouble: a piece no screen uses, one the code uses that the intake ledger does not record, one thing taken twice, a block behind the pin of its source, a block changed from its source with no reason recorded, an item let off a rule the decision ledger holds, and a component written in one screen that other screens import. Use when the user or an agent asks "what do we have", "what is unused", "is the store clean", "take an inventory", "which blocks are out of date", or before retiring or merging a block. Not for finding a piece for a need (that is find) or for whether a decision is held (that is the audit).
 ---
 
 # Take stock of the store
@@ -60,6 +60,8 @@ entries), the pages of kinds of screen, and `references/starter.json`.
   - `modified`: a block whose file is not the one taken in (the hash under `taken`, or the template
     of this plugin for a piece of the starter kit), with no `changed` saying why; or not the one its
     last widening recorded under `changed.sha256`.
+  - `exempts-mandatory`: an item whose conform record, written before, exempts a rule a row of the
+    decision ledger holds; patch the code and take the exemption out of the record.
   - `promote`: a component written in the file of one screen that other screens import.
 - `blind` names what was not looked at and why: no intake ledger, no ledger of screens, an import
   that cannot be followed or no entry of the frame (then nothing is called unused), a block with no

@@ -196,6 +196,35 @@ export const INSTALLS = {
       },
     ]),
   }),
+  // A conform record written before a rule was mandatory, which exempts it (spec 0015, item 11.8).
+  "exempts-mandatory": () => ({
+    "design/decisions.yaml": [
+      "version: 1",
+      "decisions:",
+      "  - id: whole-class-names",
+      "    layer: foundations",
+      "    kind: standard",
+      '    source: "class names are written whole"',
+      '    check: "eslint:shadcn/require-static-classes"',
+      "",
+    ].join("\n"),
+    "design/conform/narrow-list.json": json({
+      version: 1,
+      need: "narrow-list",
+      source: "kit",
+      item: "filter-bar",
+      taken: [{ file: "src/components/kit/narrow-list.tsx", sha256: "0".repeat(64) }],
+      patches: [],
+      exemptions: [
+        {
+          rule: "shadcn/require-static-classes",
+          file: "src/components/kit/narrow-list.tsx",
+          reason: "the source joins its class names",
+        },
+      ],
+      conformed: [{ file: "src/components/kit/narrow-list.tsx", sha256: "0".repeat(64) }],
+    }),
+  }),
   // The source pinned again, the block not taken again.
   outdated: () => ({ "design/sources/kit.json": json(source("2026-11-19T08:00:00.000Z")) }),
   // A line of a block's file changed, with no reason recorded.

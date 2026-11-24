@@ -30,7 +30,7 @@ import { ownedFileOf, writeFiles, writtenFiles } from "./apply.mjs";
 import { finish, readCall, Refusal, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { find, wordsOf } from "./find.mjs";
-import { unexempted } from "./conform-rules.mjs";
+import { mandatoryOff, mandatoryRules, unexempted } from "./conform-rules.mjs";
 import { answerOf, questionFiles, readStore, rowOf, rowsOf, today, writable } from "./asking.mjs";
 import { ledgerWith, yamlValue } from "./intake-write.mjs";
 import { inventory } from "./inventory.mjs";
@@ -193,9 +193,89 @@ function conformedRecord(root, need, chosen, named) {
   }
   // Every rule a file of the item turns off, or its folder is let off by the configuration, needs
   // its exemption.
-  const [off] = unexempted(root, record, codeOf);
+  // No exemption lets an item off a rule the decision ledger holds (the addendum of spec 0015); any
+  // other rule it turns off needs its exemption.
+  const mandatory = mandatoryRules(root);
+  const [held] = mandatoryOff(root, record, codeOf, mandatory);
+  if (held) throw new Refusal(`${held}${nothing}`);
+  const [off] = unexempted(root, record, codeOf, mandatory);
   if (off) throw new Refusal(`${off}${nothing}`);
-  return file;
+  return { file, record };
+}
+
+// ---- the exemptions, before the row ---------------------------------------------------------------
+
+// The list of what an item is let off, as the owner is asked to keep it: one question, every
+// exemption with its rule, file and reason. A list that changed since the answer is asked again.
+function exemptionsQuestion(state, need, record, file, before, replaces = []) {
+  const rules = new Set(record.exemptions.map((entry) => entry.rule));
+  const count = record.exemptions.length;
+  return {
+    id: before === 0 ? `exemptions-${need}` : `exemptions-${need}-${before + 1}`,
+    group: "blocks to take in",
+    question: `Let ${record.item} off ${plural(count, "exemption", "exemptions")} of its conform record, and take it in for ${need}?`,
+    recommendation: "keep them",
+    basis: `${plural(count, "exemption", "exemptions")} on ${plural(rules.size, "rule", "rules")}, each with its rule, its file and its reason, from ${file}; no rule a decision of this repository holds is among them, for those are refused before they reach this sheet`,
+    hard_to_undo: false,
+    where: file,
+    if_refused: `${record.item} is not taken in for ${need}: patch the code where an exemption was refused, take the exemption out of ${file}, and call intake again`,
+    item: `exemptions:${need}`,
+    asked_on: today(),
+    // The earlier questions about this need's exemptions that wait unanswered ask about a list that
+    // is gone: this one takes their place, so none of them waits on the owner any more.
+    ...(replaces.length > 0 ? { replaces } : {}),
+    exemptions: record.exemptions.map(({ rule, file: of, reason }) => ({ rule, file: of, reason })),
+  };
+}
+
+const sameList = (a, b) => JSON.stringify(a ?? []) === JSON.stringify(b ?? []);
+
+// Whether the row may be written: an item let off nothing, or one whose list of exemptions, as it
+// stands now, the owner kept. Otherwise what to say and write instead.
+function exemptionsHeld(state, need, conform) {
+  const listed = conform.record.exemptions.map(({ rule, file, reason }) => ({
+    rule,
+    file,
+    reason,
+  }));
+  if (listed.length === 0) return null;
+  const item = `exemptions:${need}`;
+  const question = rowOf(state, item);
+  if (!question || !sameList(question.exemptions, listed)) {
+    const earlier = rowsOf(state, item);
+    const row = exemptionsQuestion(
+      state,
+      need,
+      conform.record,
+      conform.file,
+      earlier.length,
+      earlier.filter((each) => !each.answer).map((each) => each.id),
+    );
+    const changed = question ? `the exemptions changed since ${question.id}; ` : "";
+    return {
+      waiting: row.id,
+      question: "asked",
+      next: `${changed}asked the owner in ${questionFile(row.id)} to keep the ${plural(listed.length, "exemption", "exemptions")} of ${conform.file}: the row is written once the owner keeps them, and this is called again`,
+      writes: questionFiles(state, row),
+    };
+  }
+  if (!question.answer) {
+    return {
+      waiting: question.id,
+      question: "waits",
+      next: `${question.id} waits on the owner: answer it on the decision sheet, then call this again`,
+      writes: {},
+    };
+  }
+  if (question.answer !== "keep") {
+    return {
+      waiting: question.id,
+      question: "answered",
+      next: `${question.id} was ${answerOf(question)}: ${need} is not taken in; patch the code where an exemption was refused, take it out of ${conform.file}, and call this again`,
+      writes: {},
+    };
+  }
+  return null;
 }
 
 // A piece find offers, as the owner is given it to pick.
@@ -381,6 +461,7 @@ function rowFor(root, state, { need, question, chosen, named, looked }) {
   const hand = external ? null : chosen.searched && !itself.has(chosen.nearest) ? chosen : looked();
   return {
     files: {},
+    conform,
     row: {
       name: codeName(root, file, external ? chosen.name : need),
       file,
@@ -395,7 +476,7 @@ function rowFor(root, state, { need, question, chosen, named, looked }) {
         : { description: chosen.why }),
       ...approved,
       taken: sha(content),
-      ...(conform ? { conform } : {}),
+      ...(conform ? { conform: conform.file } : {}),
       ...(hand ? { searched: hand.searched, nearest: hand.nearest } : {}),
     },
   };
@@ -508,6 +589,12 @@ function needCall(root, state, options) {
       writes: {},
       work: true,
     };
+  }
+  // The owner keeps the list of what the item is let off before its row is written.
+  const held = made.conform ? exemptionsHeld(state, need, made.conform) : null;
+  if (held) {
+    const { writes: asking, ...said } = held;
+    return { ...asked, rung, chosen, ...said, writes: asking, work: true };
   }
   writable(state);
   const writes = {

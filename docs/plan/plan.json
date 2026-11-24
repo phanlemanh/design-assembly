@@ -569,8 +569,8 @@
         {
           "id": "11.8",
           "what": "Luật bắt buộc không khai miễn được: conform và intake từ chối điều khai miễn cho một luật thuộc mức bắt buộc, trong đó có luật giữ giá trị kiểu dáng của hệ; chỉ kiểm kiểu chặt và cách tổ chức tệp bên trong mã gốc được khai miễn",
-          "state": "todo",
-          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, mục «Đủ chuẩn» và câu hỏi 3 (mức bắt buộc gồm năm điều), tiêu chí 6 và 14; wiki/decisions/0104-filters-taken-in-through-conform-measured.md; docs/trials/filters-through-conform.md (18 trên 82 điều khai miễn thuộc luật kiểu dáng); dòng giới hạn conform-exempts-mandatory-rules; chủ repo cho lập mục ngày 2026-11-24 («Lập mục mới»); trước khi dựng cần tiêu chí nghiệm thu ở phần bổ sung đề bài 0015, chủ repo duyệt; có thể đổi hợp đồng sổ, cần người duyệt"
+          "state": "done",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, mục «Đủ chuẩn» và câu hỏi 3 (mức bắt buộc gồm năm điều), tiêu chí 6 và 14; wiki/decisions/0104-filters-taken-in-through-conform-measured.md; docs/trials/filters-through-conform.md (18 trên 82 điều khai miễn thuộc luật kiểu dáng); dòng giới hạn conform-exempts-mandatory-rules; chủ repo cho lập mục ngày 2026-11-24 («Lập mục mới»); phần bổ sung đề bài 0015 chủ repo duyệt ngày 2026-11-24 (gộp PR 133), tiêu chí 22 tới 25; dựng ngày 2026-11-24 theo lời chủ repo («Dựng 11.8»): wiki/decisions/0105-a-mandatory-rule-is-never-exempted.md, plugin 0.56.0; luật bắt buộc là luật mà sổ quyết định giữ, conform và intake từ chối mọi cách tắt nó, danh sách khai miễn lên tờ quyết định trước khi ghi dòng; hàng chờ có khoá exemptions mới, cần người duyệt"
         }
       ],
       "done_when": [
