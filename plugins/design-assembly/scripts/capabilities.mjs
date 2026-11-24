@@ -284,6 +284,13 @@ export function shapeProblems(table, context) {
     if (list(socket.outputs).length === 0) at("the socket names no output");
     if (list(socket.checks).length === 0) at("the socket names no check");
     if (!["owner", "machine"].includes(socket.decides)) at("the socket says nobody decides");
+    if (socket.ladder !== undefined) {
+      if (socket.ladder !== true) at("ladder is true, or absent");
+      else if (socket.closed) at("a closed socket has no ladder: no plug from outside fills it");
+      else if (!list(item.plugs).some((plug) => plug.default === true)) {
+        at("a ladder socket has no plug of the plugin for plugs from outside to be rungs of");
+      }
+    }
     for (const ledger of list(socket.writes)) {
       if (!context.ledgers.includes(ledger))
         at(`writes ${ledger}, which is not a ledger of the contract`);
@@ -617,6 +624,10 @@ export const PRESENT = ["in-repo", "in-session"];
 function chosenState(chosen, item, outside) {
   if (list(item.plugs).some((plug) => plug.id === chosen.plug)) return "plugin";
   if (chosen.plug === NONE) return "empty";
+  // At a ladder socket the plugin's plug always works it: a plug from outside chosen there, before
+  // the socket had a ladder or by an answer since, is the owner's word kept, and not applied; that
+  // plug counts only as a source the repository pins (spec 0015).
+  if (item.socket?.ladder === true) return "kept-not-applied";
   const state = outside.find((plug) => plug.id === chosen.plug)?.state;
   return [...PRESENT, "needs-sign-in"].includes(state) ? state : "chosen-but-missing";
 }
@@ -625,7 +636,9 @@ function chosenState(chosen, item, outside) {
 // to the plugin's plug, or leaves the socket empty where the plugin has none, until the plug is here.
 export function fallbackOf(socket) {
   const chosen = socket.chosen;
-  if (!chosen || ["plugin", "empty", ...PRESENT].includes(chosen.state)) return null;
+  if (!chosen || ["plugin", "empty", "kept-not-applied", ...PRESENT].includes(chosen.state)) {
+    return null;
+  }
   const why = chosen.state === "needs-sign-in" ? "waits for a sign-in" : "is not here";
   // A socket of the board names the plugin's plug `plug`; one of the setup step's, `plugin`.
   const plugin = socket.plugin ?? socket.plug;

@@ -4862,7 +4862,7 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0096"],
+      "where": ["d0096", "d0098"],
       "status": "open",
       "note": "An item of an outside source whose install line brings many files is recorded as one row with the hash of the one file the caller names, so a change to any other of its files is not reported: the component of the measurement in d0096 came in as 32 files."
     },
@@ -4895,7 +4895,7 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0096"],
+      "where": ["d0096", "d0098"],
       "status": "open",
       "note": "The gate compares a pin with what the repository holds for fonts only, so the snapshot of a library source that no longer matches its pin is said by find and intake and leaves the gate green."
     },
@@ -4906,7 +4906,7 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0096"],
+      "where": ["d0096", "d0098"],
       "status": "open",
       "note": "An item of an outside source is taken in without checking that it passes the repository's floor, and a builder can make the gate green again by turning the floor and the type check off for its files with a reason on each line, which no check flags, so the look of that block is then the source's and not the floor's."
     },
@@ -4932,6 +4932,94 @@
       "where": ["d0096"],
       "status": "open",
       "note": "The plug file of the outside registry measured at the components socket lists an account among its needs because its maker's documents say its search needs one, even for the free part; the measurement made every call under a person already signed in, so no call without an account was tried and the need is not shown."
+    },
+    {
+      "id": "ladder-order-fixed-and-sources-in-one-shape",
+      "area": "find",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0098"],
+      "status": "open",
+      "note": "The ladder find and intake walk is fixed by the plugin: the repository's own store, the starter kit, the family's store, then the sources pinned in design/sources/. A repository cannot say that its outside source comes before the starter kit, and a catalog it pinned in its own shape outside that folder is never read, so a repository whose rule is its store, then its outside registry, then made by hand is shown no candidate from that registry."
+    },
+    {
+      "id": "outside-item-not-conformed-before-intake",
+      "area": "intake",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0098"],
+      "status": "open",
+      "note": "An item of an outside source goes from fetched to taken in with no step between: no record keeps the hash of every file as fetched and after it was changed, each change to its code with a reason, or each rule it is let off with a reason, and nothing refuses to take it in while that record is missing."
+    },
+    {
+      "id": "outside-code-changed-without-a-record",
+      "area": "inventory",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0098"],
+      "status": "open",
+      "note": "A change to the code of an outside item is made by hand, not by a recorded patch on the pinned original, so nothing applies the same changes again on a newer original, stops when one no longer fits, or tells a recorded change from a hand edit."
+    },
+    {
+      "id": "choice-not-held-by-the-gate",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0098"],
+      "status": "open",
+      "note": "The gate does not hold the choice before making: a new component file of the repository with no row in the intake ledger, a by-hand row with no words searched and no nearest candidate, and a second row for the same need all leave it green; the first is only a finding of the inventory report."
+    },
+    {
+      "id": "store-block-cannot-be-extended",
+      "area": "change",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0098"],
+      "status": "open",
+      "note": "A block of the store can be retired or merged, never extended: there is no way to widen the block a need already has, say first which screens it reaches, and record the change on its row, so a block that falls short invites a second one beside it."
+    },
+    {
+      "id": "plug-measure-counts-the-first-use",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0098"],
+      "status": "open",
+      "note": "The four measures count one first use of a plug: what reusing the block costs the second time, and whether every screen then meets the same block, are not measured, so a source that pays off on reuse is measured only where it costs most."
+    },
+    {
+      "id": "ladder-choice-kept-not-applied",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0098"],
+      "status": "open",
+      "note": "A plug from outside chosen at a ladder socket, in a row written before the socket had a ladder or from an answer since, is kept as the owner's word and not applied: nothing turns that choice into a source pinned in design/sources/, so the plug the owner chose stays off the ladder until a person pins it."
+    },
+    {
+      "id": "ladder-source-matched-by-id",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0098"],
+      "status": "open",
+      "note": "At a ladder socket a plug from outside is taken to stand on rung 2 only when design/sources/ holds a source of the same id as the plug file; a source pinned under another id is not tied to the plug, and the board says the plug is no pinned source."
     }
   ]
 }

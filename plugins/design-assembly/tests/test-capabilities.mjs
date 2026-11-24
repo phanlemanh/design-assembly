@@ -80,6 +80,31 @@ test("the table has twenty capabilities, each socket with its four fields and pl
   ]);
 });
 
+test("spec 0015: the components socket is the one ladder socket, and a ladder is held to its shape", () => {
+  assert.deepEqual(
+    table.capabilities.filter((item) => item.socket.ladder === true).map((item) => item.id),
+    ["components"],
+  );
+  const word = copy();
+  capability(word, "components").socket.ladder = "yes";
+  assert.deepEqual(shapeProblems(word, context), ["components: ladder is true, or absent"]);
+  const closed = copy();
+  capability(closed, "decision").socket.ladder = true;
+  assert.deepEqual(shapeProblems(closed, context), [
+    "decision: a closed socket has no ladder: no plug from outside fills it",
+  ]);
+  const bare = copy();
+  capability(bare, "components").plugs = capability(bare, "components").plugs.map((plug) => ({
+    ...plug,
+    default: false,
+  }));
+  assert.ok(
+    shapeProblems(bare, context).includes(
+      "components: a ladder socket has no plug of the plugin for plugs from outside to be rungs of",
+    ),
+  );
+});
+
 test("no gap: every capability has a default plug or an open row of the limits ledger", () => {
   assert.deepEqual(gapProblems(table, LIMITS), []);
 

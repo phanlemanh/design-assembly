@@ -23,6 +23,11 @@ Accepted, 2026-11-23. Phích thứ hai của mục 10.2, theo thứ tự chủ r
 nghe quy trình và ước tính. Sửa ngày 2026-11-24 theo ba điểm soát PR #119: điều dòng cài đã đổi, tổng cả lượt so với
 trần, và điều cần tài khoản là theo tài liệu của ReUI.
 
+Phạm vi thu hẹp ngày 2026-11-24 bởi [0098](0098-choose-before-make-at-the-components-socket.md): số đo giữ nguyên, nhưng
+kết luận «không thắng phích của plugin» chỉ là số đo một lần dùng đầu, trên repo chưa có bước chuẩn hoá. Nó không còn
+quyết lời khuyên ở ổ linh kiện: ở ổ ấy ReUI là một bậc của thang `intake` khi repo ghim nó, và `plugs` không hỏi gì.
+Điểm 3 dưới đây là luật đã áp hôm đo.
+
 ## Context
 
 Ổ linh kiện giữ dòng sổ nhập kho của một khối. Phích của plugin là `intake` với kho của repo và bộ khởi đầu

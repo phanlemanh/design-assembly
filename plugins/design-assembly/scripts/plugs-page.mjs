@@ -23,19 +23,39 @@ const plainOf = (id) => TABLE.capabilities.find((capability) => capability.id ==
 // Who works a socket now: the plug chosen, else the plugin's, else nobody.
 function whoOf(socket) {
   if (socket.closed) return `${socket.plugin}, the plugin's own; no plug from outside fills it`;
+  if (socket.chosen?.state === "kept-not-applied") {
+    return `${socket.plugin}, the plugin's own; an earlier choice of ${socket.chosen.plug}, by ${socket.chosen.by} on ${socket.chosen.on}, is kept, not applied: at this socket ${socket.chosen.plug} counts only as a pinned source`;
+  }
   if (socket.chosen) {
     return `${socket.chosen.plug}, chosen by ${socket.chosen.by} on ${socket.chosen.on} (${socket.chosen.state})`;
   }
   return socket.plugin ? `${socket.plugin}, the plugin's own` : "nobody: the socket is empty";
 }
 
+// What the measure of a plug from outside says, in words. At a ladder socket a plug from outside is
+// a rung of the plugin's plug, never its rival, so its measure is not a contest and no question is
+// put there: it says the rung it stands on instead (spec 0015).
+function measureOf(candidate, socket) {
+  if (socket.ladder) {
+    const measured =
+      candidate.measured === "unmeasured"
+        ? "unmeasured"
+        : `measured in decision ${candidate.measured}`;
+    const rung =
+      candidate.rung === 2
+        ? `rung 2 of ${socket.plugin}, as a pinned source`
+        : "no pinned source, so find and intake do not reach it";
+    return `${measured}; a rung of ${socket.plugin}, not a rival to it; ${rung}`;
+  }
+  return candidate.measured === "unmeasured"
+    ? "unmeasured: it can be measured on a throwaway copy, with the cost in tokens said before it runs, and is never recommended until then"
+    : `measured in decision ${candidate.measured}${candidate.beats_plugin ? ", where it beat the plugin's plug" : ", where it did not beat the plugin's plug"}`;
+}
+
 // One plug from outside, in a sentence: where it stands, its measure or the invitation to measure
 // it, the owner's word, what it needs and what it sends.
-function candidateOf(candidate) {
-  const measure =
-    candidate.measured === "unmeasured"
-      ? "unmeasured: it can be measured on a throwaway copy, with the cost in tokens said before it runs, and is never recommended until then"
-      : `measured in decision ${candidate.measured}${candidate.beats_plugin ? ", where it beat the plugin's plug" : ", where it did not beat the plugin's plug"}`;
+function candidateOf(candidate, socket) {
+  const measure = measureOf(candidate, socket);
   const owner = candidate.owner
     ? `; recommended by the owner ("${candidate.owner.said}", ${candidate.owner.on}, decision ${candidate.owner.record})`
     : "";
@@ -47,7 +67,7 @@ function candidateOf(candidate) {
 
 const candidatesOf = (socket) =>
   socket.candidates.length > 0
-    ? socket.candidates.map(candidateOf).join(" · ")
+    ? socket.candidates.map((candidate) => candidateOf(candidate, socket)).join(" · ")
     : socket.closed
       ? "closed"
       : "only the plugin's plug";

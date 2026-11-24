@@ -168,9 +168,13 @@ test("criterion 1: each socket gives the plugin's plug, the outside candidates, 
       "plugin",
       "chosen",
       "candidates",
+      "ladder",
     ]);
   }
   const direction = socketOf(board, "direction");
+  // Only the components socket has a ladder (spec 0015).
+  assert.equal(direction.ladder, null);
+  assert.equal(socketOf(board, "components").ladder.plug, "intake");
   assert.equal(direction.plugin, "directions");
   assert.equal(direction.chosen, null);
   assert.deepEqual(direction.candidates, [
@@ -337,6 +341,9 @@ test("criterion 5: the real plug of the reference system is recommended at hando
 test("criterion 5, broken: a question that recommends an unmeasured plug, or a measured one that lost, is refused with its file", () => {
   const dir = fixtureRepo();
   const caps = fixtureCaps();
+  // The unmeasured fixture registry fills a socket with no ladder too, where it can be recommended
+  // wrongly; at the components socket, a ladder socket, no question is asked at all.
+  caps.plugs.find((plug) => plug.id === "loose-blocks").sockets = ["components", "design-review"];
   const board = boardOf(dir, caps);
   const question = (socket, name) => ({
     id: `plug-${socket}`,
@@ -346,8 +353,12 @@ test("criterion 5, broken: a question that recommends an unmeasured plug, or a m
   assert.equal(recommendationProblem(question("handoff", "house-system"), board), null);
   assert.equal(recommendationProblem(question("direction", "directions"), board), null);
   assert.equal(
-    recommendationProblem(question("components", "loose-blocks"), board),
-    "design/waiting/plug-components.json recommends loose-blocks, which was never measured at the components socket: an unmeasured plug is never the recommendation",
+    recommendationProblem(question("design-review", "loose-blocks"), board),
+    "design/waiting/plug-design-review.json recommends loose-blocks, which was never measured at the design-review socket: an unmeasured plug is never the recommendation",
+  );
+  assert.equal(
+    recommendationProblem(question("components", "intake"), board),
+    "design/waiting/plug-components.json asks about the components socket, where a plug from outside is a rung of intake, not a rival: no question is asked there",
   );
   assert.equal(
     recommendationProblem(question("direction", "house-system"), board),
@@ -360,16 +371,16 @@ test("criterion 5, broken: a question that recommends an unmeasured plug, or a m
   // The command refuses such a waiting list, names the file, and writes nothing.
   put(
     dir,
-    "design/waiting/plug-components.json",
+    "design/waiting/plug-design-review.json",
     `${JSON.stringify(
       {
-        id: "plug-components",
+        id: "plug-design-review",
         kind: "question",
-        question: "Which plug works the components socket in this repository?",
+        question: "Which plug works the design review socket in this repository?",
         recommendation: "loose-blocks",
         basis: "none",
-        item: "decision:plug-components",
-        candidates: [{ name: "loose-blocks" }, { name: "intake" }],
+        item: "decision:plug-design-review",
+        candidates: [{ name: "loose-blocks" }, { name: "review" }],
       },
       null,
       2,
@@ -377,7 +388,7 @@ test("criterion 5, broken: a question that recommends an unmeasured plug, or a m
   );
   assert.throws(
     () => plan(dir, { caps, on: ON }),
-    /design\/waiting\/plug-components\.json recommends loose-blocks, which was never measured/,
+    /design\/waiting\/plug-design-review\.json recommends loose-blocks, which was never measured/,
   );
 });
 
@@ -886,4 +897,260 @@ test("review: the owner's named exception at handoff and brand assets holds only
     const asked = recommendationOf(socketOf(board, id));
     assert.notEqual(asked.candidates[0].name, "claude-design", id);
   }
+});
+
+// ---- specification 0015, slice 1: at the components socket an outside plug is a rung ------------
+
+// A pinned outside source of the given id, as the sources ledger keeps one file per source.
+const pinSource = (dir, id, order = 1) =>
+  put(
+    dir,
+    `design/sources/${id}.json`,
+    `${JSON.stringify({ version: 1, id, order, pin: { version: "1.0.0" } }, null, 2)}\n`,
+  );
+// The fixture registry, measured at the components socket where it did not beat intake.
+const measuredBlocks = () => {
+  const caps = fixtureCaps();
+  caps.plugs.find((plug) => plug.id === "loose-blocks").measured = measured(
+    ["components"],
+    false,
+    "d0096",
+  );
+  return caps;
+};
+
+test("spec 0015 criterion 2: at the components socket an outside plug is a rung of intake, and no question is asked there", () => {
+  const dir = fixtureRepo();
+  const caps = measuredBlocks();
+  const components = socketOf(boardOf(dir, caps), "components");
+  // The ladder of the repository, in intake's three rungs, and no source pinned yet.
+  assert.deepEqual(components.ladder, {
+    plug: "intake",
+    rungs: [
+      { rung: 1, store: "repo" },
+      { rung: 2, store: "starter" },
+      { rung: 2, store: "family" },
+      { rung: 3, store: "by-hand" },
+    ],
+  });
+  assert.equal(components.candidates[0].rung, null);
+  // Measured and lost, and still no question: losing is no reason to keep the plugin's plug.
+  assert.equal(recommendationOf(components), null);
+  assert.ok(!plan(dir, { caps, on: ON }).questions.some((q) => q.id === "plug-components"));
+  // The other sockets keep the rule of the four measures.
+  assert.equal(socketOf(boardOf(dir, caps), "direction").ladder, null);
+  assert.equal(
+    recommendationOf(socketOf(boardOf(dir, caps), "direction")).candidates[0].name,
+    "directions",
+  );
+  // Pinned as a source, the plug stands on rung 2, after the starter kit, in the order of its pin.
+  pinSource(dir, "other-source", 1);
+  pinSource(dir, "loose-blocks", 2);
+  const pinned = socketOf(boardOf(dir, caps), "components");
+  assert.deepEqual(
+    pinned.ladder.rungs.map((rung) => [rung.rung, rung.store]),
+    [
+      [1, "repo"],
+      [2, "starter"],
+      [2, "family"],
+      [2, "sources/other-source"],
+      [2, "sources/loose-blocks"],
+      [3, "by-hand"],
+    ],
+  );
+  assert.equal(pinned.candidates[0].rung, 2);
+  // A pinned source that cannot be read keeps its place, and says why.
+  put(dir, "design/sources/broken.json", "not json\n");
+  const broken = socketOf(boardOf(dir, caps), "components").ladder.rungs.find(
+    (rung) => rung.store === "sources/broken",
+  );
+  assert.match(broken.unreadable, /is not valid JSON/);
+  rmSync(path.join(dir, "design/sources/broken.json"));
+  // The printed board shows the ladder and where the plug stands on it.
+  const text = report(plan(dir, { caps, on: ON }));
+  assert.match(
+    text,
+    /^ {4}ladder of intake: 1 the repository's own store; 2 the starter kit of this plugin, then the family's store, then the outside sources other-source, loose-blocks; 3 made by hand$/m,
+  );
+  assert.match(
+    text,
+    /^ {4}loose-blocks +in-repo, measured in d0096, rung 2 of intake as the source loose-blocks$/m,
+  );
+  assert.match(
+    report(plan(dir, { caps, on: ON }), { short: true }),
+    /^loose-blocks is in this repository and pinned as a source: it stands on rung 2 of intake at the components socket\.$/m,
+  );
+});
+
+test("spec 0015 criterion 2: on a copy that holds the real registry and pins no source, the board says find and intake do not reach it", () => {
+  const dir = empty();
+  put(dir, "src/components/reui/filters.tsx", "export {};\n");
+  const shown = cli("--target", dir, "--json");
+  assert.equal(shown.status, 0, shown.stderr);
+  const result = JSON.parse(shown.stdout);
+  assert.deepEqual(result.questions, []);
+  const components = result.sockets.find((socket) => socket.id === "components");
+  const reui = components.candidates.find((candidate) => candidate.id === "reui");
+  assert.equal(reui.state, "in-repo");
+  assert.equal(reui.rung, null);
+  const short = cli("--target", dir, "--short");
+  assert.equal(short.status, 0, short.stderr);
+  assert.match(
+    short.stdout,
+    /^reui is in this repository and is no pinned source, so find and intake do not reach it at the components socket: pin it by hand in design\/sources\/ to put it on rung 2 of intake\.$/m,
+  );
+  assert.doesNotMatch(short.stdout, /plug-components/);
+  // A measured plug is here, so the board does not say that none is.
+  assert.doesNotMatch(short.stdout, /No outside plug that was measured is in this repository/);
+  // The same copy with the registry pinned as a source: it stands on rung 2, and still nothing is asked.
+  pinSource(dir, "reui");
+  const pinned = JSON.parse(cli("--target", dir, "--json").stdout);
+  assert.deepEqual(pinned.questions, []);
+  const ladder = pinned.sockets.find((socket) => socket.id === "components");
+  assert.equal(ladder.candidates.find((candidate) => candidate.id === "reui").rung, 2);
+  assert.deepEqual(
+    ladder.ladder.rungs.map((rung) => rung.store),
+    ["repo", "starter", "family", "sources/reui", "by-hand"],
+  );
+  const full = cli("--target", dir);
+  assert.equal(full.status, 0, full.stderr);
+  assert.match(
+    full.stdout,
+    /^ {4}ladder of intake: 1 the repository's own store; 2 the starter kit of this plugin, then the family's store, then the outside source reui; 3 made by hand$/m,
+  );
+  assert.match(
+    full.stdout,
+    /^reui is in this repository and pinned as a source: it stands on rung 2 of intake at the components socket\.$/m,
+  );
+});
+
+test("spec 0015 criterion 2: a waiting question about the components socket is taken away and said; an answered one still becomes a row", () => {
+  const dir = fixtureRepo();
+  const caps = measuredBlocks();
+  const stale = (fields = {}) =>
+    put(
+      dir,
+      "design/waiting/plug-components.json",
+      `${JSON.stringify(
+        {
+          id: "plug-components",
+          kind: "question",
+          group: "plugs",
+          question: "Which plug works the components socket in this repository?",
+          recommendation: "intake: The plugin's own plug, as today.",
+          basis: "loose-blocks (decision d0096) did not beat the plugin's plug",
+          item: "decision:plug-components",
+          asked_on: ON,
+          candidates: [{ name: "intake" }, { name: "loose-blocks" }],
+          ...fields,
+        },
+        null,
+        2,
+      )}\n`,
+    );
+  stale();
+  const after = run(dir, caps);
+  assert.deepEqual(
+    after.withdrawn.filter((item) => item.id === "plug-components"),
+    [{ id: "plug-components", plugs: [], ladder: true }],
+  );
+  assert.ok(!existsSync(path.join(dir, "design/waiting/plug-components.json")));
+  assert.match(
+    report(after),
+    /^Taken away: plug-components asked which plug works the components socket, where an outside plug is a rung of intake, not a rival: no question is asked there\.$/m,
+  );
+  // The owner's answer is never thrown away: an answered question becomes its row.
+  stale({ answer: "keep", by: "Owner Name", on: ON });
+  const kept = run(dir, caps);
+  assert.deepEqual(
+    kept.rows.filter((row) => row.id === "plug-components"),
+    [{ id: "plug-components", plug: "intake", by: "Owner Name", on: ON }],
+  );
+  // An answer that names the outside plug is kept as the owner's word, and read as not applied.
+  stale({ answer: "value", said: "loose-blocks", by: "Owner Name", on: ON });
+  rmSync(path.join(dir, "design/decisions.yaml"));
+  run(dir, caps);
+  assert.equal(socketOf(boardOf(dir, caps), "components").chosen.state, "kept-not-applied");
+});
+
+// A row of the decision ledger that chose a plug for the components socket, as an answered question
+// wrote it before that socket had a ladder.
+const choiceRow = (dir, plug) =>
+  put(
+    dir,
+    "design/decisions.yaml",
+    `version: 1\ndecisions:\n  - id: plug-components\n    layer: governance\n    kind: judgment\n    source: "plug:${plug}"\n    note: "answered by Owner Name on 2026-11-23"\n`,
+  );
+
+test("spec 0015 review: --reask at a ladder socket is refused, and the owner's recorded choice stays", () => {
+  const dir = fixtureRepo();
+  choiceRow(dir, "loose-blocks");
+  const before = read(dir, "design/decisions.yaml");
+  assert.throws(
+    () => plan(dir, { caps: measuredBlocks(), on: ON, reask: ["components"] }),
+    /--reask components names the components socket, where no question is asked: an outside plug there is a rung of intake, not a rival to it, so the recorded choice stays\. Nothing was written/,
+  );
+  // The command, with the real plug files: refused with --dry-run and without, the ledger unchanged.
+  const copyDir = empty();
+  choiceRow(copyDir, "reui");
+  const kept = read(copyDir, "design/decisions.yaml");
+  for (const args of [["--dry-run"], []]) {
+    const refused = cli("--target", copyDir, "--reask", "components", "--short", ...args);
+    assert.equal(refused.status, 2, args.join(" "));
+    assert.equal(refused.stdout, "", args.join(" "));
+    assert.match(
+      refused.stderr,
+      /--reask components names the components socket, where no question is asked/,
+    );
+    assert.equal(read(copyDir, "design/decisions.yaml"), kept, args.join(" "));
+  }
+  assert.equal(read(dir, "design/decisions.yaml"), before);
+  // Another socket is still asked again.
+  assert.doesNotThrow(() => plan(dir, { caps: measuredBlocks(), on: ON, reask: ["direction"] }));
+});
+
+test("spec 0015 review: a recorded choice of an outside plug at a ladder socket is kept and not applied, and every reader says so", async () => {
+  const dir = fixtureRepo();
+  choiceRow(dir, "loose-blocks");
+  const caps = measuredBlocks();
+  const components = socketOf(boardOf(dir, caps), "components");
+  assert.equal(components.chosen.state, "kept-not-applied");
+  assert.equal(components.chosen.plug, "loose-blocks");
+  assert.equal(fallbackOf(components), null);
+  const text = report(plan(dir, { caps, on: ON }));
+  assert.match(
+    text,
+    /^ {2}components +intake; an earlier choice of loose-blocks by Owner Name on 2026-11-23 is kept, not applied: intake works this socket, and loose-blocks counts only as a pinned source$/m,
+  );
+  assert.doesNotMatch(text, /chosen: loose-blocks/);
+  // The page says the same.
+  const page = JSON.stringify(documentOf(plan(dir, { caps, on: ON }), "test"));
+  assert.match(
+    page,
+    /intake, the plugin's own; an earlier choice of loose-blocks, by Owner Name on 2026-11-23, is kept, not applied/,
+  );
+  // A choice of the plugin's own plug there is simply the plugin's.
+  choiceRow(dir, "intake");
+  assert.equal(socketOf(boardOf(dir, caps), "components").chosen.state, "plugin");
+  // status, with the real plug files, does not call it chosen.
+  const copyDir = empty();
+  choiceRow(copyDir, "reui");
+  put(copyDir, "src/components/reui/filters.tsx", "export {};\n");
+  const status = spawnSync(
+    execPath,
+    [path.join(PLUGIN, "scripts/status.mjs"), "--target", copyDir],
+    {
+      encoding: "utf8",
+    },
+  );
+  assert.match(
+    status.stdout,
+    /^ {2}kept, not applied: reui \(components\), where intake works the socket$/m,
+  );
+  assert.doesNotMatch(status.stdout, /^ {2}chosen: .*reui \(components\)/m);
+  const plugsJson = JSON.parse(cli("--target", copyDir, "--json").stdout);
+  assert.equal(
+    plugsJson.sockets.find((socket) => socket.id === "components").chosen.state,
+    "kept-not-applied",
+  );
 });
