@@ -57,6 +57,19 @@ const ATOMIC_LEVELS = ["atom", "molecule", "organism", "template"];
 // second kind is not.
 export const BORN = { floor: "with-the-floor", firstEntry: "with-its-first-entry" };
 
+// The folder of conform records: one file per need, for an item of an outside source taken down
+// and conformed before it is taken in (spec 0015).
+export const CONFORM_FOLDER = "design/conform";
+// A file of an item, with the hash of its bytes.
+const hashedFile = {
+  type: "object",
+  fields: {
+    file: required(text),
+    sha256: required({ ...text, pattern: "^[0-9a-f]{64}$" }),
+  },
+  open: true,
+};
+
 export const LEDGERS = {
   decisions: {
     file: "design/decisions.yaml",
@@ -294,6 +307,9 @@ export const LEDGERS = {
               open: true,
             },
             merged_into: dashed,
+            // The conform record of an item of an outside source, which holds the hash of every
+            // file of the item after patching (spec 0015).
+            conform: text,
           },
           // A repository may keep keys of its own on a block.
           open: true,
@@ -394,6 +410,45 @@ export const LEDGERS = {
         fields: { by: required(text), on: required(day) },
         open: true,
       },
+    },
+    open: true,
+  },
+  conform: {
+    folder: CONFORM_FOLDER,
+    ending: ".json",
+    question:
+      "for an item of an outside source taken down for a need: every file as taken down and after patching, each patch with its reason, each rule it is let off with its reason",
+    born: BORN.firstEntry,
+    writer:
+      "a person, until the conform command writes it (spec 0015, slice 3); intake reads it before it takes the item in",
+    version: 1,
+    format: "json-conform",
+    root: {
+      version: required({ type: "number|string" }),
+      // The need it is taken down for, which is the name of its file without `.json`.
+      need: required(dashed),
+      // The pinned source it comes from, by id, and its name in that source's catalog.
+      source: required(dashed),
+      item: required(text),
+      // Every file the item brought, with its hash as taken down; then every one after patching.
+      taken: required(list(hashedFile)),
+      conformed: required(list(hashedFile)),
+      // Each change made to the item's code, with why; empty when none.
+      patches: required(
+        list({
+          type: "object",
+          fields: { file: required(text), reason: required(text) },
+          open: true,
+        }),
+      ),
+      // Each rule the item is let off, in which file, with why; empty when none.
+      exemptions: required(
+        list({
+          type: "object",
+          fields: { rule: required(text), file: required(text), reason: required(text) },
+          open: true,
+        }),
+      ),
     },
     open: true,
   },
@@ -573,6 +628,7 @@ export function shapeProblems(kind, textOfFile, file = LEDGERS[kind]?.file) {
   }
   if (ledger.format === "yaml-intake") return intakeProblems(textOfFile, file);
   if (ledger.format === "json-sources") return sourceProblems(textOfFile, file);
+  if (ledger.format === "json-conform") return conformProblems(textOfFile, file);
   let data;
   if (ledger.format === "yaml-screens") {
     const { screens, ...rest } = readScreenLedger(textOfFile);
@@ -619,6 +675,51 @@ function intakeProblems(textOfFile, file) {
       (need) => `${file}: two blocks answer the need ${need}: one need, one solution`,
     ),
   ];
+}
+
+// One conform record: its shape, a name that is its need, at least one file, every file taken down
+// again after patching, and patches and exemptions about files of the item only.
+function conformProblems(textOfFile, file) {
+  let data;
+  try {
+    data = JSON.parse(textOfFile);
+  } catch {
+    return [`${file} is not valid JSON`];
+  }
+  if (typeOf(data) !== "object") return [`${file} is ${typeOf(data)}, the contract says object`];
+  const newer = newerProblem("conform", data, file);
+  if (newer) return [newer];
+  const problems = objectProblems(data, LEDGERS.conform.root, LEDGERS.conform.open, file);
+  const name = path.basename(file);
+  if (typeof data.need === "string" && name !== `${data.need}.json`) {
+    problems.push(
+      `${file} is named ${name} and its need is ${data.need}: a record is named after its need`,
+    );
+  }
+  if (problems.length > 0) return problems;
+  const taken = data.taken.map((entry) => entry.file);
+  if (taken.length === 0) {
+    return [`${file}.taken names no file: a record holds every file of its item as taken down`];
+  }
+  const conformed = new Set(data.conformed.map((entry) => entry.file));
+  for (const each of taken.filter((one) => !conformed.has(one))) {
+    problems.push(
+      `${file}.conformed leaves out ${each}, which taken holds: a record holds every file after patching`,
+    );
+  }
+  for (const each of [...conformed].filter((one) => !taken.includes(one))) {
+    problems.push(`${file}.conformed holds ${each}, which taken does not: no file of another item`);
+  }
+  for (const key of ["patches", "exemptions"]) {
+    data[key].forEach((entry, index) => {
+      if (!taken.includes(entry.file)) {
+        problems.push(
+          `${file}.${key}[${index}].file is ${entry.file}, which is no file of the item`,
+        );
+      }
+    });
+  }
+  return problems;
 }
 
 // One file of the ledger of sources: its shape, a name that is its id, and a pin, kept in the file

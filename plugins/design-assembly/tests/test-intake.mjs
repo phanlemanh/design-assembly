@@ -93,6 +93,25 @@ const blocksOf = (dir, file) => ledger(dir, file).blocks;
 const shapeOf = (dir, file = "design/intake.yaml") =>
   shapeProblems("intake", ledgerText(dir, file, "intake"), file);
 const NO_NAME = /approved|The Owner/;
+// The conform record an outside item needs before it is taken in (spec 0015): the one file it
+// brought, as taken down and as it is now, with no patch and no exemption.
+function conformed(dir, file = "src/components/narrow-list.tsx", need = "narrow-list") {
+  const hash = sha(text(dir, file));
+  put(
+    dir,
+    `design/conform/${need}.json`,
+    json({
+      version: 1,
+      need,
+      source: "kit",
+      item: "filter-bar",
+      taken: [{ file, sha256: hash }],
+      conformed: [{ file, sha256: hash }],
+      patches: [],
+      exemptions: [],
+    }),
+  );
+}
 
 test("rung one: a block the ledger keeps for the need is the answer, and nothing is written", () => {
   const dir = store();
@@ -182,6 +201,7 @@ test("with the file on disk, the row is written with the name and the day of the
   answer(dir, "intake-narrow-list giữ");
   const code = COMPONENT("NarrowList");
   put(dir, "src/components/narrow-list.tsx", code);
+  conformed(dir);
   const before = snapshot(dir);
   const { status, result } = intakeJson(
     dir,
@@ -205,6 +225,7 @@ test("with the file on disk, the row is written with the name and the day of the
     approved: "2026-11-18",
     approved_by: "The Owner",
     taken: sha(code),
+    conform: "design/conform/narrow-list.json",
   });
   assert.deepEqual(result.row, row);
   assert.deepEqual(shapeOf(dir), []);
@@ -217,6 +238,7 @@ test("the second time the same need is asked, nobody is called: rung one, and no
   intake(dir, "--need", "narrow-list", "filter", "bar");
   answer(dir, "intake-narrow-list giữ");
   put(dir, "src/components/narrow-list.tsx", COMPONENT("NarrowList"));
+  conformed(dir);
   intake(dir, "--need", "narrow-list", "--file", "src/components/narrow-list.tsx");
   const before = snapshot(dir);
   const { status, result } = intakeJson(dir, "--need", "narrow-list");
@@ -377,6 +399,7 @@ test("a repository with no intake ledger gets one file, design/intake.yaml, that
   intake(dir, "--need", "narrow-list", "filter", "bar");
   answer(dir, "intake-narrow-list giữ");
   put(dir, "src/components/narrow-list.tsx", COMPONENT("NarrowList"));
+  conformed(dir);
   const { status, result } = intakeJson(
     dir,
     "--need",
@@ -415,6 +438,7 @@ test("a ledger kept as one file per block gets one new file, named after the nee
   intake(dir, "--need", "narrow-list", "filter", "bar");
   answer(dir, "intake-narrow-list giữ");
   put(dir, "src/components/narrow-list.tsx", COMPONENT("NarrowList"));
+  conformed(dir);
   const before = snapshot(dir);
   const { status } = intakeJson(
     dir,

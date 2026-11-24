@@ -473,6 +473,7 @@ export function report(result) {
           `        ${index + 1}. ${candidate.name}${about ? ` (${about})` : ""}${candidate.why ? `: ${candidate.why}` : ""}`,
         );
         if (candidate.reference) lines.push(`           see ${candidate.reference}`);
+        if (candidate.brings?.words) lines.push(`           brings ${candidate.brings.words}`);
       }
     }
     if (item.if_refused) lines.push(`      if refused: ${item.if_refused}`);

@@ -2161,6 +2161,14 @@ export function plan(target, blueprint) {
         ...(ledgerFiles.intake
           ? fragmentsChecks(target, priorTheme(target), ledgerFiles.intake, "intake")
           : []),
+        // No file of the code uses an item of an outside source taken down and not taken in.
+        {
+          kind: "taken-down",
+          sources: SOURCE_FOLDER,
+          ...(ledgerFiles.intake && ledgerFiles.intake !== LEDGERS.intake.file
+            ? { intake: ledgerFiles.intake }
+            : {}),
+        },
       ],
     };
     governance.held["ledger-shapes"] = item;

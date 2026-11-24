@@ -81,6 +81,7 @@ test("the contract says of every ledger whether a repository has it from birth",
   assert.deepEqual(later.sort(), [
     "blueprint",
     "columns",
+    "conform",
     "intake",
     "parts",
     "screen-kinds",
