@@ -149,7 +149,7 @@ test("on the floor: rows for the proofs it has, checks around its values, nothin
   );
 
   const rows = Object.fromEntries(rowsOf(dir).map((row) => [row.id, row]));
-  assert.equal(rows["color-role"].check, "eslint:shadcn/no-raw-colors");
+  assert.equal(rows["color-role"].check, "eslint:shadcn/no-arbitrary-values");
   assert.equal(rows["raw-table"].check, "eslint:no-restricted-syntax");
   assert.equal(rows["lint-exceptions"].check, "tool:tools/design_guards.mjs");
   for (const id of ["color-contrast", "radius-value", "type-scale-values", "spacing-values"]) {
