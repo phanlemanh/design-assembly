@@ -661,13 +661,6 @@
       "stage": 6,
       "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 6: bộ sổ lúc ra đời đủ và cổng xanh; hai việc cuối đổi script hay sổ tham chiếu của plugin, tức một bản plugin mới; việc đầu chạm sàn của Repo Standards, cần lời cho phép ở kho ấy",
       "group": "small"
-    },
-    {
-      "on": "2026-11-23",
-      "what": "Tài liệu kiến trúc (docs/architecture/meta-layer.html) còn vẽ giai đoạn 6 đang mở, theo kế hoạch đọc ngày 2026-11-22: hình 5 và bảng của mục «Lộ trình và tiêu chí đạt», mục «Giai đoạn 6 đang đứng ở đâu» (còn ghi phía Repo Standards, phía delivery-loop và lượt thử cuối là «còn chờ»), dòng «Chưa dựng, hoặc mới dựng một phía» của bảng hôm nay, và hai đoạn ở mục 10 và mục 12 nói hai repo bên cạnh chưa gọi và chưa đọc; nó cũng chưa có giai đoạn 10, thêm vào kế hoạch ngày 2026-11-23",
-      "stage": 10,
-      "why_not_now": "Không chặn gì: tài liệu ghi ngày nó đọc kế hoạch, nên không nói sai về ngày ấy; vẽ lại hình 5 cùng năm chỗ chữ là một việc riêng, làm một lần, cùng với việc thêm giai đoạn 10 vào hình và bảng",
-      "group": "small"
     }
   ]
 }
