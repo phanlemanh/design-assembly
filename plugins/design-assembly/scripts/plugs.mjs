@@ -20,6 +20,7 @@ import { stdout } from "node:process";
 import { LEDGERS } from "../templates/tools/design-assembly/contract.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { mergeLedger, readLedger } from "../templates/tools/design-assembly/ledger.mjs";
+import { readPinnedSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import {
   isDay,
   questionFile,
@@ -54,9 +55,33 @@ const DECISIONS = LEDGERS.decisions.file;
 const list = (value) => (Array.isArray(value) ? value : []);
 const plural = (count, one, many) => `${count} ${count === 1 ? one : many}`;
 const socketOfId = (id) => (id.startsWith("plug-") ? id.slice("plug-".length) : null);
+// Whether a question about a plug is about a ladder socket of the board, where nothing is asked.
+const onLadderOf = (board) => (question) =>
+  board.find((socket) => socket.id === socketOfId(question.id))?.ladder;
+
+// The ladder of stores the plug of a ladder socket walks for a need, in intake's three rungs: the
+// repository's own store; then the starter kit of this plugin and the sources the repository
+// pinned, in the order they are looked through; then made by hand (spec 0015).
+function ladderOf(plug, pinned) {
+  return {
+    plug,
+    rungs: [
+      { rung: 1, store: "repo" },
+      { rung: 2, store: "starter" },
+      ...pinned.map((source) => ({
+        rung: 2,
+        store: `sources/${source.id}`,
+        ...(source.unreadable ? { unreadable: source.unreadable } : {}),
+      })),
+      { rung: 3, store: "by-hand" },
+    ],
+  };
+}
 
 // Every socket with what the setup step shows of it: the plugin's plug, the plug chosen, and each
 // plug from outside with where it stands here, its measure, the owner's word, and what it needs.
+// At a ladder socket, the ladder of the repository too, and for each plug from outside the rung it
+// stands on: 2 when the repository pinned it as a source of its own id, null when it pinned none.
 export function boardOf(
   root,
   caps = readCapabilities(),
@@ -64,8 +89,11 @@ export function boardOf(
   session = NO_SESSION,
 ) {
   const files = new Map(caps.plugs.map((plug) => [plug.id, plug]));
+  const ladders = caps.table.capabilities.some((capability) => capability.socket?.ladder === true);
+  const pinned = ladders ? readPinnedSources(root) : [];
   return socketsOf(root, caps, rows, session).map((socket) => {
     const item = caps.table.capabilities.find((capability) => capability.id === socket.id);
+    const ladder = item.socket?.ladder === true ? ladderOf(socket.plug, pinned) : null;
     return {
       id: socket.id,
       name: socket.name,
@@ -87,8 +115,10 @@ export function boardOf(
           sends: plug.sends ?? null,
           skills: list(plug.skills),
           mcp_servers: list(plug.mcp_servers),
+          ...(ladder ? { rung: pinned.some((source) => source.id === outside.id) ? 2 : null } : {}),
         };
       }),
+      ladder,
     };
   });
 }
@@ -116,9 +146,10 @@ function basisOf(lead, present, socket) {
 // The recommendation for a socket, or null when nothing is asked there: the candidates a question
 // gives, the recommendation first, and what that rests on. Only a socket with a measured plug in
 // the repository is asked; an unmeasured plug is never the recommendation, and an outside plug is
-// one only when its measure won or the owner named it at this socket.
+// one only when its measure won or the owner named it at this socket. A ladder socket is never
+// asked: a plug from outside there is a rung of the plugin's plug, not a rival to it (spec 0015).
 export function recommendationOf(socket) {
-  if (socket.closed) return null;
+  if (socket.closed || socket.ladder) return null;
   const present = socket.candidates.filter(
     (candidate) => PRESENT.includes(candidate.state) && askable(candidate),
   );
@@ -148,6 +179,9 @@ export function recommendationProblem(question, board) {
   const file = questionFile(question.id);
   const socket = board.find((item) => item.id === socketOfId(question.id));
   if (!socket) return `${file} asks about no socket of the capability table`;
+  if (socket.ladder) {
+    return `${file} asks about the ${socket.id} socket, where a plug from outside is a rung of ${socket.plugin}, not a rival: no question is asked there`;
+  }
   const name = list(question.candidates)[0]?.name;
   if (name === (socket.plugin ?? NONE)) return null;
   const candidate = socket.candidates.find((item) => item.id === name);
@@ -220,7 +254,10 @@ function plugQuestions(root, rows, board) {
   const questions = (waiting?.rows ?? []).filter(
     (row) => row.id.startsWith("plug-") && row.kind !== "permission",
   );
-  for (const question of questions) {
+  // A question about a ladder socket was asked before that socket was one: it is taken away while
+  // it waits, and the owner's answer, when there is one, still becomes its row.
+  const onLadder = onLadderOf(board);
+  for (const question of questions.filter((each) => !onLadder(each))) {
     const problem = recommendationProblem(question, board);
     if (problem) {
       throw new Refusal(
@@ -305,10 +342,15 @@ export function plan(
   const board = boardOf(root, caps, rows, session);
   const gone = goneOf(board, caps, listed);
   const waiting = questions.filter((question) => question.answer === undefined);
+  const onLadder = onLadderOf(board);
   const withdrawn = waiting
     .sort((a, b) => place(a) - place(b))
-    .map((question) => ({ id: question.id, plugs: gone(question) }))
-    .filter((item) => item.plugs.length > 0);
+    .map((question) =>
+      onLadder(question)
+        ? { id: question.id, plugs: [], ladder: true }
+        : { id: question.id, plugs: gone(question) },
+    )
+    .filter((item) => item.ladder || item.plugs.length > 0);
   const open = waiting
     .filter((question) => !withdrawn.some((item) => item.id === question.id))
     .sort((a, b) => place(a) - place(b));
@@ -366,10 +408,31 @@ export function carryOut(root, planned, dryRun) {
   };
 }
 
+// Where a plug from outside stands on the ladder of a ladder socket, in words; empty elsewhere.
+function rungOf(candidate, socket) {
+  if (!socket.ladder) return "";
+  return candidate.rung === 2
+    ? `, rung 2 of ${socket.plugin} as the source ${candidate.id}`
+    : ", no pinned source: find and intake do not reach it";
+}
+
+// The ladder of a ladder socket, in a line.
+function ladderLine(socket) {
+  const sources = socket.ladder.rungs
+    .filter((rung) => rung.store.startsWith("sources/"))
+    .map((rung) => rung.store.slice("sources/".length));
+  const then =
+    sources.length === 0
+      ? ""
+      : `, then the outside ${sources.length === 1 ? "source" : "sources"} ${sources.join(", ")}`;
+  return `    ladder of ${socket.ladder.plug}: 1 the repository's own store; 2 the starter kit of this plugin${then}; 3 made by hand`;
+}
+
 // One candidate on the board, in a line.
-function candidateLine(candidate) {
+function candidateLine(candidate, socket) {
   const measure =
-    candidate.measured === "unmeasured" ? "unmeasured" : `measured in ${candidate.measured}`;
+    (candidate.measured === "unmeasured" ? "unmeasured" : `measured in ${candidate.measured}`) +
+    rungOf(candidate, socket);
   const owner = candidate.owner
     ? `, recommended by the owner ("${candidate.owner.said}", ${candidate.owner.on})`
     : "";
@@ -390,7 +453,8 @@ function socketLines(socket) {
     : "";
   return [
     `  ${socket.id.padEnd(22)} ${plug}${chosen}`,
-    ...socket.candidates.flatMap(candidateLine),
+    ...(socket.ladder ? [ladderLine(socket)] : []),
+    ...socket.candidates.flatMap((candidate) => candidateLine(candidate, socket)),
   ];
 }
 
@@ -421,6 +485,23 @@ export function report(result, { short = false } = {}) {
     lines.push(stage, ...sockets.filter((socket) => socket.stage === stage).flatMap(socketLines));
   }
   lines.push(...missingLines(result));
+  // Each plug from outside that is here at a ladder socket: the rung it stands on, or that the
+  // ladder cannot reach it because no source is it.
+  const onLadder = open
+    .filter((socket) => socket.ladder)
+    .flatMap((socket) =>
+      socket.candidates
+        .filter((candidate) => PRESENT.includes(candidate.state))
+        .map((candidate) => ({ socket, candidate })),
+    );
+  for (const { socket, candidate } of onLadder) {
+    const where = candidate.state === "in-repo" ? "this repository" : "this session";
+    lines.push(
+      candidate.rung === 2
+        ? `${candidate.id} is in ${where} and pinned as a source: it stands on rung 2 of ${socket.plugin} at the ${socket.name} socket.`
+        : `${candidate.id} is in ${where} and is no pinned source, so find and intake do not reach it at the ${socket.name} socket: pin it by hand in design/sources/ to put it on rung 2 of ${socket.plugin}.`,
+    );
+  }
   const waiting = sockets.flatMap((socket) =>
     socket.candidates.filter((candidate) => candidate.state === "needs-sign-in"),
   );
@@ -438,8 +519,11 @@ export function report(result, { short = false } = {}) {
     );
   }
   for (const item of result.withdrawn ?? []) {
+    const socket = sockets.find((each) => plugRowId(each.id) === item.id);
     lines.push(
-      `Taken away: ${item.id} asked about ${item.plugs.join(", ")}, which ${item.plugs.length === 1 ? "is" : "are"} no longer here.`,
+      item.ladder
+        ? `Taken away: ${item.id} asked which plug works the ${socket.name} socket, where an outside plug is a rung of ${socket.plugin}, not a rival: no question is asked there.`
+        : `Taken away: ${item.id} asked about ${item.plugs.join(", ")}, which ${item.plugs.length === 1 ? "is" : "are"} no longer here.`,
     );
   }
   if (questions.length > 0) {
@@ -461,7 +545,9 @@ export function report(result, { short = false } = {}) {
   const chosenOutside = sockets.some(
     (socket) => socket.chosen && !["plugin", "empty"].includes(socket.chosen.state),
   );
-  const measuredHere = sockets.some((socket) => recommendationOf(socket) !== null);
+  const measuredHere =
+    sockets.some((socket) => recommendationOf(socket) !== null) ||
+    onLadder.some(({ candidate }) => candidate.measured !== "unmeasured");
   if (questions.length === 0 && later.length === 0 && !chosenOutside && !measuredHere) {
     lines.push(
       "No outside plug that was measured is in this repository or this session; every socket keeps the plugin's plug.",

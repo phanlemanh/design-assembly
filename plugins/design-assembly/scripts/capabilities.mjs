@@ -284,6 +284,13 @@ export function shapeProblems(table, context) {
     if (list(socket.outputs).length === 0) at("the socket names no output");
     if (list(socket.checks).length === 0) at("the socket names no check");
     if (!["owner", "machine"].includes(socket.decides)) at("the socket says nobody decides");
+    if (socket.ladder !== undefined) {
+      if (socket.ladder !== true) at("ladder is true, or absent");
+      else if (socket.closed) at("a closed socket has no ladder: no plug from outside fills it");
+      else if (!list(item.plugs).some((plug) => plug.default === true)) {
+        at("a ladder socket has no plug of the plugin for plugs from outside to be rungs of");
+      }
+    }
     for (const ledger of list(socket.writes)) {
       if (!context.ledgers.includes(ledger))
         at(`writes ${ledger}, which is not a ledger of the contract`);

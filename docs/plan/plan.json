@@ -527,8 +527,8 @@
         {
           "id": "11.1",
           "what": "Luật và lời khuyên: bản quyết định «chọn trước, tạo sau» cho ổ linh kiện, plugs ở ổ linh kiện bày thang của repo thay vì so nguồn ngoài với intake, phạm vi của quyết định 0096, và các dòng giới hạn cho điều chưa dựng",
-          "state": "todo",
-          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 1, 2 và 16; chủ repo cho làm ngay («Duyệt cả chín», câu hỏi 1, và «Gửi, mở song song», 2026-11-24); quyết định 0096 đã ở nhánh chính từ ngày 2026-11-24"
+          "state": "done",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 1, 2 và 16; chủ repo cho làm ngay («Duyệt cả chín», câu hỏi 1, và «Gửi, mở song song», 2026-11-24); quyết định 0096 đã ở nhánh chính từ ngày 2026-11-24; dựng ngày 2026-11-24 theo lời chủ repo («Dựng lát 1»): wiki/decisions/0098-choose-before-make-at-the-components-socket.md, plugin 0.50.0; ổ linh kiện là ổ có thang, plugs không hỏi gì ở đó và in thang của repo, phạm vi của 0096 thu hẹp"
         },
         {
           "id": "11.2",

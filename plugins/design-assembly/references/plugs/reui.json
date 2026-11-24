@@ -1,6 +1,6 @@
 {
   "id": "reui",
-  "about": "A registry of components installed into the components folder beside the base library.",
+  "about": "A registry of components installed into the components folder beside the base library; at the components socket it is a rung of intake, an outside source on its ladder once the repository pins it, and never a rival to intake.",
   "sockets": ["components"],
   "names": ["ReUI"],
   "mcp_servers": ["reui"],
