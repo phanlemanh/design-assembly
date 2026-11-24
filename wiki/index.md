@@ -20,6 +20,7 @@ first; keep it under ~60 lines. Page formats: `ontology/page-types.yaml`.
 
 ## Specs
 
+- [0015 Chọn trước, tạo sau — lấy về, chuẩn hoá, rồi mới nhập kho](specs/0015-choose-before-make-conform-before-intake.md) — đề bài của mục 11.0 cho giai đoạn 11, chủ repo duyệt ngày 2026-11-24 và đáp cả chín câu hỏi theo khuyến nghị, rồi cho giai đoạn 11 mở song song giai đoạn 10: luật dùng lại ở ổ linh kiện, ba trạng thái của một món lấy từ nguồn ngoài, bản vá ghi lại, thang do repo khai, cổng giữ việc chọn; mười bảy tiêu chí, sáu lát, chín câu hỏi
 - [0014 Cắm đồ bên cạnh — một bước thiết lập chọn phích cho từng ổ, và hai cầu nối mang thứ chúng làm vào sổ và ra ngoài](specs/0014-outside-plugs-set-up-in-one-sitting.md) — đề bài của mục 10.0 cho giai đoạn 10, chủ repo duyệt ngày 2026-11-23 cả bảy câu, thêm cầu nối với Claude Design và hệ mặc định của Claude; hệ Design System của Claude là khuyến nghị mặc định ở ổ bàn giao và ổ tài sản thương hiệu
 - [0012 Nền đủ mảng — kiểu chữ, font thương hiệu và mọi vai màu do chủ repo chốt, mỗi giá trị có lệnh kiểm giữ](specs/0012-foundations-wide-enough.md) — đề bài của mục 9.0 cho cả giai đoạn 9, chủ repo duyệt 2026-11-21 và đáp cả sáu câu hỏi theo khuyến nghị; ba mảng, mười bốn tiêu chí, năm lát
 - [0013 Hai kho bên cạnh gọi và đọc — Repo Standards gọi plugin, kit nghiệm thu đọc sổ màn và bảng trạng thái](specs/0013-the-two-neighbours-call-and-read.md) — đề bài của mục 6.0 cho cả giai đoạn 6, chủ repo duyệt 2026-11-22 và đáp cả tám câu hỏi theo khuyến nghị; ba mảng, mười ba tiêu chí, sáu PR ở ba kho, tám câu hỏi

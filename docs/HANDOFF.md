@@ -248,6 +248,10 @@ việc gác lại.
 Sau hai mục ấy: đóng giai đoạn 10, theo lời chủ kho, rồi giai đoạn 7 «Lõi của họ sản phẩm», cần chủ kho tạo repo cho
 lõi.
 
+Từ ngày 2026-11-24 kế hoạch có thêm giai đoạn 11 «Chọn trước, tạo sau» (đề bài 0015, chủ kho đã duyệt), mở song song
+giai đoạn 10 theo lời chủ kho («Gửi, mở song song») và đứng trước giai đoạn 7. Bảy mục của nó làm được từ ngày ấy,
+mỗi lát một PR gộp theo lời chủ kho; `make plan` in trạng thái từng mục.
+
 Ngoài giai đoạn đang mở:
 
 - **Một việc nhỏ còn nợ, ngoài kế hoạch:** lệnh `status` thường chưa nêu các dòng chưa trọn của `status --roles`
