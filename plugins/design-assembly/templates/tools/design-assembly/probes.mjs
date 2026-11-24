@@ -93,6 +93,18 @@ export function probesFor(id, { component = null, rule = null, rules = [] } = {}
   return null;
 }
 
+// Why `probesFor` gave nothing for `id`, in words for the gate and for adopting.
+export function noProbeFor(id, { component = null, rule = null } = {}) {
+  if (
+    id === "whole-class-names" &&
+    !component &&
+    (components.componentClassRules ?? []).includes(rule)
+  ) {
+    return `${rule} reads only the classes given to a component, and the repository has no component of the library to probe it on`;
+  }
+  return `this tool has no probe that breaks ${id}`;
+}
+
 // Screen files a probe may be linted as, in a stable order: source files outside the component
 // library and the tests, so that the rules for screens apply.
 export function probeCandidates(root, limit = 60) {

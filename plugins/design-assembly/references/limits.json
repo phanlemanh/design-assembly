@@ -598,7 +598,7 @@
     },
     {
       "id": "whole-class-names-held-on-components-only",
-      "area": "adopt",
+      "area": "checks",
       "kind": "partial-check",
       "severity": "low",
       "plan": "keep",
@@ -606,6 +606,28 @@
       "where": ["trials"],
       "status": "open",
       "note": "Where the decision that class names are written whole points at a lint rule that reads only the classes given to a component, the tool probes that rule on a component and holds the row, so a class built in pieces on a plain element is held by no check."
+    },
+    {
+      "id": "color-role-row-keeps-the-old-rule",
+      "area": "adopt",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["trials"],
+      "status": "open",
+      "note": "Since 0.49.0 the table of evidence ties the decision on colour roles to the rule against arbitrary values, yet a row written before keeps the rule against palette colours it was given, and neither adopting nor upgrading points it again, so that row stays claimed until a person points it at the other rule; a repository whose lint has only the rule against palette colours now gets no row for the decision from adopting."
+    },
+    {
+      "id": "status-roles-step-waits-behind-any-answer",
+      "area": "status",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["handoff"],
+      "status": "open",
+      "note": "Plain status names the values of the foundations that are not whole as a step only once nothing waits on the owner, to keep its one screen, so a value that lacks a word no waiting question asks for, such as the source colour's name and day, is not named while an unrelated question waits."
     },
     {
       "id": "adopt-needs-mk-gate",

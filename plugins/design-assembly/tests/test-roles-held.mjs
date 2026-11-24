@@ -210,7 +210,7 @@ test("the guide asks the sidebar, the chart and the font's licence before its fi
   assert.match(page, /status\.mjs --target <repo> --roles/);
 });
 
-// Owed since 2026-11-22 (wiki/log.md): plain status names the lines status --roles reports as not
+// Owed since 2026-11-22: plain status names the lines status --roles reports as not
 // whole as a step to take, and says nothing of them when every line is whole.
 test("plain status names the values status --roles reports as not whole, as a step to take", () => {
   const open = applied(blueprint({ colourSaid: null }));
@@ -236,4 +236,10 @@ test("plain status names the values status --roles reports as not whole, as a st
   const waiting = JSON.parse(run(script("status.mjs"), "--target", asked, "--json").stdout);
   assert.ok(waiting.waiting.length > 0);
   assert.ok(!waiting.next.some((item) => item.command === "/design-assembly:status --roles"));
+
+  // Where the gate cannot run yet, what is missing is said instead, as for the audit's step.
+  put(open, "Makefile", "check:\n\techo no gate here\n");
+  const unrun = run(script("status.mjs"), "--target", open);
+  assert.match(unrun.stdout, /nothing more this plugin can run here yet/);
+  assert.doesNotMatch(unrun.stdout, /status --roles/);
 });

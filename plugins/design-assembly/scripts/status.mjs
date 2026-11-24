@@ -550,7 +550,7 @@ function nextOf(audit, waiting, broken, tool, seen = null, missing = null, unwho
   // Values of the foundations without the owner's word or a row that holds them: the report by
   // roles names what each lacks. While answers wait, answering comes first, and most of those
   // values lack only those answers; the step is named once nothing waits.
-  if (unwhole.length > 0 && waiting.length === 0) {
+  if (unwhole.length > 0 && waiting.length === 0 && !missing) {
     next.push({
       command: ROLES,
       why: `${plural(unwhole.length, "value of the foundations is", "values of the foundations are")} not whole (${unwhole

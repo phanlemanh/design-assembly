@@ -33,8 +33,9 @@ It ends with:
   held and claimed. Never add them.
 - `rhythms`: one line for each rhythm of a repository's life, read from the repository as it is
   now: it is born (where its values come from), it meets the plugin (the ledger), a feature needs
-  a new block (the intake command, and the ledger it writes), every change (the checks in the gate and the shape of
-  the ledgers), and periodically (the record of what slipped past the checks).
+  a new block (the intake command, and the ledger it writes), every change (the checks in the
+  gate and the shape of the ledgers), and periodically (the record of what slipped past the
+  checks).
 - `waiting on the owner`: each answer only a person can give. Three kinds are listed: a row of
   `design/decisions.yaml` whose note says a person has not confirmed it, a call only a person
   can make that the ledger has no row for, and a question of the waiting list (`design/waiting/`) that

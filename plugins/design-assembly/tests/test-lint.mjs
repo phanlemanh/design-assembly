@@ -21,10 +21,15 @@ import { clearTimeout, setTimeout } from "node:timers";
 import { fileURLToPath } from "node:url";
 
 import { audit } from "../scripts/audit.mjs";
-import { heldHere } from "../templates/tools/design-assembly/check.mjs";
+import { heldHere, lintResults } from "../templates/tools/design-assembly/check.mjs";
 import { askLint } from "../templates/tools/design-assembly/lint.mjs";
 
-import { lintPointer, PROBED, probesFor } from "../templates/tools/design-assembly/probes.mjs";
+import {
+  lintPointer,
+  noProbeFor,
+  PROBED,
+  probesFor,
+} from "../templates/tools/design-assembly/probes.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
@@ -364,8 +369,21 @@ test("a rule that reads a component's classes only is probed on a component, nev
     set.probes.every((probe) => probe.label.startsWith("<Button ")),
     set.probes.map((p) => p.label).join(", "),
   );
-  // Without a component of the library such a rule cannot be probed at all.
+  // Without a component of the library such a rule cannot be probed at all, and that is what is
+  // said, not that the tool has no probe.
   assert.equal(probesFor("whole-class-names", { rule }), null);
+  assert.match(
+    noProbeFor("whole-class-names", { rule }),
+    /reads only the classes given to a component, and the repository has no component of the library/,
+  );
+  assert.equal(
+    noProbeFor("tier-direction", {}),
+    "this tool has no probe that breaks tier-direction",
+  );
+  // The gate says the same of a row it holds that way.
+  const held = { "whole-class-names": [{ kind: "lint", rule, at: "src/app/page.tsx" }] };
+  const said = lintResults(tmpdir(), held, []);
+  assert.match(Object.values(said)[0].error, /has no component of the library to probe it on/);
   // Another rule is probed on plain elements as before, and on a component when there is one.
   const other = probesFor("whole-class-names", { component, rule: "no-restricted-syntax" });
   assert.ok(other.probes.some((probe) => probe.label.startsWith("<div ")));

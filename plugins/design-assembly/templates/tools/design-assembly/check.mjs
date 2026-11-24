@@ -74,7 +74,7 @@ import {
 } from "./screen-ledger.mjs";
 import { DEFAULT_STYLESHEET, findStylesheet, loadStyles, resolve } from "./styles.mjs";
 import { lintProbes } from "./lint.mjs";
-import { probesFor, ruleOf } from "./probes.mjs";
+import { noProbeFor, probesFor, ruleOf } from "./probes.mjs";
 import {
   buildTheme,
   END,
@@ -1085,7 +1085,9 @@ export function lintResults(root, checks, rows) {
       const rules = pointedRules(rows).filter((rule) => rule !== check.rule);
       const probes = probesFor(id, { component: check.component ?? null, rule: check.rule, rules });
       if (!probes) {
-        missing[key] = { error: `this tool has no probe that breaks ${id}` };
+        missing[key] = {
+          error: noProbeFor(id, { component: check.component ?? null, rule: check.rule }),
+        };
         continue;
       }
       labels[key] = probes.probes.map((probe) => probe.label);
