@@ -559,10 +559,23 @@
           "what": "Kho tốt dần và lượt thử: change mở rộng một khối, inventory báo món đứng sau bản ghim; rồi lượt thử lấy lại filters qua lối mới và đo lần dùng thứ hai",
           "state": "doing",
           "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 12 đến 15, câu hỏi 9; lượt thử hỏi chủ repo trước vì tốn token"
+        },
+        {
+          "id": "11.7",
+          "what": "Lối chuẩn hoá chạy phép kiểm khả năng truy cập của repo trên các màn dùng món: intake không ghi dòng sổ cho một món của nguồn ngoài khi phép kiểm ấy đỏ trên một màn dùng nó, kể cả phần tử nổi của món",
+          "state": "todo",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, mục «Đủ chuẩn» (mức bắt buộc: phép kiểm khả năng truy cập qua trên một màn có dùng món) và tiêu chí 14; wiki/decisions/0104-filters-taken-in-through-conform-measured.md; docs/trials/filters-through-conform.md (ô nổi không tên, câu tiếng Anh cho trình đọc màn hình); dòng giới hạn conform-runs-no-accessibility-check; chủ repo cho lập mục ngày 2026-11-24 («Lập mục mới»); trước khi dựng cần tiêu chí nghiệm thu ở phần bổ sung đề bài 0015, chủ repo duyệt"
+        },
+        {
+          "id": "11.8",
+          "what": "Luật bắt buộc không khai miễn được: conform và intake từ chối điều khai miễn cho một luật thuộc mức bắt buộc, trong đó có luật giữ giá trị kiểu dáng của hệ; chỉ kiểm kiểu chặt và cách tổ chức tệp bên trong mã gốc được khai miễn",
+          "state": "todo",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, mục «Đủ chuẩn» và câu hỏi 3 (mức bắt buộc gồm năm điều), tiêu chí 6 và 14; wiki/decisions/0104-filters-taken-in-through-conform-measured.md; docs/trials/filters-through-conform.md (18 trên 82 điều khai miễn thuộc luật kiểu dáng); dòng giới hạn conform-exempts-mandatory-rules; chủ repo cho lập mục ngày 2026-11-24 («Lập mục mới»); trước khi dựng cần tiêu chí nghiệm thu ở phần bổ sung đề bài 0015, chủ repo duyệt; có thể đổi hợp đồng sổ, cần người duyệt"
         }
       ],
       "done_when": [
-        "Trên bản sao của ứng dụng mẫu, một món của nguồn ngoài đi trọn lấy về, chuẩn hoá, nhập kho: cổng xanh, không luật nào tắt ngoài danh sách khai miễn; và lần dùng thứ hai của khối ấy được đo, đặt cạnh lần đầu"
+        "Trên bản sao của ứng dụng mẫu, một món của nguồn ngoài đi trọn lấy về, chuẩn hoá, nhập kho: cổng xanh, không luật nào tắt ngoài danh sách khai miễn; và lần dùng thứ hai của khối ấy được đo, đặt cạnh lần đầu",
+        "Tiêu chí 14 của đề bài 0015 đạt trọn trên bản sao ứng dụng mẫu: không lỗi nào của hai lỗi khả năng truy cập đã lọt còn lại trên màn dùng món, và không điều khai miễn nào thuộc mức bắt buộc"
       ],
       "needs_owner": [
         "Duyệt mỗi thay đổi hợp đồng sổ",
