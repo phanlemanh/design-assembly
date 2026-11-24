@@ -557,8 +557,8 @@
         {
           "id": "11.6",
           "what": "Kho tốt dần và lượt thử: change mở rộng một khối, inventory báo món đứng sau bản ghim; rồi lượt thử lấy lại filters qua lối mới và đo lần dùng thứ hai",
-          "state": "doing",
-          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 12 đến 15, câu hỏi 9; lượt thử hỏi chủ repo trước vì tốn token"
+          "state": "done",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 12 đến 15, câu hỏi 9, và tiêu chí 26 của phần bổ sung; phần dựng: wiki/decisions/0103-the-store-improves-widen-a-block-and-see-items-behind-their-pin.md, plugin 0.55.0; lượt thử: docs/trials/filters-through-conform.md, wiki/decisions/0104-filters-taken-in-through-conform-measured.md; lượt chạy lại lần dùng đầu ngày 2026-11-24 theo lời chủ repo («Cho chạy»), plugin 0.57.0: docs/trials/filters-rerun-criterion-26.md, wiki/decisions/0107-filters-rerun-meets-criterion-14.md, cổng xanh, 0 luật tắt ngoài khai miễn, 0 khai miễn luật bắt buộc, hai lỗi đã lọt không còn; cả hai dòng «done when» của giai đoạn đã được cho thấy"
         },
         {
           "id": "11.7",
