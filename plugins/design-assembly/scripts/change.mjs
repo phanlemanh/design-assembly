@@ -1,17 +1,23 @@
-// change: retire a block of the store, or merge it into the block of another need, only on the
-// owner's answer. It says the impact first: the screens that reach the block's file (every screen
+// change: retire a block of the store, merge it into the block of another need, or widen it, only
+// on the owner's answer. It says the impact first: the screens that reach the block's file (every screen
 // when that cannot be traced), the components that import it, the checks of the tool data that
 // name it, and each import line to fix, with its file and line. Then it puts one question to the
 // owner on the waiting list. Once the owner keeps it, the next call writes `retired`, and
 // `merged_into` for a merge, into the block's entry of the intake ledger, with the name and the day
 // of the answer. It never removes a file and never changes a screen's code: a retired block that a
-// screen still imports is reported by the inventory as retired and still in use.
+// screen still imports is reported by the inventory as retired and still in use. Widening keeps one
+// block for the need and changes it for every screen that uses it (spec 0015): once the owner keeps
+// it and the block's file holds the change, the next call writes `changed`, with the name and the
+// day of the answer, the reason, and the hash of the file as widened. An item an outside source
+// holds through its conform record is changed by a recorded patch instead, never here.
 // Usage: node change.mjs <need or name of a block> (--retire --why SENTENCE | --merge-into NEED
-//        [--why SENTENCE]) [--dry-run] [--target DIR] [--json] [--out DIR [--format html|pdf]]
+//        [--why SENTENCE] | --widen --why SENTENCE) [--dry-run] [--target DIR] [--json]
+//        [--out DIR [--format html|pdf]]
 // Exit: 0 the change is written, or there is nothing left to change; 1 a question waits on the
 // owner, or the owner refused; 2 a wrong call, a block the ledger does not keep, or a repository
 // that cannot be read. On 2 nothing is written.
-import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
@@ -143,25 +149,35 @@ function actionOf(options) {
     };
   }
   if (options.retire) return { name: "retire", action: "retire", why: options.why };
+  if (options.widen) return { name: "widen", action: "widen", why: options.why };
   return null;
 }
 
 function questionOf(state, entry, asked, impact, edits, before) {
   const need = text(entry.need);
   const name = text(entry.name) ?? need;
-  const said =
-    asked.action === "merge"
-      ? `Merge the block ${name} (${need}) into the block of ${asked.into}?`
-      : `Retire the block ${name} (${need})?`;
+  const said = {
+    merge: `Merge the block ${name} (${need}) into the block of ${asked.into}?`,
+    retire: `Retire the block ${name} (${need})?`,
+    widen: `Widen the block ${name} (${need}), so that every screen that uses it meets the change?`,
+  }[asked.action];
+  const recommendation = {
+    merge: `merge it into ${asked.into}`,
+    retire: "retire it",
+    widen: "widen it",
+  }[asked.action];
   return {
     id: before === 0 ? `change-${need}` : `change-${need}-${before + 1}`,
     group: "blocks to change",
     question: said,
-    recommendation: asked.action === "merge" ? `merge it into ${asked.into}` : "retire it",
+    recommendation,
     basis: `${asked.why}. Impact: ${impactWords(impact, edits)}`,
     hard_to_undo: false,
     where: state.intake.kept,
-    if_refused: `the block stays as it is, and ${need} keeps it`,
+    if_refused:
+      asked.action === "widen"
+        ? `the block stays as it is, and ${need} keeps it; no second block is made beside it`
+        : `the block stays as it is, and ${need} keeps it`,
     item: `block:${need}`,
     asked_on: today(),
     candidates: [asked],
@@ -175,6 +191,55 @@ function intoProblem(state, need, into) {
   if (!target) return `${into} is no need of ${state.intake.kept}`;
   if (!live(target)) return `the block of ${into} is retired or merged itself`;
   return null;
+}
+
+// ---- widening -------------------------------------------------------------------------------------
+
+// Whether a widening the owner kept is already recorded on the block: its change says the day and
+// the reason of that answer. Then the question is done, and another widening asks again.
+function carriedOut(entry, question) {
+  const kept = question?.candidates?.[0];
+  if (!question?.answer || question.answer === "refuse" || kept?.action !== "widen") return false;
+  return (
+    text(entry.changed?.on) === text(question.on) &&
+    text(entry.changed?.why) === text(kept.why) &&
+    Boolean(text(entry.changed?.sha256))
+  );
+}
+
+// The widening the owner kept, carried out once the block's file holds it: `changed` on the
+// block's row, with the answer's name and day, the reason, and the hash of the file as widened. A
+// file still as it was last recorded holds no change yet, and nothing is written.
+function widened(root, state, entry, question, kept, answered) {
+  const need = text(entry.need);
+  const file = fileOf(entry.file);
+  const full = file ? path.join(root, file) : null;
+  if (!full || !existsSync(full)) {
+    throw new Refusal(
+      `${need} names no file of this repository to widen${file ? `: ${file} is not there` : ""}. Nothing was written`,
+    );
+  }
+  const now = createHash("sha256").update(readFileSync(full)).digest("hex");
+  const before = text(entry.changed?.sha256) ?? text(entry.taken);
+  if (before === now) {
+    return {
+      ...answered,
+      next: `${question.id} was ${answerOf(question)}: widen ${file}, then call this again; the change is recorded once the file holds it`,
+      writes: {},
+      work: true,
+    };
+  }
+  writable(state);
+  const added = {
+    changed: { on: question.on, by: question.by, why: kept.why, sha256: now },
+  };
+  return {
+    ...answered,
+    row: { ...entry, ...added },
+    next: `${text(entry.name) ?? need} is widened, ${answerOf(question)}: every screen that uses it meets the change`,
+    writes: ledgerWithChange(root, state.intake.file, need, added, state.spelled),
+    work: false,
+  };
 }
 
 // ---- the call -------------------------------------------------------------------------------------
@@ -224,13 +289,29 @@ function changeCall(root, state, options) {
     const problem = intoProblem(state, need, asked.into);
     if (problem) throw new Refusal(`${problem}. Nothing was written`);
   }
+  if (asked?.action === "widen" && text(entry.conform)) {
+    throw new Refusal(
+      `${text(entry.name) ?? need} is an item of the source ${text(entry.from) ?? text(entry.source)}, held by its conform record ${text(entry.conform)}: a change to it is a recorded patch, with conform --need ${need} --patch PATH --reason SENTENCE. Nothing was written`,
+    );
+  }
   const item = `block:${need}`;
   const question = rowOf(state, item);
   const differs = (row) => asked && row?.candidates?.[0]?.name !== asked.name;
-  if (!question || (question.answer === "refuse" && differs(question))) {
+  const done = carriedOut(entry, question);
+  if (!question || done || (question.answer === "refuse" && differs(question))) {
+    if (done && !asked) {
+      return {
+        ...base,
+        waiting: question.id,
+        question: "answered",
+        next: `${question.id} is recorded on ${need}: to widen it again, --widen --why SENTENCE`,
+        writes: {},
+        work: false,
+      };
+    }
     if (!asked) {
       throw new Refusal(
-        `say the change: --retire --why SENTENCE, or --merge-into NEED. Nothing was written`,
+        `say the change: --retire --why SENTENCE, --merge-into NEED, or --widen --why SENTENCE. Nothing was written`,
       );
     }
     const row = questionOf(state, entry, asked, impact, edits, rowsOf(state, item).length);
@@ -279,6 +360,7 @@ function changeCall(root, state, options) {
     const problem = intoProblem(state, need, kept.into);
     if (problem) throw new Refusal(`${problem}. Nothing was written`);
   }
+  if (kept.action === "widen") return widened(root, state, entry, question, kept, was);
   writable(state);
   const added = {
     retired: { on: question.on, by: question.by, why: kept.why },
@@ -304,7 +386,7 @@ export function report(result, written) {
   if (impact.all) lines.push(...impact.why.map((why) => `  every screen, because ${why}`));
   if (edits.length > 0) {
     lines.push(
-      "import lines to fix (this command changes none):",
+      "import lines that name its file (this command changes none):",
       ...edits.map((edit) => `  ${edit.file}:${edit.line}  ${edit.import}`),
     );
   }
@@ -330,7 +412,7 @@ export function documentOf(result, origin) {
   return {
     kind: "change-report",
     title: "Change report",
-    lede: "What retiring or merging a block of the store reaches, and what waits on the owner.",
+    lede: "What retiring, merging or widening a block of the store reaches, and what waits on the owner.",
     origin,
     version: VERSION,
     scope: [`The block ${block.name ?? block.need}, for the need ${block.need}`],
@@ -367,7 +449,7 @@ export function documentOf(result, origin) {
 // ---- the call as given ----------------------------------------------------------------------------
 
 const CALL =
-  "usage: node change.mjs <need or name of a block> (--retire --why SENTENCE | --merge-into NEED [--why SENTENCE]) [--dry-run] [--target DIR] [--json] [--out DIR [--format html|pdf]]\n";
+  "usage: node change.mjs <need or name of a block> (--retire --why SENTENCE | --merge-into NEED [--why SENTENCE] | --widen --why SENTENCE) [--dry-run] [--target DIR] [--json] [--out DIR [--format html|pdf]]\n";
 
 function optionsOf(call) {
   const flags = call.flags;
@@ -375,15 +457,17 @@ function optionsOf(call) {
   if (call.words.length !== 1) throw wrong("name one block, by its need or its name");
   const [named] = call.words;
   const retire = flags["--retire"] === true;
+  const widen = flags["--widen"] === true;
   const into = flags["--merge-into"];
-  if (retire && into !== undefined)
-    throw wrong("--retire and --merge-into are two changes: give one");
+  if ([retire, widen, into !== undefined].filter(Boolean).length > 1)
+    throw wrong("--retire, --merge-into and --widen are three changes: give one");
   if (into !== undefined && !NEED.test(into)) throw wrong(`${into} is not a need key`);
   const why = flags["--why"];
   if (why !== undefined && why.trim() === "") throw wrong("--why is a sentence");
   if (retire && why === undefined) throw wrong("--retire says why with --why SENTENCE");
-  if (why !== undefined && !retire && into === undefined) {
-    throw wrong("--why goes with --retire or --merge-into");
+  if (widen && why === undefined) throw wrong("--widen says why with --why SENTENCE");
+  if (why !== undefined && !retire && !widen && into === undefined) {
+    throw wrong("--why goes with --retire, --merge-into or --widen");
   }
   if (why !== undefined) {
     try {
@@ -392,7 +476,7 @@ function optionsOf(call) {
       throw wrong(`--why is written to the ledger, and ${error.message}`);
     }
   }
-  return { named, retire, into: into ?? null, why: why?.trim() ?? null };
+  return { named, retire, widen, into: into ?? null, why: why?.trim() ?? null };
 }
 
 async function main(args) {
@@ -400,6 +484,7 @@ async function main(args) {
     args,
     {
       "--retire": "switch",
+      "--widen": "switch",
       "--merge-into": "value",
       "--why": "value",
       "--dry-run": "switch",

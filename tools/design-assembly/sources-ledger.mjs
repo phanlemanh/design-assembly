@@ -89,6 +89,38 @@ const outside = (root, file, what) =>
 const isFile = (full) => existsSync(full) && statSync(full).isFile();
 const readJson = (root, file) => JSON.parse(readFileSync(inside(root, file), "utf8"));
 
+// JSON with its keys in order, so that the same pin, written another way, hashes the same.
+const stable = (value) =>
+  Array.isArray(value)
+    ? `[${value.map(stable).join(",")}]`
+    : isMap(value)
+      ? `{${Object.keys(value)
+          .sort()
+          .map((key) => `${JSON.stringify(key)}:${stable(value[key])}`)
+          .join(",")}}`
+      : JSON.stringify(value);
+
+// The hash of a source's pin as the repository holds it now, kept in its file or in the one its
+// pin_file names, or null when it cannot be read. A conform record keeps it, so that a newer item
+// is told from a hand edit, and an item behind its source's pin is told at all (spec 0015).
+export function pinSha256(root, sourceId) {
+  const json = (file) => {
+    try {
+      return inside(root, file) === null ? null : readJson(root, file);
+    } catch {
+      return null;
+    }
+  };
+  const source = json(`${SOURCES_FOLDER}/${sourceId}.json`);
+  if (!isMap(source)) return null;
+  const pin = isMap(source.pin)
+    ? source.pin
+    : typeof source.pin_file === "string"
+      ? pinWithin(json(source.pin_file))
+      : null;
+  return isMap(pin) ? createHash("sha256").update(stable(pin)).digest("hex") : null;
+}
+
 // Why the snapshot a pin names differs from it, or null when every file matches. What could not
 // be compared is said in `blind`.
 function snapshotProblem(root, source, pin, blind) {

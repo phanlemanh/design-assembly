@@ -155,7 +155,9 @@ and `checks.md` says what each does.
 
 A block may also say, for the reusable store: `from`, the id of the pinned source it came from,
 which a repository with one source may leave out; `taken`, the `sha256` of its file when it was
-taken in; `changed`, `{ on, why }`, when the repository changed it on purpose since; `retired`,
+taken in; `changed`, `{ on, why }`, when the repository changed it on purpose since, and since
+spec 0015 maybe `by`, who answered, and `sha256`, the hash of its file as changed, which `change
+--widen` writes and the inventory holds the file to; `retired`,
 `{ on, by, why }`, when it was retired; and `merged_into`, the need whose block took its place.
 Beside the blocks, `before` lists what the repository made before it kept this ledger, each with
 `name` and `why` and maybe `file` and `record`; and `values` says how the repository writes a value

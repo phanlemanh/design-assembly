@@ -360,6 +360,12 @@
       "templates": "49a7e0f8d25704e4316bc48173ef7760b1ed4263",
       "scripts": "8ce5531541607026611ad4d4033b6da5af8d391c",
       "tool": "9ebcb3a297b66d3458c6d62a31beb7e7c9d2eaa4"
+    },
+    {
+      "version": "0.55.0",
+      "templates": "c66ea9f8d24c8fdf6ff3f4cf8396336d5d5187fe",
+      "scripts": "23a0d0c5eaa21ed1708f317bee110228cdb5db12",
+      "tool": "e8ff7c7e136cca59b4350a70675802264471ea02"
     }
   ]
 }
