@@ -23,6 +23,9 @@ const plainOf = (id) => TABLE.capabilities.find((capability) => capability.id ==
 // Who works a socket now: the plug chosen, else the plugin's, else nobody.
 function whoOf(socket) {
   if (socket.closed) return `${socket.plugin}, the plugin's own; no plug from outside fills it`;
+  if (socket.chosen?.state === "kept-not-applied") {
+    return `${socket.plugin}, the plugin's own; an earlier choice of ${socket.chosen.plug}, by ${socket.chosen.by} on ${socket.chosen.on}, is kept, not applied: at this socket ${socket.chosen.plug} counts only as a pinned source`;
+  }
   if (socket.chosen) {
     return `${socket.chosen.plug}, chosen by ${socket.chosen.by} on ${socket.chosen.on} (${socket.chosen.state})`;
   }

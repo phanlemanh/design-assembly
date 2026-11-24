@@ -726,7 +726,12 @@ function boardLines(sockets) {
   }
   // The plug the owner chose for a socket, and a chosen plug from outside the repository does not
   // show: a session without it keeps the plugin's plug.
-  const chosen = sockets.filter((socket) => socket.chosen !== null);
+  // A plug from outside chosen at a ladder socket is kept as the owner's word and not applied: the
+  // plugin's plug works that socket (spec 0015).
+  const kept = sockets.filter((socket) => socket.chosen?.state === "kept-not-applied");
+  const chosen = sockets.filter(
+    (socket) => socket.chosen !== null && socket.chosen.state !== "kept-not-applied",
+  );
   const missing = chosen.filter((socket) => socket.chosen.state === "chosen-but-missing");
   const named = (list) => list.map((socket) => `${socket.chosen.plug} (${socket.id})`).join(", ");
   return [
@@ -735,6 +740,11 @@ function boardLines(sockets) {
       ? [`  plugged in here: ${[...here].map(([id, at]) => `${id} (${at.join(", ")})`).join(", ")}`]
       : []),
     ...(chosen.length > 0 ? [`  chosen: ${named(chosen)}`] : []),
+    ...(kept.length > 0
+      ? [
+          `  kept, not applied: ${kept.map((socket) => `${socket.chosen.plug} (${socket.id}), where ${socket.plug} works the socket`).join("; ")}`,
+        ]
+      : []),
     ...(missing.length > 0
       ? [`  chosen-but-missing: ${named(missing)}, which this repository does not show`]
       : []),
@@ -747,9 +757,11 @@ function socketCell(socket) {
     socket.state === "plugged"
       ? `plugged: ${socket.plug}${socket.limit ? `, with the limit ${socket.limit}` : ""}`
       : `empty: ${socket.limit}`;
-  const chosen = socket.chosen
-    ? `; chosen: ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on} (${socket.chosen.state})`
-    : "";
+  const chosen = !socket.chosen
+    ? ""
+    : socket.chosen.state === "kept-not-applied"
+      ? `; an earlier choice of ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on} is kept, not applied`
+      : `; chosen: ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on} (${socket.chosen.state})`;
   return `${plug}${chosen}`;
 }
 

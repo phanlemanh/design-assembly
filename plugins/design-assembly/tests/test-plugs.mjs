@@ -929,6 +929,7 @@ test("spec 0015 criterion 2: at the components socket an outside plug is a rung 
     rungs: [
       { rung: 1, store: "repo" },
       { rung: 2, store: "starter" },
+      { rung: 2, store: "family" },
       { rung: 3, store: "by-hand" },
     ],
   });
@@ -951,6 +952,7 @@ test("spec 0015 criterion 2: at the components socket an outside plug is a rung 
     [
       [1, "repo"],
       [2, "starter"],
+      [2, "family"],
       [2, "sources/other-source"],
       [2, "sources/loose-blocks"],
       [3, "by-hand"],
@@ -968,7 +970,7 @@ test("spec 0015 criterion 2: at the components socket an outside plug is a rung 
   const text = report(plan(dir, { caps, on: ON }));
   assert.match(
     text,
-    /^ {4}ladder of intake: 1 the repository's own store; 2 the starter kit of this plugin, then the outside sources other-source, loose-blocks; 3 made by hand$/m,
+    /^ {4}ladder of intake: 1 the repository's own store; 2 the starter kit of this plugin, then the family's store, then the outside sources other-source, loose-blocks; 3 made by hand$/m,
   );
   assert.match(
     text,
@@ -1008,13 +1010,13 @@ test("spec 0015 criterion 2: on a copy that holds the real registry and pins no 
   assert.equal(ladder.candidates.find((candidate) => candidate.id === "reui").rung, 2);
   assert.deepEqual(
     ladder.ladder.rungs.map((rung) => rung.store),
-    ["repo", "starter", "sources/reui", "by-hand"],
+    ["repo", "starter", "family", "sources/reui", "by-hand"],
   );
   const full = cli("--target", dir);
   assert.equal(full.status, 0, full.stderr);
   assert.match(
     full.stdout,
-    /^ {4}ladder of intake: 1 the repository's own store; 2 the starter kit of this plugin, then the outside source reui; 3 made by hand$/m,
+    /^ {4}ladder of intake: 1 the repository's own store; 2 the starter kit of this plugin, then the family's store, then the outside source reui; 3 made by hand$/m,
   );
   assert.match(
     full.stdout,
@@ -1063,5 +1065,92 @@ test("spec 0015 criterion 2: a waiting question about the components socket is t
   assert.deepEqual(
     kept.rows.filter((row) => row.id === "plug-components"),
     [{ id: "plug-components", plug: "intake", by: "Owner Name", on: ON }],
+  );
+  // An answer that names the outside plug is kept as the owner's word, and read as not applied.
+  stale({ answer: "value", said: "loose-blocks", by: "Owner Name", on: ON });
+  rmSync(path.join(dir, "design/decisions.yaml"));
+  run(dir, caps);
+  assert.equal(socketOf(boardOf(dir, caps), "components").chosen.state, "kept-not-applied");
+});
+
+// A row of the decision ledger that chose a plug for the components socket, as an answered question
+// wrote it before that socket had a ladder.
+const choiceRow = (dir, plug) =>
+  put(
+    dir,
+    "design/decisions.yaml",
+    `version: 1\ndecisions:\n  - id: plug-components\n    layer: governance\n    kind: judgment\n    source: "plug:${plug}"\n    note: "answered by Owner Name on 2026-11-23"\n`,
+  );
+
+test("spec 0015 review: --reask at a ladder socket is refused, and the owner's recorded choice stays", () => {
+  const dir = fixtureRepo();
+  choiceRow(dir, "loose-blocks");
+  const before = read(dir, "design/decisions.yaml");
+  assert.throws(
+    () => plan(dir, { caps: measuredBlocks(), on: ON, reask: ["components"] }),
+    /--reask components names the components socket, where no question is asked: an outside plug there is a rung of intake, not a rival to it, so the recorded choice stays\. Nothing was written/,
+  );
+  // The command, with the real plug files: refused with --dry-run and without, the ledger unchanged.
+  const copyDir = empty();
+  choiceRow(copyDir, "reui");
+  const kept = read(copyDir, "design/decisions.yaml");
+  for (const args of [["--dry-run"], []]) {
+    const refused = cli("--target", copyDir, "--reask", "components", "--short", ...args);
+    assert.equal(refused.status, 2, args.join(" "));
+    assert.equal(refused.stdout, "", args.join(" "));
+    assert.match(
+      refused.stderr,
+      /--reask components names the components socket, where no question is asked/,
+    );
+    assert.equal(read(copyDir, "design/decisions.yaml"), kept, args.join(" "));
+  }
+  assert.equal(read(dir, "design/decisions.yaml"), before);
+  // Another socket is still asked again.
+  assert.doesNotThrow(() => plan(dir, { caps: measuredBlocks(), on: ON, reask: ["direction"] }));
+});
+
+test("spec 0015 review: a recorded choice of an outside plug at a ladder socket is kept and not applied, and every reader says so", async () => {
+  const dir = fixtureRepo();
+  choiceRow(dir, "loose-blocks");
+  const caps = measuredBlocks();
+  const components = socketOf(boardOf(dir, caps), "components");
+  assert.equal(components.chosen.state, "kept-not-applied");
+  assert.equal(components.chosen.plug, "loose-blocks");
+  assert.equal(fallbackOf(components), null);
+  const text = report(plan(dir, { caps, on: ON }));
+  assert.match(
+    text,
+    /^ {2}components +intake; an earlier choice of loose-blocks by Owner Name on 2026-11-23 is kept, not applied: intake works this socket, and loose-blocks counts only as a pinned source$/m,
+  );
+  assert.doesNotMatch(text, /chosen: loose-blocks/);
+  // The page says the same.
+  const page = JSON.stringify(documentOf(plan(dir, { caps, on: ON }), "test"));
+  assert.match(
+    page,
+    /intake, the plugin's own; an earlier choice of loose-blocks, by Owner Name on 2026-11-23, is kept, not applied/,
+  );
+  // A choice of the plugin's own plug there is simply the plugin's.
+  choiceRow(dir, "intake");
+  assert.equal(socketOf(boardOf(dir, caps), "components").chosen.state, "plugin");
+  // status, with the real plug files, does not call it chosen.
+  const copyDir = empty();
+  choiceRow(copyDir, "reui");
+  put(copyDir, "src/components/reui/filters.tsx", "export {};\n");
+  const status = spawnSync(
+    execPath,
+    [path.join(PLUGIN, "scripts/status.mjs"), "--target", copyDir],
+    {
+      encoding: "utf8",
+    },
+  );
+  assert.match(
+    status.stdout,
+    /^ {2}kept, not applied: reui \(components\), where intake works the socket$/m,
+  );
+  assert.doesNotMatch(status.stdout, /^ {2}chosen: .*reui \(components\)/m);
+  const plugsJson = JSON.parse(cli("--target", copyDir, "--json").stdout);
+  assert.equal(
+    plugsJson.sockets.find((socket) => socket.id === "components").chosen.state,
+    "kept-not-applied",
   );
 });

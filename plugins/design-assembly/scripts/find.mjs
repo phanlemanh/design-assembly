@@ -439,7 +439,7 @@ function nextOf(matches) {
 
 // ---- for a person ---------------------------------------------------------------------------------
 
-const STORES = {
+export const STORES = {
   1: "the repository's own store",
   2: "the starter kit of this plugin",
   3: "the family's store",

@@ -62,15 +62,26 @@ với `intake` theo kiểu ai thắng là so sai hai thứ.
 2. **Bảng năng lực đánh dấu ổ linh kiện là ổ có thang** (khoá `ladder` của ổ). Ở ổ có thang, phích của plugin là bên
    làm, và phích ngoài là một bậc trên thang của nó, tới được khi repo ghim nó làm nguồn. Phép kiểm hình dạng đỏ khi
    `ladder` không là `true`, khi ổ đã đóng, hay khi ổ không có phích của plugin.
-3. **`plugs` không hỏi gì ở ổ có thang.** Bảng toàn cảnh in thang của repo: kho của repo; bộ khởi đầu, rồi các nguồn
-   đã ghim theo thứ tự tra; tạo tay. Với mỗi phích ngoài, nó in bậc phích ấy đứng. Phích được tính là đã ghim khi
+3. **`plugs` không hỏi gì ở ổ có thang.** Bảng toàn cảnh in thang của repo, theo đúng thứ tự `find` tra các
+   kho: kho của repo; bộ khởi đầu, rồi kho của họ, rồi các nguồn đã ghim theo thứ tự; tạo tay. Kho của họ hôm nay chưa
+   có, nhưng nó đứng trên thang để dòng ấy vẫn đúng khi nó có. Tên các kho lấy từ cùng một chỗ `find` lấy. Với mỗi phích ngoài, nó in bậc phích ấy đứng. Phích được tính là đã ghim khi
    `design/sources/` có một nguồn cùng mã với nó; khi ấy nó đứng ở bậc 2. Một phích ngoài có trong repo hay trong
    phiên mà không là nguồn đã ghim thì được nêu tên, kèm dòng nói `find` và `intake` không tới được nó, và việc ghim
    hôm nay làm tay.
 4. **Câu hỏi cũ về ổ linh kiện.** Một câu còn chờ trên hàng chờ, do bản trước hỏi, được lấy đi, và lượt chạy nói vậy.
    Một câu chủ repo đã đáp vẫn thành dòng của sổ quyết định: lời của chủ repo không bị bỏ.
-5. **Các ổ khác giữ luật bốn thước** của đề bài 0014, theo câu hỏi 6 của đề bài 0015.
-6. **Phạm vi của 0096.** Số đo của nó giữ nguyên. Kết luận «ReUI không thắng phích của plugin» nay chỉ là số đo một
+5. **Một lựa chọn đã ghi ở ổ có thang** (dòng `plug-components` của sổ quyết định) mang một nghĩa ở mọi chỗ đọc nó:
+   - chọn phích của plugin thì là phích của plugin, như trước;
+   - chọn một phích ngoài, dù ghi trước bản 0.50.0 hay từ một câu đã đáp sau đó, là **lời chủ repo được giữ, không
+     áp**: phích của plugin vẫn làm ổ, và phích ngoài ấy chỉ tính là một nguồn khi repo ghim nó. Bảng toàn cảnh, trang
+     toàn cảnh, `status` và JSON (trạng thái `kept-not-applied`) đều nói vậy, và không lối nào báo «lùi về» ở ổ ấy.
+
+   Biến lựa chọn cũ thành một nguồn đã ghim là việc của lát 4, và có dòng giới hạn nói vậy.
+
+6. **`--reask` ở ổ có thang bị từ chối** và không ghi gì, cả khi chạy thử: ở đó không câu hỏi nào được hỏi lại, nên
+   lấy dòng ra là bỏ lời chủ repo mà không có gì thế chỗ.
+7. **Các ổ khác giữ luật bốn thước** của đề bài 0014, theo câu hỏi 6 của đề bài 0015.
+8. **Phạm vi của 0096.** Số đo của nó giữ nguyên. Kết luận «ReUI không thắng phích của plugin» nay chỉ là số đo một
    lần dùng đầu, trên một repo chưa có bước chuẩn hoá. Nó không còn quyết lời khuyên ở ổ linh kiện. Tệp phích của ReUI
    nói nó là một nguồn trên thang của `intake` khi repo ghim nó.
 
@@ -84,10 +95,12 @@ hôm nay. Đọc được dạng ấy là lát 4.
 - Lệnh `plugs` thêm khoá `ladder` cho mỗi ổ (null ở ổ không có thang), và khoá `rung` cho phích ngoài ở ổ có thang. Một
   câu bị lấy đi vì ổ có thang mang `ladder: true`. Trang toàn cảnh nói phích ngoài ở ổ ấy là một bậc, không là đối thủ.
 - Phích `plugs` khai đọc sổ nguồn ngoài (`reads: ["sources"]`) và không ghi sổ ấy.
-- Bảy dòng giới hạn mới ở `references/limits.json`. Sáu dòng là điều các lát sau dựng: thứ tự thang do plugin cố định
+- Trạng thái mới `kept-not-applied` của một lựa chọn: ở `plugs`, ở `status` và ở hai trang của chúng.
+- Tám dòng giới hạn mới ở `references/limits.json`. Sáu dòng là điều các lát sau dựng: thứ tự thang do plugin cố định
   và chỉ đọc nguồn ở một dạng (lát 4); không có bước chuẩn hoá trước khi nhập (lát 2); sửa mã ngoài không bằng bản vá
   ghi lại (lát 3); cổng không giữ việc chọn (lát 5); không mở rộng được một khối (lát 6); phép đo chỉ đếm lần dùng đầu
-  (lát 6). Dòng thứ bảy là giới hạn của chính lát này: phích ngoài chỉ được nhận ra là nguồn khi hai bên cùng mã. Ba dòng
+  (lát 6). Dòng thứ bảy: lựa chọn cũ của một phích ngoài ở ổ có thang được giữ mà không thành nguồn đã ghim (lát 4).
+  Dòng thứ tám là giới hạn của chính lát này: phích ngoài chỉ được nhận ra là nguồn khi hai bên cùng mã. Ba dòng
   có sẵn từ 0096 được nói rộng tới 0098: khối ngoài nhập vào khi còn đỏ, một dòng sổ cho nhiều tệp, và cổng không giữ
   ghim của thư viện.
 - Plugin lên 0.50.0, vì script của nó đổi.

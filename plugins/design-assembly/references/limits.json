@@ -5000,6 +5000,17 @@
       "note": "The four measures count one first use of a plug: what reusing the block costs the second time, and whether every screen then meets the same block, are not measured, so a source that pays off on reuse is measured only where it costs most."
     },
     {
+      "id": "ladder-choice-kept-not-applied",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0098"],
+      "status": "open",
+      "note": "A plug from outside chosen at a ladder socket, in a row written before the socket had a ladder or from an answer since, is kept as the owner's word and not applied: nothing turns that choice into a source pinned in design/sources/, so the plug the owner chose stays off the ladder until a person pins it."
+    },
+    {
       "id": "ladder-source-matched-by-id",
       "area": "capabilities",
       "kind": "partial-check",

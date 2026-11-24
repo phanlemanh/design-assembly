@@ -62,7 +62,10 @@ stands on. Losing its measure is no reason to keep it off the ladder. A plug fro
 here and is no pinned source is named, with the line that `find` and `intake` do not reach it;
 tell the user it is pinned by hand in `design/sources/`, since no command pins a source yet. A
 question about the components socket left on the waiting list by an earlier version is taken
-away, and the run says so with a line that starts with `Taken away`.
+away, and the run says so with a line that starts with `Taken away`. A choice of a plug from
+outside recorded for the components socket is the owner's word kept and not applied
+(`kept-not-applied`): `intake` still works the socket, and that plug counts only once it is a
+pinned source. `--reask components` is refused, since no question is asked there.
 
 Tell the user the questions wait on the decision sheet (`/design-assembly:decide`). After they
 answer, run this command again: it writes each answer as a row `plug-<socket>` of the decision

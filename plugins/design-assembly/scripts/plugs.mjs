@@ -42,6 +42,7 @@ import {
 } from "./capabilities.mjs";
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, requested } from "./document.mjs";
+import { STORES } from "./find.mjs";
 import { documentOf } from "./plugs-page.mjs";
 
 // At most this many questions about plugs wait at once; the rest are asked in a later round.
@@ -59,15 +60,17 @@ const socketOfId = (id) => (id.startsWith("plug-") ? id.slice("plug-".length) : 
 const onLadderOf = (board) => (question) =>
   board.find((socket) => socket.id === socketOfId(question.id))?.ladder;
 
-// The ladder of stores the plug of a ladder socket walks for a need, in intake's three rungs: the
-// repository's own store; then the starter kit of this plugin and the sources the repository
-// pinned, in the order they are looked through; then made by hand (spec 0015).
+// The ladder of stores the plug of a ladder socket walks for a need, in intake's three rungs and
+// the order find looks through its stores: the repository's own store; then the starter kit of
+// this plugin, the family's store and the sources the repository pinned, in their order; then made
+// by hand (spec 0015).
 function ladderOf(plug, pinned) {
   return {
     plug,
     rungs: [
       { rung: 1, store: "repo" },
       { rung: 2, store: "starter" },
+      { rung: 2, store: "family" },
       ...pinned.map((source) => ({
         rung: 2,
         store: `sources/${source.id}`,
@@ -271,8 +274,13 @@ function plugQuestions(root, rows, board) {
 // The rows a call asks to choose again, by their sockets: each named socket must be one of the board.
 function reaskedRows(sockets, board) {
   for (const id of sockets) {
-    if (!board.some((socket) => socket.id === id)) {
-      throw new Refusal(`--reask ${id} names no socket of the capability table`);
+    const socket = board.find((each) => each.id === id);
+    if (!socket) throw new Refusal(`--reask ${id} names no socket of the capability table`);
+    // Nothing is asked at a ladder socket, so a row taken out there would never be asked again.
+    if (socket.ladder) {
+      throw new Refusal(
+        `--reask ${id} names the ${socket.name} socket, where no question is asked: an outside plug there is a rung of ${socket.plugin}, not a rival to it, so the recorded choice stays. Nothing was written`,
+      );
     }
   }
   return sockets.map(plugRowId);
@@ -425,7 +433,7 @@ function ladderLine(socket) {
     sources.length === 0
       ? ""
       : `, then the outside ${sources.length === 1 ? "source" : "sources"} ${sources.join(", ")}`;
-  return `    ladder of ${socket.ladder.plug}: 1 the repository's own store; 2 the starter kit of this plugin${then}; 3 made by hand`;
+  return `    ladder of ${socket.ladder.plug}: 1 ${STORES[1]}; 2 ${STORES[2]}, then ${STORES[3]}${then}; 3 made by hand`;
 }
 
 // One candidate on the board, in a line.
@@ -448,9 +456,11 @@ function socketLines(socket) {
   const plug = socket.closed
     ? `${socket.plugin}, closed`
     : (socket.plugin ?? "empty: no plug of the plugin");
-  const chosen = socket.chosen
-    ? `; chosen: ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on}, ${socket.chosen.state}`
-    : "";
+  const chosen = !socket.chosen
+    ? ""
+    : socket.chosen.state === "kept-not-applied"
+      ? `; an earlier choice of ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on} is kept, not applied: ${socket.plugin} works this socket, and ${socket.chosen.plug} counts only as a pinned source`
+      : `; chosen: ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on}, ${socket.chosen.state}`;
   return [
     `  ${socket.id.padEnd(22)} ${plug}${chosen}`,
     ...(socket.ladder ? [ladderLine(socket)] : []),
@@ -543,7 +553,8 @@ export function report(result, { short = false } = {}) {
     lines.push(`Asked in a later round: ${later.join(", ")}.`);
   }
   const chosenOutside = sockets.some(
-    (socket) => socket.chosen && !["plugin", "empty"].includes(socket.chosen.state),
+    (socket) =>
+      socket.chosen && !["plugin", "empty", "kept-not-applied"].includes(socket.chosen.state),
   );
   const measuredHere =
     sockets.some((socket) => recommendationOf(socket) !== null) ||
