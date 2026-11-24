@@ -437,6 +437,10 @@ export const LEDGERS = {
       // The pinned source it comes from, by id, and its name in that source's catalog.
       source: required(dashed),
       item: required(text),
+      // Since the conform command, the hash of the source's pin as the item was last taken down:
+      // a file that is neither as taken down nor after patching is a newer item only once the
+      // source is pinned again, and otherwise a hand edit.
+      pin_sha256: { ...text, pattern: "^[0-9a-f]{64}$" },
       // Every file the item brought, with its hash as taken down; then every one after patching.
       taken: required(list(hashedFile)),
       conformed: required(list(hashedFile)),

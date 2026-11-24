@@ -46,9 +46,11 @@ cả thư mục của món.
    - **ghi một bản vá** (`--patch`, `--reason`): chỗ sửa từ tệp như lần commit gần nhất tới tệp như hiện giờ, ghi thành một
      diff trong bản ghi, kèm lý do, theo thứ tự;
    - **ghi một điều miễn** (`--exempt`, `--file`, `--reason`);
-   - **áp lại trên món mới** (`--taken-down`): mỗi tệp trên đĩa không còn là tệp sau khi vá được coi là tệp mới lấy về; các
-     bản vá của nó được áp lại theo thứ tự. Một bản vá không còn khớp thì lệnh thoát 2, nêu tên bản vá, và không ghi gì
-     (tiêu chí 7). Một tệp của món không có trên đĩa cũng dừng như vậy;
+   - **áp lại trên món mới** (`--taken-down`): các bản vá của mỗi tệp được áp lại theo thứ tự, và lệnh nêu tên từng tệp
+     được lấy về lại. Tệp bằng tệp lúc lấy về là món cũ lấy về lại. Tệp không bằng tệp lúc lấy về, cũng không bằng tệp sau
+     khi vá, chỉ được coi là món mới khi nguồn đã được ghim lại kể từ lúc viết bản ghi (mã băm ghim trong bản ghi khác mã
+     băm ghim hiện giờ); nếu không, đó là sửa tay, lệnh thoát 2, nêu tên tệp, không ghi gì. Một bản vá không còn khớp thì
+     lệnh thoát 2, nêu tên bản vá, và không ghi gì (tiêu chí 7). Một tệp của món không có trên đĩa cũng dừng như vậy;
    - **không cờ nào**: nói bản ghi có giữ không, gồm mỗi tệp là tệp sau khi vá, các bản vá dẫn ngược về tệp như lúc lấy
      về, và mọi luật bị tắt đều có điều miễn. Thoát 1 khi có điều chưa giữ.
 
@@ -68,6 +70,8 @@ cả thư mục của món.
 ## Đổi gì trong hợp đồng
 
 - **Sổ `conform`**, vẫn bản 1:
+  - bản ghi có thêm khoá không bắt buộc `pin_sha256`, mã băm ghim của nguồn lúc món được lấy về lần gần nhất; lệnh ghi nó
+    lúc bắt đầu và mỗi lần lấy về món mới;
   - một bản vá có thêm khoá không bắt buộc `diff`;
   - một điều miễn có luật là một trong ba luật thư mục nêu tệp cấu hình, không phải tệp của món; phép kiểm hình dạng nhận
     điều ấy.
@@ -84,6 +88,9 @@ cả thư mục của món.
   - **đóng hai dòng**: sửa mã ngoài không bằng bản vá ghi lại; một dòng sổ cho nhiều tệp;
   - **thu hẹp hai dòng**: món không chuẩn hoá trước khi nhập (còn: `intake` không chạy cổng với món bên trong); khối
     ngoài nhập vào khi còn đỏ (còn: cấu hình đọc như chữ, và công cụ riêng của repo không được thấy);
-  - **ba dòng mới**: lệnh dùng git của máy; tệp của món là tệp người nêu lúc bắt đầu; bản vá cũ bỏ đi bằng tay.
+  - **bốn dòng mới**: lệnh dùng git của máy; tệp của món là tệp người nêu lúc bắt đầu; bản vá cũ bỏ đi bằng tay (kể cả
+    bản vá ở ngay đầu một tệp ngắn); lấy về món mới tin vào ghim của nguồn: một chỗ sửa tay làm giữa lúc ghim lại và lúc
+    chạy `--taken-down` được nhận cùng món mới, dù lệnh nêu tên từng tệp; bản ghi không có mã băm ghim thì không nhận món
+    mới, phải bắt đầu lại.
 - Plugin lên 0.52.0.
 - Kế hoạch: mục 11.3 xong.

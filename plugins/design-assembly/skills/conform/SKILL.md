@@ -57,13 +57,20 @@ Run twice, it gives the same hashes and writes nothing. Then take the item in wi
 
 ## 4. A newer item from the source
 
-Take the item down again with its install line, then
+Pin the source again, take the item down again with its install line, then
 
 `node ${CLAUDE_PLUGIN_ROOT}/scripts/conform.mjs --need <key> --taken-down`
 
-The patches are applied again, in order, on the files as taken down. When one no longer fits, the
-command ends with 2, names the patch and writes nothing: make the change again on the newer file,
-record it, and drop the old patch. A file of the item not on disk stops it the same way.
+The patches are applied again, in order, on the files as taken down, and the command names each
+file it takes down again. A file that is neither as taken down nor after patching is a newer item
+only when the source's pin has changed since the record was written; otherwise it is a hand edit,
+and the command ends with 2, names the file and writes nothing: record the change with `--patch`, or
+take the item down again. The same item taken down again at the same pin needs no new pin.
+
+When a patch no longer fits, the command ends with 2, names the patch and writes nothing: make the
+change again on the newer file, record it, and drop the old patch. A patch at the very top of a
+short file has no line above it to anchor on, so a line the newer item adds above it stops it too.
+A file of the item not on disk stops it the same way.
 
 ## What it does not do
 

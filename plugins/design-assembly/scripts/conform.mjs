@@ -3,8 +3,8 @@
 // and after patching, each patch with its reason and its diff, and each rule the item is let off.
 // The command starts the record from the files on disk; records a change made to a file as a
 // patch, the diff from the file as last committed to the file as it is; records an exemption;
-// applies the patches again, in order, on a newer item as taken down, and stops, naming the patch,
-// where one no longer fits; and with no other flag says whether the record holds: each file as the
+// applies the patches again, in order, on a newer item as taken down once the source is pinned
+// again, refusing a hand edit when it is not, and stops, naming the patch, where one no longer fits; and with no other flag says whether the record holds: each file as the
 // record holds it after patching, the patches leading back to the files as taken down, and every
 // rule turned off in a file of the item or for its folder exempted. A hand edit of the item is never
 // taken for a patch: only the command records one. It reads the repository, its git for the last
@@ -109,6 +109,46 @@ function readRecord(root, need) {
   return JSON.parse(text);
 }
 
+// JSON with its keys in order, so that the same pin, written another way, hashes the same.
+const stable = (value) =>
+  Array.isArray(value)
+    ? `[${value.map(stable).join(",")}]`
+    : value !== null && typeof value === "object"
+      ? `{${Object.keys(value)
+          .sort()
+          .map((key) => `${JSON.stringify(key)}:${stable(value[key])}`)
+          .join(",")}}`
+      : JSON.stringify(value);
+const isMap = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
+const parsed = (text) => {
+  try {
+    return text === null ? null : JSON.parse(text);
+  } catch {
+    return null;
+  }
+};
+
+// The hash of the source's pin as the repository holds it now, kept inline or in its pin file, or
+// null when it cannot be read. A record keeps it, so that a newer item is told from a hand edit.
+function pinHash(root, sourceId) {
+  const source = parsed(readText(root, `${SOURCES_FOLDER}/${sourceId}.json`));
+  if (!isMap(source)) return null;
+  const pin = isMap(source.pin)
+    ? source.pin
+    : typeof source.pin_file === "string"
+      ? parsed(readText(root, source.pin_file))
+      : null;
+  return isMap(pin) ? sha(stable(pin)) : null;
+}
+const withPin = (record, pin) => {
+  if (pin === null) return record;
+  // The pin's hash sits after the item, where a person reads it, and replaces an older one.
+  const { version, need, source, item } = record;
+  return Object.assign({ version, need, source, item, pin_sha256: pin }, record, {
+    pin_sha256: pin,
+  });
+};
+
 // The index of a patch as a person reads it, from 1, among all the patches of the record.
 const patchName = (record, patch) =>
   `patch ${record.patches.indexOf(patch) + 1} of ${patch.file} ("${patch.reason}")`;
@@ -140,16 +180,19 @@ function started(root, need, { source, item, files }) {
     })
     .sort(byFile);
   return {
-    record: {
-      version: 1,
-      need,
-      source,
-      item,
-      taken: entries,
-      conformed: entries.map((entry) => ({ ...entry })),
-      patches: [],
-      exemptions: [],
-    },
+    record: withPin(
+      {
+        version: 1,
+        need,
+        source,
+        item,
+        taken: entries,
+        conformed: entries.map((entry) => ({ ...entry })),
+        patches: [],
+        exemptions: [],
+      },
+      pinHash(root, source),
+    ),
     said: `started ${file}: ${entries.length} files of ${item} from ${source}, as taken down`,
   };
 }
@@ -214,20 +257,51 @@ function exemptedRecord(root, record, { rule, file, reason }) {
   };
 }
 
-// Applies the patches again on the files as taken down: each file on disk that is not the record's
-// file after patching is a newer file as taken down; its patches are applied in order.
+// Why a file that is neither as taken down nor after patching is not taken for a newer item: the
+// record holds the pin it was written at, and the source's pin is that one still.
+function unprovenRetake(record, files, pin) {
+  const named = files.join(", ");
+  const verb = files.length === 1 ? "is" : "are";
+  const why =
+    typeof record.pin_sha256 !== "string"
+      ? `the record holds no hash of the pin of ${record.source}, as one written before the conform command kept it: nothing shows the item was taken down again. Record a change to the item with --patch; for a newer item, start the record again from the item as taken down`
+      : pin === null
+        ? `the pin of ${record.source} cannot be read: nothing shows the item was taken down again`
+        : `the pin of ${record.source} is the one the record was written at: nothing shows the item was taken down again. Record a change to the item with --patch; for a newer item, pin the source again, take the item down, then run this again`;
+  return new Refusal(
+    `${named} ${verb} neither the file as taken down nor the file after patching, and ${why}${NOTHING}`,
+  );
+}
+
+// Applies the patches again on the files as taken down. A file on disk that is the record's file as
+// taken down is the same item taken down again; one that is neither as taken down nor after
+// patching is a newer item only when the source has been pinned again since the record was
+// written, and otherwise a hand edit, refused. The patches of each are applied in order.
 function retakenRecord(root, record) {
-  const files = {};
-  const taken = [];
-  const conformed = [];
-  let changed = false;
-  for (const entry of record.conformed) {
+  const pin = pinHash(root, record.source);
+  const repinned =
+    typeof record.pin_sha256 === "string" && pin !== null && pin !== record.pin_sha256;
+  const onDisk = record.conformed.map((entry) => {
     const content = readText(root, entry.file);
     if (content === null) {
       throw new Refusal(
         `${entry.file} is not on disk: take the item down again, then run this again${NOTHING}`,
       );
     }
+    return { entry, content };
+  });
+  const newer = onDisk
+    .filter(
+      ({ entry, content }) =>
+        sha(content) !== entry.sha256 && sha(content) !== hashOf(record.taken, entry.file),
+    )
+    .map(({ entry }) => entry.file);
+  if (newer.length > 0 && !repinned) throw unprovenRetake(record, newer, pin);
+  const files = {};
+  const taken = [];
+  const conformed = [];
+  let changed = false;
+  for (const { entry, content } of onDisk) {
     if (sha(content) === entry.sha256) {
       taken.push({ file: entry.file, sha256: hashOf(record.taken, entry.file) });
       conformed.push(entry);
@@ -254,10 +328,11 @@ function retakenRecord(root, record) {
     conformed.push({ file: entry.file, sha256: sha(result) });
   }
   if (!changed) return { record, files, said: "the item is already conformed: nothing to apply" };
+  const again = newer.length > 0 ? `; taken down again: ${newer.join(", ")}` : "";
   return {
-    record: { ...record, taken, conformed },
+    record: withPin({ ...record, taken, conformed }, newer.length > 0 ? pin : null),
     files,
-    said: `applied the patches again on the item as taken down: ${Object.keys(files).length} files written`,
+    said: `applied the patches again on the item as taken down: ${Object.keys(files).length} files written${again}`,
   };
 }
 

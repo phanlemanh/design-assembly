@@ -227,7 +227,8 @@ compared by the readers that name it, the handoff book and `status`, not by the 
 One file per need, `design/conform/<need>.json`, for an item of an outside source that was taken
 down for that need and conformed before it is taken in (spec 0015). It has `version`, `need` (the
 name of its file), `source` (the id of the pinned source) and `item` (the item's name in the
-source's catalog), and four lists, each required and each allowed to be empty but the first two:
+source's catalog); since the conform command, `pin_sha256`, not required, the hash of the source's
+pin as the item was last taken down; and four lists, each required and each allowed to be empty but the first two:
 `taken`, every file the item brought, each with `file` and its `sha256` as taken down; `conformed`,
 the same files with their `sha256` after patching; `patches`, each change made to the item's code,
 with `file` and `reason`, and since the conform command `diff`, the unified diff from the file before
@@ -236,7 +237,10 @@ rule the item is let off, with `rule`, `file` and `reason`. An exemption whose `
 `formatter-ignore`, `lint-config` or `typecheck-exclude` lets the item's whole folder off, and its
 `file` is the configuration file that does it, not a file of the item. A record written by hand
 before the conform command, its patches with no `diff`, still reads: the command says each such patch
-cannot be applied again until it is recorded with `--patch`. The gate fails when a part is missing, when `taken` names no file, when `conformed` does
+cannot be applied again until it is recorded with `--patch`. With `--taken-down`, a file that is
+neither as taken down nor after patching is taken for a newer item only when the source's pin is no
+longer the one `pin_sha256` holds; otherwise it is a hand edit, and the command refuses it, naming
+the file. The gate fails when a part is missing, when `taken` names no file, when `conformed` does
 not hold exactly the files of `taken`, when a patch or an exemption is about a file that is not the
 item's, and when the file is not named after its need. A repository may keep keys of its own.
 

@@ -5091,7 +5091,18 @@
       "opened": "2026-11-24",
       "where": ["d0100"],
       "status": "open",
-      "note": "When a patch no longer fits a newer item, the command stops and names it, and the person makes the change again and records it; the old patch is then taken out of the record by hand, since no flag of the command drops a patch."
+      "note": "When a patch no longer fits a newer item, the command stops and names it, and the person makes the change again and records it; the old patch is then taken out of the record by hand, since no flag of the command drops a patch. A patch whose change sits at the very top of a short file, with no line above it to anchor on, no longer fits once the newer item adds a line above it, and stops the command the same way."
+    },
+    {
+      "id": "retake-trusts-the-pin",
+      "area": "intake",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0100"],
+      "status": "open",
+      "note": "With --taken-down, a file that is neither as taken down nor after patching is taken for a newer item when the source's pin has changed since the record was written, and refused as a hand edit otherwise. Nothing ties the file to the new pin itself: a hand edit made between pinning the source again and running --taken-down is taken with the newer item, though the command names each file it takes down again. A record that holds no hash of the pin, as one written before the conform command kept it, takes no newer item: it is started again from the item as taken down."
     }
   ]
 }

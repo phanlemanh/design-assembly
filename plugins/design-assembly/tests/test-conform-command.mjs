@@ -23,6 +23,7 @@ import {
   put,
   repo,
   sha,
+  source,
 } from "./helpers/store-repo.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -117,6 +118,7 @@ test("the item is recorded as taken down: every file with its hash, no patch, no
     need: "narrow-list",
     source: "kit",
     item: "filter-bar",
+    pin_sha256: record.pin_sha256,
     taken: [
       { file: CHIP, sha256: sha(CHIP_CODE) },
       { file: MAIN, sha256: sha(TAKEN) },
@@ -128,6 +130,7 @@ test("the item is recorded as taken down: every file with its hash, no patch, no
     patches: [],
     exemptions: [],
   });
+  assert.match(record.pin_sha256, /^[0-9a-f]{64}$/);
   assert.deepEqual(shapeProblems("conform", read(dir, RECORD), RECORD), []);
   // A second start is refused: the record is there.
   const again = conform(dir, "--source", "kit", "--item", "filter-bar", "--file", MAIN);
@@ -176,7 +179,8 @@ test("criterion 7: run twice, the command gives the same hashes and writes nothi
 test("criterion 7: a newer item as taken down gets its patches again; one that no longer fits stops the command, naming the patch", () => {
   const dir = started();
   patched(dir);
-  // A newer item, changed far from the patch: the patch is applied again.
+  // The source pinned again and a newer item, changed far from the patch: the patch is applied again.
+  put(dir, "design/sources/kit.json", json(source("2026-11-19T08:00:00.000Z")));
   const newer = lines("Filter", "export const version = 2;\n");
   put(dir, MAIN, newer);
   const ok = conform(dir, "--taken-down");
@@ -188,6 +192,7 @@ test("criterion 7: a newer item as taken down gets its patches again; one that n
   commit(dir);
   // A newer item that changes the very line the patch touches: the command stops, writes nothing.
   const kept = read(dir, RECORD);
+  put(dir, "design/sources/kit.json", json(source("2026-11-23T08:00:00.000Z")));
   put(dir, MAIN, lines("Filter by", "export const version = 3;\n"));
   const stopped = conform(dir, "--taken-down");
   assert.notEqual(stopped.status, 0);
@@ -205,6 +210,57 @@ test("criterion 7: a newer item as taken down gets its patches again; one that n
   assert.match(
     missing.stderr,
     /src\/components\/kit\/narrow-chip\.tsx is not on disk: take the item down again/,
+  );
+});
+
+test("a hand edit with no patch is not taken for a newer item: --taken-down needs the source pinned again, and names each file it takes down again", () => {
+  const dir = started();
+  patched(dir);
+  const pinned = recordOf(dir).pin_sha256;
+  assert.match(pinned, /^[0-9a-f]{64}$/);
+  // A hand edit of a file no patch touches, with the source's pin as the record was written at.
+  const edited = `${CHIP_CODE}// changed by hand\n`;
+  put(dir, CHIP, edited);
+  const kept = read(dir, RECORD);
+  const refused = conform(dir, "--taken-down");
+  assert.equal(refused.status, 2);
+  assert.match(
+    refused.stderr,
+    /src\/components\/kit\/narrow-chip\.tsx is neither the file as taken down nor the file after patching, and the pin of kit is the one the record was written at: nothing shows the item was taken down again/,
+  );
+  assert.equal(read(dir, RECORD), kept);
+  assert.equal(read(dir, CHIP), edited);
+  assert.equal(conform(dir).status, 1);
+  // The same item taken down again, at the same pin: its patches are applied again.
+  put(dir, CHIP, CHIP_CODE);
+  put(dir, MAIN, TAKEN);
+  const same = conform(dir, "--taken-down");
+  assert.equal(same.status, 0, same.stderr);
+  assert.equal(read(dir, MAIN), TAKEN.replace('"Filter"', '"Lọc"'));
+  assert.equal(read(dir, RECORD), kept);
+  commit(dir);
+  // The source pinned again and a newer file taken down: taken, and named.
+  put(dir, "design/sources/kit.json", json(source("2026-11-19T08:00:00.000Z")));
+  const newer = `${CHIP_CODE}export const chipVersion = 2;\n`;
+  put(dir, CHIP, newer);
+  const taken = conform(dir, "--taken-down");
+  assert.equal(taken.status, 0, taken.stderr);
+  assert.match(taken.stdout, /taken down again: src\/components\/kit\/narrow-chip\.tsx/);
+  const record = recordOf(dir);
+  assert.equal(record.taken.find((entry) => entry.file === CHIP).sha256, sha(newer));
+  assert.notEqual(record.pin_sha256, pinned);
+  assert.equal(conform(dir).status, 0);
+  // A record that holds no hash of the pin, as one written before the conform command did.
+  const old = Object.fromEntries(
+    Object.entries(recordOf(dir)).filter(([key]) => key !== "pin_sha256"),
+  );
+  put(dir, RECORD, json(old));
+  put(dir, CHIP, edited);
+  const unproven = conform(dir, "--taken-down");
+  assert.equal(unproven.status, 2);
+  assert.match(
+    unproven.stderr,
+    /narrow-chip\.tsx is neither the file as taken down nor the file after patching, and the record holds no hash of the pin of kit/,
   );
 });
 
