@@ -61,12 +61,12 @@ const git = (dir, ...args) =>
     { encoding: "utf8" },
   );
 const shapeChecks = (dir) => JSON.parse(text(dir, "design/theme.json")).checks["ledger-shapes"];
-// The kinds of the checks that hold how the ledger is kept; the check of items taken down beside
-// them is tested in test-conform.mjs.
+// The kinds of the checks that hold how the ledger is kept; the checks of items taken down and of
+// the choice beside them are tested in test-conform.mjs and test-choose-first.mjs.
 const kindsOf = (dir) =>
   shapeChecks(dir)
     .map((item) => item.kind)
-    .filter((kind) => kind !== "taken-down");
+    .filter((kind) => !["taken-down", "choose-first"].includes(kind));
 
 // A repository the guide built, in git, with its ledger of screens split and committed.
 function split() {

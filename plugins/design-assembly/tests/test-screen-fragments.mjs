@@ -87,12 +87,12 @@ const git = (dir, ...args) =>
   );
 // The choice is written beside the check of the ledgers' shapes, a decision a repository holds
 // whether the guide built it or it adopted.
-// The kinds of the checks that hold how the ledger is kept; the check of items taken down beside
-// them is tested in test-conform.mjs.
+// The kinds of the checks that hold how the ledger is kept; the checks of items taken down and of
+// the choice beside them are tested in test-conform.mjs and test-choose-first.mjs.
 const kindsOf = (dir) =>
   (JSON.parse(text(dir, "design/theme.json")).checks["ledger-shapes"] ?? [])
     .map((item) => item.kind)
-    .filter((kind) => kind !== "taken-down");
+    .filter((kind) => !["taken-down", "choose-first"].includes(kind));
 // The data of a ledger with its screens by id, so two ledgers compare whatever their order.
 const dataOf = (ledgerAsText) => {
   const { screens, ...rest } = readScreenLedger(ledgerAsText);

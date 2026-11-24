@@ -169,6 +169,13 @@ record, `design/conform/<need>.json`, which holds the hash of every file of the 
 patching. Optional like the others: a block written before it still reads, and `intake` asks for
 the record only when it writes a new row for an outside item.
 
+A block made by hand since slice 5 of that spec also says `searched`, the words `find` was asked
+with, and `nearest`, the nearest thing the stores gave for them, nearer store first: a name the
+repository's own store, a pinned catalog or the starter kit holds, or `none` when nothing answered.
+`intake` writes both. The gate holds them on a row made by hand that a branch writes, against where
+it left the main branch, so a row written before reads as before; the same check names a component
+file the branch adds with no row and no entry under `before` (`checks.md`, `choose-first`).
+
 ### sources
 
 One file per pinned source, `design/sources/<id>.json`, so that pinning one source again writes

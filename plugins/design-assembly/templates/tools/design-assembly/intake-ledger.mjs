@@ -32,8 +32,11 @@ export const INTAKE_KEYS = [
   "before",
   "values",
   "why",
-  // For choose before make (spec 0015): the conform record of an item of an outside source.
+  // For choose before make (spec 0015): the conform record of an item of an outside source, and
+  // of a block made by hand the words searched and the nearest candidate.
   "conform",
+  "searched",
+  "nearest",
 ];
 
 // The keys added for the reusable store. A repository that wrote its ledger before them may spell
@@ -49,6 +52,8 @@ const LATER_KEYS = [
   "values",
   "why",
   "conform",
+  "searched",
+  "nearest",
 ];
 
 // The value of `source` that says a block was made by hand, unless the repository writes it its

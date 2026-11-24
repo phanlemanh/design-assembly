@@ -4979,9 +4979,33 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-24",
-      "where": ["d0098"],
+      "where": ["d0098", "d0102"],
+      "status": "closed",
+      "note": "The gate does not hold the choice before making: a new component file of the repository with no row in the intake ledger, a by-hand row with no words searched and no nearest candidate, and a second row for the same need all leave it green; the first is only a finding of the inventory report.",
+      "closed": "2026-11-24",
+      "closed_by": "d0102: the check choose-first under ledger-shapes names a component file a branch adds with no row, and a row made by hand a branch writes without searched and nearest; a second row for one need was red already, by the shape of the intake ledger"
+    },
+    {
+      "id": "choice-held-on-what-a-branch-adds",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0102"],
       "status": "open",
-      "note": "The gate does not hold the choice before making: a new component file of the repository with no row in the intake ledger, a by-hand row with no words searched and no nearest candidate, and a second row for the same need all leave it green; the first is only a finding of the inventory report."
+      "note": "The gate holds the choice only on what a branch adds against where it left the main branch: a component file or a row made by hand that the main branch already has is never held, so one merged with no row before the repository took this check stays green, named only by the inventory report until the owner lists it with intake --before. A file moved to a new path counts as added. Outside git nothing is compared."
+    },
+    {
+      "id": "nearest-none-taken-as-written",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0102"],
+      "status": "open",
+      "note": "The gate does not run find: for a row made by hand it holds that the words searched are there and that the nearest candidate is a name a store holds, or none. A none is taken as written, and nothing compares the words searched with the need. intake writes both from find's own answer, and the owner reads them on the decision sheet."
     },
     {
       "id": "store-block-cannot-be-extended",

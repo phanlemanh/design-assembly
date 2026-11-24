@@ -31,6 +31,8 @@ import { newerLedgers } from "../templates/tools/design-assembly/contract.mjs";
 import { keptOutOfGit } from "../templates/tools/design-assembly/derived.mjs";
 import { GATE_STEP } from "../templates/tools/design-assembly/host-make.mjs";
 import { TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
+import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-first.mjs";
+import { INTAKE_LEDGER } from "../templates/tools/design-assembly/intake-ledger.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { regenerated as tokensNow } from "../templates/tools/design-assembly/tokens.mjs";
 import { sameContent } from "./apply.mjs";
@@ -53,6 +55,12 @@ const LIMITS = JSON.parse(readFileSync(path.join(PLUGIN, "references/limits.json
 const LIMITS_FILE = "references/limits.json of this plugin";
 const UPGRADE = "/design-assembly:upgrade";
 const THEME = "design/theme.json";
+// What each check an upgrade adds under a row turns the gate red for, as the preview says it.
+const ADDED_CHECKS = {
+  [TAKEN_DOWN_CHECK.kind]: "when the code uses an item of an outside source not taken in",
+  [CHOOSE_FIRST_CHECK.kind]:
+    "when a branch adds a component file with no row of the intake ledger, or a row made by hand without the words searched and the nearest candidate",
+};
 // The gate step the plugin installs beside the tool: upgrade writes it too, whole, when it differs.
 const GATE_SOURCE = path.join(PLUGIN, "templates", GATE_STEP);
 
@@ -324,15 +332,25 @@ export async function upgradePlan(root, accept = {}) {
   }
   if (gateChange) written[GATE_STEP] = installedStep;
   // A check a newer tool holds under a row the repository already has, and the tool data lacks:
-  // today the check of items taken down under ledger-shapes. Said before it is written.
+  // under ledger-shapes, the check of items taken down and the check that holds the choice, which
+  // reads the intake ledger the row's other checks name. Said before it is written.
   const theme = themeText === null ? null : JSON.parse(themeText);
   const shapes = theme?.checks?.["ledger-shapes"];
-  const checksAdded =
-    Array.isArray(shapes) && !shapes.some((check) => check?.kind === TAKEN_DOWN_CHECK.kind)
-      ? [{ row: "ledger-shapes", kind: TAKEN_DOWN_CHECK.kind }]
-      : [];
+  const intakeFile = Array.isArray(shapes)
+    ? shapes.map((check) => check?.ledgers?.intake ?? check?.intake).find(Boolean)
+    : undefined;
+  const missing = Array.isArray(shapes)
+    ? [
+        TAKEN_DOWN_CHECK,
+        {
+          ...CHOOSE_FIRST_CHECK,
+          ...(intakeFile && intakeFile !== INTAKE_LEDGER ? { intake: intakeFile } : {}),
+        },
+      ].filter((added) => !shapes.some((check) => check?.kind === added.kind))
+    : [];
+  const checksAdded = missing.map((added) => ({ row: "ledger-shapes", kind: added.kind }));
   if (checksAdded.length > 0) {
-    const checks = { ...theme.checks, "ledger-shapes": [...shapes, TAKEN_DOWN_CHECK] };
+    const checks = { ...theme.checks, "ledger-shapes": [...shapes, ...missing] };
     written[THEME] = renderJson({ ...theme, checks }, lineWidth(root));
   }
   const was = tool.length > 0 ? await before(root) : { view: null };
@@ -485,7 +503,7 @@ export function report(plan, dryRun) {
   }
   for (const item of plan.checks_added ?? []) {
     lines.push(
-      `check: ${item.row} gains ${item.kind}, which turns the gate red when the code uses an item of an outside source not taken in`,
+      `check: ${item.row} gains ${item.kind}, which turns the gate red ${ADDED_CHECKS[item.kind]}`,
     );
   }
   for (const item of plan.accepted) lines.push(`accepted by the person: ${item}`);

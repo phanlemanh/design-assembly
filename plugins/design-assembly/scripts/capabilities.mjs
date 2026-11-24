@@ -681,10 +681,13 @@ export function socketsOf(
       .filter((candidate) => list(candidate.sockets).includes(item.id))
       .map((candidate) => {
         const here = pluggedHere(root, candidate);
+        // At a ladder socket a plug from outside is a rung, never missing: the socket's own line
+        // says where the choice of it stands (spec 0015).
+        const asked = item.socket?.ladder === true ? null : chosen;
         return {
           id: candidate.id,
           here,
-          state: outsideState(here, sessionState(candidate, session), chosen, candidate.id),
+          state: outsideState(here, sessionState(candidate, session), asked, candidate.id),
           measured: candidate.measured?.[item.id]?.record ?? "unmeasured",
           needs: list(candidate.needs),
         };

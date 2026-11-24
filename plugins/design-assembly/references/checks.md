@@ -400,6 +400,28 @@ the other's checks in the tool data as they were.
   `_shared.yaml`: the command cuts the list by its own name and names each file by its own key.
 - The ledger's path is the one the shapes check names under `ledgers.intake`, else the usual one.
 
+## Choose before make
+
+The `ledger-shapes` row also holds the choice before making (spec 0015), with the check
+`choose-first`. It reads what this branch adds against where it left the main branch, with what is
+not committed yet, the way `owner-calls` does, and is red:
+
+- for a component file of the repository's own that the branch adds, as `find` and `inventory`
+  read the components, when no row of the intake ledger names it, `before` names neither the file
+  nor a component in it, no conform record holds it, and no pinned source declares its folder;
+- for a row made by hand that the branch writes, a need with no row at the base or with another
+  source there, as written, when
+  it lacks `searched` or `nearest`, or when `nearest` is neither `none` nor a name the
+  repository's own store, a pinned catalog or the starter kit holds beside the block itself.
+
+A second row for one need is red already, by the shape of the intake ledger. What the main branch
+has is never held to it, so a repository green before it took this check stays green on its files
+and rows; the inventory report still names a component no row records. Outside git nothing is
+compared and the check says so; a repository with no commit yet is not compared either; a shallow
+checkout fetches the main branch from the remote named origin, and is red when it cannot.
+`main` names the main branch where it has another name, and `intake` the ledger's path where it is
+not the usual one.
+
 ## Which screens a change reaches
 
 `node tools/design-assembly/affected.mjs`, or `make design-affected`, says which screens a change
@@ -974,7 +996,8 @@ It writes the tool folder, the stamp, the gate step `mk/design-assembly.mk` and 
 tool writes. The gate step is the plugin's whole: one that differs from the installed plugin's, or
 is missing, is written again, said under `gate step` before it is, and the gate after upgrading is
 measured with it. It never writes a ledger row a person wrote, the stylesheet, the Makefile, or a
-tool of the repository's own. A repository with no copy of
+tool of the repository's own. Under the `ledger-shapes` row it adds, said under `check` before it
+does, the checks `taken-down` and `choose-first` when the tool data lacks them. A repository with no copy of
 the tool has nothing to upgrade: that is a wrong call, ending with `2`. `--remove`, in the
 specification, is not built (limit `upgrade-has-no-remove`).
 

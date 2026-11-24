@@ -49,6 +49,13 @@ import {
   resolveImport,
   slipsProblem,
 } from "./governance.mjs";
+import {
+  byHandProblems,
+  readChoice,
+  unreadLine,
+  unrecordedFiles,
+  unrecordedLine,
+} from "./choose-first.mjs";
 import { readIntakeLedger } from "./intake-ledger.mjs";
 import { SOURCES_FOLDER } from "./sources-ledger.mjs";
 import {
@@ -641,6 +648,51 @@ const KINDS = {
             [`${folder}/broken-page.tsx`]:
               'import { BrokenItem } from "./components/taken-down/broken-item";\nexport const Page = BrokenItem;\n',
           },
+        },
+      };
+    },
+  },
+  // The gate holds the choice (spec 0015): a component file this branch adds with no row of the
+  // intake ledger, and a row made by hand it writes without the words searched and the nearest
+  // candidate, are red. What the main branch has is not held to it.
+  "choose-first": {
+    run(state, check) {
+      const choice = state.choice;
+      if (choice?.problem) return unreadLine(choice.problem);
+      if (!choice?.base) return null;
+      const ledger = readIntakeLedger(state.files?.[check.intake ?? LEDGERS.intake.file] ?? "");
+      const { items, covered } = takenDownFiles(state, check);
+      const problems = [
+        ...unrecordedFiles({
+          components: choice.components,
+          baseFiles: choice.base.files,
+          ledger,
+          covered: [...items.keys(), ...covered],
+          folders: declaredFolders(state).map((each) => each.folder),
+        }).map(unrecordedLine),
+        ...byHandProblems({
+          ledger,
+          baseLedger: readIntakeLedger(choice.base.intake ?? ""),
+          held: choice.held ?? [],
+          components: choice.components,
+        }),
+      ];
+      if (problems.length === 0) return null;
+      const more = problems.length > 3 ? `; and ${problems.length - 3} more` : "";
+      return `${problems.slice(0, 3).join("; ")}${more}`;
+    },
+    notes: (state) => (state.choice?.note ? [state.choice.note] : []),
+    // A component this branch adds that no row records, compared with a base that had nothing.
+    change(state) {
+      const choice = state.choice ?? {};
+      const added = { name: "ChangedCopy", file: "changed-copy/changed-copy.tsx" };
+      return {
+        ...state,
+        choice: {
+          ...choice,
+          components: [...(choice.components ?? []), added],
+          base: choice.base ?? { files: [], intake: null },
+          problem: null,
         },
       };
     },
@@ -1437,6 +1489,7 @@ export function readState(root) {
           main: asking.find((check) => check.main)?.main ?? null,
         });
   const testsOf = asking.find((check) => check.tests)?.tests;
+  const choosing = checks.find((check) => check.kind === "choose-first") ?? null;
   const styles = loadStyles(root, stylesheet);
   return {
     root,
@@ -1483,6 +1536,8 @@ export function readState(root) {
     ),
     waiting: asking.length === 0 ? null : waitingOf(root, rows),
     branch,
+    // What the check that holds the choice compares: read only where a check asks.
+    choice: choosing ? readChoice(root, choosing) : null,
     tagged: testsOf ? taggedTests(root, testsOf) : [],
   };
 }
