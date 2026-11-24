@@ -9,33 +9,48 @@ links:
   - wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md
   - wiki/decisions/0057-the-sources-ledger-joins-the-contract-one-file-per-source.md
   - wiki/decisions/0062-intake-takes-a-block-in-only-on-the-owners-answer.md
+  - wiki/decisions/0096-reui-measured-at-the-components-socket.md
 sources:
   - docs/plan/plan.json
   - docs/trials/README.md
+  - docs/trials/reui-components-measured.md
   - plugins/design-assembly/scripts/find.mjs
   - plugins/design-assembly/scripts/intake.mjs
   - plugins/design-assembly/scripts/inventory.mjs
   - plugins/design-assembly/scripts/change.mjs
   - plugins/design-assembly/scripts/plugs.mjs
+  - plugins/design-assembly/references/vocabulary.json
+  - tools/plan.mjs
   - plugins/design-assembly/templates/mk/
   - tools/patch_ui.mjs
   - .claude/rules/ui.md
-  - "PR #119 của kho này, đầu nhánh d6bce7e, chưa gộp lúc viết: quyết định 0096 và bản ghi docs/trials/reui-components-measured.md, số đo ReUI ở ổ linh kiện"
+  - "PR #119 của kho này, số đo ReUI ở ổ linh kiện: chưa gộp lúc đề bài được viết, vào nhánh chính ngày 2026-11-24 ở 6108f8f"
   - "repo kiểm chứng (Inventory), nhánh chính tại 1ad8469f, đọc ngày 2026-11-24, chỉ đọc: wiki/decisions/0023-chon-truoc-tao-sau.md, .claude/skills/inventory-ui/SKILL.md, .claude/rules/ui.md, tools/proof_gate/check.py và khuon-chung-minh.md, tools/reui_catalog/, design/intake/, eslint.config.js, .prettierignore, tools/typecheck_own.mjs, design/tool-stamp.json"
   - "plugs.mjs --dry-run --short, find.mjs và inventory.mjs của nhánh PR #119 chạy lên repo kiểm chứng ngày 2026-11-24; ba lệnh không ghi gì ở kho ấy"
+  - "plugs.mjs --dry-run --short chạy lại ngày 2026-11-24 từ nhánh này sau khi gộp nhánh chính bed0eb9 (plugin 0.49.0), lên repo kiểm chứng tại 1ad8469f; kho ấy không đổi tệp nào"
   - "chủ repo, 2026-11-24: «Điều này ban đầu ý định là buộc dùng lại thay vì tự tạo.»"
   - "chủ repo, 2026-11-24: «Cách tôi mô phỏng lại cách làm của con người hay những đội top tier là dùng lại và tối ưu, như cách tạo kho, thì qua thời gian cải tiến nó và nó nhất quán với hành vi chung của cả hệ thống»"
   - "chủ repo, 2026-11-24: «bao giờ khi lấy từ kho ngoài về thì đều không chuẩn và chấp nhận việc này nhưng phải có giải pháp để chuẩn nó, tinh chỉnh trước sau đó mới nhập kho»"
   - "chủ repo, 2026-11-24: «Viết đề bài»"
   - "chủ repo, 2026-11-24: «Duyệt cả chín», đáp câu «Duyệt đề bài 0015 theo khuyến nghị của cả chín câu hỏi không?»"
+  - "chủ repo, 2026-11-24, gõ ở phiên điều phối và phiên ấy chuyển lại nguyên văn: «Gửi, mở song song», đáp câu «Anh muốn tôi gửi bốn điểm sang sửa với giai đoạn 11 mở song song giai đoạn 10 («Gửi, mở song song»), hay gửi với lát 1 đi ngoài kế hoạch («Gửi, lát 1 ngoài kế hoạch»)?»"
 ---
 
 # 0015 Chọn trước, tạo sau — lấy về, chuẩn hoá, rồi mới nhập kho
 
-Máy viết ngày 2026-11-24 theo lời chủ repo («Viết đề bài»), sau lượt đo ReUI ở ổ linh kiện (PR #119) và một lượt đọc
-repo kiểm chứng. Chủ repo duyệt đề bài và đáp cả chín câu hỏi theo khuyến nghị cùng ngày («Duyệt cả chín»). Chưa gì
-được dựng. Kế hoạch có thêm giai đoạn 11, đứng ngay sau giai đoạn 10 và trước giai đoạn 7; đề bài này là mục 11.0, ghi
-xong khi giai đoạn 11 mở, vì luật kế hoạch để mọi mục của giai đoạn chưa mở ở `todo`.
+Máy viết ngày 2026-11-24 theo lời chủ repo («Viết đề bài»), sau lượt đo ReUI ở ổ linh kiện
+([0096](../decisions/0096-reui-measured-at-the-components-socket.md)) và một lượt đọc repo kiểm chứng. Chủ repo duyệt
+đề bài và đáp cả chín câu hỏi theo khuyến nghị cùng ngày («Duyệt cả chín»). Chưa gì được dựng.
+
+Kế hoạch có thêm giai đoạn 11, đứng sau giai đoạn 10 và trước giai đoạn 7. Cùng ngày, chủ repo cho giai đoạn 11 **mở
+song song giai đoạn 10** («Gửi, mở song song»), vì công cụ kế hoạch không nhận một mục của giai đoạn chưa mở. Điều ấy
+mở ra ba thứ, nói cho rõ:
+
+- Cả bảy mục của giai đoạn 11 làm được từ hôm nay, không riêng lát 1.
+- Mỗi lát vẫn là một PR, và gộp vẫn là lời chủ repo.
+- Giai đoạn 10 vẫn là giai đoạn hiện tại, với mục 10.2 và 10.4 chưa xong.
+
+Đề bài này là mục 11.0, ghi xong ngày 2026-11-24.
 
 ## Intent
 
@@ -71,8 +86,9 @@ và cổng**: hôm nay hệ có đủ lệnh của một kho dùng lại nhưng 
 
 1. **Lời khuyên của `plugs` đặt gánh chứng minh ngược** (vế 1). Tiêu chí 5 của đề bài
    [0014](0014-outside-plugs-set-up-in-one-sitting.md) chỉ cho một phích ngoài làm khuyến nghị khi số đo của nó thắng.
-   Ở ổ linh kiện, một nguồn ngoài không phải đối thủ của `intake`: nó là một bậc trên thang của `intake`. Khi số đo của
-   PR #119 vào nhánh chính, `plugs` chạy lên repo kiểm chứng sẽ khuyên «phích của plugin» với lý do ReUI thua, và một
+   Ở ổ linh kiện, một nguồn ngoài không phải đối thủ của `intake`: nó là một bậc trên thang của `intake`. Số đo ReUI
+   đã ở nhánh chính từ ngày 2026-11-24. Cùng ngày, `plugs --dry-run` của plugin 0.49.0 chạy lên repo kiểm chứng hỏi
+   «phích nào làm ổ linh kiện» và khuyên phích của plugin, với lý do in ra là ReUI không thắng ở quyết định 0096. Một
    tác tử đọc câu ấy hiểu là đừng chọn ReUI.
 2. **Phép đo coi «lấy về» và «tạo tay» là hai đối thủ, và chỉ đo lần dùng đầu** (vế 1, 2). Lượt đo ReUI so đúng như
    vậy. Lợi của dùng lại nằm ở lần thứ hai trở đi và ở việc mọi màn giống nhau; bốn thước không đo hai thứ ấy.
@@ -93,16 +109,23 @@ Trên ứng dụng mẫu, linh kiện `filters` đưa vào 32 tệp và 19 383 d
 lỗi phép kiểm sàn. Người dựng làm cổng xanh bằng cách tắt sàn và kiểm kiểu cho 16 tệp, rồi khối được nhập kho. Hai lỗi
 lọt qua cổng. Lần cài đầu đã sửa ba tệp khai của repo trước khi hỏi gì.
 
-Các lỗi gom thành năm loại chính, và đây là thứ bước chuẩn hoá phải xử lý (khoảng 27 lỗi lint còn lại thuộc các luật
-nhỏ hơn):
+Đây là thứ bước chuẩn hoá phải xử lý. Số lỗi đếm từ nhật ký của bản sao lúc vừa cài; từng luật và nơi đếm ghi ở mục
+«Lỗi lúc vừa cài, theo luật» của [bản ghi lượt đo](../../docs/trials/reui-components-measured.md). Năm dòng lint cộng
+lại đúng 226.
 
-| Lệch ở đâu                                  | Số chỗ    | Chuẩn hoá bằng cách nào                        |
-| ------------------------------------------- | --------- | ---------------------------------------------- |
-| Chữ và ngôn ngữ                             | khoảng 80 | Đưa chữ của repo qua tham số, không sửa mã gốc |
-| Khả năng truy cập                           | 2         | Ở lớp bọc; chỗ lớp bọc không tới thì vá        |
-| Kiểu dáng lệch luật của sàn                 | 116       | Vá về giá trị của hệ, hoặc khai miễn có lý do  |
-| Kiểm kiểu chặt và luật hooks                | 87        | Vá, hoặc khai miễn có lý do                    |
-| Cách tổ chức tệp, dòng tắt luật thiếu lý do | 76        | Phần lớn sửa bằng máy                          |
+| Lệch ở đâu                            | Số chỗ         | Chuẩn hoá bằng cách nào                        |
+| ------------------------------------- | -------------- | ---------------------------------------------- |
+| Kiểu dáng lệch luật của sàn           | 132 lỗi lint   | Vá về giá trị của hệ, hoặc khai miễn có lý do  |
+| Cách tổ chức tệp                      | 68 lỗi lint    | Khai miễn có lý do                             |
+| Luật hooks                            | 15 lỗi lint    | Vá, hoặc khai miễn có lý do                    |
+| Điều khiển thô thay cho linh kiện nền | 8 lỗi lint     | Vá sang linh kiện nền của repo                 |
+| Biến không dùng                       | 3 lỗi lint     | Sửa bằng máy                                   |
+| Kiểm kiểu chặt                        | 71 lỗi kiểu    | Vá, hoặc khai miễn có lý do                    |
+| Dòng tắt luật không ghi lý do         | 8 lỗi của sàn  | Thêm lý do, bằng bản vá                        |
+| Chữ và ngôn ngữ                       | 86 dòng chữ    | Đưa chữ của repo qua tham số, không sửa mã gốc |
+| Khả năng truy cập                     | 2 lỗi lọt cổng | Ở lớp bọc; chỗ lớp bọc không tới thì vá        |
+
+Cột «bằng cách nào» là dự kiến của đề bài, chưa ai thử; lượt thử của tiêu chí 14 mới cho biết.
 
 ### Điều repo kiểm chứng đã tự làm
 
@@ -111,8 +134,8 @@ nhỏ hơn):
   sao không dùng; khối tạo tay phải kèm hai tới ba ứng viên có ảnh để chủ repo chọn.
 - **Khu nhà cung cấp.** Lint, bộ định dạng, phép kiểm kiểu chặt và móc kiểm đều bỏ qua thư mục của thư viện nền và của
   ReUI. Kho ấy đang giữ 39 tệp ReUI, gồm chính `filters`.
-- **Thứ nhập kho là khuôn của repo**, không phải tệp của nhà cung cấp: dòng sổ trỏ vào tệp do repo viết, và ghi tên
-  khối ReUI nó xuất phát từ đó.
+- **Thứ nhập kho là bản của repo**, kho ấy gọi là «khuôn», không phải tệp của nhà cung cấp: dòng sổ trỏ vào tệp do
+  repo viết, và ghi tên khối ReUI nó xuất phát từ đó.
 - **Chưa có:** ghim bản của mã đã cài, phép so tệp nhà cung cấp với bản lúc cài, và lối sửa mã nhà cung cấp. Luật ở đó
   là «không bao giờ sửa».
 
@@ -163,7 +186,8 @@ Theo tầng, như quyết định 0023 của repo kiểm chứng:
 
 - **Linh kiện đơn:** vá ít nhất có thể. Ưu tiên xử lý ở lớp bọc do repo viết.
 - **Khối xếp sẵn:** là điểm xuất phát. Vùng nào phục vụ việc của người dùng thì lấy, không thì bỏ, mỗi vùng một lý do.
-- **Khuôn của repo:** bản đã chuẩn hoá cho bài toán của mình. Đây là thứ nhập kho, và từ đó giữ nguyên hình.
+- **Khối của repo** (repo kiểm chứng gọi là «khuôn»): bản đã chuẩn hoá cho bài toán của mình. Đây là thứ nhập kho, và
+  từ đó giữ nguyên hình.
 
 ### Thang do repo khai
 
@@ -193,13 +217,18 @@ nào, ở bậc nào, đã đo chưa, chuẩn hoá tốn bao nhiêu.
 
 ### Từ ngữ
 
-| Tiếng Việt       | Tên trong mã  | Lấy từ đâu                                                |
-| ---------------- | ------------- | --------------------------------------------------------- |
-| chuẩn hoá        | conform       | `coined`; gần nhất là «conformance» của các bộ kiểm chuẩn |
-| bản vá           | patch         | thói quen của ngành (bản vá giữ trên mã thượng nguồn)     |
-| khai miễn        | exemption     | `coined`                                                  |
-| khu nhà cung cấp | vendor folder | thói quen của ngành («vendoring»)                         |
-| khuôn            | template      | chữ của repo kiểm chứng (quyết định 0023 của kho ấy)      |
+Bảng từ của plugin (`references/vocabulary.json`) đã có phần lớn chữ đề bài cần. Chỉ ba từ là mới.
+
+| Tiếng Việt       | Tên trong mã    | Đã có hay mới                                                                                                                                                                                                                                                                                             |
+| ---------------- | --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| chuẩn hoá        | conform         | Mới, `coined`. Bảng từ đã có «conformance»: việc thứ đã dựng có khớp điều hệ đã quyết không, và các phép kiểm cho thấy điều đó. «conformance» là trạng thái; `conform` là việc làm cho một món của nguồn ngoài đạt trạng thái ấy. Nó không dính tới «conformance level», mức khả năng truy cập A, AA, AAA |
+| bản vá           | patch           | Mới; thói quen của ngành (bản vá giữ trên mã thượng nguồn)                                                                                                                                                                                                                                                |
+| khai miễn        | exemption       | Mới, `coined`                                                                                                                                                                                                                                                                                             |
+| khối             | block           | Đã dùng, chưa là mục riêng của bảng từ: là khoá `blocks` của hợp đồng sổ và chữ trong định nghĩa «intake ledger». Repo kiểm chứng gọi bản của mình là «khuôn»; đề bài không đặt tên mã mới cho nó, vì «templates» trong bảng từ đã là vật cỡ trang của Atomic Design                                      |
+| nguồn ngoài      | external source | Đã có                                                                                                                                                                                                                                                                                                     |
+| khu nhà cung cấp | (thư mục)       | Không thêm từ: là thư mục của một nguồn ngoài, nơi mã lấy về nằm. Bảng từ đã có «vendoring» cho việc chép mã vào repo                                                                                                                                                                                     |
+| thang dùng lại   | reuse ladder    | Đã có, và nghĩa ghi ở đó là «kho của repo, rồi một nguồn đã ghim, rồi tạo tay», đúng thang chủ repo nêu                                                                                                                                                                                                   |
+| lệch bản         | drift           | Đã có: món không còn khớp nguồn, do bản ghim đổi hay do tệp bị sửa                                                                                                                                                                                                                                        |
 
 ### Ngoài phạm vi
 
@@ -241,21 +270,21 @@ Mỗi dòng chứng bằng một lệnh hay một bản ghi lượt thử.
     sách khai miễn, không lỗi nào của hai lỗi đã lọt còn lại. Bản ghi nêu chi phí chuẩn hoá.
 15. Cùng lượt thử ấy đo lần dùng thứ hai: một màn thứ hai dùng khối đã nhập kho, với số chỗ phải tự quyết và chi phí
     đặt cạnh lần đầu.
-16. Quyết định 0096 ghi rõ kết luận của nó đúng cho repo chưa có bước chuẩn hoá, và tệp phích của ReUI theo luật mới.
+16. Quyết định [0096](../decisions/0096-reui-measured-at-the-components-socket.md) ghi rõ kết luận của nó đúng cho repo chưa có bước chuẩn hoá, và tệp phích của ReUI theo luật mới.
 17. Phép «lõi sạch» vẫn xanh: tên công cụ ngoài chỉ nằm trong thư mục phích cắm.
 
 ## Domain impact
 
 Không đổi mô hình nghiệp vụ của kho này; `ontology/` không đổi. Hợp đồng sổ đổi, cần người duyệt như mọi thay đổi hợp
 đồng: sổ nhập kho thêm bản ghi chuẩn hoá và mã băm của mọi tệp; sổ nguồn ngoài thêm thư mục của nguồn và vị trí trên
-thang. Thêm tên lệnh `conform` (câu hỏi 2), và các từ ở mục «Từ ngữ» vào `references/vocabulary.json`.
+thang. Thêm tên lệnh `conform` (câu hỏi 2), và ba từ mới ở mục «Từ ngữ» vào `references/vocabulary.json`.
 
 ## Plan
 
 Sáu lát sau lời duyệt, là các mục 11.1 tới 11.6 của kế hoạch, mỗi lát một PR, theo thứ tự:
 
-1. **Luật và lời khuyên** (tiêu chí 1, 2, 16): bản quyết định, `plugs` ở ổ linh kiện, phạm vi của 0096, và các dòng
-   giới hạn cho điều chưa dựng.
+1. **Luật và lời khuyên** (tiêu chí 1, 2, 16): bản quyết định, `plugs` ở ổ linh kiện, phạm vi của
+   [0096](../decisions/0096-reui-measured-at-the-components-socket.md), và các dòng giới hạn cho điều chưa dựng.
 2. **Sổ và trạng thái** (tiêu chí 3, 4, 5, 6): bản ghi chuẩn hoá, mã băm mọi tệp, trạng thái «lấy về», `intake` từ
    chối khi chưa chuẩn.
 3. **Lệnh chuẩn hoá** (tiêu chí 7, 8): bản vá ghi lại, chạy lại được, dừng khi không khớp.
@@ -263,8 +292,9 @@ Sáu lát sau lời duyệt, là các mục 11.1 tới 11.6 của kế hoạch, 
 5. **Cổng giữ việc chọn** (tiêu chí 11).
 6. **Kho tốt dần và lượt thử** (tiêu chí 12, 13, 14, 15).
 
-Lát 1 đủ để lời khuyên của hệ thôi ngược với luật của repo kiểm chứng. Nó sửa phạm vi của quyết định 0096, nên cần PR
-#119 vào nhánh chính trước. Các lát sau không chờ nhau, trừ lát 6 cần lát 2 và 3.
+Lát 1 đủ để lời khuyên của hệ thôi ngược với luật của repo kiểm chứng. Nó sửa phạm vi của quyết định 0096, đã ở nhánh
+chính từ ngày 2026-11-24. Các lát sau không chờ nhau, trừ lát 6 cần lát 2 và 3. Giai đoạn 11 mở song song giai đoạn
+10, nên lát nào cũng bắt đầu được; thứ tự trên là thứ tự nên theo.
 
 ## Test plan
 
@@ -286,8 +316,10 @@ Mỗi câu kèm một khuyến nghị.
 1. **Việc này đứng ở đâu trong kế hoạch?** Khuyến nghị: một giai đoạn mới ngay sau giai đoạn 10, trước giai đoạn 7,
    và lát 1 làm ngay. Căn cứ: lời khuyên của `plugs` sẽ ngược với luật của repo kiểm chứng ngay khi PR #119 gộp. Từ
    chối thì nó vào danh sách để lại, và PR #119 chỉ thêm một câu về phạm vi.
-   Đã nhận: giai đoạn 11 đứng ngay sau giai đoạn 10, trước giai đoạn 7. Lát 1 (mục 11.1) làm ngay theo lời chủ repo,
-   không chờ giai đoạn 11 mở.
+   Đã nhận: giai đoạn 11 đứng sau giai đoạn 10, trước giai đoạn 7, và lát 1 làm ngay. Công cụ kế hoạch không ghi được
+   «làm ngay» cho một mục của giai đoạn chưa mở, nên chủ repo chọn thêm cùng ngày («Gửi, mở song song»): giai đoạn 11
+   mở song song giai đoạn 10. Cả bảy mục từ đó làm được; mỗi lát vẫn một PR gộp theo lời chủ repo; giai đoạn 10 vẫn
+   là giai đoạn hiện tại.
 
 2. **Chuẩn hoá là một lệnh riêng hay một nhịp của `intake`?** Khuyến nghị: lệnh riêng, tên `conform`. Căn cứ: nó chạy
    nhiều lần cho một món, kể cả sau khi đã nhập kho, mỗi khi nguồn ra bản mới. Từ chối thì `intake` gánh thêm việc

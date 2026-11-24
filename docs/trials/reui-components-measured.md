@@ -102,6 +102,28 @@ Lời cho đo đi kèm ước tính khoảng 450 nghìn token cho cả lượt, 
   này sau khi xong. Bản ghi đầu tiên chỉ nói tác tử R vượt; điều cả lượt vượt được thêm vào ngày 2026-11-24, sau khi
   soát.
 
+## Lỗi lúc vừa cài, theo luật
+
+Đếm lại ngày 2026-11-24 từ ba nhật ký của bản sao R, lấy ngay sau lần cài thứ hai và trước khi tác tử làm gì:
+`R-installed-eslint.json`, `R-installed-typecheck.txt` và `R-installed-design-guards.txt`. Ba tệp nằm trong thư mục
+nháp của phiên đo, không được giữ trong kho; bảng này là thứ còn lại của chúng. Tổng khớp với dòng «Khối như được
+giao» của thước 1: 226 lỗi lint (và 1 cảnh báo), 71 lỗi kiểu, 8 lỗi phép kiểm sàn. Mọi lỗi nằm trong
+`src/components/reui`; lỗi lint ở 13 tệp.
+
+| Loại                                  | Số  | Luật                                                                                                                                                      |
+| ------------------------------------- | --- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Kiểu dáng lệch luật của sàn           | 132 | `shadcn/no-restyle` 82, `shadcn/no-arbitrary-values` 29, `shadcn/require-static-classes` 12, `shadcn/no-inline-styles` 5, cỡ và khoảng cách ngoài thang 4 |
+| Cách tổ chức tệp                      | 68  | `react-refresh/only-export-components`                                                                                                                    |
+| Luật hooks                            | 15  | `react-hooks/set-state-in-effect` 11, `react-hooks/refs` 4; thêm 1 cảnh báo `react-hooks/exhaustive-deps`                                                 |
+| Điều khiển thô thay cho linh kiện nền | 8   | `no-restricted-syntax`, câu «Use the component from @/components/ui instead of a raw control»                                                             |
+| Biến không dùng                       | 3   | `@typescript-eslint/no-unused-vars`                                                                                                                       |
+| **Lỗi lint**                          | 226 |                                                                                                                                                           |
+| Kiểm kiểu chặt                        | 71  | TS2375 17, TS2345 15, TS18048 15, TS2379 10, TS2322 10, TS2532 2, TS2769 1, TS2488 1                                                                      |
+| Dòng tắt luật không ghi lý do         | 8   | phép kiểm sàn, «eslint-disable without a reason»                                                                                                          |
+
+Chữ tác tử R viết cho thanh lọc: 86 dòng có chữ, trong 98 dòng thêm vào `src/lib/labels.ts` của bản sao R, đếm giữa
+commit cài và commit cuối của tác tử. Con số «khoảng 80 câu chữ» ở trên là lời tác tử khai.
+
 ## Lượt này không cho thấy
 
 - Một nhu cầu, một linh kiện trên 27, mỗi nhánh một lượt. `filters` là một trong những món nặng nhất (kéo theo
