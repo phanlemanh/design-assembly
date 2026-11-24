@@ -65,3 +65,14 @@ lo_trinh:
   tep: docs/plan/lo-trinh.json
 feature_loop:
   suite_keys: [executors.test.api]
+# Phần thiết kế của kho, để kit đọc bậc của sàn thiết kế. Chủ kho cho khai ngày 2026-11-24
+# (docs/owner-decision-sheet-2026-11-23.md, câu 3.3).
+design:
+  # Tệp màn và linh kiện của ứng dụng.
+  surface_globs:
+    - "src/**/*.tsx"
+design_floor:
+  # Sổ token (quyết định 0008).
+  tokens: design/tokens.json
+  # Sổ linh kiện: vật dẫn xuất, không nằm trong git; cổng ghi lại nó khi chạy (quyết định 0009).
+  registry: design/component-registry.json
