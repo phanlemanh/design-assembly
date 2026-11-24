@@ -315,6 +315,10 @@ export const LEDGERS = {
             // The conform record of an item of an outside source, which holds the hash of every
             // file of the item after patching (spec 0015).
             conform: text,
+            // Of a block made by hand: the words find was asked with, and the nearest candidate it
+            // gave, or `none` when nothing answered (spec 0015, criterion 11).
+            searched: text,
+            nearest: text,
           },
           // A repository may keep keys of its own on a block.
           open: true,

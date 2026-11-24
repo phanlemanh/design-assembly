@@ -551,7 +551,7 @@
         {
           "id": "11.5",
           "what": "Cổng giữ việc chọn: đỏ khi một tệp linh kiện mới không có dòng sổ, khi một dòng tạo tay thiếu chữ đã tra hay ứng viên gần nhất, khi một nhu cầu có hai dòng sổ",
-          "state": "todo",
+          "state": "done",
           "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 11, câu hỏi 7"
         },
         {

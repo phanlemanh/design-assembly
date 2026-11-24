@@ -671,6 +671,34 @@ export function regenerated(root) {
   };
 }
 
+// The components of the repository, as the tool's manifest would list them now; where the tool
+// data names no manifest, read through the components adapter from the library's folder and the
+// repository's own beside it.
+export function componentsOf(root) {
+  let made;
+  try {
+    made = regenerated(root);
+  } catch (error) {
+    return {
+      read: null,
+      problem: `the component-manifest check of design/theme.json cannot be read: ${error.message}`,
+      components: [],
+    };
+  }
+  if (made) return { read: made.read, components: made.data.components };
+  const folders = libraryFolders(root);
+  const read = ownFolder(folders[0]) ?? folders[0];
+  if (!existsSync(path.join(root, read))) return { read: null, missing: read, components: [] };
+  try {
+    return {
+      read,
+      components: readComponents(readFolder(root, read), { library: folders }).components,
+    };
+  } catch (error) {
+    return { read: null, problem: `${read} cannot be read: ${error.message}`, components: [] };
+  }
+}
+
 // The check that says a derived file is kept out of git, as the tool data lists it.
 export const UNTRACKED = "untracked";
 

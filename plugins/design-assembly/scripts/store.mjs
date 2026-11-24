@@ -4,13 +4,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 
-import {
-  libraryFolders,
-  ownFolder,
-  readComponents,
-  readFolder,
-  regenerated,
-} from "../templates/tools/design-assembly/components.mjs";
+// The components of the repository, read the one way the gate reads them too.
+export { componentsOf } from "../templates/tools/design-assembly/components.mjs";
 import { newerProblem } from "../templates/tools/design-assembly/contract.mjs";
 import {
   INTAKE_LEDGER,
@@ -92,32 +87,4 @@ export function readIntake(root, theme) {
       : []),
   ];
   return { ...found, read: [kept], ledger, blocks, notes };
-}
-
-// The components of the repository, as the tool's manifest would list them now; where the tool
-// data names no manifest, read through the components adapter from the library's folder and the
-// repository's own beside it.
-export function componentsOf(root) {
-  let made;
-  try {
-    made = regenerated(root);
-  } catch (error) {
-    return {
-      read: null,
-      problem: `the component-manifest check of design/theme.json cannot be read: ${error.message}`,
-      components: [],
-    };
-  }
-  if (made) return { read: made.read, components: made.data.components };
-  const folders = libraryFolders(root);
-  const read = ownFolder(folders[0]) ?? folders[0];
-  if (!existsSync(path.join(root, read))) return { read: null, missing: read, components: [] };
-  try {
-    return {
-      read,
-      components: readComponents(readFolder(root, read), { library: folders }).components,
-    };
-  } catch (error) {
-    return { read: null, problem: `${read} cannot be read: ${error.message}`, components: [] };
-  }
 }

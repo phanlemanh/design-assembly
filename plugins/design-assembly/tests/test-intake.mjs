@@ -348,6 +348,62 @@ test("rung three, made by hand: the reason is printed as given, and the file is 
   assert.deepEqual(shapeOf(dir), []);
 });
 
+test("made by hand, the row says the words searched and the nearest thing the stores hold (spec 0015, criterion 11)", () => {
+  // The nearer store first: the repository's own FilterBar holds the words, before the kit's
+  // filter-bar.
+  const dir = store();
+  intake(dir, "--need", "narrow-list", "filter", "bar", "--by-hand", "--why", "It narrows by date");
+  answer(dir, "intake-narrow-list giữ");
+  put(dir, "src/components/narrow-list.tsx", COMPONENT("NarrowList"));
+  const done = intakeJson(dir, "--need", "narrow-list", "--file", "src/components/narrow-list.tsx");
+  assert.equal(done.status, 0, done.stderr);
+  const row = blocksOf(dir).find((item) => item.need === "narrow-list");
+  assert.equal(row.searched, "filter bar");
+  assert.equal(row.nearest, "FilterBar");
+  assert.deepEqual(shapeOf(dir), []);
+  // Nothing answers: the nearest says so, with the words that found nothing.
+  const none = store();
+  intake(none, "--need", "weather-map", "weather", "map");
+  answer(none, "intake-weather-map giữ");
+  put(none, "src/components/weather-map.tsx", COMPONENT("WeatherMap"));
+  intake(none, "--need", "weather-map", "--file", "src/components/weather-map.tsx");
+  const nothing = blocksOf(none).find((item) => item.need === "weather-map");
+  assert.equal(nothing.searched, "weather map");
+  assert.equal(nothing.nearest, "none");
+  // A question asked before the words were kept: the row looks them up again when it is written.
+  const older = store();
+  intake(older, "--need", "weather-map", "weather", "map");
+  const file = path.join(older, "design/waiting/intake-weather-map.json");
+  const asked = JSON.parse(readFileSync(file, "utf8"));
+  const kept = (entry) =>
+    Object.fromEntries(
+      Object.entries(entry).filter(([key]) => !["searched", "nearest"].includes(key)),
+    );
+  const candidates = asked.candidates.map(kept);
+  writeFileSync(file, `${JSON.stringify({ ...asked, candidates }, null, 2)}\n`);
+  answer(older, "intake-weather-map giữ");
+  put(older, "src/components/weather-map.tsx", COMPONENT("WeatherMap"));
+  intake(
+    older,
+    "--need",
+    "weather-map",
+    "weather",
+    "map",
+    "--file",
+    "src/components/weather-map.tsx",
+  );
+  const again = blocksOf(older).find((item) => item.need === "weather-map");
+  assert.equal(again.searched, "weather map");
+  assert.equal(again.nearest, "none");
+  // The file made before the question was asked: the block is never its own nearest candidate.
+  const first = store();
+  put(first, "src/components/weather-map.tsx", COMPONENT("WeatherMap"));
+  intake(first, "--need", "weather-map", "weather", "map", "--by-hand", "--why", "No map anywhere");
+  answer(first, "intake-weather-map giữ");
+  intake(first, "--need", "weather-map", "--file", "src/components/weather-map.tsx");
+  assert.equal(blocksOf(first).find((item) => item.need === "weather-map").nearest, "none");
+});
+
 test("no candidate at all: the question is made by hand, and says the stores that were searched", () => {
   const dir = store();
   const { status, result } = intakeJson(dir, "--need", "weather-map", "weather", "map");

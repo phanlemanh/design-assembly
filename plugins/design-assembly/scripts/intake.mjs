@@ -22,6 +22,7 @@ import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import { adapter as library } from "../templates/tools/design-assembly/adapters/shadcn.mjs";
+import { NOTHING_ANSWERS } from "../templates/tools/design-assembly/choose-first.mjs";
 import { CONFORM_FOLDER, shapeProblems } from "../templates/tools/design-assembly/contract.mjs";
 import { SOURCES_FOLDER } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { picked, questionFile } from "../templates/tools/design-assembly/waiting.mjs";
@@ -234,10 +235,11 @@ function candidateOf(root, piece, need, words) {
 
 // What the stores beyond the repository's own offer for a need, and what the repository's own
 // holds that has the words under another need: near, never taken for it.
-function candidatesFor(root, { need, words, kind, byHand, why }) {
+function candidatesFor(root, { need, words, kind, byHand, why, except = null }) {
   const own = find(root, { words, kind });
+  // The file being taken in is never near itself.
   const near = own.matches
-    .filter((piece) => piece.tier === 1)
+    .filter((piece) => piece.tier === 1 && piece.file !== except)
     .map((piece) => ({
       name: piece.name,
       kind: piece.kind,
@@ -260,7 +262,10 @@ function candidatesFor(root, { need, words, kind, byHand, why }) {
   const reason =
     why ??
     `nothing in ${searched.length > 0 ? searched.join(", ") : "the starter kit or a pinned source"} answers "${words}"`;
-  const hand = { name: "by-hand", store: "by-hand", why: reason };
+  // Made by hand, it keeps what was looked for and the nearest thing the stores gave, nearer store
+  // first: the gate holds a row made by hand to both (spec 0015).
+  const nearest = near[0]?.name ?? farther.matches[0]?.name ?? NOTHING_ANSWERS;
+  const hand = { name: "by-hand", store: "by-hand", why: reason, searched: words, nearest };
   const candidates = byHand ? [hand, ...found] : [...found, hand];
   return { candidates, near, notes };
 }
@@ -328,7 +333,7 @@ function codeName(root, file, otherwise) {
 
 // The row of the ledger for a picked candidate, in the contract's keys and order, and the files of
 // the starter kit that come with it; or what is still missing before it can be written.
-function rowFor(root, state, { need, question, chosen, named }) {
+function rowFor(root, state, { need, question, chosen, named, looked }) {
   const approved = { approved: question.on, approved_by: question.by };
   if (chosen.store === "starter") {
     if (named) {
@@ -365,6 +370,15 @@ function rowFor(root, state, { need, question, chosen, named }) {
   const external = chosen.store !== "by-hand";
   // An item of an outside source is taken in only once it is conformed (spec 0015).
   const conform = external ? conformedRecord(root, need, chosen, file) : null;
+  // A question asked before the words searched were kept is looked up again with these words, and
+  // so is one whose nearest is the block itself, made before the question was asked.
+  const itself = new Set([
+    need,
+    ...componentsOf(root)
+      .components.filter((component) => component.file === file)
+      .map((component) => component.name),
+  ]);
+  const hand = external ? null : chosen.searched && !itself.has(chosen.nearest) ? chosen : looked();
   return {
     files: {},
     row: {
@@ -382,6 +396,7 @@ function rowFor(root, state, { need, question, chosen, named }) {
       ...approved,
       taken: sha(content),
       ...(conform ? { conform } : {}),
+      ...(hand ? { searched: hand.searched, nearest: hand.nearest } : {}),
     },
   };
 }
@@ -468,7 +483,16 @@ function needCall(root, state, options) {
       work: true,
     };
   }
-  const made = rowFor(root, state, { need, question, chosen, named });
+  const looked = () =>
+    candidatesFor(root, {
+      need,
+      words,
+      kind,
+      byHand: true,
+      why: chosen.why,
+      except: fileOf(named),
+    }).candidates[0];
+  const made = rowFor(root, state, { need, question, chosen, named, looked });
   const rung = rungOf(chosen);
   if (made.missing) {
     const install = chosen.install ?? null;

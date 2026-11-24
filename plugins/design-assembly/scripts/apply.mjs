@@ -24,6 +24,7 @@ import {
 } from "./principles.mjs";
 import { STAMP, stampText } from "./stamp.mjs";
 import { FILES, heldHere, TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
+import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-first.mjs";
 import { contrast, formatOklch, parseColor } from "../templates/tools/design-assembly/color.mjs";
 import {
   followsOf,
@@ -2165,6 +2166,13 @@ export function plan(target, blueprint) {
         {
           ...TAKEN_DOWN_CHECK,
           sources: SOURCE_FOLDER,
+          ...(ledgerFiles.intake && ledgerFiles.intake !== LEDGERS.intake.file
+            ? { intake: ledgerFiles.intake }
+            : {}),
+        },
+        // A component file a branch adds, or a row made by hand it writes, holds the choice.
+        {
+          ...CHOOSE_FIRST_CHECK,
           ...(ledgerFiles.intake && ledgerFiles.intake !== LEDGERS.intake.file
             ? { intake: ledgerFiles.intake }
             : {}),

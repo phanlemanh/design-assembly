@@ -214,3 +214,11 @@ test("an earlier choice of an outside plug at a ladder socket is applied once th
   );
   assert.doesNotMatch(status.stdout, /kept, not applied/);
 });
+
+test("at a ladder socket a chosen plug that is not here is never said to be missing: the socket's own line says where the choice stands", () => {
+  const dir = empty();
+  choiceRow(dir, "reui");
+  const socket = components(dir);
+  assert.equal(socket.chosen.state, "kept-not-applied");
+  assert.equal(socket.candidates.find((plug) => plug.id === "reui").state, "absent");
+});

@@ -506,6 +506,30 @@ test("upgrade adds the check of items taken down to the ledger-shapes row, said 
   assert.deepEqual(JSON.parse(upgrade(dir, "--dry-run", "--json").stdout).checks_added ?? [], []);
 });
 
+test("upgrade adds the check that holds the choice to the ledger-shapes row, said before it is written, and a green repository stays green (spec 0015, criterion 11)", () => {
+  const dir = older();
+  const theme = json(dir, "design/theme.json");
+  theme.checks["ledger-shapes"] = theme.checks["ledger-shapes"].filter(
+    (check) => check.kind !== "choose-first",
+  );
+  put(dir, "design/theme.json", `${JSON.stringify(theme, null, 2)}\n`);
+  const plan = JSON.parse(upgrade(dir, "--dry-run", "--json").stdout);
+  assert.deepEqual(plan.checks_added, [{ row: "ledger-shapes", kind: "choose-first" }]);
+  assert.equal(plan.gate.green, true);
+  assert.match(
+    upgrade(dir, "--dry-run").stdout,
+    /^check: ledger-shapes gains choose-first, which turns the gate red when a branch adds a component file with no row of the intake ledger, or a row made by hand without the words searched and the nearest candidate$/m,
+  );
+  const done = upgrade(dir);
+  assert.equal(done.status, 0, done.stderr);
+  assert.deepEqual(
+    json(dir, "design/theme.json").checks["ledger-shapes"].filter(
+      (check) => check.kind === "choose-first",
+    ),
+    [{ kind: "choose-first" }],
+  );
+});
+
 test("a wrong call, or a repository with no copy of the tool, ends with 2 and writes nothing", () => {
   const dir = older();
   const before = snapshot(dir);

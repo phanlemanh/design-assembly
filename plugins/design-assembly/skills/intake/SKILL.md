@@ -54,7 +54,10 @@ The same call, after the answer:
   disk are the ones it holds, and every rule turned off in a file's comment or for its folder in the
   configuration has its exemption. Until then a page that
   imports the item turns the gate red.
-- **By hand:** make the block, then call again with `--file PATH`.
+- **By hand:** make the block, then call again with `--file PATH`. The row also keeps the words
+  searched and the nearest thing the stores gave for them, or `none`: the gate holds a row made by
+  hand that a branch writes to both, and names a component file a branch adds with no row. Never
+  write a component file and leave it out of the ledger: take it in here first.
 
 The row carries the name, the file, the source, the source's id and pin, the need, a description,
 the day and the name of the answer, and the hash of the file as it was taken in.

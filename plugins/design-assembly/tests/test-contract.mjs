@@ -294,6 +294,10 @@ test("adopting holds the shapes of the ledgers it leaves, and says why when one 
     state.theme.checks["ledger-shapes"].some((check) => check.kind === "taken-down"),
     "adopt writes the check of items taken down",
   );
+  assert.ok(
+    state.theme.checks["ledger-shapes"].some((check) => check.kind === "choose-first"),
+    "adopt writes the check that holds the choice",
+  );
   // A ledger added after adopting is held too: one that leaves its shape turns the gate red, and
   // the gate says which file and how.
   writeFileSync(path.join(dir, "design/screens.yaml"), "version: 1\nscreens:\n  - id: a\n");
