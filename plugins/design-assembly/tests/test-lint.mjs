@@ -21,10 +21,15 @@ import { clearTimeout, setTimeout } from "node:timers";
 import { fileURLToPath } from "node:url";
 
 import { audit } from "../scripts/audit.mjs";
-import { heldHere } from "../templates/tools/design-assembly/check.mjs";
+import { heldHere, lintResults } from "../templates/tools/design-assembly/check.mjs";
 import { askLint } from "../templates/tools/design-assembly/lint.mjs";
 
-import { lintPointer, PROBED, probesFor } from "../templates/tools/design-assembly/probes.mjs";
+import {
+  lintPointer,
+  noProbeFor,
+  PROBED,
+  probesFor,
+} from "../templates/tools/design-assembly/probes.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
@@ -301,3 +306,86 @@ test(
     });
   },
 );
+
+// A repository born on the floor: the floor's own lint block, its components settings and one
+// component of the library, with this repository's packages. Nothing in its ledger yet.
+function bornOnTheFloor() {
+  const dir = mkdtempSync(path.join(tmpdir(), "design-assembly-floor-lint-"));
+  made.push(dir);
+  const own = (file) => readFileSync(path.join(ROOT, file), "utf8");
+  const files = {
+    "package.json": '{ "name": "born", "private": true, "type": "module" }\n',
+    Makefile: "CHECK_TARGETS := lint\n-include mk/*.mk\ncheck: $(CHECK_TARGETS)\n",
+    "eslint.config.js": own("eslint.config.js"),
+    "components.json": own("components.json"),
+    "src/components/ui/button.tsx": own("src/components/ui/button.tsx"),
+    "src/app/page.tsx": "export function Page() {\n  return <main />;\n}\n",
+  };
+  for (const [file, content] of Object.entries(files)) {
+    mkdirSync(path.dirname(path.join(dir, file)), { recursive: true });
+    writeFileSync(path.join(dir, file), content);
+  }
+  symlinkSync(path.join(ROOT, "node_modules"), path.join(dir, "node_modules"));
+  return dir;
+}
+
+test(
+  "on the floor's lint, a colour that is not a role and a class built in pieces are held by the rules that reject them",
+  { skip: !LINTED && "no lint installed here" },
+  () => {
+    const dir = bornOnTheFloor();
+    const adopted = run(ADOPT, "--target", dir);
+    assert.equal(adopted.status, 1, adopted.stderr);
+    // `text-[#ff0000]` is rejected by the rule against arbitrary values, not by the one against
+    // palette colours, so the row of the colour roles points at that rule and the tool holds it.
+    assert.match(
+      adopted.stdout,
+      /color-role: every probe is rejected, by shadcn\/no-arbitrary-values/,
+    );
+    // The rule about static classes reads a component's classes only: it is probed there, not
+    // on a plain element it never looks at.
+    assert.match(
+      adopted.stdout,
+      /whole-class-names: every probe is rejected, by shadcn\/require-static-classes/,
+    );
+    const ledger = readFileSync(path.join(dir, "design/decisions.yaml"), "utf8");
+    assert.match(
+      ledger,
+      /id: color-role\n(?: {4}.*\n)*? {4}check: "eslint:shadcn\/no-arbitrary-values"/,
+    );
+    const theme = JSON.parse(readFileSync(path.join(dir, "design/theme.json"), "utf8"));
+    assert.equal(theme.checks["color-role"][0].rule, "shadcn/no-arbitrary-values");
+    assert.equal(theme.checks["whole-class-names"][0].rule, "shadcn/require-static-classes");
+    assert.equal(theme.checks["whole-class-names"][0].component.name, "Button");
+  },
+);
+
+test("a rule that reads a component's classes only is probed on a component, never on a plain element", () => {
+  const component = { name: "Button", from: "@/components/ui/button" };
+  const rule = "shadcn/require-static-classes";
+  const set = probesFor("whole-class-names", { component, rule });
+  assert.ok(set.probes.length > 0);
+  assert.ok(
+    set.probes.every((probe) => probe.label.startsWith("<Button ")),
+    set.probes.map((p) => p.label).join(", "),
+  );
+  // Without a component of the library such a rule cannot be probed at all, and that is what is
+  // said, not that the tool has no probe.
+  assert.equal(probesFor("whole-class-names", { rule }), null);
+  assert.match(
+    noProbeFor("whole-class-names", { rule }),
+    /reads only the classes given to a component, and the repository has no component of the library/,
+  );
+  assert.equal(
+    noProbeFor("tier-direction", {}),
+    "this tool has no probe that breaks tier-direction",
+  );
+  // The gate says the same of a row it holds that way.
+  const held = { "whole-class-names": [{ kind: "lint", rule, at: "src/app/page.tsx" }] };
+  const said = lintResults(tmpdir(), held, []);
+  assert.match(Object.values(said)[0].error, /has no component of the library to probe it on/);
+  // Another rule is probed on plain elements as before, and on a component when there is one.
+  const other = probesFor("whole-class-names", { component, rule: "no-restricted-syntax" });
+  assert.ok(other.probes.some((probe) => probe.label.startsWith("<div ")));
+  assert.ok(other.probes.some((probe) => probe.label.startsWith("<Button ")));
+});

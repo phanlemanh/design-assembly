@@ -105,7 +105,7 @@ function declarations(root, sheets) {
 // variable that shows it is decided and the lint rule that would hold it. How source goes around
 // each is the gate's own detector, BYPASS, so the audit and the gate never differ on it.
 const USAGE = {
-  "color-role": { variable: "--primary", lint: /no-raw-colors|no-hardcoded-color/ },
+  "color-role": { variable: "--primary", lint: /no-arbitrary-values|no-hardcoded-color/ },
   "type-scale": { variable: null, lint: /no-arbitrary-values|no-arbitrary-text-size/ },
   spacing: { variable: null, lint: /no-arbitrary-values|no-off-scale-spacing/ },
   radius: { variable: "--radius", lint: /no-arbitrary-values/ },
