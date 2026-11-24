@@ -158,6 +158,35 @@ test("criterion 19: a string of the item on the screen is red, naming the file a
   );
 });
 
+// Short words of an item's files, as the filters item holds them: in another file than the one
+// that wrote the composed line, and words a row of data may hold.
+const PICKER_LIB = "src/components/kit/tree-picker-lib.tsx";
+const SHORT_WORDS =
+  'export const WORDS = ["to", "in", "and", "level", "status", "open", "items"];\n';
+
+test("criterion 19: a one-word string of the item is red only on a line where a string of two words or more of its own file stands too", () => {
+  const strings = [
+    ...itemStrings(COMPOSED).map((text) => ({ file: PICKER_I18N, text })),
+    ...itemStrings(SHORT_WORDS).map((text) => ({ file: PICKER_LIB, text })),
+  ];
+  const none = { files: [LABELS_FILE], entries: [] };
+  const at = "screen team (/team)";
+  // Rows of data that hold short words of the item's files, Vietnamese and English: not red.
+  const rows = ["Máy in to Quá hạn 9/3/2026 90 ₫", "Open status report", "Level and items"];
+  assert.deepEqual(ownTextProblems(at, rows, strings, none), []);
+  // The composed line is red still, naming «Top level» and «items» of the file that wrote it, and
+  // no short word of another file.
+  const red = ownTextProblems(at, ["Top level, 2 items"], strings, none);
+  assert.equal(red.length, 1);
+  assert.match(
+    red[0],
+    /: «Top level» of src\/components\/kit\/tree-picker-i18n\.tsx, «items» of src\/components\/kit\/tree-picker-i18n\.tsx\. /,
+  );
+  assert.doesNotMatch(red[0], /tree-picker-lib/);
+  // What the narrower rule lets through, and says: a line whose only text of the item is one word.
+  assert.deepEqual(ownTextProblems(at, ["2 items"], strings, none), []);
+});
+
 test("the screens of an item are the ones the change map reaches from a file of its record, with the repository's words and its own check", () => {
   const dir = itemRepo();
   const plan = floatingPlanOf(dir);
@@ -320,6 +349,25 @@ test("criterion 19, broken: a status region reading «Top level, 2 items» is re
   const classes = itemStrings(CLASSES_AND_KEYS).map((text) => ({ file: STYLES, text }));
   const none = await opened(t, "/team", opener("pick", COMPOSED_INSIDE), planOf(classes));
   assert.deepEqual(none.problems, []);
+});
+
+test("criterion 19, in the browser: rows of data that hold short words of the item are not red; the composed line still is", async (t) => {
+  const rows =
+    "<table><tbody><tr><td>Máy in to</td><td>Quá hạn</td></tr><tr><td>Open status report</td></tr></tbody></table>";
+  const strings = [
+    ...composedStrings(),
+    ...itemStrings(SHORT_WORDS).map((text) => ({ file: PICKER_LIB, text })),
+  ];
+  const result = await opened(
+    t,
+    "/team",
+    `${rows}${opener("pick", COMPOSED_INSIDE)}`,
+    planOf(strings),
+  );
+  if (!result) return;
+  assert.equal(result.problems.length, 1, result.problems.join("\n"));
+  assert.match(result.problems[0], /«Top level, 2 items» on the screen/);
+  assert.doesNotMatch(result.problems.join("\n"), /Máy in to|Open status report|tree-picker-lib/);
 });
 
 test("criterion 20: the repository's own check runs with the floating part open, as it is configured; with no check, the names and the text are held all the same", async (t) => {

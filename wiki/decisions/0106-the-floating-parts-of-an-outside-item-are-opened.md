@@ -64,7 +64,7 @@ nào. Dòng giới hạn `conform-runs-no-accessibility-check`.
 4. **Ba điều khi phần nổi đang mở.**
    - Mỗi phần tử vừa mở có `role` là `dialog`, `alertdialog`, `menu` hay `listbox` phải có tên do người viết
      (`aria-labelledby`, `aria-label`, `title`). Phép kiểm này tự giữ, dù repo chỉ chạy nhãn WCAG (câu hỏi 2).
-   - Chữ của món: như đề bài viết. Máy tính thêm chữ viết giữa hai thẻ là chuỗi viết sẵn (đề bài nói «mọi chuỗi viết
+   - Chữ của món: như đề bài viết, với chuỗi một chữ thu hẹp như mục «Thu hẹp chuỗi một chữ» dưới đây. Máy tính thêm chữ viết giữa hai thẻ là chuỗi viết sẵn (đề bài nói «mọi chuỗi viết
      sẵn»). Đỏ được gộp theo dòng chữ trên màn: một dòng đỏ cho mỗi dòng chữ, nêu mọi chuỗi và tệp của nó. Bảng chữ là
      tệp dữ liệu công cụ nêu ở `words`, hoặc tệp mà nguồn của dòng `labels`, `copy-content` hay `terms` bắt đầu bằng.
    - Phép kiểm của repo chạy như repo cấu hình: đọc từ chuỗi lời gọi giữa bộ dựng và lần chạy trong tệp kiểm mà sổ
@@ -88,20 +88,46 @@ Bản sao của lượt thử `filters` (nhánh `second-use`, hai màn dùng mó
   - «Use the Right Arrow key to open a branch and the Left Arrow key to go back.», một câu tiếng Anh thứ ba của món, lượt
     thử chưa thấy, nêu 18 chuỗi;
   - phép kiểm của repo: `aria-dialog-name` (trùng lỗi một) và `label-title-only` (ô nhập trong phần nổi chỉ có `title`).
-- 27 chuỗi bị nêu mỗi màn, cả 27 nằm trên chữ của chính món; **không chuỗi nào rơi vào chữ không phải của món** (dữ liệu
-  mẫu hay chữ của repo). Nhưng chỉ 7 chuỗi nêu đúng tệp đã viết dòng ấy (`cascader-i18n.tsx`); 20 chuỗi là chữ ngắn của
-  tệp khác trùng với chữ trong câu (`level`, `to`, `and`, `top`, `back`…). Dòng giới hạn
-  `item-text-names-every-file-with-the-word`; có nên bỏ chúng là câu hỏi cho chủ repo ở PR.
+- Với luật như đã duyệt (commit `42d7e5b`): 27 chuỗi bị nêu mỗi màn, cả 27 nằm trên chữ của chính món, nhưng chỉ 7 nêu
+  đúng tệp đã viết dòng ấy (`cascader-i18n.tsx`); 20 là chữ ngắn của tệp khác trùng chữ trong câu (`level`, `to`,
+  `and`, `top`, `back`…). Phiên điều phối thay một dòng dữ liệu mẫu bằng «Máy in to» và thấy dòng ấy đỏ trên cả hai màn,
+  không phần nổi nào mở, vì «in» và «to» là chuỗi của món. Dữ liệu của ứng dụng mẫu lấy từ bảng chữ, nên lượt đo đầu
+  không gặp ca ấy; dữ liệu thật của một repo không nằm trong bảng chữ nào.
 - Nhánh `first-use`, nơi chỉ màn `/` dùng món: chỉ màn ấy được mở, và đỏ như trên.
 - Mỗi màn khoảng 3,5 giây; cả lượt 10 đến 13 giây, kể cả dựng ứng dụng.
+
+## Thu hẹp chuỗi một chữ
+
+Chủ repo chọn «Thu hẹp luật», ngày 2026-11-24. Luật mới, một đoạn ở đề bài 0015 (đoạn «Khớp» và tiêu chí 19): chuỗi từ
+hai chữ trở lên khớp một dòng chữ trên màn thì đỏ; chuỗi một chữ chỉ đỏ khi trên cùng dòng có một chuỗi từ hai chữ trở
+lên của cùng tệp cũng khớp. Người kiểm tay được: tìm chuỗi nhiều chữ của một tệp trên dòng, rồi mới xét chuỗi một chữ
+của tệp ấy.
+
+Đo lại trên bản sao `second-use`, thêm ba dòng dữ liệu: «Máy in to» thay dòng mẫu thứ ba, «Open status report» và
+«Gói dữ liệu text and number». Cùng một bản sao, hai bản của plugin:
+
+|                                   | Luật đã duyệt (`42d7e5b`)          | Luật thu hẹp                                           |
+| --------------------------------- | ---------------------------------- | ------------------------------------------------------ |
+| Ba dòng dữ liệu                   | đỏ (cả ba ở `/`, hai ở `/overdue`) | không đỏ                                               |
+| Ô nổi không tên sau «Thêm bộ lọc» | đỏ                                 | đỏ                                                     |
+| «Top level, 2 items»              | đỏ, nêu 9 chuỗi                    | đỏ, nêu «Top level» và «items» của `cascader-i18n.tsx` |
+| Câu «Use the Right Arrow key…»    | đỏ, nêu 18 chuỗi                   | đỏ, nêu 6 chuỗi của `cascader-i18n.tsx`                |
+| Chuỗi bị nêu, cả hai màn          | 71                                 | 16 (8 mỗi màn), cả 16 của tệp đã viết dòng ấy          |
+
+Điều luật thu hẹp để lọt, mà luật đã duyệt bắt: một dòng mà chữ của món trên đó chỉ là chuỗi một chữ, như một nút món
+tự đặt tên «Close», hay `${n} items` đứng một mình. Trên bản sao của lượt thử, không chữ nào của món bị lọt như vậy.
+Dòng giới hạn `item-text-one-word-alone`. Ngược lại, chuỗi nhiều chữ của món mà một dòng dữ liệu tình cờ có (như «top
+level» trong một tên) vẫn đỏ: dòng giới hạn `item-text-phrase-in-data`.
 
 ## Consequences
 
 - Sổ giới hạn:
-  - **đóng** `conform-runs-no-accessibility-check`;
+  - **đóng** `conform-runs-no-accessibility-check`, và `item-text-names-every-file-with-the-word` (mở rồi đóng trong
+    cùng PR, khi luật được thu hẹp);
   - **mới** `item-popups-one-level` (như phần bổ sung nói), `item-popups-one-width`, `item-popups-opened-as-nobody`,
-    `item-text-names-every-file-with-the-word`, `item-popups-pressed-by-click-or-arrow`,
-    `own-check-read-from-its-calls`, `item-words-table-found-by-its-row`, `item-used-by-the-frame-only`.
+    `item-popups-pressed-by-click-or-arrow`,
+    `own-check-read-from-its-calls`, `item-words-table-found-by-its-row`, `item-used-by-the-frame-only`,
+    `item-text-one-word-alone`, `item-text-phrase-in-data`.
 - Repo này: chưa có bản ghi chuẩn hoá nào, nên tệp kiểm khai không bài kiểm nào và cổng không chậm thêm. Bài kiểm của
   plugin mở trình duyệt của repo trên trang phục vụ từ máy này; năm bài cần trình duyệt mất khoảng 13 giây, chạy song song
   với các tệp kiểm khác trong `make plugin-test`, sau khi `ui-floor` đã cài trình duyệt.

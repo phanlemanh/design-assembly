@@ -5346,8 +5346,10 @@
       "plan": "fix",
       "opened": "2026-11-24",
       "where": ["d0106"],
-      "status": "open",
-      "note": "A short string of any file of an item that stands as whole words in a line of the item's own text on the screen is named with that file, whether or not that file wrote the line: on the filters copy, the two lines of the item's own text a screen showed were named with 27 strings, 20 of them short words such as level, to and and from files that did not write them. No line that was not the item's own was named."
+      "status": "closed",
+      "note": "A short string of any file of an item that stands as whole words in a line of the item's own text on the screen is named with that file, whether or not that file wrote the line: on the filters copy, the two lines of the item's own text a screen showed were named with 27 strings, 20 of them short words such as level, to and and from files that did not write them. No line that was not the item's own was named.",
+      "closed": "2026-11-24",
+      "closed_by": "d0106: a one-word string counts only on a line where a string of two words or more of its own file counts too; on the filters copy the strings named on each screen went from 27 to 8, all of the file that wrote the line"
     },
     {
       "id": "item-popups-pressed-by-click-or-arrow",
@@ -5392,6 +5394,28 @@
       "where": ["d0106"],
       "status": "open",
       "note": "The screens whose floating parts are opened are the ones the change map traces from a file of an item to a screen's page: an item that no screen imports and that the application's frame alone uses reaches no screen, and its floating parts are not opened."
+    },
+    {
+      "id": "item-text-one-word-alone",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0106"],
+      "status": "open",
+      "note": "A string of an item that is one word counts on a line of the screen only where a string of two words or more of its own file stands on that line too: a line whose only text of the item is one word, such as a button the item names Close, or a count the item composes as a number and items, is not red, so that a row of data holding a short word of the item is not red either."
+    },
+    {
+      "id": "item-text-phrase-in-data",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0106"],
+      "status": "open",
+      "note": "A string of an item of two words or more that a row of data on the screen holds as whole words, such as a name holding top level, is red as the item's own text, with the file that wrote that string."
     }
   ]
 }

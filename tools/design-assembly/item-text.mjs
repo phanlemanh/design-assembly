@@ -245,8 +245,13 @@ export function wordsEntries(source, file = "") {
 
 // Whether `part` stands in `text` as whole words: at each end the start or the end of the text, a
 // space or a mark. Letters and digits are part of a word. Case is not.
+const PATTERNS = new Map();
 export function wholeWord(part, text) {
-  const pattern = new RegExp(`(?:^|[^\\p{L}\\p{N}])${escape(part)}(?:$|[^\\p{L}\\p{N}])`, "iu");
+  let pattern = PATTERNS.get(part);
+  if (!pattern) {
+    pattern = new RegExp(`(?:^|[^\\p{L}\\p{N}])${escape(part)}(?:$|[^\\p{L}\\p{N}])`, "iu");
+    PATTERNS.set(part, pattern);
+  }
   return pattern.test(text);
 }
 
@@ -257,25 +262,36 @@ export function heldByWords(text, entries) {
   return entries.some((entry) => entry.toLocaleLowerCase() === lower || wholeWord(text, entry));
 }
 
+// Whether a string is more than one word: it holds a space once trimmed.
+const longer = (text) => /\s/.test(text);
+
 // What of the item's own text is on the screen and not in the words table: one line per line of
-// the screen, naming every string of the item it holds, each with its file, the first time that
-// string is seen. A string held by the words table is never named. `said` is the text on the
-// screen, line by line; `strings` the item's, each with its file; `words` the table's files and
-// entries; `who` the control whose floating part is open, if any; `seen` the strings already
-// named for this screen, kept across calls.
+// the screen, naming the strings of the item that count there, each with its file, the first time
+// that string is named. A string counts on a line when it stands in it as whole words and the words
+// table does not hold it, and it is two words or more; a one-word string counts only on a line where
+// a string of two words or more of its own file counts too. So a row of data that holds a short
+// word of the item is not red, and the file that wrote a composed line is the one named. `said` is
+// the text on the screen, line by line; `strings` the item's, each with its file; `words` the
+// table's files and entries; `who` the control whose floating part is open, if any; `seen` the
+// strings already named for this screen, kept across calls.
 export function ownTextProblems(at, said, strings, words, { who = null, seen = new Set() } = {}) {
   const table = words.files.length > 0 ? words.files.join(", ") : "none was found";
-  const byLine = new Map();
-  for (const { file, text } of strings) {
-    const key = `${file}\n${text}`;
-    if (seen.has(key) || heldByWords(text, words.entries)) continue;
-    const where = said.find((line) => wholeWord(text, line));
-    if (where === undefined) continue;
-    seen.add(key);
-    byLine.set(where, [...(byLine.get(where) ?? []), `«${text}» of ${file}`]);
-  }
-  return [...byLine].map(
-    ([line, named]) =>
+  const open = strings.filter(({ text }) => !heldByWords(text, words.entries));
+  const problems = [];
+  for (const line of said) {
+    const standing = open.filter(({ text }) => wholeWord(text, line));
+    const anchored = new Set(standing.filter(({ text }) => longer(text)).map(({ file }) => file));
+    const named = [];
+    for (const { file, text } of standing) {
+      const key = `${file}\n${text}`;
+      if (seen.has(key) || !(longer(text) || anchored.has(file))) continue;
+      seen.add(key);
+      named.push(`«${text}» of ${file}`);
+    }
+    if (named.length === 0) continue;
+    problems.push(
       `${at}${who ? `, with ${who} open` : ""}: «${line.slice(0, 100)}» on the screen holds text the item writes itself, which the repository's words table (${table}) does not hold: ${named.join(", ")}. Give the item the repository's words by a recorded patch, or hold the text in the words table`,
-  );
+    );
+  }
+  return problems;
 }

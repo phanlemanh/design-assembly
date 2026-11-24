@@ -447,8 +447,10 @@ not pressed, a disabled control is not pressed; each is said. With the part open
   class list, key or path (no space, and `-`, `_`, `/`, `.` or `:` between two letters), that stands
   as whole words in the text of the screen (what is shown, what a live region says, the names and
   descriptions written on shown elements) and that the repository's words table holds neither whole
-  nor as whole words of an entry, is red; one line per line of the screen, naming each string and its
-  file. The words table is the files the tool data names under `words`, or else the file the source
+  nor as whole words of an entry, is red when it is two words or more; a one-word string is red only
+  on a line where a string of two words or more of its own file is red too, so a row of data that
+  holds a short word of the item is not (limit `item-text-one-word-alone`). One line per line of the
+  screen, naming each string and its file. The words table is the files the tool data names under `words`, or else the file the source
   of the row `labels`, `copy-content` or `terms` begins with;
 - the repository's own accessibility check runs as the repository configured it, read from the
   calls between the builder and its run in each browser test a row of the decisions ledger names as
