@@ -424,6 +424,40 @@ checkout fetches the main branch from the remote named origin, and is red when i
 `main` names the main branch where it has another name, and `intake` the ledger's path where it is
 not the usual one.
 
+## The floating parts of an outside item
+
+The `ledger-shapes` row holds, with the check `floating-parts`, that a browser test opens the
+floating parts of every item of an outside source (spec 0015, item 11.7). The check of the tool
+step is red when a conform record is there and `tests/e2e/floating-parts.spec.ts` is missing or
+does not call the check; the browser test itself runs with the repository's browser checks. The
+guide and `adopt` write the test where the repository lists the adapter's test browser and has
+none; `upgrade` writes it too, and never over one.
+
+The test opens each screen that uses an item: the screens the change map reaches from a file of
+its conform record, or every screen when the map cannot trace one. A file no screen imports
+reaches none. On each, at the widest width the repository lists, it presses each control that says it
+opens a floating part (`aria-haspopup`, or `aria-expanded="false"`) on the screen as it stands, one
+level only, the screen loaded afresh before each. A link is not followed, a form's submit button is
+not pressed, a disabled control is not pressed; each is said. With the part open:
+
+- every element just opened whose role is `dialog`, `alertdialog`, `menu` or `listbox` has an
+  accessible name: held by this check, whatever the repository's own check runs;
+- the item's own text: a string written in a file of the record (a string literal, a fixed part of
+  a template string, the words between two tags), trimmed, with two letters in a row, and not a
+  class list, key or path (no space, and `-`, `_`, `/`, `.` or `:` between two letters), that stands
+  as whole words in the text of the screen (what is shown, what a live region says, the names and
+  descriptions written on shown elements) and that the repository's words table holds neither whole
+  nor as whole words of an entry, is red; one line per line of the screen, naming each string and its
+  file. The words table is the files the tool data names under `words`, or else the file the source
+  of the row `labels`, `copy-content` or `terms` begins with;
+- the repository's own accessibility check runs as the repository configured it, read from the
+  calls between the builder and its run in each browser test a row of the decisions ledger names as
+  its evidence. A repository with none has the first two held all the same, and the test says its
+  check does not run. A configuration written otherwise than as plain values is red, saying so.
+
+A control that opens nothing on a click or on the down arrow is red. What a part opens inside
+itself is not opened (limit `item-popups-one-level`).
+
 ## Which screens a change reaches
 
 `node tools/design-assembly/affected.mjs`, or `make design-affected`, says which screens a change
@@ -999,7 +1033,9 @@ tool writes. The gate step is the plugin's whole: one that differs from the inst
 is missing, is written again, said under `gate step` before it is, and the gate after upgrading is
 measured with it. It never writes a ledger row a person wrote, the stylesheet, the Makefile, or a
 tool of the repository's own. Under the `ledger-shapes` row it adds, said under `check` before it
-does, the checks `taken-down` and `choose-first` when the tool data lacks them. A repository with no copy of
+does, the checks `taken-down`, `choose-first` and `floating-parts` when the tool data lacks them,
+the last only where the repository lists the adapter's test browser, with its browser test when the
+repository has none; it lists the conform records that test will hold and runs no browser. A repository with no copy of
 the tool has nothing to upgrade: that is a wrong call, ending with `2`. `--remove`, in the
 specification, is not built (limit `upgrade-has-no-remove`).
 

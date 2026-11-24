@@ -142,6 +142,11 @@ import {
   SEEN_TEST,
   seenFilesProblem,
 } from "../templates/tools/design-assembly/screen-actions-seen.mjs";
+import {
+  FLOATING_CHECK,
+  FLOATING_TEST,
+  hasTestBrowser,
+} from "../templates/tools/design-assembly/floating-parts.mjs";
 
 // The repository's own test that the ledger of screens and the code agree while the code runs.
 const LEDGER_TEST = "tests/screens-ledger.test.ts";
@@ -169,6 +174,18 @@ import {
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const PLUGIN = path.resolve(HERE, "..");
+
+// The browser test that opens the floating parts of the items of outside sources, as the guide,
+// adopting and upgrading write it where the repository has none: two lines that call the check.
+export const floatingTest = () =>
+  readFileSync(path.join(PLUGIN, "templates/owned/floating-parts.spec.ts.template"), "utf8");
+// The check under the ledgers' shapes that holds it, and the file to write, where the repository
+// has the adapter's test browser; nothing where it has not.
+export function floatingParts(target) {
+  if (!hasTestBrowser(target)) return { checks: [], files: {} };
+  const there = existsSync(path.join(target, FLOATING_TEST));
+  return { checks: [FLOATING_CHECK], files: there ? {} : { [FLOATING_TEST]: floatingTest() } };
+}
 export const BLUEPRINT = "design/blueprint.json";
 const LAYER_STATUSES = ["pending", "decided", "planned"];
 const SOURCES = ["user", "proposed", "repo"];
@@ -2145,6 +2162,7 @@ export function plan(target, blueprint) {
     shapes.push(...shapeProblems("screen-kinds", text, file));
   }
   if (shapes.length === 0) {
+    const floating = floatingParts(target);
     const item = {
       what: `${Object.keys(ledgerFiles).length} ledgers${kindPages ? " and the pages of screen kinds" : ""} have the one shape the contract gives them`,
       row: {
@@ -2177,8 +2195,11 @@ export function plan(target, blueprint) {
             ? { intake: ledgerFiles.intake }
             : {}),
         },
+        // The floating parts of each item of an outside source are opened by a browser test.
+        ...floating.checks,
       ],
     };
+    Object.assign(files, floating.files);
     governance.held["ledger-shapes"] = item;
     rows.push({ id: "ledger-shapes", ...item.row });
     checks["ledger-shapes"] = item.checks;

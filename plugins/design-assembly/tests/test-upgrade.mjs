@@ -530,6 +530,83 @@ test("upgrade adds the check that holds the choice to the ledger-shapes row, sai
   );
 });
 
+// The browser test of the floating parts, as upgrade brings it (spec 0015, addendum, criterion 21).
+const FLOATING = "tests/e2e/floating-parts.spec.ts";
+const FLOATING_TEMPLATE = text(PLUGIN, "templates/owned/floating-parts.spec.ts.template");
+const PICK = "design/conform/pick-a-level.json";
+const pickRecord = () =>
+  `${JSON.stringify({
+    version: 1,
+    need: "pick-a-level",
+    source: "kit",
+    item: "tree-picker",
+    taken: [{ file: "src/components/kit/tree-picker.tsx", sha256: "0".repeat(64) }],
+    conformed: [{ file: "src/components/kit/tree-picker.tsx", sha256: "0".repeat(64) }],
+    patches: [],
+    exemptions: [],
+  })}\n`;
+const withBrowser = (dir) =>
+  put(dir, "package.json", JSON.stringify({ devDependencies: { "@playwright/test": "^1" } }));
+
+test("criterion 21: upgrade brings the check of floating parts and writes its browser test where there is none, saying first which conform records it holds and running no browser", () => {
+  const dir = older();
+  withBrowser(dir);
+  put(dir, PICK, pickRecord());
+  const before = snapshot(dir);
+  const preview = upgrade(dir, "--dry-run", "--json");
+  assert.equal(preview.status, 0, preview.stderr);
+  const plan = JSON.parse(preview.stdout);
+  assert.deepEqual(plan.floating_parts, { test: FLOATING, change: "create", records: [PICK] });
+  assert.ok(plan.checks_added.some((item) => item.kind === "floating-parts"));
+  assert.ok(plan.files.some((file) => file.path === FLOATING && file.change === "create"));
+  // The gate step of the tool, on the repository as the upgrade would leave it, stays green.
+  assert.equal(plan.gate.green, true);
+  const said = upgrade(dir, "--dry-run").stdout;
+  assert.match(said, /^floating parts: tests\/e2e\/floating-parts\.spec\.ts is written: /m);
+  assert.match(
+    said,
+    /^ {2}it holds the items of 1 conform record: design\/conform\/pick-a-level\.json$/m,
+  );
+  assert.match(said, /^ {2}upgrade runs no browser: /m);
+  // It says nothing of whether the browser test will pass: it never ran it.
+  assert.doesNotMatch(
+    said,
+    /(browser tests?|floating-parts\.spec\.ts)[^\n]* (will|would) (pass|fail|be green|be red)/,
+  );
+  // A preview writes nothing.
+  assert.deepEqual(snapshot(dir), before);
+  const done = upgrade(dir);
+  assert.equal(done.status, 0, done.stderr);
+  assert.equal(text(dir, FLOATING), FLOATING_TEMPLATE);
+  assert.ok(
+    json(dir, "design/theme.json").checks["ledger-shapes"].some(
+      (check) => check.kind === "floating-parts" && check.test === FLOATING,
+    ),
+  );
+});
+
+test("criterion 21: upgrade never writes over the repository's browser test of the floating parts, and adds nothing where the repository has no test browser", () => {
+  const dir = older();
+  withBrowser(dir);
+  const own = `${FLOATING_TEMPLATE}// the repository's own line\n`;
+  put(dir, FLOATING, own);
+  const plan = JSON.parse(upgrade(dir, "--dry-run", "--json").stdout);
+  assert.equal(plan.floating_parts.change, "kept");
+  assert.ok(!plan.files.some((file) => file.path === FLOATING));
+  assert.match(
+    upgrade(dir, "--dry-run").stdout,
+    /^floating parts: tests\/e2e\/floating-parts\.spec\.ts is the repository's, and is not written over$/m,
+  );
+  assert.equal(upgrade(dir).status, 0);
+  assert.equal(text(dir, FLOATING), own);
+  // No test browser listed: no check, no file.
+  const bare = older();
+  const none = JSON.parse(upgrade(bare, "--dry-run", "--json").stdout);
+  assert.equal(none.floating_parts.change, "none");
+  assert.ok(!none.checks_added.some((item) => item.kind === "floating-parts"));
+  assert.ok(!none.files.some((file) => file.path === FLOATING));
+});
+
 test("a wrong call, or a repository with no copy of the tool, ends with 2 and writes nothing", () => {
   const dir = older();
   const before = snapshot(dir);

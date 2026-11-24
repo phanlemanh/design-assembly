@@ -53,7 +53,12 @@ The same call, after the answer:
   `--file PATH`, the block's file: the row is written only when the record is whole, the files on
   disk are the ones it holds, and every rule turned off in a file's comment or for its folder in the
   configuration has its exemption. Until then a page that
-  imports the item turns the gate red.
+  imports the item turns the gate red. The question also says, under `the gate:`, what the gate
+  holds of the item once it is taken in: the browser test `tests/e2e/floating-parts.spec.ts` opens
+  each floating part of it on the screens that use it (each dialog, menu or list box it opens must
+  have a name, and its own text on the screen must be in the repository's words table), and the
+  repository's own accessibility check runs with each part open, or the question says that check
+  does not run there. Intake runs no browser: the gate does.
 - **By hand:** make the block, then call again with `--file PATH`. The row also keeps the words
   searched and the nearest thing the stores gave for them, or `none`: the gate holds a row made by
   hand that a branch writes to both, and names a component file a branch adds with no row. Never

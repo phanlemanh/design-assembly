@@ -5207,9 +5207,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-24",
-      "where": ["d0104"],
-      "status": "open",
-      "note": "The way in runs the repository's gate, which drives no item's own popups: in the filters trial both faults that slipped through the earlier measurement were still there on the screen that uses it, a dialog with no name and a screen-reader announcement in English, and the gate was green."
+      "where": ["d0104", "d0105"],
+      "status": "closed",
+      "note": "The way in runs the repository's gate, which drives no item's own popups: in the filters trial both faults that slipped through the earlier measurement were still there on the screen that uses it, a dialog with no name and a screen-reader announcement in English, and the gate was green.",
+      "closed": "2026-11-24",
+      "closed_by": "d0105"
     },
     {
       "id": "exemptions-never-reach-the-owner",
@@ -5276,6 +5278,94 @@
       "where": ["d0102"],
       "status": "open",
       "note": "The gate lets a component file a branch adds through when the main branch's list of what came before names a component in it, the case of a file moved; a new file that exports a component of a name already on that list passes the same way."
+    },
+    {
+      "id": "item-popups-one-level",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0105"],
+      "status": "open",
+      "note": "The browser test of floating parts presses only the controls shown on a screen as it stands: a floating part that opens from inside another, such as the list a cascade opens inside a filter's panel, is never opened, so its name, its text and the repository's own check with it open are not held."
+    },
+    {
+      "id": "item-popups-one-width",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0105"],
+      "status": "open",
+      "note": "The floating parts of an item are opened at the widest width the repository lists, and at no other: a part drawn otherwise on a narrow screen, such as a panel that slides in from an edge of the screen in place of a popover, is not held."
+    },
+    {
+      "id": "item-popups-opened-as-nobody",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0105"],
+      "status": "open",
+      "note": "The floating parts of an item are opened on each screen at its route with no role's way in: a screen that shows its controls only to a signed-in role is seen as nobody sees it, and a control it offers that role alone is never pressed."
+    },
+    {
+      "id": "item-text-names-every-file-with-the-word",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0105"],
+      "status": "open",
+      "note": "A short string of any file of an item that stands as whole words in a line of the item's own text on the screen is named with that file, whether or not that file wrote the line: on the filters copy, the two lines of the item's own text a screen showed were named with 27 strings, 20 of them short words such as level, to and and from files that did not write them. No line that was not the item's own was named."
+    },
+    {
+      "id": "item-popups-pressed-by-click-or-arrow",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0105"],
+      "status": "open",
+      "note": "A control that says it opens a floating part is pressed with a click, then with the down arrow: one that opens only on hover, or only once a person types, is red as a control that opens nothing."
+    },
+    {
+      "id": "own-check-read-from-its-calls",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0105"],
+      "status": "open",
+      "note": "How the repository configured its own accessibility check is read from the calls between the builder and its run in the browser test its decisions ledger names, written as plain values: a configuration kept in a variable or a helper is not read, and the browser test of floating parts is red, saying so, rather than run the check another way."
+    },
+    {
+      "id": "item-words-table-found-by-its-row",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0105"],
+      "status": "open",
+      "note": "The repository's words table is the file the tool data names for the check of floating parts, or else the file the source of the row labels, copy-content or terms of its decisions ledger begins with: a repository that names it in neither place has no words table to the check, and every string of an item on the screen is red."
+    },
+    {
+      "id": "item-used-by-the-frame-only",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0105"],
+      "status": "open",
+      "note": "The screens whose floating parts are opened are the ones the change map traces from a file of an item to a screen's page: an item that no screen imports and that the application's frame alone uses reaches no screen, and its floating parts are not opened."
     }
   ]
 }

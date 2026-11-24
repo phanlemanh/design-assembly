@@ -37,6 +37,7 @@ import { readMakefile } from "../templates/tools/design-assembly/host-make.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
 import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-first.mjs";
+import { FLOATING_CHECK } from "../templates/tools/design-assembly/floating-parts.mjs";
 import { whereRulesApply } from "../templates/tools/design-assembly/lint.mjs";
 import {
   PROBED,
@@ -92,6 +93,7 @@ import {
   writtenFiles,
   DECISION_SHEET,
   FROM_FLOOR,
+  floatingParts,
   OWNER_CALLS,
   ownValuesProblem,
   startingSizes,
@@ -606,6 +608,8 @@ export function adoption(
             TAKEN_DOWN_CHECK,
             // A component file a branch adds, or a row made by hand it writes, holds the choice.
             CHOOSE_FIRST_CHECK,
+            // The floating parts of each item of an outside source are opened by a browser test.
+            ...floatingParts(root).checks,
           ],
         };
       }
@@ -820,6 +824,10 @@ export function adoption(
   }
   if (tooled.length > 0) {
     Object.assign(result.files, vendored());
+    // The browser test the check of the floating parts holds, where the repository has none.
+    if ((checks["ledger-shapes"] ?? []).some((check) => check.kind === FLOATING_CHECK.kind)) {
+      Object.assign(result.files, floatingParts(root).files);
+    }
     // The page an agent reads first, written from every rule the tool now holds here.
     const all = { ...theme?.checks, ...checks };
     const fixed = blueprintOf(root);
