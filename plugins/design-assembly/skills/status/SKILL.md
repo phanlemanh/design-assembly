@@ -33,7 +33,7 @@ It ends with:
   held and claimed. Never add them.
 - `rhythms`: one line for each rhythm of a repository's life, read from the repository as it is
   now: it is born (where its values come from), it meets the plugin (the ledger), a feature needs
-  a new block (not built in this version), every change (the checks in the gate and the shape of
+  a new block (the intake command, and the ledger it writes), every change (the checks in the gate and the shape of
   the ledgers), and periodically (the record of what slipped past the checks).
 - `waiting on the owner`: each answer only a person can give. Three kinds are listed: a row of
   `design/decisions.yaml` whose note says a person has not confirmed it, a call only a person
@@ -56,6 +56,9 @@ It ends with:
   stylesheet, or a Makefile that does not include `mk/*.mk`), the last line says what is missing
   instead, and the guide and adopting are not offered: they would refuse. Say what is missing, and
   that the plugin builds on a floor and does not lay one.
+- When nothing waits on the owner and values of the foundations lack the owner's word or a row
+  that holds them, `next` names `/design-assembly:status --roles` with those values: run it to say
+  what each lacks.
 
 ## 3. Say it to the person
 

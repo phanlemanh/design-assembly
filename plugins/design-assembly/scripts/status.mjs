@@ -78,6 +78,8 @@ const STARTER = "/design-assembly:adopt --starter";
 
 // How many waiting answers a person is shown in full. The rest are named, and --json has them all.
 const SHOWN = 5;
+// The report by roles, as a step of `next`.
+const ROLES = "/design-assembly:status --roles";
 const MEASURED = "a measurement on this repository: ";
 const PRINCIPLED = "a design principle the owner fixed: ";
 // A basis as status writes it, from the kind and the text a recommendation of the guide gives.
@@ -454,16 +456,16 @@ const VALUES = {
   none: "no stylesheet that declares color roles",
 };
 
-// What the intake rhythm has: the command is not built yet, and the ledger it would write may be
-// kept by hand already.
+// What the intake rhythm has: the command that takes a block in, and the ledger it writes, which a
+// repository may also keep by hand.
 function intakeSays(ledger) {
-  const command = "the command is not built in this version of the plugin";
-  if (!ledger) return `${command}: nothing records which need got which block`;
+  const command = "the intake command takes a block in";
+  if (!ledger) return `${command}; nothing records yet which need got which block`;
   const shape =
     ledger.differs.length === 0
       ? "with the one shape of the contract"
       : "not of the contract's shape";
-  return `${command}; ${ledger.file} records which need got which block, written by hand, ${shape}`;
+  return `${command}; ${ledger.file} records which need got which block, ${shape}`;
 }
 
 // One line per rhythm of a repository's life, each read from the repository as it is now.
@@ -523,7 +525,7 @@ export function seenStepOf(root, rows, audited) {
 // the audit decides from the files, then what the browser test by role still lacks. Only commands
 // this plugin has. On a repository with no floor, the guide and adopting would refuse, so the
 // audit's command is not offered: what is missing is said instead.
-function nextOf(audit, waiting, broken, tool, seen = null, missing = null) {
+function nextOf(audit, waiting, broken, tool, seen = null, missing = null, unwhole = []) {
   const next = [];
   if (broken.length > 0) {
     next.push({
@@ -543,6 +545,17 @@ function nextOf(audit, waiting, broken, tool, seen = null, missing = null) {
         .slice(0, SHOWN)
         .map((item) => item.id)
         .join(", ")}${mine.length > SHOWN ? ", ..." : ""})`,
+    });
+  }
+  // Values of the foundations without the owner's word or a row that holds them: the report by
+  // roles names what each lacks. While answers wait, answering comes first, and most of those
+  // values lack only those answers; the step is named once nothing waits.
+  if (unwhole.length > 0 && waiting.length === 0) {
+    next.push({
+      command: ROLES,
+      why: `${plural(unwhole.length, "value of the foundations is", "values of the foundations are")} not whole (${unwhole
+        .slice(0, SHOWN)
+        .join(", ")}${unwhole.length > SHOWN ? ", ..." : ""}): it names what each lacks`,
     });
   }
   // A copy of the tool that is not the installed plugin's is brought in by upgrade, after its
@@ -595,7 +608,19 @@ function readLedgers(root) {
     birth: birthOf(root),
     missing: missingFloor(root),
     pushed: pushedLines(root),
+    unwhole: unwholeOf(root),
   };
+}
+
+// The values of the foundations that status --roles reports as not whole, in its order: on a
+// repository the guide wrote, each value it declares that lacks the owner's word or a row with its
+// check. Empty elsewhere, where that report prints the table alone.
+function unwholeOf(root) {
+  if (!readBlueprint(root)) return [];
+  const held = heldRoles(root) ?? [];
+  return held
+    .filter((item) => item.written && item.missing.length > 0)
+    .map((item) => item.variable);
 }
 
 // What the repository lacks before this plugin can build on it, or null: a stylesheet, found where
@@ -631,7 +656,10 @@ function birthSays({ all, missing }) {
   return `ledgers from birth: ${missing.length} missing: ${missing.join(", ")}`;
 }
 
-function resultOf({ audit, broken, tool, sockets, seen, birth, missing, pushed }, waiting) {
+function resultOf(
+  { audit, broken, tool, sockets, seen, birth, missing, pushed, unwhole },
+  waiting,
+) {
   return {
     tier: audit.tier,
     // Core decisions only, as the audit counts them. Two numbers: a claim was not run again here.
@@ -640,7 +668,7 @@ function resultOf({ audit, broken, tool, sockets, seen, birth, missing, pushed }
     rhythms: rhythmsOf(audit, broken, birth),
     waiting,
     tool,
-    next: nextOf(audit, waiting, broken, tool, seen, missing),
+    next: nextOf(audit, waiting, broken, tool, seen, missing, unwhole),
     // The socket board: which plug fills each socket of the capability table, and which is empty.
     sockets,
     // What the repository lacks before this plugin can build on it: its design floor, or the

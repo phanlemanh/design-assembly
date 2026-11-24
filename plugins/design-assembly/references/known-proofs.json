@@ -6,8 +6,8 @@
       "id": "color-role",
       "kind": "standard",
       "source": "the stylesheet's color roles",
-      "check": "eslint:shadcn/no-raw-colors",
-      "needs": ["shadcn/no-raw-colors"]
+      "check": "eslint:shadcn/no-arbitrary-values",
+      "needs": ["shadcn/no-arbitrary-values"]
     },
     {
       "id": "color-palette",

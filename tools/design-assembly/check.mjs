@@ -1083,7 +1083,7 @@ export function lintResults(root, checks, rows) {
     for (const check of list.filter((item) => item.kind === "lint")) {
       const key = lintKey(id, check);
       const rules = pointedRules(rows).filter((rule) => rule !== check.rule);
-      const probes = probesFor(id, { component: check.component ?? null, rules });
+      const probes = probesFor(id, { component: check.component ?? null, rule: check.rule, rules });
       if (!probes) {
         missing[key] = { error: `this tool has no probe that breaks ${id}` };
         continue;

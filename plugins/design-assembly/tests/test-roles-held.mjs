@@ -209,3 +209,31 @@ test("the guide asks the sidebar, the chart and the font's licence before its fi
   }
   assert.match(page, /status\.mjs --target <repo> --roles/);
 });
+
+// Owed since 2026-11-22 (wiki/log.md): plain status names the lines status --roles reports as not
+// whole as a step to take, and says nothing of them when every line is whole.
+test("plain status names the values status --roles reports as not whole, as a step to take", () => {
+  const open = applied(blueprint({ colourSaid: null }));
+  const said = run(script("status.mjs"), "--target", open);
+  const step = said.stdout
+    .split("\n")
+    .find((line) => /^(next|then): \/design-assembly:status --roles, /.test(line));
+  assert.ok(step, said.stdout);
+  assert.match(step, /values? of the foundations (is|are) not whole \(--primary, /);
+  assert.match(step, /it names what each lacks/);
+  const data = JSON.parse(run(script("status.mjs"), "--target", open, "--json").stdout);
+  const listed = data.next.find((item) => item.command === "/design-assembly:status --roles");
+  assert.ok(listed, JSON.stringify(data.next));
+  assert.ok(said.stdout.split("\n").length <= 40, "more than one screen");
+
+  const whole = applied(blueprint());
+  const quiet = run(script("status.mjs"), "--target", whole);
+  assert.doesNotMatch(quiet.stdout, /status --roles/);
+
+  // While a question waits on the owner, answering it comes first: the values that lack only
+  // that answer are not named a second time.
+  const asked = applied(blueprint({ words: { "color-roles-neutral": "formula" } }));
+  const waiting = JSON.parse(run(script("status.mjs"), "--target", asked, "--json").stdout);
+  assert.ok(waiting.waiting.length > 0);
+  assert.ok(!waiting.next.some((item) => item.command === "/design-assembly:status --roles"));
+});

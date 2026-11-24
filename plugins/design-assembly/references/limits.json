@@ -597,6 +597,17 @@
       "note": "The table of evidence a repository may already have recognises the floor's lint rules only, so a repository with its own must write those rows by hand."
     },
     {
+      "id": "whole-class-names-held-on-components-only",
+      "area": "adopt",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["trials"],
+      "status": "open",
+      "note": "Where the decision that class names are written whole points at a lint rule that reads only the classes given to a component, the tool probes that rule on a component and holds the row, so a class built in pieces on a plain element is held by no check."
+    },
+    {
       "id": "adopt-needs-mk-gate",
       "area": "adopt",
       "kind": "stack-bound",

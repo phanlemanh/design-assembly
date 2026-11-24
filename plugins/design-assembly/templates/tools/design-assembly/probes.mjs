@@ -48,9 +48,10 @@ export function probeComponent(root) {
 }
 
 // The texts that break `id`, each with the line that names it, and the control: the same file
-// with nothing that breaks a decision. `rules` are the lint rules the ledger points at, for the
-// decision about exceptions. Null when this tool cannot probe the decision here.
-export function probesFor(id, { component = null, rules = [] } = {}) {
+// with nothing that breaks a decision. `rule` is the lint rule the probes are run against: one that
+// reads a component's classes only is probed on a component. `rules` are the lint rules the ledger
+// points at, for the decision about exceptions. Null when this tool cannot probe the decision here.
+export function probesFor(id, { component = null, rule = null, rules = [] } = {}) {
   const { probe } = source;
   const control = probe.file(probe.control);
   const plain = (bodies) => bodies.map((body) => ({ label: body, text: probe.file(body) }));
@@ -70,10 +71,12 @@ export function probesFor(id, { component = null, rules = [] } = {}) {
   }
   if (id === "whole-class-names") {
     const pieces = probe.pieces(values.classStart);
+    const onComponentsOnly = (components.componentClassRules ?? []).includes(rule);
+    if (onComponentsOnly && !component) return null;
     return {
       control,
       probes: [
-        ...plain(pieces.map((attribute) => probe.element(attribute))),
+        ...(onComponentsOnly ? [] : plain(pieces.map((attribute) => probe.element(attribute)))),
         ...(component ? pieces.map(onComponent) : []),
       ],
     };
