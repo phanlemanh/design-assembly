@@ -733,7 +733,7 @@ test("--short gives one line where nothing is asked, and the questions where som
   const short = cli("--target", dir, "--short");
   assert.equal(short.status, 0, short.stderr);
   assert.deepEqual(short.stdout.trim().split("\n"), [
-    "Plugs: 20 sockets: 2 are closed, 8 have only the plugin's plug, 10 have plugs from outside, 6 of them a measured one.",
+    "Plugs: 20 sockets: 2 are closed, 8 have only the plugin's plug, 10 have plugs from outside, 7 of them a measured one.",
     "No outside plug that was measured is in this repository or this session; every socket keeps the plugin's plug.",
   ]);
   const asking = cli("--target", empty(), "--short", "--skill", "design-critique");
