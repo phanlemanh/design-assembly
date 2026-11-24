@@ -3370,9 +3370,9 @@
       "severity": "low",
       "plan": "keep",
       "opened": "2026-11-19",
-      "where": ["d0062", "d0060"],
+      "where": ["d0062", "d0060", "d0096"],
       "status": "open",
-      "note": "The candidates are what find matches by words: a need written in the repository's language finds no item of a catalog written in English, and is offered only by hand."
+      "note": "The candidates are what find matches by words, and an item is offered only when it holds every word of the need: a need written in the repository's language finds no item of a catalog written in English, and in the measurement of d0096 the need «filter status date» found nothing in a catalog that holds a filter builder and a date selector, so it was offered only by hand until its words were changed."
     },
     {
       "id": "change-lists-the-import-lines-and-edits-none",
@@ -4730,9 +4730,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0092"],
+      "where": ["d0092", "d0096"],
       "status": "open",
-      "note": "The guide, adopting, the upgrade and the make targets that write the tokens or the component manifest do not write the exports again, so in a repository that keeps exports any of them turns the gate red until make design-exports runs in the same change."
+      "note": "The guide, adopting, the upgrade, intake when it writes a row, and the make targets that write the tokens or the component manifest do not write the exports again, so in a repository that keeps exports any of them turns the gate red until make design-exports runs in the same change."
     },
     {
       "id": "send-out-push-recorded-on-the-skills-word",
@@ -4788,6 +4788,84 @@
       "where": ["d0092"],
       "status": "open",
       "note": "The gate compares a markdown export with what the ledgers give after taking every space out, so an edit by hand that changes only the spaces inside a value passes it."
+    },
+    {
+      "id": "intake-one-row-for-many-files",
+      "area": "intake",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0096"],
+      "status": "open",
+      "note": "An item of an outside source whose install line brings many files is recorded as one row with the hash of the one file the caller names, so a change to any other of its files is not reported: the component of the measurement in d0096 came in as 32 files."
+    },
+    {
+      "id": "intake-install-line-unannounced",
+      "area": "intake",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0096"],
+      "status": "open",
+      "note": "The install line of an outside item is given as its source writes it, and nothing says before the owner keeps the candidate that it may fetch a newer command line than the one the repository pins, add packages and base components, and ask to write over components the repository owns, nor that it ends with 0 when that question is left unanswered, after it has already changed the component settings file, the package manifest and its lock file."
+    },
+    {
+      "id": "outside-source-pinned-by-hand",
+      "area": "intake",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0096"],
+      "status": "open",
+      "note": "No command pins an outside library: its row, its catalog, the snapshot and the snapshot hash are written by hand, and the formatter must be told to leave the snapshot as fetched, or formatting it breaks the pin."
+    },
+    {
+      "id": "library-pin-not-held-by-the-gate",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0096"],
+      "status": "open",
+      "note": "The gate compares a pin with what the repository holds for fonts only, so the snapshot of a library source that no longer matches its pin is said by find and intake and leaves the gate green."
+    },
+    {
+      "id": "outside-block-taken-in-red",
+      "area": "intake",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-23",
+      "where": ["d0096"],
+      "status": "open",
+      "note": "An item of an outside source is taken in without checking that it passes the repository's floor, and a builder can make the gate green again by turning the floor and the type check off for its files with a reason on each line, which no check flags, so the look of that block is then the source's and not the floor's."
+    },
+    {
+      "id": "vendor-folders-disagree",
+      "area": "checks",
+      "kind": "conflict",
+      "severity": "low",
+      "plan": "hand-off",
+      "repo": "repo-standards",
+      "opened": "2026-11-23",
+      "where": ["d0096"],
+      "status": "open",
+      "note": "The floor's guard treats only the folder of the base library as code the repository did not write, while this plugin's tools also treat the folder of an outside registry as a library, so a rule turned off for one folder is read as the repository's own departure by one tool and as a library's by the other."
+    },
+    {
+      "id": "plug-account-need-read-from-its-maker",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0096"],
+      "status": "open",
+      "note": "The plug file of the outside registry measured at the components socket lists an account among its needs because its maker's documents say its search needs one, even for the free part; the measurement made every call under a person already signed in, so no call without an account was tried and the need is not shown."
     }
   ]
 }
