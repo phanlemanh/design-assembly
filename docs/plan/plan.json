@@ -635,11 +635,11 @@
       "group": "reference-repo"
     },
     {
-      "on": "2026-11-21",
-      "what": "Giới hạn mức nặng owner-calls-trusts-a-written-answer còn ghi giao cho repo-standards, trong khi bên ấy cho biết chủ repo đã chọn không dựng phần nhận (RS5a): dòng này cần một chủ mới hoặc một quyết định ở kho này; phiên giám sát của repo-standards nêu ngày 2026-11-21 (docs/reports/2026-11-20-decision-to-merge-trace.md của kho ấy); phía kho này đã đối chiếu, phía kho kia chưa kiểm ở đây",
-      "stage": 7,
-      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 5; là lời chủ repo, và hợp với giai đoạn 7 khi có nhiều repo và nhiều người trả lời",
-      "group": "who-answers"
+      "on": "2026-11-24",
+      "what": "Linh kiện mẫu RowActions đặt tên đang chờ (busyName) lên trang dưới dạng chữ chỉ trình đọc màn hình đọc, như nút xoá của màn mẫu, để trạng thái chờ của dòng có chữ của riêng nó và bài kiểm trình duyệt chứng được nó; theo lời chủ repo ngày 2026-11-24, câu 4.4 của docs/owner-decision-sheet-2026-11-23.md («Có, đặt chữ ẩn (Recommended)»), điểm 3 của quyết định 0077",
+      "stage": 10,
+      "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 10; đổi một mẫu của plugin, tức một bản plugin mới, nên không đi cùng phiếu chỉ có chữ",
+      "group": "screen-build"
     },
     {
       "on": "2026-11-22",
@@ -649,17 +649,10 @@
       "group": "floor-move"
     },
     {
-      "on": "2026-11-22",
-      "what": "Lệnh status còn in «the command is not built in this version of the plugin» ở dòng của nhịp «một tính năng cần khối mới», dù lệnh intake đã có từ mục 3.3 của giai đoạn 3; một bài kiểm của plugin và trang hướng dẫn của lệnh status đang ghim câu ấy; thấy khi đối chiếu tài liệu kiến trúc (mục 6.3)",
-      "stage": 3,
-      "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 6; sửa là đổi script của plugin, tức một bản plugin mới, không thuộc mục 6.3",
-      "group": "small"
-    },
-    {
       "on": "2026-11-23",
-      "what": "Ba bằng chứng của sàn mà adopt --starter không giữ được, thấy ở lượt thử tiêu chí 11 (docs/trials/born-through-repo-standards.md): phép kiểm trình duyệt của sàn (tests/e2e/floor.spec.ts) không nêu decision:one-main-one-h1, decision:no-sideways-scroll, decision:wcag-aa, nên ba quyết định không vào sổ (sửa ở sàn của Repo Standards hay nhận tệp ấy ở known-proofs.json là lời chủ repo); color-role gắn với shadcn/no-raw-colors trong known-proofs.json trong khi trên sàn shadcn/no-arbitrary-values mới là luật từ chối mẫu text-[#ff0000]; mẫu của whole-class-names đặt lớp động trên một div, ngoài phạm vi của shadcn/require-static-classes (chỉ xét lớp của linh kiện)",
+      "what": "Một bằng chứng của sàn mà adopt --starter không giữ được, thấy ở lượt thử tiêu chí 11 (docs/trials/born-through-repo-standards.md): phép kiểm trình duyệt của sàn (tests/e2e/floor.spec.ts) không nêu decision:one-main-one-h1, decision:no-sideways-scroll, decision:wcag-aa, nên ba quyết định không vào sổ (sửa ở sàn của Repo Standards hay nhận tệp ấy ở known-proofs.json là lời chủ repo); hai việc kia của lượt thử ấy (color-role gắn sai luật lint trong known-proofs.json, mẫu của whole-class-names ngoài phạm vi luật) đã sửa ở plugin 0.49.0 ngày 2026-11-24",
       "stage": 6,
-      "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 6: bộ sổ lúc ra đời đủ và cổng xanh; hai việc cuối đổi script hay sổ tham chiếu của plugin, tức một bản plugin mới; việc đầu chạm sàn của Repo Standards, cần lời cho phép ở kho ấy",
+      "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 6: bộ sổ lúc ra đời đủ và cổng xanh; việc này chạm sàn của Repo Standards, cần lời cho phép ở kho ấy, hoặc lời chủ repo để nhận tệp ấy ở known-proofs.json",
       "group": "small"
     }
   ]

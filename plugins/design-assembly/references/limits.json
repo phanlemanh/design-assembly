@@ -597,6 +597,39 @@
       "note": "The table of evidence a repository may already have recognises the floor's lint rules only, so a repository with its own must write those rows by hand."
     },
     {
+      "id": "whole-class-names-held-on-components-only",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["trials"],
+      "status": "open",
+      "note": "Where the decision that class names are written whole points at a lint rule that reads only the classes given to a component, the tool probes that rule on a component and holds the row, so a class built in pieces on a plain element is held by no check."
+    },
+    {
+      "id": "color-role-row-keeps-the-old-rule",
+      "area": "adopt",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["trials"],
+      "status": "open",
+      "note": "Since 0.49.0 the table of evidence ties the decision on colour roles to the rule against arbitrary values, yet a row written before keeps the rule against palette colours it was given, and neither adopting nor upgrading points it again, so that row stays claimed until a person points it at the other rule; a repository whose lint has only the rule against palette colours now gets no row for the decision from adopting."
+    },
+    {
+      "id": "status-roles-step-waits-behind-any-answer",
+      "area": "status",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["handoff"],
+      "status": "open",
+      "note": "Plain status names the values of the foundations that are not whole as a step only once nothing waits on the owner, to keep its one screen, so a value that lacks a word no waiting question asks for, such as the source colour's name and day, is not named while an unrelated question waits."
+    },
+    {
       "id": "adopt-needs-mk-gate",
       "area": "adopt",
       "kind": "stack-bound",
@@ -828,8 +861,10 @@
       "plan": "keep",
       "opened": "2026-11-23",
       "where": ["d0008", "d0009", "handoff"],
-      "status": "open",
-      "note": "This repository's configuration of the acceptance kit declares no design surface, tokens file or component manifest, so the kit's own reader of the design floor still answers its lowest tier although both artifacts exist."
+      "status": "closed",
+      "note": "This repository's configuration of the acceptance kit declares no design surface, tokens file or component manifest, so the kit's own reader of the design floor still answers its lowest tier although both artifacts exist.",
+      "closed": "2026-11-24",
+      "closed_by": "the owner's word to declare them; the repository's acceptance configuration now names its screen sources, its tokens file and its component manifest, and the kit's reader of the design floor answers the tier of both artifacts; on a clone where the gate has not run yet it answers one tier lower, because the component manifest is derived and not kept in git"
     },
     {
       "id": "agents-md-omits-plugins",
@@ -2999,12 +3034,11 @@
       "area": "checks",
       "kind": "wrong-signal",
       "severity": "high",
-      "plan": "hand-off",
-      "repo": "repo-standards",
+      "plan": "keep",
       "opened": "2026-11-17",
       "where": ["d0054", "spec"],
       "status": "open",
-      "note": "The wall opens on an answered question of the waiting list, and cannot tell whether the owner or an agent wrote that answer: the file is data, like the answers file of the decision sheet (limit decide-cannot-tell-who-wrote-the-answers). The rules page forbids an agent to answer, and nothing holds it. Asking the owner on the hosting service before a pull request that adds a kind of screen or a brand colour merges is the repository standards' own work."
+      "note": "The wall opens on an answered question of the waiting list, and cannot tell whether the owner or an agent wrote that answer: the file is data, like the answers file of the decision sheet (limit decide-cannot-tell-who-wrote-the-answers). The rules page forbids an agent to answer, and nothing holds it. No other repository asks the owner on the hosting service before such a pull request merges, so the row is kept here until several repositories and several people answer."
     },
     {
       "id": "decision-sheet-reads-what-a-branch-writes",
