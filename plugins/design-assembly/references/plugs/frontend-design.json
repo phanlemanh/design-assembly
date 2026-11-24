@@ -5,5 +5,11 @@
   "sockets": ["screen-build"],
   "names": ["frontend-design"],
   "skills": ["frontend-design"],
-  "needs": []
+  "needs": [],
+  "measured": {
+    "screen-build": {
+      "record": "d0097",
+      "beats_plugin": false
+    }
+  }
 }
