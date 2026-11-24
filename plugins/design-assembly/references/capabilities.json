@@ -331,7 +331,7 @@
       "name": "components",
       "plain": "Takes a block in for a need, or finds the one the repository already has.",
       "socket": {
-        "writes": ["intake", "components"],
+        "writes": ["intake", "components", "conform"],
         "outputs": ["a row of the intake ledger, and the component manifest"],
         "checks": ["/design-assembly:intake", "make design-components"],
         "decides": "owner",
@@ -351,6 +351,12 @@
           "kind": "command",
           "default": true,
           "scripts": ["scripts/intake.mjs", "scripts/intake-write.mjs"]
+        },
+        {
+          "id": "conform",
+          "kind": "command",
+          "default": false,
+          "scripts": ["scripts/conform.mjs", "scripts/conform-rules.mjs"]
         },
         {
           "id": "component-manifest",

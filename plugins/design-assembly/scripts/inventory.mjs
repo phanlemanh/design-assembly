@@ -384,12 +384,57 @@ function templateOf(block) {
   return path.join(PLUGIN, "templates/owned", file);
 }
 
+// A block taken in with its conform record: every file of the item, against the hash the record
+// holds after patching. A file changed since is a hand edit, for no patch records it (spec 0015).
+function conformedOf(read, block, blind) {
+  const name = nameOf(block);
+  const file = fileOf(block.conform);
+  const bytes = file && isFile(read.root, file) ? bytesOf(read.root, file) : null;
+  const record = (() => {
+    try {
+      return bytes === null ? null : JSON.parse(String(bytes));
+    } catch {
+      return null;
+    }
+  })();
+  if (!Array.isArray(record?.conformed)) {
+    blind("modified", `the conform record of a block cannot be read: ${file ?? "none named"}`, [
+      name,
+    ]);
+    return [];
+  }
+  const found = [];
+  for (const entry of record.conformed) {
+    const each = fileOf(entry?.file);
+    const content = each && isFile(read.root, each) ? bytesOf(read.root, each) : null;
+    if (content === null) {
+      blind("modified", `a file of a conformed block is not there: ${each ?? "none named"}`, [
+        name,
+      ]);
+      continue;
+    }
+    if (sha(content) === entry.sha256) continue;
+    found.push({
+      kind: "modified",
+      items: [{ name, file: each, kind: "block", origin: originOf(read.intake.ledger, block) }],
+      evidence: [
+        `${each} is not the file the conform record ${file} holds after patching, and no patch records the change`,
+      ],
+    });
+  }
+  return found;
+}
+
 function modifiedOf(read, blind) {
   const found = [];
   for (const block of read.live) {
     const name = nameOf(block);
     const file = fileOf(block.file);
     if (hasReason(block.changed)) continue;
+    if (text(block.conform)) {
+      found.push(...conformedOf(read, block, blind));
+      continue;
+    }
     if (!file || !isFile(read.root, file)) {
       blind("modified", `the file of a block is not there: ${file ?? "none named"}`, [name]);
       continue;

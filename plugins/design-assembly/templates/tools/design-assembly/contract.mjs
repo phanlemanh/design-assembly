@@ -60,6 +60,10 @@ export const BORN = { floor: "with-the-floor", firstEntry: "with-its-first-entry
 // The folder of conform records: one file per need, for an item of an outside source taken down
 // and conformed before it is taken in (spec 0015).
 export const CONFORM_FOLDER = "design/conform";
+// The rules an exemption may name for a whole folder of an item rather than one of its files: the
+// formatter's ignore list, the lint configuration, the type check's. Such an exemption names the file
+// of the configuration (spec 0015, slice 3).
+export const FOLDER_RULES = ["formatter-ignore", "lint-config", "typecheck-exclude"];
 // A file of an item, with the hash of its bytes.
 const hashedFile = {
   type: "object",
@@ -433,14 +437,20 @@ export const LEDGERS = {
       // The pinned source it comes from, by id, and its name in that source's catalog.
       source: required(dashed),
       item: required(text),
+      // Since the conform command, the hash of the source's pin as the item was last taken down:
+      // a file that is neither as taken down nor after patching is a newer item only once the
+      // source is pinned again, and otherwise a hand edit.
+      pin_sha256: { ...text, pattern: "^[0-9a-f]{64}$" },
       // Every file the item brought, with its hash as taken down; then every one after patching.
       taken: required(list(hashedFile)),
       conformed: required(list(hashedFile)),
-      // Each change made to the item's code, with why; empty when none.
+      // Each change made to the item's code, with why, and since the conform command the change
+      // itself: a unified diff from the file before the change to the file after it, applied in
+      // order from the file as taken down. Empty when none.
       patches: required(
         list({
           type: "object",
-          fields: { file: required(text), reason: required(text) },
+          fields: { file: required(text), reason: required(text), diff: text },
           open: true,
         }),
       ),
@@ -715,7 +725,9 @@ function conformProblems(textOfFile, file) {
   }
   for (const key of ["patches", "exemptions"]) {
     data[key].forEach((entry, index) => {
-      if (!taken.includes(entry.file)) {
+      // An exemption for a whole folder names the file of the configuration that lets it off.
+      const folderRule = key === "exemptions" && FOLDER_RULES.includes(entry.rule);
+      if (!folderRule && !taken.includes(entry.file)) {
         problems.push(
           `${file}.${key}[${index}].file is ${entry.file}, which is no file of the item`,
         );

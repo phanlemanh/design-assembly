@@ -539,8 +539,8 @@
         {
           "id": "11.3",
           "what": "Lệnh conform: bản vá ghi lại trên bản gốc đã ghim, chạy lại ra cùng kết quả, dừng khi một bản vá không khớp; inventory báo sửa tay ở mọi tệp của món",
-          "state": "todo",
-          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 7 và 8, câu hỏi 2 và 4"
+          "state": "done",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 7 và 8, câu hỏi 2 và 4; dựng ngày 2026-11-24 theo lời chủ repo («Dựng lát 3»): wiki/decisions/0100-the-conform-command-records-and-reapplies-patches.md, plugin 0.52.0; lệnh conform bắt đầu bản ghi, ghi bản vá thành diff kèm lý do, ghi điều miễn, áp lại bản vá trên món mới và dừng nêu tên bản vá không khớp; inventory báo sửa tay ở mọi tệp của món; luật tắt cho cả thư mục ở bộ định dạng, cấu hình lint và cấu hình kiểm kiểu cần điều miễn"
         },
         {
           "id": "11.4",

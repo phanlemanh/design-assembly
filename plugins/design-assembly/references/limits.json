@@ -4862,9 +4862,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0096", "d0098", "d0099"],
-      "status": "open",
-      "note": "An item of an outside source whose install line brings many files is recorded as one row that points at its conform record, which holds the hash of every file; but the inventory still compares only the file the row names with the hash it took, so a change to any other file of the item goes unseen."
+      "where": ["d0096", "d0098", "d0099", "d0100"],
+      "status": "closed",
+      "note": "An item of an outside source whose install line brings many files is recorded as one row that points at its conform record, which holds the hash of every file; but the inventory still compares only the file the row names with the hash it took, so a change to any other file of the item goes unseen.",
+      "closed": "2026-11-24",
+      "closed_by": "d0100"
     },
     {
       "id": "intake-install-line-unannounced",
@@ -4906,9 +4908,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0096", "d0098", "d0099"],
+      "where": ["d0096", "d0098", "d0099", "d0100"],
       "status": "open",
-      "note": "An item of an outside source is taken in without checking that it passes the repository's floor: intake asks an exemption for each rule a file of the item turns off in a comment, but a builder can still make the gate green by turning rules off in the lint configuration for the item's folder, or by leaving the folder out of the formatter or the strict type check, and nothing sees it."
+      "note": "An item of an outside source is taken in without running the repository's floor on it: intake and the conform command ask an exemption for each rule a file of the item turns off in a comment, and for each configuration file that names the item's folder in the formatter's ignore list, the lint configuration or the type check's; but a configuration is read as text, so a glob that covers the folder without naming it is not seen, nor a repository's own tool that leaves the folder out of a check."
     },
     {
       "id": "vendor-folders-disagree",
@@ -4951,9 +4953,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-24",
-      "where": ["d0098", "d0099"],
+      "where": ["d0098", "d0099", "d0100"],
       "status": "open",
-      "note": "An item of an outside source is taken in only once its conform record is whole, its files on disk are the files it holds after patching, and every rule turned off in them has an exemption; but no command writes that record yet: a person writes every hash, patch and exemption by hand until the conform command, and intake does not run the repository's gate with the item inside before it writes the row."
+      "note": "An item of an outside source is taken in only once its conform record, which the conform command writes, is whole, its files on disk are the files it holds after patching, and every rule turned off has an exemption; but intake does not run the repository's gate with the item inside before it writes the row, so an item that fails a check no comment or configuration turns off is taken in all the same."
     },
     {
       "id": "outside-code-changed-without-a-record",
@@ -4962,9 +4964,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-24",
-      "where": ["d0098", "d0099"],
-      "status": "open",
-      "note": "A change to the code of an outside item is listed in its conform record with its reason, but it is made by hand, not by a recorded patch on the pinned original, so nothing applies the same changes again on a newer original, stops when one no longer fits, or tells a recorded change from a hand edit."
+      "where": ["d0098", "d0099", "d0100"],
+      "status": "closed",
+      "note": "A change to the code of an outside item is listed in its conform record with its reason, but it is made by hand, not by a recorded patch on the pinned original, so nothing applies the same changes again on a newer original, stops when one no longer fits, or tells a recorded change from a hand edit.",
+      "closed": "2026-11-24",
+      "closed_by": "d0100"
     },
     {
       "id": "choice-not-held-by-the-gate",
@@ -5055,6 +5059,50 @@
       "note": "Upgrade brings the check of items taken down into a repository's copy of the tool, but does not add it to the checks of the ledger-shapes row in the tool data: the repository's gate holds it once the guide runs there again, and until then a page that imports an item not taken in leaves the gate green.",
       "closed": "2026-11-24",
       "closed_by": "d0099"
+    },
+    {
+      "id": "conform-uses-the-local-git",
+      "area": "intake",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0100"],
+      "status": "open",
+      "note": "The conform command makes and applies a patch with the git installed where it runs, and records a change as the diff from the file as last committed: a machine without git cannot conform, and a file of the item must be committed as the record holds it before a change to it is recorded."
+    },
+    {
+      "id": "conform-files-named-at-start",
+      "area": "intake",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0100"],
+      "status": "open",
+      "note": "The files of an item are the ones a person names when the conform record is started: the command cannot tell which files the install line brought, so a file of the item left unnamed is no file of the record, and the gate sees it only through the folder its source declares."
+    },
+    {
+      "id": "patch-dropped-by-hand",
+      "area": "intake",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0100"],
+      "status": "open",
+      "note": "When a patch no longer fits a newer item, the command stops and names it, and the person makes the change again and records it; the old patch is then taken out of the record by hand, since no flag of the command drops a patch. A patch whose change sits at the very top of a short file, with no line above it to anchor on, no longer fits once the newer item adds a line above it, and stops the command the same way."
+    },
+    {
+      "id": "retake-trusts-the-pin",
+      "area": "intake",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0100"],
+      "status": "open",
+      "note": "With --taken-down, a file that is neither as taken down nor after patching is taken for a newer item when the source's pin is no longer the one the record holds, and refused as a hand edit otherwise. Nothing ties the file to the new pin itself, so the way stays open from the moment the source is pinned again until --taken-down records the new pin for this item: a hand edit made in that time is taken with the newer item, though the command names each file it takes down again. A source pinned again for one of its items opens that time for every other item of it too; the plain check of each of their records then says the record's pin is behind, and --taken-down, run with nothing newer, records the pin and closes it. A record that holds no hash of the pin, as one written before the conform command kept it, takes no newer item: it is removed by hand, the item taken down, the record started again and each change recorded again with --patch."
     }
   ]
 }

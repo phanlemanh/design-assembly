@@ -29,6 +29,7 @@ import { ownedFileOf, writeFiles, writtenFiles } from "./apply.mjs";
 import { finish, readCall, Refusal, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { find, wordsOf } from "./find.mjs";
+import { unexempted } from "./conform-rules.mjs";
 import { answerOf, questionFiles, readStore, rowOf, rowsOf, today, writable } from "./asking.mjs";
 import { ledgerWith, yamlValue } from "./intake-write.mjs";
 import { inventory } from "./inventory.mjs";
@@ -153,25 +154,6 @@ export function bringsOf(root, sourceId, name) {
 
 // ---- before an outside item is taken in: its conform record -------------------------------------
 
-// The rules a file turns off: each rule an `eslint-disable` comment names, `*` for one that names
-// none, and `@ts-nocheck`, `@ts-ignore` and `@ts-expect-error`.
-export function rulesTurnedOff(code) {
-  const rules = new Set();
-  for (const match of code.matchAll(/eslint-disable(?:-next-line|-line)?\b([^\n*]*)/g)) {
-    const listed = match[1]
-      .split("--")[0]
-      .split(",")
-      .map((each) => each.trim())
-      .filter(Boolean);
-    if (listed.length === 0) rules.add("*");
-    for (const rule of listed) rules.add(rule);
-  }
-  for (const word of ["@ts-nocheck", "@ts-ignore", "@ts-expect-error"]) {
-    if (code.includes(word)) rules.add(word);
-  }
-  return [...rules];
-}
-
 // The conform record of an outside item the owner kept, checked before its row is written: whole,
 // about the item kept, holding the file named, its files on disk as it holds them after patching,
 // and an exemption for every rule they turn off. Its path, or a refusal that writes nothing.
@@ -196,24 +178,22 @@ function conformedRecord(root, need, chosen, named) {
   if (!record.conformed.some((entry) => entry.file === named)) {
     throw new Refusal(`${named} is no file of the conform record ${file}${nothing}`);
   }
-  const exempt = new Set(record.exemptions.map((entry) => `${entry.file}\n${entry.rule}`));
+  const codeOf = (each) => {
+    const full = path.join(root, each);
+    return insideRoot(root, each) && existsSync(full) ? readFileSync(full, "utf8") : null;
+  };
   for (const entry of record.conformed) {
-    const full = path.join(root, entry.file);
-    const code =
-      insideRoot(root, entry.file) && existsSync(full) ? readFileSync(full, "utf8") : null;
+    const code = codeOf(entry.file);
     if (code === null || sha(code) !== entry.sha256) {
       throw new Refusal(
         `${entry.file} is not the file the conform record holds after patching: conform it again, or write its hash in ${file}${nothing}`,
       );
     }
-    for (const rule of rulesTurnedOff(code)) {
-      if (!exempt.has(`${entry.file}\n${rule}`)) {
-        throw new Refusal(
-          `${entry.file} turns off ${rule}, and the conform record has no exemption for that rule in that file${nothing}`,
-        );
-      }
-    }
   }
+  // Every rule a file of the item turns off, or its folder is let off by the configuration, needs
+  // its exemption.
+  const [off] = unexempted(root, record, codeOf);
+  if (off) throw new Refusal(`${off}${nothing}`);
   return file;
 }
 
