@@ -47,11 +47,12 @@ The same call, after the answer:
   items it asks for, the repository's files it asks to write over), read from the pinned snapshot.
   After the answer, the call gives its install line and does not run it. The line may need the
   network and new packages, so ask the owner before you run it. The item is then taken down, not
-  taken in: write its conform record, `design/conform/<need>.json` (every file with its hash as
-  taken down and after patching, each patch with its reason, each rule it is let off with its file
-  and reason; `references/contract.md` gives the shape). Then call again with `--file PATH`, the
-  block's file: the row is written only when the record is whole, the files on disk are the ones it
-  holds, and every rule a file turns off in a comment has its exemption. Until then a page that
+  taken in: conform it with `/design-assembly:conform`, which writes its conform record,
+  `design/conform/<need>.json` (every file with its hash as taken down and after patching, each patch
+  with its reason and diff, each rule it is let off with its file and reason). Then call again with
+  `--file PATH`, the block's file: the row is written only when the record is whole, the files on
+  disk are the ones it holds, and every rule turned off in a file's comment or for its folder in the
+  configuration has its exemption. Until then a page that
   imports the item turns the gate red.
 - **By hand:** make the block, then call again with `--file PATH`.
 

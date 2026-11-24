@@ -682,6 +682,24 @@
       "meaning": "The owner's word that the design system bundle of one repository may go to one tool from outside, written as a row of the decision ledger with their name and day, and taken back the same way; nothing is sent without it.",
       "source": "The specification of outside plugs, 2026-11-23, open question 7",
       "trust": "coined"
+    },
+    {
+      "term": "conform",
+      "meaning": "To make an item of an outside source fit the repository before it is taken in: record it as taken down, record every change to its code as a patch with its reason, and every rule it is let off as an exemption. Distinct from conformance, which is the state of matching what the system decided: conform is the work that brings an outside item to it.",
+      "source": "The specification of choose before make, conform before intake, 2026-11-24",
+      "trust": "coined"
+    },
+    {
+      "term": "patch",
+      "meaning": "A change to the code of an outside item, kept in its conform record with its reason and its diff, applied in order on the item as taken down. The only way the item's code is changed: a hand edit is not a patch.",
+      "source": "Common practice: patches kept on upstream code",
+      "trust": "practice"
+    },
+    {
+      "term": "exemption",
+      "meaning": "A rule an outside item is let off, kept in its conform record with the rule, the file it is let off in (or the configuration file that lets its folder off) and a person's reason.",
+      "source": "The specification of choose before make, conform before intake, 2026-11-24",
+      "trust": "coined"
     }
   ]
 }

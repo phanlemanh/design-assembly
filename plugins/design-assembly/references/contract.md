@@ -230,8 +230,13 @@ name of its file), `source` (the id of the pinned source) and `item` (the item's
 source's catalog), and four lists, each required and each allowed to be empty but the first two:
 `taken`, every file the item brought, each with `file` and its `sha256` as taken down; `conformed`,
 the same files with their `sha256` after patching; `patches`, each change made to the item's code,
-with `file` and `reason`; and `exemptions`, each rule the item is let off, with `rule`, `file` and
-`reason`. The gate fails when a part is missing, when `taken` names no file, when `conformed` does
+with `file` and `reason`, and since the conform command `diff`, the unified diff from the file before
+the change to the file after it, applied in order from the file as taken down; and `exemptions`, each
+rule the item is let off, with `rule`, `file` and `reason`. An exemption whose `rule` is one of
+`formatter-ignore`, `lint-config` or `typecheck-exclude` lets the item's whole folder off, and its
+`file` is the configuration file that does it, not a file of the item. A record written by hand
+before the conform command, its patches with no `diff`, still reads: the command says each such patch
+cannot be applied again until it is recorded with `--patch`. The gate fails when a part is missing, when `taken` names no file, when `conformed` does
 not hold exactly the files of `taken`, when a patch or an exemption is about a file that is not the
 item's, and when the file is not named after its need. A repository may keep keys of its own.
 
@@ -240,8 +245,10 @@ the gate fails when a file of the repository's code imports one of its files, na
 source and its need. So does a file in the `folder` a source declares that the code imports and no
 record of an item taken in lists, an item installed with no record at all among them: the gate
 names the file and the source. Code inside a declared folder may import its neighbours freely. `intake` writes the row only when the record is whole, its files on disk are
-the files it holds after patching, and every rule turned off in them (an `eslint-disable` comment,
-`@ts-nocheck`, `@ts-ignore`, `@ts-expect-error`) has its exemption; the row then says `conform`.
+the files it holds after patching, and every rule turned off in them (a lint comment that turns a
+rule off, `@ts-nocheck`, `@ts-ignore`, `@ts-expect-error`) or for their folder (named in the
+formatter's ignore list, the lint configuration or the type check's) has its exemption; the row
+then says `conform`. The conform command writes the record, and its skill says how.
 
 ### screen-kinds
 

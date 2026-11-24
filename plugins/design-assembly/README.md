@@ -37,6 +37,11 @@ scale, shape). Density, elevation, motion and iconography are not.
   and writes one row with the owner's name and day. It never runs an install line and never writes
   a person's name before that person answered. `--before` lists what screens used before the ledger
   was kept, once the owner keeps it.
+- `/design-assembly:conform` conforms an item of an outside source before it is taken in: it records
+  the item as taken down, every change to its code as a patch with its reason (the diff from the file
+  as last committed), and each rule it is let off; it applies the patches again on a newer item as
+  taken down, stopping and naming a patch that no longer fits; and it says whether the record holds.
+  It uses the local git to make and apply a diff, fetches nothing and runs no install line.
 - `/design-assembly:plugs` shows which plug works each socket of the capability table: the
   plugin's own, the plugs from outside that can fill it, where each stands in the repository,
   whether it was measured and in which decision record, and what it needs. Where a measured plug is
