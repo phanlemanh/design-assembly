@@ -21,7 +21,7 @@ const kinds = (result) => result.findings.map((finding) => finding.kind).sort();
 const strict = (dir) =>
   spawnSync(execPath, [SCRIPT, "--target", dir, "--strict", "--json"], { encoding: "utf8" });
 
-test("the six kinds of finding are the six of the brief", () => {
+test("every kind of finding is one the fixtures install: the six of the brief, and a record that exempts a mandatory rule", () => {
   assert.deepEqual([...FINDINGS].sort(), Object.keys(INSTALLS).sort());
 });
 

@@ -38,9 +38,22 @@ reason, in order. A rule the item is let off, in one of its files or for its fol
 `node ${CLAUDE_PLUGIN_ROOT}/scripts/conform.mjs --need <key> --exempt <rule> --file <path> --reason "<why>"`
 
 A rule turned off in a comment of a file (`eslint-disable`, `@ts-nocheck`, `@ts-ignore`,
-`@ts-expect-error`) is exempted for that file. A folder left out of the formatter
+`@ts-expect-error`), or set below an error by the lint's own comment (`/* eslint <rule>: "off" */`, or
+`0`, `"warn"`, `1`, alone or first in a list: a warning does not fail the lint), is exempted for that
+file. A folder left out of the formatter
 (`formatter-ignore`, in `.prettierignore`), named in the lint configuration (`lint-config`) or in the
 type check's (`typecheck-exclude`, a `tsconfig*.json`) is exempted for that configuration file.
+
+A rule a row of the repository's decision ledger holds is mandatory and is never exempted: the
+command refuses it and names the row, and refuses a comment that names no rule or a lint
+configuration that sets the item's folder apart, which turn every rule off. Patch the code instead.
+Strict type checks (`@ts-nocheck` included) and rules no row holds stay exemptable. A record that
+still exempts a mandatory rule, written before, is named by the plain check and is not written again
+(no patch, exemption or `--taken-down`) until the exemption is out of the record:
+
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/conform.mjs --need <key> --unexempt <rule> --file <path>`
+
+takes it out, and is never refused for it.
 
 ## 3. Say whether the record holds
 
@@ -82,5 +95,6 @@ A file of the item not on disk stops it the same way.
 ## What it does not do
 
 It does not take the item in, fetch the item, run its install line, or decide that a rule may be
-let off: each exemption carries a person's reason. It reads a folder rule as text, so a glob that
+let off: each exemption carries a reason, and intake puts the whole list to the owner before the
+item is taken in. It reads a folder rule as text, so a glob that
 covers the folder without naming it is not seen.

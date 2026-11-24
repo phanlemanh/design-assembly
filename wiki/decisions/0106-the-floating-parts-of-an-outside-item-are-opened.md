@@ -26,13 +26,13 @@ sources:
   - "chủ repo, 2026-11-24, qua phiên điều phối: «Mở song song» (dựng 11.7 song song 11.8; 11.8 gộp trước)"
 ---
 
-# 0105 Phần nổi của món ngoài được mở trên màn dùng nó: tên, chữ của món, và phép kiểm của repo
+# 0106 Phần nổi của món ngoài được mở trên màn dùng nó: tên, chữ của món, và phép kiểm của repo
 
 ## Status
 
 Accepted, 2026-11-24, mục 11.7 của kế hoạch: tiêu chí 18 đến 21 ở phần bổ sung của đề bài
 [0015](../specs/0015-choose-before-make-conform-before-intake.md), mà chủ repo duyệt cùng PR 133 với tám khuyến nghị.
-Plugin 0.56.0. Dựng song song mục 11.8 theo lời chủ repo («Mở song song»). Lượt chạy lại `filters` (tiêu chí 26) không
+Plugin 0.57.0. Dựng song song mục 11.8 theo lời chủ repo («Mở song song»). Lượt chạy lại `filters` (tiêu chí 26) không
 thuộc mục này.
 
 ## Context

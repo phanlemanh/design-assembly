@@ -52,7 +52,10 @@ The same call, after the answer:
   with its reason and diff, each rule it is let off with its file and reason). Then call again with
   `--file PATH`, the block's file: the row is written only when the record is whole, the files on
   disk are the ones it holds, and every rule turned off in a file's comment or for its folder in the
-  configuration has its exemption. Until then a page that
+  configuration has its exemption. No exemption lets the item off a rule the decision ledger holds.
+  When the record lets the item off anything, the call first puts the list to the owner as one
+  question, `design/waiting/exemptions-<need>.json`, and ends with 1; the row is written once the
+  owner keeps that very list, and a list changed since is asked again. Until then a page that
   imports the item turns the gate red. The question also says, under `the gate:`, what the gate
   holds of the item once it is taken in: the browser test `tests/e2e/floating-parts.spec.ts` opens
   each floating part of it on the screens that use it (each dialog, menu or list box it opens must

@@ -175,10 +175,52 @@ function sheetOf({ rows, waiting, list }) {
         if_refused: row.if_refused ?? null,
         // A choice among named things: what the owner picks from, the recommended one first.
         ...(row.candidates ? { item: row.item ?? null, candidates: row.candidates } : {}),
+        // What an item is let off, kept or refused as one list.
+        ...(row.exemptions ? { exemptions: row.exemptions } : {}),
       });
     }
   }
   return { questions, answered, elsewhere, permissions, replaced };
+}
+
+// A list of exemptions as the sheet lays it out, readable at fifty or more: one line for each
+// rule and reason, with how many files it lets off, and the files beneath it.
+export function exemptionLines(exemptions) {
+  const groups = new Map();
+  for (const { rule, file, reason } of exemptions) {
+    const key = `${rule}\n${reason}`;
+    groups.set(key, { rule, reason, files: [...(groups.get(key)?.files ?? []), file] });
+  }
+  const rules = new Set(exemptions.map((entry) => entry.rule));
+  return [
+    `      exemptions: keep lets the item off all ${exemptions.length}, on ${rules.size} ${rules.size === 1 ? "rule" : "rules"}; refuse lets it off none`,
+    ...[...groups.values()].flatMap(({ rule, reason, files }) => [
+      ...wrapped(`${rule} (${files.length}): ${reason}`.split(" "), "        ", " ", "          "),
+      ...wrapped(files, "           ", ", "),
+    ]),
+  ];
+}
+
+// How wide a line of files may run before the sheet wraps it. Every file is shown: none is left out.
+const SHEET_WIDTH = 100;
+
+// Words, or names joined by commas, wrapped into lines no wider than the sheet where each one fits:
+// the first line at its indent, the lines after it at theirs.
+function wrapped(parts, indent, joint, after = indent) {
+  const lines = [];
+  let line = "";
+  const room = () => (lines.length === 0 ? indent : after).length;
+  for (const [index, part] of parts.entries()) {
+    const piece = joint === ", " && index < parts.length - 1 ? `${part},` : part;
+    if (line !== "" && room() + line.length + 1 + piece.length > SHEET_WIDTH) {
+      lines.push(`${lines.length === 0 ? indent : after}${line}`);
+      line = piece;
+    } else {
+      line = line === "" ? piece : `${line} ${piece}`;
+    }
+  }
+  if (line !== "") lines.push(`${lines.length === 0 ? indent : after}${line}`);
+  return lines;
 }
 
 const PARTS = ["questions", "answered", "elsewhere", "permissions", "replaced"];
@@ -477,6 +519,7 @@ export function report(result) {
         if (candidate.gate) lines.push(`           the gate: ${candidate.gate}`);
       }
     }
+    if (item.exemptions) lines.push(...exemptionLines(item.exemptions));
     if (item.if_refused) lines.push(`      if refused: ${item.if_refused}`);
   }
   if (elsewhere.length > 0) {

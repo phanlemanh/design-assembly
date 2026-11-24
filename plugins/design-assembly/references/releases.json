@@ -369,9 +369,15 @@
     },
     {
       "version": "0.56.0",
-      "templates": "409dcd009284c29f92f49ada9eddcd68f8cfb698",
-      "scripts": "2a5519d18971c8f1e5bd6150f0b38f5150e0bc0f",
-      "tool": "25d679ecdafccd751c5ad92956de4c4004aebf69"
+      "templates": "080f7d6defe8fddd3e82432cf8fd94ec26bb127d",
+      "scripts": "939e5f62b0ee9a9a25f7d36b75f2428d093665d4",
+      "tool": "44be1fb633925bbfff4d8cd53a694af45a7e2067"
+    },
+    {
+      "version": "0.57.0",
+      "templates": "615ce45c6484eb84ef80cd9536c3caf4d752ee62",
+      "scripts": "223cf5867ace11c6b7d8cda942939890eff2a362",
+      "tool": "7660280585093d3ded883c90f0963fa6e19fe16e"
     }
   ]
 }

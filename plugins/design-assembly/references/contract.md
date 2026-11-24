@@ -298,3 +298,17 @@ decisions, the audit does not count them, and their shape is stated in `waiting.
 `contract.mjs`. They are kept as one file per question, `design/waiting/<id>.json`, or in the older
 shared file `design/waiting-list.json`; never both. The gate reads them for two rows of the
 decisions ledger, `decision-sheet` and `owner-calls`, and `checks.md` says how.
+
+Since item 11.8 of spec 0015 a question may carry `exemptions`, a list of what an item of an outside
+source is let off, each with `rule`, `file` and `reason`, under the item `exemptions:<need>`.
+`intake` asks it before it writes the row of the item, and writes the row only once the owner kept
+that very list: a list changed since the answer is asked again. The decision sheet lays it out by
+rule and reason, with the files beneath each.
+
+A rule a row of the decision ledger holds (its check `eslint:<rule>`, or a check of kind `lint` of
+the tool data) is mandatory for an item of an outside source: `conform --exempt` refuses it, and
+`intake` refuses an item that turns it off by any comment, by a comment that names no rule, by the
+lint's own comment that sets it below an error inside the file, or by a lint configuration or ignore
+file that sets a folder of the item apart. The base library's own
+folder, set apart by the repository, is the repository's, not the item's. A record written before
+keeps the gate green; `conform`'s plain check and the inventory name the exemption.
