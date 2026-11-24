@@ -533,8 +533,8 @@
         {
           "id": "11.2",
           "what": "Sổ và trạng thái: bản ghi chuẩn hoá, mã băm của mọi tệp, trạng thái «lấy về», câu hỏi nêu trước số tệp và gói, intake từ chối ghi dòng sổ khi món chưa chuẩn",
-          "state": "todo",
-          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 3 đến 6; đổi hợp đồng sổ, cần người duyệt"
+          "state": "done",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 3 đến 6; đổi hợp đồng sổ, cần người duyệt; dựng ngày 2026-11-24 theo lời chủ repo («Dựng lát 2»): wiki/decisions/0099-an-outside-item-is-conformed-before-it-is-taken-in.md, plugin 0.51.0; sổ mới conform, khoá conform của sổ nhập kho, câu hỏi nói món mang vào gì, cổng đỏ khi mã dùng món chưa nhập kho, kể cả món chưa có bản ghi trong thư mục nguồn khai (khoá folder mới của sổ nguồn ngoài); adopt và upgrade cũng ghi phép kiểm ấy, sau soát theo lời chủ repo («Gửi sang sửa»), intake từ chối món chưa chuẩn hoá"
         },
         {
           "id": "11.3",

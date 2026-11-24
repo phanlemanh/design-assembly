@@ -55,6 +55,9 @@ It ends with:
   `drops:` line is a line of the repository's step the installed one does not have: upgrade cannot
   tell an older plugin's line from one a person added, so read them to the person before you run
   it, because the upgrade replaces them.
+- `check:` a check the installed tool holds under a row the repository already has, and its tool
+  data lacks, is added: today the check of items taken down under `ledger-shapes`. It can turn the
+  gate red when the code uses an item of an outside source not taken in; say so before you run it.
 - `upgrade does not see`: its open limits, by id, in `references/limits.json`.
 
 ## 3. Upgrade
@@ -72,20 +75,21 @@ repository's own. It does not remove the plugin from a repository (limit `upgrad
 
 ## 4. With `--json`
 
-| Key          | Holds                                                                                              |
-| ------------ | -------------------------------------------------------------------------------------------------- |
-| `dry_run`    | Whether this was a preview                                                                         |
-| `from`       | `version` (or `null`: unknown), `tree` of the copy, `stamp` (or `null`), `edited`                  |
-| `to`         | `version` and `tree` of the installed plugin's tool                                                |
-| `tool_files` | Each file of the tool folder: `path`, `change` (`create`, `update`, `delete`)                      |
-| `ledgers`    | Each machine-written ledger that would differ: `ledger`, `file`, `added`, `removed`, `changed`     |
-| `decisions`  | Each row whose state changes: `id`, `from`, `to`                                                   |
-| `gate`       | `green`, and `problems`, one line each                                                             |
-| `blocked`    | Why it stopped: `why`, and `accept`, the flag the person would pass                                |
-| `accepted`   | The flags the person passed that this run needed                                                   |
-| `gate_step`  | The gate step, when it is written again: `path`, `change`, `dropped` (lines it loses); else `null` |
-| `not_seen`   | What could not be said, such as the states before when the copy cannot be run                      |
-| `files`      | Each file written, or that would be: `path`, `change`; with `--out`, the document last             |
+| Key            | Holds                                                                                              |
+| -------------- | -------------------------------------------------------------------------------------------------- |
+| `dry_run`      | Whether this was a preview                                                                         |
+| `from`         | `version` (or `null`: unknown), `tree` of the copy, `stamp` (or `null`), `edited`                  |
+| `to`           | `version` and `tree` of the installed plugin's tool                                                |
+| `tool_files`   | Each file of the tool folder: `path`, `change` (`create`, `update`, `delete`)                      |
+| `ledgers`      | Each machine-written ledger that would differ: `ledger`, `file`, `added`, `removed`, `changed`     |
+| `decisions`    | Each row whose state changes: `id`, `from`, `to`                                                   |
+| `gate`         | `green`, and `problems`, one line each                                                             |
+| `blocked`      | Why it stopped: `why`, and `accept`, the flag the person would pass                                |
+| `accepted`     | The flags the person passed that this run needed                                                   |
+| `gate_step`    | The gate step, when it is written again: `path`, `change`, `dropped` (lines it loses); else `null` |
+| `checks_added` | Each check added to the tool data: `row`, `kind`; empty when none                                  |
+| `not_seen`     | What could not be said, such as the states before when the copy cannot be run                      |
+| `files`        | Each file written, or that would be: `path`, `change`; with `--out`, the document last             |
 
 ## 5. The release notes, a document to hand over
 

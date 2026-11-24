@@ -35,6 +35,7 @@ import {
 } from "../templates/tools/design-assembly/screen-fragments.mjs";
 import { readMakefile } from "../templates/tools/design-assembly/host-make.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
+import { TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
 import { whereRulesApply } from "../templates/tools/design-assembly/lint.mjs";
 import {
   PROBED,
@@ -600,6 +601,8 @@ export function adoption(
             ...Object.keys(FRAGMENT_LEDGERS)
               .filter((kind) => ledgers[kind])
               .flatMap((kind) => fragmentsChecks(root, null, ledgers[kind], kind)),
+            // No file of the code uses an item of an outside source taken down and not taken in.
+            TAKEN_DOWN_CHECK,
           ],
         };
       }

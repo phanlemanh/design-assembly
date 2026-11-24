@@ -61,7 +61,12 @@ const git = (dir, ...args) =>
     { encoding: "utf8" },
   );
 const shapeChecks = (dir) => JSON.parse(text(dir, "design/theme.json")).checks["ledger-shapes"];
-const kindsOf = (dir) => shapeChecks(dir).map((item) => item.kind);
+// The kinds of the checks that hold how the ledger is kept; the check of items taken down beside
+// them is tested in test-conform.mjs.
+const kindsOf = (dir) =>
+  shapeChecks(dir)
+    .map((item) => item.kind)
+    .filter((kind) => kind !== "taken-down");
 
 // A repository the guide built, in git, with its ledger of screens split and committed.
 function split() {

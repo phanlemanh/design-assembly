@@ -525,6 +525,10 @@
         "of": "intake",
         "file": "design/intake.yaml",
         "fragments": "design/intake"
+      },
+      {
+        "kind": "taken-down",
+        "sources": "src"
       }
     ],
     "target-size": [

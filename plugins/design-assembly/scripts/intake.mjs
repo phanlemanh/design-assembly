@@ -21,6 +21,9 @@ import path from "node:path";
 import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
+import { adapter as library } from "../templates/tools/design-assembly/adapters/shadcn.mjs";
+import { CONFORM_FOLDER, shapeProblems } from "../templates/tools/design-assembly/contract.mjs";
+import { SOURCES_FOLDER } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { picked, questionFile } from "../templates/tools/design-assembly/waiting.mjs";
 import { ownedFileOf, writeFiles, writtenFiles } from "./apply.mjs";
 import { finish, readCall, Refusal, start } from "./command.mjs";
@@ -90,6 +93,130 @@ function unkept(candidate) {
   return null;
 }
 
+// ---- what an outside item brings, read from the pinned snapshot ---------------------------------
+
+const readJsonAt = (root, file) => {
+  if (!insideRoot(root, file) || !existsSync(path.join(root, file))) return null;
+  try {
+    return JSON.parse(readFileSync(path.join(root, file), "utf8"));
+  } catch {
+    return null;
+  }
+};
+const listOf = (value) => (Array.isArray(value) ? value : []);
+const named = (value) => typeof value === "string" && value.trim() !== "";
+// The folder the base library installs its components into: the one its settings name, or its own.
+function libraryFolder(root) {
+  const settings = readJsonAt(root, "components.json");
+  return library.folderIn(settings, readJsonAt(root, "package.json")) ?? library.folder;
+}
+
+// What an item of an outside source brings, from its file in the source's pinned snapshot, the
+// shape a registry gives an item (`files`, `dependencies`, `registryDependencies`): how many files
+// of its own, which packages, which more items it asks for, and which files of the repository it
+// asks to write over. Read from the disk only, never the network (spec 0015, criterion 3).
+export function bringsOf(root, sourceId, name) {
+  const source = readJsonAt(root, `${SOURCES_FOLDER}/${sourceId}.json`);
+  const cannot = (why) => ({ words: `what it brings cannot be read: ${why}` });
+  if (!named(source?.snapshot)) return cannot(`the source ${sourceId} names no snapshot`);
+  const file = path.posix.join(source.snapshot, `${name}.json`);
+  const item = readJsonAt(root, file);
+  if (!item || !Array.isArray(item.files)) return cannot(`the pinned snapshot holds no ${file}`);
+  const packages = listOf(item.dependencies).filter(named);
+  const asks = listOf(item.registryDependencies).filter(named);
+  const folder = libraryFolder(root);
+  const there = (each) => existsSync(path.join(root, each));
+  const over = [
+    ...asks
+      .filter((each) => /^[a-z0-9-]+$/.test(each))
+      .map((each) => `${folder}/${each}.tsx`)
+      .filter(there),
+    ...item.files
+      .map((each) => each?.target)
+      .filter(named)
+      .filter(there),
+  ];
+  const words = [
+    `${item.files.length} ${item.files.length === 1 ? "file" : "files"} of its own`,
+    packages.length > 0 ? `the packages ${packages.join(", ")}` : "no package",
+    ...(asks.length > 0
+      ? [
+          `${asks.length} more ${asks.length === 1 ? "item" : "items"} it asks for (${asks.join(", ")}), whose files the snapshot does not hold`,
+        ]
+      : []),
+    over.length > 0
+      ? `it asks to write over ${over.join(", ")}`
+      : "it asks to write over no file of the repository",
+  ].join("; ");
+  return { files: item.files.length, packages, asks_for: asks, writes_over: over, words };
+}
+
+// ---- before an outside item is taken in: its conform record -------------------------------------
+
+// The rules a file turns off: each rule an `eslint-disable` comment names, `*` for one that names
+// none, and `@ts-nocheck`, `@ts-ignore` and `@ts-expect-error`.
+export function rulesTurnedOff(code) {
+  const rules = new Set();
+  for (const match of code.matchAll(/eslint-disable(?:-next-line|-line)?\b([^\n*]*)/g)) {
+    const listed = match[1]
+      .split("--")[0]
+      .split(",")
+      .map((each) => each.trim())
+      .filter(Boolean);
+    if (listed.length === 0) rules.add("*");
+    for (const rule of listed) rules.add(rule);
+  }
+  for (const word of ["@ts-nocheck", "@ts-ignore", "@ts-expect-error"]) {
+    if (code.includes(word)) rules.add(word);
+  }
+  return [...rules];
+}
+
+// The conform record of an outside item the owner kept, checked before its row is written: whole,
+// about the item kept, holding the file named, its files on disk as it holds them after patching,
+// and an exemption for every rule they turn off. Its path, or a refusal that writes nothing.
+function conformedRecord(root, need, chosen, named) {
+  const file = `${CONFORM_FOLDER}/${need}.json`;
+  const nothing = ". Nothing was written";
+  if (!existsSync(path.join(root, file))) {
+    throw new Refusal(
+      `${need} takes ${chosen.name} from the outside source ${chosen.from}, and no conform record ${file} holds its files as taken down and after patching, its patches and its exemptions: conform it first${nothing}`,
+    );
+  }
+  const text = readFileSync(path.join(root, file), "utf8");
+  const problems = shapeProblems("conform", text, file);
+  if (problems.length > 0) throw new Refusal(`${problems.slice(0, 3).join("; ")}${nothing}`);
+  const record = JSON.parse(text);
+  if (record.item !== chosen.name || record.source !== chosen.from) {
+    const from = record.source !== chosen.from ? ` from the source ${record.source}` : "";
+    throw new Refusal(
+      `${file} holds ${record.item}${from}, and the owner kept ${chosen.name} from ${chosen.from}${nothing}`,
+    );
+  }
+  if (!record.conformed.some((entry) => entry.file === named)) {
+    throw new Refusal(`${named} is no file of the conform record ${file}${nothing}`);
+  }
+  const exempt = new Set(record.exemptions.map((entry) => `${entry.file}\n${entry.rule}`));
+  for (const entry of record.conformed) {
+    const full = path.join(root, entry.file);
+    const code =
+      insideRoot(root, entry.file) && existsSync(full) ? readFileSync(full, "utf8") : null;
+    if (code === null || sha(code) !== entry.sha256) {
+      throw new Refusal(
+        `${entry.file} is not the file the conform record holds after patching: conform it again, or write its hash in ${file}${nothing}`,
+      );
+    }
+    for (const rule of rulesTurnedOff(code)) {
+      if (!exempt.has(`${entry.file}\n${rule}`)) {
+        throw new Refusal(
+          `${entry.file} turns off ${rule}, and the conform record has no exemption for that rule in that file${nothing}`,
+        );
+      }
+    }
+  }
+  return file;
+}
+
 // A piece find offers, as the owner is given it to pick.
 function candidateOf(root, piece, need, words) {
   const why = piece.need === need ? `its need is ${need}` : `it holds every word of "${words}"`;
@@ -120,6 +247,7 @@ function candidateOf(root, piece, need, words) {
       ...said,
       from: piece.source,
       ...(piece.install ? { install: piece.install } : {}),
+      brings: bringsOf(root, piece.source, piece.name),
     },
   };
 }
@@ -255,6 +383,8 @@ function rowFor(root, state, { need, question, chosen, named }) {
   if (!named) return { missing: true };
   const { file, content } = namedFile(root, named);
   const external = chosen.store !== "by-hand";
+  // An item of an outside source is taken in only once it is conformed (spec 0015).
+  const conform = external ? conformedRecord(root, need, chosen, file) : null;
   return {
     files: {},
     row: {
@@ -271,6 +401,7 @@ function rowFor(root, state, { need, question, chosen, named }) {
         : { description: chosen.why }),
       ...approved,
       taken: sha(content),
+      ...(conform ? { conform } : {}),
     },
   };
 }

@@ -17,7 +17,7 @@ import {
   targetProblem,
   UNTRACKED,
 } from "./components.mjs";
-import { LEDGERS, shapeProblems } from "./contract.mjs";
+import { CONFORM_FOLDER, LEDGERS, shapeProblems } from "./contract.mjs";
 import {
   LAYER_ALIASES,
   LAYERS,
@@ -41,7 +41,16 @@ import {
   withRecordLayout,
   wordsProblem,
 } from "./patterns.mjs";
-import { againstDirection, importsProblem, readSources, slipsProblem } from "./governance.mjs";
+import {
+  againstDirection,
+  importsOf,
+  importsProblem,
+  readSources,
+  resolveImport,
+  slipsProblem,
+} from "./governance.mjs";
+import { readIntakeLedger } from "./intake-ledger.mjs";
+import { SOURCES_FOLDER } from "./sources-ledger.mjs";
 import {
   kindsProblem,
   readPages,
@@ -564,6 +573,78 @@ const KINDS = {
       return { ...state, files: { ...state.files, [versioned]: JSON.stringify(changed) } };
     },
   },
+  // No file of the repository's own code uses a file of an item of an outside source that was taken
+  // down and is not taken in: its conform record holds the item's files, and no row of the intake
+  // ledger answers its need yet (spec 0015).
+  "taken-down": {
+    run(state, check) {
+      const { items, covered } = takenDownFiles(state, check);
+      const folders = declaredFolders(state);
+      if (items.size === 0 && folders.length === 0) return null;
+      const sources = state.sources?.[check.sources] ?? {};
+      const folderOf = (file) => folders.find((each) => file.startsWith(`${each.folder}/`));
+      const problems = [];
+      for (const [file, code] of Object.entries(sources)) {
+        // An item's own files, and the code of a source's folder, use one another freely.
+        if (items.has(file) || folderOf(file)) continue;
+        for (const name of importsOf(code)) {
+          const target = resolveImport(file, name, sources);
+          if (!target) continue;
+          const item = items.get(target);
+          if (item) {
+            problems.push(
+              `${file} uses ${target}, a file of ${item.item} from the source ${item.source}, which was taken down for the need ${item.need} and is not taken in: conform it and take it in with intake --need ${item.need}, or stop using it`,
+            );
+            continue;
+          }
+          const declared = folderOf(target);
+          if (declared && !covered.has(target)) {
+            problems.push(
+              `${file} uses ${target}, in the folder ${declared.folder} of the source ${declared.source}, which no conform record of an item taken in lists: write the conform record of the item it belongs to and take it in with intake, or stop using it`,
+            );
+          }
+        }
+      }
+      if (problems.length === 0) return null;
+      const more = problems.length > 3 ? `; and ${problems.length - 3} more` : "";
+      return `${problems.slice(0, 3).join("; ")}${more}`;
+    },
+    // An item taken down for a need nobody took in, and a page of the repository that imports it.
+    change(state, check) {
+      const folder = check.sources ?? "src";
+      const item = `${folder}/components/taken-down/broken-item.tsx`;
+      const record = {
+        version: 1,
+        need: "broken-need",
+        source: "broken-source",
+        item: "broken-item",
+        taken: [{ file: item, sha256: "0".repeat(64) }],
+        conformed: [{ file: item, sha256: "0".repeat(64) }],
+        patches: [],
+        exemptions: [],
+      };
+      return {
+        ...state,
+        files: {
+          ...state.files,
+          [check.intake ?? LEDGERS.intake.file]: "version: 1\nblocks: []\n",
+        },
+        ledgerFolders: {
+          ...state.ledgerFolders,
+          [CONFORM_FOLDER]: { [`${CONFORM_FOLDER}/broken-need.json`]: JSON.stringify(record) },
+        },
+        sources: {
+          ...state.sources,
+          [folder]: {
+            ...state.sources?.[folder],
+            [item]: "export function BrokenItem() {}\n",
+            [`${folder}/broken-page.tsx`]:
+              'import { BrokenItem } from "./components/taken-down/broken-item";\nexport const Page = BrokenItem;\n',
+          },
+        },
+      };
+    },
+  },
   // Every control declares a height that reaches the target size of the conformance level.
   "target-size": {
     run(state, check) {
@@ -1022,6 +1103,60 @@ const KINDS = {
 };
 // The kinds of check, for the plugin's own tests of a single check.
 export const KINDS_FOR_TEST = KINDS;
+
+// The check of items taken down and not taken in, as the ledger-shapes row holds it wherever the
+// row is written: by the guide, by adopting, and by upgrading a repository that lacks it.
+export const TAKEN_DOWN_CHECK = { kind: "taken-down", sources: "src" };
+
+// The folder each pinned source declares for its items' files, without its last slash. A source
+// written before the key, or one that cannot be read, declares none.
+function declaredFolders(state) {
+  return Object.values(state.ledgerFolders?.[SOURCES_FOLDER] ?? {})
+    .map((text) => {
+      try {
+        return JSON.parse(text);
+      } catch {
+        return null;
+      }
+    })
+    .filter((source) => typeof source?.folder === "string" && source.folder.trim() !== "")
+    .map((source) => ({ source: source.id, folder: source.folder.replace(/\/+$/, "") }));
+}
+
+// The files of every item taken down and not taken in, each with its conform record: a record
+// whose need no row of the intake ledger answers. And the files taken in: those of a record whose
+// need a row answers, and the file every row names, a row written before records among them. A
+// record that cannot be read is the shape check's to name, not this one's.
+function takenDownFiles(state, check) {
+  const blocks =
+    readIntakeLedger(state.files?.[check.intake ?? LEDGERS.intake.file] ?? "").blocks ?? [];
+  const answered = new Set(
+    blocks.map((block) => block?.need).filter((need) => typeof need === "string"),
+  );
+  const covered = new Set(
+    blocks.map((block) => block?.file).filter((file) => typeof file === "string"),
+  );
+  const files = new Map();
+  for (const text of Object.values(state.ledgerFolders?.[CONFORM_FOLDER] ?? {})) {
+    let record;
+    try {
+      record = JSON.parse(text);
+    } catch {
+      continue;
+    }
+    if (typeof record?.need !== "string") continue;
+    const listed = [
+      ...(Array.isArray(record.taken) ? record.taken : []),
+      ...(Array.isArray(record.conformed) ? record.conformed : []),
+    ];
+    for (const entry of listed) {
+      if (typeof entry?.file !== "string") continue;
+      if (answered.has(record.need)) covered.add(entry.file);
+      else files.set(entry.file, record);
+    }
+  }
+  return { items: files, covered };
+}
 
 // A JSON text as data, or the value given when it cannot be read.
 const parsedOr = (text, otherwise) => {

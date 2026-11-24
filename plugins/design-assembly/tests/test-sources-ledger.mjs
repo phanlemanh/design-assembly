@@ -106,8 +106,9 @@ const healthy = () =>
     "design/pack-catalog.json": json(groupedCatalog),
   });
 
-test("the sources are the thirteenth ledger of the contract, one file per source, and settled", () => {
-  assert.equal(Object.keys(LEDGERS).length, 13);
+test("the sources are a ledger of the contract, one file per source, and settled", () => {
+  // Thirteen ledgers until spec 0015 added the conform records.
+  assert.equal(Object.keys(LEDGERS).length, 14);
   assert.equal(LEDGERS.sources.folder, SOURCES_FOLDER);
   assert.equal(SOURCES_FOLDER, "design/sources");
   assert.equal(LEDGERS.sources.version, 1);
