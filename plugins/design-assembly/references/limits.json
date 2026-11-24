@@ -5416,6 +5416,39 @@
       "where": ["d0106"],
       "status": "open",
       "note": "A string of an item of two words or more that a row of data on the screen holds as whole words, such as a name holding top level, is red as the item's own text, with the file that wrote that string."
+    },
+    {
+      "id": "inventory-reads-conformed-files-as-unrecorded",
+      "area": "inventory",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0107"],
+      "status": "open",
+      "note": "The inventory counts as recorded only the file a row of the intake ledger names: every other file a conform record of an item taken in holds, used by a screen, is named unrecorded, twelve of them in the rerun of the filters trial."
+    },
+    {
+      "id": "store-block-changed-without-widening",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0107"],
+      "status": "open",
+      "note": "A block of the store whose file is changed with no widening leaves the gate green: only the inventory's finding modified says so. In the rerun of the filters trial the builder changed the starter kit's useList for the filters and the gate stayed green."
+    },
+    {
+      "id": "base-library-folder-still-asks-an-exemption",
+      "area": "intake",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0107"],
+      "status": "open",
+      "note": "The base library's own folder is the repository's, and a mandatory rule is not refused for it; but the lint configuration that sets it apart still asks an exemption lint-config of every item whose record holds a file there, so the builder records an exemption for a choice the repository made."
     }
   ]
 }

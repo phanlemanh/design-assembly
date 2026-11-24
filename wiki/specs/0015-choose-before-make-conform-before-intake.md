@@ -322,8 +322,9 @@ Standards, vòng giao việc hay repo kiểm chứng.
 
 Máy viết ngày 2026-11-24 theo lời chủ repo («Viết bổ sung»), sửa cùng ngày sau lần soát đầu («Gửi sang sửa»). **Chủ
 repo duyệt ngày 2026-11-24, khi gộp PR 133, cùng tám khuyến nghị của nó.** Mục 11.8 dựng ngày 2026-11-24
-([0105](../decisions/0105-a-mandatory-rule-is-never-exempted.md)); mục 11.7 chưa dựng. Phần này chỉ nói điều đề bài
-đã duyệt chưa nói. Mức «bắt buộc» của mục «Đủ chuẩn» giữ nguyên.
+([0105](../decisions/0105-a-mandatory-rule-is-never-exempted.md)); mục 11.7 dựng cùng ngày
+([0106](../decisions/0106-the-floating-parts-of-an-outside-item-are-opened.md)); lượt chạy lại của tiêu chí 26 chạy cùng
+ngày ([0107](../decisions/0107-filters-rerun-meets-criterion-14.md)). Phần này chỉ nói điều đề bài đã duyệt chưa nói. Mức «bắt buộc» của mục «Đủ chuẩn» giữ nguyên.
 
 ### Vì sao có phần này
 
