@@ -8,6 +8,10 @@ import { fileURLToPath } from "node:url";
 
 import { LEDGERS } from "../templates/tools/design-assembly/contract.mjs";
 import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
+import {
+  readPinnedSources,
+  sourceOfPlug,
+} from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { STAMP } from "../templates/tools/design-assembly/waiting.mjs";
 
 export const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -621,22 +625,29 @@ export const PRESENT = ["in-repo", "in-session"];
 
 // Where the chosen plug of a socket stands: one of the plugin's, the socket left empty, an outside
 // plug that is here (in the repository, or in the session, or waiting for a sign-in), or missing.
-function chosenState(chosen, item, outside) {
-  if (list(item.plugs).some((plug) => plug.id === chosen.plug)) return "plugin";
-  if (chosen.plug === NONE) return "empty";
+function chosenState(chosen, item, outside, pinned) {
+  if (list(item.plugs).some((plug) => plug.id === chosen.plug)) return { state: "plugin" };
+  if (chosen.plug === NONE) return { state: "empty" };
   // At a ladder socket the plugin's plug always works it: a plug from outside chosen there, before
-  // the socket had a ladder or by an answer since, is the owner's word kept, and not applied; that
-  // plug counts only as a source the repository pins (spec 0015).
-  if (item.socket?.ladder === true) return "kept-not-applied";
+  // the socket had a ladder or by an answer since, counts as a source the repository pins. Once it
+  // is pinned, by its id or by a source that names it, the choice is applied as rung 2 of the
+  // plugin's plug; until then it is the owner's word kept, and not applied (spec 0015).
+  if (item.socket?.ladder === true) {
+    const source = sourceOfPlug(pinned(), chosen.plug);
+    return source ? { state: "on-the-ladder", source: source.id } : { state: "kept-not-applied" };
+  }
   const state = outside.find((plug) => plug.id === chosen.plug)?.state;
-  return [...PRESENT, "needs-sign-in"].includes(state) ? state : "chosen-but-missing";
+  return { state: [...PRESENT, "needs-sign-in"].includes(state) ? state : "chosen-but-missing" };
 }
 
 // The line a route says where the plug chosen for a socket cannot work here, or null: it falls back
 // to the plugin's plug, or leaves the socket empty where the plugin has none, until the plug is here.
 export function fallbackOf(socket) {
   const chosen = socket.chosen;
-  if (!chosen || ["plugin", "empty", "kept-not-applied", ...PRESENT].includes(chosen.state)) {
+  if (
+    !chosen ||
+    ["plugin", "empty", "kept-not-applied", "on-the-ladder", ...PRESENT].includes(chosen.state)
+  ) {
     return null;
   }
   const why = chosen.state === "needs-sign-in" ? "waits for a sign-in" : "is not here";
@@ -660,6 +671,9 @@ export function socketsOf(
   rows = ledgerRows(root),
   session = NO_SESSION,
 ) {
+  // The pinned sources are read once, and only when a choice at a ladder socket asks for them.
+  let sources = null;
+  const pinned = () => (sources ??= readPinnedSources(root));
   return table.capabilities.map((item) => {
     const plug = list(item.plugs).find((candidate) => candidate.default === true);
     const chosen = choiceOf(rows, item.id);
@@ -681,7 +695,7 @@ export function socketsOf(
       plug: plug?.id ?? null,
       state: plug ? "plugged" : "empty",
       limit: item.limit ?? null,
-      chosen: chosen ? { ...chosen, state: chosenState(chosen, item, outside) } : null,
+      chosen: chosen ? { ...chosen, ...chosenState(chosen, item, outside, pinned) } : null,
       outside,
     };
   });

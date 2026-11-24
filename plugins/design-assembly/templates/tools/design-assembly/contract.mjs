@@ -20,6 +20,7 @@ import {
   FONT_STYLES,
   fontRowProblems,
   isFont,
+  LADDER_PLACES,
   SOURCES_FOLDER,
 } from "./sources-ledger.mjs";
 import { parseLedger } from "./ledger.mjs";
@@ -378,6 +379,11 @@ export const LEDGERS = {
       // The folder of the repository its items' files are installed into: once declared, the gate
       // names a file there that the code uses and no conform record of an item taken in lists.
       folder: text,
+      // Where it stands on the ladder find and intake walk: before the starter kit and the family's
+      // store, or after them, where a source that says nothing stands (spec 0015).
+      ladder_place: { ...text, values: LADDER_PLACES },
+      // The plug of the capability table this source is, when its id is not the plug's.
+      plug: dashed,
       // What taking an item in needs, in a sentence; never a key.
       licence: text,
     },

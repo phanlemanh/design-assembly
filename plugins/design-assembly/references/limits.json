@@ -4942,9 +4942,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-24",
-      "where": ["d0098"],
-      "status": "open",
-      "note": "The ladder find and intake walk is fixed by the plugin: the repository's own store, the starter kit, the family's store, then the sources pinned in design/sources/. A repository cannot say that its outside source comes before the starter kit, and a catalog it pinned in its own shape outside that folder is never read, so a repository whose rule is its store, then its outside registry, then made by hand is shown no candidate from that registry."
+      "where": ["d0098", "d0101"],
+      "status": "closed",
+      "note": "The ladder find and intake walk is fixed by the plugin: the repository's own store, the starter kit, the family's store, then the sources pinned in design/sources/. A repository cannot say that its outside source comes before the starter kit, and a catalog it pinned in its own shape outside that folder is never read, so a repository whose rule is its store, then its outside registry, then made by hand is shown no candidate from that registry.",
+      "closed": "2026-11-24",
+      "closed_by": "d0101"
     },
     {
       "id": "outside-item-not-conformed-before-intake",
@@ -5008,11 +5010,11 @@
       "area": "capabilities",
       "kind": "partial-check",
       "severity": "low",
-      "plan": "fix",
+      "plan": "keep",
       "opened": "2026-11-24",
-      "where": ["d0098"],
+      "where": ["d0098", "d0101"],
       "status": "open",
-      "note": "A plug from outside chosen at a ladder socket, in a row written before the socket had a ladder or from an answer since, is kept as the owner's word and not applied: nothing turns that choice into a source pinned in design/sources/, so the plug the owner chose stays off the ladder until a person pins it."
+      "note": "A plug from outside chosen at a ladder socket is applied as rung 2 of the plugin's plug once the repository pins it as a source, of its id or naming it in plug; until then the choice is kept as the owner's word and not applied. Nothing turns the choice into that source: pinning needs the pin and the catalog of the plug, which the plugin does not fetch, so a person writes the source file, as for any pin, and the board says how."
     },
     {
       "id": "ladder-source-matched-by-id",
@@ -5021,9 +5023,11 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-24",
-      "where": ["d0098"],
-      "status": "open",
-      "note": "At a ladder socket a plug from outside is taken to stand on rung 2 only when design/sources/ holds a source of the same id as the plug file; a source pinned under another id is not tied to the plug, and the board says the plug is no pinned source."
+      "where": ["d0098", "d0101"],
+      "status": "closed",
+      "note": "At a ladder socket a plug from outside is taken to stand on rung 2 only when design/sources/ holds a source of the same id as the plug file; a source pinned under another id is not tied to the plug, and the board says the plug is no pinned source.",
+      "closed": "2026-11-24",
+      "closed_by": "d0101"
     },
     {
       "id": "brings-read-from-one-item-file",
@@ -5103,6 +5107,17 @@
       "where": ["d0100"],
       "status": "open",
       "note": "With --taken-down, a file that is neither as taken down nor after patching is taken for a newer item when the source's pin is no longer the one the record holds, and refused as a hand edit otherwise. Nothing ties the file to the new pin itself, so the way stays open from the moment the source is pinned again until --taken-down records the new pin for this item: a hand edit made in that time is taken with the newer item, though the command names each file it takes down again. A source pinned again for one of its items opens that time for every other item of it too; the plain check of each of their records then says the record's pin is behind, and --taken-down, run with nothing newer, records the pin and closes it. A record that holds no hash of the pin, as one written before the conform command kept it, takes no newer item: it is removed by hand, the item taken down, the record started again and each change recorded again with --patch."
+    },
+    {
+      "id": "catalog-read-in-two-shapes",
+      "area": "find",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0101"],
+      "status": "open",
+      "note": "A pinned source is read when its catalog lists its items, or keeps them in groups, and its pin is in the source file, in a file of its own, or inside the catalog under pin; a catalog in another shape is said to be unreadable, with why, and offers nothing. A source stands before the starter kit and the family's store or after them, never between the two."
     }
   ]
 }

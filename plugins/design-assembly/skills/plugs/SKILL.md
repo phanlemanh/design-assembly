@@ -57,15 +57,18 @@ most four questions wait at once; the rest are asked in a later round.
 
 The components socket is asked nothing. There a plug from outside is a rung on the ladder of
 `intake`, not a rival to it: the board prints the repository's ladder (its own store, then the
-starter kit and the sources it pinned, then made by hand) and the rung each plug from outside
+starter kit and the sources it pinned, in the order the repository declares, then made by hand)
+and the rung each plug from outside
 stands on. Losing its measure is no reason to keep it off the ladder. A plug from outside that is
 here and is no pinned source is named, with the line that `find` and `intake` do not reach it;
-tell the user it is pinned by hand in `design/sources/`, since no command pins a source yet. A
+tell the user it is pinned by hand in `design/sources/`, as a source of its id or one that names it
+in `plug`, since no command pins a source: no tool of this plugin fetches. A
 question about the components socket left on the waiting list by an earlier version is taken
 away, and the run says so with a line that starts with `Taken away`. A choice of a plug from
 outside recorded for the components socket is the owner's word kept and not applied
 (`kept-not-applied`): `intake` still works the socket, and that plug counts only once it is a
-pinned source. `--reask components` is refused, since no question is asked there.
+pinned source. Once it is, the choice is applied as rung 2 of `intake` (`on-the-ladder`), and the
+board and `status` name the source. `--reask components` is refused, since no question is asked there.
 
 Tell the user the questions wait on the decision sheet (`/design-assembly:decide`). After they
 answer, run this command again: it writes each answer as a row `plug-<socket>` of the decision

@@ -545,8 +545,8 @@
         {
           "id": "11.4",
           "what": "Thang do repo khai: repo đặt nguồn ngoài trước hay sau bộ khởi đầu và kho của họ; find và intake theo thứ tự ấy và đọc được danh mục repo đã ghim",
-          "state": "todo",
-          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 9 và 10"
+          "state": "done",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 9 và 10; dựng ngày 2026-11-24 theo lời chủ repo («Dựng lát 4»): wiki/decisions/0101-the-repository-declares-its-ladder.md, plugin 0.53.0; khoá ladder_place của tệp nguồn đặt nguồn trước bộ khởi đầu hay sau kho của họ, find và intake theo thứ tự ấy; pin_file đọc được ghim nằm trong danh mục; khoá plug nối nguồn với phích; lựa chọn cũ ở ổ có thang được áp khi phích đã ghim; lượt thử trên bản sao repo kiểm chứng: docs/trials/declared-ladder-on-a-copy.md"
         },
         {
           "id": "11.5",

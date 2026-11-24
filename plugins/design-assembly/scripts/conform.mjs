@@ -30,7 +30,7 @@ import {
   shapeProblems,
 } from "../templates/tools/design-assembly/contract.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
-import { SOURCES_FOLDER } from "../templates/tools/design-assembly/sources-ledger.mjs";
+import { pinWithin, SOURCES_FOLDER } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { writeFiles, writtenFiles } from "./apply.mjs";
 import { finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { unexempted } from "./conform-rules.mjs";
@@ -136,7 +136,7 @@ function pinHash(root, sourceId) {
   const pin = isMap(source.pin)
     ? source.pin
     : typeof source.pin_file === "string"
-      ? parsed(readText(root, source.pin_file))
+      ? pinWithin(parsed(readText(root, source.pin_file)))
       : null;
   return isMap(pin) ? sha(stable(pin)) : null;
 }
