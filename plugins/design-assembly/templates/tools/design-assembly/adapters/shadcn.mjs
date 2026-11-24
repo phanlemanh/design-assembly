@@ -130,4 +130,7 @@ export const adapter = {
   importPathIn: (settings) => settings?.aliases?.ui ?? "@/components/ui",
   // The component a probe restyles, when the library has it.
   probeComponent: { name: "Button", file: "button" },
+  // Rules of the library's linter that read the classes given to its components only, so a text
+  // that breaks them is written on a component, never on a plain element they do not look at.
+  componentClassRules: ["shadcn/require-static-classes"],
 };

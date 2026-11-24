@@ -94,6 +94,11 @@ function build(source) {
   // The colour roles came later too: where the person gave the answers, the owner spoke to each
   // question of the table of colour roles, as a repository of this version has it.
   if (source === "user") layers.foundations.roles = roleWords();
+  // So did the name and day of the source colour, as the guide writes it since 0.33.0: where the
+  // person gave the answers, every value of the foundations has the owner's word.
+  if (source === "user") {
+    layers.foundations.answered.source_color = { by: "Owner Name", on: "2026-11-21" };
+  }
   put(dir, "design/blueprint.json", JSON.stringify({ version: 1, status: "approved", layers }));
   const run = spawnSync(execPath, [path.join(PLUGIN, "scripts/apply.mjs"), "--target", dir]);
   assert.equal(run.status, 0, String(run.stderr));
@@ -458,9 +463,11 @@ test("the rhythms are read from the repository: each line changes when the repos
   assert.match(says(run, "adopt"), /core decisions answered/);
   assert.match(says(start, "change"), /no check/);
   assert.match(says(run, "change"), /0 failing or bypassed/);
-  assert.match(says(run, "intake"), /not built in this version/);
-  assert.match(says(run, "intake"), /nothing records which need got which block/);
-  // A ledger kept by hand is named, with whether it has its shape.
+  // The intake command has been built since item 3.3: the line says so, never that it is missing.
+  assert.doesNotMatch(says(run, "intake"), /not built/);
+  assert.match(says(run, "intake"), /^the intake command takes a block in/);
+  assert.match(says(run, "intake"), /nothing records yet which need got which block/);
+  // A ledger, by hand or by the command, is named, with whether it has its shape.
   const kept = applied("user");
   put(
     kept,
@@ -469,7 +476,7 @@ test("the rhythms are read from the repository: each line changes when the repos
   );
   assert.match(
     says(status(kept), "intake"),
-    /not built in this version of the plugin; design\/intake\.yaml records which need got which block, written by hand, with the one shape of the contract/,
+    /^the intake command takes a block in; design\/intake\.yaml records which need got which block, with the one shape of the contract$/,
   );
   put(kept, "design/intake.yaml", "version: 1\nblocks: []\nkhoi: 1\nkeys: 2\n");
   assert.match(says(status(kept), "intake"), /not of the contract's shape/);
