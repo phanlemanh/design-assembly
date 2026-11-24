@@ -661,18 +661,20 @@ const KINDS = {
       if (choice?.problem) return unreadLine(choice.problem);
       if (!choice?.base) return null;
       const ledger = readIntakeLedger(state.files?.[check.intake ?? LEDGERS.intake.file] ?? "");
+      const baseLedger = readIntakeLedger(choice.base.intake ?? "");
       const { items, covered } = takenDownFiles(state, check);
       const problems = [
         ...unrecordedFiles({
           components: choice.components,
           baseFiles: choice.base.files,
           ledger,
+          baseLedger,
           covered: [...items.keys(), ...covered],
           folders: declaredFolders(state).map((each) => each.folder),
         }).map(unrecordedLine),
         ...byHandProblems({
           ledger,
-          baseLedger: readIntakeLedger(choice.base.intake ?? ""),
+          baseLedger,
           held: choice.held ?? [],
           components: choice.components,
         }),

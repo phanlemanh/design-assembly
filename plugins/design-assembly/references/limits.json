@@ -4994,7 +4994,29 @@
       "opened": "2026-11-24",
       "where": ["d0102"],
       "status": "open",
-      "note": "The gate holds the choice only on what a branch adds against where it left the main branch: a component file or a row made by hand that the main branch already has is never held, so one merged with no row before the repository took this check stays green, named only by the inventory report until the owner lists it with intake --before. A file moved to a new path counts as added. Outside git nothing is compared."
+      "note": "The gate holds the choice only on what a branch adds against where it left the main branch: a component file or a row made by hand that the main branch already has is never held, so one merged with no row before the repository took this check stays green, named only by the inventory report until the owner lists it with intake --before. A later branch that takes searched and nearest off a row the main branch already has is not red either: a row is the branch's only when its need or its source changes. A file moved to a new path counts as added, and passes only where the main branch's list of what came before names it or a component in it. intake --before still offers a component the branch itself adds, and the gate stays red for it however the owner answers. Outside git nothing is compared."
+    },
+    {
+      "id": "choice-held-by-file",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0102"],
+      "status": "open",
+      "note": "The gate holds a component file a branch adds, as the specification words it, not each component: a second component written into a file the main branch already has passes, and only the inventory report names it."
+    },
+    {
+      "id": "choice-held-in-the-components-folder",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0102"],
+      "status": "open",
+      "note": "The gate reads the components where find and inventory read them, the repository's own components folder less the library's parts: a component made by hand and put in the library's folder, or in a folder outside the components folder such as one of a feature, passes."
     },
     {
       "id": "nearest-none-taken-as-written",

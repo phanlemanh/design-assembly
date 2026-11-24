@@ -357,9 +357,9 @@
     },
     {
       "version": "0.54.0",
-      "templates": "5e8b21c6519c398f86aed5d120d91b255eb389b8",
+      "templates": "49a7e0f8d25704e4316bc48173ef7760b1ed4263",
       "scripts": "8ce5531541607026611ad4d4033b6da5af8d391c",
-      "tool": "c79661808b019fcc16556f3036643d3b13aa8e51"
+      "tool": "9ebcb3a297b66d3458c6d62a31beb7e7c9d2eaa4"
     }
   ]
 }

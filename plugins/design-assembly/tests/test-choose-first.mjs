@@ -81,13 +81,9 @@ test("criterion 11: a component file this branch adds with no row turns the gate
   assert.doesNotMatch(problem, /item-list/);
 });
 
-test("criterion 11: a file the branch adds is held once a row, the list of what came before, a source's folder or a conform record has it", () => {
+test("criterion 11: a file the branch adds is held once a row, a source's folder or a conform record has it", () => {
   const recorded = row({ ...BY_HAND, searched: "status badge", nearest: NOTHING_ANSWERS });
   assert.equal(chooseFirst.run(choiceState({ intakeText: recorded }), CHECK), null);
-  const beforeByFile = `version: 1\nblocks: []\nbefore:\n  - name: Other\n    file: ${NEW_FILE}\n    why: made before\n`;
-  assert.equal(chooseFirst.run(choiceState({ intakeText: beforeByFile }), CHECK), null);
-  const beforeByName = `version: 1\nblocks: []\nbefore:\n  - name: StatusBadge\n    why: made before\n`;
-  assert.equal(chooseFirst.run(choiceState({ intakeText: beforeByName }), CHECK), null);
   const folder = {
     [`${SOURCES_FOLDER}/kit.json`]: JSON.stringify({ id: "kit", folder: "src/components/" }),
   };
@@ -104,6 +100,28 @@ test("criterion 11: a file the branch adds is held once a row, the list of what 
   };
   const records = { [`${CONFORM_FOLDER}/status-badge.json`]: JSON.stringify(record) };
   assert.equal(chooseFirst.run(choiceState({ records }), CHECK), null);
+});
+
+test("criterion 11: the list of what came before lets a file through only when the main branch already had the entry", () => {
+  // Written on this branch for a file this branch adds: nothing came before, so it is red.
+  const byFile = `version: 1\nblocks: []\nbefore:\n  - name: Other\n    file: ${NEW_FILE}\n    why: made before\n`;
+  assert.match(chooseFirst.run(choiceState({ intakeText: byFile }), CHECK), /status-badge\.tsx/);
+  const byName = `version: 1\nblocks: []\nbefore:\n  - name: StatusBadge\n    file: ${NEW_FILE}\n    why: made before\n`;
+  assert.match(chooseFirst.run(choiceState({ intakeText: byName }), CHECK), /status-badge\.tsx/);
+  // The main branch's list named the component at its old place: the branch moved the file.
+  const moved = `version: 1\nblocks: []\nbefore:\n  - name: StatusBadge\n    file: src/components/old-badge.tsx\n    why: made before\n`;
+  const movedNow = moved.replace("src/components/old-badge.tsx", NEW_FILE);
+  assert.equal(chooseFirst.run(choiceState({ baseIntake: moved, intakeText: moved }), CHECK), null);
+  assert.equal(
+    chooseFirst.run(choiceState({ baseIntake: moved, intakeText: movedNow }), CHECK),
+    null,
+  );
+  // The main branch's list named the file itself.
+  const atBase = `version: 1\nblocks: []\nbefore:\n  - name: Other\n    file: ${NEW_FILE}\n    why: made before\n`;
+  assert.equal(
+    chooseFirst.run(choiceState({ baseIntake: atBase, intakeText: atBase }), CHECK),
+    null,
+  );
 });
 
 test("criterion 11: the files and rows the main branch already has are not held to it: a green repository stays green", () => {
@@ -245,6 +263,16 @@ test("criterion 11, broken: on a copy of this repository a component file the br
   assert.equal(shapesOf(dir).seenFailing, true);
   put(dir, NEW_FILE, COMPONENT("StatusBadge"));
   assert.match(shapesOf(dir).problem, /src\/components\/status-badge\.tsx/);
+  // Listing it as made before, on this branch, is no way round: the main branch never had it.
+  const shared = path.join(dir, "design/intake/_shared.yaml");
+  const was = readFileSync(shared, "utf8");
+  put(
+    dir,
+    "design/intake/_shared.yaml",
+    `${was}  - name: StatusBadge\n    file: ${NEW_FILE}\n    why: made before the intake ledger was kept\n`,
+  );
+  assert.match(shapesOf(dir).problem, /src\/components\/status-badge\.tsx/);
+  put(dir, "design/intake/_shared.yaml", was);
   // A row made by hand records it, with the words searched and the nearest candidate.
   put(dir, "design/intake/status-badge.yaml", FRAGMENT("searched: status badge\nnearest: none\n"));
   assert.equal(shapesOf(dir).problem, null);

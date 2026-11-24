@@ -407,8 +407,10 @@ The `ledger-shapes` row also holds the choice before making (spec 0015), with th
 not committed yet, the way `owner-calls` does, and is red:
 
 - for a component file of the repository's own that the branch adds, as `find` and `inventory`
-  read the components, when no row of the intake ledger names it, `before` names neither the file
-  nor a component in it, no conform record holds it, and no pinned source declares its folder;
+  read the components, when no row of the intake ledger names it, no conform record holds it, no
+  pinned source declares its folder, and the main branch's `before` names neither the file nor a
+  component in it. An entry of `before` the branch writes itself lets nothing through: a file the
+  branch adds did not come before; a file the branch moved passes where the main branch listed it;
 - for a row made by hand that the branch writes, a need with no row at the base or with another
   source there, as written, when
   it lacks `searched` or `nearest`, or when `nearest` is neither `none` nor a name the

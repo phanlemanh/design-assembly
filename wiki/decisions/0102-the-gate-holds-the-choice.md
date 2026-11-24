@@ -49,8 +49,11 @@ tệp có từ trước vào danh sách «có từ trước» một lần, theo 
    ngoài git thì không so và nói vậy; repo chưa có commit nào cũng không so. Như vậy tệp và dòng nhánh chính đã có
    không bao giờ bị giữ, và repo xanh hôm nay vẫn xanh sau khi lên đời.
 3. **Tệp linh kiện mới.** Tệp linh kiện của repo, đọc đúng như `find` và `inventory` đọc (hàm `componentsOf`, nay nằm
-   trong mẫu công cụ để cổng đọc cùng một chỗ). Đỏ khi nhánh thêm nó và không dòng sổ nào nêu tệp ấy, `before` không
-   nêu tệp hay một linh kiện trong nó, không bản ghi chuẩn hoá nào giữ nó, và không nguồn ghim nào khai thư mục của nó.
+   trong mẫu công cụ để cổng đọc cùng một chỗ). Đỏ khi nhánh thêm nó và không dòng sổ nào nêu tệp ấy, không bản ghi
+   chuẩn hoá nào giữ nó, không nguồn ghim nào khai thư mục của nó, và `before` **của nhánh chính** không nêu tệp hay
+   một linh kiện trong nó. Một dòng `before` chính nhánh viết không cho tệp nào qua: tệp nhánh thêm thì không «có từ
+   trước», và danh sách ấy viết một lần theo lời chủ repo (câu hỏi 7). Tệp nhánh đổi chỗ vẫn qua khi `before` của
+   nhánh chính nêu nó hay linh kiện trong nó. Sửa sau soát PR 129, theo lời chủ repo («Gửi sang sửa»).
 4. **Dòng tạo tay.** Sổ nhập kho thêm hai khoá không bắt buộc: `searched`, chữ `find` được hỏi; `nearest`, thứ gần
    nhất các kho đưa ra cho chữ ấy, kho gần trước, hoặc `none` khi không gì đáp. `intake` viết cả hai. Một dòng tạo tay
    nhánh viết (điểm rẽ không có dòng cho nhu cầu ấy, hoặc có mà `source` viết khác) thì đỏ khi thiếu một trong hai,
@@ -81,4 +84,8 @@ tệp có từ trước vào danh sách «có từ trước» một lần, theo 
   - **mới** `choice-held-on-what-a-branch-adds`: tệp đã gộp vào nhánh chính trước khi repo lên đời mà không có dòng sổ
     thì không đỏ, chỉ `inventory` nêu; tệp đổi chỗ tính là tệp thêm.
   - **mới** `nearest-none-taken-as-written`: cổng không chạy `find`, nên `none` được nhận như đã viết.
+  - **mới**, sau soát PR 129: `choice-held-by-file` (linh kiện thứ hai viết vào một tệp nhánh chính đã có thì qua) và
+    `choice-held-in-the-components-folder` (linh kiện tạo tay đặt trong thư mục của thư viện, hay ngoài thư mục linh
+    kiện, thì qua). `choice-held-on-what-a-branch-adds` nói thêm: nhánh sau gỡ `searched` và `nearest` khỏi một dòng
+    nhánh chính đã có thì không đỏ; `intake --before` vẫn đề nghị linh kiện chính nhánh thêm, và cổng vẫn đỏ cho nó.
 - Plugin lên 0.54.0. Kế hoạch: mục 11.5 xong.

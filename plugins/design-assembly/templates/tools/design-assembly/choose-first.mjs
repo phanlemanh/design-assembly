@@ -3,7 +3,8 @@
 //
 //   - A component file of the repository's own that the branch adds, with no row of the intake
 //     ledger, outside the folder of a pinned source and every conform record, and not on the list
-//     of what came before, is red.
+//     of what came before as the main branch kept it, is red. An entry the branch writes for a
+//     file it adds lets nothing through.
 //   - A row made by hand that the branch writes says the words find was asked with (`searched`)
 //     and the nearest candidate it gave (`nearest`): a name a store of the repository, a pinned
 //     catalog or the starter kit holds, or `none` when nothing answered. Missing, or a name none
@@ -115,12 +116,14 @@ export function readChoice(root, check = CHOOSE_FIRST_CHECK) {
   };
 }
 
-// The component files this branch adds that nothing records: no row names the file, the list of
-// what came before names neither the file nor a component in it, no conform record holds it, and
-// no pinned source declares its folder. Each with the components it holds.
-export function unrecordedFiles({ components, baseFiles, ledger, covered, folders }) {
+// The component files this branch adds that nothing records: no row names the file, no conform
+// record holds it, and no pinned source declares its folder. The list of what came before lets one
+// through only where the main branch's list already had the entry, by the file or by a component
+// in it, as for a file the branch moved: an entry the branch writes for a file it adds says
+// something came before that did not. Each with the components it holds.
+export function unrecordedFiles({ components, baseFiles, ledger, baseLedger, covered, folders }) {
   const there = new Set((baseFiles ?? []).map(fileOf));
-  const before = listOf(ledger?.before);
+  const before = listOf(baseLedger?.before);
   const recorded = new Set(
     [
       ...listOf(ledger?.blocks).map((block) => fileOf(block.file)),
