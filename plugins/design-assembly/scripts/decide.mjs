@@ -175,10 +175,30 @@ function sheetOf({ rows, waiting, list }) {
         if_refused: row.if_refused ?? null,
         // A choice among named things: what the owner picks from, the recommended one first.
         ...(row.candidates ? { item: row.item ?? null, candidates: row.candidates } : {}),
+        // What an item is let off, kept or refused as one list.
+        ...(row.exemptions ? { exemptions: row.exemptions } : {}),
       });
     }
   }
   return { questions, answered, elsewhere, permissions, replaced };
+}
+
+// A list of exemptions as the sheet lays it out, readable at fifty or more: one line for each
+// rule and reason, with how many files it lets off, and the files beneath it.
+export function exemptionLines(exemptions) {
+  const groups = new Map();
+  for (const { rule, file, reason } of exemptions) {
+    const key = `${rule}\n${reason}`;
+    groups.set(key, { rule, reason, files: [...(groups.get(key)?.files ?? []), file] });
+  }
+  const rules = new Set(exemptions.map((entry) => entry.rule));
+  return [
+    `      exemptions: keep lets the item off all ${exemptions.length}, on ${rules.size} ${rules.size === 1 ? "rule" : "rules"}; refuse lets it off none`,
+    ...[...groups.values()].flatMap(({ rule, reason, files }) => [
+      `        ${rule} (${files.length}): ${reason}`,
+      `           ${files.join(", ")}`,
+    ]),
+  ];
 }
 
 const PARTS = ["questions", "answered", "elsewhere", "permissions", "replaced"];
@@ -476,6 +496,7 @@ export function report(result) {
         if (candidate.brings?.words) lines.push(`           brings ${candidate.brings.words}`);
       }
     }
+    if (item.exemptions) lines.push(...exemptionLines(item.exemptions));
     if (item.if_refused) lines.push(`      if refused: ${item.if_refused}`);
   }
   if (elsewhere.length > 0) {

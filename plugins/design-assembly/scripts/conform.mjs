@@ -33,7 +33,7 @@ import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.m
 import { pinSha256, SOURCES_FOLDER } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { writeFiles, writtenFiles } from "./apply.mjs";
 import { finish, readCall, Refusal, refuse, start } from "./command.mjs";
-import { unexempted } from "./conform-rules.mjs";
+import { exemptionRefused, mandatoryOff, mandatoryRules, unexempted } from "./conform-rules.mjs";
 import { insideRoot } from "./store.mjs";
 
 const NEED = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -222,6 +222,9 @@ function exemptedRecord(root, record, { rule, file, reason }) {
   if (record.exemptions.some((entry) => entry.rule === rule && entry.file === file)) {
     throw new Refusal(`the record already lets ${file} off ${rule}${NOTHING}`);
   }
+  // A rule the repository's decision ledger holds is mandatory (the addendum of spec 0015).
+  const refused = exemptionRefused(root, record, { rule, file });
+  if (refused) throw new Refusal(`${refused}${NOTHING}`);
   return {
     record: { ...record, exemptions: [...record.exemptions, { rule, file, reason }] },
     said: `recorded the exemption ${rule} for ${file}: ${reason}`,
@@ -359,8 +362,14 @@ export function recordProblems(root, record) {
     }
   }
   problems.push(...unexempted(root, record, (file) => readText(root, file)));
+  problems.push(...mandatoryExempted(root, record));
   return problems;
 }
+
+// What the record exempts that a row of the decision ledger holds: a record written before the
+// rule was mandatory, named here and never by the gate, and conformed again only once it is gone.
+const mandatoryExempted = (root, record) =>
+  mandatoryOff(root, { ...record, conformed: [] }, () => null, mandatoryRules(root));
 
 // ---- the command --------------------------------------------------------------------------------------
 
@@ -405,6 +414,9 @@ export function conform(root, flags, { dryRun = false } = {}) {
     });
   } else {
     const record = readRecord(root, need);
+    // A record that still exempts a mandatory rule is not written again until the exemption is out.
+    const [held] = asked === "check" ? [] : mandatoryExempted(root, record);
+    if (held) throw new Refusal(`${held}${NOTHING}`);
     if (asked === "patch") {
       made = patchedRecord(root, record, { file: flags["--patch"], reason: flags["--reason"] });
     } else if (asked === "exempt") {

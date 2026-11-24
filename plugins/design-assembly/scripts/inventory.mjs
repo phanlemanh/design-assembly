@@ -19,6 +19,7 @@ import { screensOf } from "../templates/tools/design-assembly/affected.mjs";
 import { isByHand } from "../templates/tools/design-assembly/intake-ledger.mjs";
 import { KINDS_FOLDER, readKinds, readPages } from "../templates/tools/design-assembly/screens.mjs";
 import { CONFORM_FOLDER } from "../templates/tools/design-assembly/contract.mjs";
+import { mandatoryOff, mandatoryRules } from "./conform-rules.mjs";
 import {
   pinSha256,
   readPinnedSources,
@@ -42,7 +43,15 @@ const json = (file) => JSON.parse(readFileSync(path.join(PLUGIN, file), "utf8"))
 const STARTER = json("references/starter.json").items;
 const LIMITS = json("references/limits.json").limits;
 
-export const FINDINGS = ["unused", "unrecorded", "duplicate", "outdated", "modified", "promote"];
+export const FINDINGS = [
+  "unused",
+  "unrecorded",
+  "duplicate",
+  "outdated",
+  "modified",
+  "exempts-mandatory",
+  "promote",
+];
 export const STORES = ["repo", "starter", "external", "all"];
 export const KINDS = ["component", "block", "screen-kind", "behaviour"];
 const BEHAVIOURS = "no store keeps behaviours yet: a behaviour is described in design/behaviors.md";
@@ -617,7 +626,37 @@ function findingsOf(read, pieces, usage, blind) {
   }
   if (usage.known) found.push(...unrecordedOf(read, pieces));
   found.push(...duplicateOf(read, pieces), ...outdatedOf(read, blind), ...modifiedOf(read, blind));
+  found.push(...exemptsMandatoryOf(read));
   return found;
+}
+
+// Each item whose conform record exempts a rule a row of the decision ledger holds: a record
+// written before the rule was mandatory. The gate leaves it be; conforming it again is refused until
+// the exemption is out (the addendum of spec 0015).
+function exemptsMandatoryOf(read) {
+  const mandatory = mandatoryRules(read.root);
+  if (mandatory.size === 0) return [];
+  return conformRecords(read.root)
+    .map((record) => ({
+      record,
+      lines: mandatoryOff(read.root, { ...record, conformed: [] }, () => null, mandatory),
+    }))
+    .filter(({ lines }) => lines.length > 0)
+    .map(({ record, lines }) => ({
+      kind: "exempts-mandatory",
+      items: [
+        {
+          name: text(record.item) ?? text(record.need),
+          file:
+            (Array.isArray(record.conformed) ? record.conformed : [])
+              .map((entry) => fileOf(entry?.file))
+              .find(Boolean) ?? null,
+          kind: "block",
+          origin: "external",
+        },
+      ],
+      evidence: [`${record.file} was written before these rules were mandatory`, ...lines],
+    }));
 }
 
 const keep = (store, kind) => (thing) =>
@@ -726,6 +765,7 @@ const SEVERITY = {
   duplicate: "medium",
   outdated: "medium",
   modified: "medium",
+  "exempts-mandatory": "medium",
   promote: "low",
 };
 const WHAT = {
@@ -734,6 +774,7 @@ const WHAT = {
   duplicate: "One thing taken more than once",
   outdated: "Behind the pin of its source",
   modified: "Changed from its source with no reason recorded",
+  "exempts-mandatory": "Let off a rule the decision ledger holds",
   promote: "Used by more than one screen from inside one of them",
 };
 const ACTION = {
@@ -742,6 +783,7 @@ const ACTION = {
   duplicate: "Keep one, and retire the other",
   outdated: "Take the block again at the pin of its source, or record why it stays",
   modified: "Record the change and why under `changed`, or take the block again",
+  "exempts-mandatory": "Patch the code, and take the exemption out of the conform record",
   promote: "Move it into the store of the repository and record it",
 };
 

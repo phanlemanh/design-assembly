@@ -5196,9 +5196,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-24",
-      "where": ["d0104"],
-      "status": "open",
-      "note": "An exemption is taken for any rule: nothing tells the rules the specification lets off (strict type checks and how files are organised inside the source's code) from the ones every item must meet, so in the filters trial 18 exemptions let the item off the styling rules of the base library, whose values are the system's."
+      "where": ["d0104", "d0105"],
+      "status": "closed",
+      "note": "An exemption is taken for any rule: nothing tells the rules the specification lets off (strict type checks and how files are organised inside the source's code) from the ones every item must meet, so in the filters trial 18 exemptions let the item off the styling rules of the base library, whose values are the system's.",
+      "closed": "2026-11-24",
+      "closed_by": "d0105: a rule a row of the decision ledger holds is mandatory; conform refuses its exemption and intake every way an item turns it off, while strict type checks and rules no row holds stay exemptable"
     },
     {
       "id": "conform-runs-no-accessibility-check",
@@ -5218,9 +5220,33 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-24",
-      "where": ["d0104"],
+      "where": ["d0104", "d0105"],
+      "status": "closed",
+      "note": "The reason of each exemption is the builder's, written with the conform command after the owner kept the candidate, and intake writes the row without asking again: the owner never sees the list of exemptions on the decision sheet, though the stage asks the owner to approve each.",
+      "closed": "2026-11-24",
+      "closed_by": "d0105: before intake writes the row of an outside item, the list of its exemptions goes to the owner as one question, laid out by rule and reason on the decision sheet; a list changed since the answer is asked again"
+    },
+    {
+      "id": "no-mandatory-rule-declared",
+      "area": "intake",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0105"],
       "status": "open",
-      "note": "The reason of each exemption is the builder's, written with the conform command after the owner kept the candidate, and intake writes the row without asking again: the owner never sees the list of exemptions on the decision sheet, though the stage asks the owner to approve each."
+      "note": "A rule is mandatory only when a row of the repository's decision ledger, or a lint check of its tool data, holds it: a repository whose ledger points at no lint rule has no mandatory rule, and an item may be let off any rule with a reason. The other parts of the mandatory level stay: the gate green, the repository's words, the accessibility check."
+    },
+    {
+      "id": "base-library-folder-is-the-repositorys",
+      "area": "intake",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0105"],
+      "status": "open",
+      "note": "The base library's own folder, as the library's settings name it, is the repository's to set apart: a lint configuration or ignore file that names it is never counted against an item, whether the repository wrote it before the item came or the item brought it."
     },
     {
       "id": "find-reads-taken-down-files-as-own",

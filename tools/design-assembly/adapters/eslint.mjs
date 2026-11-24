@@ -12,6 +12,8 @@ export const adapter = {
   // A ledger row that a lint rule holds points at it as `eslint:<rule>`.
   prefix: "eslint",
   configFiles: ["eslint.config.js", "eslint.config.mjs", "eslint.config.ts"],
+  // Files that set paths apart from every rule, beside the configuration.
+  ignoreFiles: [".eslintignore"],
   // An exception written in the source, from its first word to the end of its line.
   exception: /eslint-disable[^\n]*/g,
   // Ways to make an exception without a reason: to every rule on the next line, to one rule on the

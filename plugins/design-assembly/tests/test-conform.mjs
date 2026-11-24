@@ -301,6 +301,11 @@ test("criterion 6, broken: intake refuses a row while a rule is turned off in a 
       }),
     ),
   );
+  // The list of exemptions goes to the owner first (the addendum of spec 0015, criterion 25).
+  const asked = takeIn(dir);
+  assert.equal(asked.status, 1, asked.stderr);
+  assert.equal(read(dir, "design/intake.yaml"), before);
+  answer(dir, "exemptions-narrow-list giữ");
   const done = takeIn(dir);
   assert.equal(done.status, 0, done.stderr);
   const row = rowOf(dir);
