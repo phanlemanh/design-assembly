@@ -5188,6 +5188,94 @@
       "where": ["d0101"],
       "status": "open",
       "note": "A pinned source is read when its catalog lists its items, or keeps them in groups, and its pin is in the source file, in a file of its own, or inside the catalog under pin; a catalog in another shape is said to be unreadable, with why, and offers nothing. A source stands before the starter kit and the family's store or after them, never between the two."
+    },
+    {
+      "id": "conform-exempts-mandatory-rules",
+      "area": "intake",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0104"],
+      "status": "open",
+      "note": "An exemption is taken for any rule: nothing tells the rules the specification lets off (strict type checks and how files are organised inside the source's code) from the ones every item must meet, so in the filters trial 18 exemptions let the item off the styling rules of the base library, whose values are the system's."
+    },
+    {
+      "id": "conform-runs-no-accessibility-check",
+      "area": "intake",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0104"],
+      "status": "open",
+      "note": "The way in runs the repository's gate, which drives no item's own popups: in the filters trial both faults that slipped through the earlier measurement were still there on the screen that uses it, a dialog with no name and a screen-reader announcement in English, and the gate was green."
+    },
+    {
+      "id": "exemptions-never-reach-the-owner",
+      "area": "intake",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0104"],
+      "status": "open",
+      "note": "The reason of each exemption is the builder's, written with the conform command after the owner kept the candidate, and intake writes the row without asking again: the owner never sees the list of exemptions on the decision sheet, though the stage asks the owner to approve each."
+    },
+    {
+      "id": "find-reads-taken-down-files-as-own",
+      "area": "find",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0104"],
+      "status": "open",
+      "note": "Files taken down into a source's declared folder, not taken in, are read as the repository's own components by find and the inventory until the library's settings name that folder as a registry's, so find offered them as ready to use in the filters trial."
+    },
+    {
+      "id": "words-check-reads-type-parameters",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0104"],
+      "status": "open",
+      "note": "The check of words in a screen reads a type parameter such as <T> in a .tsx file as the opening of a tag, and names the text after it as words written into the screen."
+    },
+    {
+      "id": "widen-records-an-earlier-hand-edit",
+      "area": "change",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0103"],
+      "status": "open",
+      "note": "Once the owner keeps a widening, change records whatever the file holds that differs from the hash recorded last, so a hand edit made before the question was asked is recorded with the widening, with no edit after the answer."
+    },
+    {
+      "id": "widen-takes-an-older-outside-block",
+      "area": "change",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0103"],
+      "status": "open",
+      "note": "A block of an outside source taken in before conform records existed has no conform key on its row, so change --widen does not refuse it, and its file is changed by hand rather than by a recorded patch."
+    },
+    {
+      "id": "before-name-lets-a-new-file-through",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-24",
+      "where": ["d0102"],
+      "status": "open",
+      "note": "The gate lets a component file a branch adds through when the main branch's list of what came before names a component in it, the case of a file moved; a new file that exports a component of a name already on that list passes the same way."
     }
   ]
 }
