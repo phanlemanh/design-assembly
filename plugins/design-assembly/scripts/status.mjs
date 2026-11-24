@@ -728,9 +728,13 @@ function boardLines(sockets) {
   // show: a session without it keeps the plugin's plug.
   // A plug from outside chosen at a ladder socket is kept as the owner's word and not applied: the
   // plugin's plug works that socket (spec 0015).
+  // Once pinned as a source, that choice is applied as rung 2 of the plugin's plug.
   const kept = sockets.filter((socket) => socket.chosen?.state === "kept-not-applied");
+  const laddered = sockets.filter((socket) => socket.chosen?.state === "on-the-ladder");
   const chosen = sockets.filter(
-    (socket) => socket.chosen !== null && socket.chosen.state !== "kept-not-applied",
+    (socket) =>
+      socket.chosen !== null &&
+      !["kept-not-applied", "on-the-ladder"].includes(socket.chosen.state),
   );
   const missing = chosen.filter((socket) => socket.chosen.state === "chosen-but-missing");
   const named = (list) => list.map((socket) => `${socket.chosen.plug} (${socket.id})`).join(", ");
@@ -743,6 +747,11 @@ function boardLines(sockets) {
     ...(kept.length > 0
       ? [
           `  kept, not applied: ${kept.map((socket) => `${socket.chosen.plug} (${socket.id}), where ${socket.plug} works the socket`).join("; ")}`,
+        ]
+      : []),
+    ...(laddered.length > 0
+      ? [
+          `  on the ladder: ${laddered.map((socket) => `${socket.chosen.plug} (${socket.id}), rung 2 of ${socket.plug} as the source ${socket.chosen.source}`).join("; ")}`,
         ]
       : []),
     ...(missing.length > 0
@@ -761,7 +770,9 @@ function socketCell(socket) {
     ? ""
     : socket.chosen.state === "kept-not-applied"
       ? `; an earlier choice of ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on} is kept, not applied`
-      : `; chosen: ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on} (${socket.chosen.state})`;
+      : socket.chosen.state === "on-the-ladder"
+        ? `; the choice of ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on} stands on rung 2 of ${socket.plug} as the source ${socket.chosen.source}`
+        : `; chosen: ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on} (${socket.chosen.state})`;
   return `${plug}${chosen}`;
 }
 

@@ -177,14 +177,21 @@ dashes, the name of its file) and `catalog` (the path, in the repository, of the
 offers), and may have `title`, `order` (a number: sources are looked through the smallest first,
 then by id) and `licence` (what taking an item in needs, in a sentence, never a key), and `install`,
 how one item is taken in, with `{name}` where its name goes. It names its pin in one of two ways: as
-`pin`, or as `pin_file`, the path of a file the repository already keeps it in. A pin holds the
+`pin`, or as `pin_file`, the path of a file the repository already keeps it in: the pin itself, or
+a catalog that keeps its own pin under `pin`, so a repository that pinned a catalog in that shape
+points both `pin_file` and `catalog` at it. A pin holds the
 `files` the source was read from, each with `file` and `sha256` and maybe `url` and `bytes`, and
 maybe `fetched_at`; or a `version`. `snapshot` names the folder those files are kept in. Since
 spec 0015 a source may also declare `folder`, the folder of the repository its items' files are
 installed into: once it does, the gate names a file there that the code imports and that no
 conform record of an item taken in lists, and the file an older row of the intake ledger names
 counts as taken in. Optional, so a source written before it reads as before, and says nothing to
-the gate. Keys of the repository's own are kept.
+the gate. Since slice 4 of that spec a source may declare `ladder_place`, where it stands on the
+ladder `find` and `intake` walk: `before-starter`, read right after the repository's own store and
+before the starter kit and the family's store, or `after-family`, after them, where a source that
+declares nothing stands; and `plug`, the id of the plug of the capability table it is, when its own
+id is not the plug's. Both optional: a source written before reads as before. Keys of the
+repository's own are kept.
 
 A catalog lists `items`, or keeps them in `groups`; an item has `name`, and may have `kind`,
 `title`, `description`, `group`, `category` and `page`; an item of a group takes the group's

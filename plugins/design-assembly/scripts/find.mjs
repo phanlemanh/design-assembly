@@ -1,7 +1,8 @@
 // find: whether the store already answers a need, before anything new is made. It reads from the
 // nearest store to the farthest and stops at the first that answers: the repository's own (its
 // intake ledger, its components, its kinds of screen), then the starter kit of this plugin, then
-// the family's store, then the outside sources the repository pinned, in their order. Words are
+// the family's store, then the outside sources the repository pinned, in their order; a source the
+// repository declares before the starter kit is read right after its own store. Words are
 // matched, never meaning: no model is called and nothing is fetched. Read-only; the same repository
 // and the same words always give the same answer. With --out it also hands the answer over as a
 // document, the find report, written to that folder and nowhere else.
@@ -301,10 +302,19 @@ const familyStore = () => [
   { store: "family", read: null, items: null, why: "no family store exists yet", pieces: [] },
 ];
 
-// The outside sources the repository pinned, tier 4, in their order.
-function sourcesStore(root) {
-  const sources = readPinnedSources(root);
-  if (sources.length === 0) {
+// The pinned sources split by where each stands on the ladder: before the starter kit and the
+// family's store, or after them, each part in the sources' order (spec 0015).
+export function sourcesByPlace(sources) {
+  return {
+    before: sources.filter((source) => source.ladder_place === "before-starter"),
+    after: sources.filter((source) => source.ladder_place !== "before-starter"),
+  };
+}
+
+// The outside sources the repository pinned, tier 4, in their order. With nothing pinned at all,
+// one entry says so.
+function sourcesStore(sources, pinned) {
+  if (pinned.length === 0) {
     return [
       {
         store: "sources",
@@ -315,7 +325,8 @@ function sourcesStore(root) {
       },
     ];
   }
-  return sources.map((source, place) => {
+  return sources.map((source) => {
+    const place = pinned.indexOf(source);
     const store = `sources/${source.id}`;
     return {
       store,
@@ -381,21 +392,36 @@ export function find(root, { words, kind = null, limit = LIMIT, from = 1 }) {
     };
   }
   const theme = readTheme(root);
+  const pinned = readPinnedSources(root);
+  const { before, after } = sourcesByPlace(pinned);
+  // The stores in the order of the ladder: a source the repository declares before the starter
+  // kit is read right after its own store; with nothing declared, the walk is as it always was.
   const tiers = [
     {
       tier: 1,
       read: () => ownStore(root, theme),
       unread: ["intake", "components", "screen-kinds"],
     },
+    ...(before.length > 0
+      ? [
+          {
+            tier: 4,
+            read: () => sourcesStore(before, pinned),
+            unread: before.map((source) => `sources/${source.id}`),
+          },
+        ]
+      : []),
     { tier: 2, read: () => starterStore(root), unread: ["starter"] },
     { tier: 3, read: () => familyStore(), unread: ["family"] },
-    { tier: 4, read: () => sourcesStore(root), unread: ["sources"] },
-  ];
+    ...(after.length > 0 || pinned.length === 0
+      ? [{ tier: 4, read: () => sourcesStore(after, pinned), unread: ["sources"] }]
+      : []),
+  ].map((step, place) => ({ ...step, place }));
   const searched = [];
   const matched = [];
   const near = [];
   let answered = false;
-  for (const { tier, read, unread } of tiers.filter((each) => each.tier >= from)) {
+  for (const { tier, place, read, unread } of tiers.filter((each) => each.tier >= from)) {
     if (answered) {
       for (const store of unread) {
         searched.push({ store, tier, read: null, items: null, found: false, why: NEARER });
@@ -405,7 +431,7 @@ export function find(root, { words, kind = null, limit = LIMIT, from = 1 }) {
     for (const entry of read()) {
       const scored = entry.pieces
         .filter((piece) => ofKind(piece, kind))
-        .map((piece) => ({ piece, ...measure(asked, piece) }));
+        .map((piece) => ({ piece, place, ...measure(asked, piece) }));
       const hits = scored.filter((item) => item.match);
       matched.push(...hits);
       near.push(...scored.filter((item) => !item.match && item.shared > 0));
@@ -418,7 +444,7 @@ export function find(root, { words, kind = null, limit = LIMIT, from = 1 }) {
     .slice(0, limit)
     .map((item) => shown(item.piece));
   const close = near
-    .sort((a, b) => a.piece.tier - b.piece.tier || byRank(a, b))
+    .sort((a, b) => a.place - b.place || byRank(a, b))
     .slice(0, limit)
     .map((item) => shown(item.piece));
   return { words: asked, kind, matches, near: close, searched, next: nextOf(matches) };

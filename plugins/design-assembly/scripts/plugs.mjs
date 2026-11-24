@@ -20,7 +20,10 @@ import { stdout } from "node:process";
 import { LEDGERS } from "../templates/tools/design-assembly/contract.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { mergeLedger, readLedger } from "../templates/tools/design-assembly/ledger.mjs";
-import { readPinnedSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
+import {
+  readPinnedSources,
+  sourceOfPlug,
+} from "../templates/tools/design-assembly/sources-ledger.mjs";
 import {
   isDay,
   questionFile,
@@ -42,7 +45,7 @@ import {
 } from "./capabilities.mjs";
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, requested } from "./document.mjs";
-import { STORES } from "./find.mjs";
+import { sourcesByPlace, STORES } from "./find.mjs";
 import { documentOf } from "./plugs-page.mjs";
 
 // At most this many questions about plugs wait at once; the rest are asked in a later round.
@@ -65,17 +68,21 @@ const onLadderOf = (board) => (question) =>
 // this plugin, the family's store and the sources the repository pinned, in their order; then made
 // by hand (spec 0015).
 function ladderOf(plug, pinned) {
+  const { before, after } = sourcesByPlace(pinned);
+  const sourceRungs = (sources) =>
+    sources.map((source) => ({
+      rung: 2,
+      store: `sources/${source.id}`,
+      ...(source.unreadable ? { unreadable: source.unreadable } : {}),
+    }));
   return {
     plug,
     rungs: [
       { rung: 1, store: "repo" },
+      ...sourceRungs(before),
       { rung: 2, store: "starter" },
       { rung: 2, store: "family" },
-      ...pinned.map((source) => ({
-        rung: 2,
-        store: `sources/${source.id}`,
-        ...(source.unreadable ? { unreadable: source.unreadable } : {}),
-      })),
+      ...sourceRungs(after),
       { rung: 3, store: "by-hand" },
     ],
   };
@@ -118,12 +125,19 @@ export function boardOf(
           sends: plug.sends ?? null,
           skills: list(plug.skills),
           mcp_servers: list(plug.mcp_servers),
-          ...(ladder ? { rung: pinned.some((source) => source.id === outside.id) ? 2 : null } : {}),
+          ...(ladder ? rungOfPlug(pinned, outside.id) : {}),
         };
       }),
       ladder,
     };
   });
+}
+
+// Where a plug from outside stands on a ladder: rung 2 as the source it is pinned as, by its id or
+// by the source naming it, else on no rung.
+function rungOfPlug(pinned, plug) {
+  const source = sourceOfPlug(pinned, plug);
+  return source ? { rung: 2, source: source.id } : { rung: null };
 }
 
 // What a plug may be recommended for at a socket: it beat the plugin's plug, or the owner named it.
@@ -420,20 +434,28 @@ export function carryOut(root, planned, dryRun) {
 function rungOf(candidate, socket) {
   if (!socket.ladder) return "";
   return candidate.rung === 2
-    ? `, rung 2 of ${socket.plugin} as the source ${candidate.id}`
+    ? `, rung 2 of ${socket.plugin} as the source ${candidate.source}`
     : ", no pinned source: find and intake do not reach it";
 }
 
 // The ladder of a ladder socket, in a line.
 function ladderLine(socket) {
-  const sources = socket.ladder.rungs
-    .filter((rung) => rung.store.startsWith("sources/"))
-    .map((rung) => rung.store.slice("sources/".length));
-  const then =
-    sources.length === 0
-      ? ""
-      : `, then the outside ${sources.length === 1 ? "source" : "sources"} ${sources.join(", ")}`;
-  return `    ladder of ${socket.ladder.plug}: 1 ${STORES[1]}; 2 ${STORES[2]}, then ${STORES[3]}${then}; 3 made by hand`;
+  // The stores of rung 2 in their order, the outside sources next to each other named together.
+  const parts = [];
+  for (const { store } of socket.ladder.rungs.filter((rung) => rung.rung === 2)) {
+    const id = store.startsWith("sources/") ? store.slice("sources/".length) : null;
+    const last = parts.at(-1);
+    if (id && Array.isArray(last)) last.push(id);
+    else parts.push(id ? [id] : store === "starter" ? STORES[2] : STORES[3]);
+  }
+  const second = parts
+    .map((part) =>
+      Array.isArray(part)
+        ? `the outside ${part.length === 1 ? "source" : "sources"} ${part.join(", ")}`
+        : part,
+    )
+    .join(", then ");
+  return `    ladder of ${socket.ladder.plug}: 1 ${STORES[1]}; 2 ${second}; 3 made by hand`;
 }
 
 // One candidate on the board, in a line.
@@ -460,7 +482,9 @@ function socketLines(socket) {
     ? ""
     : socket.chosen.state === "kept-not-applied"
       ? `; an earlier choice of ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on} is kept, not applied: ${socket.plugin} works this socket, and ${socket.chosen.plug} counts only as a pinned source`
-      : `; chosen: ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on}, ${socket.chosen.state}`;
+      : socket.chosen.state === "on-the-ladder"
+        ? `; the choice of ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on} is applied: ${socket.plugin} works this socket, and ${socket.chosen.plug} stands on rung 2 as the source ${socket.chosen.source}`
+        : `; chosen: ${socket.chosen.plug} by ${socket.chosen.by} on ${socket.chosen.on}, ${socket.chosen.state}`;
   return [
     `  ${socket.id.padEnd(22)} ${plug}${chosen}`,
     ...(socket.ladder ? [ladderLine(socket)] : []),
@@ -508,8 +532,8 @@ export function report(result, { short = false } = {}) {
     const where = candidate.state === "in-repo" ? "this repository" : "this session";
     lines.push(
       candidate.rung === 2
-        ? `${candidate.id} is in ${where} and pinned as a source: it stands on rung 2 of ${socket.plugin} at the ${socket.name} socket.`
-        : `${candidate.id} is in ${where} and is no pinned source, so find and intake do not reach it at the ${socket.name} socket: pin it by hand in design/sources/ to put it on rung 2 of ${socket.plugin}.`,
+        ? `${candidate.id} is in ${where} and pinned as the source ${candidate.source}: it stands on rung 2 of ${socket.plugin} at the ${socket.name} socket.`
+        : `${candidate.id} is in ${where} and is no pinned source, so find and intake do not reach it at the ${socket.name} socket: pin it by hand in design/sources/, as a source of its id or one that names it in plug, to put it on rung 2 of ${socket.plugin}.`,
     );
   }
   const waiting = sockets.flatMap((socket) =>
@@ -554,7 +578,8 @@ export function report(result, { short = false } = {}) {
   }
   const chosenOutside = sockets.some(
     (socket) =>
-      socket.chosen && !["plugin", "empty", "kept-not-applied"].includes(socket.chosen.state),
+      socket.chosen &&
+      !["plugin", "empty", "kept-not-applied", "on-the-ladder"].includes(socket.chosen.state),
   );
   const measuredHere =
     sockets.some((socket) => recommendationOf(socket) !== null) ||

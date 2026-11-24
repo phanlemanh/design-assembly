@@ -21,6 +21,16 @@ const isMap = (value) => value !== null && typeof value === "object" && !Array.i
 const text = (value) => (typeof value === "string" ? value : undefined);
 const filled = (value) => typeof value === "string" && value.trim() !== "";
 export const isFont = (source) => isMap(source) && source.kind === FONT_KIND;
+// Where a source stands on the ladder find and intake walk: before the starter kit and the family's
+// store, or after them, which is where a source that declares nothing stands (spec 0015).
+export const LADDER_PLACES = ["before-starter", "after-family"];
+export const DEFAULT_LADDER_PLACE = "after-family";
+// The pin a file keeps: the file itself, or, for a catalog that keeps its own pin, its `pin`.
+export const pinWithin = (data) => (isMap(data) && isMap(data.pin) ? data.pin : data);
+// The source a plug is pinned as: the one that names it, else the one of its id.
+export const sourceOfPlug = (sources, plug) =>
+  sources.find((source) => source.plug === plug) ??
+  sources.find((source) => source.id === plug && !source.plug);
 // How each field of a font row a stylesheet takes is written: the contract holds a row's shape
 // with these, and the reader refuses a row that breaks one before any of it reaches a stylesheet.
 export const FONT_FIELDS = {
@@ -134,6 +144,10 @@ function readSource(root, name) {
     catalog: text(source.catalog) ?? null,
     install: text(source.install) ?? null,
     licence: text(source.licence) ?? null,
+    plug: text(source.plug) ?? null,
+    ladder_place: LADDER_PLACES.includes(source.ladder_place)
+      ? source.ladder_place
+      : DEFAULT_LADDER_PLACE,
   };
   for (const [key, what] of [
     ["pin_file", "the file its pin is kept in"],
@@ -146,7 +160,7 @@ function readSource(root, name) {
   let pin = isMap(source.pin) ? source.pin : null;
   if (!pin && source.pin_file) {
     try {
-      pin = readJson(root, source.pin_file);
+      pin = pinWithin(readJson(root, source.pin_file));
     } catch {
       return {
         ...said,

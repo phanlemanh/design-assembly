@@ -26,6 +26,9 @@ function whoOf(socket) {
   if (socket.chosen?.state === "kept-not-applied") {
     return `${socket.plugin}, the plugin's own; an earlier choice of ${socket.chosen.plug}, by ${socket.chosen.by} on ${socket.chosen.on}, is kept, not applied: at this socket ${socket.chosen.plug} counts only as a pinned source`;
   }
+  if (socket.chosen?.state === "on-the-ladder") {
+    return `${socket.plugin}, the plugin's own; the choice of ${socket.chosen.plug}, by ${socket.chosen.by} on ${socket.chosen.on}, is applied: ${socket.chosen.plug} stands on rung 2 as the source ${socket.chosen.source}`;
+  }
   if (socket.chosen) {
     return `${socket.chosen.plug}, chosen by ${socket.chosen.by} on ${socket.chosen.on} (${socket.chosen.state})`;
   }
@@ -43,7 +46,7 @@ function measureOf(candidate, socket) {
         : `measured in decision ${candidate.measured}`;
     const rung =
       candidate.rung === 2
-        ? `rung 2 of ${socket.plugin}, as a pinned source`
+        ? `rung 2 of ${socket.plugin}, as the pinned source ${candidate.source}`
         : "no pinned source, so find and intake do not reach it";
     return `${measured}; a rung of ${socket.plugin}, not a rival to it; ${rung}`;
   }

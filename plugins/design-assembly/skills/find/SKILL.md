@@ -44,6 +44,10 @@ It stops at the first store that answers, and says so for every store it did not
 4. The outside sources the repository pinned under `design/sources/`, in their `order`. A source
    whose snapshot differs from its pin is unreadable, and none of its items is offered.
 
+A source that declares `ladder_place: "before-starter"` is read right after the repository's own
+store, before the starter kit and the family's store: the repository's rule wins over this order.
+With nothing declared, the order above holds.
+
 ## 3. Read the answer
 
 - A **match** holds every word asked for, or is named whole by its name or its need. Each one

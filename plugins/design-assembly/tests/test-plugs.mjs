@@ -978,7 +978,7 @@ test("spec 0015 criterion 2: at the components socket an outside plug is a rung 
   );
   assert.match(
     report(plan(dir, { caps, on: ON }), { short: true }),
-    /^loose-blocks is in this repository and pinned as a source: it stands on rung 2 of intake at the components socket\.$/m,
+    /^loose-blocks is in this repository and pinned as the source loose-blocks: it stands on rung 2 of intake at the components socket\.$/m,
   );
 });
 
@@ -997,7 +997,7 @@ test("spec 0015 criterion 2: on a copy that holds the real registry and pins no 
   assert.equal(short.status, 0, short.stderr);
   assert.match(
     short.stdout,
-    /^reui is in this repository and is no pinned source, so find and intake do not reach it at the components socket: pin it by hand in design\/sources\/ to put it on rung 2 of intake\.$/m,
+    /^reui is in this repository and is no pinned source, so find and intake do not reach it at the components socket: pin it by hand in design\/sources\/, as a source of its id or one that names it in plug, to put it on rung 2 of intake\.$/m,
   );
   assert.doesNotMatch(short.stdout, /plug-components/);
   // A measured plug is here, so the board does not say that none is.
@@ -1020,7 +1020,7 @@ test("spec 0015 criterion 2: on a copy that holds the real registry and pins no 
   );
   assert.match(
     full.stdout,
-    /^reui is in this repository and pinned as a source: it stands on rung 2 of intake at the components socket\.$/m,
+    /^reui is in this repository and pinned as the source reui: it stands on rung 2 of intake at the components socket\.$/m,
   );
 });
 

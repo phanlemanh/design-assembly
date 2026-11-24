@@ -348,6 +348,12 @@
       "templates": "192cd0a6bddc18ec37b05a9c22360218a0a2b888",
       "scripts": "dbcbafad1cccd1a1859b7374c4330d2c181a595f",
       "tool": "f38cb46205a7e1eb6a8b03c1ea7e8fd688013a0a"
+    },
+    {
+      "version": "0.53.0",
+      "templates": "b0c5a52a843452f4254b171c4da4ebf48c47accb",
+      "scripts": "e034fd8dbd9d9acb0183a873984d0c1ce9ef9871",
+      "tool": "63c97913984cc5875b7788273e86a10fe5ca248f"
     }
   ]
 }
