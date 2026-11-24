@@ -72,6 +72,7 @@ import {
   screenActionsProblem,
 } from "./screen-actions.mjs";
 import { seenFilesProblem } from "./screen-actions-seen.mjs";
+import { floatingFilesProblem } from "./floating-parts.mjs";
 import { drawDerived, keptOutOfGit } from "./derived.mjs";
 import {
   FRAGMENT_LEDGERS,
@@ -648,6 +649,27 @@ const KINDS = {
             [`${folder}/broken-page.tsx`]:
               'import { BrokenItem } from "./components/taken-down/broken-item";\nexport const Page = BrokenItem;\n',
           },
+        },
+      };
+    },
+  },
+  // The floating parts of every item of an outside source are opened on the screens that use it
+  // (spec 0015, item 11.7): with a conform record, the browser test that opens them is there and
+  // calls the check. The test itself runs with the repository's browser checks.
+  "floating-parts": {
+    run(state, check) {
+      const records = Object.keys(state.ledgerFolders?.[CONFORM_FOLDER] ?? {}).length;
+      return floatingFilesProblem({ records, test: state.files?.[check.test] ?? null }, check.test);
+    },
+    // A conform record, and the browser test gone.
+    change(state, check) {
+      const records = state.ledgerFolders?.[CONFORM_FOLDER] ?? {};
+      return {
+        ...state,
+        files: { ...state.files, [check.test]: null },
+        ledgerFolders: {
+          ...state.ledgerFolders,
+          [CONFORM_FOLDER]: { ...records, [`${CONFORM_FOLDER}/changed-copy.json`]: "{}" },
         },
       };
     },

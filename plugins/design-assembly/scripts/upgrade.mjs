@@ -32,10 +32,17 @@ import { keptOutOfGit } from "../templates/tools/design-assembly/derived.mjs";
 import { GATE_STEP } from "../templates/tools/design-assembly/host-make.mjs";
 import { TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
 import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-first.mjs";
+import {
+  conformRecords,
+  FLOATING_CHECK,
+  FLOATING_TEST,
+  hasTestBrowser,
+} from "../templates/tools/design-assembly/floating-parts.mjs";
+import { adapter as browser } from "../templates/tools/design-assembly/adapters/playwright.mjs";
 import { INTAKE_LEDGER } from "../templates/tools/design-assembly/intake-ledger.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { regenerated as tokensNow } from "../templates/tools/design-assembly/tokens.mjs";
-import { sameContent } from "./apply.mjs";
+import { floatingTest, sameContent } from "./apply.mjs";
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import {
@@ -60,6 +67,7 @@ const ADDED_CHECKS = {
   [TAKEN_DOWN_CHECK.kind]: "when the code uses an item of an outside source not taken in",
   [CHOOSE_FIRST_CHECK.kind]:
     "when a branch adds a component file with no row of the intake ledger, or a row made by hand without the words searched and the nearest candidate",
+  [FLOATING_CHECK.kind]: `when a conform record is there and ${FLOATING_TEST}, the browser test that opens the floating parts of its item, is missing`,
 };
 // The gate step the plugin installs beside the tool: upgrade writes it too, whole, when it differs.
 const GATE_SOURCE = path.join(PLUGIN, "templates", GATE_STEP);
@@ -255,6 +263,43 @@ export function droppedLines(before, after) {
     .filter((line) => line.trim() !== "" && !line.trim().startsWith("#") && !kept.has(line));
 }
 
+// The browser test of the floating parts: written where the repository has the adapter's test
+// browser and no such file; never over one. With the conform records it will hold. Upgrade runs no
+// browser, so it never says whether that test passes.
+function floatingPlan(root) {
+  const records = conformRecords(root).map((record) => record.file);
+  if (!hasTestBrowser(root)) {
+    return { change: "none", write: false, said: { test: FLOATING_TEST, change: "none", records } };
+  }
+  const there = existsSync(path.join(root, FLOATING_TEST));
+  const change = there ? "kept" : "create";
+  return { change, write: !there, said: { test: FLOATING_TEST, change, records } };
+}
+
+// What a person reads of the browser test of the floating parts, before anything is written.
+function floatingLines(said) {
+  if (!said) return [];
+  if (said.change === "none") {
+    return [
+      `floating parts: the repository lists no test browser (${browser.testPackage}), so the browser test that opens the floating parts of items of outside sources is not added`,
+    ];
+  }
+  const lines = [
+    said.change === "create"
+      ? `floating parts: ${said.test} is written: on each screen that uses an item of an outside source, it opens each floating part of the item, one level only, and holds that the part has a name, that the item's own text is in the repository's words table, and that the repository's own accessibility check passes with the part open`
+      : `floating parts: ${said.test} is the repository's, and is not written over`,
+  ];
+  lines.push(
+    said.records.length > 0
+      ? `  it holds the items of ${plural(said.records.length, "conform record", "conform records")}: ${said.records.join(", ")}`
+      : "  it holds no item yet: the repository has no conform record",
+  );
+  lines.push(
+    "  upgrade runs no browser: whether the screens that use those items pass is said by the repository's browser tests, on their next run, not here",
+  );
+  return lines;
+}
+
 // Everything the upgrade of the repository at `root` would do, and what stops it. Nothing written.
 export async function upgradePlan(root, accept = {}) {
   // Read first, whatever comes next: a repository that cannot be read is said to be so.
@@ -339,6 +384,10 @@ export async function upgradePlan(root, accept = {}) {
   const intakeFile = Array.isArray(shapes)
     ? shapes.map((check) => check?.ledgers?.intake ?? check?.intake).find(Boolean)
     : undefined;
+  // Where the repository runs browser tests, the check of the floating parts of items of outside
+  // sources comes with its browser test, written only where the repository has none.
+  const floating = floatingPlan(root);
+  if (floating.write) written[FLOATING_TEST] = floatingTest();
   const missing = Array.isArray(shapes)
     ? [
         TAKEN_DOWN_CHECK,
@@ -346,6 +395,7 @@ export async function upgradePlan(root, accept = {}) {
           ...CHOOSE_FIRST_CHECK,
           ...(intakeFile && intakeFile !== INTAKE_LEDGER ? { intake: intakeFile } : {}),
         },
+        ...(floating.change === "none" ? [] : [FLOATING_CHECK]),
       ].filter((added) => !shapes.some((check) => check?.kind === added.kind))
     : [];
   const checksAdded = missing.map((added) => ({ row: "ledger-shapes", kind: added.kind }));
@@ -360,7 +410,8 @@ export async function upgradePlan(root, accept = {}) {
 
   const lost = ledgers.filter((ledger) => ledger.removed.length > 0);
   const losing = lost.reduce((sum, ledger) => sum + ledger.removed.length, 0);
-  const changes = tool.length > 0 || !stamped || gateChange !== null || checksAdded.length > 0;
+  const changes =
+    tool.length > 0 || !stamped || gateChange !== null || checksAdded.length > 0 || floating.write;
   const blocked = [];
   const accepted = [];
   if (changes && losing > 0) {
@@ -402,6 +453,7 @@ export async function upgradePlan(root, accept = {}) {
     accepted,
     gate_step: gateChange,
     checks_added: checksAdded,
+    floating_parts: floating.said,
     not_seen: unseen,
     files,
     written,
@@ -506,6 +558,7 @@ export function report(plan, dryRun) {
       `check: ${item.row} gains ${item.kind}, which turns the gate red ${ADDED_CHECKS[item.kind]}`,
     );
   }
+  lines.push(...floatingLines(plan.floating_parts));
   for (const item of plan.accepted) lines.push(`accepted by the person: ${item}`);
   lines.push("", "files:");
   if (plan.files.length === 0) lines.push("  nothing to write");

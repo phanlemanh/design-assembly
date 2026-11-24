@@ -563,8 +563,8 @@
         {
           "id": "11.7",
           "what": "Lối chuẩn hoá chạy phép kiểm khả năng truy cập của repo trên các màn dùng món: intake không ghi dòng sổ cho một món của nguồn ngoài khi phép kiểm ấy đỏ trên một màn dùng nó, kể cả phần tử nổi của món",
-          "state": "todo",
-          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, mục «Đủ chuẩn» (mức bắt buộc: phép kiểm khả năng truy cập qua trên một màn có dùng món) và tiêu chí 14; wiki/decisions/0104-filters-taken-in-through-conform-measured.md; docs/trials/filters-through-conform.md (ô nổi không tên, câu tiếng Anh cho trình đọc màn hình); dòng giới hạn conform-runs-no-accessibility-check; chủ repo cho lập mục ngày 2026-11-24 («Lập mục mới»); trước khi dựng cần tiêu chí nghiệm thu ở phần bổ sung đề bài 0015, chủ repo duyệt"
+          "state": "done",
+          "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, mục «Đủ chuẩn» (mức bắt buộc: phép kiểm khả năng truy cập qua trên một màn có dùng món) và tiêu chí 14; wiki/decisions/0104-filters-taken-in-through-conform-measured.md; docs/trials/filters-through-conform.md (ô nổi không tên, câu tiếng Anh cho trình đọc màn hình); dòng giới hạn conform-runs-no-accessibility-check; chủ repo cho lập mục ngày 2026-11-24 («Lập mục mới»); tiêu chí 18 đến 21 ở phần bổ sung đề bài 0015, chủ repo duyệt cùng PR 133 ngày 2026-11-24 với tám khuyến nghị (cổng giữ việc này, intake không chạy trình duyệt: câu hỏi 4); dựng ngày 2026-11-24 song song mục 11.8 theo lời chủ repo («Mở song song»): wiki/decisions/0106-the-floating-parts-of-an-outside-item-are-opened.md, plugin 0.57.0; tệp kiểm trình duyệt tests/e2e/floating-parts.spec.ts mở từng phần nổi của món trên màn dùng nó, giữ tên phần nổi, chữ của món qua bảng chữ và phép kiểm của repo; đo trên bản sao của lượt thử filters, bắt cả hai lỗi đã lọt; dòng giới hạn conform-runs-no-accessibility-check đóng"
         },
         {
           "id": "11.8",

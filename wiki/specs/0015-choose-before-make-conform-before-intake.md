@@ -377,9 +377,13 @@ vẫn hở:
     chữ trên màn.
   - **Chữ trên màn:** tên truy cập của mọi phần tử, chữ của vùng thông báo (`role` là `status`, `alert`, `log`, hay có
     `aria-live`), và chữ hiện ra, đọc khi phần nổi đang mở.
-  - **Khớp:** một chuỗi của món là đỏ khi nó nằm trong chữ trên màn như một phần, tròn chữ: hai đầu là đầu chuỗi, khoảng
-    trắng hay dấu câu. Chuỗi một chữ cũng tính. Với «Top level, 2 items», hai chuỗi «Top level» và «items» đều khớp, và
-    đỏ nêu cả hai cùng tệp của chúng.
+  - **Khớp** (thu hẹp ngày 2026-11-24 theo lời chủ repo, «Thu hẹp luật», ở PR 135): một chuỗi của món khớp một dòng chữ
+    trên màn khi nó nằm trong dòng ấy như một phần, tròn chữ: hai đầu là đầu hay cuối dòng, khoảng trắng hay dấu câu. Chuỗi
+    từ hai chữ trở lên mà khớp thì đỏ. Chuỗi một chữ mà khớp chỉ đỏ khi trên cùng dòng ấy có một chuỗi từ hai chữ trở lên
+    của cùng tệp cũng khớp. Với «Top level, 2 items», «Top level» khớp nên đỏ, «items» cùng tệp nên cũng đỏ, và đỏ nêu
+    cả hai cùng tệp của chúng. Dòng dữ liệu «Máy in to» không đỏ dù «in» và «to» là chuỗi của món: không chuỗi hai chữ
+    nào của tệp ấy nằm trên dòng. Điều lọt qua: một dòng mà chữ của món trên đó chỉ là chuỗi một chữ, như một nút món tự
+    đặt tên «Close» (dòng giới hạn `item-text-one-word-alone`).
   - **Không đỏ:** chuỗi mà bảng chữ của repo giữ, nguyên chuỗi hay như một chữ tròn trong một mục của bảng; chuỗi là số
     hay chỉ có dấu.
 - **Phần kiểm nằm ở đâu, để `upgrade` mang nó tới được:**
@@ -460,6 +464,8 @@ thử.
     - cổng đỏ, nêu «Top level» và «items».
 
     Cùng bài ấy xanh khi bảng chữ của repo giữ hai chuỗi ấy. Một tệp của món chỉ có danh sách lớp và khoá thì không đỏ.
+    Một dòng dữ liệu chỉ chứa chữ ngắn của món, như «Máy in to», không đỏ: chuỗi một chữ chỉ đỏ cạnh một chuỗi từ hai chữ
+    trở lên của cùng tệp trên cùng dòng (thu hẹp ngày 2026-11-24, «Thu hẹp luật»).
 
 20. Phép kiểm của repo chạy khi phần nổi đang mở, như repo cấu hình nó, bằng trình duyệt của repo, không mạng. Repo không
     có phép kiểm mức tuân thủ nào thì tiêu chí 18 và 19 vẫn giữ, và câu hỏi nhập kho nói phép kiểm của repo không chạy.

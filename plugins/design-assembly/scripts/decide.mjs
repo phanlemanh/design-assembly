@@ -516,6 +516,7 @@ export function report(result) {
         );
         if (candidate.reference) lines.push(`           see ${candidate.reference}`);
         if (candidate.brings?.words) lines.push(`           brings ${candidate.brings.words}`);
+        if (candidate.gate) lines.push(`           the gate: ${candidate.gate}`);
       }
     }
     if (item.exemptions) lines.push(...exemptionLines(item.exemptions));

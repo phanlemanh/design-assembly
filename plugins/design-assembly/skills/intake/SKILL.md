@@ -56,7 +56,12 @@ The same call, after the answer:
   When the record lets the item off anything, the call first puts the list to the owner as one
   question, `design/waiting/exemptions-<need>.json`, and ends with 1; the row is written once the
   owner keeps that very list, and a list changed since is asked again. Until then a page that
-  imports the item turns the gate red.
+  imports the item turns the gate red. The question also says, under `the gate:`, what the gate
+  holds of the item once it is taken in: the browser test `tests/e2e/floating-parts.spec.ts` opens
+  each floating part of it on the screens that use it (each dialog, menu or list box it opens must
+  have a name, and its own text on the screen must be in the repository's words table), and the
+  repository's own accessibility check runs with each part open, or the question says that check
+  does not run there. Intake runs no browser: the gate does.
 - **By hand:** make the block, then call again with `--file PATH`. The row also keeps the words
   searched and the nearest thing the stores gave for them, or `none`: the gate holds a row made by
   hand that a branch writes to both, and names a component file a branch adds with no row. Never

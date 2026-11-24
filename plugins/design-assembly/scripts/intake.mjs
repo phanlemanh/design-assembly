@@ -31,6 +31,7 @@ import { finish, readCall, Refusal, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { find, wordsOf } from "./find.mjs";
 import { mandatoryOff, mandatoryRules, unexempted } from "./conform-rules.mjs";
+import { gateWords } from "../templates/tools/design-assembly/floating-parts.mjs";
 import { answerOf, questionFiles, readStore, rowOf, rowsOf, today, writable } from "./asking.mjs";
 import { ledgerWith, yamlValue } from "./intake-write.mjs";
 import { inventory } from "./inventory.mjs";
@@ -309,6 +310,8 @@ function candidateOf(root, piece, need, words) {
       from: piece.source,
       ...(piece.install ? { install: piece.install } : {}),
       brings: bringsOf(root, piece.source, piece.name),
+      // What the gate holds of it once it is taken in: intake itself runs no browser.
+      gate: gateWords(root),
     },
   };
 }
