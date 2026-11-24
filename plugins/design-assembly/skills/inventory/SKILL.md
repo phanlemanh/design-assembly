@@ -52,9 +52,14 @@ entries), the pages of kinds of screen, and `references/starter.json`.
     in the intake ledger and no line in its list of what came before.
   - `duplicate`: one thing taken more than once: the same item of the same source under two needs,
     two files with the same bytes, or the same name exported by two files.
-  - `outdated`: a block taken at another pin than the one its source is pinned at now.
+  - `outdated`: a block taken at another pin than the one its source is pinned at now. An item with
+    a conform record, taken in or only taken down, is compared by the hash of the pin the record was
+    written at against the hash of the source's pin now, so pinning again on the same day counts;
+    take it down at the new pin and run `conform --need <key> --taken-down`. A record written before
+    it kept the pin, or a source with no pin, cannot be compared and is named under `blind`.
   - `modified`: a block whose file is not the one taken in (the hash under `taken`, or the template
-    of this plugin for a piece of the starter kit), with no `changed` saying why.
+    of this plugin for a piece of the starter kit), with no `changed` saying why; or not the one its
+    last widening recorded under `changed.sha256`.
   - `promote`: a component written in the file of one screen that other screens import.
 - `blind` names what was not looked at and why: no intake ledger, no ledger of screens, an import
   that cannot be followed or no entry of the frame (then nothing is called unused), a block with no

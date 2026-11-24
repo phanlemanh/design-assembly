@@ -303,7 +303,14 @@ export const LEDGERS = {
             taken: { ...text, pattern: "^[0-9a-f]{64}$" },
             changed: {
               type: "object",
-              fields: { on: required(day), why: required(text) },
+              // Widened with change --widen (spec 0015): who answered, and the hash of the file as
+              // changed, which the inventory holds the file to.
+              fields: {
+                on: required(day),
+                why: required(text),
+                by: text,
+                sha256: { ...text, pattern: "^[0-9a-f]{64}$" },
+              },
               open: true,
             },
             retired: {

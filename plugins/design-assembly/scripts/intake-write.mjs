@@ -180,6 +180,21 @@ function addedLines(added, spelled, indent) {
   });
 }
 
+// The lines of one entry without the keys `added` writes, each with the lines nested under it: the
+// entry's keys stand at `indent`, deeper lines belong to the key above them.
+function withoutKeys(lines, indent, added, spelled) {
+  const owns = Object.keys(added).map((key) => spelled[key] ?? key);
+  const kept = [];
+  let dropping = false;
+  for (const line of lines) {
+    const atKey = line.startsWith(indent) && /^\S/.test(line.slice(indent.length));
+    if (atKey) dropping = owns.some((own) => line.slice(indent.length).startsWith(`${own}:`));
+    else if (line.trim() !== "" && line.search(/\S/) <= indent.length) dropping = false;
+    if (!dropping) kept.push(line);
+  }
+  return kept;
+}
+
 // The text of a one-file ledger with keys added to the entry at `index` of its list of blocks.
 function withAddedKeys(text, listKey, index, added, spelled) {
   const lines = text.split("\n");
@@ -207,7 +222,20 @@ function withAddedKeys(text, listKey, index, added, spelled) {
     }
   }
   if (index >= starts.length) throw new Refusal("the intake ledger's entry cannot be found");
-  const stop = index + 1 < starts.length ? starts[index + 1] : end;
+  const entryEnd = index + 1 < starts.length ? starts[index + 1] : end;
+  // A key the change writes again, such as a newer `changed`, replaces the one the entry had.
+  const kept = withoutKeys(lines.slice(starts[index] + 1, entryEnd), `${dash}  `, added, spelled);
+  const dropped = entryEnd - starts[index] - 1 - kept.length;
+  if (dropped > 0) {
+    return withAddedKeys(
+      [...lines.slice(0, starts[index] + 1), ...kept, ...lines.slice(entryEnd)].join("\n"),
+      listKey,
+      index,
+      added,
+      spelled,
+    );
+  }
+  const stop = entryEnd;
   let last = starts[index];
   for (let line = starts[index]; line < stop; line += 1) {
     if (lines[line].trim() !== "" && !lines[line].trim().startsWith("#")) last = line;
@@ -249,7 +277,7 @@ export function ledgerWithChange(root, file, need, added, spelled) {
     if (!fragment)
       throw new Refusal(`no file of ${fragmentsFolder(file)} holds the block of ${need}`);
     const content = keepingEndings(fragment.text, (said) => {
-      const lines = said.replace(/\n+$/, "").split("\n");
+      const lines = withoutKeys(said.replace(/\n+$/, "").split("\n"), "", added, spelled);
       return `${[...lines, ...addedLines(added, spelled, "")].join("\n")}\n`;
     });
     const fragments = found.fragments.map((item) =>

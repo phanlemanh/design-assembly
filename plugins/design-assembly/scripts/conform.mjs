@@ -30,7 +30,7 @@ import {
   shapeProblems,
 } from "../templates/tools/design-assembly/contract.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
-import { pinWithin, SOURCES_FOLDER } from "../templates/tools/design-assembly/sources-ledger.mjs";
+import { pinSha256, SOURCES_FOLDER } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { writeFiles, writtenFiles } from "./apply.mjs";
 import { finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { unexempted } from "./conform-rules.mjs";
@@ -109,37 +109,8 @@ function readRecord(root, need) {
   return JSON.parse(text);
 }
 
-// JSON with its keys in order, so that the same pin, written another way, hashes the same.
-const stable = (value) =>
-  Array.isArray(value)
-    ? `[${value.map(stable).join(",")}]`
-    : value !== null && typeof value === "object"
-      ? `{${Object.keys(value)
-          .sort()
-          .map((key) => `${JSON.stringify(key)}:${stable(value[key])}`)
-          .join(",")}}`
-      : JSON.stringify(value);
-const isMap = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
-const parsed = (text) => {
-  try {
-    return text === null ? null : JSON.parse(text);
-  } catch {
-    return null;
-  }
-};
-
-// The hash of the source's pin as the repository holds it now, kept inline or in its pin file, or
-// null when it cannot be read. A record keeps it, so that a newer item is told from a hand edit.
-function pinHash(root, sourceId) {
-  const source = parsed(readText(root, `${SOURCES_FOLDER}/${sourceId}.json`));
-  if (!isMap(source)) return null;
-  const pin = isMap(source.pin)
-    ? source.pin
-    : typeof source.pin_file === "string"
-      ? pinWithin(parsed(readText(root, source.pin_file)))
-      : null;
-  return isMap(pin) ? sha(stable(pin)) : null;
-}
+// The hash of the source's pin as the repository holds it now, shared with the inventory.
+const pinHash = pinSha256;
 const withPin = (record, pin) => {
   if (pin === null) return record;
   // The pin's hash sits after the item, where a person reads it, and replaces an older one.

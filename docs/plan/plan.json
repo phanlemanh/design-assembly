@@ -557,7 +557,7 @@
         {
           "id": "11.6",
           "what": "Kho tốt dần và lượt thử: change mở rộng một khối, inventory báo món đứng sau bản ghim; rồi lượt thử lấy lại filters qua lối mới và đo lần dùng thứ hai",
-          "state": "todo",
+          "state": "doing",
           "ref": "wiki/specs/0015-choose-before-make-conform-before-intake.md, tiêu chí 12 đến 15, câu hỏi 9; lượt thử hỏi chủ repo trước vì tốn token"
         }
       ],

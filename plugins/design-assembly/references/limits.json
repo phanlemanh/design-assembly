@@ -5036,9 +5036,33 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-24",
-      "where": ["d0098"],
+      "where": ["d0098", "d0103"],
+      "status": "closed",
+      "note": "A block of the store can be retired or merged, never extended: there is no way to widen the block a need already has, say first which screens it reaches, and record the change on its row, so a block that falls short invites a second one beside it.",
+      "closed": "2026-11-24",
+      "closed_by": "d0103: change --widen says first which screens a block reaches, asks the owner, and records the change on the block's row with the hash of its file as widened; the inventory holds the file to that hash"
+    },
+    {
+      "id": "widen-keeps-the-latest-change",
+      "area": "change",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0103"],
       "status": "open",
-      "note": "A block of the store can be retired or merged, never extended: there is no way to widen the block a need already has, say first which screens it reaches, and record the change on its row, so a block that falls short invites a second one beside it."
+      "note": "A block's row keeps one change, the latest widening: a newer one replaces the older under changed, so the row says why the block is as it is now, and git keeps the earlier reasons. A widening of a block that kept no hash when it was taken in is recorded once the owner answers, whether or not its file changed since."
+    },
+    {
+      "id": "behind-the-pin-by-record-only",
+      "area": "inventory",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-24",
+      "where": ["d0103"],
+      "status": "open",
+      "note": "An item is told behind its source's pin exactly only through its conform record, which keeps the hash of the pin it was written at. A block of an outside source with no conform record is compared by the day or the version its row writes under pin, so pinning again on the same day, at the same version, is not seen for it."
     },
     {
       "id": "plug-measure-counts-the-first-use",

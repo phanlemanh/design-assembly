@@ -10,7 +10,7 @@
 // Exit: 0 the inventory is given; 1 with --strict when there is a finding, or when the document was
 // written in fewer formats than asked; 2 a wrong call, or a repository that cannot be read.
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
@@ -18,7 +18,11 @@ import { fileURLToPath } from "node:url";
 import { screensOf } from "../templates/tools/design-assembly/affected.mjs";
 import { isByHand } from "../templates/tools/design-assembly/intake-ledger.mjs";
 import { KINDS_FOLDER, readKinds, readPages } from "../templates/tools/design-assembly/screens.mjs";
-import { readPinnedSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
+import { CONFORM_FOLDER } from "../templates/tools/design-assembly/contract.mjs";
+import {
+  pinSha256,
+  readPinnedSources,
+} from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { finish, readCall, Refusal, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { VERSION } from "./stamp.mjs";
@@ -337,10 +341,77 @@ function sourceOf(read, block) {
   return read.sources.length === 1 ? read.sources[0] : null;
 }
 
+// The conform records of the repository, each with its file, as written: one that cannot be read
+// is the shape check's to name.
+function conformRecords(root) {
+  const folder = path.join(root, CONFORM_FOLDER);
+  if (!existsSync(folder)) return [];
+  return readdirSync(folder)
+    .filter((name) => name.endsWith(".json"))
+    .sort()
+    .map((name) => {
+      try {
+        return {
+          file: `${CONFORM_FOLDER}/${name}`,
+          ...JSON.parse(readFileSync(path.join(folder, name), "utf8")),
+        };
+      } catch {
+        return null;
+      }
+    })
+    .filter((record) => isMap(record) && text(record.need) && text(record.source));
+}
+
+// Each item conformed at a pin of its source that is no longer the source's pin: its record keeps
+// the hash of the pin it was written at, compared with the hash of the pin the repository holds
+// now. Taken in or only taken down, each item is named. Nothing is fetched.
+function recordsBehind(read, blind) {
+  const found = [];
+  for (const record of conformRecords(read.root)) {
+    const need = text(record.need);
+    const item = text(record.item) ?? need;
+    const source = read.sources.find((each) => each.id === text(record.source));
+    const said = `${item} (${need})`;
+    if (!source) {
+      blind("outdated", `${said} names a source that is not pinned`, [item]);
+      continue;
+    }
+    const now = pinSha256(read.root, source.id);
+    if (now === null) {
+      blind("outdated", `${source.id} has no pin that can be read, so ${said} cannot be compared`, [
+        item,
+      ]);
+      continue;
+    }
+    if (!text(record.pin_sha256)) {
+      blind(
+        "outdated",
+        `the conform record of ${need} was written before it kept its source's pin, so it cannot be compared: conform --need ${need} --taken-down records it`,
+        [item],
+      );
+      continue;
+    }
+    if (text(record.pin_sha256) === now) continue;
+    const file = (Array.isArray(record.conformed) ? record.conformed : [])
+      .map((entry) => fileOf(entry?.file))
+      .find(Boolean);
+    found.push({
+      source: source.id,
+      item: { name: item, file: file ?? null, kind: "block", origin: "external" },
+      line: `${item} was conformed for ${need} at a pin of ${source.id} that is not the one pinned now (${text(record.pin_sha256).slice(0, 12)}, now ${now.slice(0, 12)}): take it down at the new pin and run conform --need ${need} --taken-down`,
+    });
+  }
+  return found;
+}
+
 function outdatedOf(read, blind) {
   const behind = new Map();
+  // An item with a conform record is compared by the pin the record holds.
+  for (const { source, item, line } of recordsBehind(read, blind)) {
+    behind.set(source, [...(behind.get(source) ?? []), { item, line }]);
+  }
   for (const block of read.live.filter(
-    (item) => originOf(read.intake.ledger, item) === "external",
+    (item) => originOf(read.intake.ledger, item) === "external" && !text(item.conform),
   )) {
     const name = nameOf(block);
     const source = sourceOf(read, block);
@@ -357,7 +428,12 @@ function outdatedOf(read, blind) {
       behind.set(source.id, [
         ...(behind.get(source.id) ?? []),
         {
-          block,
+          item: {
+            name: text(block.name),
+            file: fileOf(block.file),
+            kind: "block",
+            origin: "external",
+          },
           line: `${name} was taken at ${text(block.pin)}; ${source.id} is pinned at ${now}`,
         },
       ]);
@@ -365,12 +441,7 @@ function outdatedOf(read, blind) {
   }
   return [...behind.values()].map((lagging) => ({
     kind: "outdated",
-    items: lagging.map(({ block }) => ({
-      name: text(block.name),
-      file: fileOf(block.file),
-      kind: "block",
-      origin: "external",
-    })),
+    items: lagging.map(({ item }) => item),
     evidence: lagging.map(({ line }) => line),
   }));
 }
@@ -430,6 +501,24 @@ function modifiedOf(read, blind) {
   for (const block of read.live) {
     const name = nameOf(block);
     const file = fileOf(block.file);
+    // A change recorded with the hash of the file as changed holds the file to that hash; one
+    // recorded with a reason only lets the file be, as before (spec 0015).
+    const recorded = isMap(block.changed) ? text(block.changed.sha256) : null;
+    if (recorded) {
+      const bytes = file && isFile(read.root, file) ? bytesOf(read.root, file) : null;
+      if (bytes === null) {
+        blind("modified", `the file of a block is not there: ${file ?? "none named"}`, [name]);
+      } else if (sha(bytes) !== recorded) {
+        found.push({
+          kind: "modified",
+          items: [{ name, file, kind: "block", origin: originOf(read.intake.ledger, block) }],
+          evidence: [
+            `${file} is not the file its change of ${text(block.changed.on) ?? "an unknown day"} recorded, and no later change is recorded: widen it again with change --widen`,
+          ],
+        });
+      }
+      continue;
+    }
     if (hasReason(block.changed)) continue;
     if (text(block.conform)) {
       found.push(...conformedOf(read, block, blind));
