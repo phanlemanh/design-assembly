@@ -262,6 +262,53 @@ test("a hand edit with no patch is not taken for a newer item: --taken-down need
     unproven.stderr,
     /narrow-chip\.tsx is neither the file as taken down nor the file after patching, and the record holds no hash of the pin of kit/,
   );
+  // It says what to do with the old record, and does not send the person back to the start call.
+  assert.match(
+    unproven.stderr,
+    /remove the record by hand, take the item down, start the record again, and record each change again with --patch/,
+  );
+});
+
+test("the source pinned again with nothing newer for the item: the check says the record's pin is behind, --taken-down records the new pin, and a later hand edit is still refused", () => {
+  const dir = started();
+  patched(dir);
+  const pinned = recordOf(dir).pin_sha256;
+  // The source pinned again, for another item of it: nothing of this item is touched.
+  put(dir, "design/sources/kit.json", json(source("2026-11-19T08:00:00.000Z")));
+  const behind = conform(dir);
+  assert.equal(behind.status, 1);
+  assert.match(behind.stdout, /the pin of kit is no longer the one the record was written at/);
+  const recorded = conform(dir, "--taken-down");
+  assert.equal(recorded.status, 0, recorded.stderr);
+  assert.match(recorded.stdout, /already conformed/);
+  assert.notEqual(recordOf(dir).pin_sha256, pinned);
+  assert.equal(conform(dir).status, 0);
+  // Run twice, it writes nothing the second time.
+  const kept = read(dir, RECORD);
+  assert.equal(conform(dir, "--taken-down").status, 0);
+  assert.equal(read(dir, RECORD), kept);
+  // A hand edit made later is not taken for a newer item.
+  put(dir, CHIP, `${CHIP_CODE}// changed by hand\n`);
+  const refused = conform(dir, "--taken-down");
+  assert.equal(refused.status, 2);
+  assert.match(
+    refused.stderr,
+    /narrow-chip\.tsx is neither the file as taken down nor the file after patching/,
+  );
+  assert.equal(read(dir, RECORD), kept);
+});
+
+test("a pin kept in its own file reads as the same pin, written another way; changed there, the record's pin is behind", () => {
+  const dir = started();
+  const { pin, ...rest } = source();
+  const reordered = Object.fromEntries(Object.entries(pin).reverse());
+  put(dir, "tools/kit/pin.json", json(reordered));
+  put(dir, "design/sources/kit.json", json({ ...rest, pin_file: "tools/kit/pin.json" }));
+  assert.equal(conform(dir).status, 0);
+  put(dir, "tools/kit/pin.json", json({ ...pin, fetched_at: "2026-11-19T08:00:00.000Z" }));
+  const behind = conform(dir);
+  assert.equal(behind.status, 1);
+  assert.match(behind.stdout, /the pin of kit is no longer the one the record was written at/);
 });
 
 test("a hand edit of the item is named for the very file, and a record written by hand under 0.51.0 is said to hold a patch it cannot apply again", () => {

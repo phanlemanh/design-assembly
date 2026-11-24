@@ -51,7 +51,8 @@ is exempted. Each line that keeps it from holding is printed, and it ends with 1
 - a file changed with no patch: record the change with `--patch`, or take the item down again;
 - a patch with no diff, from a record written by hand before this command: record it again with
   `--patch`;
-- a rule off with no exemption: record the exemption, or turn the rule back on.
+- a rule off with no exemption: record the exemption, or turn the rule back on;
+- the source's pin is no longer the record's: run `--taken-down`, which records it.
 
 Run twice, it gives the same hashes and writes nothing. Then take the item in with `intake`.
 
@@ -66,6 +67,12 @@ file it takes down again. A file that is neither as taken down nor after patchin
 only when the source's pin has changed since the record was written; otherwise it is a hand edit,
 and the command ends with 2, names the file and writes nothing: record the change with `--patch`, or
 take the item down again. The same item taken down again at the same pin needs no new pin.
+
+When the source is pinned again for another of its items, the check of this record says its pin is
+behind: run `--taken-down`, even with nothing newer, and the pin is recorded, so a file changed from
+then on is a hand edit. Until then a hand edit would be taken for the newer item. A record that holds
+no hash of the pin, written before the command kept one, takes no newer item: remove it by hand,
+take the item down, start the record again, and record each change again with `--patch`.
 
 When a patch no longer fits, the command ends with 2, names the patch and writes nothing: make the
 change again on the newer file, record it, and drop the old patch. A patch at the very top of a

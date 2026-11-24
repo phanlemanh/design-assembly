@@ -50,9 +50,11 @@ cả thư mục của món.
      được lấy về lại. Tệp bằng tệp lúc lấy về là món cũ lấy về lại. Tệp không bằng tệp lúc lấy về, cũng không bằng tệp sau
      khi vá, chỉ được coi là món mới khi nguồn đã được ghim lại kể từ lúc viết bản ghi (mã băm ghim trong bản ghi khác mã
      băm ghim hiện giờ); nếu không, đó là sửa tay, lệnh thoát 2, nêu tên tệp, không ghi gì. Một bản vá không còn khớp thì
-     lệnh thoát 2, nêu tên bản vá, và không ghi gì (tiêu chí 7). Một tệp của món không có trên đĩa cũng dừng như vậy;
+     lệnh thoát 2, nêu tên bản vá, và không ghi gì (tiêu chí 7). Một tệp của món không có trên đĩa cũng dừng như vậy. Chạy
+     dưới một ghim mà bản ghi chưa giữ, lệnh ghi mã băm ghim mới kể cả khi không tệp nào mới, để việc ghim lại nguồn cho món
+     khác không mở đường cho một chỗ sửa tay về sau;
    - **không cờ nào**: nói bản ghi có giữ không, gồm mỗi tệp là tệp sau khi vá, các bản vá dẫn ngược về tệp như lúc lấy
-     về, và mọi luật bị tắt đều có điều miễn. Thoát 1 khi có điều chưa giữ.
+     về, mọi luật bị tắt đều có điều miễn, và ghim của nguồn vẫn là ghim bản ghi giữ. Thoát 1 khi có điều chưa giữ.
 
    Chạy hai lần ra cùng mã băm và lần sau không ghi gì (tiêu chí 7). Lệnh không gọi mô hình, không dùng mạng, không chạy
    dòng cài; nó dùng git của máy để tạo và áp một diff, và git của repo để đọc tệp như lần commit gần nhất.
@@ -89,8 +91,10 @@ cả thư mục của món.
   - **thu hẹp hai dòng**: món không chuẩn hoá trước khi nhập (còn: `intake` không chạy cổng với món bên trong); khối
     ngoài nhập vào khi còn đỏ (còn: cấu hình đọc như chữ, và công cụ riêng của repo không được thấy);
   - **bốn dòng mới**: lệnh dùng git của máy; tệp của món là tệp người nêu lúc bắt đầu; bản vá cũ bỏ đi bằng tay (kể cả
-    bản vá ở ngay đầu một tệp ngắn); lấy về món mới tin vào ghim của nguồn: một chỗ sửa tay làm giữa lúc ghim lại và lúc
-    chạy `--taken-down` được nhận cùng món mới, dù lệnh nêu tên từng tệp; bản ghi không có mã băm ghim thì không nhận món
-    mới, phải bắt đầu lại.
+    bản vá ở ngay đầu một tệp ngắn); lấy về món mới tin vào ghim của nguồn: từ lúc nguồn được ghim lại tới lúc `--taken-down`
+    ghi ghim mới cho món này, một chỗ sửa tay được nhận cùng món mới, dù lệnh nêu tên từng tệp; ghim lại nguồn cho một món
+    mở khe ấy cho mọi món khác của nguồn, phép kiểm của từng bản ghi nói ghim đã cũ, và `--taken-down` chạy khi không có gì
+    mới thì đóng khe; bản ghi không có mã băm ghim thì không nhận món mới: bỏ bản ghi bằng tay, lấy món về, bắt đầu lại và
+    ghi lại từng bản vá.
 - Plugin lên 0.52.0.
 - Kế hoạch: mục 11.3 xong.

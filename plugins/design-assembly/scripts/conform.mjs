@@ -264,7 +264,7 @@ function unprovenRetake(record, files, pin) {
   const verb = files.length === 1 ? "is" : "are";
   const why =
     typeof record.pin_sha256 !== "string"
-      ? `the record holds no hash of the pin of ${record.source}, as one written before the conform command kept it: nothing shows the item was taken down again. Record a change to the item with --patch; for a newer item, start the record again from the item as taken down`
+      ? `the record holds no hash of the pin of ${record.source}, as one written before the conform command kept it: nothing shows the item was taken down again. Record a change to the item with --patch; for a newer item, remove the record by hand, take the item down, start the record again, and record each change again with --patch`
       : pin === null
         ? `the pin of ${record.source} cannot be read: nothing shows the item was taken down again`
         : `the pin of ${record.source} is the one the record was written at: nothing shows the item was taken down again. Record a change to the item with --patch; for a newer item, pin the source again, take the item down, then run this again`;
@@ -327,10 +327,20 @@ function retakenRecord(root, record) {
     taken.push({ file: entry.file, sha256: sha(content) });
     conformed.push({ file: entry.file, sha256: sha(result) });
   }
-  if (!changed) return { record, files, said: "the item is already conformed: nothing to apply" };
+  // Under a pin the record does not hold yet, the pin is recorded even when nothing is newer: the
+  // source pinned again for another of its items opens no way for a later hand edit of this one.
+  if (!changed) {
+    return repinned
+      ? {
+          record: withPin(record, pin),
+          files,
+          said: `the item is already conformed: nothing to apply; the pin of ${record.source} is recorded, so a file changed from now on is a hand edit`,
+        }
+      : { record, files, said: "the item is already conformed: nothing to apply" };
+  }
   const again = newer.length > 0 ? `; taken down again: ${newer.join(", ")}` : "";
   return {
-    record: withPin({ ...record, taken, conformed }, newer.length > 0 ? pin : null),
+    record: withPin({ ...record, taken, conformed }, repinned ? pin : null),
     files,
     said: `applied the patches again on the item as taken down: ${Object.keys(files).length} files written${again}`,
   };
@@ -340,6 +350,12 @@ function retakenRecord(root, record) {
 // that do not lead back to the files as taken down, a rule turned off with no exemption.
 export function recordProblems(root, record) {
   const problems = [];
+  const pin = typeof record.pin_sha256 === "string" ? pinHash(root, record.source) : null;
+  if (pin !== null && pin !== record.pin_sha256) {
+    problems.push(
+      `the pin of ${record.source} is no longer the one the record was written at: take the item down at the new pin, or leave it as it is, and run --taken-down, which records the pin; until then --taken-down would take a file of the item changed by hand for the newer item`,
+    );
+  }
   record.patches.forEach((patch) => {
     if (typeof patch.diff !== "string") {
       problems.push(

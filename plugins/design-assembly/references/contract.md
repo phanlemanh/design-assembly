@@ -240,7 +240,8 @@ before the conform command, its patches with no `diff`, still reads: the command
 cannot be applied again until it is recorded with `--patch`. With `--taken-down`, a file that is
 neither as taken down nor after patching is taken for a newer item only when the source's pin is no
 longer the one `pin_sha256` holds; otherwise it is a hand edit, and the command refuses it, naming
-the file. The gate fails when a part is missing, when `taken` names no file, when `conformed` does
+the file. Run under a pin `pin_sha256` does not hold, it records the pin even when nothing is newer,
+and the plain check says when the record's pin is behind the source's. The gate fails when a part is missing, when `taken` names no file, when `conformed` does
 not hold exactly the files of `taken`, when a patch or an exemption is about a file that is not the
 item's, and when the file is not named after its need. A repository may keep keys of its own.
 
