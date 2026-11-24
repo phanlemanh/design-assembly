@@ -5041,7 +5041,7 @@
       "opened": "2026-11-24",
       "where": ["d0099"],
       "status": "open",
-      "note": "The gate sees an item taken down and not taken in only when a file of the source folder imports one of the files its conform record lists: a file reached another way, code outside that folder, and files an install line brought with no conform record written for them are not seen, because no folder is declared yet for the files of a source."
+      "note": "The gate sees an item of an outside source not taken in only through an import from the source folder: of a file its conform record lists, or of a file in the folder its source declares. A file reached another way, code outside the source folder, and the files of a source that declares no folder and has no record are not seen; a source written before the folder key declares none until a person adds it."
     },
     {
       "id": "taken-down-check-waits-for-the-guide",
@@ -5051,8 +5051,10 @@
       "plan": "fix",
       "opened": "2026-11-24",
       "where": ["d0099"],
-      "status": "open",
-      "note": "Upgrade brings the check of items taken down into a repository's copy of the tool, but does not add it to the checks of the ledger-shapes row in the tool data: the repository's gate holds it once the guide runs there again, and until then a page that imports an item not taken in leaves the gate green."
+      "status": "closed",
+      "note": "Upgrade brings the check of items taken down into a repository's copy of the tool, but does not add it to the checks of the ledger-shapes row in the tool data: the repository's gate holds it once the guide runs there again, and until then a page that imports an item not taken in leaves the gate green.",
+      "closed": "2026-11-24",
+      "closed_by": "d0099"
     }
   ]
 }

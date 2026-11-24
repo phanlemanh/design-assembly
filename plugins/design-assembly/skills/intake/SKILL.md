@@ -43,9 +43,16 @@ The same call, after the answer:
 
 - **A piece of the starter kit** is copied where the guide puts it, and its row is written. A file
   of the repository's own in its place stops the call: nothing is written over.
-- **An item of an outside source:** the call gives its install line and does not run it. The line
-  may need the network and new packages, so ask the owner before you run it. Then call again with
-  `--file PATH`, the block's file, and its row is written.
+- **An item of an outside source:** the question says what it brings (its files, packages, the
+  items it asks for, the repository's files it asks to write over), read from the pinned snapshot.
+  After the answer, the call gives its install line and does not run it. The line may need the
+  network and new packages, so ask the owner before you run it. The item is then taken down, not
+  taken in: write its conform record, `design/conform/<need>.json` (every file with its hash as
+  taken down and after patching, each patch with its reason, each rule it is let off with its file
+  and reason; `references/contract.md` gives the shape). Then call again with `--file PATH`, the
+  block's file: the row is written only when the record is whole, the files on disk are the ones it
+  holds, and every rule a file turns off in a comment has its exemption. Until then a page that
+  imports the item turns the gate red.
 - **By hand:** make the block, then call again with `--file PATH`.
 
 The row carries the name, the file, the source, the source's id and pin, the need, a description,

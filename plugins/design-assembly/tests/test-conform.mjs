@@ -333,3 +333,81 @@ test("a ledger written by 0.50.0 still reads: a row of an outside item with no c
   };
   assert.equal(takenDown.run(state, CHECK), null);
 });
+
+// ---- review: a source declares its folder, and the gate sees an item with no record --------------
+
+const FOLDER = "src/components/kit";
+const SOURCE_FILE = "design/sources/kit.json";
+const declared = (fields = {}) =>
+  JSON.stringify({
+    version: 1,
+    id: "kit",
+    pin: { version: "1.0.0" },
+    catalog: "design/kit-catalog.json",
+    folder: FOLDER,
+    ...fields,
+  });
+const folderState = ({
+  source = declared(),
+  intakeText = NO_ROWS,
+  records = {},
+  user = USES,
+} = {}) => ({
+  files: { [LEDGERS.intake.file]: intakeText },
+  ledgerFolders: { "design/sources": { [SOURCE_FILE]: source }, [CONFORM_FOLDER]: records },
+  sources: { src: { [MAIN]: MAIN_CODE, [CHIP]: CHIP_CODE, [USER]: user } },
+});
+const OLD_ROW = `version: 1\nblocks:\n  - name: NarrowList\n    file: ${MAIN}\n    source: filter-bar\n    from: kit\n    need: narrow-list\n    approved: 2026-11-18\n    taken: ${sha(MAIN_CODE)}\n`;
+
+test("review, criterion 4: a file of a source's declared folder that no record lists and the code imports turns the gate red, naming the file and the source", () => {
+  assert.deepEqual(
+    shapeProblems("sources", declared(), SOURCE_FILE).filter((line) => /folder/.test(line)),
+    [],
+  );
+  assert.deepEqual(
+    shapeProblems("sources", declared({ folder: 3 }), SOURCE_FILE).filter((line) =>
+      /folder/.test(line),
+    ),
+    [`${SOURCE_FILE}.folder is number, the contract says string`],
+  );
+  assert.equal(
+    takenDown.run(folderState(), CHECK),
+    `${USER} uses ${MAIN}, in the folder ${FOLDER} of the source kit, which no conform record of an item taken in lists: write the conform record of the item it belongs to and take it in with intake, or stop using it`,
+  );
+  // A source that declares no folder, as every source written by 0.50.0, says nothing.
+  assert.equal(
+    takenDown.run(folderState({ source: declared({ folder: undefined }) }), CHECK),
+    null,
+  );
+  // The record of an item taken in lists the file: nothing to say.
+  const taken = `version: 1\nblocks:\n  - name: NarrowList\n    file: ${MAIN}\n    source: filter-bar\n    from: kit\n    need: narrow-list\n    approved: 2026-11-18\n    conform: ${RECORD_FILE}\n`;
+  assert.equal(
+    takenDown.run(
+      folderState({ intakeText: taken, records: { [RECORD_FILE]: JSON.stringify(record()) } }),
+      CHECK,
+    ),
+    null,
+  );
+  // The item's own files import one another inside the folder: never named.
+  assert.equal(
+    takenDown.run(folderState({ user: 'import { NarrowChip } from "./narrow-chip";\n' }), CHECK),
+    null,
+  );
+});
+
+test("review, criterion 4: an item taken in by 0.50.0 or earlier, whose row names one file, keeps the gate green until its source declares a folder, and then says what to do", () => {
+  // No folder declared: the row's file and its other files are used, and nothing is said.
+  const chipUser = `${USES}import { NarrowChip } from "@/components/kit/narrow-chip";\nexport const Chip = NarrowChip;\n`;
+  assert.equal(
+    takenDown.run(
+      folderState({ source: declared({ folder: undefined }), intakeText: OLD_ROW, user: chipUser }),
+      CHECK,
+    ),
+    null,
+  );
+  // Declared: the file the row names is taken in; another file of the item is named, with what to do.
+  assert.equal(
+    takenDown.run(folderState({ intakeText: OLD_ROW, user: chipUser }), CHECK),
+    `${USER} uses ${CHIP}, in the folder ${FOLDER} of the source kit, which no conform record of an item taken in lists: write the conform record of the item it belongs to and take it in with intake, or stop using it`,
+  );
+});

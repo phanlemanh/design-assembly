@@ -371,6 +371,9 @@ export const LEDGERS = {
       catalog: required(text),
       // How one item is taken in, with `{name}` where its name goes.
       install: text,
+      // The folder of the repository its items' files are installed into: once declared, the gate
+      // names a file there that the code uses and no conform record of an item taken in lists.
+      folder: text,
       // What taking an item in needs, in a sentence; never a key.
       licence: text,
     },

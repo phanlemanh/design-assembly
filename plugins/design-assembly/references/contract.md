@@ -179,8 +179,12 @@ then by id) and `licence` (what taking an item in needs, in a sentence, never a 
 how one item is taken in, with `{name}` where its name goes. It names its pin in one of two ways: as
 `pin`, or as `pin_file`, the path of a file the repository already keeps it in. A pin holds the
 `files` the source was read from, each with `file` and `sha256` and maybe `url` and `bytes`, and
-maybe `fetched_at`; or a `version`. `snapshot` names the folder those files are kept in. Keys of the
-repository's own are kept.
+maybe `fetched_at`; or a `version`. `snapshot` names the folder those files are kept in. Since
+spec 0015 a source may also declare `folder`, the folder of the repository its items' files are
+installed into: once it does, the gate names a file there that the code imports and that no
+conform record of an item taken in lists, and the file an older row of the intake ledger names
+counts as taken in. Optional, so a source written before it reads as before, and says nothing to
+the gate. Keys of the repository's own are kept.
 
 A catalog lists `items`, or keeps them in `groups`; an item has `name`, and may have `kind`,
 `title`, `description`, `group`, `category` and `page`; an item of a group takes the group's
@@ -233,7 +237,9 @@ item's, and when the file is not named after its need. A repository may keep key
 
 A record whose need no row of the intake ledger answers is an item **taken down and not taken in**:
 the gate fails when a file of the repository's code imports one of its files, naming the item, its
-source and its need. `intake` writes the row only when the record is whole, its files on disk are
+source and its need. So does a file in the `folder` a source declares that the code imports and no
+record of an item taken in lists, an item installed with no record at all among them: the gate
+names the file and the source. Code inside a declared folder may import its neighbours freely. `intake` writes the row only when the record is whole, its files on disk are
 the files it holds after patching, and every rule turned off in them (an `eslint-disable` comment,
 `@ts-nocheck`, `@ts-ignore`, `@ts-expect-error`) has its exemption; the row then says `conform`.
 

@@ -477,6 +477,35 @@ test("a line a person added to the gate step is named before upgrade replaces th
   assert.match(shown, /drops: @echo mine/);
 });
 
+test("upgrade adds the check of items taken down to the ledger-shapes row, said before it is written, and keeps the gate green", () => {
+  const dir = older();
+  const theme = json(dir, "design/theme.json");
+  theme.checks["ledger-shapes"] = theme.checks["ledger-shapes"].filter(
+    (check) => check.kind !== "taken-down",
+  );
+  put(dir, "design/theme.json", `${JSON.stringify(theme, null, 2)}\n`);
+  const preview = upgrade(dir, "--dry-run", "--json");
+  assert.equal(preview.status, 0, preview.stderr);
+  const plan = JSON.parse(preview.stdout);
+  assert.deepEqual(plan.checks_added, [{ row: "ledger-shapes", kind: "taken-down" }]);
+  assert.ok(plan.files.some((file) => file.path === "design/theme.json"));
+  assert.equal(plan.gate.green, true);
+  const said = upgrade(dir, "--dry-run");
+  assert.match(
+    said.stdout,
+    /^check: ledger-shapes gains taken-down, which turns the gate red when the code uses an item of an outside source not taken in$/m,
+  );
+  const done = upgrade(dir);
+  assert.equal(done.status, 0, done.stderr);
+  assert.ok(
+    json(dir, "design/theme.json").checks["ledger-shapes"].some(
+      (check) => check.kind === "taken-down",
+    ),
+  );
+  // Once there, a second upgrade adds nothing.
+  assert.deepEqual(JSON.parse(upgrade(dir, "--dry-run", "--json").stdout).checks_added ?? [], []);
+});
+
 test("a wrong call, or a repository with no copy of the tool, ends with 2 and writes nothing", () => {
   const dir = older();
   const before = snapshot(dir);

@@ -23,7 +23,7 @@ import {
   ROW_PREFIX,
 } from "./principles.mjs";
 import { STAMP, stampText } from "./stamp.mjs";
-import { FILES, heldHere } from "../templates/tools/design-assembly/check.mjs";
+import { FILES, heldHere, TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
 import { contrast, formatOklch, parseColor } from "../templates/tools/design-assembly/color.mjs";
 import {
   followsOf,
@@ -2163,7 +2163,7 @@ export function plan(target, blueprint) {
           : []),
         // No file of the code uses an item of an outside source taken down and not taken in.
         {
-          kind: "taken-down",
+          ...TAKEN_DOWN_CHECK,
           sources: SOURCE_FOLDER,
           ...(ledgerFiles.intake && ledgerFiles.intake !== LEDGERS.intake.file
             ? { intake: ledgerFiles.intake }

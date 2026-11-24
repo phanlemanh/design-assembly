@@ -30,6 +30,8 @@ import { regenerated as componentsNow } from "../templates/tools/design-assembly
 import { newerLedgers } from "../templates/tools/design-assembly/contract.mjs";
 import { keptOutOfGit } from "../templates/tools/design-assembly/derived.mjs";
 import { GATE_STEP } from "../templates/tools/design-assembly/host-make.mjs";
+import { TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
+import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { regenerated as tokensNow } from "../templates/tools/design-assembly/tokens.mjs";
 import { sameContent } from "./apply.mjs";
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
@@ -194,6 +196,7 @@ async function before(root) {
 function after(root, written) {
   const state = readState(root);
   state.files = { ...state.files, ...written };
+  if (THEME in written) state.theme = JSON.parse(written[THEME]);
   if (GATE_STEP in written) state.gate = written[GATE_STEP];
   if (state.theme === null || state.ledger === null) {
     const missing = `${THEME} or the ledger is missing, so the gate step of this tool fails`;
@@ -320,6 +323,18 @@ export async function upgradePlan(root, accept = {}) {
     }
   }
   if (gateChange) written[GATE_STEP] = installedStep;
+  // A check a newer tool holds under a row the repository already has, and the tool data lacks:
+  // today the check of items taken down under ledger-shapes. Said before it is written.
+  const theme = themeText === null ? null : JSON.parse(themeText);
+  const shapes = theme?.checks?.["ledger-shapes"];
+  const checksAdded =
+    Array.isArray(shapes) && !shapes.some((check) => check?.kind === TAKEN_DOWN_CHECK.kind)
+      ? [{ row: "ledger-shapes", kind: TAKEN_DOWN_CHECK.kind }]
+      : [];
+  if (checksAdded.length > 0) {
+    const checks = { ...theme.checks, "ledger-shapes": [...shapes, TAKEN_DOWN_CHECK] };
+    written[THEME] = renderJson({ ...theme, checks }, lineWidth(root));
+  }
   const was = tool.length > 0 ? await before(root) : { view: null };
   const now = after(root, written);
   const decisions = changedStates(was.view, now.view);
@@ -327,7 +342,7 @@ export async function upgradePlan(root, accept = {}) {
 
   const lost = ledgers.filter((ledger) => ledger.removed.length > 0);
   const losing = lost.reduce((sum, ledger) => sum + ledger.removed.length, 0);
-  const changes = tool.length > 0 || !stamped || gateChange !== null;
+  const changes = tool.length > 0 || !stamped || gateChange !== null || checksAdded.length > 0;
   const blocked = [];
   const accepted = [];
   if (changes && losing > 0) {
@@ -368,6 +383,7 @@ export async function upgradePlan(root, accept = {}) {
     blocked,
     accepted,
     gate_step: gateChange,
+    checks_added: checksAdded,
     not_seen: unseen,
     files,
     written,
@@ -466,6 +482,11 @@ export function report(plan, dryRun) {
         `  and ${plan.gate_step.dropped.length - SHOWN} more lines it drops, listed with --json`,
       );
     }
+  }
+  for (const item of plan.checks_added ?? []) {
+    lines.push(
+      `check: ${item.row} gains ${item.kind}, which turns the gate red when the code uses an item of an outside source not taken in`,
+    );
   }
   for (const item of plan.accepted) lines.push(`accepted by the person: ${item}`);
   lines.push("", "files:");
