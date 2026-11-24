@@ -64,6 +64,27 @@ cùng tám khuyến nghị, nói luật nào bắt buộc, từ chối ở đâu
      (`exemptions-<need>-2`).
    - Tờ quyết định xếp danh sách theo luật và lý do, các tệp ở dưới: 57 điều của lượt thử thành 28 dòng.
 
+## Sửa sau soát PR 134
+
+Theo lời chủ repo («Gửi sang sửa»):
+
+- **Chú thích đặt cấp độ luật trong tệp.** Lint còn nhận `/* eslint <rule>: "off" */`: cấp độ viết bằng chữ hay số,
+  đứng riêng hay đứng đầu một mảng. Phần đọc cũ không thấy dạng này, nên một dòng chú thích như vậy cho món thoát mọi
+  luật bắt buộc mà không cần điều khai miễn nào.
+  - Adapter của lint nay đọc dạng ấy (`rulesLowered`). Danh sách loại chú thích lấy từ chính mã của eslint 10 đã cài:
+    `eslint`, `eslint-disable`, `eslint-enable`, `eslint-disable-line`, `eslint-disable-next-line`, `exported`,
+    `global`, `globals`; còn `eslint-env` thì nay bị báo lỗi.
+  - Hạ một luật xuống mức cảnh báo cũng tính là tắt, vì cảnh báo không làm lint của repo này đỏ.
+  - Luật bắt buộc bị từ chối. Luật khác cần điều khai miễn như mọi cách tắt khác.
+- **Câu hỏi cũ về khai miễn không còn chờ.** Câu hỏi mới về danh sách khai miễn của một nhu cầu ghi `replaces` cho các
+  câu cũ chưa được đáp. Khi dòng sổ đã ghi thì không câu nào về nhu cầu ấy còn chờ. Quay lại đúng danh sách đã giữ
+  trước đó vẫn hỏi lại, vì lời đáp là cho một danh sách ở một lúc.
+- **`conform --unexempt RULE --file PATH`** lấy một điều khai miễn ra khỏi bản ghi, và không bao giờ bị từ chối vì
+  luật bắt buộc. Đây là lối ra, thay cho sửa tay tệp JSON.
+- **Lần kiểm thường nói đúng việc phải làm.** Với dòng chú thích tắt một luật bắt buộc, nó nói luật ấy bắt buộc và phải
+  vá; không còn khuyên thêm điều khai miễn.
+- **Tờ quyết định ngắt dòng** danh sách tệp và dòng lý do ở 100 ký tự, không cắt bớt, nên không tệp nào bị giấu.
+
 ## Đổi gì trong hợp đồng
 
 - **Hàng chờ:** khoá mới `exemptions` (danh sách có `rule`, `file`, `reason`), và loại mục mới `exemptions:<need>`.

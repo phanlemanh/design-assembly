@@ -23,8 +23,31 @@ export const adapter = {
     ...rules.map((rule) => `// eslint-disable-next-line ${rule}`),
     "/* eslint-disable */",
   ],
+  // The rules a file sets below an error, as the lint reads its own comments: a block comment
+  // `/* eslint rule: severity, ... */`, the severity a word or a number, alone or first in a list.
+  // Off and warn both: a warning does not fail the lint. Read from eslint 10's parser of comments;
+  // `eslint-enable`, `global`, `globals` and `exported` set no rule, and `eslint-env` is refused.
+  rulesLowered,
   run,
 };
+
+// What each severity is called, as a word or a number.
+const LEVELS = { off: "off", 0: "off", warn: "warn", 1: "warn", error: "error", 2: "error" };
+
+function rulesLowered(code) {
+  const lowered = [];
+  for (const [, body] of String(code ?? "").matchAll(/\/\*([\s\S]*?)\*\//g)) {
+    // A reason follows two dashes and a space, and is not part of the directive.
+    const directive = body.split(/\s-{2,}\s/)[0].trim();
+    const head = /^eslint\s+([\s\S]*)$/.exec(directive);
+    if (!head) continue;
+    const setting = /["']?([@\w./-]+)["']?\s*:\s*\[?\s*["']?(off|warn|error|[012])["']?/g;
+    for (const [, rule, level] of head[1].matchAll(setting)) {
+      if (LEVELS[level] !== "error") lowered.push(rule);
+    }
+  }
+  return lowered;
+}
 
 const ERROR = 2;
 const severity = (setting) => {

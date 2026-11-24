@@ -30,7 +30,7 @@ import { ownedFileOf, writeFiles, writtenFiles } from "./apply.mjs";
 import { finish, readCall, Refusal, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { find, wordsOf } from "./find.mjs";
-import { mandatoryOff, unexempted } from "./conform-rules.mjs";
+import { mandatoryOff, mandatoryRules, unexempted } from "./conform-rules.mjs";
 import { answerOf, questionFiles, readStore, rowOf, rowsOf, today, writable } from "./asking.mjs";
 import { ledgerWith, yamlValue } from "./intake-write.mjs";
 import { inventory } from "./inventory.mjs";
@@ -193,11 +193,13 @@ function conformedRecord(root, need, chosen, named) {
   }
   // Every rule a file of the item turns off, or its folder is let off by the configuration, needs
   // its exemption.
-  const [off] = unexempted(root, record, codeOf);
-  if (off) throw new Refusal(`${off}${nothing}`);
-  // No exemption lets an item off a rule the decision ledger holds (the addendum of spec 0015).
-  const [held] = mandatoryOff(root, record, codeOf);
+  // No exemption lets an item off a rule the decision ledger holds (the addendum of spec 0015); any
+  // other rule it turns off needs its exemption.
+  const mandatory = mandatoryRules(root);
+  const [held] = mandatoryOff(root, record, codeOf, mandatory);
   if (held) throw new Refusal(`${held}${nothing}`);
+  const [off] = unexempted(root, record, codeOf, mandatory);
+  if (off) throw new Refusal(`${off}${nothing}`);
   return { file, record };
 }
 
@@ -205,7 +207,7 @@ function conformedRecord(root, need, chosen, named) {
 
 // The list of what an item is let off, as the owner is asked to keep it: one question, every
 // exemption with its rule, file and reason. A list that changed since the answer is asked again.
-function exemptionsQuestion(state, need, record, file, before) {
+function exemptionsQuestion(state, need, record, file, before, replaces = []) {
   const rules = new Set(record.exemptions.map((entry) => entry.rule));
   const count = record.exemptions.length;
   return {
@@ -219,6 +221,9 @@ function exemptionsQuestion(state, need, record, file, before) {
     if_refused: `${record.item} is not taken in for ${need}: patch the code where an exemption was refused, take the exemption out of ${file}, and call intake again`,
     item: `exemptions:${need}`,
     asked_on: today(),
+    // The earlier questions about this need's exemptions that wait unanswered ask about a list that
+    // is gone: this one takes their place, so none of them waits on the owner any more.
+    ...(replaces.length > 0 ? { replaces } : {}),
     exemptions: record.exemptions.map(({ rule, file: of, reason }) => ({ rule, file: of, reason })),
   };
 }
@@ -237,12 +242,14 @@ function exemptionsHeld(state, need, conform) {
   const item = `exemptions:${need}`;
   const question = rowOf(state, item);
   if (!question || !sameList(question.exemptions, listed)) {
+    const earlier = rowsOf(state, item);
     const row = exemptionsQuestion(
       state,
       need,
       conform.record,
       conform.file,
-      rowsOf(state, item).length,
+      earlier.length,
+      earlier.filter((each) => !each.answer).map((each) => each.id),
     );
     const changed = question ? `the exemptions changed since ${question.id}; ` : "";
     return {

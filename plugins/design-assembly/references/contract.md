@@ -307,7 +307,8 @@ rule and reason, with the files beneath each.
 
 A rule a row of the decision ledger holds (its check `eslint:<rule>`, or a check of kind `lint` of
 the tool data) is mandatory for an item of an outside source: `conform --exempt` refuses it, and
-`intake` refuses an item that turns it off by any comment, by a comment that names no rule, or by a
-lint configuration or ignore file that sets a folder of the item apart. The base library's own
+`intake` refuses an item that turns it off by any comment, by a comment that names no rule, by the
+lint's own comment that sets it below an error inside the file, or by a lint configuration or ignore
+file that sets a folder of the item apart. The base library's own
 folder, set apart by the repository, is the repository's, not the item's. A record written before
 keeps the gate green; `conform`'s plain check and the inventory name the exemption.

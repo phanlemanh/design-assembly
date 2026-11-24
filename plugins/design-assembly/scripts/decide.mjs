@@ -195,10 +195,32 @@ export function exemptionLines(exemptions) {
   return [
     `      exemptions: keep lets the item off all ${exemptions.length}, on ${rules.size} ${rules.size === 1 ? "rule" : "rules"}; refuse lets it off none`,
     ...[...groups.values()].flatMap(({ rule, reason, files }) => [
-      `        ${rule} (${files.length}): ${reason}`,
-      `           ${files.join(", ")}`,
+      ...wrapped(`${rule} (${files.length}): ${reason}`.split(" "), "        ", " ", "          "),
+      ...wrapped(files, "           ", ", "),
     ]),
   ];
+}
+
+// How wide a line of files may run before the sheet wraps it. Every file is shown: none is left out.
+const SHEET_WIDTH = 100;
+
+// Words, or names joined by commas, wrapped into lines no wider than the sheet where each one fits:
+// the first line at its indent, the lines after it at theirs.
+function wrapped(parts, indent, joint, after = indent) {
+  const lines = [];
+  let line = "";
+  const room = () => (lines.length === 0 ? indent : after).length;
+  for (const [index, part] of parts.entries()) {
+    const piece = joint === ", " && index < parts.length - 1 ? `${part},` : part;
+    if (line !== "" && room() + line.length + 1 + piece.length > SHEET_WIDTH) {
+      lines.push(`${lines.length === 0 ? indent : after}${line}`);
+      line = piece;
+    } else {
+      line = line === "" ? piece : `${line} ${piece}`;
+    }
+  }
+  if (line !== "") lines.push(`${lines.length === 0 ? indent : after}${line}`);
+  return lines;
 }
 
 const PARTS = ["questions", "answered", "elsewhere", "permissions", "replaced"];

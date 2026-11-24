@@ -17,7 +17,7 @@ import { SOURCES_FOLDER } from "../templates/tools/design-assembly/sources-ledge
 const LINT = adapterOf("lint");
 
 // The rules a file turns off: each rule a comment of the lint names, `*` for one that names none,
-// and `@ts-nocheck`, `@ts-ignore` and `@ts-expect-error`.
+// each rule a comment sets below an error, and `@ts-nocheck`, `@ts-ignore` and `@ts-expect-error`.
 export function rulesTurnedOff(code) {
   const rules = new Set();
   for (const [comment] of code.matchAll(LINT?.exception ?? /$^/g)) {
@@ -31,6 +31,8 @@ export function rulesTurnedOff(code) {
     if (listed.length === 0) rules.add("*");
     for (const rule of listed) rules.add(rule);
   }
+  // A rule set below an error inside the file, the lint's other way to turn one off.
+  for (const rule of LINT?.rulesLowered?.(code) ?? []) rules.add(rule);
   for (const word of ["@ts-nocheck", "@ts-ignore", "@ts-expect-error"]) {
     if (code.includes(word)) rules.add(word);
   }
@@ -86,13 +88,16 @@ export function folderRulesOff(root, record) {
 
 // What the item turns off and the record does not let it off, one sentence each: a rule a comment of
 // one of its files turns off, and a rule its folder is let off by the configuration.
-export function unexempted(root, record, codeOf) {
+export function unexempted(root, record, codeOf, mandatory = new Map()) {
   const exempt = new Set((record.exemptions ?? []).map((entry) => `${entry.file}\n${entry.rule}`));
+  // A mandatory rule is never exempted: mandatoryOff names it, to be patched.
+  const held = (rule) => mandatory.has(rule) || (mandatory.size > 0 && rule === EVERY_RULE);
   const lines = [];
   for (const entry of record.conformed ?? []) {
     const code = codeOf(entry.file);
     if (code === null) continue;
     for (const rule of rulesTurnedOff(code)) {
+      if (held(rule)) continue;
       if (!exempt.has(`${entry.file}\n${rule}`)) {
         lines.push(
           `${entry.file} turns off ${rule}, and the conform record has no exemption for that rule in that file`,
@@ -101,6 +106,7 @@ export function unexempted(root, record, codeOf) {
     }
   }
   for (const { rule, file, folder } of folderRulesOff(root, record)) {
+    if (mandatory.size > 0 && rule === WHOLE_LINT && !inBaseLibrary(root, folder)) continue;
     if (!exempt.has(`${file}\n${rule}`)) {
       lines.push(
         `${file} names the folder ${folder} of the item, so ${rule} is turned off for it, and the record has no exemption ${rule} for ${file}`,

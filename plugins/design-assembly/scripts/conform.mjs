@@ -12,6 +12,7 @@
 // and runs no install line.
 // Usage: node conform.mjs --need KEY [--source ID --item NAME --file PATH...] [--taken-down]
 //        [--patch PATH --reason SENTENCE] [--exempt RULE --file PATH --reason SENTENCE]
+//        [--unexempt RULE --file PATH]
 //        [--dry-run] [--target DIR] [--json]
 // Exit: 0 the record holds, or what was asked is written; 1 something waits: a file changed with no
 // patch, a patch that cannot be applied again, a rule turned off with no exemption; 2 a wrong call,
@@ -205,6 +206,20 @@ function patchedRecord(root, record, { file, reason }) {
   };
 }
 
+// Takes an exemption out of the record: the way back for a rule that is now mandatory, or one the
+// owner refused, once the code is patched. The rule the file turns off is then held again.
+function unexemptedRecord(record, { rule, file }) {
+  if (!file) throw new Refusal(`--unexempt needs --file${NOTHING}`);
+  const kept = record.exemptions.filter((entry) => !(entry.rule === rule && entry.file === file));
+  if (kept.length === record.exemptions.length) {
+    throw new Refusal(`the record does not let ${file} off ${rule}${NOTHING}`);
+  }
+  return {
+    record: { ...record, exemptions: kept },
+    said: `took the exemption ${rule} for ${file} out of the record`,
+  };
+}
+
 // Records a rule the item is let off, in one of its files, or for its folder in a configuration.
 function exemptedRecord(root, record, { rule, file, reason }) {
   if (!file || !reason) {
@@ -361,8 +376,11 @@ export function recordProblems(root, record) {
       );
     }
   }
-  problems.push(...unexempted(root, record, (file) => readText(root, file)));
-  problems.push(...mandatoryExempted(root, record));
+  // A mandatory rule is named as one to patch; any other rule turned off needs its exemption.
+  const mandatory = mandatoryRules(root);
+  const codeOf = (file) => readText(root, file);
+  problems.push(...mandatoryOff(root, record, codeOf, mandatory));
+  problems.push(...unexempted(root, record, codeOf, mandatory));
   return problems;
 }
 
@@ -376,6 +394,7 @@ const mandatoryExempted = (root, record) =>
 const USAGE =
   "usage: node conform.mjs --need KEY [--source ID --item NAME --file PATH...] [--taken-down]\n" +
   "                        [--patch PATH --reason SENTENCE] [--exempt RULE --file PATH --reason SENTENCE]\n" +
+  "                        [--unexempt RULE --file PATH]\n" +
   "                        [--dry-run] [--target DIR] [--json]\n";
 const FLAGS = {
   "--need": "value",
@@ -386,6 +405,7 @@ const FLAGS = {
   "--patch": "value",
   "--reason": "value",
   "--exempt": "value",
+  "--unexempt": "value",
   "--dry-run": "switch",
 };
 
@@ -396,6 +416,7 @@ function askedOf(flags) {
     flags["--taken-down"] ? "taken-down" : null,
     flags["--patch"] ? "patch" : null,
     flags["--exempt"] ? "exempt" : null,
+    flags["--unexempt"] ? "unexempt" : null,
   ].filter(Boolean);
   if (asked.length > 1) return { problem: `ask one thing at a time, not ${asked.join(" and ")}` };
   return { asked: asked[0] ?? "check" };
@@ -415,7 +436,8 @@ export function conform(root, flags, { dryRun = false } = {}) {
   } else {
     const record = readRecord(root, need);
     // A record that still exempts a mandatory rule is not written again until the exemption is out.
-    const [held] = asked === "check" ? [] : mandatoryExempted(root, record);
+    // Taking an exemption out is the way back, and is never refused for it.
+    const [held] = ["check", "unexempt"].includes(asked) ? [] : mandatoryExempted(root, record);
     if (held) throw new Refusal(`${held}${NOTHING}`);
     if (asked === "patch") {
       made = patchedRecord(root, record, { file: flags["--patch"], reason: flags["--reason"] });
@@ -426,6 +448,9 @@ export function conform(root, flags, { dryRun = false } = {}) {
         file,
         reason: flags["--reason"],
       });
+    } else if (asked === "unexempt") {
+      const [file] = flags["--file"] ?? [];
+      made = unexemptedRecord(record, { rule: flags["--unexempt"], file });
     } else if (asked === "taken-down") {
       made = retakenRecord(root, record);
     } else {

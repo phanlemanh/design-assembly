@@ -369,9 +369,9 @@
     },
     {
       "version": "0.56.0",
-      "templates": "f58e4b775f9e491ce928d5ef324d68df93314b62",
-      "scripts": "49cc49dd446459fb338b84407ed2e356cdc78b68",
-      "tool": "dd6296db5ebf1abbc3414fcf128bd95ce4be359e"
+      "templates": "080f7d6defe8fddd3e82432cf8fd94ec26bb127d",
+      "scripts": "939e5f62b0ee9a9a25f7d36b75f2428d093665d4",
+      "tool": "44be1fb633925bbfff4d8cd53a694af45a7e2067"
     }
   ]
 }

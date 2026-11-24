@@ -38,7 +38,9 @@ reason, in order. A rule the item is let off, in one of its files or for its fol
 `node ${CLAUDE_PLUGIN_ROOT}/scripts/conform.mjs --need <key> --exempt <rule> --file <path> --reason "<why>"`
 
 A rule turned off in a comment of a file (`eslint-disable`, `@ts-nocheck`, `@ts-ignore`,
-`@ts-expect-error`) is exempted for that file. A folder left out of the formatter
+`@ts-expect-error`), or set below an error by the lint's own comment (`/* eslint <rule>: "off" */`, or
+`0`, `"warn"`, `1`, alone or first in a list: a warning does not fail the lint), is exempted for that
+file. A folder left out of the formatter
 (`formatter-ignore`, in `.prettierignore`), named in the lint configuration (`lint-config`) or in the
 type check's (`typecheck-exclude`, a `tsconfig*.json`) is exempted for that configuration file.
 
@@ -47,7 +49,11 @@ command refuses it and names the row, and refuses a comment that names no rule o
 configuration that sets the item's folder apart, which turn every rule off. Patch the code instead.
 Strict type checks (`@ts-nocheck` included) and rules no row holds stay exemptable. A record that
 still exempts a mandatory rule, written before, is named by the plain check and is not written again
-(no patch, exemption or `--taken-down`) until the exemption is out of the record.
+(no patch, exemption or `--taken-down`) until the exemption is out of the record:
+
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/conform.mjs --need <key> --unexempt <rule> --file <path>`
+
+takes it out, and is never refused for it.
 
 ## 3. Say whether the record holds
 

@@ -394,3 +394,131 @@ test("criterion 25: an item with no exemption is written once the candidate is k
   assert.equal(done.status, 0, done.stderr);
   rmSync(path.join(dir, RECORD_FILE));
 });
+
+// ---- after the review of PR 134 ---------------------------------------------------------------------
+
+// The lint sets a rule from inside a file with a block comment `/* eslint rule: severity */`: the
+// severity a word or a number, alone or first in a list (eslint 10, the parser of its comments).
+const INLINE = [
+  `/* eslint ${MANDATORY}: "off" */`,
+  `/* eslint ${MANDATORY}: 0 */`,
+  `/* eslint ${MANDATORY}: ["off"] */`,
+  // A warning does not fail the lint: lowered to one, the rule is off.
+  `/* eslint ${MANDATORY}: "warn" */`,
+];
+for (const comment of INLINE) {
+  test(`finding 1: intake refuses a mandatory rule set off inside a file, ${comment}`, () => {
+    const main = `${comment}\n${MAIN_CODE}`;
+    const dir = store({ [MAIN]: main, [RECORD_FILE]: json(record({ main })) });
+    kept(dir);
+    const before = read(dir, "design/intake.yaml");
+    const run = takeIn(dir);
+    assert.equal(run.status, 2, run.stdout);
+    assert.match(run.stderr, new RegExp(`${MANDATORY}.*${HELD_BY}`));
+    assert.equal(read(dir, "design/intake.yaml"), before);
+    // The plain check of conform names it as mandatory, to patch, never to exempt.
+    const plain = JSON.parse(conform(dir, "--json").stdout).problems.join("\n");
+    assert.match(plain, new RegExp(`${MANDATORY}, which the decision ${HELD_BY} holds`));
+    assert.doesNotMatch(plain, /has no exemption for that rule/);
+  });
+}
+
+test("finding 1: a rule no decision holds, set off inside a file, needs its exemption like any other", () => {
+  const main = `/* eslint react-hooks/exhaustive-deps: 0 */\n${MAIN_CODE}`;
+  const dir = store({ [MAIN]: main, [RECORD_FILE]: json(record({ main })) });
+  kept(dir);
+  const run = takeIn(dir);
+  assert.equal(run.status, 2, run.stdout);
+  assert.match(
+    run.stderr,
+    /turns off react-hooks\/exhaustive-deps, and the conform record has no exemption for that rule in that file/,
+  );
+  put(
+    dir,
+    RECORD_FILE,
+    json(record({ main, exemptions: [exemption("react-hooks/exhaustive-deps")] })),
+  );
+  assert.equal(takeIn(dir).status, 1);
+  // Turned back on, or the other comments the lint reads from a file, turn nothing off.
+  const on = `/* eslint ${MANDATORY}: "error" */\n/* eslint-enable */\n/* global window */\n${MAIN_CODE}`;
+  const quiet = store({ [MAIN]: on, [RECORD_FILE]: json(record({ main: on })) });
+  kept(quiet);
+  assert.equal(takeIn(quiet).status, 0);
+});
+
+test("point 4: the plain check says a disabling comment of a mandatory rule is to be patched, never that it lacks an exemption", () => {
+  const main = `// eslint-disable-next-line ${MANDATORY}\n${MAIN_CODE}`;
+  const dir = store({ [MAIN]: main, [RECORD_FILE]: json(record({ main })) });
+  const plain = JSON.parse(conform(dir, "--json").stdout).problems.join("\n");
+  assert.match(plain, new RegExp(`turns off ${MANDATORY}, which the decision ${HELD_BY} holds`));
+  assert.doesNotMatch(plain, /has no exemption for that rule/);
+});
+
+test("point 3: --unexempt takes an exemption out of the record, even one of a mandatory rule, so the record can be conformed again", () => {
+  const dir = store({ [RECORD_FILE]: json(record({ exemptions: [exemption(MANDATORY)] })) });
+  const out = conform(dir, "--unexempt", MANDATORY, "--file", MAIN);
+  assert.equal(out.status, 0, out.stderr);
+  assert.deepEqual(JSON.parse(read(dir, RECORD_FILE)).exemptions, []);
+  assert.equal(conform(dir, "--json").status, 0);
+  const again = conform(dir, "--unexempt", MANDATORY, "--file", MAIN);
+  assert.equal(again.status, 2);
+});
+
+test("finding 2: a new question about a need's exemptions replaces the earlier unanswered ones, and none waits once the row is written", () => {
+  const { dir, exemptions, main, chip } = allowedStore();
+  kept(dir);
+  const write = (list) => put(dir, RECORD_FILE, json(record({ main, chip, exemptions: list })));
+  takeIn(dir);
+  answer(dir, "exemptions-narrow-list giữ");
+  const added = [...exemptions, exemption("@ts-nocheck", CHIP, "untyped too")];
+  const chipOff = `// @ts-nocheck\n${chip}`;
+  const withChip = (list) =>
+    put(dir, RECORD_FILE, json(record({ main, chip: chipOff, exemptions: list })));
+  put(dir, CHIP, chipOff);
+  withChip(added);
+  assert.equal(JSON.parse(takeIn(dir).stdout).waiting, "exemptions-narrow-list-2");
+  put(dir, CHIP, chip);
+  write(exemptions.map((entry, index) => (index === 0 ? { ...entry, reason: "reworded" } : entry)));
+  assert.equal(JSON.parse(takeIn(dir).stdout).waiting, "exemptions-narrow-list-3");
+  put(dir, CHIP, chipOff);
+  withChip(added);
+  assert.equal(JSON.parse(takeIn(dir).stdout).waiting, "exemptions-narrow-list-4");
+  put(dir, CHIP, chip);
+  write(exemptions);
+  // Back to the list the owner kept first: it is asked again, for the answer was to a list at a time.
+  assert.equal(JSON.parse(takeIn(dir).stdout).waiting, "exemptions-narrow-list-5");
+  const sheet = JSON.parse(node(DECIDE, ["--target", dir, "--json"]).stdout);
+  const waiting = sheet.questions.map((question) => question.id);
+  assert.deepEqual(
+    waiting.filter((id) => id.startsWith("exemptions-")),
+    ["exemptions-narrow-list-5"],
+  );
+  answer(dir, "exemptions-narrow-list-5 giữ");
+  assert.equal(takeIn(dir).status, 0);
+  const after = JSON.parse(node(DECIDE, ["--target", dir, "--json"]).stdout);
+  assert.deepEqual(
+    after.questions.filter((question) => question.id.startsWith("exemptions-")),
+    [],
+  );
+});
+
+test("point 5: the sheet wraps a long line of files and leaves none out", async () => {
+  const { exemptionLines } = await import("../scripts/decide.mjs");
+  const files = Array.from(
+    { length: 16 },
+    (_, index) => `src/components/kit/long-file-name-${index}.tsx`,
+  );
+  const lines = exemptionLines(
+    files.map((file) => ({
+      rule: "react-refresh/only-export-components",
+      file,
+      reason:
+        "reui exports helpers and contexts beside its components; the rule only keeps fast refresh in development whole, and splitting the files would be a rewrite of the source",
+    })),
+  );
+  assert.ok(
+    lines.every((line) => line.length <= 110),
+    lines.join("\n"),
+  );
+  for (const file of files) assert.ok(lines.join("\n").includes(file), file);
+});
