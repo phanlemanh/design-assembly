@@ -334,14 +334,16 @@
                 </td>
               </tr>
               <tr>
-                <td><strong>Đã có và đang chạy</strong><br />2026-11-22</td>
+                <td><strong>Đã có và đang chạy</strong><br />2026-11-24</td>
                 <td>
-                  Hợp đồng mười ba sổ, mỗi sổ một hình dạng, và các lệnh kiểm giữ nó. Mười ba lệnh
+                  Hợp đồng mười ba sổ, mỗi sổ một hình dạng, và các lệnh kiểm giữ nó. Mười sáu lệnh
                   chung một khế ước gọi: <code>status</code>, <code>audit</code>, <code>new</code>,
                   <code>adopt</code>, <code>decide</code>, <code>upgrade</code>,
                   <code>handoff</code>, <code>find</code>, <code>intake</code>,
                   <code>inventory</code>, <code>change</code>, <code>brief</code>,
-                  <code>review</code>. Công cụ cài trong repo có thêm hai lệnh đọc để bên khác gọi:
+                  <code>review</code>, và ba lệnh của giai đoạn 10: <code>plugs</code> chọn phích
+                  cho từng ổ, <code>bring-in</code> và <code>bring-out</code> là cầu nối vào và ra.
+                  Công cụ cài trong repo có thêm hai lệnh đọc để bên khác gọi:
                   <code>affected</code> nói một thay đổi chạm màn nào, <code>screen-facts</code> đọc
                   màn, trạng thái và hành động từ sổ màn. Một lối đặt bộ sổ lúc ra đời mà không hỏi
                   ai (<code>adopt --starter</code>). Kho dùng lại của một repo: sổ nhập kho và sổ
@@ -438,7 +440,8 @@
                 <td>một hình dạng</td>
                 <td>
                   ngày kiểm kê: không. Đã chốt 2026-11-22: <strong>đọc</strong>, qua lệnh đọc màn
-                  của plugin; phía plugin đã dựng, phía delivery-loop chưa
+                  của plugin; cả hai phía đã dựng, phía delivery-loop gộp ngày 2026-11-23 (đọc ngày
+                  2026-11-24)
                 </td>
                 <td>hình dạng khác</td>
                 <td>
@@ -6058,8 +6061,9 @@
           Mục đích của plugin là «Claude Code dựng màn mà không phải đoán», nên đo thẳng câu đó: ba
           tác tử độc lập dựng cùng một màn, đếm những quyết định chúng làm khác nhau hoặc tự đoán.
           Lần thử năm có sáu chỗ phải đoán; lần thử sáu, sau khi thêm sáu luật, còn ba hành vi chưa
-          có luật. Đích là 0. Với bộ đề cố định, bốn lượt dựng màn gần nhất, lần 11 tới 14, cho 9,
-          11, 14 và 13 chỗ phải đoán.
+          có luật. Đích là 0. Với bộ đề cố định, các lượt dựng màn lần 11 tới 14 cho 9, 11, 14 và 13
+          chỗ phải đoán; lần 17 (2026-11-23, có skill frontend-design, đo cho mục 10.2 của kế hoạch)
+          cho 12, cả 12 vào hàng chờ (đọc ngày 2026-11-24).
         </p>
         <h3>Sáu chỉ số đỡ</h3>
         <div class="scroll">
@@ -6189,7 +6193,7 @@
                   hay đã đóng
                 </td>
                 <td>Giới hạn đang nằm rải trong các bản ghi quyết định, không đếm được</td>
-                <td>2026-11-22: có, 384 dòng, 298 đang mở</td>
+                <td>2026-11-24: có, 424 dòng, 331 đang mở</td>
               </tr>
               <tr>
                 <td>Thực thi</td>
@@ -6222,7 +6226,7 @@
                 <td></td>
                 <td>6. <strong>Bộ đề thử cố định và chuỗi số theo mốc</strong></td>
                 <td>Sáu lần thử dùng sáu bộ đề khác nhau, nên số không so được với nhau</td>
-                <td>2026-11-22: có, ba bộ đề cố định và một bảng kết quả, 31 dòng qua 16 lượt</td>
+                <td>2026-11-24: có, bốn bộ đề cố định và một bảng kết quả, 32 dòng qua 17 lượt</td>
               </tr>
               <tr>
                 <td></td>
@@ -6290,17 +6294,17 @@
                 <td>Plugin đã làm gì</td>
                 <td>Dẫn dắt trọn, cài phần, mọi lệnh kiểm</td>
                 <td>
-                  Đã nhận và đã lên đời ba lần, lần gần nhất tới bản 0.7.1 ngày 2026-11-17; plugin
-                  nay là 0.35.0. Bốn câu về màu chờ chủ repo
+                  Đã nhận và đã lên đời ba lần, lần gần nhất tới bản 0.7.1 ngày 2026-11-17; plugin,
+                  đọc ngày 2026-11-24, là 0.48.0. Bốn câu về màu chờ chủ repo
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
         <p>
-          Repo đối chứng: 42 quyết định do 78 lệnh kiểm giữ, mỗi lệnh đã được thấy đỏ trên một bản
-          bị đổi. Mười sáu lượt thử bằng tác tử độc lập, ghi ở bảng kết quả; lượt gần nhất ngày
-          2026-11-22.
+          Repo đối chứng, đọc ngày 2026-11-24: 43 quyết định do 83 lệnh kiểm giữ, mỗi lệnh đã được
+          thấy đỏ trên một bản bị đổi. Mười bảy lượt thử bằng tác tử độc lập, ghi ở bảng kết quả;
+          lượt gần nhất, lần 17, ngày 2026-11-23.
         </p>
         <p>
           Giới hạn đã biết của chính kiến trúc này: ngoài repo đối chứng, nó mới chạy thật trên một
@@ -6555,7 +6559,9 @@
             đoạn đang mở, các mục của nó và việc để sang bên.
           </li>
           <li>
-            Đề bài của giai đoạn đang mở, với lời duyệt kiến trúc ba vai:
+            Đề bài của giai đoạn đang mở (giai đoạn 10, đọc ngày 2026-11-24):
+            <code>wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md</code>. Đề bài của giai
+            đoạn 6, với lời duyệt kiến trúc ba vai:
             <code>wiki/specs/0013-the-two-neighbours-call-and-read.md</code>.
           </li>
           <li>
