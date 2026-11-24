@@ -861,8 +861,10 @@
       "plan": "keep",
       "opened": "2026-11-23",
       "where": ["d0008", "d0009", "handoff"],
-      "status": "open",
-      "note": "This repository's configuration of the acceptance kit declares no design surface, tokens file or component manifest, so the kit's own reader of the design floor still answers its lowest tier although both artifacts exist."
+      "status": "closed",
+      "note": "This repository's configuration of the acceptance kit declares no design surface, tokens file or component manifest, so the kit's own reader of the design floor still answers its lowest tier although both artifacts exist.",
+      "closed": "2026-11-24",
+      "closed_by": "the owner's word to declare them; the repository's acceptance configuration now names its screen sources, its tokens file and its component manifest, and the kit's reader of the design floor answers the tier of both artifacts; on a clone where the gate has not run yet it answers one tier lower, because the component manifest is derived and not kept in git"
     },
     {
       "id": "agents-md-omits-plugins",
@@ -3032,12 +3034,11 @@
       "area": "checks",
       "kind": "wrong-signal",
       "severity": "high",
-      "plan": "hand-off",
-      "repo": "repo-standards",
+      "plan": "keep",
       "opened": "2026-11-17",
       "where": ["d0054", "spec"],
       "status": "open",
-      "note": "The wall opens on an answered question of the waiting list, and cannot tell whether the owner or an agent wrote that answer: the file is data, like the answers file of the decision sheet (limit decide-cannot-tell-who-wrote-the-answers). The rules page forbids an agent to answer, and nothing holds it. Asking the owner on the hosting service before a pull request that adds a kind of screen or a brand colour merges is the repository standards' own work."
+      "note": "The wall opens on an answered question of the waiting list, and cannot tell whether the owner or an agent wrote that answer: the file is data, like the answers file of the decision sheet (limit decide-cannot-tell-who-wrote-the-answers). The rules page forbids an agent to answer, and nothing holds it. No other repository asks the owner on the hosting service before such a pull request merges, so the row is kept here until several repositories and several people answer."
     },
     {
       "id": "decision-sheet-reads-what-a-branch-writes",

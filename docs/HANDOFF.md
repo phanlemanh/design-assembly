@@ -88,7 +88,7 @@ Số bản plugin do cổng giữ. Sửa `templates/` hay `scripts/` thì theo �
   của họ sản phẩm» đứng sau nó.
 - **Cổng của kho này:** 43 quyết định giữ bằng 83 lệnh kiểm. `status --roles` in «33 trên 33 giá trị có lời chủ repo».
   `status` in bộ sổ lúc ra đời đủ cả 7 sổ.
-- **Phiếu quyết định:** không câu nào chờ chủ kho. Hai quyền chỉ chủ kho cho, từng bước một: mọi bước ở Inventory,
+- **Hàng chờ và phiếu quyết định của plugin** (lệnh `decide`): không câu nào chờ chủ kho. Hai quyền chỉ chủ kho cho, từng bước một: mọi bước ở Inventory,
   delivery-loop và Repo Standards; và chạy phép đo token chính thức.
 - **Sổ giới hạn:** 414 dòng, 321 đang mở, 20 mức nặng; 22 dòng mở trong ngày 2026-11-23, phần lớn của giai đoạn 10
   (vùng `capabilities`). **Việc gác lại:** 14 mục trong sáu nhóm.
@@ -259,18 +259,19 @@ Ngoài giai đoạn đang mở:
 
 - Mỗi lượt đo phích ngoài của mục 10.2, và mỗi phích cần tài khoản hay gửi dữ liệu ra ngoài (giai đoạn 10).
 - Lượt thử có người của mục 10.4, dòng «xong khi» của giai đoạn 10.
-- Sáu «quyết định cho chủ repo» của PR #106 và bốn của PR #110: chủ kho đã gộp, chưa đáp từng câu.
-- Có khai phần thiết kế của kho này với kit nghiệm thu không (giới hạn `design-floor-not-declared-to-kit`).
-- Bộ sổ lúc ra đời là bảy sổ thay cho mười sổ của câu 3: chủ kho đã được báo và bảo commit, chưa nói gì thêm.
-- Mức và hướng xử lý của các dòng giới hạn do máy đặt ở giai đoạn 5 và 9. Đáng chú ý: `unmarked-action-control-unseen`
-  (nút cấm không mang dấu thì bài kiểm theo vai không thấy), đang ghi mức vừa, «giữ nguyên».
-- Kiểu mục hàng chờ `screens:` và khoá `replaces` (cùng cờ `decide --ask --replaces`): đang dùng, chưa được nhận bằng
-  lời.
-- Nút trên toast có tính vào các hành động của một màn hay không; lời của trạng thái đang chờ, nơi hai luật kéo ngược
-  nhau.
-- Ai giữ giới hạn mức nặng `owner-calls-trusts-a-written-answer` (mục gác lại của nhóm «Ai trả lời»).
-- Dọn bốn thư mục làm việc và mười tám nhánh đã gộp trên remote. `kit-trial-5-0` sạch, nhánh của nó đã mất trên
-  remote; ba thư mục kia mang nhánh đã gộp.
+- Mục «Quyết định cho chủ repo» của PR #107, #108 và #109 (sáu, sáu và bốn điểm): chưa gom, chưa đáp.
+
+Mười tám câu khác, chưa từng nằm trên hàng chờ của plugin, đã được gom thành một [trang câu hỏi gom cho chủ kho](owner-decision-sheet-2026-11-23.md) (không phải phiếu của lệnh `decide`) và chủ kho đáp cả mười
+tám theo khuyến nghị ngày 2026-11-24; lời đáp nguyên văn và điều đổi ở tệp nào ghi ở trang ấy. Hai lời còn để lại việc, và một điều cần biết:
+
+- Câu 4.4, linh kiện mẫu của dòng đặt tên đang chờ lên trang bằng chữ ẩn: một bản plugin mới, đã vào việc gác lại.
+- Câu 5.2, dọn bốn thư mục làm việc và mười tám nhánh đã gộp trên remote: có lời cho dọn, **sau khi hai phiên đo của
+  mục 10.2 xong**; mỗi thư mục xem sạch trước khi bỏ, kể lại từng cái đã xoá. `kit-trial-5-0` sạch, nhánh của nó đã
+  mất trên remote; ba thư mục kia mang nhánh đã gộp.
+- Câu 3.3, khai phần thiết kế với kit nghiệm thu: từ nay mỗi vòng nghiệm thu của kit trên kho này, ở bước S1, ghi
+  `design-floor.json` và một dòng `usage-report.md` vào hồ sơ của vòng, và lần đầu trên máy tải qua mạng một chỉ mục
+  tri thức đã ghim (`DESIGN_FLOOR_KHONG_MANG=1` cấm tải); vòng chạm màn mà hồ sơ không có lượt chấm thiết kế thì dừng ở
+  S4. Câu hỏi chủ kho thấy chỉ nêu bậc; trang câu hỏi ghi phần này sau lời đáp, ngày 2026-11-24.
 
 ## Cách đã làm ở giai đoạn 5, 9, 6 và 10
 
