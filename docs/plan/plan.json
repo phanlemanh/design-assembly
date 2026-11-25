@@ -469,7 +469,7 @@
     {
       "id": 10,
       "name": "Cắm đồ bên cạnh",
-      "state": "current",
+      "state": "done",
       "parallel": [11],
       "items": [
         {
@@ -510,12 +510,16 @@
         "Cho phép từng lượt đo tốn token",
         "Cho phép từng phích cần tài khoản hay gửi dữ liệu ra ngoài",
         "Cho đẩy hệ của repo lên Claude và đặt làm mặc định"
-      ]
+      ],
+      "closed": {
+        "on": "2026-11-25",
+        "evidence": "Chứng cứ đối chiếu trên nhánh chính dd04bc3 (cây trùng đầu 3414efd của PR #140, CI xanh ở đó), plugin 0.59.0. Dòng «xong khi»: lượt thử có người của mục 10.4 (docs/trials/person-trial-two-screen-arms.md, wiki/decisions/0111-the-person-trial-shows-the-stage-10-line.md, PR #140), chủ repo cho chạy ngày 2026-11-25 («Cho chạy hai nhánh»), chạy lại từ đầu sau bản sửa 0108 (PR #137) trên bản sao mới của e56e77c với plugin d3be68a. Nửa đầu: bước plugs của new đọc đủ 264 skill, 23 server và 14 server chờ đăng nhập của phiên, hỏi hai câu (ổ dựng màn và ổ soát thiết kế), chủ repo đáp một lần («frontend-design, review») và hai dòng plug-* vào sổ quyết định có tên và ngày. Nửa sau: hai nhánh dựng màn cùng đề trên cùng bản sao; nhánh A được bảo dùng skill chủ repo chọn và có gọi nó, nhánh B qua phích của plugin; cả hai cổng xanh; 14 và 14 chỗ phải đoán sau khi phiên chạy kiểm (tác tử tự khai 30 và 31), 0 lời đáp ghi thay chủ repo. Phiên điều phối soát độc lập trước khi gộp: chạy lại cổng của plugin và make check (80 bài trình duyệt) trên bản sao của cả hai nhánh, đều thoát 0; không nhánh nào đụng tệp cổng, cấu hình lint hay cấu hình kiểm, không bài nào bị bỏ; đề hai nhánh chỉ khác đoạn bảo dùng skill; cộng lại token của hai nhánh (352 480 và 346 028) ra đúng số đã ghi; không tự đếm lại 14 chỗ đoán từng dòng. Điều còn biết lúc đóng: nhánh A tới skill chủ repo chọn chỉ vì được bảo bằng lời, nhánh B không gọi nó dù sổ đã ghi (giới hạn screen-build-plug-reached-only-when-told còn mở); cổng của repo mới chỉ xanh sau hai câu nhập kho mà plugin đáng lẽ không hỏi, đã sửa bằng PR #139 (quyết định 0110, plugin 0.59.0, chủ repo duyệt đoạn hợp đồng khi gộp: «Gộp cả hai khi xanh»); src/lib/notify.ts không có ở e56e77c nên chuỗi so sánh với các lượt dựng màn trước bị cắt; mỗi nhánh một lượt, ổ soát thiết kế được ghi mà không chạy; giới hạn plugs-session-listed-by-the-skill còn mở. Chi phí: lượt chạy lại 1 305 103 token, lượt đã dừng 284 299 token ghi riêng. Các mục không nằm trên dòng «xong khi» có chứng cứ ở ref của chúng: 10.0 đề bài 0014, 10.1 quyết định 0089 và 0090, 10.2 bốn phích đã đo (Claude Design 0088, ReUI 0096, frontend-design 0097, Mobbin 0109), ba phích gác lại theo lời chủ repo («Đo Mobbin xong rồi tạm đóng hạng mục này.»), 10.3 quyết định 0091, 10.4 quyết định 0092, 0093, 0108, 0110 và 0111. Việc cần chủ repo: mỗi lượt đo và lượt thử tốn token có lời cho riêng nó, ghi ở ref của từng mục. Chủ repo chọn đóng giai đoạn này cùng giai đoạn 11 ngày 2026-11-25 («Đóng cùng 10») và tạm đóng mục 10.2 («Đo Mobbin xong rồi tạm đóng hạng mục này.»)."
+      }
     },
     {
       "id": 11,
       "name": "Chọn trước, tạo sau",
-      "state": "later",
+      "state": "done",
       "parallel": [],
       "items": [
         {
@@ -582,12 +586,16 @@
         "Cho phép từng lượt thử tốn token",
         "Duyệt từng điều khai miễn của một món",
         "Cho gửi từng yêu cầu sang Repo Standards"
-      ]
+      ],
+      "closed": {
+        "on": "2026-11-25",
+        "evidence": "Chứng cứ đối chiếu trên nhánh chính dd04bc3, plugin 0.59.0. Dòng một: lượt thử lấy filters qua lối mới (docs/trials/filters-through-conform.md, wiki/decisions/0104-filters-taken-in-through-conform-measured.md): lấy về, chuẩn hoá, nhập kho trên bản sao ứng dụng mẫu, cổng xanh, 0 luật tắt ngoài danh sách khai miễn; lần dùng thứ hai đo cạnh lần đầu (intake trả ở bậc 1, không tệp nào phải đổi, 231 101 token so với 447 781, khoảng 11 phút so với 21, 8 chỗ tự quyết so với 13). Dòng hai: lượt chạy lại lần dùng đầu theo lời chủ repo («Cho chạy», 2026-11-24, plugin 0.57.0; docs/trials/filters-rerun-criterion-26.md, wiki/decisions/0107-filters-rerun-meets-criterion-14.md, PR #136): tiêu chí 14 của đề bài 0015 đạt trọn, cổng xanh gồm phần kiểm phần nổi, ô nổi có tên, không còn câu tiếng Anh, axe của repo sạch khi phần nổi mở, 0 khai miễn thuộc mức bắt buộc; khai miễn từ 82 xuống 58, bản vá từ 24 lên 30. Phiên điều phối soát độc lập bản ghi ấy trước khi PR #136 gộp. Điều còn biết lúc đóng: lượt chạy lại tốn hơn lần đầu (552 937 token so với 447 781, khoảng 33 phút so với 21, 21 chỗ tự quyết so với 13), phần lớn vì phải chọn giá trị của thang khi bỏ giá trị tuỳ ý; lý do của các điều khai miễn do tác tử viết, và người đứng thay chủ repo đáp, chưa người thật nào duyệt từng điều. Hai dòng «done when» đã được cho thấy từ ngày 2026-11-24; giai đoạn ghi đóng ở đây vì công cụ kế hoạch không cho một giai đoạn xong khi giai đoạn đứng trước nó chưa xong, và chủ repo chọn đóng nó cùng giai đoạn 10 ngày 2026-11-25 («Đóng cùng 10») thay vì sửa công cụ."
+      }
     },
     {
       "id": 7,
       "name": "Lõi của họ sản phẩm",
-      "state": "later",
+      "state": "current",
       "parallel": [],
       "items": [
         {
