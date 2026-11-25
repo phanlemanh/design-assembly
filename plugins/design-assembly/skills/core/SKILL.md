@@ -1,6 +1,6 @@
 ---
 name: core
-description: Build the core of a family of products — the answers the repositories of one family share, each locked or a default, in a folder of its own on this machine — from the answers a person settled in the family's first repository, after the person answers the lock-or-default sheet; and check the shape of a core folder. Use when a second product of the same family uses the plugin and the user says the repositories belong together ("this app is of the same family as that one", "share the design answers between our products", "make a core for the family", "check our core folder"). Not for a repository that stands alone, never to write into a repository of the family, and never to push anything.
+description: Build the core of a family of products — the answers the repositories of one family share, each locked or a default, in a folder of its own on this machine — from the answers a person settled in the family's first repository, after the person answers the lock-or-default sheet; and check the shape of a core folder; and let the family's owner change an answer of the core (its value, locked or a default, or an answer added), each change with who, when and why. Use when a second product of the same family uses the plugin and the user says the repositories belong together ("this app is of the same family as that one", "share the design answers between our products", "make a core for the family", "check our core folder", "lock the source colour for the whole family", "change the family's widths"). Not for a repository that stands alone, never to write into a repository of the family, and never to push anything.
 ---
 
 # Build the core of a family
@@ -70,6 +70,36 @@ first repository.
 holds and `1` with each problem naming the file and the place; `2` when the folder is not there or
 a part has a newer shape than this plugin knows (then the plugin must be updated).
 
+## 6. Change an answer of the core
+
+Only the family's owner changes the core, and only in its folder. One answer a call:
+
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/core.mjs --change <id> --core <folder> --by <name> --why
+"<reason>"` and one or two of:
+
+- `--value <value>`: a new value, written as the build takes `--value` (`#rrggbb`, an option of how
+  a record opens, `standard` or `modular <ratio>`, widths joined by commas). A rule is never given a
+  value: its words are its row's;
+- `--hold locked` or `--hold default`: raise a default to locked, or lower a locked answer;
+- `--from <repository> --hold <hold>`: add an answer the core does not hold, settled by a person in
+  that repository and read as the build reads the first one; when its ledgers do not hold the value,
+  give it with `--value`. An answer nobody settled there is refused, with why.
+
+Ask the owner for the reason in their words before you call; it is required and recorded. Before
+you raise an answer to locked, say the rule the command prints first: an answer is locked only once
+a difference between the family's repositories has done real harm. The owner still decides; the
+command does not refuse. Add `--dry-run` to show what would change; add `--on <day>` for another
+day. Each change is kept in the answer's `history`: what it was, what it became, who, when, why.
+
+It ends with `0` once the change is written (or would be), and when the change changes nothing (it
+says so and writes nothing). It ends with `2` and writes nothing for a missing reason or name, an
+e-mail address in a name, a reason or a value, a value not written as asked, an answer the core does
+not hold given no `--from`, a core of a newer shape (update the plugin), a core that does not hold
+its shape (run `--check`), or a core inside a repository that is not its own. It writes nothing in
+any member repository and tells no member: tell the user members learn of the change when they next
+read the core, which a later slice builds. It commits nothing, even when the core is a repository of
+its own: committing and review are the owner's.
+
 Not built yet: a repository declaring its family and pinning the core, inheriting its answers in
-`new` and `adopt`, the gate holding locked answers, the blocks of the core, and pushing the core
-anywhere.
+`new` and `adopt`, the gate holding locked answers, telling members the core moved, the blocks of
+the core, leaving a family, renaming a family, and pushing the core anywhere.

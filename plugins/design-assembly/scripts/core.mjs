@@ -7,6 +7,9 @@
 //        node core.mjs --build --family NAME --core DIR --by NAME [--lock ID]... [--default ID]...
 //                      [--on DATE] [--dry-run] [--target DIR] [--json]
 //        node core.mjs --check --core DIR [--json]
+//        node core.mjs --change ID --core DIR --by NAME --why TEXT [--value VALUE]
+//                      [--hold locked|default] [--from DIR] [--on DATE] [--dry-run] [--json]
+// Changing an answer of a built core is scripts/core-change.mjs (slice 4 of item 7.1).
 // Exit: reading, 1 when the sheet waits on a person, 0 when no answer of the repository is settled
 // and there is nothing to build from; building, 0 once the core is written (or would be); checking,
 // 0 when the shape holds and 1 when a part of it is wrong, each problem naming the file and the
@@ -18,6 +21,7 @@ import path from "node:path";
 import { stdout } from "node:process";
 
 import {
+  ADDRESS,
   CORE,
   corePartShapeProblems,
   familyCoreProblems,
@@ -27,6 +31,7 @@ import { renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { isDay } from "../templates/tools/design-assembly/waiting.mjs";
 import { today } from "./asking.mjs";
 import { changeOf, finish, readCall, Refusal, refuse, start } from "./command.mjs";
+import { changeCall } from "./core-change.mjs";
 import { givenProblem, givenValue, placeOf, readFirst, sheetOf } from "./core-read.mjs";
 
 const WIDTH = 100;
@@ -62,9 +67,6 @@ function workTreeOf(dir) {
   return run.status === 0 && run.stdout.trim() !== "" ? realpathSync(run.stdout.trim()) : null;
 }
 
-// An e-mail address in a text a person gave, which no file of a core keeps.
-const ADDRESS = /[^\s@<>()]+@[^\s@<>()]+\.[^\s@<>()]+/;
-
 // Why the folder cannot take a new core, or null. A part of a newer shape is said first, and the
 // plugin then writes nothing there.
 function placeProblem(core, first) {
@@ -87,7 +89,7 @@ function placeProblem(core, first) {
   const newer = newerCoreParts(core);
   if (newer.length > 0) return newer.join("; ");
   if (existsSync(path.join(core, CORE.parts.declaration.file))) {
-    return `${core} holds a family core already; changing a core is not built yet`;
+    return `${core} holds a family core already: change its answers with --change`;
   }
   // A repository of its own, made for the core, holds git's own folder and nothing else.
   if (readdirSync(core).some((name) => name !== ".git")) return `${core} is not empty`;
@@ -327,7 +329,8 @@ function checkReport({ core, version, problems }) {
 const USAGE =
   "usage: node core.mjs [--target DIR] [--family NAME] [--core DIR] [--json]\n" +
   "       node core.mjs --build --family NAME --core DIR --by NAME [--lock ID]... [--default ID]... [--value ID=VALUE]... [--on DATE] [--dry-run] [--target DIR] [--json]\n" +
-  "       node core.mjs --check --core DIR [--json]\n";
+  "       node core.mjs --check --core DIR [--json]\n" +
+  "       node core.mjs --change ID --core DIR --by NAME --why TEXT [--value VALUE] [--hold locked|default] [--from DIR] [--on DATE] [--dry-run] [--json]\n";
 const FLAGS = {
   "--family": "value",
   "--core": "value",
@@ -339,8 +342,13 @@ const FLAGS = {
   "--by": "value",
   "--on": "value",
   "--dry-run": "switch",
+  "--change": "value",
+  "--hold": "value",
+  "--from": "value",
+  "--why": "value",
 };
 const BUILD_ONLY = ["--lock", "--default", "--value", "--by", "--on", "--dry-run"];
+const CHANGE_ONLY = ["--hold", "--from", "--why"];
 const blank = (value) => value === undefined || String(value).trim() === "";
 
 async function main(args) {
@@ -352,6 +360,16 @@ async function main(args) {
   if (flags["--build"] && flags["--check"]) {
     return refuse("--build and --check are two calls; give one", USAGE);
   }
+  if (flags["--change"] !== undefined) {
+    if (flags["--build"] || flags["--check"]) {
+      return refuse("--change is a call of its own; give one of --build, --check, --change", USAGE);
+    }
+    const strayBuild = ["--lock", "--default", "--family"].find((flag) => flag in flags);
+    if (strayBuild) return refuse(`${strayBuild} is a flag of --build, not of --change`, USAGE);
+    return changeCall(call, USAGE);
+  }
+  const strayChange = CHANGE_ONLY.find((flag) => flag in flags);
+  if (strayChange) return refuse(`${strayChange} is a flag of --change`, USAGE);
   if (flags["--check"]) {
     if (!core) return refuse("say which core to check, with --core DIR", USAGE);
     const result = checkCore(core);

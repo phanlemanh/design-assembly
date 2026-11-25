@@ -532,8 +532,35 @@ const settled = {
   fields: { by: required(text), on: required(day) },
   open: true,
 };
+// An e-mail address in a text a person gave, which no file of a core keeps: a core keeps names.
+export const ADDRESS = /[^\s@<>()]+@[^\s@<>()]+\.[^\s@<>()]+/;
+// Text that says something: never blank.
+const said = { ...text, pattern: "\\S" };
+// What an answer was, or became, at one change: its value and its hold.
+const answerState = {
+  type: "object",
+  fields: {
+    value: required({ type: "string|number|boolean|array|object" }),
+    hold: required({ ...text, values: CORE_HOLDS }),
+  },
+};
+// One change of an answer after it came into the core (shape 2): what it was, what it became, who
+// changed it, on which day, and why. The reason is never blank.
+const answerChange = {
+  type: "object",
+  fields: {
+    was: required(answerState),
+    became: required(answerState),
+    by: required(said),
+    on: required(day),
+    why: required(said),
+  },
+};
+// The shape in which an answer first carries its history.
+export const CORE_HISTORY_SINCE = 2;
 export const CORE = {
-  version: 1,
+  // Shape 2 adds `history` to an answer; a part of shape 1 is read as it is.
+  version: 2,
   parts: {
     // Which family the core is of, by the name the person gave it; the repository its answers were
     // first read from; the repositories that declared they are of it, each with the day it joined
@@ -602,6 +629,9 @@ export const CORE = {
                 },
                 open: true,
               }),
+              // Each change since the answer came into the core, oldest first: `by`, `on` and
+              // `why` above say how it came in and are never rewritten.
+              history: list(answerChange),
             },
             open: true,
           }),
@@ -755,6 +785,9 @@ function corePartProblems(part, data, file) {
     const answers = Array.isArray(data.answers) ? data.answers : [];
     return [
       ...twice(answers, "id").map((id) => `${file} answers ${id} twice: one question, one answer`),
+      ...answers.flatMap((answer, index) =>
+        historyProblems(answer, `${file}.answers[${index}]`, versionOf(data), file),
+      ),
       // A rule's value is the words of its row; a value is what a member compares.
       ...answers.flatMap((answer, index) =>
         answer?.kind === "rule" && typeof answer.value !== "string"
@@ -782,6 +815,64 @@ function corePartProblems(part, data, file) {
 }
 
 const typeOf = (value) => (value === null ? "null" : Array.isArray(value) ? "array" : typeof value);
+
+// Whether two states of an answer are one: the same value and the same hold.
+const sameState = (a, b) =>
+  typeOf(a) === "object" &&
+  typeOf(b) === "object" &&
+  a.hold === b.hold &&
+  JSON.stringify(a.value) === JSON.stringify(b.value);
+
+// What the history of one answer, at `where`, says that its shape alone does not hold: each change
+// goes on from the one before it, the last made the answer what it is, a change changes something,
+// a rule is never given another value, the days go forward from the day the answer came in, and a
+// name or a reason holds no e-mail address. A history in a part of shape 1 is a part of shape 2.
+function historyProblems(answer, where, version, file) {
+  const history = answer?.history;
+  if (!Array.isArray(history) || history.length === 0) return [];
+  const at = `${where}.history`;
+  const problems = [];
+  if (version !== null && version < CORE_HISTORY_SINCE) {
+    problems.push(`${at} is of shape ${CORE_HISTORY_SINCE}, and ${file} says shape ${version}`);
+  }
+  history.forEach((step, index) => {
+    if (typeOf(step) !== "object") return;
+    const here = `${at}[${index}]`;
+    const before = history[index - 1];
+    if (sameState(step.was, step.became)) {
+      problems.push(`${here} changes nothing: was and became are the same`);
+    }
+    if (
+      answer.kind === "rule" &&
+      typeOf(step.was) === "object" &&
+      typeOf(step.became) === "object" &&
+      JSON.stringify(step.was.value) !== JSON.stringify(step.became.value)
+    ) {
+      problems.push(`${here} gives a rule another value: a rule's words are its row's`);
+    }
+    if (typeOf(before) === "object" && !sameState(before.became, step.was)) {
+      problems.push(`${here}.was is not what ${at}[${index - 1}] made the answer`);
+    }
+    const since = index === 0 ? answer.on : before?.on;
+    if (typeof since === "string" && typeof step.on === "string" && step.on < since) {
+      problems.push(`${here}.on is ${step.on}, before ${since}: a history goes forward`);
+    }
+    for (const key of ["by", "why"]) {
+      if (typeof step[key] === "string" && ADDRESS.test(step[key])) {
+        problems.push(
+          `${here}.${key} holds an e-mail address: a core keeps names, never an address`,
+        );
+      }
+    }
+  });
+  const last = history.at(-1);
+  if (typeOf(last) === "object" && !sameState(last.became, answer)) {
+    problems.push(
+      `${at}[${history.length - 1}].became is not the answer's value and hold: the last change made the answer what it is`,
+    );
+  }
+  return problems;
+}
 
 // What is wrong with a value against a field, each line naming where.
 function fieldProblems(value, spec, where) {
