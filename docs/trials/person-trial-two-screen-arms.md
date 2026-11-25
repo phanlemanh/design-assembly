@@ -4,7 +4,7 @@ Lần chạy thử 19, ngày 2026-11-25, cho mục 10.4: dòng «xong khi» củ
 [0014](../../wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md)). Đây là lượt chạy lại từ đầu sau khi bản sửa
 [0108](../../wiki/decisions/0108-session-names-go-one-to-a-flag.md) gộp (PR #137, `d3be68a`). Lượt trước dừng ở bước plugs:
 [bản ghi](person-trial-stopped-at-the-plugs-step.md). Bản quyết định đi kèm:
-[0109](../../wiki/decisions/0109-the-person-trial-shows-the-stage-10-line.md).
+[0111](../../wiki/decisions/0111-the-person-trial-shows-the-stage-10-line.md).
 
 **Kết luận ngắn:**
 

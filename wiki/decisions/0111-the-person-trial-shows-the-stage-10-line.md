@@ -16,7 +16,7 @@ sources:
   - "chủ repo, 2026-11-25, qua phiên điều phối: «Đi tiếp, sửa riêng», đáp câu «Đi tiếp lượt này và sửa lỗi bằng PR riêng, hay dừng để sửa trước rồi chạy lại?»"
 ---
 
-# 0109 Lượt thử có người cho thấy dòng «xong khi» của giai đoạn 10, với bốn điều kèm theo
+# 0111 Lượt thử có người cho thấy dòng «xong khi» của giai đoạn 10, với bốn điều kèm theo
 
 ## Status
 
