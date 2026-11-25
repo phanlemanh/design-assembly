@@ -4897,7 +4897,7 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0096", "d0098"],
+      "where": ["d0096", "d0098", "d0109"],
       "status": "open",
       "note": "The gate compares a pin with what the repository holds for fonts only, so the snapshot of a library source that no longer matches its pin is said by find and intake and leaves the gate green."
     },
@@ -5497,6 +5497,28 @@
       "where": ["d0110"],
       "status": "open",
       "note": "A row of the intake ledger that an agent wrote as made by hand for a piece the build laid from the starter kit, as in trial 19, stays: the build never writes over a row, so its source is not set right."
+    },
+    {
+      "id": "reference-row-read-as-a-block-library",
+      "area": "capabilities",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0109"],
+      "status": "open",
+      "note": "The sources ledger takes a row of a kind this plugin gives no meaning, such as reference, as a library blocks are picked from: a row that keeps references gathered before a choice is offered by find on the ladder of a component need."
+    },
+    {
+      "id": "reference-kept-without-the-owners-pick",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0109"],
+      "status": "open",
+      "note": "The reference socket says the owner decides which reference is kept, but nothing asks it: a builder that gathers references keeps the ones it picks, and the question it queues asks only the choice the references serve."
     }
   ]
 }

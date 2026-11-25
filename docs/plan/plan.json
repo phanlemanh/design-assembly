@@ -487,8 +487,8 @@
         {
           "id": "10.2",
           "what": "Đo các phích ngoài ưu tiên theo bốn thước, theo thứ tự chủ repo chốt: Claude Design (không chờ ngày 2026-12-14), ReUI, frontend-design, Stitch, rồi Open Design, Figma, Mobbin; mỗi phích một bản quyết định; thêm tệp phích còn thiếu",
-          "state": "doing",
-          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 11 và 16, câu hỏi 5 (thứ tự chủ repo đổi ngày 2026-11-23); mỗi lượt đo hỏi chủ repo trước vì tốn token; Claude Design đo ngày 2026-11-23, ngoài kế hoạch theo lời chủ repo («Cho đo Claude Design»): wiki/decisions/0088-claude-design-system-measured-on-four-measures.md, docs/trials/claude-design-system-measured.md; ReUI đo ở ổ linh kiện ngày 2026-11-23 theo lời chủ repo («Đo đủ, phần miễn phí»), không thắng phích của plugin: wiki/decisions/0096-reui-measured-at-the-components-socket.md, docs/trials/reui-components-measured.md; frontend-design đo ở ổ dựng màn ngày 2026-11-23 theo lời chủ repo («Cho chạy một nhánh»), không thắng phích của plugin: wiki/decisions/0097-frontend-design-measured-at-the-screen-build-socket.md, docs/trials/frontend-design-measured-at-screen-build.md; mục đang làm từ ngày 2026-11-23, khi giai đoạn 10 mở: ba trên bảy phích đã đo"
+          "state": "done",
+          "ref": "wiki/specs/0014-outside-plugs-set-up-in-one-sitting.md, tiêu chí 11 và 16, câu hỏi 5 (thứ tự chủ repo đổi ngày 2026-11-23); mỗi lượt đo hỏi chủ repo trước vì tốn token; Claude Design đo ngày 2026-11-23, ngoài kế hoạch theo lời chủ repo («Cho đo Claude Design»): wiki/decisions/0088-claude-design-system-measured-on-four-measures.md, docs/trials/claude-design-system-measured.md; ReUI đo ở ổ linh kiện ngày 2026-11-23 theo lời chủ repo («Đo đủ, phần miễn phí»), không thắng phích của plugin: wiki/decisions/0096-reui-measured-at-the-components-socket.md, docs/trials/reui-components-measured.md; frontend-design đo ở ổ dựng màn ngày 2026-11-23 theo lời chủ repo («Cho chạy một nhánh»), không thắng phích của plugin: wiki/decisions/0097-frontend-design-measured-at-the-screen-build-socket.md, docs/trials/frontend-design-measured-at-screen-build.md; mục đang làm từ ngày 2026-11-23, khi giai đoạn 10 mở: ba trên bảy phích đã đo; Mobbin đo ở ổ tham khảo ngày 2026-11-25 theo lời chủ repo «Đo Mobbin xong rồi tạm đóng hạng mục này.», trên hai bản dựng dừng giữa chừng vì sát trần token, không thắng phích của plugin: wiki/decisions/0109-mobbin-measured-at-the-reference-socket.md, docs/trials/mobbin-reference-measured.md; cùng lời ấy gác Stitch, Open Design và Figma (vào parked) và đóng mục: bốn phích đã đo, ba phích gác lại"
         },
         {
           "id": "10.3",
@@ -640,6 +640,11 @@
       "id": "floor-move",
       "name": "Sàn thiết kế chuyển nhà",
       "note": "Cần đề bài riêng; đụng năm tệp của Repo Standards mà plugin hôm nay không được sửa."
+    },
+    {
+      "id": "outside-plugs",
+      "name": "Phích ngoài gác lại",
+      "note": "Chủ repo gác lại ngày 2026-11-25 khi tạm đóng mục 10.2; chỉ đo lại khi chủ repo mở lại hạng mục."
     }
   ],
   "parked": [
@@ -726,6 +731,27 @@
       "stage": 6,
       "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 6: bộ sổ lúc ra đời đủ và cổng xanh; việc này chạm sàn của Repo Standards, cần lời cho phép ở kho ấy, hoặc lời chủ repo để nhận tệp ấy ở known-proofs.json",
       "group": "small"
+    },
+    {
+      "on": "2026-11-25",
+      "what": "Đo phích Stitch theo bốn thước (phần còn lại của mục 10.2)",
+      "stage": 10,
+      "why_not_now": "Chủ repo gác lại, gõ ở phiên điều phối ngày 2026-11-25: «Đo Mobbin xong rồi tạm đóng hạng mục này.» Không chặn dòng «xong khi» của giai đoạn 10.",
+      "group": "outside-plugs"
+    },
+    {
+      "on": "2026-11-25",
+      "what": "Đo phích Open Design theo bốn thước (phần còn lại của mục 10.2)",
+      "stage": 10,
+      "why_not_now": "Chủ repo gác lại, gõ ở phiên điều phối ngày 2026-11-25: «Đo Mobbin xong rồi tạm đóng hạng mục này.» Không chặn dòng «xong khi» của giai đoạn 10.",
+      "group": "outside-plugs"
+    },
+    {
+      "on": "2026-11-25",
+      "what": "Đo phích Figma theo bốn thước (phần còn lại của mục 10.2)",
+      "stage": 10,
+      "why_not_now": "Chủ repo gác lại, gõ ở phiên điều phối ngày 2026-11-25: «Đo Mobbin xong rồi tạm đóng hạng mục này.» Không chặn dòng «xong khi» của giai đoạn 10.",
+      "group": "outside-plugs"
     }
   ]
 }
