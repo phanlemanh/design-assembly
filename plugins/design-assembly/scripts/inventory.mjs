@@ -20,6 +20,7 @@ import { isByHand } from "../templates/tools/design-assembly/intake-ledger.mjs";
 import { KINDS_FOLDER, readKinds, readPages } from "../templates/tools/design-assembly/screens.mjs";
 import { CONFORM_FOLDER } from "../templates/tools/design-assembly/contract.mjs";
 import { mandatoryOff, mandatoryRules } from "./conform-rules.mjs";
+import { movedLines, movedOf } from "./core-moved.mjs";
 import {
   pinSha256,
   readPinnedSources,
@@ -721,6 +722,14 @@ export function inventory(root, { store = "all", kind = null } = {}) {
   const stores = storesOf(read).filter(
     (entry) => (store === "all" || entry.store === store) && (kind === null || entry.kind === kind),
   );
+  // A repository of a family: whether its core moved ahead of the pin, answer by answer. A core
+  // that cannot be looked at is named among what was not looked at. A repository of no family has
+  // no such key, and reads nothing outside itself.
+  const moved = movedOf(root);
+  if (moved?.state === "unreachable") say("family-core", moved.why);
+  if (moved?.state === "unreadable") {
+    say("family-core", `the copy of the core here cannot be read (${moved.why})`);
+  }
   return {
     store,
     kind,
@@ -728,6 +737,7 @@ export function inventory(root, { store = "all", kind = null } = {}) {
     items: pieces.filter(wanted).map(({ origin, ...piece }) => ({ ...piece, origin })),
     findings: findings.filter((finding) => finding.items.some(wanted)),
     blind,
+    ...(moved ? { core: moved } : {}),
   };
 }
 
@@ -763,6 +773,12 @@ export function report(result) {
       );
       out.push(...finding.evidence.map((line) => `    ${line}`));
     }
+  }
+  if (result.core && ["same", "ahead"].includes(result.core.state)) {
+    out.push(
+      `family core: ${result.core.family}, pinned at ${result.core.pin}`,
+      ...movedLines(result.core),
+    );
   }
   out.push("not looked at:");
   if (result.blind.length === 0) out.push("  nothing");

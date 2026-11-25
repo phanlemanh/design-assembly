@@ -5618,9 +5618,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-25",
-      "where": ["d0115", "spec"],
-      "status": "open",
-      "note": "A change of the core is written in its folder only and no member is told: until slice 3 of item 7.1 reports a core ahead of a member's pin (criterion 9), a member keeps the answers of the core it pinned and nothing says the core moved."
+      "where": ["d0115", "d0116", "spec"],
+      "status": "closed",
+      "note": "A change of the core is written in its folder only and no member is told: until slice 3 of item 7.1 reports a core ahead of a member's pin (criterion 9), a member keeps the answers of the core it pinned and nothing says the core moved.",
+      "closed": "2026-11-25",
+      "closed_by": "slice 3 of item 7.1 (decision 0116): a member that can look at the core's folder is told the core moved ahead of its pin, answer by answer, by status, inventory, core --moved and the line at the start of a session; the change move writes nothing into a member and says how members learn of it. A member on a machine that cannot look at the folder is in core-moved-seen-only-where-the-folder-is"
     },
     {
       "id": "core-leaving-not-built",
@@ -5675,9 +5677,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-25",
-      "where": ["d0114", "spec"],
-      "status": "open",
-      "note": "A member reads its own copy of the core only: when the core folder moves ahead of the pin, nothing says so until the member pins it again with core --join. Criterion 9, slice 3 of item 7.1."
+      "where": ["d0114", "d0116", "spec"],
+      "status": "closed",
+      "note": "A member reads its own copy of the core only: when the core folder moves ahead of the pin, nothing says so until the member pins it again with core --join. Criterion 9, slice 3 of item 7.1.",
+      "closed": "2026-11-25",
+      "closed_by": "slice 3 of item 7.1 (decision 0116): where the machine can look at the core's folder, status, inventory and core --moved name each answer that changed, was added or was retired, with who changed it, when and why; a person accepts answer by answer with core --accept, and the line at the start of a session says the core moved. What it still does not do is in core-moved-seen-only-where-the-folder-is, core-retired-answer-half-told and core-accept-part-pin-is-no-state-of-the-core"
     },
     {
       "id": "core-rule-words-not-compared",
@@ -5708,9 +5712,9 @@
       "severity": "low",
       "plan": "keep",
       "opened": "2026-11-25",
-      "where": ["d0114"],
+      "where": ["d0114", "d0116"],
       "status": "open",
-      "note": "An exception to a locked answer and a changed default are kept against the pin they were given at: once the family's answers change and the member pins them again, each is asked again, even where the answer it was about did not change."
+      "note": "An exception to a locked answer and a changed default are kept against the pin they were given at: core --accept carries each to the new pin while the answer it was about did not change, but pinning the core again with core --join asks each again, even where its answer did not change."
     },
     {
       "id": "core-follow-not-carried-out",
@@ -5909,6 +5913,149 @@
       "where": ["d0117", "d0118"],
       "status": "open",
       "note": "A block a repository took in from its family core stays its own when the repository leaves, and its row of the intake ledger is not rewritten: from: core and the pin still stand on the row, and nothing on the row says the repository left or which family it was of, as the mark on a row of the decision ledger does for an answer. The move that leaves names the blocks once, and the inventory says each is compared with no core."
+    },
+    {
+      "id": "core-moved-seen-only-where-the-folder-is",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0116", "spec"],
+      "status": "open",
+      "note": "A member learns the core moved only on a machine whose list of cores names the core's folder, and only as far as that folder is up to date: no command calls the network, so a clone on another machine, a build server, and a folder nobody pulled see the copy alone and are told nothing, or are told the folder cannot be looked at."
+    },
+    {
+      "id": "core-accept-part-pin-is-no-state-of-the-core",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0116"],
+      "status": "open",
+      "note": "After a person accepts some changed answers and leaves others, the copy holds a mix and the pin is the hash of that mix, which no state of the core ever had: the pin in the core's list of members then names nothing the core's owner can look up, and only the member's declaration says what was taken and what was left."
+    },
+    {
+      "id": "core-retired-answer-half-told",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0116", "spec"],
+      "status": "open",
+      "note": "An answer the core no longer holds is reported as retired with nobody named, since the core keeps no record of who took it out, and accepting it drops it from the copy and leaves its row of the decision ledger with the mark of the earlier pin: retiring with its reason and day, and the row becoming the repository's own, are criterion 24 of spec 0016, item 7.2."
+    },
+    {
+      "id": "core-moved-question-left-on-a-shared-waiting-list",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0116"],
+      "status": "open",
+      "note": "When a member accepts a change, a question that waited about the earlier pin is taken away only where the waiting list is one file per question: on a waiting list kept as one shared file it stays, asks about a pin the repository no longer holds, and the command names it."
+    },
+    {
+      "id": "core-moved-not-in-the-inventory-document",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0116"],
+      "status": "open",
+      "note": "The inventory says the core moved ahead of the pin in its text and its data, not in the document it hands over with --out, which lists the store's findings alone."
+    },
+    {
+      "id": "core-eye-draws-two-values",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0116", "spec"],
+      "status": "open",
+      "note": "Accepting by eye draws the source colour and the type scale, the two values of a core a screen shows as it is: how a record opens is drawn by the specimen sheet's own section and not before and after, the widths change no screen, and the corner radius and the spacing are not answers a core holds, so they are never drawn."
+    },
+    {
+      "id": "core-eye-after-is-what-the-guide-would-write",
+      "area": "core",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0116"],
+      "status": "open",
+      "note": "The picture after shows the repository's screen with the values the guide would write from the core's answer, put on the page over its stylesheet: a repository that writes its theme by hand, or does not follow the core's value through the guide, may look otherwise once it follows, and accepting changes no stylesheet."
+    },
+    {
+      "id": "session-line-not-seen-in-a-live-session",
+      "area": "core",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0116", "spec"],
+      "status": "open",
+      "note": "The line at the start of a session is tested as the script and as the hook's own command run by a shell, and its form was read from Claude Code's documentation and from hooks of installed plugins, but no session of Claude Code was opened with the plugin installed to see the line arrive: that costs tokens and waits on the owner's word."
+    },
+    {
+      "id": "session-line-needs-bash-and-node",
+      "area": "core",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0116"],
+      "status": "open",
+      "note": "The hook's command is one line of bash that runs node: on a machine with neither, or where Claude Code runs hooks in another shell, it says nothing or the shell reports the command, and nothing else of the session changes."
+    },
+    {
+      "id": "session-line-says-nothing-of-what-it-cannot-read",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0116"],
+      "status": "open",
+      "note": "The line at the start of a session is silent when the copy of the core cannot be read, when the core's folder cannot be looked at and when a ledger it reads is broken, so silence does not mean nothing waits: status says each of those in words."
+    },
+    {
+      "id": "core-publish-rests-on-the-session",
+      "area": "core",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0116", "spec"],
+      "status": "open",
+      "note": "No script calls the network, so that the repository a core is pushed to is private, that it is the place the leave names, and that a push happened are the session's word: the command prints what would go where, the skill page says to create the repository private and to check before pushing, and a push is recorded as the session says it."
+    },
+    {
+      "id": "core-publish-leave-travels-with-the-core",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0116"],
+      "status": "open",
+      "note": "The leave to publish is a line of the core's declaration, so it travels with the core to the place it was published to and into each member's copy: on another machine a session reads it as given for that place, by the person it names, and does not ask the person at that machine; taking it back is written in one folder and reaches the others only by a push the leave no longer allows."
+    },
+    {
+      "id": "core-publish-push-known-on-one-machine",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0116"],
+      "status": "open",
+      "note": "A push is recorded in this machine's list of cores, with the state of the folder as pushed: a push made from another machine, or by hand with git, is not known here, and the command then says the copy there is behind when it is not, or names no push at all."
     }
   ]
 }

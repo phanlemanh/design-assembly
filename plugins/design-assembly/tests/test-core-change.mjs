@@ -335,7 +335,7 @@ test("for a person: what changed, that no member was written or told, and when m
   assert.match(call.stdout, /update {2}.*answers\.json/);
   assert.match(
     call.stdout,
-    /no member repository was written or told: members learn of the change when they next read the core, which a later slice builds/,
+    /no member repository was written: each member learns the core moved ahead of its pin where it can look at this folder .* and a person there accepts the change, answer by answer \(core --accept\)/,
   );
   assert.match(call.stdout, /nothing was committed or sent anywhere/);
   assert.deepEqual(answerOf(place, "test-screen-sizes").value, [360, 768, 1280]);

@@ -13,6 +13,8 @@
 //        node core.mjs --ask [--target DIR] [--json]
 //        node core.mjs --decline [--on DATE] [--dry-run] [--target DIR] [--json]
 // The moves of a member are in core-join.mjs, and say there what each ends with.
+//        node core.mjs --moved | --accept ID | --accept-all | --publish   (core-moved-call.mjs:
+//        a member learns the core moved and accepts it; the leave to publish a core)
 //        node core.mjs --change ID --core DIR --by NAME --why TEXT [--value VALUE]
 //                      [--hold locked|default] [--from DIR] [--on DATE] [--dry-run] [--json]
 // Changing an answer of a built core is scripts/core-change.mjs (slice 4 of item 7.1).
@@ -47,6 +49,7 @@ import { MEMBER_FLAGS, MEMBER_MOVES, MEMBER_USAGE, memberMain } from "./core-joi
 import { LEAVE_FLAGS, LEAVE_MOVE, LEAVE_USAGE, leaveCall } from "./core-leave-call.mjs";
 import { TAKE_FLAGS, TAKE_MOVES, TAKE_ONLY, TAKE_USAGE, takeMain } from "./core-take.mjs";
 import { addLine } from "./core-list.mjs";
+import { MOVED_FLAGS, MOVED_MOVES, MOVED_USAGE, movedMain } from "./core-moved-call.mjs";
 import { givenProblem, givenValue, placeOf, readFirst, sheetOf } from "./core-read.mjs";
 
 const WIDTH = 100;
@@ -354,7 +357,8 @@ const USAGE =
   "       node core.mjs --change ID --core DIR --by NAME --why TEXT [--value VALUE] [--hold locked|default] [--from DIR] [--on DATE] [--dry-run] [--json]\n" +
   MEMBER_USAGE +
   LEAVE_USAGE +
-  TAKE_USAGE;
+  TAKE_USAGE +
+  MOVED_USAGE;
 const FLAGS = {
   "--family": "value",
   "--core": "value",
@@ -372,6 +376,7 @@ const FLAGS = {
   ...MEMBER_FLAGS,
   ...LEAVE_FLAGS,
   ...TAKE_FLAGS,
+  ...MOVED_FLAGS,
 };
 const BUILD_ONLY = ["--lock", "--default", "--value", "--by", "--on", "--dry-run"];
 const CHANGE_ONLY = ["--hold", "--from", "--why"];
@@ -390,11 +395,14 @@ async function main(args) {
     ...MEMBER_MOVES,
     LEAVE_MOVE,
     ...TAKE_MOVES,
+    ...MOVED_MOVES,
   ].filter((flag) => flags[flag] !== undefined);
   if (
     moves.length > 1 &&
     moves.includes("--change") &&
-    moves.every((flag) => !MEMBER_MOVES.includes(flag) && flag !== LEAVE_MOVE)
+    moves.every(
+      (flag) => !MEMBER_MOVES.includes(flag) && flag !== LEAVE_MOVE && !MOVED_MOVES.includes(flag),
+    )
   ) {
     return refuse("--change is a call of its own; give one of --build, --check, --change", USAGE);
   }
@@ -405,6 +413,8 @@ async function main(args) {
     );
   }
   if (TAKE_MOVES.includes(moves[0])) return takeMain(call, USAGE);
+  // The moves of slice 3 read their own flags: --publish takes --to too, a place and not a folder.
+  if (MOVED_MOVES.includes(moves[0])) return movedMain(moves[0], call, USAGE);
   const strayTake = TAKE_ONLY.find((flag) => flag in flags);
   if (strayTake) return refuse(`${strayTake} is a flag of --take`, USAGE);
   if (MEMBER_MOVES.includes(moves[0])) return memberMain(moves[0], call, USAGE);

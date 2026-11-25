@@ -3,8 +3,9 @@
 // answer the core does not hold yet, added from a repository where a person settled it, read as the
 // build reads the first repository. Every change records who made it, on which day and why, as an
 // entry of the answer's history; how the answer came into the core is never rewritten. The move
-// writes the core's answers and nothing else: no member repository is written or told, nothing is
-// committed, and it calls no model and no network.
+// writes the core's answers and nothing else: no member repository is written, nothing is committed,
+// and it calls no model and no network. A member learns of the change when it looks at the core's
+// folder (core-moved.mjs).
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, realpathSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -33,7 +34,7 @@ export const LOCK_RULE =
   "Lock an answer only once a difference between the family's repositories has done real harm: a core starts with few locks. You decide; this command does not refuse.";
 
 const MEMBERS_LATER =
-  "no member repository was written or told: members learn of the change when they next read the core, which a later slice builds";
+  "no member repository was written: each member learns the core moved ahead of its pin where it can look at this folder (status, inventory and the first line of a session say so), and a person there accepts the change, answer by answer (core --accept)";
 
 const readJsonFile = (file) => JSON.parse(readFileSync(file, "utf8"));
 const sameValue = (a, b) => JSON.stringify(a) === JSON.stringify(b);

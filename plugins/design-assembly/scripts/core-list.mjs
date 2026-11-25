@@ -55,10 +55,11 @@ export function listFile() {
 
 const isMap = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 
-// The list as data: { file, cores, declined, problem }. `problem` says why it cannot be read, and
-// the list then holds nothing; a list that is not there holds nothing and has no problem.
+// The list as data: { file, cores, declined, pushed, problem }. `problem` says why it cannot be
+// read, and the list then holds nothing; a list that is not there holds nothing and has no problem.
+// `pushed` has each push of a core this machine recorded (core-publish.mjs).
 export function readList(file = listFile()) {
-  const empty = { file, cores: [], declined: [], problem: null, missing: false };
+  const empty = { file, cores: [], declined: [], pushed: [], problem: null, missing: false };
   if (!existsSync(file)) return { ...empty, missing: true };
   let data;
   try {
@@ -81,7 +82,10 @@ export function readList(file = listFile()) {
   const declined = (data.declined ?? []).filter(
     (entry) => isMap(entry) && typeof entry.repository === "string",
   );
-  return { ...empty, cores, declined };
+  const pushed = (Array.isArray(data.pushed) ? data.pushed : []).filter(
+    (entry) => isMap(entry) && typeof entry.path === "string" && typeof entry.to === "string",
+  );
+  return { ...empty, cores, declined, pushed };
 }
 
 // Why a core of the list cannot be read now, or null: its folder gone, its shape wrong or newer.
@@ -94,12 +98,24 @@ export function coreProblem(folder) {
 }
 
 // The list with one more line, as the text written: a core built or pinned (`how`), each folder
-// once, or a repository that is of none of them. Throws when the list on disk cannot be read: a
+// once, a repository that is of none of them, or a push of a core (`to`), the last to each place. Throws when the list on disk cannot be read: a
 // list nobody can read is never written over.
 function withLine(list, line) {
   if (list.problem) throw new Error(list.problem);
-  const data = { version: LIST_VERSION, cores: list.cores, declined: list.declined };
-  if (line.path) {
+  const data = {
+    version: LIST_VERSION,
+    cores: list.cores,
+    declined: list.declined,
+    // The pushes recorded stay: a line of another kind never takes them away.
+    ...(list.pushed.length > 0 || line.to ? { pushed: list.pushed } : {}),
+  };
+  if (line.to) {
+    // A push of a core: the last one to each place it was pushed to.
+    data.pushed = [
+      ...data.pushed.filter((entry) => !(entry.path === line.path && entry.to === line.to)),
+      line,
+    ];
+  } else if (line.path) {
     data.cores = [...data.cores.filter((entry) => entry.path !== line.path), line];
   } else {
     data.declined = [

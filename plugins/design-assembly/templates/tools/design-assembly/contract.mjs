@@ -459,6 +459,21 @@ export const LEDGERS = {
         fields: { by: required(text), on: required(day) },
         open: true,
       }),
+      // The last time a person accepted changes of the core into the copy (slice 3 of item 7.1):
+      // who, on which day, which answers they took, the state of the core's answers then (the
+      // first digits of their hash) and which changed answers they left. The copy holds the core's
+      // answer for each one taken and its earlier one for each one left, and the pin is its hash.
+      accepted: {
+        type: "object",
+        fields: {
+          by: required(text),
+          on: required(day),
+          answers: required(list(dashed)),
+          core: required({ ...text, pattern: "^[0-9a-f]{12}$" }),
+          left: required(list(dashed)),
+        },
+        open: true,
+      },
     },
     open: true,
   },
@@ -616,6 +631,18 @@ export const CORE = {
           }),
         ),
         owner: required(settled),
+        // The leave to publish the core to a private repository (spec 0016, answer 9): the one
+        // place it was given for, as host and path with no user and no secret; who gave it, on
+        // which day; and who took it back, when it was. Absent until a person gives it.
+        publish: {
+          type: "object",
+          fields: {
+            to: required({ ...text, pattern: "^[^\\s@?#]+$" }),
+            allowed: required(settled),
+            taken_back: settled,
+          },
+          open: true,
+        },
       },
       open: true,
     },

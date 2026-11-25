@@ -14,6 +14,7 @@ import {
   CORE,
   COPIED_PARTS,
   coreBlockFile,
+  coreMarkOf,
   corePartShapeProblems,
   familyCoreProblems,
   FAMILY_CORE_CHECK,
@@ -36,13 +37,14 @@ import {
   SYSTEM_PARTS,
 } from "../templates/tools/design-assembly/exports.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
-import { LEDGER } from "../templates/tools/design-assembly/ledger.mjs";
+import { LEDGER, parseLedger } from "../templates/tools/design-assembly/ledger.mjs";
 import { CORE_ID, CORE_KIND } from "../templates/tools/design-assembly/sources-ledger.mjs";
-import { readWaiting } from "../templates/tools/design-assembly/waiting.mjs";
+import { readWaiting, WAITING_LIST } from "../templates/tools/design-assembly/waiting.mjs";
 import { writeFiles, writtenFiles } from "./apply.mjs";
 import { changeOf, Refusal } from "./command.mjs";
 import { addLine, familyQuestion, homeOf, readList } from "./core-list.mjs";
 import { guideQuestions, markLedger, readMember, settledWords, stateOf } from "./core-marks.mjs";
+import { coreQuestionId } from "./core-moved.mjs";
 import { askAll } from "./queue.mjs";
 
 const WIDTH = 100;
@@ -52,8 +54,7 @@ const TOOL_CONTRACT = "tools/design-assembly/contract.mjs";
 // The reason a default of the core the repository held otherwise before it joined is recorded with.
 const BEFORE_JOINING = "the repository's own answer from before it joined the family";
 // The question about a locked answer the repository holds otherwise names the answer and the pin.
-const QUESTION_PREFIX = "core-";
-export const questionId = (id, pin) => `${QUESTION_PREFIX}${id}-${pin}`;
+export const questionId = coreQuestionId;
 
 const read = (root, file) =>
   existsSync(path.join(root, file)) ? readFileSync(path.join(root, file), "utf8") : null;
@@ -107,7 +108,7 @@ function readCoreFolder(core) {
 // The exceptions and the follows the owner answered on the waiting list, by the id of the answer,
 // for the questions about this pin: a refusal with its words is an exception with its reason; a
 // keep is a follow, which the repository carries out itself.
-function answeredOf(root, pin, answers) {
+export function answeredOf(root, pin, answers) {
   let waiting;
   try {
     waiting = readWaiting(root);
@@ -142,7 +143,7 @@ function askOfDiffering(answer, held, pin) {
 
 // The answers of the core put into a repository's ledger, the questions for the locked answers it
 // holds otherwise, and where each answer stands. `reasons` and `exceptions` are given now, by id.
-function holdAnswers(root, pinned, { on, reasons = {}, exceptions = {}, ask = true }) {
+export function holdAnswers(root, pinned, { on, reasons = {}, exceptions = {}, ask = true }) {
   const values = memberValues(pinned, memberFiles(root));
   const answered = answeredOf(root, pinned.label, pinned.answers);
   const given = { reasons, exceptions: { ...answered.exceptions, ...exceptions } };
@@ -205,6 +206,47 @@ function holdAnswers(root, pinned, { on, reasons = {}, exceptions = {}, ask = tr
     };
   });
   return { files, answers: report };
+}
+
+// The questions about this pin that still wait although their answer is recorded: a locked answer
+// the repository keeps as an exception, with the reason a person gave in the session. Each is
+// answered as the decision sheet would write it, a refusal with the reason, the name and the day
+// the row's note holds, so nothing waits on the owner that the owner already said. `ledger` is the
+// text of the ledger as it is about to be written.
+function closeAnswered(root, pinned, ledger) {
+  const none = { files: {}, closed: [] };
+  let waiting;
+  try {
+    waiting = readWaiting(root);
+  } catch {
+    return none;
+  }
+  if (!waiting || ledger === null) return none;
+  const rows = parseLedger(ledger);
+  const closed = [];
+  const answered = waiting.rows.map((row) => {
+    const answer = pinned.answers.find((item) => questionId(item.id, pinned.label) === row.id);
+    if (!answer || row.answer || row.kind === "permission") return row;
+    const mark = coreMarkOf(rows.find((item) => String(item.id) === answer.id)?.note);
+    if (mark.mark !== "kept" || mark.pin !== pinned.label || !mark.why) return row;
+    closed.push(row.id);
+    return { ...row, answer: "refuse", said: mark.why, by: mark.by, on: mark.on };
+  });
+  if (closed.length === 0) return none;
+  const width = lineWidth(root);
+  const files =
+    waiting.shape === "folder"
+      ? Object.fromEntries(
+          closed.map((id) => [
+            waiting.files[id],
+            renderJson(
+              answered.find((row) => row.id === id),
+              width,
+            ),
+          ]),
+        )
+      : { [WAITING_LIST]: renderJson({ ...waiting.list, rows: answered }, width) };
+  return { files, closed };
 }
 
 // The exports a repository keeps that a move leaves behind the ledgers they are written from, with
@@ -410,12 +452,16 @@ export function settleCore(root, { by, on, why = {}, dryRun }) {
     else given.reasons[id] = entry;
   }
   const held = holdAnswers(root, pinned, { on, ...given });
+  // A question the person answered here, with the reason, is closed with that answer.
+  const answered = closeAnswered(root, pinned, held.files[LEDGER] ?? read(root, LEDGER));
+  Object.assign(held.files, answered.files);
   const exports = Object.keys(held.files).length > 0 ? exportsBehind(root, held.files) : null;
   const written = writeFiles(root, held.files, dryRun);
   return {
     family: pinned.family,
     pin: pinned.label,
     answers: held.answers,
+    closed: answered.closed,
     exports,
     files: writtenFiles(written),
     written,
