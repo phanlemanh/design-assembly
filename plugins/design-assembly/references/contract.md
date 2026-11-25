@@ -187,6 +187,15 @@ record, `design/conform/<need>.json`, which holds the hash of every file of the 
 patching. Optional like the others: a block written before it still reads, and `intake` asks for
 the record only when it writes a new row for an outside item.
 
+A block taken from the family core the repository pinned (spec 0016, slice 1 of item 7.2) is
+written as a block of an outside source is, and names the core as where it came from: `from` is
+`core`, the id of the declaration; `source` is the block's need in the core, the key the core's
+store keeps it by; `pin` is the pin of the core it was taken at, the twelve digits; `taken` is the
+`sha256` of its file as taken in; and `conform` is the path of its conform record, which holds the
+hash of every file of the block as taken down and after patching, and the hash that names the
+block in the copy. `need` is the repository's own need, which may be another key than the core's.
+No key is new, so the shape stays 1.
+
 A block made by hand since slice 5 of that spec also says `searched`, the words `find` was asked
 with, and `nearest`, the nearest thing the stores gave for them, nearer store first: a name the
 repository's own store, a pinned catalog or the starter kit holds, or `none` when nothing answered.
@@ -248,6 +257,18 @@ first: a copy that differs, a file missing, a part of a wrong or newer shape, is
 why, and the repository inherits nothing; its own answers stand. The gate, where it holds the core's
 locked answers, says so in red.
 
+Since slice 1 of item 7.2 the copy also holds the files of every block of the core, each where the
+core keeps it, `design/core/blocks/<need>/<file>`, byte for byte, and `pin.files` lists each with
+its `sha256` beside the three parts: a member takes a block from its own copy, at its pin, on any
+machine, with the core folder out of reach, and a file of a block changed in the copy makes the
+copy unreadable like any other. The copy is the core's, not the repository's code: nothing of the
+repository imports from it, and a formatter or a lint that walks the whole repository must leave
+it as it is. A copy pinned before that holds the list of blocks and no file of a block: it still
+reads, the block is not offered, with why, and pinning again with `core --join` brings the files.
+The pin a member is named by stays the first twelve hexadecimal digits of the hash of
+`answers.json`: a block that changes moves the hash that names that block (see `conform`), not the
+pin.
+
 A source may say its `kind`. One other kind has a meaning here, `font`: a typeface the product uses that
 is neither the floor's nor the system's. A source with no `kind`, or with a word of the
 repository's own, is a library as above, and is read as before. A font has `version`, `id`,
@@ -296,6 +317,17 @@ the file. Run under a pin `pin_sha256` does not hold, it records the pin even wh
 and the plain check says when the record's pin is behind the source's. The gate fails when a part is missing, when `taken` names no file, when `conformed` does
 not hold exactly the files of `taken`, when a patch or an exemption is about a file that is not the
 item's, and when the file is not named after its need. A repository may keep keys of its own.
+
+A block of the family core the repository pinned has the same record (spec 0016, answer 7: one
+way in for everything that is not the repository's). Its `source` is `core`; its `item` is the
+block's need in the core; and its `pin_sha256` is the hash that names the block in the repository's
+copy of the core: the `sha256` of the block's files, each with its hash, in the order of their
+names. That hash moves when a file of the block changes, comes or goes, and with nothing else, so
+an answer of the core that changes, another block, or a member that joins leave the record as it
+is. `core --take` starts the record as it copies the files out of the copy, with `taken` and
+`conformed` alike and no patch; the inventory reports the block as `outdated` when the hash in the
+record is not the one of the copy now, and `core --take` then writes the files that changed, for
+`conform --taken-down` to apply the patches on.
 
 A record whose need no row of the intake ledger answers is an item **taken down and not taken in**:
 the gate fails when a file of the repository's code imports one of its files, naming the item, its
@@ -382,9 +414,18 @@ in a part that says shape 1 is a wrong shape. `core --check` holds each of these
 place: the file, the answer and the change.
 
 `blocks`: `version` and `blocks`, one per need, no need twice. A block has `need`, `name`, `files`
-(each with `file` and `sha256`, kept under `blocks/<need>/`), `adapters` (the adapters it needs),
+(each with `file` and `sha256`, kept under `blocks/<need>/`), `adapters` (the kinds of adapter it
+needs, as the starter kit names them: a repository that lacks one is not offered the block),
 `used_by` (the repositories that use it), `promoted` (`by` and `on`) and `second_use`, false until a
-second repository has used it. The list is empty when a core is built.
+second repository has used it; and maybe `description`, what it is for in a sentence. The list is
+empty when a core is built, and no command fills it yet.
+
+For a store that is not empty, `core --check` also holds the files, and names each by the list, the
+block and the file: a block names at least one file; a `file` is a path inside the folder of its
+need, never one that leads out of it (`..`, a path from the root), and is named once; each file is
+there, at `blocks/<need>/<file>`; it is text, UTF-8, since a block is code a member copies as it
+is; and its bytes have the `sha256` listed. A core whose store fails any of these is not joined:
+`core --join` refuses it and writes nothing.
 
 `members`: one file per member repository, named after it, with `version`, `repository` and `needs`,
 each with `need`, `name` and `description` and nothing else: never code, never the text of a file.

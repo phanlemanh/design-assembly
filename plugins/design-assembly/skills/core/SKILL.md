@@ -1,6 +1,6 @@
 ---
 name: core
-description: Build the core of a family of products — the answers the repositories of one family share, each locked or a default, in a folder of its own on this machine — from the answers a person settled in the family's first repository, after the person answers the lock-or-default sheet; check the shape of a core folder; let the family's owner change an answer of the core (its value, locked or a default, or an answer added), each change with who, when and why; and let a repository declare its family and pin the core, compare the answers it already holds, and settle the owner's answers about those that differ. Use when a second product of the same family uses the plugin and the user says the repositories belong together ("this app is of the same family as that one", "share the design answers between our products", "make a core for the family", "join our family core", "check our core folder", "lock the source colour for the whole family", "change the family's widths"), or when new or adopt asked whether a repository is of the same family as a core of this machine. Not for a repository that stands alone, and never to push anything.
+description: Build the core of a family of products — the answers the repositories of one family share, each locked or a default, in a folder of its own on this machine — from the answers a person settled in the family's first repository, after the person answers the lock-or-default sheet; check the shape of a core folder; let the family's owner change an answer of the core (its value, locked or a default, or an answer added), each change with who, when and why; and let a repository declare its family and pin the core, compare the answers it already holds, and settle the owner's answers about those that differ; and take a block of the core down into a member, from its copy of the core, once its owner kept it. Use when a second product of the same family uses the plugin and the user says the repositories belong together ("this app is of the same family as that one", "share the design answers between our products", "make a core for the family", "join our family core", "check our core folder", "lock the source colour for the whole family", "change the family's widths"), or when new or adopt asked whether a repository is of the same family as a core of this machine. Not for a repository that stands alone, and never to push anything.
 ---
 
 # Build the core of a family
@@ -68,7 +68,10 @@ first repository.
 
 `node ${CLAUDE_PLUGIN_ROOT}/scripts/core.mjs --check --core <folder>` ends with `0` when the shape
 holds and `1` with each problem naming the file and the place; `2` when the folder is not there or
-a part has a newer shape than this plugin knows (then the plugin must be updated).
+a part has a newer shape than this plugin knows (then the plugin must be updated). For a block
+store that is not empty it also holds the files: each is there under `blocks/<need>/`, is text, and
+is the file the list names by its hash; a need twice, a file missing, a hash that differs and a
+file named out of its folder are each named.
 
 ## 6. Change an answer of the core
 
@@ -130,6 +133,24 @@ A copy of the core that differs from its hashes cannot be read: every move says 
 repository inherits nothing and its own answers stand, and the gate is red until it is pinned
 again with `--join`.
 
+The copy also holds the files of every block of the core, under `design/core/blocks/<need>/`, each
+in the pin with its hash. They are the core's, kept to be taken from: no file of the repository
+imports them, and no formatter may rewrite them. Where the repository's formatter or lint walks
+`design/core`, say so to the owner before anything is added to an ignore list.
+
+### A block of the core
+
+`find` offers the blocks of the copy at tier 3, and `/design-assembly:intake` asks the owner which
+block answers a need. Once they kept a block of the core, take it down:
+`core.mjs --target <repo> --take <block> [--need <key>] [--to DIR] [--dry-run]`, where `<block>` is
+the block's need in the core and `<key>` the repository's own need when it is another. It copies
+the files out of the copy, fetches nothing, starts the conform record, and says the intake call that
+follows. It ends with `2` and writes nothing on a repository of no family, a copy that cannot be
+read, a block the copy does not hold or whose adapters the repository lacks, a file in the way, or
+a need the ledger already answers. Run again after the copy was pinned again with a newer block, it
+writes the files that changed, refuses to write over a file changed by hand, and leaves the record
+to `conform --need <key> --taken-down`.
+
 ## 8. The guide on a member
 
 After the guide's step 1 writes the blueprint, run `core.mjs --target <repo> --inherit`. It writes
@@ -140,5 +161,5 @@ are asked as before. The guide's preview and build print, last, what the core an
 settled it when: read that out.
 
 Not built yet: telling a member the core moved ahead of its pin, the line at the start of a
-session, the blocks of the core, leaving a family, renaming a family, and pushing the core
-anywhere.
+session, putting a block into the core (promotion, a member's report, a proposal upward, retiring
+one), leaving a family, renaming a family, and pushing the core anywhere.

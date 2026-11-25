@@ -13,6 +13,7 @@ import path from "node:path";
 import {
   CORE,
   COPIED_PARTS,
+  coreBlockFile,
   corePartShapeProblems,
   familyCoreProblems,
   FAMILY_CORE_CHECK,
@@ -85,8 +86,19 @@ function readCoreFolder(core) {
       return [file, readFileSync(path.join(core, file), "utf8")];
     }),
   );
+  // The files of every block, each where the core keeps it: the shape check above held each to
+  // its hash, and to being text.
+  const blockFiles = Object.fromEntries(
+    JSON.parse(texts[CORE.parts.blocks.file]).blocks.flatMap((block) =>
+      block.files.map(({ file }) => {
+        const kept = coreBlockFile(block.need, file);
+        return [kept, readFileSync(path.join(core, kept), "utf8")];
+      }),
+    ),
+  );
   return {
     texts,
+    blockFiles,
     declaration: JSON.parse(texts[CORE.parts.declaration.file]),
     answers: JSON.parse(texts[CORE.parts.answers.file]).answers,
   };
@@ -284,6 +296,9 @@ export function joinCore(root, { core, by, on, dryRun }) {
     [CORE.parts.declaration.file]: renderJson(declared, WIDTH),
     [CORE.parts.answers.file]: answersText,
     [CORE.parts.blocks.file]: read0.texts[CORE.parts.blocks.file],
+    // What a member takes a block from: the files of every block, so that a block is taken on
+    // any machine, at the pin, with the core out of reach (slice 1 of item 7.2).
+    ...read0.blockFiles,
   };
   const source = {
     version: 1,

@@ -5742,6 +5742,105 @@
       "where": ["d0114"],
       "status": "open",
       "note": "The one question about a family is asked by adopt, by the guide's preview and by core --ask; it is not on the waiting list, so a session that runs none of them never sees it."
+    },
+    {
+      "id": "core-block-store-filled-by-no-command",
+      "area": "core",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0117"],
+      "status": "open",
+      "note": "No command puts a block into a core's store: promoting one, a member's report, a proposal upward and retiring one are slices 2 and 3 of item 7.2. Until then a store is written by hand, in the shape the contract states, and held with core --check; a member reads and takes whatever a store that holds its shape lists."
+    },
+    {
+      "id": "core-copy-holds-code-the-repository-tools-walk",
+      "area": "core",
+      "kind": "conflict",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0117"],
+      "status": "open",
+      "note": "A member's copy of the core holds the code of every block under design/core/blocks, so a formatter, a lint or a type check of the repository that walks the whole repository reads those files as its own: a formatter that rewrites one makes the copy unreadable and the gate red until it is pinned again, and a lint may report code the repository never uses. The plugin writes no ignore line and reads none: the skill says to tell the owner."
+    },
+    {
+      "id": "core-copy-holds-every-block",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0117"],
+      "status": "open",
+      "note": "The copy holds the files of every block of the core, whether the repository takes the block or not, and a file a newer pin no longer lists stays in design/core until someone removes it: no command takes a file of the copy away, and no reader reads a file the pin does not list."
+    },
+    {
+      "id": "core-block-imports-not-read",
+      "area": "core",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0117"],
+      "status": "open",
+      "note": "A block of the core says the kinds of adapter it needs and nothing else: a package it imports, or a file of the repository it came from that it reaches by an alias, is not read, so a member is offered the block, takes it down, and learns what is missing from its own build. The question the owner is asked names the block's files and adapters, never its packages."
+    },
+    {
+      "id": "core-take-does-not-read-the-owners-answer",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0117"],
+      "status": "open",
+      "note": "The move core --take copies a block's files into the repository and starts its conform record whether or not the owner kept that block on the decision sheet: the row is still written by intake only after the answer, and the gate keeps the repository's code from using an item taken down and not taken in, but the files are there before a person said yes when an agent runs the move early."
+    },
+    {
+      "id": "core-block-with-other-files-is-taken-afresh",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0117"],
+      "status": "open",
+      "note": "A block that gains or loses a file between two pins, or whose files the repository moved out of one folder, is not taken down over its conform record: core --take says to remove the record by hand, take the block down afresh and record each change again, so the patches of the older block are made a second time."
+    },
+    {
+      "id": "core-block-is-a-block-to-find",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0117"],
+      "status": "open",
+      "note": "A block of the family's store is of the kind block to find and intake, whatever its files export: asked with --kind component it is not offered, where a block of the repository's own whose file is a component is."
+    },
+    {
+      "id": "core-block-of-a-name-the-repository-has",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0117"],
+      "status": "open",
+      "note": "A block of the family's store is not offered where a component of the repository has its name, as a piece of the starter kit is not: the repository that the block was promoted from is told it has it already, and so is a repository whose own component of that name is another thing."
+    },
+    {
+      "id": "core-block-folder-the-configuration-names",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0117", "d0105"],
+      "status": "open",
+      "note": "The move core --take puts a block where the repository keeps its own components, and the rules the block is held to are read as for any item: a configuration file that names that folder is read, as text, as setting it apart, even where it names the folder to hold it to the rules. On the copy of the reference repository the lint configuration names src/components, so a block taken there is refused as breaking every mandatory rule; the move says so before it writes with --dry-run, and a folder the configuration does not name, given with --to, has none of it."
     }
   ]
 }

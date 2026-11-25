@@ -73,9 +73,11 @@ scale, shape). Density, elevation, motion and iconography are not.
   core, a copy kept inside it and compared by hash: each answer it already holds is compared, a
   locked one it holds otherwise becomes a question for its owner, and the gate holds the locked
   answers; `--settle` writes the owner's exceptions in; `--inherit` gives the guide's blueprint
-  what the core answers. A machine that built or pinned a core keeps a list of them outside every
-  repository, so `new` and `adopt` ask a new repository one question about its family; a
-  repository that stands alone on a machine with no core is never asked about a family.
+  what the core answers; `--take` copies a block of the core out of that copy into the repository,
+  once its owner kept it, to be conformed and taken in as an item of an outside source is. A
+  machine that built or pinned a core keeps a list of them outside every repository, so `new` and
+  `adopt` ask a new repository one question about its family; a repository that stands alone on a
+  machine with no core is never asked about a family.
 - `/design-assembly:change` retires a block of the store, or merges it into the block of another
   need. It says the impact first: the screens that reach the block's file (every screen when that
   cannot be traced), the frame, the components that import it, the checks that name its file, and

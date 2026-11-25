@@ -47,6 +47,11 @@
       "id": "core",
       "script": "scripts/core-join.mjs",
       "through": ["decision", "reference"]
+    },
+    {
+      "id": "core-take",
+      "script": "scripts/core-take.mjs",
+      "through": ["components"]
     }
   ],
   "unseen_writes": {

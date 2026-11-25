@@ -613,8 +613,8 @@
         {
           "id": "7.2",
           "what": "Registry khối đã nâng hạng, và đề xuất nâng hạng ở nhịp định kỳ",
-          "state": "todo",
-          "ref": "wiki/specs/0016-the-family-core-is-born-through-the-plugin.md, tiêu chí 10 đến 13, 21, 23 và 24; ba lát, mỗi lát một PR"
+          "state": "doing",
+          "ref": "wiki/specs/0016-the-family-core-is-born-through-the-plugin.md, tiêu chí 10 đến 13, 21, 23 và 24; ba lát, mỗi lát một PR; lát 1 (tầng 3 của thang đọc kho khối của bản lõi đã ghim; tệp của khối vào bản chép; khối của lõi đi lối lấy về bằng core --take, chuẩn hoá, nhập kho; inventory báo khối đứng sau và khối bị sửa tay; core --check giữ tệp của kho không rỗng) ngày 2026-11-25 theo lời chủ repo («Mở ba lát»), plugin 0.63.0: wiki/decisions/0117-tier-three-reads-the-core-and-a-block-is-taken-like-an-outside-item.md"
         },
         {
           "id": "7.3",
