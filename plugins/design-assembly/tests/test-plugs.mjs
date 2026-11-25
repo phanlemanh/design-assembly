@@ -611,6 +611,29 @@ test("criterion 3: the session's skills and servers are matched to the plug file
   );
 });
 
+test("criterion 3: names the command cannot read one by one are a wrong call, never a session that holds nothing", () => {
+  const dir = fixtureRepo();
+  const files = () => readdirSync(dir, { recursive: true }).sort();
+  const before = files();
+  // As a session's names reach the command when a shell does not split them: one value of all.
+  const joined = "archify council far-eye frontend-design design:design-critique";
+  for (const flag of ["--skill", "--server", "--needs-sign-in"]) {
+    for (const value of [joined, "far-eye\tsharp-builder", "far-eye\nsharp-builder", ""]) {
+      const said = `${flag} ${JSON.stringify(value)}`;
+      const called = cli("--target", dir, "--short", "--session", flag, value);
+      assert.equal(called.status, 2, said);
+      assert.equal(called.stdout, "", said);
+      assert.match(called.stderr, new RegExp(`^design-assembly: ${flag} `), said);
+      assert.match(called.stderr, /a flag of its own/, said);
+      assert.doesNotMatch(called.stderr, /No outside plug that was measured/, said);
+    }
+  }
+  const named = cli("--target", dir, "--session", "--skill", joined).stderr;
+  assert.match(named, /"archify council far-eye …"/);
+  // Nothing was written.
+  assert.deepEqual(files(), before);
+});
+
 test("criterion 3: a measured plug the session holds is asked about, as one the repository holds", () => {
   const dir = empty();
   const asked = plan(dir, {
@@ -763,6 +786,16 @@ test("new and adopt call the step once, before the direction layer, and go on wh
   }
   const guide = read(PLUGIN, "skills/new/SKILL.md");
   assert.ok(guide.indexOf("plugs.mjs") < guide.indexOf("### Directions first"));
+});
+
+test("every page that passes the session's names says one name to a flag, written out, on any shell", () => {
+  for (const skill of ["new", "adopt", "plugs", "review"]) {
+    const page = read(PLUGIN, `skills/${skill}/SKILL.md`);
+    assert.match(page, /each name a flag of its own/, skill);
+    assert.match(page, /never several names in one value/, skill);
+    // Advice true of one shell only would mislead a builder on another.
+    assert.doesNotMatch(page, /\b(zsh|bash|fish|PowerShell)\b/, skill);
+  }
 });
 
 test("the reference system is seen in a session by its command design-sync, and is then asked about at the four sockets it fills", () => {

@@ -597,9 +597,9 @@ const USAGE =
   "                      [--on DATE] [--dry-run] [--short] [--json] [--out DIR [--format html|pdf]]\n";
 const FLAGS = {
   ...DOCUMENT_FLAGS,
-  "--skill": "list",
-  "--server": "list",
-  "--needs-sign-in": "list",
+  "--skill": "names",
+  "--server": "names",
+  "--needs-sign-in": "names",
   "--on": "value",
   "--dry-run": "switch",
   "--short": "switch",

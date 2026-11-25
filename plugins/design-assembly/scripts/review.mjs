@@ -50,7 +50,7 @@ const FLAGS = {
   "--states": "switch",
   "--findings": "value",
   "--queue": "switch",
-  "--skill": "list",
+  "--skill": "names",
 };
 // What every answer says of the eye: this command has none.
 export const NO_EYE = {

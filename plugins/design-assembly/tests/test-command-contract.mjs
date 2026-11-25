@@ -422,6 +422,34 @@ test("a call is read against the flags a command declares, and the target defaul
   assert.match(readCall(["--target", path.join(dir, "none")], flags).problem, /is not a folder/);
 });
 
+test("a flag that takes names takes one name a value: white space or an empty value is a wrong call that says how to call it", () => {
+  const dir = empty();
+  const flags = { "--skill": "names" };
+  assert.deepEqual(
+    readCall(["--target", dir, "--skill", "far-eye", "--skill", "their-plugin:far-eye"], flags)
+      .flags,
+    { "--skill": ["far-eye", "their-plugin:far-eye"] },
+  );
+  for (const value of [
+    "alpha beta gamma delta",
+    "alpha\tbeta",
+    "alpha\nbeta",
+    " alpha",
+    "alpha ",
+  ]) {
+    const problem = readCall(["--target", dir, "--skill", value], flags).problem;
+    assert.match(problem, /^--skill /, JSON.stringify(value));
+    assert.match(problem, /alpha/, JSON.stringify(value));
+    assert.match(problem, /white space/, JSON.stringify(value));
+    assert.match(problem, /Give each name a flag of its own: --skill <name> --skill <name>/);
+  }
+  // The first words are named, not the whole value, which may hold every name a session lists.
+  const long = readCall(["--skill", "alpha beta gamma delta epsilon"], flags).problem;
+  assert.match(long, /"alpha beta gamma …"/);
+  assert.doesNotMatch(long, /epsilon/);
+  assert.match(readCall(["--skill", ""], flags).problem, /^--skill was given an empty value/);
+});
+
 test("a command that takes words reads every one that is not a flag or a flag's value, in order", () => {
   const dir = empty();
   const flags = { "--kind": "value" };

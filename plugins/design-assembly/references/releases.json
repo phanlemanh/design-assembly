@@ -378,6 +378,12 @@
       "templates": "611c73b307c38e5bbbe760411ad14766ff246003",
       "scripts": "223cf5867ace11c6b7d8cda942939890eff2a362",
       "tool": "6cb7973b19b2ce3f33e54538c30574c7a7f8a90d"
+    },
+    {
+      "version": "0.58.0",
+      "templates": "611c73b307c38e5bbbe760411ad14766ff246003",
+      "scripts": "9dcdf18f957a1c6fd08c538b658fed0365cca4ff",
+      "tool": "6cb7973b19b2ce3f33e54538c30574c7a7f8a90d"
     }
   ]
 }

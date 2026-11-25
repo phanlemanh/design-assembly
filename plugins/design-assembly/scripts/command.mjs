@@ -15,13 +15,28 @@ import { fileURLToPath } from "node:url";
 export const EXIT = { done: 0, work: 1, wrong: 2 };
 
 // The flags every command takes. `switch` takes no value, `value` takes one, `list` may be given
-// more than once.
+// more than once, and `names` is a list of names, one name a value: names hold no white space, so
+// a value with white space, or an empty one, is several names joined or none, and a wrong call.
 const COMMON = { "--target": "value", "--json": "switch", "--help": "switch", "-h": "switch" };
+
+// How many words of a refused value the message names: enough to know it, not every name a
+// session lists.
+const NAMED_WORDS = 3;
+
+// Why a value of a `names` flag is not one name, or null when it is.
+function namesProblem(flag, value) {
+  const how = `Give each name a flag of its own: ${flag} <name> ${flag} <name>`;
+  if (value.trim() === "") return `${flag} was given an empty value; a name is never empty. ${how}`;
+  if (!/\s/.test(value)) return null;
+  const words = value.split(/\s+/).filter(Boolean);
+  const shown = `${words.slice(0, NAMED_WORDS).join(" ")}${words.length > NAMED_WORDS ? " …" : ""}`;
+  return `${flag} was given "${shown}", which has white space in it; a name has none. ${how}`;
+}
 
 // Reads a call against the flags a command declares, beside the common ones. Gives the target,
 // whether the answer is for a machine, whether help was asked, and the command's own flags; or
 // `problem`, one line, when the call is wrong: a flag the command does not have, a flag with no
-// value, or a target that is not a folder. A command that takes words, as what to search for, says
+// value, a value of a `names` flag that is not one name, or a target that is not a folder. A command that takes words, as what to search for, says
 // so with `words`: every argument that is neither a flag nor a flag's value is then one of them, in
 // order; anything that starts with a dash is still read as a flag.
 export function readCall(args, flags = {}, { words: takesWords = false } = {}) {
@@ -43,7 +58,11 @@ export function readCall(args, flags = {}, { words: takesWords = false } = {}) {
     const value = args[index + 1];
     if (value === undefined || value.startsWith("--")) return { problem: `${flag} needs a value` };
     index += 1;
-    if (kind === "list") (found[flag] ??= []).push(value);
+    if (kind === "names") {
+      const problem = namesProblem(flag, value);
+      if (problem) return { problem };
+    }
+    if (kind === "list" || kind === "names") (found[flag] ??= []).push(value);
     else found[flag] = value;
   }
   const target = path.resolve(found["--target"] ?? cwd());

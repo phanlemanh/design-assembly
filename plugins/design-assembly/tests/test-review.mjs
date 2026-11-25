@@ -402,6 +402,12 @@ test("a wrong call, a screen the ledger does not have, and a screen not built ye
     [["returns", "--target", dir], /planned/],
     [["orders", "--target", dir, "--no-such-flag"], /not a flag/],
     [["orders", "--target", dir, "--format", "pdf"], /--out/],
+    // The skills of the session go one name to a flag; names joined in one value are refused.
+    [
+      ["orders", "--target", dir, "--skill", "design-critique ux-copy"],
+      /--skill .*flag of its own/,
+    ],
+    [["orders", "--target", dir, "--skill", ""], /--skill was given an empty value/],
   ];
   for (const [args, said] of wrong) {
     const called = run([...args, "--json"]);
