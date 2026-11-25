@@ -5464,6 +5464,41 @@
       "closed_by": "d0108: the session names of plugs (--skill, --server, --needs-sign-in) and of review (--skill) take one name a value; a value with white space, a comma or a semicolon in it, or an empty one, is a wrong call that ends with 2, writes nothing, names the flag and the first names, and says to give each name a flag of its own; plugs says how many names of each kind it read, in its short and full answers and in --json; the four skill pages that pass the names say so"
     },
     {
+      "id": "starter-pieces-laid-with-no-intake-row",
+      "area": "guide",
+      "kind": "wrong-signal",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0110"],
+      "status": "closed",
+      "note": "On a repository with no design system the build laid the starter kit and wrote no row of the intake ledger: the gate read held-label.tsx and record-panel.tsx as components the branch made with no row, so a new repository was red after the build, and find called them the repository's own. Found by trial 19 of item 10.4.",
+      "closed": "2026-11-25",
+      "closed_by": "d0110: the build writes the row of each piece it lays, as intake writes one: source and from starter, pinned at the plugin's version, the hash of the file as laid, the day of the build; on a repository built before, the next build records a piece still as laid that the branch adds; never one a row or the list of what came before names, one the repository edited, or one the main branch has"
+    },
+    {
+      "id": "record-panel-layout-line-reads-as-modified",
+      "area": "inventory",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0110"],
+      "status": "open",
+      "note": "The build writes the one line of the record panel that says how a record opens every time it runs; once the blueprint changes how a record opens, the file no longer matches the hash its row of the intake ledger took, and the inventory names it modified though no one edited it by hand."
+    },
+    {
+      "id": "starter-pieces-recorded-by-hand-stay",
+      "area": "guide",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0110"],
+      "status": "open",
+      "note": "A row of the intake ledger that an agent wrote as made by hand for a piece the build laid from the starter kit, as in trial 19, stays: the build never writes over a row, so its source is not set right."
+    },
+    {
       "id": "reference-row-read-as-a-block-library",
       "area": "capabilities",
       "kind": "wrong-signal",

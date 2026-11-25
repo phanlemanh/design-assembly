@@ -178,6 +178,14 @@ repository's own store, a pinned catalog or the starter kit holds, or `none` whe
 it left the main branch, so a row written before reads as before; the same check names a component
 file the branch adds with no row and no entry under `before` (`checks.md`, `choose-first`).
 
+A piece of the starter kit the guide's build lays gets its row as the build writes it, as `intake`
+writes one for a piece it copies: `source` and `from` are `starter`, `pin` is
+`design-assembly <version>`, `taken` is the hash of the file as laid, and `approved` is the day of
+the build, with no person named, since the owner's go-ahead to build is the approval and no question
+is asked for the piece. The build also writes the row for a piece a build laid before it wrote rows,
+while its file is still as laid and the branch adds it; a piece the main branch has stays as it is. It writes none for a piece a row or `before` already names, nor for
+a file the repository has edited, which the gate then holds as any file the branch adds.
+
 ### sources
 
 One file per pinned source, `design/sources/<id>.json`, so that pinning one source again writes
