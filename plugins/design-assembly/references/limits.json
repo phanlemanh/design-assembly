@@ -4640,9 +4640,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0090", "d0108"],
+      "where": ["d0090", "d0108", "d0111"],
       "status": "open",
-      "note": "Which skills and servers a session holds is listed by the skill that runs the command, from what the session shows it, and no run with a person and a real session has yet shown the list is whole."
+      "note": "Which skills and servers a session holds is listed by the skill that runs the command, from what the session shows it. In the trial with a person the skill passed every skill the session listed but left ten deferred servers out, and no check sees whether the list is whole."
     },
     {
       "id": "plugs-measure-invitation-gives-no-estimate",
@@ -4682,11 +4682,11 @@
       "area": "capabilities",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0097"],
+      "where": ["d0097", "d0111"],
       "status": "open",
       "kind": "no-check",
       "severity": "medium",
-      "note": "The rules page and the brief do not read the plug the owner chose at the screen-build socket, so a builder uses an outside skill there only when a person tells it to, and nothing sees whether it did."
+      "note": "The rules page and the brief do not read the plug the owner chose at the screen-build socket, so a builder uses an outside skill there only when a person tells it to, and nothing sees whether it did. In the trial with a person the builder not told in words never invoked the skill the owner chose, though the decision ledger named it."
     },
     {
       "id": "screen-build-plug-measured-beside-the-rules-page",
@@ -5519,6 +5519,28 @@
       "where": ["d0109"],
       "status": "open",
       "note": "The reference socket says the owner decides which reference is kept, but nothing asks it: a builder that gathers references keeps the ones it picks, and the question it queues asks only the choice the references serve."
+    },
+    {
+      "id": "modular-step-below-the-floor-noted-only",
+      "area": "guide",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0111"],
+      "status": "open",
+      "note": "A modular type scale whose smallest step is below the floor's 12px is shown as a note and nothing refuses it, since no standard sets a minimum text size: with the minor third the step text-xs is 11px, and the floor's badge, extra-small button and select label draw at it."
+    },
+    {
+      "id": "laid-parts-cite-pages-the-floor-lacks",
+      "area": "guide",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0111"],
+      "status": "open",
+      "note": "The parts the build lays cite sections of design/behaviors.md, design/parts.json and a page of a kind under design/patterns; on a new repository whose behaviours page is the floor's older one, none of these is there, and both builders of the trial with a person read the comments as pointing at nothing."
     }
   ]
 }
