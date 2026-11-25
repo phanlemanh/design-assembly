@@ -12,6 +12,7 @@
 // 0 when the shape holds and 1 when a part of it is wrong, each problem naming the file and the
 // place; 2 a wrong call, a repository or a core that cannot be read, or a core of a newer shape.
 // On 2 nothing is written.
+import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, realpathSync, statSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { stdout } from "node:process";
@@ -26,7 +27,7 @@ import { renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { isDay } from "../templates/tools/design-assembly/waiting.mjs";
 import { today } from "./asking.mjs";
 import { changeOf, finish, readCall, Refusal, refuse, start } from "./command.mjs";
-import { placeOf, readFirst, sheetOf } from "./core-read.mjs";
+import { givenProblem, givenValue, placeOf, readFirst, sheetOf } from "./core-read.mjs";
 
 const WIDTH = 100;
 const KIND_WORDS = {
@@ -35,20 +36,34 @@ const KIND_WORDS = {
   none: "no ledger of design decisions",
 };
 
-// Whether one folder is the other or lies inside it, read through the nearest folder that exists.
+// A folder by its real path, read through the nearest folder that exists.
+function real(dir) {
+  let at = path.resolve(dir);
+  const rest = [];
+  while (!existsSync(at)) {
+    rest.unshift(path.basename(at));
+    at = path.dirname(at);
+  }
+  return { path: path.join(realpathSync(at), ...rest), existing: realpathSync(at) };
+}
+
+// Whether one folder is the other or lies inside it.
 function within(inner, outer) {
-  const real = (dir) => {
-    let at = path.resolve(dir);
-    const rest = [];
-    while (!existsSync(at)) {
-      rest.unshift(path.basename(at));
-      at = path.dirname(at);
-    }
-    return path.join(realpathSync(at), ...rest);
-  };
-  const relative = path.relative(real(outer), real(inner));
+  const relative = path.relative(real(outer).path, real(inner).path);
   return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
 }
+
+// The root of the git work tree a folder lies in, or null when it lies in none. Read from the
+// nearest folder that exists.
+function workTreeOf(dir) {
+  const run = spawnSync("git", ["-C", real(dir).existing, "rev-parse", "--show-toplevel"], {
+    encoding: "utf8",
+  });
+  return run.status === 0 && run.stdout.trim() !== "" ? realpathSync(run.stdout.trim()) : null;
+}
+
+// An e-mail address in a text a person gave, which no file of a core keeps.
+const ADDRESS = /[^\s@<>()]+@[^\s@<>()]+\.[^\s@<>()]+/;
 
 // Why the folder cannot take a new core, or null. A part of a newer shape is said first, and the
 // plugin then writes nothing there.
@@ -61,6 +76,12 @@ function placeProblem(core, first) {
       return `the first repository, ${root}, lies inside ${core}: the core is a folder of its own`;
     }
   }
+  // Outside every repository: a folder inside a git work tree is inside a repository, which may be
+  // one of the family; the root of a repository of its own is the core's own, and may be.
+  const tree = workTreeOf(core);
+  if (tree !== null && tree !== real(core).path) {
+    return `${core} lies inside the git work tree of ${tree}: the core is outside every repository, and may be the root of a repository of its own`;
+  }
   if (!existsSync(core)) return null;
   if (!statSync(core).isDirectory()) return `${core} is a file, not a folder`;
   const newer = newerCoreParts(core);
@@ -68,13 +89,14 @@ function placeProblem(core, first) {
   if (existsSync(path.join(core, CORE.parts.declaration.file))) {
     return `${core} holds a family core already; changing a core is not built yet`;
   }
-  if (readdirSync(core).length > 0) return `${core} is not empty`;
+  // A repository of its own, made for the core, holds git's own folder and nothing else.
+  if (readdirSync(core).some((name) => name !== ".git")) return `${core} is not empty`;
   return null;
 }
 
 // The answers named on the sheet, in the order the first repository gives them, each with its
 // hold. Refused when an answer is not one a person settled there, or is named twice.
-function answersOf(first, { lock, defaults, by, on }) {
+function answersOf(first, { lock, defaults, values = {}, by, on }) {
   const both = lock.filter((id) => defaults.includes(id));
   if (both.length > 0) {
     throw new Refusal(
@@ -90,6 +112,27 @@ function answersOf(first, { lock, defaults, by, on }) {
         : `${id} is no answer of ${first.repository} that may go into a core`,
     );
   }
+  for (const id of Object.keys(values)) {
+    const item = first.candidates.find((one) => one.id === id);
+    if (!item || !(lock.includes(id) || defaults.includes(id))) {
+      throw new Refusal(`--value ${id}: name ${id} with --lock or --default to give its value`);
+    }
+    if (!item.unread) {
+      throw new Refusal(
+        `--value ${id}: its value was read from ${item.origin.ledger} of ${first.repository}; the core keeps what the repository settled`,
+      );
+    }
+    const wrong = givenProblem(id, values[id]);
+    if (wrong) throw new Refusal(`--value ${id}=${values[id]}: ${wrong}`);
+  }
+  for (const id of [...lock, ...defaults]) {
+    const item = first.candidates.find((one) => one.id === id);
+    if (item.unread && !(id in values)) {
+      throw new Refusal(
+        `${id}: its value could not be read from ${first.repository} (${item.unread}); give it as the person answered, with --value ${id}=<value>`,
+      );
+    }
+  }
   return first.candidates
     .filter((item) => lock.includes(item.id) || defaults.includes(item.id))
     .map((item) => {
@@ -97,16 +140,18 @@ function answersOf(first, { lock, defaults, by, on }) {
       const settled = item.origin.by
         ? `Settled in ${item.origin.repository} by ${item.origin.by}${item.origin.on ? ` on ${item.origin.on}` : ""}`
         : `Settled in ${item.origin.repository}, whose ${item.origin.ledger} names no one`;
+      const given = item.unread ? givenValue(item.id, values[item.id]) : undefined;
       return {
         id: item.id,
         question: item.question,
-        value: item.value,
+        kind: item.kind,
+        value: given ?? item.value,
         hold,
         check: item.check,
-        why: `${settled}; made ${hold === "locked" ? "locked" : "a default"} on the lock-or-default sheet.`,
+        why: `${settled}; made ${hold === "locked" ? "locked" : "a default"} on the lock-or-default sheet.${given === undefined ? "" : " Its value is the person's, given on the sheet: the ledgers did not hold it."}`,
         by,
         on,
-        origin: item.origin,
+        origin: given === undefined ? item.origin : { ...item.origin, given: { by, on } },
       };
     });
 }
@@ -145,14 +190,17 @@ const firstOf = ({ repository, path: read, home, commit, kind }) => ({
 
 // Builds the core from the sheet's answers, or says what it would write. The first repository is
 // read and never written.
-export function buildCore(root, { family, core, lock = [], defaults = [], by, on, dryRun }) {
+export function buildCore(
+  root,
+  { family, core, lock = [], defaults = [], values = {}, by, on, dryRun },
+) {
   if (lock.length + defaults.length === 0) {
     throw new Refusal(
       "name at least one answer with --lock or --default: a core holds the answers a family shares",
     );
   }
   const first = readFirst(root);
-  const answers = answersOf(first, { lock, defaults, by, on });
+  const answers = answersOf(first, { lock, defaults, values, by, on });
   const place = placeProblem(core, first);
   if (place) throw new Refusal(`${place}. Nothing was written`);
   const parts = partsOf(first, answers, { family, by, on });
@@ -208,6 +256,14 @@ export function checkCore(core) {
 }
 
 const shownValue = (value) => (typeof value === "string" ? value : JSON.stringify(value));
+// An answer as a person reads it: a value a member compares, a value the repository does not hold,
+// or a rule, whose words are what its row says and never a value to compare.
+const answerWords = (item) =>
+  item.unread
+    ? `value not read (${item.unread}): give it with --value ${item.id}=<value>`
+    : item.kind === "rule"
+      ? `rule, as its row says "${item.value}"`
+      : `value ${shownValue(item.value)}`;
 const settledWords = ({ by, on, ledger }) =>
   by ? `settled by ${by}${on ? ` on ${on}` : ""}` : `${ledger} names no one`;
 
@@ -224,7 +280,7 @@ function readReport(result) {
     lines.push(`answers a person settled, which may go into the core: ${candidates.length}`);
     for (const item of candidates) {
       lines.push(
-        `  ${item.start.padEnd(8)} ${item.id}: ${shownValue(item.value)}; ${item.check ? `held by ${item.check}` : "no check holds it"}; ${settledWords(item.origin)}`,
+        `  ${item.start.padEnd(8)} ${item.id}: ${answerWords(item)}; ${item.check ? `held by ${item.check}` : "no check holds it"}; ${settledWords(item.origin)}${item.own ? `; not proposed: ${item.own}` : ""}`,
       );
     }
   }
@@ -254,7 +310,7 @@ function buildReport(result) {
     `answers: ${result.answers.length}, read from ${result.first.repository}`,
     ...result.answers.map(
       (item) =>
-        `  ${item.hold.padEnd(8)} ${item.id}: ${shownValue(item.value)}; ${item.check ? `held by ${item.check}` : "no check holds it"}`,
+        `  ${item.hold.padEnd(8)} ${item.id}: ${answerWords(item)}${item.origin.given ? " (given on the sheet)" : ""}; ${item.check ? `held by ${item.check}` : "no check holds it"}`,
     ),
     `${result.dry_run ? "would write" : "wrote"}:`,
     ...result.files.map((file) => `  ${file.change.padEnd(7)} ${file.path}`),
@@ -270,7 +326,7 @@ function checkReport({ core, version, problems }) {
 
 const USAGE =
   "usage: node core.mjs [--target DIR] [--family NAME] [--core DIR] [--json]\n" +
-  "       node core.mjs --build --family NAME --core DIR --by NAME [--lock ID]... [--default ID]... [--on DATE] [--dry-run] [--target DIR] [--json]\n" +
+  "       node core.mjs --build --family NAME --core DIR --by NAME [--lock ID]... [--default ID]... [--value ID=VALUE]... [--on DATE] [--dry-run] [--target DIR] [--json]\n" +
   "       node core.mjs --check --core DIR [--json]\n";
 const FLAGS = {
   "--family": "value",
@@ -279,11 +335,12 @@ const FLAGS = {
   "--check": "switch",
   "--lock": "names",
   "--default": "names",
+  "--value": "list",
   "--by": "value",
   "--on": "value",
   "--dry-run": "switch",
 };
-const BUILD_ONLY = ["--lock", "--default", "--by", "--on", "--dry-run"];
+const BUILD_ONLY = ["--lock", "--default", "--value", "--by", "--on", "--dry-run"];
 const blank = (value) => value === undefined || String(value).trim() === "";
 
 async function main(args) {
@@ -325,6 +382,26 @@ async function main(args) {
       USAGE,
     );
   }
+  // A name, never an address: the core is the family's data and may be shared.
+  for (const flag of ["--by", "--family"]) {
+    if (ADDRESS.test(flags[flag])) {
+      return refuse(
+        `${flag} holds an e-mail address; a core keeps a person's name, never an address`,
+        USAGE,
+      );
+    }
+  }
+  const values = {};
+  for (const pair of flags["--value"] ?? []) {
+    const at = pair.indexOf("=");
+    const id = pair.slice(0, at).trim();
+    if (at < 1 || id === "" || pair.slice(at + 1).trim() === "") {
+      return refuse(`--value ${pair}: write it ID=VALUE, as --value record-panel=over`, USAGE);
+    }
+    if (id in values) return refuse(`--value ${id} is given twice`, USAGE);
+    if (ADDRESS.test(pair)) return refuse(`--value ${id} holds an e-mail address`, USAGE);
+    values[id] = pair.slice(at + 1);
+  }
   const on = flags["--on"] ?? today();
   if (!isDay(on)) return refuse(`--on ${on} is not a day written YYYY-MM-DD`, USAGE);
   const result = buildCore(call.target, {
@@ -332,6 +409,7 @@ async function main(args) {
     core,
     lock: flags["--lock"] ?? [],
     defaults: flags["--default"] ?? [],
+    values,
     by: flags["--by"].trim(),
     on,
     dryRun: flags["--dry-run"] === true,

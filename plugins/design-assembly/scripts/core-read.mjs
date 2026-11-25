@@ -134,32 +134,86 @@ function choiceOf(blueprint, entry) {
   return { layer, key, entry: found, value: found.choice[key] };
 }
 
-// The value of an answer and the file it was read from. Null with why where it cannot be read.
+// The value of an answer and the file it was read from. An answer the catalogue ties to a value
+// (a choice of the blueprint, the token file, the widths) that this repository does not hold gives
+// `unread`, why, and never the words of its row: a person gives the value on the sheet. Any other
+// answer is a rule, whose words are its row's.
 function valueOf(root, entry, { row, choice }) {
   if (choice) {
     const { value, entry: layer } = choice;
     const ratio = layer.choice?.type_ratio;
     const shown =
       entry.id === "type-scale-values" && value === "modular" && ratio ? `modular ${ratio}` : value;
-    return { value: shown, ledger: FILES.blueprint };
+    return { kind: "value", value: shown, ledger: FILES.blueprint };
   }
   if (entry.value === "tokens") {
     if (!existsSync(path.join(root, FILES.tokens))) {
-      return { why: `${FILES.tokens} is not there, so the colour cannot be read` };
+      return unread(`${FILES.tokens} is not there, so the colour cannot be read`);
     }
     try {
       const colour = candidateFrom(path.join(root, FILES.tokens), "tokens").values.source_color;
-      return { value: colour, ledger: FILES.tokens };
+      return { kind: "value", value: colour, ledger: FILES.tokens };
     } catch (error) {
-      return { why: error.message.replace(path.join(root, FILES.tokens), FILES.tokens) };
+      return unread(error.message.replace(path.join(root, FILES.tokens), FILES.tokens));
     }
   }
   if (entry.value === "screen-sizes") {
     const widths = readJsonOf(root, FILES.widths)?.widths;
-    if (Array.isArray(widths) && widths.length > 0) return { value: widths, ledger: FILES.widths };
+    if (Array.isArray(widths) && widths.length > 0) {
+      return { kind: "value", value: widths, ledger: FILES.widths };
+    }
+    return unread(`${FILES.widths} is not there, or names no width`);
   }
-  if (row?.source) return { value: row.source, ledger: FILES.decisions };
-  return { why: "the repository's ledgers give it no value" };
+  if (entry.given) {
+    return unread(
+      `the repository has no ${FILES.blueprint} that holds this choice, and its row says only how it is held`,
+    );
+  }
+  if (row?.source) return { kind: "rule", value: row.source, ledger: FILES.decisions };
+  return { why: "the repository's ledgers give it no words" };
+}
+
+// A value this repository does not hold, and why: the row's words are not passed off as it.
+const unread = (why) => ({ kind: "value", value: null, ledger: FILES.decisions, unread: why });
+
+// How a person writes a value the repository does not hold, by the catalogue's `given`.
+const LAYER_CHOICES = Object.fromEntries(
+  readJson("references/layers.json").layers.flatMap((layer) =>
+    (layer.choices ?? []).map((choice) => [choice.key, Object.keys(choice.options ?? {})]),
+  ),
+);
+export function givenProblem(id, text) {
+  const entry = CATALOGUE.questions.find((item) => item.id === id);
+  const value = String(text).trim();
+  if (entry?.given === "colour") {
+    return /^#[0-9a-f]{6}$/i.test(value) ? null : `${id} is a colour written #rrggbb`;
+  }
+  if (entry?.given === "widths") {
+    return /^\d+(\s*,\s*\d+)*$/.test(value)
+      ? null
+      : `${id} is whole widths joined by commas, as 320,768,1440`;
+  }
+  if (entry?.given === "choice") {
+    const options = LAYER_CHOICES[entry.blueprint.key] ?? [];
+    return options.includes(value) ? null : `${id} is one of ${options.join(", ")}`;
+  }
+  if (entry?.given === "type-scale") {
+    const ratios = LAYER_CHOICES.type_ratio ?? [];
+    const modular = /^modular (\S+)$/.exec(value)?.[1];
+    return value === "standard" || ratios.includes(modular)
+      ? null
+      : `${id} is standard, or modular and one of ${ratios.join(", ")}`;
+  }
+  return `${id} is not a value a person gives: its words are its row's`;
+}
+
+// A value as a person wrote it, as the core keeps it.
+export function givenValue(id, text) {
+  const value = String(text).trim();
+  const entry = CATALOGUE.questions.find((item) => item.id === id);
+  if (entry?.given === "widths") return value.split(/\s*,\s*/).map(Number);
+  if (entry?.given === "colour") return value.toLowerCase();
+  return value;
 }
 
 const layerOf = (row) => {
@@ -174,9 +228,20 @@ function questionsOf(rows) {
   const named = new Set(listed.map((entry) => entry.id));
   const behaviours = rows
     .filter((row) => layerOf(row) === CATALOGUE.behaviour.layer && !named.has(String(row.id)))
-    .map((row) => ({ id: String(row.id), start: CATALOGUE.behaviour.start, group: "behaviour" }));
+    .map((row) => {
+      const id = String(row.id);
+      // A rule the standard does not know is the repository's own, maybe a rule of one kind of
+      // screen, which stays outside the core: listed, so a person may choose it, never proposed.
+      return STANDARD.has(id)
+        ? { id, start: CATALOGUE.behaviour.start, group: "behaviour" }
+        : { id, start: "none", group: "behaviour", own: true };
+    });
   return [...listed, ...behaviours];
 }
+
+// Why a rule of the repository's own is proposed in neither set.
+export const OWN_RULE =
+  "a rule of this repository's own, which the standard decisions do not know: it may be a rule of one kind of screen, and kinds of screen stay outside the core; lock it or make it a default only when it holds across the family";
 
 const questionText = (id) =>
   STANDARD.get(id)?.question ?? `What does the rule ${id} of the repository hold?`;
@@ -224,7 +289,10 @@ export function readFirst(root) {
         question: questionText(entry.id),
         group: entry.group,
         start: entry.start,
+        ...(entry.own ? { own: OWN_RULE } : {}),
+        kind: value.kind,
         value: value.value,
+        ...(value.unread ? { unread: value.unread } : {}),
         check: row?.check ?? null,
         origin: { repository, ledger: value.ledger, by: verdict.by, on: verdict.on },
       });
@@ -265,6 +333,13 @@ export function sheetOf(first, { family = null, core }) {
   const unheld = first.candidates
     .filter((item) => item.start === "locked" && item.check === null)
     .map((item) => item.id);
+  const own = first.candidates.filter((item) => item.own).map((item) => item.id);
+  const unreadOf = (hold) =>
+    first.candidates.filter((item) => item.start === hold && item.unread).map((item) => item.id);
+  const toGive = (ids) =>
+    ids.length > 0
+      ? ` The value of ${ids.join(", ")} could not be read from ${first.repository}: give it as you answer, and it is recorded as given by you on the day.`
+      : "";
   const sheet = [
     {
       id: "family",
@@ -282,7 +357,7 @@ export function sheetOf(first, { family = null, core }) {
       question:
         "Which answers does every repository of the family keep as they are (locked), so that none is asked them again?",
       recommendation: joined(locked),
-      basis: `Start with few locks: the source colour, how a record opens and the behaviour rules. A member that differs from a locked answer asks the family's owner, or keeps an exception with a reason. ${unheld.length > 0 ? `No check holds ${unheld.join(", ")}: the core says so, and no member counts it as held.` : "A check of the first repository holds each of them."}`,
+      basis: `Start with few locks: the source colour, how a record opens and the behaviour rules. A member that differs from a locked answer asks the family's owner, or keeps an exception with a reason. ${unheld.length > 0 ? `No check holds ${unheld.join(", ")}: the core says so, and no member counts it as held.` : "A check of the first repository holds each of them."}${toGive(unreadOf("locked"))}${own.length > 0 ? ` Not proposed: ${own.join(", ")}, ${OWN_RULE}.` : ""}`,
       where: path.join(core, ANSWERS),
       if_refused: "Nothing is locked: each answer you keep in the core is a default.",
       hard_to_undo: false,
@@ -293,8 +368,7 @@ export function sheetOf(first, { family = null, core }) {
       question:
         "Which answers does a new repository of the family start from, and may change (default)?",
       recommendation: joined(defaults),
-      basis:
-        "Table density, the type scale and the widths checked fit most repositories of a family and differ for some: filled in for a new repository, changed with a reason. Screen kinds, column kinds and copy stay outside the core.",
+      basis: `Table density, the type scale and the widths checked fit most repositories of a family and differ for some: filled in for a new repository, changed with a reason. Screen kinds, column kinds and copy stay outside the core.${toGive(unreadOf("default"))}`,
       where: path.join(core, ANSWERS),
       if_refused: "Those answers stay out of the core: a new repository is asked them as today.",
       hard_to_undo: false,

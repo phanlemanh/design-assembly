@@ -350,6 +350,8 @@ test("the first repository the guide built: the answers a person settled, and a 
   assert.equal(by["type-scale-values"].value, "modular 1.25");
   assert.deepEqual(by["test-screen-sizes"].value, [320, 768, 1440]);
   assert.equal(by["failed-action"].value, "the repository's own test of it");
+  assert.equal(by["failed-action"].kind, "rule");
+  assert.equal(by["source-color"].kind, "value");
   // Who settled it and when, where the ledgers say so; the check that holds it, or none.
   assert.deepEqual(by["source-color"].origin, {
     repository: "guided-app",
@@ -397,7 +399,7 @@ test("the first repository the guide built: the answers a person settled, and a 
   assert.match(shown.stdout, /the lock-or-default sheet, 4 questions in one sitting/);
   assert.match(
     shown.stdout,
-    /locked {3}source-color: #0246ff; no check holds it; settled by Ana Reyes on 2026-11-20/,
+    /locked {3}source-color: value #0246ff; no check holds it; settled by Ana Reyes on 2026-11-20/,
   );
   assert.deepEqual(snapshot(dir), before);
   assert.deepEqual(readdirSync(path.dirname(dir)), ["guided-app"]);
@@ -452,16 +454,43 @@ test("an adopted first repository with only its decision ledger and token file, 
     "table-density",
     "grid-continuous-run",
   ]);
-  // The source colour is read from the token file; a rule's value is what its row says.
+  // The source colour is read from the token file. How a record opens is a value the repository
+  // does not hold: its row names only where it is written, and its words are never passed off as
+  // the value; a person gives it on the sheet.
+  assert.equal(by["source-color"].kind, "value");
   assert.equal(by["source-color"].value, "#cc785c");
   assert.equal(by["source-color"].origin.ledger, "design/tokens.json");
-  assert.equal(by["record-panel"].value, "design/behaviors.md");
+  assert.equal(by["record-panel"].kind, "value");
+  assert.equal(by["record-panel"].value, null);
+  assert.match(by["record-panel"].unread, /has no design\/blueprint\.json that holds this choice/);
   assert.equal(by["record-panel"].check, "test:tests/behavior.test.tsx");
-  // A layer named the older way is read as the layer it stands for; a rule of its own is a
-  // behaviour rule when it is one of the behaviour layer.
+  // A rule's words are what its row says, and it is called a rule, never a value to compare.
+  assert.equal(by["table-density"].kind, "rule");
+  assert.equal(by["table-density"].value, "total minimum width");
+  // A layer named the older way is read as the layer it stands for.
   assert.equal(by["table-density"].start, "default");
-  assert.equal(by["grid-continuous-run"].start, "locked");
+  // A rule of the repository's own in the behaviour layer, which the standard does not know, is
+  // listed so a person may choose it, and proposed in neither set, with why.
+  assert.equal(by["grid-continuous-run"].start, "none");
+  assert.match(by["grid-continuous-run"].own, /kinds of screen stay outside the core/);
   assert.equal(by["grid-continuous-run"].check, null);
+  const sheet = Object.fromEntries(result.sheet.map((question) => [question.id, question]));
+  assert.equal(sheet.locked.recommendation, "source-color, record-panel");
+  assert.match(
+    sheet.locked.basis,
+    /Not proposed: grid-continuous-run, a rule of this repository's own/,
+  );
+  assert.match(sheet.locked.basis, /The value of record-panel could not be read from adopted-app/);
+  const shown = core(["--target", dir]).stdout;
+  assert.match(
+    shown,
+    /record-panel: value not read \(.*\): give it with --value record-panel=<value>/,
+  );
+  assert.match(shown, /table-density: rule, as its row says "total minimum width"/);
+  assert.match(
+    shown,
+    /none {5}grid-continuous-run: .*not proposed: a rule of this repository's own/,
+  );
   // The ledger names no one: settled, with no name.
   assert.equal(by["source-color"].origin.by, null);
   const left = Object.fromEntries(result.left_out.map((item) => [item.id, item.why]));
@@ -471,6 +500,43 @@ test("an adopted first repository with only its decision ledger and token file, 
   const done = built(dir, place, []).status;
   // type-scale-values and test-screen-sizes are not answered here: the call is refused whole.
   assert.equal(done, 2);
+  const answer = (...more) =>
+    core([
+      "--target",
+      dir,
+      "--build",
+      "--family",
+      FAMILY,
+      "--core",
+      place,
+      "--by",
+      "Ana Reyes",
+      "--on",
+      ON,
+      "--lock",
+      "source-color",
+      "--lock",
+      "record-panel",
+      ...more,
+    ]);
+  // A value the repository does not hold is the person's to give: without it, nothing is written.
+  const ungiven = answer();
+  assert.equal(ungiven.status, 2);
+  assert.match(
+    ungiven.stderr,
+    /record-panel: its value could not be read from adopted-app .*--value record-panel=<value>/,
+  );
+  for (const [wrong, why] of [
+    ["record-panel=sideways", /record-panel is one of beside, over, in-place/],
+    ["source-color=#000000", /its value was read from design\/tokens\.json/],
+    ["table-density=dense", /name table-density with --lock or --default/],
+    ["record-panel", /write it ID=VALUE/],
+  ]) {
+    const refused = answer("--value", wrong);
+    assert.equal(refused.status, 2, wrong);
+    assert.match(refused.stderr, why, wrong);
+  }
+  assert.ok(!existsSync(place), "nothing was written");
   const build = core([
     "--target",
     dir,
@@ -491,6 +557,8 @@ test("an adopted first repository with only its decision ledger and token file, 
     "grid-continuous-run",
     "--default",
     "table-density",
+    "--value",
+    "record-panel=over",
     "--json",
   ]);
   assert.equal(build.status, 0, build.stderr);
@@ -507,6 +575,14 @@ test("an adopted first repository with only its decision ledger and token file, 
     ],
   );
   assert.match(answers[0].why, /names no one/);
+  // The value given on the sheet is recorded as the person's, on that day, and the origin says the
+  // ledgers did not hold it.
+  assert.equal(answers[1].value, "over");
+  assert.equal(answers[1].kind, "value");
+  assert.deepEqual(answers[1].origin.given, { by: "Ana Reyes", on: ON });
+  assert.match(answers[1].why, /the ledgers did not hold it/);
+  assert.equal(answers[0].origin.given, undefined);
+  assert.equal(answers[2].kind, "rule");
 });
 
 test("a repository with no ledger, and one of another stack: the safe answer, said", () => {
@@ -522,13 +598,15 @@ test("a repository with no ledger, and one of another stack: the safe answer, sa
 
   const other = first("other");
   const read = JSON.parse(core(["--target", other, "--json"]).stdout);
-  const left = Object.fromEntries(read.left_out.map((item) => [item.id, item.why]));
+  // The colour was settled by a person, and the repository has no token file to read it from: a
+  // value to give, said so, never the stylesheet's path as its value.
+  assert.deepEqual(ids(read.candidates), ["source-color", "undo-or-confirm"]);
+  assert.equal(read.candidates[0].value, null);
   assert.match(
-    left["source-color"],
+    read.candidates[0].unread,
     /design\/tokens\.json is not there, so the colour cannot be read/,
   );
-  assert.deepEqual(ids(read.candidates), ["undo-or-confirm"]);
-  assert.equal(read.candidates[0].check, "test:tests/test_undo.py");
+  assert.equal(read.candidates[1].check, "test:tests/test_undo.py");
   assert.equal(clean(other), "");
 });
 
@@ -939,4 +1017,94 @@ test("the page of the contract names every part of a core, its file and its keys
     ];
     for (const key of keys) assert.ok(section.includes(`\`${key}\``), `${part}.${key}`);
   }
+});
+
+test("a core is never written inside a git work tree, and may be the root of a repository of its own", () => {
+  const dir = first("guided");
+  // Inside another repository, which may be one of the family: refused, nothing written.
+  const other = first("bare");
+  const inside = path.join(other, "family-core");
+  const refused = built(dir, inside);
+  assert.equal(refused.status, 2);
+  assert.match(
+    refused.stderr,
+    /lies inside the git work tree of .*bare-app: the core is outside every repository/,
+  );
+  assert.ok(!existsSync(inside));
+  assert.equal(clean(other), "");
+  // A folder deeper inside it, that does not exist yet, is inside it too.
+  assert.equal(built(dir, path.join(other, "a/b/core")).status, 2);
+  assert.ok(!existsSync(path.join(other, "a")));
+  // The root of a repository made for the core, holding nothing but git's own folder: the core's own.
+  const own = path.join(empty(), "family-core");
+  mkdirSync(own);
+  git(own, "init", "-q", "-b", "main");
+  const made = built(dir, own);
+  assert.equal(made.status, 0, made.stderr);
+  assert.equal(core(["--check", "--core", own]).status, 0);
+  // Once it holds anything but git's own folder, it is not empty.
+  const used = path.join(empty(), "used-core");
+  mkdirSync(used);
+  git(used, "init", "-q", "-b", "main");
+  put(used, "notes.txt", "mine\n");
+  const notEmpty = built(dir, used);
+  assert.equal(notEmpty.status, 2);
+  assert.match(notEmpty.stderr, /is not empty/);
+});
+
+test("a core keeps a person's name, never an e-mail address", () => {
+  const dir = first("guided");
+  const place = path.join(path.dirname(dir), "family-core");
+  const call = (...given) =>
+    core(["--target", dir, "--build", "--core", place, "--lock", "source-color", ...given]);
+  for (const [given, flag] of [
+    [["--family", FAMILY, "--by", "ana.reyes@example.com"], "--by"],
+    [["--family", FAMILY, "--by", "Ana Reyes <ana.reyes@example.com>"], "--by"],
+    [["--family", "team@example.com", "--by", "Ana Reyes"], "--family"],
+  ]) {
+    const refused = call(...given);
+    assert.equal(refused.status, 2, given.join(" "));
+    assert.equal(refused.stdout, "");
+    assert.match(refused.stderr, new RegExp(`${flag} holds an e-mail address`));
+    assert.ok(!existsSync(place), "nothing was written");
+  }
+  const named = call("--family", FAMILY, "--by", "Ana Reyes");
+  assert.equal(named.status, 0, named.stderr);
+  assert.doesNotMatch(readFileSync(path.join(place, "core.json"), "utf8"), /@/);
+});
+
+test("an answer's kind is in its shape: a rule's value is the words of its row", () => {
+  const dir = first("guided");
+  const place = path.join(path.dirname(dir), "family-core");
+  assert.equal(built(dir, place).status, 0);
+  const answers = read(place, "answers.json");
+  const rule = answers.answers.findIndex((item) => item.kind === "rule");
+  assert.ok(rule >= 0);
+  const broken = (edit) => {
+    const copy = path.join(empty(), "core");
+    spawnSync("cp", ["-R", place, copy]);
+    const data = JSON.parse(JSON.stringify(answers));
+    edit(data.answers);
+    put(copy, "answers.json", json(data));
+    const run = core(["--check", "--core", copy, "--json"]);
+    assert.equal(run.status, 1);
+    return JSON.parse(run.stdout).problems;
+  };
+  assert.ok(
+    broken((list) => {
+      list[rule].value = ["320"];
+    }).includes(
+      `answers.json.answers[${rule}].value is a rule's, and a rule's value is the words of its row`,
+    ),
+  );
+  assert.ok(
+    broken((list) => {
+      delete list[0].kind;
+    }).includes("answers.json.answers[0].kind is missing"),
+  );
+  assert.ok(
+    broken((list) => {
+      list[0].kind = "guess";
+    }).includes('answers.json.answers[0].kind is "guess", not one of value, rule'),
+  );
 });

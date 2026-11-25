@@ -5580,12 +5580,12 @@
       "id": "core-value-is-row-words",
       "area": "core",
       "kind": "partial-check",
-      "severity": "low",
+      "severity": "medium",
       "plan": "keep",
       "opened": "2026-11-25",
       "where": ["d0113"],
       "status": "open",
-      "note": "The value of an answer whose row is a rule, such as a behaviour rule or the table's density, is the words of the row's source, not a value a member's gate can compare: whether a member keeps it is held by the check the answer names, and an answer with no check is held by nothing."
+      "note": "An answer of kind rule, a behaviour rule or the table's density, keeps the words of its row, which a member's gate cannot compare: whether a member keeps it rests only on the check the answer names, and a rule with no check, such as a rule of the repository's own a person chose to lock, is held by nothing. Values are read from the blueprint, the token file and the widths, or given by the person on the sheet, and never taken from a row's words."
     },
     {
       "id": "core-sheet-not-on-waiting-list",
@@ -5597,6 +5597,17 @@
       "where": ["d0113"],
       "status": "open",
       "note": "The lock-or-default sheet is asked in the session and answered by the flags of the build, not kept on a waiting list, since the first repository is never written and the core does not exist before the answers: a sheet left unanswered leaves no trace."
+    },
+    {
+      "id": "core-given-value-not-checked-against-the-repository",
+      "area": "core",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0113"],
+      "status": "open",
+      "note": "A value a person gives on the sheet, because the first repository's ledgers did not hold it, is checked for its form only (a colour, an option, a scale, widths), not against what the first repository's screens do: a value that differs from them goes into the core as the person said it."
     }
   ]
 }

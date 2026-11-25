@@ -522,6 +522,9 @@ export const UNSETTLED = {};
 // `version`. The family's name, its answers and its blocks are the user's data, kept in the folder;
 // none is named by the plugin.
 export const CORE_HOLDS = ["locked", "default"];
+// What an answer is: a value a member compares, or a rule, whose words are what its row says and
+// which its check holds.
+export const CORE_KINDS = ["value", "rule"];
 // A check as a row of the decision ledger writes it.
 const checkText = { ...text, pattern: `^(test|e2e|tool|${adapterOf("lint").prefix}):` };
 const settled = {
@@ -564,9 +567,11 @@ export const CORE = {
       },
       open: true,
     },
-    // The answers the family shares: for each, the question, its value, whether it is locked or a
-    // default, the check that holds it (null when none does), why, who settled it in the core on
-    // which day, and where it came from, with who settled it there when the ledger says so.
+    // The answers the family shares: for each, the question, whether it is a value or a rule, its
+    // value (a rule's words), whether it is locked or a default, the check that holds it (null when
+    // none does), why, who settled it in the core on which day, and where it came from, with who
+    // settled it there when the ledger says so, and who gave the value on the sheet when the
+    // ledgers did not hold it.
     answers: {
       file: "answers.json",
       question: "which answers the family shares, locked or default, and what holds each",
@@ -579,6 +584,7 @@ export const CORE = {
             fields: {
               id: required(dashed),
               question: required(text),
+              kind: required({ ...text, values: CORE_KINDS }),
               value: required({ type: "string|number|boolean|array|object" }),
               hold: required({ ...text, values: CORE_HOLDS }),
               check: required({ ...checkText, type: "string|null" }),
@@ -592,6 +598,7 @@ export const CORE = {
                   ledger: required(text),
                   by: { type: "string|null" },
                   on: { ...day, type: "string|null" },
+                  given: settled,
                 },
                 open: true,
               }),
@@ -745,9 +752,18 @@ function corePartProblems(part, data, file) {
       });
   };
   if (part === "answers") {
-    return twice(data.answers, "id").map(
-      (id) => `${file} answers ${id} twice: one question, one answer`,
-    );
+    const answers = Array.isArray(data.answers) ? data.answers : [];
+    return [
+      ...twice(answers, "id").map((id) => `${file} answers ${id} twice: one question, one answer`),
+      // A rule's value is the words of its row; a value is what a member compares.
+      ...answers.flatMap((answer, index) =>
+        answer?.kind === "rule" && typeof answer.value !== "string"
+          ? [
+              `${file}.answers[${index}].value is a rule's, and a rule's value is the words of its row`,
+            ]
+          : [],
+      ),
+    ];
   }
   if (part === "blocks") {
     return twice(data.blocks, "need").map(

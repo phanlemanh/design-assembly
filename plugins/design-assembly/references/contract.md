@@ -326,13 +326,16 @@ so, the first one included; and `owner`, the person who answered the lock-or-def
 `by` and `on`: the family's owner.
 
 `answers`: `version` and `answers`, one entry per question, no question twice. An answer has `id`
-(the id of its row in the decision ledger), `question`, `value` (as the repository settled it: the
-blueprint's choice, the colour of the token file, the widths, or what its row says), `hold`
+(the id of its row in the decision ledger), `question`, `kind` (`value`, a value a member
+compares, or `rule`, whose words are what its row says and which its check holds), `value` (for a
+value, as the repository settled it: the blueprint's choice, the colour of the token file, the
+widths; never the words of a row; for a rule, the words of its row), `hold`
 (`locked` or `default`), `check` (the check of its row, which holds it, or null when none does: an
 answer no check holds is never counted as held), `why`, `by` and `on` (who made it locked or a
 default on the sheet, and when; nothing is locked without that answer), and `origin`: the
 `repository` and `ledger` it was read from, and `by` and `on` where that ledger names who settled
-it, null where it does not.
+it, null where it does not, and `given` (`by` and `on`) when the ledgers did not hold the value and
+the person gave it on the sheet.
 
 `blocks`: `version` and `blocks`, one per need, no need twice. A block has `need`, `name`, `files`
 (each with `file` and `sha256`, kept under `blocks/<need>/`), `adapters` (the adapters it needs),
@@ -347,7 +350,11 @@ Only answers a person settled go into a core: a row the guide proposed or read o
 and nobody confirmed (its note says a person has not confirmed it), a blueprint answer the guide
 proposed, a question about the row that waits or was refused on the decision sheet, are left out
 and the command says why. A row with no such mark is the repository's own decision, as the gate
-takes it, and its origin names no one when the ledger does not.
+takes it, and its origin names no one when the ledger does not. A behaviour rule the standard
+decisions do not know is the repository's own, maybe a rule of one kind of screen: it is listed and
+proposed in neither set. The core lies outside every git work tree but its own: a folder inside a
+repository is refused, and the root of a repository made for the core is taken. Its files keep
+names, never an e-mail address.
 
 ## Not a ledger: the waiting list
 

@@ -62,26 +62,44 @@ chốt điều tương tự.
      bản thiết kế;
    - là ứng viên, không tên: dòng không mang dấu nào. Cổng cũng coi dòng ấy là quyết định của repo; giới hạn
      `core-unmarked-row-is-settled` ghi lại điều này.
-6. **Giá trị đọc ở đâu.** Có bản thiết kế thì lấy lựa chọn của nó (màu gốc, cách mở hồ sơ, thang chữ, kèm tỉ lệ khi là
-   thang modular). Repo được nhận: màu gốc đọc từ `design/tokens.json` bằng chính cách `bring-in` đọc một tệp token; bề
-   rộng được kiểm đọc từ `design/screen-sizes.json`; mọi luật khác lấy lời của dòng (`source`). Không đọc được thì lời đáp
-   bị để ngoài, kèm lý do.
-7. **Bộ lúc đầu là dữ liệu**, `references/core-questions.json`: khoá `source-color`, `record-panel` và mọi luật hành vi
-   (mọi dòng thuộc tầng `patterns`, kể cả tên tầng cũ được đọc theo bảng tên cũ); mặc định `table-density`,
-   `type-scale-values`, `test-screen-sizes`; kiểu màn, kiểu cột và lời văn ở ngoài (lời đáp 5). Câu hỏi của mỗi id lấy từ
-   `standard-decisions.json`.
+6. **Lời đáp là giá trị hay luật, và giá trị đọc ở đâu** (sửa theo bài soát độc lập, phát hiện 2). Mỗi lời đáp mang
+   `kind`:
+   - `value`, giá trị một thành viên so được: màu gốc, cách mở hồ sơ, thang chữ, bề rộng được kiểm. Có bản thiết kế thì
+     lấy lựa chọn của nó (thang modular kèm tỉ lệ). Repo được nhận: màu gốc đọc từ `design/tokens.json` bằng chính cách
+     `bring-in` đọc một tệp token; bề rộng từ `design/screen-sizes.json`. Repo không giữ giá trị ấy thì lệnh **không**
+     lấy lời của dòng làm giá trị: lời đáp vẫn là ứng viên, giá trị `null` kèm `unread` (vì sao), tờ nói thẳng giá trị
+     không đọc được, và người đưa giá trị lúc đáp bằng `--value <id>=<giá trị>`. Giá trị ấy được kiểm dạng (màu
+     `#rrggbb`, một lựa chọn của bản thiết kế, `standard` hay `modular <tỉ lệ>`, bề rộng nối bằng dấu phẩy); lõi ghi nó là
+     của người, ngày ấy, ở `origin.given`. Dựng một lời đáp chưa có giá trị thì từ chối; đưa giá trị cho lời đáp đã đọc
+     được giá trị cũng từ chối: lõi giữ điều repo đã chốt.
+   - `rule`, luật hành vi hay mật độ bảng: lời của dòng là phát biểu của luật, phép kiểm của dòng giữ nó; đầu ra gọi nó là
+     «rule», không bao giờ là giá trị để so.
+
+   Vì sao chọn cách này: một repo thứ hai chỉ dùng được giá trị thật, và đề bài cho người chốt; hỏi đúng giá trị còn thiếu
+   ngay trong câu khoá hay mặc định không thêm câu vào tờ (vẫn bốn câu), và không đoán từ mã màn của repo đầu. Bản sao
+   repo kiểm chứng cho thấy ba giá trị như thế (`record-panel`, `type-scale-values`, `test-screen-sizes`).
+
+7. **Bộ lúc đầu là dữ liệu**, `references/core-questions.json`: khoá `source-color`, `record-panel` và các luật hành vi
+   mà `standard-decisions.json` biết (dòng thuộc tầng `patterns`, kể cả tên tầng cũ đọc theo bảng tên cũ); mặc định
+   `table-density`, `type-scale-values`, `test-screen-sizes`; kiểu màn, kiểu cột và lời văn ở ngoài (lời đáp 5). Một luật
+   riêng của repo ở tầng ấy mà chuẩn không biết (trên bản sao repo kiểm chứng: `grid-continuous-run`, `action-buttons`,
+   `grid-reuse-no-styling`) có thể là luật của một kiểu màn: nó được liệt kê để người chọn được, nhưng không vào đề xuất
+   của bộ nào, và đầu ra nói vì sao (sửa theo phát hiện 1). Câu hỏi của mỗi id lấy từ `standard-decisions.json`.
 8. **Tờ khoá hay mặc định không lên hàng chờ.** Lệnh không được ghi gì vào repo đầu, và lõi chưa có trước lời đáp, nên
    tờ bốn câu được in (chữ và `--json`, mỗi câu có `question`, `recommendation`, `basis`, `where`, `if_refused`), skill
    hỏi trong phiên, và lời đáp đi vào lệnh bằng cờ. Giới hạn `core-sheet-not-on-waiting-list` ghi rằng tờ chưa đáp không
    để lại dấu.
 9. **Cờ và lối.** Không cờ: đọc và bày tờ, thoát 1 khi tờ chờ người, 0 khi không lời đáp nào đã chốt. `--build --family
---core --by [--lock ID]... [--default ID]... [--on] [--dry-run]`: dựng, mỗi id một cờ như mọi cờ nhận tên (quyết định
-   0108); thiếu `--by` thì từ chối vì không gì thành khoá khi chưa có lời người; một id không là ứng viên thì từ chối cả
-   lượt và nói vì sao. `--check --core`: phép kiểm hình dạng, 0 khi giữ, 1 kèm từng chỗ sai, 2 khi có phần mới hơn.
+--core --by [--lock ID]... [--default ID]... [--value ID=VALUE]... [--on] [--dry-run]`: dựng, mỗi id một cờ như mọi
+   cờ nhận tên (quyết định 0108); thiếu `--by` thì từ chối vì không gì thành khoá khi chưa có lời người; một id không là
+   ứng viên thì từ chối cả lượt và nói vì sao. `--by`, `--family` hay `--value` có một địa chỉ thư là lời gọi sai, thoát
+   2, không ghi gì: lõi giữ tên người, không giữ địa chỉ (sửa theo phát hiện 4). `--check --core`: phép kiểm hình dạng, 0 khi giữ, 1 kèm từng chỗ sai, 2 khi có phần mới hơn.
 10. **Chỗ của lõi khi không ai nêu:** một thư mục cạnh thư mục chính của repo đầu, tên `<tên họ>-core` (chữ thường, gạch
     nối), `family-core` khi chưa có tên. Thư mục chính đọc qua thư mục git chung, nên gọi từ một worktree cũng ra cùng
     chỗ và cùng tên repo. Lệnh từ chối một chỗ nằm trong repo đầu (cả thư mục chính lẫn worktree), một chỗ chứa repo
-    đầu, một thư mục không rỗng, và một thư mục đã có lõi: lát này dựng lõi một lần; đổi lõi là lát 4.
+    đầu, một chỗ nằm trong bất kỳ cây làm việc git nào mà gốc không phải chính nó (sửa theo phát hiện 3: lõi nằm ngoài mọi
+    repo của họ, và máy không biết repo nào là của họ), một thư mục không rỗng, và một thư mục đã có lõi: lát này dựng lõi
+    một lần; đổi lõi là lát 4. Gốc của một repo lập riêng cho lõi, chỉ có thư mục `.git`, được nhận.
 11. **Tên repo** là tên thư mục chính của nó. Tên họ chỉ đến từ lời người (`--family`); khi chưa có, tờ đề xuất tên repo
     đầu và nói đó là tên duy nhất máy có.
 12. **Không gì khác đổi.** Không lệnh nào khác đọc hay ghi lõi; bảng năng lực không thêm ổ (đề bài 0008 đã ghi giai đoạn 7
@@ -95,7 +113,7 @@ chốt điều tương tự.
 | Chưa có sổ                         | Không ứng viên, không tờ, thoát 0, nói người chốt lời đáp trước (`new`, `adopt`, `decide`) |
 | Được nhận                          | Đọc sổ quyết định và sổ token; lời đáp không tên người thì ghi «names no one»              |
 | Do lối dẫn dắt dựng                | Đọc bản thiết kế và sổ quyết định; lời đề xuất chưa xác nhận bị để ngoài, kèm lý do        |
-| Kiểu khác (không React, không CSS) | Chỉ đọc tệp sổ; không có sổ token thì màu gốc bị để ngoài, nói vì sao                      |
+| Kiểu khác (không React, không CSS) | Chỉ đọc tệp sổ; không có sổ token thì màu gốc «không đọc được», người đưa giá trị          |
 | Không Makefile                     | Không cần Makefile; bài kiểm repo được nhận và repo kiểu khác đều không có                 |
 | Gọi từ một worktree                | Cùng tên repo, cùng chỗ đề xuất, chỗ trong thư mục chính bị từ chối                        |
 
@@ -106,10 +124,14 @@ Ca không biết (sổ không đọc được, hàng chờ hỏng, sổ mới h�
 - Hợp đồng sổ có thêm một đoạn, cần người duyệt: mục «Not a ledger: the core of a family» của
   `plugins/design-assembly/references/contract.md`. Repo đứng một mình không đổi: không lệnh nào hỏi thêm hay ghi thêm
   tệp; bản chép `contract.mjs` của công cụ đổi nội dung (thêm `CORE`), không thêm tệp, và cổng không đọc phần ấy.
-- Bảng từ vựng thêm sáu thuật ngữ đặt mới: `product family`, `family core`, `locked answer`, `default answer`,
-  `lock-or-default sheet`, và sổ giới hạn thêm vùng `core`.
-- Năm giới hạn mở: `core-unmarked-row-is-settled` (giữ), `core-built-once` (sửa ở lát 4), `core-not-declared-by-members`
-  (sửa ở lát 2), `core-value-is-row-words` (giữ), `core-sheet-not-on-waiting-list` (giữ).
+- Bảng từ vựng thêm năm thuật ngữ đặt mới: `product family`, `family core`, `locked answer`, `default answer`,
+  `lock-or-default sheet`, và sổ giới hạn thêm vùng `core`. (Thông điệp commit đầu ghi nhầm là sáu.)
+- Sáu giới hạn mở: `core-unmarked-row-is-settled` (giữ), `core-built-once` (sửa ở lát 4), `core-not-declared-by-members`
+  (sửa ở lát 2), `core-value-is-row-words` (giữ, nâng lên mức vừa và thu hẹp sau bài soát: nay chỉ là luật mà thành viên
+  không so được lời, và luật không phép kiểm thì không gì giữ), `core-sheet-not-on-waiting-list` (giữ),
+  `core-given-value-not-checked-against-the-repository` (giữ: giá trị người đưa chỉ được kiểm dạng).
+- Bài soát độc lập của head 9df54f1 tìm bốn điều, sửa cả bốn trong cùng PR theo lời chủ repo («Gửi sang sửa»); mỗi bản
+  sửa có một bài kiểm đỏ khi thiếu nó.
 - Chưa dựng: repo khai họ và ghim, sổ lõi trên máy, `new` và `adopt` thừa hưởng, cổng giữ câu đã khoá, worktree cho các
   lệnh của lát sau, báo khi lõi đi trước bản ghim, móc lúc mở phiên, đẩy lõi lên một repo riêng tư, và cả mục 7.2.
 - Lát kế là lát 2 của mục 7.1, sau khi chủ repo gộp lát này.
