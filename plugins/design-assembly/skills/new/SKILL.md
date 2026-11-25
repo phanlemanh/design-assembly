@@ -61,12 +61,12 @@ blueprint layer by layer and the files written or that would be, as data.
 
 The preview may print a line that starts with `family:`: this machine keeps the core of a family
 of products, and this repository declares none. Ask the person that one question, as printed, and
-nothing more about it. Yes: follow `/design-assembly:core`, step 6. No: run
+nothing more about it. Yes: follow `/design-assembly:core`, step 7. No: run
 `core.mjs --target <repo> --decline`, and the repository is not asked again. A repository that
 already declares its family is not asked.
 
 On a repository of a family, run `core.mjs --target <repo> --inherit` once the blueprint is written
-(`/design-assembly:core`, step 7). Then a choice the blueprint marks `inherited` with
+(`/design-assembly:core`, step 8). Then a choice the blueprint marks `inherited` with
 `hold: locked` is not asked; one with `hold: default` is shown filled in, and a change is written
 with its reason under `changed.<key>`, `{ "why": "<their words>", "by": "<their name>", "on":
 "<today>" }`; keep both marks when you write the layer. The guide refuses a locked answer changed

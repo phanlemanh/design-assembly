@@ -333,9 +333,11 @@ The repositories of one family of products may share a core (spec 0016): the ans
 shares, and the blocks that graduated to it. The core is not a ledger of a repository and the gate
 of a repository does not read it: it is a folder of its own on the user's machine, outside every
 repository of the family, which may become a git repository of its own or not. Its shape is stated
-in `contract.mjs` as `CORE`, beside the ledgers, and is shape 1. Every part is a JSON file that
+in `contract.mjs` as `CORE`, beside the ledgers, and is shape 2. Every part is a JSON file that
 carries `version`; a tool that finds a part of a newer shape writes nothing and says to update the
-plugin, as for a ledger. The family's name, its answers and its blocks are the user's data, kept in
+plugin, as for a ledger. Shape 2 adds one thing to shape 1, the `history` of an answer; a part of
+shape 1 is read as it is, and a tool that changes a part writes that part at shape 2 and leaves the
+others as they are. The family's name, its answers and its blocks are the user's data, kept in
 the folder; the plugin names none of them. `core --check` says what is wrong with a core folder,
 each problem naming the file and the place.
 
@@ -368,6 +370,17 @@ default on the sheet, and when; nothing is locked without that answer), and `ori
 it, null where it does not, and `given` (`by` and `on`) when the ledgers did not hold the value and
 the person gave it on the sheet.
 
+An answer may carry `history` (shape 2): each change the family's owner made to it after it came
+into the core, oldest first, with `was` and `became` (each its `value` and its `hold`), `by`, `on`
+and `why`, the reason, never blank. A change changes something: its `was` and `became` differ. Each
+`was` is what the change before it `became`, and the last `became` is the answer's `value` and `hold`
+now. A rule is never given another value, only another hold. The days go forward from the answer's
+`on`. `by`, `on` and `why` of the answer itself say how it came into the core and are never
+rewritten; an answer added after the core was built came in from a repository where a person
+settled it, read as the first repository is read, and its `why` gives the owner's reason. A history
+in a part that says shape 1 is a wrong shape. `core --check` holds each of these and names the
+place: the file, the answer and the change.
+
 `blocks`: `version` and `blocks`, one per need, no need twice. A block has `need`, `name`, `files`
 (each with `file` and `sha256`, kept under `blocks/<need>/`), `adapters` (the adapters it needs),
 `used_by` (the repositories that use it), `promoted` (`by` and `on`) and `second_use`, false until a
@@ -385,7 +398,9 @@ takes it, and its origin names no one when the ledger does not. A behaviour rule
 decisions do not know is the repository's own, maybe a rule of one kind of screen: it is listed and
 proposed in neither set. The core lies outside every git work tree but its own: a folder inside a
 repository is refused, and the root of a repository made for the core is taken. Its files keep
-names, never an e-mail address.
+names, never an e-mail address. `core --change` changes one answer of a core in its folder, its
+value, its hold, or an answer added, and writes nothing into a member repository and tells no
+member: a member learns of it when it next reads the core.
 
 ## Not a ledger: the machine's list of cores
 
