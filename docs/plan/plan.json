@@ -621,6 +621,12 @@
           "what": "Một repo thứ hai cùng họ thừa hưởng lõi",
           "state": "todo",
           "ref": "wiki/specs/0016-the-family-core-is-born-through-the-plugin.md, tiêu chí 16, câu hỏi 8: lượt thử của dòng «xong khi» trên bản sao, mỗi lượt hỏi chủ repo trước vì tốn token"
+        },
+        {
+          "id": "7.4",
+          "what": "Một repo không có Makefile, và một gói của workspace không giữ thư mục src/, tới được cổng của plugin và được đọc",
+          "state": "doing",
+          "ref": "Chủ repo thêm ngày 2026-11-25 («Mở cả hai», trả lời câu hỏi mở hai phiên song song, trong đó một mục mới sửa hai giới hạn chặn repo cùng họ thứ hai): sửa adopt-without-makefile-writes-nothing và audit-workspace-reads-top-src-only theo câu 6 của quyết định 0023; plugin 0.66.0: wiki/decisions/0120-a-repository-with-no-makefile-and-a-package-with-no-src-folder.md, lượt thử docs/trials/no-makefile-workspace-on-the-second-product.md"
         }
       ],
       "done_when": ["Repo thứ hai không bị hỏi lại câu đã trả lời, và dùng lại ít nhất một khối"],
@@ -736,9 +742,9 @@
     },
     {
       "on": "2026-11-17",
-      "what": "Sáu giới hạn mở từ lượt đo độ rộng, đứng đầu là repo nhiều gói mà audit đọc ra rỗng (audit-workspace-reads-top-src-only)",
+      "what": "Hai giới hạn còn mở từ lượt đo độ rộng: words-check-reads-type-parameters-as-text và guide-commands-look-for-src-index-css-only; bốn dòng kia đã đóng, library-folder-not-read-from-settings ngày 2026-11-20, ba dòng còn lại ở mục 7.4 ngày 2026-11-25 (quyết định 0120)",
       "stage": 7,
-      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 2; chặn mục 7.3 nếu repo cùng họ thứ hai là một repo nhiều gói",
+      "why_not_now": "Không chặn điều kiện đóng của giai đoạn 2, cũng không chặn mục 7.3: gói ứng dụng của repo cùng họ thứ hai nay được đọc, tới được cổng và gia nhập lõi (docs/trials/no-makefile-workspace-on-the-second-product.md)",
       "group": "breadth"
     },
     {

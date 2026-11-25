@@ -2745,9 +2745,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-16",
-      "where": ["trials"],
-      "status": "open",
-      "note": "On a repository with no Makefile that includes the make files of mk/ and collects their CHECK_TARGETS, adopting writes nothing at all, and its message names only the include line, so a repository not born from repo-setup cannot reach the gate or an upgrade without reading the templates."
+      "where": ["trials", "d0120"],
+      "status": "closed",
+      "note": "On a repository with no Makefile that includes the make files of mk/ and collects their CHECK_TARGETS, adopting writes nothing at all, and its message names only the include line, so a repository not born from repo-setup cannot reach the gate or an upgrade without reading the templates.",
+      "closed": "2026-11-25",
+      "closed_by": "item 7.4 (decision 0120): on a repository that keeps no Makefile and has a package file, adopting lays the tool as anywhere else and declares one check command as a script of the package, design:check (design-assembly:check where that name is the repository's own), never writes a Makefile or a make step, never writes over a script, names the package file among the files of its dry run and prints the command to run; the check-in-gate row holds the script, status counts the rows held, and upgrade writes no make step there; held by tests/test-script-gate.mjs. What it does not do: gate-script-not-joined-to-the-repository-check, kit-told-only-where-its-file-is-in-the-folder"
     },
     {
       "id": "local-install-copies-working-tree",
@@ -3125,9 +3127,11 @@
       "severity": "high",
       "plan": "fix",
       "opened": "2026-11-17",
-      "where": ["trials", "d0060", "d0061"],
-      "status": "open",
-      "note": "In a workspace repository whose screens live under apps/NAME/ and whose stylesheet lives under packages/NAME/src/styles/, the audit and status read only the src/ folder at the top: they print no stylesheet and 0 source files, the audit's next line says there is nothing to read, and status ends with 0 and nothing to run, while the UI package alone, given as --target, has a stylesheet with a primary colour of its own and 35 places that go around four scales; find and inventory read the components and screens of the same folders, so in such a repository find finds none of them and inventory counts none of them unless the package is given as --target."
+      "where": ["trials", "d0060", "d0061", "d0120"],
+      "status": "closed",
+      "note": "In a workspace repository whose screens live under apps/NAME/ and whose stylesheet lives under packages/NAME/src/styles/, the audit and status read only the src/ folder at the top: they print no stylesheet and 0 source files, the audit's next line says there is nothing to read, and status ends with 0 and nothing to run, while the UI package alone, given as --target, has a stylesheet with a primary colour of its own and 35 places that go around four scales; find and inventory read the components and screens of the same folders, so in such a repository find finds none of them and inventory counts none of them unless the package is given as --target.",
+      "closed": "2026-11-25",
+      "closed_by": "item 7.4 (decision 0120): at the root of a workspace that holds nothing of its own, audit, status, find, inventory, adopt and upgrade say it is a workspace, name the packages that hold screens or a stylesheet and say to aim at one with --target, and nothing is written there; aimed at a package, the source is read where the package keeps it (source-folders.mjs) and the stylesheet a sibling package holds is read by every reader; on a copy of the measured repository the application package reads 963 of 963 source files and inventory counts 293 components; held by tests/test-source-folders.mjs. What it does not do: workspace-read-from-the-package-file-only, source-folder-one-folder-from-one-settings-file"
     },
     {
       "id": "audit-undecided-with-nothing-read",
@@ -3136,9 +3140,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-17",
-      "where": ["trials"],
-      "status": "open",
-      "note": "On a package that keeps its screens in an app folder at its top rather than under src/, the audit reads 0 source files and prints no stylesheet under src/, yet in the same report quotes the primary colour of a stylesheet the component settings name outside the folder given, and calls color-role, type-scale, spacing and radius undecided, as if it had seen that nothing answers them."
+      "where": ["trials", "d0120"],
+      "status": "closed",
+      "note": "On a package that keeps its screens in an app folder at its top rather than under src/, the audit reads 0 source files and prints no stylesheet under src/, yet in the same report quotes the primary colour of a stylesheet the component settings name outside the folder given, and calls color-role, type-scale, spacing and radius undecided, as if it had seen that nothing answers them.",
+      "closed": "2026-11-25",
+      "closed_by": "item 7.4 (decision 0120): the audit reads the package's source where it keeps it and the stylesheet its component settings name, with what that imports, and says which folders it read and how it knew; on a copy of the measured package it reads 963 of 963 source files and two stylesheets, and color-role is no longer undecided; held by tests/test-source-folders.mjs"
     },
     {
       "id": "guide-commands-look-for-src-index-css-only",
@@ -3158,9 +3164,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-17",
-      "where": ["trials"],
-      "status": "open",
-      "note": "Custom properties declared under :root inside an @layer block of an imported stylesheet are not read, so a colour role written as var(--x), with --x declared there, is reported as pointing nowhere, and the contrast of the primary colour is said to be unreadable rather than measured."
+      "where": ["trials", "d0120"],
+      "status": "closed",
+      "note": "Custom properties declared under :root inside an @layer block of an imported stylesheet are not read, so a colour role written as var(--x), with --x declared there, is reported as pointing nowhere, and the contrast of the primary colour is said to be unreadable rather than measured.",
+      "closed": "2026-11-25",
+      "closed_by": "item 7.4 (decision 0120): a variable a cascade layer declares, in the stylesheet or a file it imports, is followed after the unlayered declarations, as the cascade ranks them, and lab() and hsl() are read; on a copy of the measured repository every contrast pair of both modes is measured, and the variables that still point nowhere are said once, with why; held by tests/test-source-folders.mjs"
     },
     {
       "id": "words-check-reads-type-parameters-as-text",
@@ -6056,6 +6064,83 @@
       "where": ["d0116"],
       "status": "open",
       "note": "A push is recorded in this machine's list of cores, with the state of the folder as pushed: a push made from another machine, or by hand with git, is not known here, and the command then says the copy there is behind when it is not, or names no push at all."
+    },
+    {
+      "id": "lint-tool-the-adapter-does-not-know",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0120", "trials"],
+      "status": "open",
+      "note": "A repository whose lint and format tools are not the one the lint adapter knows (the second product of the family lints and formats with other tools) has no lint-kind check: a ledger row that points at a lint rule waits, is recorded as not held with why, and status counts it, but nothing holds it until an adapter for that tool is written. No adapter is written in item 7.4."
+    },
+    {
+      "id": "workspace-read-from-the-package-file-only",
+      "area": "audit",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0120", "trials"],
+      "status": "open",
+      "note": "A workspace is known only by the workspaces list of the root's package file, with patterns that name a folder or every folder of one (dir/*); a workspace declared in another tool's own file, or a pattern of another shape, is not expanded (the patterns not expanded are said). A root that holds a stylesheet or source of its own is read as any repository, and its packages are not named."
+    },
+    {
+      "id": "source-folder-one-folder-from-one-settings-file",
+      "area": "audit",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0120", "trials"],
+      "status": "open",
+      "note": "The source folder is one folder, learnt from the tool data's source_folder, then the package's own tsconfig.json (the prefix its component settings write, else @/), then src: a settings file that only extends another is not followed, and a package whose screens sit in two folders that share no parent is read through the parent or a declaration. A package whose source is its root is read whole, its tests and prototypes included, as tests under src/ always were."
+    },
+    {
+      "id": "gate-script-not-joined-to-the-repository-check",
+      "area": "adopt",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0120", "trials"],
+      "status": "open",
+      "note": "Where the repository keeps no Makefile, the gate is the package script design:check, and the repository's own check and its CI run it only once a person joins it there: adopting never rewrites a script the repository has, and says the command to run. Until then nothing runs the design check on a change of its own accord."
+    },
+    {
+      "id": "kit-told-only-where-its-file-is-in-the-folder",
+      "area": "adopt",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0120", "trials"],
+      "status": "open",
+      "note": "Adopting writes the gate's command into the acceptance kit's file only where that file lies in the folder adopted; where it lies above it, at the root of a workspace, the line to add is said and not written, since no command writes outside the folder it is aimed at."
+    },
+    {
+      "id": "component-manifest-not-written-when-the-library-is-a-sibling",
+      "area": "adopt",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0120", "trials"],
+      "status": "open",
+      "note": "A package whose component library lives in a sibling package of its workspace, and that keeps only its own components, gets no component manifest from adopting: the manifest is written only where the library's folder is in the package. find and inventory read its components all the same."
+    },
+    {
+      "id": "guide-and-change-map-read-src-for-the-at-prefix",
+      "area": "guide",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0120", "trials"],
+      "status": "open",
+      "note": "The guide, the change map (affected), the screen list of the guide (src/screens.ts) and the parts of the code still read @/ as src/: a package whose source is elsewhere is read through the answer of source-folders.mjs by the audit, the store's commands, the manifest and the checks that walk the source, not yet by those."
     }
   ]
 }

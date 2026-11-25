@@ -33,7 +33,13 @@ import {
   ledgerText as screensText,
   readFragments,
 } from "../templates/tools/design-assembly/screen-fragments.mjs";
-import { readMakefile } from "../templates/tools/design-assembly/host-make.mjs";
+import { gateHost, readMakefile } from "../templates/tools/design-assembly/host-make.mjs";
+import {
+  DEFAULT_FOLDER,
+  sourceFolder,
+} from "../templates/tools/design-assembly/source-folders.mjs";
+import { gateCandidate, gateFiles, gateSaid, trialPackage } from "./script-gate.mjs";
+import { workspaceLines, workspaceOf } from "./workspace.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
 import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-first.mjs";
@@ -89,7 +95,6 @@ import {
   BLUEPRINT,
   columnsPlan,
   componentsPlan,
-  gateProblem,
   patternsPlan,
   RULES_PAGE,
   ledgerButtons,
@@ -332,6 +337,9 @@ export function adoption(
   // --starter records it.
   const theme = JSON.parse(read(root, FILES.theme) ?? "null");
   const onFloor = starter && ownValuesProblem(root) === null;
+  // Where the gate is, and where the package keeps its source: asked once, read by every step.
+  const host = gateHost(root);
+  const { folder: source } = sourceFolder(root);
 
   const ledgerText = read(root, LEDGER);
   const existing = ledgerText === null ? [] : parseLedger(ledgerText);
@@ -438,8 +446,21 @@ export function adoption(
         row: { kind: tokens.row.kind, source: tokens.row.source },
         checks: tokens.checks,
       };
-      for (const variable of tokens.unresolved) {
-        result.unreadable.push({ id: TOKENS_DECISION, why: `${variable} points nowhere` });
+      // One variable is said as it always was; several are said once, with why when it is known.
+      if (tokens.unresolved.length === 1) {
+        result.unreadable.push({
+          id: TOKENS_DECISION,
+          why: `${tokens.unresolved[0]} points nowhere`,
+        });
+      } else if (tokens.unresolved.length > 1) {
+        const why =
+          (styles.base ?? "") === ""
+            ? ": no stylesheet read here declares them, and the framework's own theme, which may, is not installed here"
+            : ": no stylesheet read here declares them";
+        result.unreadable.push({
+          id: TOKENS_DECISION,
+          why: `${tokens.unresolved.length} variables point nowhere, so they are not in the design tokens file (${tokens.unresolved.join(", ")})${why}`,
+        });
       }
     }
     // The same for the component manifest: read from the source, which is left as it is.
@@ -625,7 +646,7 @@ export function adoption(
         };
       }
     }
-    const gate = gateProblem(root);
+    const gate = host.problem ?? null;
     const ids = Object.keys(candidates);
     if (gate && ids.length > 0) {
       result.person.push({
@@ -633,13 +654,7 @@ export function adoption(
         why: `${gate}. Until the gate can run this plugin's tool, no check is added for ${ids.join(", ")}`,
       });
     } else if (ids.length > 0) {
-      if (open("checks-in-gate")) {
-        candidates["checks-in-gate"] = {
-          what: "make check runs this tool, in a way that can fail",
-          row: { kind: "standard", source: "make check" },
-          checks: [{ kind: "gate" }],
-        };
-      }
+      if (open("checks-in-gate")) candidates["checks-in-gate"] = gateCandidate(host);
       // The decision sheet and the wall come with the gate: every repository that runs this tool
       // gets them, as the guide writes them.
       for (const [id, item] of [
@@ -650,6 +665,17 @@ export function adoption(
         // Adopting gives the layer and the pointer at the tool itself.
         const row = { kind: item.row.kind, source: item.row.source, note: item.row.note };
         candidates[id] = { what: item.what, row, checks: item.checks };
+      }
+      // A package that keeps its source elsewhere than the usual folder: each check that walks the
+      // source reads that folder, as every reader does.
+      if (source !== DEFAULT_FOLDER) {
+        for (const candidate of Object.values(candidates)) {
+          candidate.checks = candidate.checks.map((check) => ({
+            ...check,
+            ...(check.sources === DEFAULT_FOLDER ? { sources: source } : {}),
+            ...(check.folder === DEFAULT_FOLDER ? { folder: source } : {}),
+          }));
+        }
       }
       // Each candidate is run by the tool itself on the repository as it is: a check is added only
       // when it passes now and fails on a changed copy.
@@ -670,6 +696,8 @@ export function adoption(
         ...styles,
         gate: vendored()[FILES.gate],
         makefile: readMakefile(root),
+        // Where the gate is a package script, the package file as it will be written.
+        package: trialPackage(root, host),
         // What loads a typeface, as the adapter of the repository's build reads it.
         fonts: readLoads(root, styles.css, result.stylesheet),
         displays: columns.displays ?? {},
@@ -850,7 +878,11 @@ export function adoption(
     result.files[FILES.theme] = renderJson(data, lineWidth(root));
   }
   if (tooled.length > 0) {
-    Object.assign(result.files, vendored());
+    // The tool, and where the gate is: the make step, or the script of the package.
+    Object.assign(result.files, gateFiles(root, host, vendored()));
+    const told = gateSaid(root, host);
+    result.gate_said = told.lines;
+    Object.assign(result.files, told.files);
     // The browser test the check of the floating parts holds, where the repository has none.
     if ((checks["ledger-shapes"] ?? []).some((check) => check.kind === FLOATING_CHECK.kind)) {
       Object.assign(result.files, floatingParts(root).files);
@@ -906,6 +938,7 @@ const ON_COMPONENT = ["no-restyled-component", "whole-class-names"];
 // applies, then the lint on the probes. A row whose every probe is rejected by that rule, and whose
 // check was seen failing with that rule off, gains the tool's check; any other is said with why.
 function rerunLint(root, rows, theme, checks, result) {
+  const { folder: source } = sourceFolder(root);
   const open = rows.filter(
     (row) =>
       ruleOf(row.check) &&
@@ -928,7 +961,7 @@ function rerunLint(root, rows, theme, checks, result) {
     if (!at) {
       result.loose.push({
         id: String(row.id),
-        why: `${rule} is an error on no screen file under src, so no probe can be linted`,
+        why: `${rule} is an error on no screen file under ${source === "." ? "the package" : source}, so no probe can be linted`,
       });
       continue;
     }
@@ -1072,6 +1105,9 @@ function main(args) {
   const root = call.target;
   const dryRun = call.flags["--dry-run"] === true;
   const list = (flag) => (call.flags[flag] ?? "").split(",").filter(Boolean);
+  // The root of a workspace holds nothing to adopt: the packages are named, and nothing is written.
+  const space = workspaceOf(root);
+  if (space) throw new Refusal(`${workspaceLines(space).join("\n")}\nNothing was written`);
   // A ledger a newer plugin wrote is never written over by this one.
   const newer = newerLedgers(root);
   if (newer.length > 0) throw new Refusal(`${newer.join("; ")}. Nothing was written`);
@@ -1091,6 +1127,7 @@ function main(args) {
   const written = writeFiles(root, result.files, dryRun);
   for (const line of written) lines.push(`  ${line}`);
   if (written.length === 0) lines.push("  nothing to write");
+  if (result.gate_said?.length > 0) lines.push("", ...result.gate_said);
   if (dryRun) lines.push("preview only: nothing was written");
   else {
     const changed = written.filter((line) => !line.startsWith("unchanged")).length;

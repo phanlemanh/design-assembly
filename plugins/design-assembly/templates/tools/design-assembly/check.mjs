@@ -108,7 +108,15 @@ import {
   sourcedFont,
   withoutBlock,
 } from "./theme.mjs";
-import { GATE_STEP, gateStepProblem, gateStepThatCannotFail, readMakefile } from "./host-make.mjs";
+import {
+  GATE_STEP,
+  gateStepProblem,
+  gateStepThatCannotFail,
+  readMakefile,
+  readPackage,
+  scriptGateProblem,
+  scriptThatCannotFail,
+} from "./host-make.mjs";
 import { tokensProblem } from "./tokens.mjs";
 import { exportProblem, inputsOf, unlistedProblems, withManifest } from "./exports.mjs";
 import { buildOf } from "./adapters/index.mjs";
@@ -531,12 +539,14 @@ const KINDS = {
         // Where the library shares its folder, the guide listed its parts one by one.
         library: check.library ?? [check.folder, ...(check.libraries ?? [])],
         pages: check.pages ? (state.pages?.[check.pages] ?? {}) : {},
+        // The folder `@/` stands for, where it is not the usual one.
+        ...(check.source ? { source: check.source } : {}),
       });
     },
     // A new source file is a new component: the file on disk no longer matches.
     change(state, check) {
       const read = check.own ?? check.folder;
-      const added = `${check.folder}/changed-copy.tsx`;
+      const added = path.posix.join(check.folder, "changed-copy.tsx");
       const files = {
         ...state.folders?.[read],
         [added]: "export function ChangedCopy() {}\n",
@@ -627,7 +637,8 @@ const KINDS = {
     // An item taken down for a need nobody took in, and a page of the repository that imports it.
     change(state, check) {
       const folder = check.sources ?? "src";
-      const item = `${folder}/components/taken-down/broken-item.tsx`;
+      // Joined as paths are, so a source folder that is the package's root, `.`, adds nothing.
+      const item = path.posix.join(folder, "components/taken-down/broken-item.tsx");
       const record = {
         version: 1,
         need: "broken-need",
@@ -653,7 +664,7 @@ const KINDS = {
           [folder]: {
             ...state.sources?.[folder],
             [item]: "export function BrokenItem() {}\n",
-            [`${folder}/broken-page.tsx`]:
+            [path.posix.join(folder, "broken-page.tsx")]:
               'import { BrokenItem } from "./components/taken-down/broken-item";\nexport const Page = BrokenItem;\n',
           },
         },
@@ -763,7 +774,7 @@ const KINDS = {
     },
     // A control far below any target size: the check must name it.
     change(state, check) {
-      const added = `${check.folder}/changed-copy.tsx`;
+      const added = path.posix.join(check.folder, "changed-copy.tsx");
       const source = 'export function ChangedCopy() {\n  return <button className="h-1" />;\n}\n';
       const files = { ...state.folders?.[check.folder], [added]: source };
       return { ...state, folders: { ...state.folders, [check.folder]: files } };
@@ -797,7 +808,7 @@ const KINDS = {
       return cellProblems(state.folders?.[check.folder] ?? {}, check.rule, liveSkip(state, check));
     },
     change(state, check) {
-      const added = `${check.folder}/changed-copy.tsx`;
+      const added = path.posix.join(check.folder, "changed-copy.tsx");
       const source =
         'export const ChangedCopy = () => (\n  <tr className="h-9">\n    <td className="w-40 text-right" />\n  </tr>\n);\n';
       const files = { ...state.folders?.[check.folder], [added]: source };
@@ -968,7 +979,7 @@ const KINDS = {
       return wordsProblem(state.folders?.[check.folder] ?? {}, liveSkip(state, check));
     },
     change(state, check) {
-      const added = `${check.folder}/changed-copy.tsx`;
+      const added = path.posix.join(check.folder, "changed-copy.tsx");
       const source = 'export const ChangedCopy = () => <p title="Changed copy">Changed copy</p>;\n';
       const files = { ...state.folders?.[check.folder], [added]: source };
       return { ...state, folders: { ...state.folders, [check.folder]: files } };
@@ -982,7 +993,7 @@ const KINDS = {
       return channelsProblem(files, liveSkip(state, check));
     },
     change(state, check) {
-      const added = `${check.folder}/changed-copy.tsx`;
+      const added = path.posix.join(check.folder, "changed-copy.tsx");
       const source =
         "export const ChangedCopy = () => <button onClick={() => window.alert(text)} />;\n";
       const files = { ...state.folders?.[check.folder], [added]: source };
@@ -1001,7 +1012,7 @@ const KINDS = {
       return emptyStateProblem(state.sources?.[check.sources] ?? {}, liveSkip(state, check));
     },
     change(state, check) {
-      const added = `${check.sources}/changed-copy.tsx`;
+      const added = path.posix.join(check.sources, "changed-copy.tsx");
       const source =
         'export const ChangedCopy = () => <Empty><a href="/" className={buttonVariants()}>{word}</a></Empty>;\n';
       const files = { ...state.sources?.[check.sources], [added]: source };
@@ -1021,7 +1032,7 @@ const KINDS = {
     change(state, check) {
       const to =
         screenPaths(state.files?.[check.registry], state.files?.[check.ledger] ?? null)[0] ?? "/";
-      const added = `${check.sources}/example/changed-copy.tsx`;
+      const added = path.posix.join(check.sources, "example/changed-copy.tsx");
       const source = `export const ChangedCopy = () => <a href="${to}">{word}</a>;\n`;
       const files = { ...state.sources?.[check.sources], [added]: source };
       return { ...state, sources: { ...state.sources, [check.sources]: files } };
@@ -1033,7 +1044,7 @@ const KINDS = {
       return errorCopyProblem(state.folders?.[check.folder] ?? {}, liveSkip(state, check));
     },
     change(state, check) {
-      const added = `${check.folder}/changed-copy.tsx`;
+      const added = path.posix.join(check.folder, "changed-copy.tsx");
       const source =
         'export const ChangedCopy = () => (\n  <Alert variant="destructive">\n    <AlertTitle>{title}</AlertTitle>\n  </Alert>\n);\n';
       const files = { ...state.folders?.[check.folder], [added]: source };
@@ -1207,9 +1218,17 @@ const KINDS = {
       };
     },
   },
+  // The gate: the step of the Makefile, or, where the repository keeps no Makefile, the script of
+  // its package the check names.
   gate: {
-    run: (state) => gateStepProblem(state.gate, state.makefile),
-    change: (state) => ({ ...state, gate: gateStepThatCannotFail(state.gate) }),
+    run: (state, check) =>
+      check?.script
+        ? scriptGateProblem(state.package, check.script)
+        : gateStepProblem(state.gate, state.makefile),
+    change: (state, check) =>
+      check?.script
+        ? { ...state, package: scriptThatCannotFail(state.package, check.script) }
+        : { ...state, gate: gateStepThatCannotFail(state.gate) },
   },
 };
 // The kinds of check, for the plugin's own tests of a single check.
@@ -1589,6 +1608,7 @@ export function readState(root) {
     displays: readDisplays(root),
     gate: read(FILES.gate),
     makefile: readMakefile(root),
+    package: readPackage(root),
     git: gitFacts(
       root,
       checks.filter((check) => check.kind === UNTRACKED).map((check) => check.file),
