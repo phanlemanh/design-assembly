@@ -411,9 +411,15 @@
     },
     {
       "version": "0.63.0",
-      "templates": "0b1f0d125d888181e15751227891c8b37ef16011",
-      "scripts": "e3d0b2636a854c218f5120c47e140a670c580215",
-      "tool": "2af5aff84a412128d2afb27883f0d129a42fa4f5"
+      "templates": "0c17330755a018fbb3581060af9440ce854f77fd",
+      "scripts": "a8b3e7d552ea2ecaade7c5500aef870944b084d6",
+      "tool": "abd4740b708a020a37cbd057af57a43fe5006c18"
+    },
+    {
+      "version": "0.64.0",
+      "templates": "b802ac04d593f4dbe42ca863fce5cf3a88ecb129",
+      "scripts": "c88866fe13865d9034a7d041b5fb182e38427565",
+      "tool": "e84ab1343f5a3d4643fbca32dc084f97ec4f9446"
     }
   ]
 }

@@ -278,7 +278,7 @@ export function joinCore(root, { core, by, on, dryRun }) {
   const before = readPinnedCore(root);
   if (before?.family && before.family !== declaration.family) {
     throw new Refusal(
-      `this repository declares the family ${before.family} already, and ${folder} is the core of ${declaration.family}: a repository is of one family, and leaving one is not built yet. Nothing was written`,
+      `this repository declares the family ${before.family} already, and ${folder} is the core of ${declaration.family}: a repository is of one family: leave the one it is of first, with core --leave. Nothing was written`,
     );
   }
   const repository = path.basename(home);
@@ -484,6 +484,13 @@ export function inheritCore(root, { dryRun }) {
       continue;
     }
     entry.choice = { ...choice, ...wanted };
+    // A choice inherited again is no longer the repository's own from a family it left.
+    if (entry.own) {
+      entry.own = Object.fromEntries(
+        Object.entries(entry.own).filter(([key]) => !Object.hasOwn(wanted, key)),
+      );
+      if (Object.keys(entry.own).length === 0) delete entry.own;
+    }
     entry.inherited = {
       ...entry.inherited,
       ...Object.fromEntries(

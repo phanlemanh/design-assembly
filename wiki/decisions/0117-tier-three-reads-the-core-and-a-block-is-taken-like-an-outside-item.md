@@ -40,7 +40,7 @@ sources:
 
 ## Status
 
-Accepted, 2026-11-25, plugin 0.63.0. Lát 1 của mục 7.2, dựng theo lời chủ repo («Mở ba lát»), theo đề bài
+Accepted, 2026-11-25, plugin 0.64.0 (gộp sau nửa «rời họ», quyết định [0118](0118-a-repository-leaves-its-family.md), plugin 0.63.0). Lát 1 của mục 7.2, dựng theo lời chủ repo («Mở ba lát»), theo đề bài
 [0016](../specs/0016-the-family-core-is-born-through-the-plugin.md) đã duyệt (tiêu chí 10 và 11, lời đáp 7) và các
 quyết định [0113](0113-the-core-shape-and-the-command-that-builds-it.md) và
 [0114](0114-a-repository-joins-its-family-and-inherits.md). Lát này đổi hợp đồng sổ (bản chép của lõi giữ thêm tệp
@@ -154,17 +154,30 @@ hạng là lát 3 của mục này), nên mọi lõi có khối trong bài kiể
     của thành viên dùng để đọc bản chép: nếu sau này plugin thêm một loại, bản công cụ cũ đã chép vào một thành
     viên vẫn đọc được bản chép có loại ấy, thay vì coi cả bản chép là sai hình dạng và làm cổng đỏ.
 
+13. **Rời họ khi đã có khối** (hai lát trong một cây, sau khi gộp main có `core --leave`, quyết định 0118).
+    `core --leave` gỡ mọi tệp của bản chép mà bản ghim nêu, nên tệp của khối đi cùng; thư mục `design/core` không
+    còn. Khối repo đã nhập kho thì **ở lại nguyên chỗ, là của riêng repo**: tệp mã, dòng sổ nhập kho và bản chuẩn
+    hoá không bị đổi. Dòng sổ không được viết lại: `from: core` và `pin` từ đó nghĩa là «nơi khối từng đến, ở bản
+    ghim nào của lõi mà repo từng thuộc»; chúng không trỏ tới lõi nào repo còn giữ, và khối không còn được so với
+    lõi nào. Bước rời họ in tên từng khối như thế (`blocks_kept` trong `--json`); `inventory` nói khối «được lấy từ
+    một lõi mà repo không còn thuộc» ở mục không so được, thay cho câu «nêu một nguồn chưa ghim»; sửa tay vẫn được
+    báo qua bản chuẩn hoá. `find` in tầng 3 như repo không thuộc họ nào, và đưa khối ở tầng 1. Vì sao không viết
+    lại dòng sổ: bước rời họ không đổi giá trị nào của repo, và dòng ấy là bản ghi của lần nhập kho, có người duyệt
+    và ngày duyệt. Điều còn thiếu là một dấu trên chính dòng sổ nói repo đã rời họ, như dấu ở sổ quyết định: giới
+    hạn `core-block-kept-after-leaving-says-core`.
+
 ### Trên mọi loại repo
 
-| Repo                                           | Lệnh làm gì                                                                                                            |
-| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| Không thuộc họ nào (bốn loại)                  | `find`, `intake`, `inventory` in như trên main, trừ dòng của tầng 3; không hỏi, không ghi gì mới, mã thoát như cũ      |
-| Thành viên, do lối dẫn dắt dựng                | Tầng 3 đưa khối; lấy về, chuẩn hoá, nhập kho; cổng xanh sau khi repo viết lại sổ thành phần (`make design-components`) |
-| Thành viên, được nhận, sổ viết theo khoá riêng | Dòng sổ ghi theo cách viết khoá của repo; khối vào một thư mục mà cấu hình của repo không nêu                          |
-| Thành viên thiếu bộ chuyển khối cần            | Khối không được đưa ra, kèm lý do; `core --take` từ chối, không ghi gì                                                 |
-| Thành viên vào họ trước lát này                | Bản chép vẫn đọc được; khối không được đưa ra cho tới khi ghim lại bằng `core --join`                                  |
-| Bản chép lệch mã băm                           | Tầng 3 không đọc, nói vì sao, thang đi tiếp; `core --take` từ chối; cổng đỏ (quyết định 0114)                          |
-| Gọi từ một worktree                            | `find`, `intake`, `inventory` và `core --take` in như từ thư mục chính                                                 |
+| Repo                                           | Lệnh làm gì                                                                                                               |
+| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Không thuộc họ nào (bốn loại)                  | `find`, `intake`, `inventory` in như trên main, trừ dòng của tầng 3; không hỏi, không ghi gì mới, mã thoát như cũ         |
+| Thành viên, do lối dẫn dắt dựng                | Tầng 3 đưa khối; lấy về, chuẩn hoá, nhập kho; cổng xanh sau khi repo viết lại sổ thành phần (`make design-components`)    |
+| Thành viên, được nhận, sổ viết theo khoá riêng | Dòng sổ ghi theo cách viết khoá của repo; khối vào một thư mục mà cấu hình của repo không nêu                             |
+| Thành viên thiếu bộ chuyển khối cần            | Khối không được đưa ra, kèm lý do; `core --take` từ chối, không ghi gì                                                    |
+| Thành viên vào họ trước lát này                | Bản chép vẫn đọc được; khối không được đưa ra cho tới khi ghim lại bằng `core --join`                                     |
+| Bản chép lệch mã băm                           | Tầng 3 không đọc, nói vì sao, thang đi tiếp; `core --take` từ chối; cổng đỏ (quyết định 0114)                             |
+| Thành viên rời họ sau khi nhập một khối        | Bản chép và tệp của khối trong nó bị gỡ; khối đã nhập ở lại là của repo; cổng xanh; tầng 3 in như repo không thuộc họ nào |
+| Gọi từ một worktree                            | `find`, `intake`, `inventory` và `core --take` in như từ thư mục chính                                                    |
 
 ## Consequences
 
@@ -196,7 +209,7 @@ hạng là lát 3 của mục này), nên mọi lõi có khối trong bài kiể
     khối và hai tệp JSON đạt, còn `blocks/index.json` của lõi mẫu (do bài thử viết tay) thì không. Nghĩa là
     `prettier --write .` của một thành viên sẽ viết lại bản chép và làm nó không đọc được. Điều này đúng cả với ba
     phần JSON mà lát 2 đã chép. Giới hạn `core-copy-holds-code-the-repository-tools-walk`.
-- **Mở chín giới hạn** (vùng `core`): `core-block-store-filled-by-no-command`,
+- **Mở chín giới hạn lúc đầu, thêm một khi gộp main** (vùng `core`): `core-block-store-filled-by-no-command`,
   `core-copy-holds-code-the-repository-tools-walk`, `core-copy-holds-every-block`, `core-block-imports-not-read`,
   `core-take-does-not-read-the-owners-answer`, `core-block-with-other-files-is-taken-afresh`,
   `core-block-is-a-block-to-find`, `core-block-of-a-name-the-repository-has`,
@@ -218,6 +231,10 @@ hạng là lát 3 của mục này), nên mọi lõi có khối trong bài kiể
   phần, rồi bản xuất `DESIGN.md`), và xanh sau `make design-components` và `make design-exports`. Lint của bản sao
   chạy trên khối đã nhập và trên `design/core` không báo gì; `prettier --check` chỉ báo `blocks/index.json` do bài
   thử viết tay.
+- **Gộp main (795d6bc, có `core --leave`)** bằng merge commit; plugin lên 0.64.0. Giữ dòng của cả hai phía ở
+  `scripts/core.mjs`, skill, sổ giới hạn, bảng năng lực, README, chỉ mục và nhật ký. Một bài kiểm của lát «rời họ»
+  đòi `find` không nói gì về họ; nay nó bỏ qua đúng dòng của tầng 3. Mở thêm giới hạn
+  `core-block-kept-after-leaving-says-core` (mười giới hạn của lát này).
 - **Chưa kiểm được:** lint của repo kiểm chứng trên `design/core` (bản sao không có `node_modules`, nên ESLint
   không nạp được cấu hình); và một khối thật, vì chưa lệnh nào đưa khối lên lõi.
 - **Một điều ngoài lát này, chưa sửa:** `core --join` ghi bản chép qua `writeFiles`, mà hàm ấy coi hai tệp JSON

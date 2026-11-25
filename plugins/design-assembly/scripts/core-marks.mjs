@@ -11,6 +11,8 @@ import { fileURLToPath } from "node:url";
 import {
   CORE_VALUES,
   coreMarkOf,
+  leftMarkOf,
+  leftMarkText,
   memberFiles,
   memberValues,
   PINNED_CORE,
@@ -364,4 +366,23 @@ export function coreWidths(root) {
   if (!member || member.pinned.unreadable) return null;
   const answer = member.pinned.answers.find((item) => item.id === "test-screen-sizes");
   return Array.isArray(answer?.value) ? answer.value : null;
+}
+
+// The ledger a command is about to write, with the mark of a family the repository left put back
+// on each row that carried it and that the command wrote again without it: the guide writes its
+// rows from the blueprint, and a row keeps saying where its answer once came from. A row that
+// carries a mark of a core now, or the mark already, is left as written.
+export function keepLeftMarks(before, after) {
+  if (before === null || before === undefined) return after;
+  let out = after;
+  const rows = parseLedger(after);
+  for (const old of parseLedger(before)) {
+    const { left } = leftMarkOf(old.note);
+    if (!left) continue;
+    const row = rows.find((item) => String(item.id) === String(old.id));
+    if (!row || leftMarkOf(row.note).left || coreMarkOf(row.note).mark) continue;
+    const note = [leftMarkText(left), row.note ?? ""].filter((part) => part !== "").join("; ");
+    out = setNote(out, String(old.id), note);
+  }
+  return out;
 }

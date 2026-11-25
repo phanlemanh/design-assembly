@@ -74,7 +74,11 @@ scale, shape). Density, elevation, motion and iconography are not.
   locked one it holds otherwise becomes a question for its owner, and the gate holds the locked
   answers; `--settle` writes the owner's exceptions in; `--inherit` gives the guide's blueprint
   what the core answers; `--take` copies a block of the core out of that copy into the repository,
-  once its owner kept it, to be conformed and taken in as an item of an outside source is. A
+  once its owner kept it, to be conformed and taken in as an item of an outside source is. `--leave`
+  lets a repository leave its family on its owner's word, with their name and reason: the
+  declaration and the copy are removed, each answer it inherited becomes its own with its value as
+  it was and a mark of where it once came from, the gate's check and the questions about the core
+  are taken off, and the core's list of members loses it where the core folder can be reached. A
   machine that built or pinned a core keeps a list of them outside every repository, so `new` and
   `adopt` ask a new repository one question about its family; a repository that stands alone on a
   machine with no core is never asked about a family.

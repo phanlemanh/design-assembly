@@ -1164,6 +1164,130 @@ test("a library someone named core is a library: its item is compared by its sou
   );
 });
 
+// ---- leaving a family, with blocks in the copy and one taken in ------------------------------------
+
+const leave = (dir, list, ...more) =>
+  core(
+    [
+      "--target",
+      dir,
+      "--leave",
+      "--by",
+      "Bo Tran",
+      "--why",
+      "the product is sold",
+      "--on",
+      "2026-11-28",
+      ...more,
+    ],
+    list,
+  );
+
+test("a member that leaves its family loses every file of the copy, the blocks' files included; a block it took in stays its own", () => {
+  const { dir, place, list } = member();
+  takenIn(dir, list);
+  const row = blocksOf(dir).find((block) => block.need === OWN);
+  const record = text(dir, OWN_RECORD);
+  // Said before anything is written: the block stays, as the repository's own.
+  const before = snapshot(dir);
+  const dry = leave(dir, list, "--core", place, "--dry-run");
+  assert.equal(dry.status, 0, dry.stdout + dry.stderr);
+  assert.match(dry.stdout, /delete +design\/core\/blocks\/many-rows\/order-rows\.tsx/);
+  assert.match(
+    dry.stdout,
+    /1 block taken from the core stays, as this repository's own from now on: OrderRows \(src\/components\/order-rows\.tsx\), for order-rows; its row of the intake ledger keeps from: core and the pin [0-9a-f]{12} as where it once came from, and it is compared with no core any more\n/,
+  );
+  assert.deepEqual(snapshot(dir), before);
+
+  const left = leave(dir, list, "--core", place, "--json");
+  assert.equal(left.status, 0, left.stdout + left.stderr);
+  const said = JSON.parse(left.stdout);
+  assert.deepEqual(said.blocks_kept, [
+    { need: OWN, name: "OrderRows", file: MAIN, source: "many-rows", pin: row.pin },
+  ]);
+  // Every file of the copy is gone, the blocks' files with it, and the folder too.
+  assert.ok(!existsSync(path.join(dir, "design/core")));
+  assert.ok(!existsSync(path.join(dir, PINNED_CORE.file)));
+  assert.deepEqual(said.copy.left_in_place, []);
+  // The block is where it was, with its row and its record as they were.
+  assert.equal(text(dir, MAIN), ROWS_CODE);
+  assert.deepEqual(
+    blocksOf(dir).find((block) => block.need === OWN),
+    row,
+  );
+  assert.equal(text(dir, OWN_RECORD), record);
+  assert.equal(conformOwn(dir, list).status, 0);
+
+  // find prints tier 3 as for a repository of no family, and offers the block as its own.
+  const result = found(dir, list, "order", "rows");
+  assert.deepEqual(entry(result, "family"), {
+    store: "family",
+    tier: 3,
+    read: null,
+    items: null,
+    found: false,
+    why: "not searched: a nearer store answers",
+  });
+  assert.deepEqual([result.matches[0].name, result.matches[0].store], ["OrderRows", "intake"]);
+  // Words no store answers, so the walk reaches tier 3.
+  const other = find(dir, list, "zebra", "lamp");
+  assert.ok(other.stdout.includes(`${LONE}\n`), other.stdout);
+  // The inventory says the block is compared with nothing now, and counts no family's store.
+  const stock = inventory(dir, list);
+  assert.ok(!stock.stores.some((each) => each.store === "family"));
+  assert.deepEqual(
+    stock.findings.filter(
+      (finding) =>
+        finding.kind === "outdated" && /OrderRows|many-rows/.test(JSON.stringify(finding)),
+    ),
+    [],
+  );
+  assert.deepEqual(
+    stock.blind.filter((each) => /family core/.test(each.why)),
+    [
+      {
+        kind: "outdated",
+        why: `many-rows (${OWN}) was taken from a family core this repository is no longer of: the block is the repository's own now, and is compared with no core`,
+        items: ["many-rows"],
+      },
+    ],
+  );
+  // A hand edit is still seen against its record, and nothing can be taken from a core any more.
+  put(dir, MAIN, `${ROWS_CODE}// its own now\n`);
+  assert.equal(findingsOf(dir, list, "modified").length, 1);
+  assert.equal(take(dir, list, "many-rows").status, 2);
+  // A second intake of the need: the store answers.
+  assert.equal(intakeJson(dir, list, "--need", OWN).result.rung, "store");
+});
+
+test("after leaving, the gate of a repository that took a block in is green, the row still held to its shape", () => {
+  const dir = adopted();
+  const place = coreFolder({ colour: read(dir, "design/tokens.json").color.primary.$value });
+  const list = listIn();
+  git(dir, "init", "-q", "-b", "main");
+  git(dir, "add", "-A");
+  git(dir, "commit", "-q", "-m", "adopted");
+  assert.equal(join(dir, place, list).status, 0);
+  git(dir, "checkout", "-q", "-b", "take-and-leave");
+  assert.equal(intake(dir, list, "--need", "many-rows").status, 1);
+  assert.equal(answerSheet(dir, "intake-many-rows keep", list).status <= 1, true);
+  assert.equal(take(dir, list, "many-rows").status, 0);
+  assert.equal(intake(dir, list, "--need", "many-rows", "--file", MAIN).status, 0);
+  assert.equal(manifest(dir).status, 0);
+  assert.equal(gate(dir).status, 0, gate(dir).stdout);
+
+  const left = leave(dir, list, "--core", place);
+  assert.equal(left.status, 0, left.stdout + left.stderr);
+  assert.ok(!existsSync(path.join(dir, "design/core")));
+  const green = gate(dir);
+  assert.equal(green.status, 0, green.stdout + green.stderr);
+  const [row] = blocksOf(dir);
+  assert.deepEqual(
+    [row.from, row.source, row.file, row.conform],
+    ["core", "many-rows", MAIN, RECORD],
+  );
+});
+
 // ---- criterion 1: a repository of no family -------------------------------------------------------
 
 const floor = () => {

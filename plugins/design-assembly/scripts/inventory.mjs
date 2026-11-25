@@ -389,6 +389,15 @@ function recordsBehind(read, blind) {
     const item = text(record.item) ?? need;
     const source = read.sources.find((each) => each.id === text(record.source));
     const said = `${item} (${need})`;
+    if (!source && text(record.source) === CORE_SOURCE) {
+      // A block of a family core, on a repository that is of no family any more.
+      blind(
+        "outdated",
+        `${said} was taken from a family core this repository is no longer of: the block is the repository's own now, and is compared with no core`,
+        [item],
+      );
+      continue;
+    }
     if (!source) {
       blind("outdated", `${said} names a source that is not pinned`, [item]);
       continue;

@@ -5630,8 +5630,10 @@
       "plan": "fix",
       "opened": "2026-11-25",
       "where": ["d0115", "spec"],
-      "status": "open",
-      "note": "A repository cannot leave its family by a command: leaving (criterion 25) is the second half of slice 4 of item 7.1 and waits for slice 2, which makes a repository a member."
+      "status": "closed",
+      "note": "A repository cannot leave its family by a command: leaving (criterion 25) is the second half of slice 4 of item 7.1 and waits for slice 2, which makes a repository a member.",
+      "closed": "2026-11-25",
+      "closed_by": "the second half of slice 4 of item 7.1 (decision 0118): core --leave removes the declaration and the copy, turns each mark of the core in the decision ledger and the blueprint into the repository's own with where it once came from, takes the gate's check and the waiting questions about the core off, takes the repository's line out of the core's list of members where the core folder can be reached, and records on the machine's list that it left. What it still does not do is in core-leave-core-line-by-hand, core-leave-answered-questions-stay, core-leave-starts-anew-on-joining-again, core-leave-lone-value-of-a-broken-copy and core-family-not-dissolved"
     },
     {
       "id": "core-change-owner-not-checked",
@@ -5744,6 +5746,61 @@
       "note": "The one question about a family is asked by adopt, by the guide's preview and by core --ask; it is not on the waiting list, so a session that runs none of them never sees it."
     },
     {
+      "id": "core-leave-core-line-by-hand",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0118", "spec"],
+      "status": "open",
+      "note": "When a repository leaves and the core folder cannot be reached, is of a newer shape, does not hold its shape or cannot be written, its line stays in the core's list of members, and no command takes it out later: a repository of no family writes nothing, so the line is taken out by hand and held with core --check. Until then the core names a member that left; nothing tells the family's owner, and nothing tells them either when the line is taken out."
+    },
+    {
+      "id": "core-leave-answered-questions-stay",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0118", "spec"],
+      "status": "open",
+      "note": "Leaving takes off the questions about the core that wait on the owner and leaves on the waiting list those the owner already answered, as the record of what was said: such a question is about a family the repository is no longer of, and a repository that joins the same core again at the same pin reads the old answer as its answer, an exception or a follow."
+    },
+    {
+      "id": "core-leave-starts-anew-on-joining-again",
+      "area": "core",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0118", "spec"],
+      "status": "open",
+      "note": "Leaving is not undone by a command, and moving to another family is two moves, leave then join: a repository that joins again is compared and marked anew, an exception or the reason of a changed default it carried is kept in the mark of the family it left and is given again, and an entry under own of the blueprint stays for a choice the new family does not answer. A repository whose declaration was removed by hand reads as of no family, and the move writes nothing there: its marks, its copy and its check are then turned by hand."
+    },
+    {
+      "id": "core-leave-lone-value-of-a-broken-copy",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0118", "spec"],
+      "status": "open",
+      "note": "A row the join added for a value only the copy of the core held keeps that value as its source when the repository leaves; where the copy cannot be read when it leaves, the value is not taken from it, the row's source says it was not kept, and the answer is settled again by a person."
+    },
+    {
+      "id": "core-family-not-dissolved",
+      "area": "core",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0118", "spec"],
+      "status": "open",
+      "note": "No command dissolves a family: when its last member leaves, the core folder and its line on the machine's list stay, and a core nobody is a member of is still offered in the one question about a family (spec 0016 leaves dissolving a family for later)."
+    },
+    {
       "id": "core-block-store-filled-by-no-command",
       "area": "core",
       "kind": "no-check",
@@ -5841,6 +5898,17 @@
       "where": ["d0117", "d0105"],
       "status": "open",
       "note": "The move core --take puts a block where the repository keeps its own components, beside the library's folder, and the rules the block is held to are read as for any item: a configuration file that names that folder itself is read, as text, as setting it apart, even where it names the folder to hold it to the rules. The standard floor names only the library's own folder, so a block is taken there with no flag; on the copy of the reference repository the lint configuration names src/components itself, so the move refuses before it writes anything and names --to, and a folder the configuration does not name has none of it."
+    },
+    {
+      "id": "core-block-kept-after-leaving-says-core",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0117", "d0118"],
+      "status": "open",
+      "note": "A block a repository took in from its family core stays its own when the repository leaves, and its row of the intake ledger is not rewritten: from: core and the pin still stand on the row, and nothing on the row says the repository left or which family it was of, as the mark on a row of the decision ledger does for an answer. The move that leaves names the blocks once, and the inventory says each is compared with no core."
     }
   ]
 }
