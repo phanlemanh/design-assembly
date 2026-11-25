@@ -1,6 +1,6 @@
 ---
 name: core
-description: Build the core of a family of products — the answers the repositories of one family share, each locked or a default, in a folder of its own on this machine — from the answers a person settled in the family's first repository, after the person answers the lock-or-default sheet; check the shape of a core folder; let the family's owner change an answer of the core (its value, locked or a default, or an answer added), each change with who, when and why; let a repository declare its family and pin the core, compare the answers it already holds, and settle the owner's answers about those that differ; tell a member that its family's core moved ahead of its pin, show a change before and after on the repository's own screen, and accept it answer by answer; and record the family owner's leave to publish the core to a private repository, saying first what would go where. Use when a second product of the same family uses the plugin and the user says the repositories belong together ("this app is of the same family as that one", "share the design answers between our products", "make a core for the family", "join our family core", "check our core folder", "lock the source colour for the whole family", "change the family's widths", "did our core change?", "show me what the core changed", "accept the new brand colour from the core", "put our core on a private repository"), when new or adopt asked whether a repository is of the same family as a core of this machine, or when the line at the start of a session said the core moved, a question about it waits, or a locked answer is held otherwise. Not for a repository that stands alone. No script pushes anything: the session creates a repository and pushes only after the person's yes.
+description: Build the core of a family of products — the answers the repositories of one family share, each locked or a default, in a folder of its own on this machine — from the answers a person settled in the family's first repository, after the person answers the lock-or-default sheet; check the shape of a core folder; let the family's owner change an answer of the core (its value, locked or a default, or an answer added), each change with who, when and why; let a repository declare its family and pin the core, compare the answers it already holds, and settle the owner's answers about those that differ; tell a member that its family's core moved ahead of its pin, show a change before and after on the repository's own screen, and accept it answer by answer; record the family owner's leave to publish the core to a private repository, saying first what would go where; and let a repository leave its family on its owner's word, each answer it inherited becoming its own with its value as it was. Use when a second product of the same family uses the plugin and the user says the repositories belong together ("this app is of the same family as that one", "share the design answers between our products", "make a core for the family", "join our family core", "check our core folder", "lock the source colour for the whole family", "change the family's widths", "did our core change?", "show me what the core changed", "accept the new brand colour from the core", "put our core on a private repository", "take this app out of the family", "this product leaves the family"), when new or adopt asked whether a repository is of the same family as a core of this machine, or when the line at the start of a session said the core moved, a question about it waits, or a locked answer is held otherwise. Not for a repository that stands alone. No script pushes anything: the session creates a repository and pushes only after the person's yes.
 ---
 
 # Build the core of a family
@@ -219,4 +219,43 @@ place named, or the folder's remote, is not the one the leave was given for; a y
 place is a new `--allow`. `core.mjs --publish --core <folder> --revoke --by <name>` takes the leave
 back: nothing is sent from then on, and what was pushed before stays where it is.
 
-Not built yet: the blocks of the core, leaving a family, and renaming a family.
+## 12. A repository leaves its family
+
+Only on the word of the repository's owner, in their own words, with their reason. Ask their name
+and the reason before you call; both are required and recorded, and the command refuses an e-mail
+address in either. No value of the repository changes: leaving turns the marks, never an answer.
+
+1. Preview: `core.mjs --target <repo> --leave --by <name> --why "<reason>" --dry-run`. Show the
+   person what it says: the answers that become the repository's own, the files it changes and
+   removes here, the questions about the core it takes off the waiting list, and the line it takes
+   out of the core's `core.json`. Nothing is written yet. Add `--core <folder>` when the machine's
+   list does not hold the core, or holds two cores of the family that name this repository.
+2. On their yes, the same call without `--dry-run`. It removes `design/sources/core.json` and the
+   copy in `design/core`; turns the mark of each row of the decision ledger the core answered into
+   `own since <day>, when the repository left its family: <why> (by <name>), once <the mark it
+carried>`, the rest of the note staying; turns the blueprint's `inherited` and `changed` into
+   `own`, by choice key; takes the check `family-core` off the gate; takes the questions
+   `core-<id>-<pin>` that wait off the waiting list, naming each (one the owner already answered
+   stays, as the record); and records on this machine that the repository left, so it is not asked
+   at once whether it is of a family.
+3. Read out what it says of the exports: when they fall behind the ledgers the gate's row of the
+   exports is red until the repository writes them again (`make design-exports`). The move writes
+   none.
+
+It ends with `0` once the repository left and nothing is left to do, and on a repository of no
+family, which is told so and written nothing. It ends with `1` when the repository left and its
+line could not be taken out of the core's list of members, because the core folder was not reached,
+is of a newer shape, does not hold its shape or cannot be written: say what the command says is
+left to do there, by hand, and that `core --check` holds the shape. It ends with `2` and writes
+nothing for a missing name or reason, an e-mail address in either, a core named with `--core` that
+is of another family, two cores of the family on the machine's list that both name the repository,
+a waiting list or a blueprint that cannot be read. A copy of the core that cannot be read does not
+stop it: the move then works from the declaration and the marks alone, and says so; a value only
+that copy held is then not kept, and the row says so.
+
+A repository that left can join again, the same family or another, with `--join`: its rows are
+marked anew, and an exception it once kept is given again. A member of one family is refused a
+second until it leaves the first.
+
+Not built yet: the blocks of the core, moving to another family in one step, dissolving a
+family, and renaming a family.

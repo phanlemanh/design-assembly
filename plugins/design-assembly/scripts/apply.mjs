@@ -112,6 +112,7 @@ import {
   blueprintReasons,
   coreWidths,
   inheritedSummary,
+  keepLeftMarks,
   markLedger,
   readMember,
 } from "./core-marks.mjs";
@@ -2300,6 +2301,9 @@ export function plan(target, blueprint) {
       reasons: blueprintReasons(blueprint),
     }).text;
   }
+  // A repository that left a family: a row written again keeps saying where its answer once came
+  // from.
+  files[FILES.ledger] = keepLeftMarks(ledgerBefore, files[FILES.ledger]);
   for (const layer of LAYERS.filter((l) => l.built)) {
     const entry = blueprint.layers[layer.id];
     if (entry.status !== "decided") continue;

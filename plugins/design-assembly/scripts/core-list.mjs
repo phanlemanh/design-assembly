@@ -1,5 +1,6 @@
 // The machine's list of cores (spec 0016, criterion 17): each core this machine built or pinned,
-// with where it lives, and each repository whose person said it is of no family listed here. It is
+// with where it lives, and each repository whose person said it is of no family listed here, or
+// that left its family (`how: "left"`), so that it is not asked at once whether it is of one. It is
 // one file on this machine, outside every repository, and no command sends it anywhere. With it the
 // machine recognises a family: on a repository that declares none, `new` and `adopt` ask one
 // question, whether it is of the same family as a core of the list. A list that is missing or
@@ -163,7 +164,10 @@ export function familyQuestion(root) {
   if (said) {
     return {
       question: null,
-      why: `a person said on ${said.on ?? "a day not recorded"} that this repository is of no family listed here`,
+      why:
+        said.how === "left"
+          ? `this repository left its family on ${said.on ?? "a day not recorded"}: it joins one again with core --join`
+          : `a person said on ${said.on ?? "a day not recorded"} that this repository is of no family listed here`,
     };
   }
   const readable = list.cores.filter((entry) => coreProblem(entry.path) === null);

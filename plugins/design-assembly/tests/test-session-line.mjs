@@ -33,6 +33,7 @@ import {
   PLUGIN,
   put,
   read,
+  run,
   snapshot,
 } from "./helpers/core-family.mjs";
 
@@ -295,6 +296,52 @@ test("everything that waits at once is still one line; from a separate working f
     }),
   );
   assert.equal(oneLine(line(work, list, { extra: { PATH: path.join(empty(), "none") } })), said);
+});
+
+test("a repository that left its family is told nothing: no line, and no word of a core from status or inventory", () => {
+  // A member with everything waiting at once: the core moved, and a question waits on the owner.
+  const dir = adopted();
+  const place = coreFolder({ colour: OTHER });
+  const list = listIn();
+  assert.equal(join(dir, place, list).status, 1);
+  moveCore(place, list);
+  assert.match(
+    oneLine(line(dir, list)),
+    /is ahead of this repository's pin .*; 1 question about the core waits/,
+  );
+  for (const script of ["status.mjs", "inventory.mjs"]) {
+    assert.match(run(script, ["--target", dir], list).stdout, /is ahead of the pin/, script);
+  }
+  // It leaves, on its owner's word.
+  const left = core(
+    ["--target", dir, "--leave", "--by", MEMBER, "--why", "the product goes its own way"],
+    list,
+  );
+  assert.equal(left.status, 0, left.stderr);
+  // From then on it stands alone: the line is silent, as the hook and by hand, with the core still
+  // on this machine's list and still ahead of what the repository once pinned.
+  silent(line(dir, list), "after leaving");
+  silent(line(dir, list, { args: ["--hook"] }), "after leaving, as the hook");
+  for (const script of ["status.mjs", "inventory.mjs"]) {
+    const told = run(script, ["--target", dir, "--json"], list);
+    assert.ok(!("core" in JSON.parse(told.stdout)), script);
+    assert.doesNotMatch(
+      run(script, ["--target", dir], list).stdout,
+      /ahead of the pin|family core/,
+      script,
+    );
+  }
+  // The moves of a member refuse, and write nothing.
+  const before = snapshot(dir);
+  for (const args of [["--moved"], ["--accept-all", "--by", MEMBER]]) {
+    const refused = core(["--target", dir, ...args], list);
+    assert.equal(refused.status, 2, args[0]);
+    assert.match(refused.stderr, /this repository declares no family/);
+  }
+  assert.deepEqual(snapshot(dir), before);
+  // Joining again, it is told again.
+  assert.equal(join(dir, place, list).status, 1);
+  assert.match(oneLine(line(dir, list)), /1 question about the core waits on the owner/);
 });
 
 // ---- the hook as the plugin declares it --------------------------------------------------------

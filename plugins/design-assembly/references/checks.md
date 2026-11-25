@@ -441,7 +441,8 @@ against the family core at <pin>: <why> (by <name> on <day>)`). A colour is comp
 A default of the core never makes it red, nor does a rule, whose words are not compared, nor an
 answer the repository holds no value for. The check is laid only on a repository that declares a
 family: by `core --join` where the repository's tool knows it, by adopting and the guide, and by
-`upgrade`; a repository that stands alone has nothing of it.
+`upgrade`; a repository that stands alone has nothing of it. `core --leave` takes it off again,
+with the declaration and the copy: the gate of a repository that left its family reads no core.
 
 ## The floating parts of an outside item
 

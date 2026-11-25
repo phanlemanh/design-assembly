@@ -977,7 +977,14 @@ const MARK = new RegExp(
 export function coreMarkOf(note) {
   const text = String(note ?? "");
   const found = MARK.exec(text);
-  if (!found) return { mark: null, rest: text };
+  // A mark of a family the repository left is no mark of a core: the rest is what follows it, so a
+  // repository that joins again writes its new mark in that one's place.
+  if (!found) {
+    const gone = leftMarkOf(text);
+    return gone.left
+      ? { mark: null, rest: gone.rest, left: gone.left }
+      : { mark: null, rest: text };
+  }
   const [, words, pin, why, by, on, rest] = found;
   return {
     mark: MARK_OF[words],
@@ -995,11 +1002,52 @@ export function coreMarkText({ mark, pin, why = null, by = null, on = null }) {
   return why ? `${head}: ${why} (by ${by} on ${on})` : head;
 }
 
+// The mark of a row once the repository left its family (spec 0016, criterion 25), first in its
+// note: the answer is the repository's own since that day, who said the repository leaves and why,
+// and the mark the row carried, word for word, which names the pin the answer once came from and
+// never the family. Whatever else the note says follows after "; ".
+const LEFT_MARK = new RegExp(
+  `^own since (\\d{4}-\\d{2}-\\d{2}), when the repository left its family: (.+?) \\(by (.+?)\\), once ((?:${Object.values(CORE_MARKS).join("|")}) the family core at [0-9a-f]{${PIN_DIGITS}}(?:: .+? \\(by .+? on \\d{4}-\\d{2}-\\d{2}\\))?)(?:; (.*))?$`,
+);
+
+// The mark of a family left that a note carries, and the rest of the note: { left, rest }, where
+// `left` has `since`, `why`, `by` and `once`, the mark the row carried in the family; `left` is null
+// when the note has none.
+export function leftMarkOf(note) {
+  const text = String(note ?? "");
+  const found = LEFT_MARK.exec(text);
+  if (!found) return { left: null, rest: text };
+  const [, since, why, by, once, rest] = found;
+  const [, words, pin, onceWhy, onceBy, onceOn] = MARK.exec(once);
+  return {
+    left: {
+      since,
+      why,
+      by,
+      once: {
+        mark: MARK_OF[words],
+        pin,
+        why: onceWhy ?? null,
+        by: onceBy ?? null,
+        on: onceOn ?? null,
+      },
+    },
+    rest: rest ?? "",
+  };
+}
+
+// The mark of a family left as a note writes it.
+export const leftMarkText = ({ since, why, by, once }) =>
+  `own since ${since}, when the repository left its family: ${why} (by ${by}), once ${coreMarkText(once)}`;
+
 // A note with its mark put first, or taken away when `mark` is null; the rest is kept as it is.
 export function withCoreMark(note, mark) {
-  const { rest } = coreMarkOf(note);
+  const found = coreMarkOf(note);
+  // With no mark to write, a note that says the answer is the repository's own, from a family it
+  // left, stays as it is.
+  if (!mark && found.left) return String(note ?? "");
   const head = mark ? coreMarkText(mark) : "";
-  return [head, rest].filter((part) => part !== "").join("; ");
+  return [head, found.rest].filter((part) => part !== "").join("; ");
 }
 
 // Where a repository holds each answer of the catalogue that is a value: the choice of the

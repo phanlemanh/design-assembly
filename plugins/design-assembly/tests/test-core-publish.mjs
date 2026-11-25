@@ -280,6 +280,16 @@ test("a push the session made is recorded on this machine, and the command says 
     publish(place, list).stdout,
     /the folder is at [0-9a-f]{12}: the copy there is behind/,
   );
+  // A repository leaving keeps the record too: the line of the list it writes takes no push away,
+  // the leave to publish stands, and the folder, its member gone, is again as it was pushed.
+  const left = core(
+    ["--target", dir, "--leave", "--by", OWNER, "--why", "the product goes its own way"],
+    list,
+  );
+  assert.equal(left.status, 0, left.stderr);
+  assert.equal(read(path.dirname(list), "cores.json").pushed.length, 1);
+  assert.deepEqual(read(place, "core.json").publish, { to: PLACE, allowed: { by: OWNER, on: ON } });
+  assert.match(publish(place, list).stdout, /^pushed: to .*; the folder is at the same state$/m);
   // Pushed again: one record for the place, the last.
   assert.equal(publish(place, list, ["--pushed", "--by", OWNER, "--on", "2026-11-30"]).status, 0);
   assert.equal(read(path.dirname(list), "cores.json").pushed.length, 1);

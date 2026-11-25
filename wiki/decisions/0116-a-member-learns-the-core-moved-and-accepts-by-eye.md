@@ -40,7 +40,8 @@ sources:
 
 ## Status
 
-Accepted, 2026-11-25, plugin 0.63.0. Lát 3 của mục 7.1, dựng theo lời chủ repo («Mở ba lát»), theo
+Accepted, 2026-11-25, plugin 0.64.0 (dựng ở 0.63.0; nhánh gộp sau nửa «rời họ», quyết định
+[0118](0118-a-repository-leaves-its-family.md), nên lấy main vào bằng một commit gộp và lên 0.64.0). Lát 3 của mục 7.1, dựng theo lời chủ repo («Mở ba lát»), theo
 đề bài [0016](../specs/0016-the-family-core-is-born-through-the-plugin.md) đã duyệt (tiêu chí 9, 14,
 18, 19; lời đáp 9 và 12), song song với lát 1 của mục 7.2 và nửa «rời họ» của lát 4 trên hai nhánh
 khác. Lát này đổi hợp đồng sổ ở ba chỗ (điều thành viên ghi khi nhận một phần thay đổi của lõi; dòng
@@ -265,6 +266,11 @@ ghim>` chờ mãi, nên móc nói «một câu hỏi chờ» ở mọi phiên v�
   câu hỏi (`core-<id>-<mã ghim>`) nay ở một chỗ, `coreQuestionId` của `core-moved.mjs`, và
   `core-join.mjs` dùng lại nó. (2) Khi bản chép không đọc được, `core --moved` in «pinned here at
   null»; nay nó nói mã ghim không đọc được, và không in `null` ở đâu.
+- Đứng chung với «rời họ» (PR #148, quyết định 0118), sau khi lấy main vào: repo đã rời họ thì dòng
+  lúc mở phiên im lặng, `status` và `inventory` không còn khoá `core`, `--moved` và `--accept` từ
+  chối; vào họ lại thì được báo lại. Bước rời họ ghi sổ lõi trên máy qua cùng hàm ghi dòng nên các
+  lần đẩy đã ghi (`pushed`) ở lại, lời cho phép trong tờ khai của lõi không đổi, và thư mục lõi mất
+  một thành viên thì trở về đúng trạng thái đã đẩy. Mỗi điều có bài kiểm.
 - Tệp dùng chung chỉ sửa đúng dòng lát này cần: `core.mjs` (cờ và chỗ rẽ), `core-join.mjs` (xuất
   `holdAnswers` và `answeredOf`; `--settle` đáp câu hỏi đã có lý do), `core-join-call.mjs` (một dòng
   in), `core-list.mjs` (`pushed`), `core-change.mjs` (một câu),
@@ -275,6 +281,6 @@ ghim>` chờ mãi, nên móc nói «một câu hỏi chờ» ở mọi phiên v�
   chép lệch mã băm (điểm 11); một địa chỉ mang mật khẩu lọt qua ở vài dạng viết, và `origin` mang bí
   mật bị ghi thành nơi đến (điểm 25); một dòng lời cho phép sửa tay bị in lại nguyên văn; và hai bộ
   lời đáp bị so theo thứ tự khoá.
-- Chưa dựng: lấy khối của lõi và báo khối đứng sau (mục 7.2), rời họ (nửa sau lát 4), ghi việc rút
-  một lời đáp (tiêu chí 24), viết giá trị của lõi vào tệp kiểu dáng khi chủ repo chọn theo lõi, và
+- Chưa dựng: lấy khối của lõi và báo khối đứng sau (mục 7.2), ghi việc rút một lời đáp (tiêu chí
+  24), viết giá trị của lõi vào tệp kiểu dáng khi chủ repo chọn theo lõi, và
   một phiên thật để thấy dòng lúc mở phiên.
