@@ -630,6 +630,49 @@
         "Cho phép tạo repo lõi và đẩy lên",
         "Cho phép từng lượt thử tốn token"
       ]
+    },
+    {
+      "id": 12,
+      "name": "Tài sản thương hiệu đủ mảng",
+      "state": "next",
+      "parallel": [],
+      "items": [
+        {
+          "id": "12.0",
+          "what": "Đề bài chi tiết cho cả giai đoạn, chủ repo duyệt",
+          "state": "todo",
+          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, đã duyệt ngày 2026-11-25 («Duyệt cả mười hai»): logo và bộ biểu tượng vào sổ nguồn bằng hai loại mới theo nếp của font, cổng giữ ghim và giữ rằng màn chỉ dùng thứ đã ghi, sàn của dấu là chữ, dấu là mục của chủ repo, một phích ngoài dựng dấu khi repo chưa có; giai đoạn này đứng sau giai đoạn 7 và mở sau khi mục 7.1 xong (câu hỏi 10); mục giữ todo vì giai đoạn chưa mở, theo luật của kế hoạch"
+        },
+        {
+          "id": "12.1",
+          "what": "Bộ biểu tượng vào sổ nguồn, và cổng giữ nó",
+          "state": "todo",
+          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, tiêu chí 1, 2, 3, 5 đến 8, 12, 13, 20 và 21; hai lát, mỗi lát một PR; đổi hợp đồng sổ, cần người duyệt"
+        },
+        {
+          "id": "12.2",
+          "what": "Dấu vào sổ nguồn, sàn của dấu là chữ, và dấu là mục của chủ repo",
+          "state": "todo",
+          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, tiêu chí 4, 9, 10, 11, 14 và 15; hai lát, mỗi lát một PR; đổi hợp đồng sổ, cần người duyệt"
+        },
+        {
+          "id": "12.3",
+          "what": "Phích dựng dấu, đo theo bốn thước",
+          "state": "todo",
+          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, tiêu chí 16 đến 19 và 22; hai lát, mỗi lát một PR; việc làm lại skill nằm ở kho của skill và phải xong trước lát 2; mỗi lượt đo hỏi chủ repo trước vì tốn token"
+        }
+      ],
+      "done_when": [
+        "Ở ứng dụng mẫu của kho này, bộ biểu tượng có dòng được giữ, lựa chọn dấu có lời chủ repo, và cổng xanh",
+        "Trên bản sao một repo chưa có gì, một lượt ngồi để lại một bộ biểu tượng đã ghim và một dấu do chủ repo chọn, số lần máy quyết thay bằng 0"
+      ],
+      "needs_owner": [
+        "Duyệt mỗi thay đổi hợp đồng sổ",
+        "Viết giấy phép của bộ biểu tượng và quyền dùng dấu",
+        "Chọn dấu",
+        "Cho phép từng lượt đo tốn token",
+        "Xác nhận nguồn gốc và giấy phép của bộ máy dựng hình trước khi phát hành phích"
+      ]
     }
   ],
   "parked_groups": [
