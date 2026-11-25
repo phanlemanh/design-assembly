@@ -126,7 +126,11 @@ test("a member whose copy holds blocks' files accepts answers, one and all: the 
       said,
       /the core's list of blocks is not the one copied here: accepting answers leaves the copy's blocks as they are, and pinning the core again with core --join brings the newer ones/,
     );
-    assert.doesNotMatch(said, /many-rows|order-rows|OrderRows/);
+    // Since slice 3 of item 7.2 the block is named; a store changed by hand says nobody.
+    assert.match(
+      said,
+      /block changed: OrderRows \(many-rows\): its files; the store's history does not say who changed them/,
+    );
   }
   assert.equal(
     line(dir, list).stdout,

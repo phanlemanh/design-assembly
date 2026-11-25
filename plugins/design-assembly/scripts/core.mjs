@@ -23,6 +23,10 @@
 // A repository leaving its family is scripts/core-leave.mjs, and says there what it ends with.
 //        node core.mjs --take BLOCK [--need KEY] [--to DIR] [--dry-run] [--target DIR] [--json]
 // Taking a block of the core down into a member is scripts/core-take.mjs (slice 1 of item 7.2).
+//        node core.mjs --promote NEED | --retire ID | --propose ID | --proposals | --grant ID |
+//                      --refuse ID   (core-owner-call.mjs, slice 3 of item 7.2: the family's owner
+//                      promotes a block and retires an answer or a block; a member proposes upward,
+//                      and the owner grants or refuses)
 // Exit: reading, 1 when the sheet waits on a person, 0 when no answer of the repository is settled
 // and there is nothing to build from; building, 0 once the core is written (or would be); checking,
 // 0 when the shape holds and 1 when a part of it is wrong, each problem naming the file and the
@@ -50,6 +54,7 @@ import { LEAVE_FLAGS, LEAVE_MOVE, LEAVE_USAGE, leaveCall } from "./core-leave-ca
 import { TAKE_FLAGS, TAKE_MOVES, TAKE_ONLY, TAKE_USAGE, takeMain } from "./core-take.mjs";
 import { addLine } from "./core-list.mjs";
 import { MOVED_FLAGS, MOVED_MOVES, MOVED_USAGE, movedMain } from "./core-moved-call.mjs";
+import { OWNER_FLAGS, OWNER_MOVES, OWNER_USAGE, ownerMain } from "./core-owner-call.mjs";
 import { givenProblem, givenValue, placeOf, readFirst, sheetOf } from "./core-read.mjs";
 
 const WIDTH = 100;
@@ -358,7 +363,8 @@ const USAGE =
   MEMBER_USAGE +
   LEAVE_USAGE +
   TAKE_USAGE +
-  MOVED_USAGE;
+  MOVED_USAGE +
+  OWNER_USAGE;
 const FLAGS = {
   "--family": "value",
   "--core": "value",
@@ -377,6 +383,7 @@ const FLAGS = {
   ...LEAVE_FLAGS,
   ...TAKE_FLAGS,
   ...MOVED_FLAGS,
+  ...OWNER_FLAGS,
 };
 const BUILD_ONLY = ["--lock", "--default", "--value", "--by", "--on", "--dry-run"];
 const CHANGE_ONLY = ["--hold", "--from", "--why"];
@@ -396,12 +403,17 @@ async function main(args) {
     LEAVE_MOVE,
     ...TAKE_MOVES,
     ...MOVED_MOVES,
+    ...OWNER_MOVES,
   ].filter((flag) => flags[flag] !== undefined);
   if (
     moves.length > 1 &&
     moves.includes("--change") &&
     moves.every(
-      (flag) => !MEMBER_MOVES.includes(flag) && flag !== LEAVE_MOVE && !MOVED_MOVES.includes(flag),
+      (flag) =>
+        !MEMBER_MOVES.includes(flag) &&
+        flag !== LEAVE_MOVE &&
+        !MOVED_MOVES.includes(flag) &&
+        !OWNER_MOVES.includes(flag),
     )
   ) {
     return refuse("--change is a call of its own; give one of --build, --check, --change", USAGE);
@@ -415,6 +427,15 @@ async function main(args) {
   if (TAKE_MOVES.includes(moves[0])) return takeMain(call, USAGE);
   // The moves of slice 3 read their own flags: --publish takes --to too, a place and not a folder.
   if (MOVED_MOVES.includes(moves[0])) return movedMain(moves[0], call, USAGE);
+  // The moves of slice 3 of item 7.2 read their own flags too.
+  if (OWNER_MOVES.includes(moves[0])) return ownerMain(moves[0], call, USAGE);
+  const strayOwner = Object.keys(OWNER_FLAGS).find((flag) => flags[flag] !== undefined);
+  if (strayOwner) {
+    return refuse(
+      `${strayOwner} is a flag of --promote, --retire, --propose or the answer to a proposal`,
+      USAGE,
+    );
+  }
   const strayTake = TAKE_ONLY.find((flag) => flag in flags);
   if (strayTake) return refuse(`${strayTake} is a flag of --take`, USAGE);
   if (MEMBER_MOVES.includes(moves[0])) return memberMain(moves[0], call, USAGE);

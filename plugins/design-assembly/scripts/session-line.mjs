@@ -56,12 +56,11 @@ async function lineOf(root) {
   let next = null;
 
   // The core moved ahead of the pin: its answers are not the ones copied.
+  const place = quiet(() =>
+    coreOf(pinned, { shape: false, repository: () => path.basename(mainFolderOf(root)) }),
+  );
   const moved = quiet(() => {
-    const place = coreOf(pinned, {
-      shape: false,
-      repository: () => path.basename(mainFolderOf(root)),
-    });
-    if (place.path === null) return null;
+    if (!place || place.path === null) return null;
     const answers = answersIn(place.path);
     if (answers === null) return null;
     const changes = answerChanges(pinned.answers, answers);
@@ -72,6 +71,20 @@ async function lineOf(root) {
       `the family core ${pinned.family} is ahead of this repository's pin (${countWords(moved)})`,
     );
     next = "core --moved shows each change, and nothing here changes until a person accepts";
+  }
+
+  // A proposal of a member waits on the family's owner (slice 3 of item 7.2).
+  const proposals = quiet(async () => {
+    if (!place || place.path === null) return 0;
+    const { proposalsIn } = await import("./core-records.mjs");
+    return proposalsIn(place.path).filter((item) => !item.unreadable && !item.decided).length;
+  });
+  const waitingProposals = (await Promise.resolve(proposals).catch(() => 0)) ?? 0;
+  if (waitingProposals > 0) {
+    parts.push(
+      `${plural(waitingProposals, "proposal to the family core waits", "proposals to the family core wait")} on the family's owner`,
+    );
+    next ??= "core --proposals --core DIR lists them";
   }
 
   // A question about the core waits on the owner. One whose answer is recorded already, the

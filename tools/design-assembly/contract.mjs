@@ -331,6 +331,15 @@ export const LEDGERS = {
             // gave, or `none` when nothing answered (spec 0015, criterion 11).
             searched: text,
             nearest: text,
+            // A block taken from the family core that the core retired, once the repository
+            // accepted the retiring (spec 0016, criterion 24): the repository's own since that
+            // day, with the reason the core gave and who gave it. `from` and `pin` stay, and say
+            // where it once came from.
+            own: {
+              type: "object",
+              fields: { since: required(day), by: required(text), why: required(text) },
+              open: true,
+            },
           },
           // A repository may keep keys of its own on a block.
           open: true,
@@ -596,6 +605,125 @@ const answerChange = {
     why: required(said),
   },
 };
+// One answer of the core, as `answers.json` holds it and as `retired.json` keeps one retired.
+const coreAnswer = {
+  type: "object",
+  fields: {
+    id: required(dashed),
+    question: required(text),
+    kind: required({ ...text, values: CORE_KINDS }),
+    value: required({ type: "string|number|boolean|array|object" }),
+    hold: required({ ...text, values: CORE_HOLDS }),
+    check: required({ ...checkText, type: "string|null" }),
+    why: required(text),
+    by: required(text),
+    on: required(day),
+    origin: required({
+      type: "object",
+      fields: {
+        repository: required(text),
+        ledger: required(text),
+        by: { type: "string|null" },
+        on: { ...day, type: "string|null" },
+        given: settled,
+      },
+      open: true,
+    }),
+    // Each change since the answer came into the core, oldest first: `by`, `on` and
+    // `why` above say how it came in and are never rewritten.
+    history: list(answerChange),
+  },
+  open: true,
+};
+// One replacing of a block's files (slice 3 of item 7.2): the files before and after, each with
+// its hash, who replaced them, on which day, and why.
+const blockFiles = {
+  type: "object",
+  fields: { files: required(list(hashedFile)) },
+  open: true,
+};
+const blockChange = {
+  type: "object",
+  fields: {
+    was: required(blockFiles),
+    became: required(blockFiles),
+    by: required(said),
+    on: required(day),
+    why: required(said),
+  },
+  open: true,
+};
+// One block of the core's store, as `blocks/index.json` holds it and as `retired.json` keeps one
+// retired.
+const coreBlock = {
+  type: "object",
+  fields: {
+    need: required(dashed),
+    name: required(text),
+    // What the block is for, in a sentence, where the store says so.
+    description: text,
+    files: required(list(hashedFile)),
+    adapters: required(list(text)),
+    used_by: required(list(text)),
+    // Who promoted it, on which day, and why where the promotion said so (slice 3 of item 7.2).
+    promoted: required(settled),
+    second_use: required({ type: "boolean" }),
+    // Each time the block's files were replaced since it was promoted, oldest first: the files
+    // it had and the files it got, each with its hash, who replaced them, on which day, and why.
+    history: list(blockChange),
+    // The licence line of the outside source the block was first taken from, and who said it
+    // allows passing the block's code on to the family's other repositories, on which day.
+    licence: {
+      type: "object",
+      fields: { source: required(dashed), words: required(said), allowed: required(settled) },
+      open: true,
+    },
+  },
+  open: true,
+};
+// Who retired an answer or a block from the core, on which day, and why: never blank.
+const retiredMark = {
+  type: "object",
+  fields: { by: required(said), on: required(day), why: required(said) },
+  open: true,
+};
+// An answer or a block the core retired, kept whole with its history, and the retiring.
+const retiredOne = (entry) => ({
+  ...entry,
+  fields: { ...entry.fields, retired: required(retiredMark) },
+});
+// What a proposal of a member asks: for an answer, the value the member holds, and what the core
+// held when it was made; for a block, its name and the files as the member has them, each with its
+// hash, kept under `proposals/<id>/`, and the hash that named the core's block then.
+export const PROPOSAL_KINDS = ["answer", "block"];
+export const PROPOSAL_OUTCOMES = ["granted", "refused"];
+const proposedAnswer = {
+  type: "object",
+  fields: {
+    value: required({ type: "string|number|boolean|array|object" }),
+    was: required(answerState),
+  },
+  open: true,
+};
+const proposedBlock = {
+  type: "object",
+  fields: {
+    name: required(text),
+    files: required(list(hashedFile)),
+    was: required({ ...text, pattern: "^[0-9a-f]{64}$" }),
+  },
+  open: true,
+};
+const proposalDecided = {
+  type: "object",
+  fields: {
+    outcome: required({ ...text, values: PROPOSAL_OUTCOMES }),
+    by: required(said),
+    on: required(day),
+    why: required(said),
+  },
+  open: true,
+};
 // The shape in which an answer first carries its history.
 export const CORE_HISTORY_SINCE = 2;
 export const CORE = {
@@ -657,37 +785,7 @@ export const CORE = {
       required: true,
       root: {
         version: required(number),
-        answers: required(
-          list({
-            type: "object",
-            fields: {
-              id: required(dashed),
-              question: required(text),
-              kind: required({ ...text, values: CORE_KINDS }),
-              value: required({ type: "string|number|boolean|array|object" }),
-              hold: required({ ...text, values: CORE_HOLDS }),
-              check: required({ ...checkText, type: "string|null" }),
-              why: required(text),
-              by: required(text),
-              on: required(day),
-              origin: required({
-                type: "object",
-                fields: {
-                  repository: required(text),
-                  ledger: required(text),
-                  by: { type: "string|null" },
-                  on: { ...day, type: "string|null" },
-                  given: settled,
-                },
-                open: true,
-              }),
-              // Each change since the answer came into the core, oldest first: `by`, `on` and
-              // `why` above say how it came in and are never rewritten.
-              history: list(answerChange),
-            },
-            open: true,
-          }),
-        ),
+        answers: required(list(coreAnswer)),
       },
       open: true,
     },
@@ -703,23 +801,7 @@ export const CORE = {
       required: true,
       root: {
         version: required(number),
-        blocks: required(
-          list({
-            type: "object",
-            fields: {
-              need: required(dashed),
-              name: required(text),
-              // What the block is for, in a sentence, where the store says so.
-              description: text,
-              files: required(list(hashedFile)),
-              adapters: required(list(text)),
-              used_by: required(list(text)),
-              promoted: required(settled),
-              second_use: required({ type: "boolean" }),
-            },
-            open: true,
-          }),
-        ),
+        blocks: required(list(coreBlock)),
       },
       open: true,
     },
@@ -743,6 +825,48 @@ export const CORE = {
             },
           }),
         ),
+      },
+      open: true,
+    },
+    // What the core retired (spec 0016, criterion 24, slice 3 of item 7.2): each answer and each
+    // block as it was when it was retired, its history included, with `retired`: who, on which day,
+    // and why. Nothing is deleted from the record: an answer leaves `answers.json` and a block
+    // leaves `blocks/index.json` for this part, and the files of a retired block stay where they
+    // were, under `blocks/<need>/`, held to their hashes. Missing until something is retired.
+    retired: {
+      file: "retired.json",
+      question: "which answers and blocks the core retired, who retired each, when and why",
+      required: false,
+      root: {
+        version: required(number),
+        answers: required(list(retiredOne(coreAnswer))),
+        blocks: required(list(retiredOne(coreBlock))),
+      },
+      open: true,
+    },
+    // The proposals of the members to the family's owner (criterion 23), one file per proposal
+    // named after its id, so two members never write one file: which repository proposes what, at
+    // which pin, who, when and why; for an answer the value it holds, for a block the files as it
+    // has them, kept under `proposals/<id>/`; and, once the owner answered, `decided`. Missing
+    // until a member proposes.
+    proposals: {
+      folder: "proposals",
+      ending: ".json",
+      question: "what each member proposed to the family's owner, and what the owner answered",
+      required: false,
+      root: {
+        version: required(number),
+        id: required(dashed),
+        kind: required({ ...text, values: PROPOSAL_KINDS }),
+        subject: required(dashed),
+        repository: required(text),
+        pin: required(text),
+        by: required(said),
+        on: required(day),
+        why: required(said),
+        answer: proposedAnswer,
+        block: proposedBlock,
+        decided: proposalDecided,
       },
       open: true,
     },
@@ -806,12 +930,35 @@ export function familyCoreProblems(dir) {
     }
     const shape = corePartShapeProblems(entry.part, entry.data, entry.file);
     problems.push(...shape);
-    // The files of the store are read once its list holds its shape.
-    if (entry.part === "blocks" && shape.length === 0) {
+    // The files of the store are read once its list holds its shape: those of the blocks it
+    // offers, and those of the blocks it retired, which stay where they were.
+    if (["blocks", "retired"].includes(entry.part) && shape.length === 0) {
       problems.push(...coreStoreProblems(dir, entry.data, entry.file));
     }
+    if (entry.part === "proposals" && shape.length === 0 && entry.data.block) {
+      const folder = path.posix.join(CORE.parts.proposals.folder, entry.data.id);
+      problems.push(
+        ...heldFilesProblems(dir, folder, entry.data.block.files, `${entry.file}.block`),
+      );
+    }
   }
-  return problems;
+  return [...problems, ...retiredClashes(dir)];
+}
+
+// A need the store offers whose files a retired block of that need still keeps in the same
+// folder: the two would be one folder's files.
+function retiredClashes(dir) {
+  const parts = readCoreParts(dir);
+  const offered = parts.find((entry) => entry.part === "blocks")?.data?.blocks;
+  const retired = parts.find((entry) => entry.part === "retired")?.data?.blocks;
+  if (!Array.isArray(offered) || !Array.isArray(retired)) return [];
+  const gone = new Set(retired.map((block) => block?.need));
+  return offered
+    .filter((block) => gone.has(block?.need))
+    .map(
+      (block) =>
+        `${CORE.parts.blocks.file} offers ${block.need}, and ${CORE.parts.retired.file} keeps a retired block of ${block.need} whose files are under the same folder: a retired need is not promoted again`,
+    );
 }
 
 // Where a file of a block is kept in a core folder, and in a member's copy of it.
@@ -858,47 +1005,56 @@ export function coreStoreProblems(dir, data, file = CORE.parts.blocks.file) {
         );
       }
     });
-    if (block.files.length === 0) {
-      problems.push(`${at}.files names no file: a block is its files`);
+    problems.push(
+      ...heldFilesProblems(dir, coreBlockFile(block.need, ""), block.files, at, "its need"),
+    );
+  });
+  return problems;
+}
+
+// What is wrong with the files of one block, kept under `folder` of a core folder and listed at
+// `at`: none named, a name that leaves the folder or is hidden, a name given twice, a file that is
+// not there, not text, or not the file listed.
+export function heldFilesProblems(dir, folder, files, at, what = folder) {
+  if (!Array.isArray(files)) return [];
+  if (files.length === 0) return [`${at}.files names no file: a block is its files`];
+  const problems = [];
+  const seen = new Set();
+  const into = `${String(folder).replace(/\/+$/, "")}/`;
+  files.forEach((entry, place) => {
+    if (typeof entry?.file !== "string") return;
+    const where = `${at}.files[${place}]`;
+    if (!staysInBlock(entry.file)) {
+      problems.push(
+        `${where}.file is ${entry.file}, which leaves ${into}: a block's files are kept under ${what}`,
+      );
       return;
     }
-    const seen = new Set();
-    block.files.forEach((entry, place) => {
-      if (typeof entry?.file !== "string") return;
-      const where = `${at}.files[${place}]`;
-      const folder = `${coreBlockFile(block.need, "")}/`;
-      if (!staysInBlock(entry.file)) {
-        problems.push(
-          `${where}.file is ${entry.file}, which leaves ${folder}: a block's files are kept under its need`,
-        );
-        return;
-      }
-      if (hiddenInBlock(entry.file)) {
-        problems.push(
-          `${where}.file is ${entry.file}, a hidden file or one in a hidden folder: a block is code, and no part of its name starts with a dot`,
-        );
-        return;
-      }
-      if (seen.has(entry.file)) {
-        problems.push(`${where}.file names ${entry.file} twice`);
-        return;
-      }
-      seen.add(entry.file);
-      const kept = coreBlockFile(block.need, entry.file);
-      const full = path.join(dir, kept);
-      if (!existsSync(full) || !statSync(full).isFile()) {
-        problems.push(`${where}: ${kept} is not there`);
-        return;
-      }
-      const bytes = readFileSync(full);
-      if (!isTextFile(bytes)) {
-        problems.push(`${where}: ${kept} is not text: a block's files are code, kept as text`);
-        return;
-      }
-      if (sha256(bytes) !== entry.sha256) {
-        problems.push(`${where}: ${kept} is not the file listed: its sha256 differs`);
-      }
-    });
+    if (hiddenInBlock(entry.file)) {
+      problems.push(
+        `${where}.file is ${entry.file}, a hidden file or one in a hidden folder: a block is code, and no part of its name starts with a dot`,
+      );
+      return;
+    }
+    if (seen.has(entry.file)) {
+      problems.push(`${where}.file names ${entry.file} twice`);
+      return;
+    }
+    seen.add(entry.file);
+    const kept = path.posix.join(into, entry.file);
+    const full = path.join(dir, kept);
+    if (!existsSync(full) || !statSync(full).isFile()) {
+      problems.push(`${where}: ${kept} is not there`);
+      return;
+    }
+    const bytes = readFileSync(full);
+    if (!isTextFile(bytes)) {
+      problems.push(`${where}: ${kept} is not text: a block's files are code, kept as text`);
+      return;
+    }
+    if (sha256(bytes) !== entry.sha256) {
+      problems.push(`${where}: ${kept} is not the file listed: its sha256 differs`);
+    }
   });
   return problems;
 }
@@ -950,9 +1106,63 @@ function corePartProblems(part, data, file) {
     ];
   }
   if (part === "blocks") {
-    return twice(data.blocks, "need").map(
-      (need) => `${file} keeps two blocks for the need ${need}: one need, one block`,
-    );
+    return [
+      ...twice(data.blocks, "need").map(
+        (need) => `${file} keeps two blocks for the need ${need}: one need, one block`,
+      ),
+      ...blockHistoryProblems(data.blocks, file),
+    ];
+  }
+  if (part === "retired") {
+    const answers = Array.isArray(data.answers) ? data.answers : [];
+    return [
+      ...twice(data.blocks, "need").map(
+        (need) => `${file} keeps two retired blocks of the need ${need}: a need's folder holds one`,
+      ),
+      ...answers.flatMap((answer, index) =>
+        historyProblems(answer, `${file}.answers[${index}]`, versionOf(data), file),
+      ),
+      ...blockHistoryProblems(data.blocks, file),
+      ...[...answers, ...(Array.isArray(data.blocks) ? data.blocks : [])].flatMap((one) =>
+        ["by", "why"]
+          .filter((key) => typeof one?.retired?.[key] === "string")
+          .filter((key) => ADDRESS.test(one.retired[key]))
+          .map(
+            (key) =>
+              `${file}: the retiring of ${one.id ?? one.need} holds an e-mail address in ${key}: a core keeps names, never an address`,
+          ),
+      ),
+    ];
+  }
+  if (part === "proposals") {
+    const problems = [];
+    const name = path.posix.basename(file);
+    if (typeof data.id === "string" && name !== `${data.id}.json`) {
+      problems.push(
+        `${file} is named ${name} and its id is ${data.id}: a proposal is named after its id`,
+      );
+    }
+    if (data.kind === "answer" && !data.answer)
+      problems.push(`${file} proposes an answer and says no answer`);
+    if (data.kind === "block" && !data.block)
+      problems.push(`${file} proposes a block and says no block`);
+    if (data.kind === "answer" && data.block)
+      problems.push(`${file} proposes an answer and holds a block`);
+    if (data.kind === "block" && data.answer)
+      problems.push(`${file} proposes a block and holds an answer`);
+    for (const [key, value] of [
+      ["by", data.by],
+      ["why", data.why],
+      ["decided.by", data.decided?.by],
+      ["decided.why", data.decided?.why],
+    ]) {
+      if (typeof value === "string" && ADDRESS.test(value)) {
+        problems.push(
+          `${file}.${key} holds an e-mail address: a core keeps names, never an address`,
+        );
+      }
+    }
+    return problems;
   }
   if (part === "members" && typeof data.repository === "string") {
     const name = path.posix.basename(file);
@@ -1109,8 +1319,15 @@ export function coreMarkText({ mark, pin, why = null, by = null, on = null }) {
 // note: the answer is the repository's own since that day, who said the repository leaves and why,
 // and the mark the row carried, word for word, which names the pin the answer once came from and
 // never the family. Whatever else the note says follows after "; ".
+// The same mark is written when the family core retired the answer and the repository accepted
+// the retiring (criterion 24): `when the family core retired it`, the reason and the name the core
+// gave, and the mark the row carried. Both are read as no mark of a core.
+export const OWN_SINCE = {
+  left: "the repository left its family",
+  retired: "the family core retired it",
+};
 const LEFT_MARK = new RegExp(
-  `^own since (\\d{4}-\\d{2}-\\d{2}), when the repository left its family: (.+?) \\(by (.+?)\\), once ((?:${Object.values(CORE_MARKS).join("|")}) the family core at [0-9a-f]{${PIN_DIGITS}}(?:: .+? \\(by .+? on \\d{4}-\\d{2}-\\d{2}\\))?)(?:; (.*))?$`,
+  `^own since (\\d{4}-\\d{2}-\\d{2}), when (${Object.values(OWN_SINCE).join("|")}): (.+?) \\(by (.+?)\\), once ((?:${Object.values(CORE_MARKS).join("|")}) the family core at [0-9a-f]{${PIN_DIGITS}}(?:: .+? \\(by .+? on \\d{4}-\\d{2}-\\d{2}\\))?)(?:; (.*))?$`,
 );
 
 // The mark of a family left that a note carries, and the rest of the note: { left, rest }, where
@@ -1120,11 +1337,13 @@ export function leftMarkOf(note) {
   const text = String(note ?? "");
   const found = LEFT_MARK.exec(text);
   if (!found) return { left: null, rest: text };
-  const [, since, why, by, once, rest] = found;
+  const [, since, when, why, by, once, rest] = found;
   const [, words, pin, onceWhy, onceBy, onceOn] = MARK.exec(once);
   return {
     left: {
       since,
+      // Said only of a retiring: a mark of a family left reads as it did before.
+      ...(when === OWN_SINCE.retired ? { how: "retired" } : {}),
       why,
       by,
       once: {
@@ -1140,8 +1359,8 @@ export function leftMarkOf(note) {
 }
 
 // The mark of a family left as a note writes it.
-export const leftMarkText = ({ since, why, by, once }) =>
-  `own since ${since}, when the repository left its family: ${why} (by ${by}), once ${coreMarkText(once)}`;
+export const leftMarkText = ({ since, why, by, once, how = "left" }) =>
+  `own since ${since}, when ${OWN_SINCE[how]}: ${why} (by ${by}), once ${coreMarkText(once)}`;
 
 // A note with its mark put first, or taken away when `mark` is null; the rest is kept as it is.
 export function withCoreMark(note, mark) {
@@ -1274,6 +1493,54 @@ const sameState = (a, b) =>
   typeOf(b) === "object" &&
   a.hold === b.hold &&
   JSON.stringify(a.value) === JSON.stringify(b.value);
+
+// What the history of each block says that its shape alone does not hold: a replacing changes the
+// files, each goes on from the one before it, the last gave the block the files it has, the days go
+// forward from the day it was promoted, and a name or a reason holds no e-mail address.
+function blockHistoryProblems(blocks, file) {
+  const filesOf = (state) => JSON.stringify(blockFilesKey(state?.files));
+  return (Array.isArray(blocks) ? blocks : []).flatMap((block, index) => {
+    const history = block?.history;
+    if (!Array.isArray(history) || history.length === 0) return [];
+    const at = `${file}.blocks[${index}].history`;
+    const problems = [];
+    history.forEach((step, place) => {
+      if (typeOf(step) !== "object") return;
+      const here = `${at}[${place}]`;
+      if (filesOf(step.was) === filesOf(step.became)) {
+        problems.push(`${here} changes nothing: was and became hold the same files`);
+      }
+      const before = history[place - 1];
+      if (typeOf(before) === "object" && filesOf(before.became) !== filesOf(step.was)) {
+        problems.push(`${here}.was is not what ${at}[${place - 1}] gave the block`);
+      }
+      const since = place === 0 ? block.promoted?.on : before?.on;
+      if (typeof since === "string" && typeof step.on === "string" && step.on < since) {
+        problems.push(`${here}.on is ${step.on}, before ${since}: a history goes forward`);
+      }
+      for (const key of ["by", "why"]) {
+        if (typeof step[key] === "string" && ADDRESS.test(step[key])) {
+          problems.push(
+            `${here}.${key} holds an e-mail address: a core keeps names, never an address`,
+          );
+        }
+      }
+    });
+    const last = history.at(-1);
+    if (typeOf(last) === "object" && filesOf(last.became) !== filesOf(block)) {
+      problems.push(
+        `${at}[${history.length - 1}].became is not the block's files: the last replacing gave the block the files it has`,
+      );
+    }
+    return problems;
+  });
+}
+
+// A block's files as one comparable list: each name with its hash, in the order of the names.
+export const blockFilesKey = (files) =>
+  (Array.isArray(files) ? files : [])
+    .map((entry) => [String(entry?.file), String(entry?.sha256)])
+    .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0));
 
 // What the history of one answer, at `where`, says that its shape alone does not hold: each change
 // goes on from the one before it, the last made the answer what it is, a change changes something,

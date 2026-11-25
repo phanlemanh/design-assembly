@@ -70,6 +70,14 @@ the core added stays, with this mark; where its `source` was `design/sources/cor
 only the copy held its value, the `source` becomes that value. The guide keeps the mark on a row it
 writes again. A repository that joins a family again has its new mark written in this one's place.
 
+Once the family core retired an answer and a person accepted the retiring (`core --accept <id>`, or
+`core --join` pinning again; slice 3 of item 7.2, criterion 24), its row is turned the same way, and
+no value changes: the note begins with `own since <day>, when the family core retired it: <why> (by
+<name>), once ` and then the mark the row carried, word for word. `<day>` is the day it was accepted,
+`<name>` and `<why>` who retired it in the core and the reason, as the core's `retired.json` gives
+them (where the core's folder records no retiring: `no one the core names` and `the core's folder
+does not say why`). Every other row keeps its mark. Both forms are read as no mark of a core.
+
 ### blueprint
 
 `version`, `layers` (one entry per layer, with its status and the choice), and the guide's own
@@ -87,7 +95,9 @@ also `pin`, and `changed`, the reason it carried: `why`, `by`, `on`). No choice 
 once inherited stays a person's answer: where the layer is not the owner's as a whole, its key is
 listed under `confirmed` and `answered` says who settled it, the family's owner as the core
 recorded it, or the person leaving where the copy could not be read. A choice inherited again loses
-its entry under `own`.
+its entry under `own`. The choice of an answer the core retired, once accepted, is turned the same
+way, and its entry under `own` also says `how: "retired"`, with who retired it in the core and why;
+every other choice keeps its mark.
 
 ### tokens
 
@@ -220,6 +230,12 @@ store keeps it by; `pin` is the pin of the core it was taken at, the twelve digi
 hash of every file of the block as taken down and after patching, and the hash that names the
 block in the copy. `need` is the repository's own need, which may be another key than the core's.
 No key is new, so the shape stays 1.
+
+Once the family core retired such a block and a person accepted it (`core --accept <need>`, or
+`core --join` pinning again), the block stays where it is, as the repository's own, and its row
+gains `own`: `since` (the day it was accepted), `by` and `why` (who retired it in the core, and the
+reason the core gives). `from: core` and `pin` stay, and say where it once came from; the block is
+then compared with no core. Optional, so the shape stays 1.
 
 Once the repository left its family (`core --leave`), such a block stays where it is, as the
 repository's own, and its row is not rewritten: `from: core` and `pin` then say where the block
@@ -437,6 +453,8 @@ each problem naming the file and the place.
 | `answers`     | `answers.json`              | The answers the family shares, each locked or a default, and what holds it |
 | `blocks`      | `blocks/index.json`         | The blocks that graduated to the family, with their files and users        |
 | `members`     | `members/<repository>.json` | What each member repository has solved, by need                            |
+| `retired`     | `retired.json`              | The answers and blocks the core retired, whole, with who, when and why     |
+| `proposals`   | `proposals/<id>.json`       | What members proposed to the family's owner, and what the owner answered   |
 
 `declaration`: `version`; `family`, the name the person gave, never blank; `first`, the repository
 the answers were first read from, with `repository` (its name), `read_on` (the day) and `commit`
@@ -485,7 +503,23 @@ place: the file, the answer and the change.
 needs, as the starter kit names them: a repository that lacks one is not offered the block),
 `used_by` (the repositories that use it), `promoted` (`by` and `on`) and `second_use`, false until a
 second repository has used it; and maybe `description`, what it is for in a sentence. The list is
-empty when a core is built, and no command fills it yet.
+empty when a core is built.
+
+Since slice 3 of item 7.2, `core --promote` fills it on the family's owner's word (spec 0016,
+answer 13), with no second use: a block of a repository of the family, one with a row in its intake
+ledger, is copied in, its files under `blocks/<need>/` byte for byte with the hash of each; `name`
+and `description` are its row's; `adapters` are the kinds the person names, each one the repository
+has, or else those of `components` and `source` the repository has; `used_by` is that repository;
+`promoted` has `by`, `on` and `why`, the reason; and `second_use` is false, which the command says as
+"no second use yet". A block that came from an outside source also has `licence`: `source` (the id
+of the source), `words` (its licence line, as its row states it) and `allowed` (`by` and `on`), the
+person who said that line allows passing the block's code on to the family's other repositories. A
+block whose files were replaced, by the promotion's `--replace` or by a member's proposal granted,
+has `history`: each replacing, oldest first, with `was` and `became` (each its `files`, with their
+hashes), `by`, `on` and `why`; each `was` is what the one before it `became`, the last `became` is
+the block's `files` now, and the days go forward from `promoted.on`. A replacing keeps the names and
+hashes of the files it replaced, not their bytes: a file the block no longer has leaves its folder.
+`used_by` then gains the repository the files came from, and `second_use` is true once it names two.
 
 For a store that is not empty, `core --check` also holds the files, and names each by the list, the
 block and the file: a block names at least one file; a `file` is a path inside the folder of its
@@ -502,6 +536,30 @@ a kind existed still reads a copy that names it.
 `members`: one file per member repository, named after it, with `version`, `repository` and `needs`,
 each with `need`, `name` and `description` and nothing else: never code, never the text of a file.
 The folder may be missing until a member reports.
+
+`retired`: `retired.json`, missing until the core retires something (criterion 24), with `version`,
+`answers` and `blocks`. `core --retire` takes an answer out of `answers.json`, or a block out of
+`blocks/index.json`, and keeps it here whole, as it was, its `history` included, with `retired`:
+`by`, `on` and `why`, never blank. Nothing is deleted from the record: the files of a retired block
+stay where they were, under `blocks/<need>/`, and `core --check` holds them to their hashes as it
+holds those of the store. A need the store offers whose retired block keeps its files in the same
+folder is wrong: a retired need is not promoted again. An answer retired may come back with
+`core --change --from`, and its retiring stays here. A member reads the answer or the block as
+retired because the core no longer holds it, as before, and reads here who retired it, when and why.
+
+`proposals`: one file per proposal of a member to the family's owner (criterion 23),
+`proposals/<id>.json`, missing until a member proposes. A proposal has `version`, `id` (its kind,
+its subject and a number, as `answer-source-color-1`: the name of its file), `kind` (`answer` or
+`block`), `subject` (the answer's id, or the block's need in the core), `repository` (the member
+proposing), `pin` (the pin it held), and `by`, `on` and `why`. For an answer it has `answer`: `value`,
+the value the member holds, and `was`, the core's `value` and `hold` when it was made. For a block it
+has `block`: `name`, `files` (the files as the member has them, each with `file` and `sha256`, kept
+under `proposals/<id>/` and held to their hashes) and `was`, the hash that named the core's block
+when it was made. Once the family's owner answered, `decided`: `outcome` (`granted` or `refused`),
+`by`, `on` and `why`. A granted answer is carried out by `core --change`, its history saying who
+granted it and why; a granted block by the promotion's replace, its history saying the same. A
+refused proposal keeps the refusal and the reason, and the member is told at its next look. One
+proposal of a member about one thing waits at a time.
 
 Only answers a person settled go into a core: a row the guide proposed or read off the repository
 and nobody confirmed (its note says a person has not confirmed it), a blueprint answer the guide

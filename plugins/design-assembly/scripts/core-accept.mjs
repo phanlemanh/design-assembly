@@ -7,11 +7,20 @@
 // written over. The core's list of members takes the new pin, said first and written only where
 // the folder can be written. No model and no network are called.
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  rmdirSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 
 import {
   CORE,
+  coreBlockFile,
   coreMarkOf,
   corePartShapeProblems,
   newerLedgers,
@@ -26,10 +35,13 @@ import { answeredOf, exportsBehind, holdAnswers } from "./core-join.mjs";
 import { addLine, homeOf } from "./core-list.mjs";
 import { readMember } from "./core-marks.mjs";
 import { movedOf, sameState } from "./core-moved.mjs";
+import { retiredIn } from "./core-records.mjs";
+import { acceptRetired } from "./core-retire.mjs";
 
 const WIDTH = 100;
 const ANSWERS = CORE.parts.answers.file;
 const DECLARATION = CORE.parts.declaration.file;
+const BLOCKS = CORE.parts.blocks.file;
 const PIN_DIGITS = 12;
 // The reason a default the repository holds otherwise is recorded with, when the core changed that
 // default and a person accepted the change.
@@ -87,6 +99,17 @@ function carried(root, was, answers) {
   return { given, waits: Object.values(answered.waits) };
 }
 
+// Takes away a folder of the copy once it is empty, and each above it up to the copy's folder of
+// blocks: a file of anybody's own left there keeps its folder.
+function emptied(root, folder, indexFile) {
+  const stop = path.posix.dirname(indexFile);
+  for (let at = folder; at.startsWith(`${stop}/`); at = path.posix.dirname(at)) {
+    const full = path.join(root, at);
+    if (!existsSync(full) || readdirSync(full).length > 0) return;
+    rmdirSync(full);
+  }
+}
+
 // Writes the files of the copy byte for byte, since each is compared with its hash: the lines the
 // writer of every other file gives, in the same form.
 function writeCopy(root, files, dryRun) {
@@ -137,7 +160,12 @@ export function acceptCore(root, { ids = [], all = false, by, on, core = null, d
     on,
     dry_run: dryRun,
   };
-  if (moved.state === "same") {
+  // A block the core retired is accepted like an answer (slice 3 of item 7.2): an added or a
+  // changed block is still pinned with core --join.
+  const retiredNeeds = (moved.block_changes ?? [])
+    .filter((change) => change.change === "retired")
+    .map((change) => change.need);
+  if (moved.state === "same" && retiredNeeds.length === 0) {
     if (ids.length > 0) {
       throw new Refusal(
         `the core is where this repository pinned it (${pinned.label}): ${ids.join(", ")} did not change, and there is nothing to accept. Nothing was written`,
@@ -146,14 +174,15 @@ export function acceptCore(root, { ids = [], all = false, by, on, core = null, d
     return { ...base, nothing: true, accepted: [], left: [], answers: [], files: [], written: [] };
   }
   const changed = moved.changes.map((change) => change.id);
-  const unknown = ids.filter((id) => !changed.includes(id));
+  const unknown = ids.filter((id) => !changed.includes(id) && !retiredNeeds.includes(id));
   if (unknown.length > 0) {
     throw new Refusal(
-      `${unknown.join(", ")} did not change in the core since this repository pinned it; what changed: ${changed.join(", ") || "no answer, only how the file is written"}. Nothing was written`,
+      `${unknown.join(", ")} did not change in the core since this repository pinned it; what changed: ${changed.join(", ") || "no answer, only how the file is written"}${retiredNeeds.length > 0 ? `; blocks retired: ${retiredNeeds.join(", ")}` : ""}. Nothing was written`,
     );
   }
   const accepted = all ? changed : changed.filter((id) => ids.includes(id));
   const left = changed.filter((id) => !accepted.includes(id));
+  const blocksAccepted = all ? retiredNeeds : retiredNeeds.filter((need) => ids.includes(need));
 
   // The copy: the core's own file when nothing is left, so the pin is the core's; else the mix.
   const coreText = readFileSync(path.join(moved.core, ANSWERS), "utf8");
@@ -172,7 +201,13 @@ export function acceptCore(root, { ids = [], all = false, by, on, core = null, d
     );
   }
   const copyFile = path.posix.join(pinned.snapshot, ANSWERS);
-  const answersText = left.length === 0 ? coreText : renderJson(mixed, WIDTH);
+  // No answer taken while some are left: the copy's answers stay byte for byte.
+  const answersText =
+    left.length === 0 && moved.state !== "same"
+      ? coreText
+      : accepted.length === 0
+        ? read(path.join(root, copyFile))
+        : renderJson(mixed, WIDTH);
   const pin = sha256(answersText).slice(0, PIN_DIGITS);
 
   // The core's list of members with this repository at its new pin: the copy's declaration, and
@@ -193,18 +228,51 @@ export function acceptCore(root, { ids = [], all = false, by, on, core = null, d
   // accepted, by whom, from which state of the core, with what was left.
   const source = JSON.parse(read(path.join(root, PINNED_CORE.file)));
   const hashes = { [ANSWERS]: sha256(answersText), [DECLARATION]: sha256(declaredText) };
+  // A retired block accepted leaves the copy's list, and its files leave the copy and the pin.
+  const indexFile = path.posix.join(pinned.snapshot, BLOCKS);
+  const copyIndex = blocksAccepted.length > 0 ? JSON.parse(read(path.join(root, indexFile))) : null;
+  const goneFiles = blocksAccepted.flatMap((need) =>
+    (copyIndex.blocks.find((block) => block.need === need)?.files ?? []).map(({ file }) =>
+      coreBlockFile(need, file),
+    ),
+  );
+  // Once the copy holds the blocks the core holds, it takes the core's own list, byte for byte, so
+  // nothing differs that a later look would report.
+  const coreIndexText = readFileSync(path.join(moved.core, BLOCKS), "utf8");
+  const keptBlocks = copyIndex?.blocks.filter((block) => !blocksAccepted.includes(block.need));
+  const indexText = copyIndex
+    ? JSON.stringify(keptBlocks) === JSON.stringify(JSON.parse(coreIndexText).blocks)
+      ? coreIndexText
+      : renderJson({ ...copyIndex, blocks: keptBlocks }, WIDTH)
+    : null;
+  const blocksLeft = (moved.block_changes ?? []).filter(
+    (change) => !blocksAccepted.includes(change.need),
+  );
+  if (indexText !== null) hashes[BLOCKS] = sha256(indexText);
   const nextSource = {
     ...source,
     pin: {
       ...source.pin,
-      files: source.pin.files.map((entry) =>
-        entry.file in hashes ? { ...entry, sha256: hashes[entry.file] } : entry,
-      ),
+      files: source.pin.files
+        .filter((entry) => !goneFiles.includes(entry.file))
+        .map((entry) => (entry.file in hashes ? { ...entry, sha256: hashes[entry.file] } : entry)),
       taken_on: on,
     },
-    accepted: { by, on, answers: accepted, core: moved.core_pin, left },
+    accepted: {
+      by,
+      on,
+      answers: accepted,
+      ...(blocksAccepted.length > 0 ? { blocks: blocksAccepted } : {}),
+      core: moved.core_pin,
+      left,
+    },
   };
-  const copy = { [copyFile]: answersText, [declarationFile]: declaredText };
+  const copy = {
+    [copyFile]: answersText,
+    [declarationFile]: declaredText,
+    ...(indexText === null ? {} : { [indexFile]: indexText }),
+  };
+  const dropped = goneFiles.map((file) => path.posix.join(pinned.snapshot, file));
   const files = { [PINNED_CORE.file]: renderJson(nextSource, lineWidth(root)) };
 
   // The ledger at the new pin: each row marked again, the reasons that still stand carried over,
@@ -219,21 +287,42 @@ export function acceptCore(root, { ids = [], all = false, by, on, core = null, d
   const held = holdAnswers(root, next, { on, reasons, exceptions: given.exceptions });
   Object.assign(files, held.files);
 
+  // What the core retired and a person accepted becomes the repository's own (criterion 24): the
+  // row of each retired answer, the choice of the blueprint, and the row of each retired block
+  // taken in, each with the reason the core gave and the name it gives.
+  const retiredIds = accepted.filter(
+    (id) => moved.changes.find((change) => change.id === id)?.change === "retired",
+  );
+  const turned = acceptRetired(root, {
+    answerIds: retiredIds,
+    blockNeeds: blocksAccepted,
+    answers: pinned.answers,
+    records: retiredIn(moved.core),
+    on,
+    files,
+  });
+  Object.assign(files, turned.files);
+
   // A question that waited about the earlier pin asks about a core the repository no longer pins:
   // it is taken away, and asked anew above where the answers still differ.
-  const shape = waits.length > 0 ? readWaiting(root)?.shape : null;
+  // A pin that did not move (only a retired block accepted) leaves its questions where they are.
+  const shape = waits.length > 0 && pin !== pinned.label ? readWaiting(root)?.shape : null;
   const withdrawn = shape === "folder" ? waits.map((id) => questionFile(id)) : [];
   const stale = shape === "file" ? waits : [];
 
   const exports = exportsBehind(root, { ...files, ...copy });
   // All of it lands or none does: the copy is compared with the hashes the declaration holds, so a
   // write that stops halfway would leave the gate red. Whatever was written is put back.
-  const touched = [...Object.keys(copy), ...Object.keys(files), ...withdrawn];
+  const touched = [...Object.keys(copy), ...Object.keys(files), ...withdrawn, ...dropped];
   const before = touched.map((file) => [file, read(path.join(root, file))]);
   let written;
   try {
     written = [...writeCopy(root, copy, dryRun), ...writeFiles(root, files, dryRun)];
-    if (!dryRun) for (const file of withdrawn) rmSync(path.join(root, file), { force: true });
+    if (!dryRun) {
+      for (const file of [...withdrawn, ...dropped]) rmSync(path.join(root, file), { force: true });
+      // The folder of a retired block in the copy goes once it is empty.
+      for (const file of dropped) emptied(root, path.posix.dirname(file), indexFile);
+    }
   } catch (error) {
     for (const [file, was] of before) {
       try {
@@ -273,9 +362,14 @@ export function acceptCore(root, { ids = [], all = false, by, on, core = null, d
     whole: left.length === 0,
     nothing: false,
     accepted: moved.changes.filter((change) => accepted.includes(change.id)),
+    blocks_accepted: (moved.block_changes ?? []).filter((change) =>
+      blocksAccepted.includes(change.need),
+    ),
+    turned: turned.turned,
     left,
     form_only: moved.form_only,
-    blocks_differ: moved.blocks_differ,
+    // What still differs in the store once this acceptance is written.
+    blocks_differ: moved.blocks_differ && (blocksLeft.length > 0 || indexText !== coreIndexText),
     answers: held.answers.filter((answer) => accepted.includes(answer.id)),
     waiting: held.answers
       .filter((answer) => ["differs", "unreasoned"].includes(answer.state))
@@ -285,7 +379,10 @@ export function acceptCore(root, { ids = [], all = false, by, on, core = null, d
     core_file: { ...coreWrite, already: sameLine },
     list,
     exports,
-    files: [...writtenFiles(written), ...withdrawn.map((file) => fileChange(file, "remove"))],
+    files: [
+      ...writtenFiles(written),
+      ...[...withdrawn, ...dropped].map((file) => fileChange(file, "remove")),
+    ],
     written,
   };
 }

@@ -105,6 +105,15 @@ function joinReport(result) {
     `${result.dry_run ? "would pin" : "pinned"} the family core ${result.family} (${result.core}) at ${result.pin}: ${result.repository} ${result.again ? "pins it again" : "declares it is of this family"}`,
     `answers of the core: ${result.answers.length}`,
     ...answerLines(result.answers),
+    // What the core retired since the earlier pin, now the repository's own (slice 3 of item 7.2).
+    ...(result.turned?.rows ?? []).map(
+      (row) =>
+        `  the row ${row.id} is this repository's own: the core retired it since the earlier pin`,
+    ),
+    ...(result.turned?.blocks ?? []).map(
+      (block) =>
+        `  ${block.name} (${block.need}) stays where it is, as this repository's own: the core retired it, and its row says so under own`,
+    ),
   ];
   const { check } = result;
   lines.push(
