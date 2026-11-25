@@ -57,6 +57,22 @@ blueprint layer by layer and the files written or that would be, as data.
 
 - `design/blueprint.json` exists: resume from the first built layer that is `pending`.
 
+### A family, once
+
+The preview may print a line that starts with `family:`: this machine keeps the core of a family
+of products, and this repository declares none. Ask the person that one question, as printed, and
+nothing more about it. Yes: follow `/design-assembly:core`, step 7. No: run
+`core.mjs --target <repo> --decline`, and the repository is not asked again. A repository that
+already declares its family is not asked.
+
+On a repository of a family, run `core.mjs --target <repo> --inherit` once the blueprint is written
+(`/design-assembly:core`, step 8). Then a choice the blueprint marks `inherited` with
+`hold: locked` is not asked; one with `hold: default` is shown filled in, and a change is written
+with its reason under `changed.<key>`, `{ "why": "<their words>", "by": "<their name>", "on":
+"<today>" }`; keep both marks when you write the layer. The guide refuses a locked answer changed
+without an exception, and a default changed without its reason. At the end, read out the lines
+under `answered by the family core`: each answer not asked, with who settled it and when.
+
 The blueprint is the only file you write by hand. Its shape:
 
 ```json

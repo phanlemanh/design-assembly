@@ -105,6 +105,16 @@ import {
   wordsProblem,
 } from "../templates/tools/design-assembly/patterns.mjs";
 import { mergeLedger, parseLedger, TOOL } from "../templates/tools/design-assembly/ledger.mjs";
+import { FAMILY_CORE_CHECK, readPinnedCore } from "../templates/tools/design-assembly/contract.mjs";
+import { familyQuestion } from "./core-list.mjs";
+import {
+  blueprintCoreProblems,
+  blueprintReasons,
+  coreWidths,
+  inheritedSummary,
+  markLedger,
+  readMember,
+} from "./core-marks.mjs";
 import {
   KINDS_FOLDER,
   kindsProblem,
@@ -567,7 +577,9 @@ function browserTestHere(target) {
 // the repository has none: the file and its text, or nothing.
 export function startingSizes(target) {
   if (!browserTestHere(target) || existsSync(path.join(target, SIZES_FILE))) return {};
-  return { [SIZES_FILE]: renderJson({ version: 1, widths: STARTER_WIDTHS }, lineWidth(target)) };
+  // A repository of a family starts from the widths its core holds, where it holds them.
+  const widths = coreWidths(target) ?? STARTER_WIDTHS;
+  return { [SIZES_FILE]: renderJson({ version: 1, widths }, lineWidth(target)) };
 }
 
 // A path the acceptance kit is told to read from this repository, or null.
@@ -1826,6 +1838,8 @@ function decisions(blueprint, theme, foundations, styles, before = []) {
   const proposed = (layer, key) => {
     const entry = blueprint.layers[layer];
     if ((entry.confirmed ?? []).includes(key)) return {};
+    // An answer the family core gave is a person's: the owner of the family settled it.
+    if (entry.inherited?.[key]) return {};
     if (entry.source === "proposed") {
       return { note: "proposed by the guide; a person has not confirmed it" };
     }
@@ -2227,6 +2241,8 @@ export function plan(target, blueprint) {
         },
         // The floating parts of each item of an outside source are opened by a browser test.
         ...floating.checks,
+        // A repository of a family: the locked answers of the core it pinned.
+        ...(readPinnedCore(target) === null ? [] : [FAMILY_CORE_CHECK]),
       ],
     };
     Object.assign(files, floating.files);
@@ -2277,6 +2293,13 @@ export function plan(target, blueprint) {
     .map((row) => String(row.id))
     .filter((id) => !rows.some((row) => row.id === id));
   files[FILES.ledger] = mergeLedger(ledgerBefore, rows, gone);
+  // A repository of a family: each row of an answer of the core it pinned says where it stands.
+  const member = readMember(target, files);
+  if (member && !member.pinned.unreadable) {
+    files[FILES.ledger] = markLedger(files[FILES.ledger], member.pinned, member.values, {
+      reasons: blueprintReasons(blueprint),
+    }).text;
+  }
   for (const layer of LAYERS.filter((l) => l.built)) {
     const entry = blueprint.layers[layer.id];
     if (entry.status !== "decided") continue;
@@ -2456,8 +2479,20 @@ function main(args) {
     say(
       `the floor is in place. ${BLUEPRINT} is not there yet: write it, in the shape the guide's first step gives, then run this again.`,
     );
+    // A repository that declares no family, on a machine that keeps a core, is asked about it once.
+    const first = readPinnedCore(target) === null ? familyQuestion(target).question : null;
+    if (first) say(`family: ${first.question} ${first.recommendation}`);
     // No layer is decided yet: that is work for a person.
-    return end({ blueprint: null, principles: [], recommendations: [], directions: [] }, true);
+    return end(
+      {
+        blueprint: null,
+        principles: [],
+        recommendations: [],
+        directions: [],
+        ...(first ? { family_question: first } : {}),
+      },
+      true,
+    );
   }
   if (!existsSync(blueprintPath)) {
     stop(
@@ -2465,10 +2500,14 @@ function main(args) {
     );
   }
   const blueprint = readJson(blueprintPath);
-  const problems = blueprintProblems(blueprint, {
-    preview: dryRun,
-    sources: readFontSources(target),
-  });
+  const problems = [
+    ...blueprintProblems(blueprint, {
+      preview: dryRun,
+      sources: readFontSources(target),
+    }),
+    // A repository of a family: what the blueprint holds against the core it pinned.
+    ...blueprintCoreProblems(target, blueprint),
+  ];
   if (problems.length > 0) {
     const what = dryRun ? "previewed" : "applied";
     stop(`${BLUEPRINT} cannot be ${what}:\n  ${problems.join("\n  ")}`);
@@ -2501,6 +2540,24 @@ function main(args) {
   }
   const followed = blueprint.layers?.foundations?.direction;
   if (followed) say(`direction: the foundations were drawn from ${followed}`);
+  // A repository of a family is told what the core answered; one that declares none, while this
+  // machine keeps a core, is asked the one question about a family.
+  // Said last, so the person reads at the end what was not asked and who settled it.
+  const member = readMember(target);
+  const asked = member ? null : familyQuestion(target).question;
+  const familyLines = member?.pinned.unreadable
+    ? [
+        `family core: its copy here cannot be read (${member.pinned.unreadable}): the repository inherits nothing, and the guide asks every question`,
+      ]
+    : member
+      ? inheritedSummary(member.pinned)
+      : asked
+        ? [`family: ${asked.question} ${asked.recommendation}`]
+        : [];
+  if (member && !member.pinned.unreadable) {
+    facts.family_core = { family: member.pinned.family, pin: member.pinned.label };
+  }
+  if (asked) facts.family_question = asked;
   if (own) {
     say(`note: ${own}. Writing will be refused: adopt the values, or pass --replace.`);
   }
@@ -2519,6 +2576,7 @@ function main(args) {
   );
   if (pending.length > 0) {
     say(`files: shown once these layers are decided: ${pending.map((l) => l.title).join(", ")}`);
+    for (const line of familyLines) say(line);
     return end(facts, true);
   }
   const {
@@ -2591,6 +2649,7 @@ function main(args) {
   }
   const written = writeFiles(target, files, dryRun);
   for (const line of written) say(line);
+  for (const line of familyLines) say(line);
   if (dryRun) say("preview only: nothing was written");
   return end({ ...facts, files: writtenFiles(written) }, undecided.length > 0 || Boolean(own));
 }

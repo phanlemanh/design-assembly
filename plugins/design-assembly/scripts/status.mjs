@@ -49,6 +49,7 @@ import { audit, AUDIT, DECIDE, PERSON_CALLS, UNCONFIRMED } from "./audit.mjs";
 import { socketsOf } from "./capabilities.mjs";
 import { pushedLines } from "./send-out.mjs";
 import { gateProblem, seenMissing } from "./apply.mjs";
+import { memberLines, memberStatus } from "./core-marks.mjs";
 import {
   SEEN_DECISION,
   SEEN_TEST,
@@ -609,6 +610,8 @@ function readLedgers(root) {
     missing: missingFloor(root),
     pushed: pushedLines(root),
     unwhole: unwholeOf(root),
+    // A repository of a family: where each answer of the core it pinned stands. Null otherwise.
+    core: memberStatus(root),
   };
 }
 
@@ -657,10 +660,12 @@ function birthSays({ all, missing }) {
 }
 
 function resultOf(
-  { audit, broken, tool, sockets, seen, birth, missing, pushed, unwhole },
+  { audit, broken, tool, sockets, seen, birth, missing, pushed, unwhole, core },
   waiting,
 ) {
   return {
+    // Only a repository of a family has this key: one that stands alone reads as before.
+    ...(core ? { core } : {}),
     tier: audit.tier,
     // Core decisions only, as the audit counts them. Two numbers: a claim was not run again here.
     held: audit.coverage.held,
@@ -798,6 +803,7 @@ export function report(result) {
     ...result.rhythms.map((rhythm) => `  ${rhythm.name}: ${rhythm.says}`),
     "",
   ];
+  if (result.core) lines.push(...memberLines(result.core), "");
   if (waiting.length === 0) {
     lines.push("waiting on the owner: nothing in the ledgers or the waiting list");
   } else {

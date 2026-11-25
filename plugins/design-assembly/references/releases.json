@@ -402,6 +402,12 @@
       "templates": "58bb5108c464b78577c816d1bf4abb2d7cb56c19",
       "scripts": "07a505738708f0c629c66babdca165abcb5b57fa",
       "tool": "a5efaf4e5f1d01f0414d072cf2112cbd9c55c20d"
+    },
+    {
+      "version": "0.62.0",
+      "templates": "f06dec2cb0868de6001caaf8d0267699900ed925",
+      "scripts": "1fa0652bb74c861b2e9567a651e6481242d2a167",
+      "tool": "3394f9c9469953fea0e66f8d989109a7802c4d6c"
     }
   ]
 }

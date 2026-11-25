@@ -17,7 +17,14 @@ import {
   targetProblem,
   UNTRACKED,
 } from "./components.mjs";
-import { CONFORM_FOLDER, LEDGERS, shapeProblems } from "./contract.mjs";
+import {
+  CONFORM_FOLDER,
+  FAMILY_CORE_CHECK,
+  LEDGERS,
+  lockedCoreProblems,
+  readFamilyCore,
+  shapeProblems,
+} from "./contract.mjs";
 import {
   LAYER_ALIASES,
   LAYERS,
@@ -718,6 +725,34 @@ const KINDS = {
           base: choice.base ?? { files: [], intake: null },
           problem: null,
         },
+      };
+    },
+  },
+  // The locked answers of the family core the repository pinned (spec 0016, criterion 8): a value
+  // the repository holds otherwise, with no exception recorded against the pin, is red, and so is a
+  // copy of the core that differs from its hashes. A default never is. Laid only on a repository
+  // that declares a family; one that declares none has nothing here.
+  [FAMILY_CORE_CHECK.kind]: {
+    run(state) {
+      const problems = lockedCoreProblems(state.familyCore, state.ledger ?? []);
+      if (problems.length === 0) return null;
+      const more = problems.length > 3 ? `; and ${problems.length - 3} more` : "";
+      return `${problems.slice(0, 3).join("; ")}${more}`;
+    },
+    // A core that locks a value the repository holds otherwise.
+    change(state) {
+      const label = "000000000000";
+      return {
+        ...state,
+        familyCore: {
+          pinned: {
+            label,
+            unreadable: null,
+            answers: [{ id: "source-color", kind: "value", hold: "locked", value: "#000000" }],
+          },
+          values: { "source-color": { value: "#ffffff", from: "a changed copy" } },
+        },
+        ledger: (state.ledger ?? []).filter((row) => String(row.id) !== "source-color"),
       };
     },
   },
@@ -1562,6 +1597,11 @@ export function readState(root) {
     branch,
     // What the check that holds the choice compares: read only where a check asks.
     choice: choosing ? readChoice(root, choosing) : null,
+    // The family core the repository pinned, and how it holds each answer: read only where the
+    // check of its locked answers is laid.
+    familyCore: checks.some((check) => check.kind === FAMILY_CORE_CHECK.kind)
+      ? readFamilyCore(root)
+      : null,
     tagged: testsOf ? taggedTests(root, testsOf) : [],
   };
 }

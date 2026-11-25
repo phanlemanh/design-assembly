@@ -396,21 +396,23 @@ export function withManifest(root, files) {
   return { ...files, [SOURCES.registry]: made ? made.content : null };
 }
 
-// The inputs of a repository, read from disk.
-export function readInputs(root) {
+// The inputs of a repository, read from disk; `files` has texts, by path, that stand in for what is
+// on disk, for a command about to write them.
+export function readInputs(root, files = {}) {
   const read = (file) =>
-    existsSync(path.join(root, file)) ? readFileSync(path.join(root, file), "utf8") : null;
+    file in files
+      ? files[file]
+      : existsSync(path.join(root, file))
+        ? readFileSync(path.join(root, file), "utf8")
+        : null;
   const folder = path.join(root, SOURCES.sources);
-  const sources = existsSync(folder)
-    ? Object.fromEntries(
-        readdirSync(folder)
-          .filter((name) => name.endsWith(".json"))
-          .map((name) => [
-            `${SOURCES.sources}/${name}`,
-            readFileSync(path.join(folder, name), "utf8"),
-          ]),
-      )
-    : {};
+  const names = [
+    ...(existsSync(folder) ? readdirSync(folder).map((name) => `${SOURCES.sources}/${name}`) : []),
+    ...Object.keys(files).filter((file) => file.startsWith(`${SOURCES.sources}/`)),
+  ];
+  const sources = Object.fromEntries(
+    [...new Set(names)].filter((file) => file.endsWith(".json")).map((file) => [file, read(file)]),
+  );
   return inputsOf({
     files: withManifest(
       root,

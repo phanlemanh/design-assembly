@@ -4,10 +4,12 @@
 //
 // A shape is checked as data. Its `version` says which shape a file has: a reader of shape N reads
 // every file of shape N or older, and a writer that finds a newer shape writes nothing.
+import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 import { adapterOf } from "./adapters/index.mjs";
+import { tokenHex } from "./color.mjs";
 import {
   INTAKE_LEDGER,
   readIntakeLedger,
@@ -16,9 +18,11 @@ import {
 } from "./intake-ledger.mjs";
 import { readYaml } from "./yaml.mjs";
 import {
+  CORE_ID,
   FONT_FIELDS,
   FONT_STYLES,
   fontRowProblems,
+  isCoreSource,
   isFont,
   LADDER_PLACES,
   SOURCES_FOLDER,
@@ -435,6 +439,26 @@ export const LEDGERS = {
         open: true,
       },
     },
+    // A source of the kind `core` (spec 0016, answer 4): the family core the repository declared it
+    // is of. No catalog: it offers no block of a library. The family's name as the core says it;
+    // the folder of the repository its copy of the core is kept in; the pin, each file of that copy
+    // with its hash, compared before anything is read from it; and who said the repository is of
+    // the family, on which day.
+    core: {
+      catalog: text,
+      family: required({ ...text, pattern: "\\S" }),
+      snapshot: required(text),
+      pin: required({
+        type: "object",
+        fields: { files: required(list(hashedFile)), taken_on: day },
+        open: true,
+      }),
+      joined: required({
+        type: "object",
+        fields: { by: required(text), on: required(day) },
+        open: true,
+      }),
+    },
     open: true,
   },
   conform: {
@@ -814,6 +838,256 @@ function corePartProblems(part, data, file) {
   return [];
 }
 
+// ---- a member of a family: the core it pinned (spec 0016, slice 2 of item 7.1) -----------------
+
+// Where a repository keeps the family it declared and the copy of that core: the row of the sources
+// ledger, and the folder the copy is kept in. The copy holds the declaration, the answers and the
+// list of blocks; the members' reports stay in the core.
+export const PINNED_CORE = { file: `${SOURCES_FOLDER}/${CORE_ID}.json`, snapshot: "design/core" };
+export const COPIED_PARTS = ["declaration", "answers", "blocks"];
+// The check of the gate that holds the locked answers of the core a repository pinned. It is laid
+// under the row `ledger-shapes`, and only on a repository that declares a family.
+export const FAMILY_CORE_CHECK = { kind: "family-core" };
+// How many hexadecimal digits of the hash of the copied answers name the pin in a note.
+const PIN_DIGITS = 12;
+const sha256 = (bytes) => createHash("sha256").update(bytes).digest("hex");
+
+// The core a repository pinned: null when it declares no family; else the family, the pin (the
+// hash of the copied answers, `label` its first digits), the answers, the declaration, and
+// `unreadable`, why the copy cannot be trusted, or null. A copy that differs from its hashes, a
+// part missing or of a newer shape, is unreadable: the repository then inherits nothing and its
+// own answers stand.
+export function readPinnedCore(root) {
+  const { file } = PINNED_CORE;
+  const full = path.join(root, file);
+  if (!existsSync(full)) return null;
+  let source;
+  try {
+    source = JSON.parse(readFileSync(full, "utf8"));
+  } catch {
+    source = undefined;
+  }
+  // A library someone named `core` is a library, not a family.
+  if (source !== undefined && !isCoreSource(source)) return null;
+  const said = {
+    file,
+    family: typeof source?.family === "string" ? source.family : null,
+    snapshot: typeof source?.snapshot === "string" ? source.snapshot : null,
+    joined: source?.joined ?? null,
+    taken_on: source?.pin?.taken_on ?? null,
+    sha256: null,
+    label: null,
+    declaration: null,
+    answers: [],
+  };
+  const unreadable = (why) => ({ ...said, unreadable: why });
+  if (source === undefined) return unreadable(`${file} is not valid JSON`);
+  const shape = sourceProblems(JSON.stringify(source), file);
+  if (shape.length > 0) return unreadable(shape[0]);
+  const parts = {};
+  for (const entry of source.pin.files) {
+    const where = path.posix.join(source.snapshot, entry.file);
+    if (path.posix.isAbsolute(entry.file) || where.split("/").includes("..")) {
+      return unreadable(`${where}, a file of the pinned core, is outside its copy`);
+    }
+    const at = path.join(root, where);
+    if (!existsSync(at) || !statSync(at).isFile()) {
+      return unreadable(`${where}, a file of the pinned core, is not there`);
+    }
+    const bytes = readFileSync(at);
+    if (sha256(bytes) !== entry.sha256) {
+      return unreadable(`${where} is not the file the core was pinned with: its sha256 differs`);
+    }
+    parts[entry.file] = { bytes, sha256: entry.sha256 };
+  }
+  const data = {};
+  for (const part of COPIED_PARTS) {
+    const name = CORE.parts[part].file;
+    if (!parts[name]) return unreadable(`the pin of ${file} does not list ${name}`);
+    try {
+      data[part] = JSON.parse(parts[name].bytes.toString("utf8"));
+    } catch {
+      return unreadable(`${path.posix.join(source.snapshot, name)} is not valid JSON`);
+    }
+    const wrong = corePartShapeProblems(part, data[part], path.posix.join(source.snapshot, name));
+    if (wrong.length > 0) return unreadable(wrong[0]);
+  }
+  if (data.declaration.family !== source.family) {
+    return unreadable(
+      `${file} names the family ${source.family}, and its copy of the core is of ${data.declaration.family}`,
+    );
+  }
+  const hash = parts[CORE.parts.answers.file].sha256;
+  return {
+    ...said,
+    sha256: hash,
+    label: hash.slice(0, PIN_DIGITS),
+    declaration: data.declaration,
+    answers: data.answers.answers,
+    blocks: data.blocks.blocks,
+    unreadable: null,
+  };
+}
+
+// The marks a row of the decision ledger carries about the core, first in its note: an answer
+// inherited from the core; a default of the core the repository changed, with why; a locked answer
+// the repository keeps against the core, with why. Each names the pin, and the two with a reason
+// name who gave it and when. Whatever else the note says follows after "; ".
+export const CORE_MARKS = {
+  inherited: "inherited from",
+  changed: "changed from",
+  kept: "kept against",
+};
+const MARK_OF = Object.fromEntries(
+  Object.entries(CORE_MARKS).map(([mark, words]) => [words, mark]),
+);
+const MARK = new RegExp(
+  `^(${Object.values(CORE_MARKS).join("|")}) the family core at ([0-9a-f]{${PIN_DIGITS}})(?:: (.+?) \\(by (.+?) on (\\d{4}-\\d{2}-\\d{2})\\))?(?:; (.*))?$`,
+);
+
+// The mark a note carries, and the rest of the note: { mark, pin, why, by, on, rest }, mark null
+// when there is none.
+export function coreMarkOf(note) {
+  const text = String(note ?? "");
+  const found = MARK.exec(text);
+  if (!found) return { mark: null, rest: text };
+  const [, words, pin, why, by, on, rest] = found;
+  return {
+    mark: MARK_OF[words],
+    pin,
+    why: why ?? null,
+    by: by ?? null,
+    on: on ?? null,
+    rest: rest ?? "",
+  };
+}
+
+// A mark as a note writes it.
+export function coreMarkText({ mark, pin, why = null, by = null, on = null }) {
+  const head = `${CORE_MARKS[mark]} the family core at ${pin}`;
+  return why ? `${head}: ${why} (by ${by} on ${on})` : head;
+}
+
+// A note with its mark put first, or taken away when `mark` is null; the rest is kept as it is.
+export function withCoreMark(note, mark) {
+  const { rest } = coreMarkOf(note);
+  const head = mark ? coreMarkText(mark) : "";
+  return [head, rest].filter((part) => part !== "").join("; ");
+}
+
+// Where a repository holds each answer of the catalogue that is a value: the choice of the
+// blueprint, where the guide asked it; the token file the plugin writes, for the colour; the widths.
+// An answer of another id is not a value the repository is read for.
+export const CORE_VALUES = {
+  "source-color": { layer: "foundations", key: "source_color", token: ["color", "primary"] },
+  "record-panel": { layer: "patterns", key: "record_panel" },
+  "type-scale-values": { layer: "foundations", key: "type_scale", ratio: "type_ratio" },
+  "test-screen-sizes": { widths: true },
+};
+const BLUEPRINT_FILE = "design/blueprint.json";
+const TOKENS_FILE = "design/tokens.json";
+const WIDTHS_FILE = "design/screen-sizes.json";
+
+// How the repository holds one answer: { value, from }, { none } when it holds nothing for it, or
+// { unread } when the plugin does not read it as a value. `read` has the blueprint, the token file
+// and the widths as data, each null when the repository has none.
+export function memberValue(id, { blueprint = null, tokens = null, widths = null } = {}) {
+  const place = CORE_VALUES[id];
+  if (!place) return { unread: `${id} is not a value this plugin reads in a repository` };
+  if (place.widths) {
+    const found = widths?.widths;
+    return Array.isArray(found) && found.length > 0
+      ? { value: found, from: WIDTHS_FILE }
+      : { none: true };
+  }
+  const choice = blueprint?.layers?.[place.layer]?.choice;
+  if (choice && Object.hasOwn(choice, place.key)) {
+    const value = choice[place.key];
+    const ratio = place.ratio ? choice[place.ratio] : undefined;
+    return {
+      value: value === "modular" && ratio ? `modular ${ratio}` : value,
+      from: BLUEPRINT_FILE,
+    };
+  }
+  if (place.token) {
+    const token = place.token.reduce((at, key) => at?.[key], tokens);
+    if (token?.$value !== undefined) return { value: token.$value, from: TOKENS_FILE };
+  }
+  return { none: true };
+}
+
+// Whether two values of one answer are the same: a colour by its hexadecimal value, whatever the
+// notation; anything else as data.
+export function sameCoreValue(id, a, b) {
+  if (CORE_VALUES[id]?.token) {
+    const [x, y] = [tokenHex(String(a)), tokenHex(String(b))];
+    if (x && y) return x.slice(0, 7) === y.slice(0, 7);
+  }
+  return JSON.stringify(a) === JSON.stringify(b);
+}
+
+// The blueprint, the token file and the widths of a repository as data, each null when it has none
+// or it cannot be read; `files` has texts that stand in for what is on disk.
+export function memberFiles(root, files = {}) {
+  const json = (file) => {
+    const text =
+      file in files
+        ? files[file]
+        : existsSync(path.join(root, file))
+          ? readFileSync(path.join(root, file), "utf8")
+          : null;
+    if (text === null || text === undefined) return null;
+    try {
+      return JSON.parse(text);
+    } catch {
+      return null;
+    }
+  };
+  return { blueprint: json(BLUEPRINT_FILE), tokens: json(TOKENS_FILE), widths: json(WIDTHS_FILE) };
+}
+
+// How the repository holds each answer of the core it pinned, by id.
+export const memberValues = (pinned, read) =>
+  Object.fromEntries(
+    (pinned?.answers ?? []).map((answer) => [answer.id, memberValue(answer.id, read)]),
+  );
+
+// What the gate reads of a repository that declares a family: the core it pinned and how it holds
+// each answer. Null when it declares none.
+export function readFamilyCore(root) {
+  const pinned = readPinnedCore(root);
+  return pinned === null ? null : { pinned, values: memberValues(pinned, memberFiles(root)) };
+}
+
+const shownValue = (value) => (typeof value === "string" ? value : JSON.stringify(value));
+
+// Why the gate is red about the core a repository pinned, one line each: a copy that cannot be
+// read, and each locked answer that is a value, that the repository holds otherwise, with no
+// exception recorded against this pin. A default never makes it red, nor does a rule, whose words
+// are not compared, nor an answer the repository holds no value for.
+export function lockedCoreProblems(family, rows = []) {
+  if (!family) return [];
+  const { pinned, values } = family;
+  if (pinned.unreadable) {
+    return [
+      `the copy of the family core in ${pinned.snapshot ?? PINNED_CORE.snapshot} cannot be read: ${pinned.unreadable}. Pin it again with core --join, so the locked answers hold`,
+    ];
+  }
+  const problems = [];
+  for (const answer of pinned.answers) {
+    if (answer.hold !== "locked" || answer.kind !== "value") continue;
+    const held = values?.[answer.id];
+    if (held?.value === undefined || sameCoreValue(answer.id, held.value, answer.value)) continue;
+    const row = rows.find((item) => String(item.id) === answer.id);
+    const mark = coreMarkOf(row?.note);
+    if (mark.mark === "kept" && mark.pin === pinned.label) continue;
+    problems.push(
+      `${answer.id}: ${held.from} holds ${shownValue(held.value)}, and the family core this repository pinned locks ${shownValue(answer.value)} (pin ${pinned.label}) with no exception recorded: follow the core, or keep it as an exception with its reason (core --settle)`,
+    );
+  }
+  return problems;
+}
+
 const typeOf = (value) => (value === null ? "null" : Array.isArray(value) ? "array" : typeof value);
 
 // Whether two states of an answer are one: the same value and the same hold.
@@ -1124,9 +1398,11 @@ function sourceProblems(textOfFile, file) {
   const newer = newerProblem("sources", data, file);
   if (newer) return [newer];
   // A font is a source of its own kind: what the row of a library requires, less its catalog,
-  // more what a font says of itself.
+  // more what a font says of itself. So is the family core the repository pinned.
   const font = isFont(data);
-  const root = font ? { ...LEDGERS.sources.root, ...LEDGERS.sources.font } : LEDGERS.sources.root;
+  const core = isCoreSource(data);
+  const variant = font ? LEDGERS.sources.font : core ? LEDGERS.sources.core : {};
+  const root = { ...LEDGERS.sources.root, ...variant };
   const problems = objectProblems(data, root, LEDGERS.sources.open, file);
   const name = path.basename(file);
   if (typeof data.id === "string" && name !== `${data.id}.json`) {
@@ -1135,6 +1411,14 @@ function sourceProblems(textOfFile, file) {
     );
   }
   if (font) return [...problems, ...fontRowProblems(data, file)];
+  if (core) {
+    if (data.id !== CORE_ID) {
+      problems.push(
+        `${file} is a family core, and a repository is of one family: its id is ${CORE_ID}`,
+      );
+    }
+    return problems;
+  }
   if (!("pin" in data) && !("pin_file" in data)) {
     problems.push(
       `${file}.pin is missing: a source holds its pin, or names the file it is kept in under pin_file`,

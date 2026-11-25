@@ -32,6 +32,7 @@ import { keptOutOfGit } from "../templates/tools/design-assembly/derived.mjs";
 import { GATE_STEP } from "../templates/tools/design-assembly/host-make.mjs";
 import { TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
 import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-first.mjs";
+import { FAMILY_CORE_CHECK, readPinnedCore } from "../templates/tools/design-assembly/contract.mjs";
 import {
   conformRecords,
   FLOATING_CHECK,
@@ -68,6 +69,8 @@ const ADDED_CHECKS = {
   [CHOOSE_FIRST_CHECK.kind]:
     "when a branch adds a component file with no row of the intake ledger, or a row made by hand without the words searched and the nearest candidate",
   [FLOATING_CHECK.kind]: `when a conform record is there and ${FLOATING_TEST}, the browser test that opens the floating parts of its item, is missing`,
+  [FAMILY_CORE_CHECK.kind]:
+    "when a locked answer of the family core this repository pinned is held otherwise here with no exception, or the copy of the core differs from its hashes",
 };
 // The gate step the plugin installs beside the tool: upgrade writes it too, whole, when it differs.
 const GATE_SOURCE = path.join(PLUGIN, "templates", GATE_STEP);
@@ -396,6 +399,8 @@ export async function upgradePlan(root, accept = {}) {
           ...(intakeFile && intakeFile !== INTAKE_LEDGER ? { intake: intakeFile } : {}),
         },
         ...(floating.change === "none" ? [] : [FLOATING_CHECK]),
+        // A repository of a family: the locked answers of the core it pinned.
+        ...(readPinnedCore(root) === null ? [] : [FAMILY_CORE_CHECK]),
       ].filter((added) => !shapes.some((check) => check?.kind === added.kind))
     : [];
   const checksAdded = missing.map((added) => ({ row: "ledger-shapes", kind: added.kind }));

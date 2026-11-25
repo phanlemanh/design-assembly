@@ -42,6 +42,11 @@
       "id": "send-out",
       "script": "scripts/send-out.mjs",
       "through": ["handoff", "decision"]
+    },
+    {
+      "id": "core",
+      "script": "scripts/core-join.mjs",
+      "through": ["decision", "reference"]
     }
   ],
   "unseen_writes": {

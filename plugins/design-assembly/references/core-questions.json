@@ -1,5 +1,5 @@
 {
-  "about": "The answers of a repository that may go into the core of a family of products, and where each starts: `locked`, kept as it is by every repository of the family, or `default`, where a new repository starts and may change. Each is a decision of the ledger by its id (references/standard-decisions.json gives its question). An answer listed with `blueprint` or `value` is a value a member compares: `blueprint` names the choice of the blueprint it is, where the guide asked it; `value` says where it is read when the repository has no blueprint: `tokens` the source colour of design/tokens.json, `screen-sizes` the widths of design/screen-sizes.json; and `given` says how a person writes it when the repository holds no such value: `colour` as #rrggbb, `widths` as whole numbers joined by commas, `choice` as one of the options of the blueprint's choice (references/layers.json), `type-scale` as standard or modular and a ratio. Any other answer is a rule: its words are what its row says, and its check holds it. `behaviour` gives the rows that are behaviour rules: every row of that layer that is not listed here; one the standard decisions do not know is the repository's own, maybe a rule of one kind of screen, and starts outside both sets. `outside` names what never goes into the core. These are only the starting sets: the person answering the lock-or-default sheet moves any answer from one to the other, or leaves it out.",
+  "about": "The answers of a repository that may go into the core of a family of products, and where each starts: `locked`, kept as it is by every repository of the family, or `default`, where a new repository starts and may change. Each is a decision of the ledger by its id (references/standard-decisions.json gives its question). An answer listed with `blueprint` or `value` is a value a member compares: `blueprint` names the choice of the blueprint it is, where the guide asked it; `value` says where it is read when the repository has no blueprint: `tokens` the source colour of design/tokens.json, `screen-sizes` the widths of design/screen-sizes.json; and `given` says how a person writes it when the repository holds no such value: `colour` as #rrggbb, `widths` as whole numbers joined by commas, `choice` as one of the options of the blueprint's choice (references/layers.json), `type-scale` as standard or modular and a ratio. Any other answer is a rule: its words are what its row says, and its check holds it. `behaviour` gives the rows that are behaviour rules: every row of that layer that is not listed here; one the standard decisions do not know is the repository's own, maybe a rule of one kind of screen, and starts outside both sets. `outside` names what never goes into the core. These are only the starting sets: the person answering the lock-or-default sheet moves any answer from one to the other, or leaves it out. `guide` lists the questions the guide asks a person, by the place of the blueprint each answer goes to, and the answer of the core that answers it, where one does: on a repository of a family, a locked answer is not asked and a default is filled in (spec 0016, criterion 6).",
   "questions": [
     {
       "id": "source-color",
@@ -44,5 +44,46 @@
     "layer": "patterns",
     "start": "locked"
   },
-  "outside": ["screen kinds", "column kinds", "copy"]
+  "outside": ["screen kinds", "column kinds", "copy"],
+  "guide": [
+    {
+      "place": "context.product_type"
+    },
+    {
+      "place": "context.conformance_level"
+    },
+    {
+      "place": "foundations.source_color",
+      "answer": "source-color"
+    },
+    {
+      "place": "foundations.type_scale",
+      "answer": "type-scale-values"
+    },
+    {
+      "place": "foundations.corner_radius"
+    },
+    {
+      "place": "foundations.text_font"
+    },
+    {
+      "place": "foundations.heading_font"
+    },
+    {
+      "place": "foundations.neutral_family"
+    },
+    {
+      "place": "foundations.status_tones"
+    },
+    {
+      "place": "foundations.roles.color-roles-sidebar"
+    },
+    {
+      "place": "foundations.roles.color-roles-chart"
+    },
+    {
+      "place": "patterns.record_panel",
+      "answer": "record-panel"
+    }
+  ]
 }

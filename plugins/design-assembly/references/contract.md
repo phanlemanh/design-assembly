@@ -43,10 +43,26 @@ of `standard`, `formula`, `closed`, `judgment`) and `source`, and may have `chec
 `test:`, `e2e:`, `tool:` or `eslint:` and a target) and `note`. No other key. What each row means
 is in `checks.md`.
 
+In a repository of a family, the note of a row whose id is an answer of the core it pinned begins
+with a mark (spec 0016): `inherited from the family core at <pin>`; `changed from the family core
+at <pin>: <why> (by <name> on <day>)`, for a default the repository holds otherwise; or `kept
+against the family core at <pin>: <why> (by <name> on <day>)`, for a locked answer it keeps as an
+exception. `<pin>` is the first twelve hexadecimal digits of the hash of the core's answers as the
+repository copied them. Whatever else the note says follows after `; `. A judgment the core
+answers, and every row the core adds, also ends with `answered by <name> on <day>`, as the decision
+sheet writes an answer: the family's owner, or the person who gave the reason. A row with no mark
+reads as before; a row the core has and the ledger lacks is added with its mark and no check, inherited and
+not held until a check of the repository holds it.
+
 ### blueprint
 
 `version`, `layers` (one entry per layer, with its status and the choice), and the guide's own
 keys: `status`, `depth`, the language of the conversation, an approval note. Other keys are kept.
+
+In a repository of a family, a layer may also say `inherited`, by choice key, `{ pin, hold }`: the
+choice is the answer of the core it pinned, locked or a default, so the guide does not ask it; and
+`changed`, by choice key, `{ why, by, on }`: a default of the core the repository holds otherwise,
+and why. A blueprint without them reads as before.
 
 ### tokens
 
@@ -220,7 +236,19 @@ shape, is unreadable, says why, and offers nothing. A source pinned by a version
 compare, and says so. Whether a catalog is kept in git is the repository's choice, as with every
 derived file.
 
-A source may say its `kind`. One kind has a meaning here, `font`: a typeface the product uses that
+A source of the kind `core` is the family the repository declared it is of, and the core it pinned
+(spec 0016, answer 4): `design/sources/core.json`, id `core`, since a repository is of one family.
+It offers no block of a library: its `catalog` names the copy's list of blocks, so a tool older
+than the kind reads it as a library that offers nothing. It has `family`, the name the core gives;
+`snapshot`, the folder of the repository its copy of the core is kept in, `design/core`, holding the
+core's `core.json`, `answers.json` and `blocks/index.json`; `pin.files`, each file of that copy with
+its `sha256`, and maybe `pin.taken_on`, the day it was copied; and `joined`, who said the
+repository is of the family and when (`by`, `on`). Every reader compares the copy with the hashes
+first: a copy that differs, a file missing, a part of a wrong or newer shape, is unreadable, says
+why, and the repository inherits nothing; its own answers stand. The gate, where it holds the core's
+locked answers, says so in red.
+
+A source may say its `kind`. One other kind has a meaning here, `font`: a typeface the product uses that
 is neither the floor's nor the system's. A source with no `kind`, or with a word of the
 repository's own, is a library as above, and is read as before. A font has `version`, `id`,
 `kind` and `family` (the name a stylesheet calls it by), and no `catalog`: it offers no block. It
@@ -325,7 +353,10 @@ the answers were first read from, with `repository` (its name), `read_on` (the d
 (where it stood, or null outside git); `members`, the repositories that declared they are of the
 family, each with `repository`, `joined` (a day) and maybe `pin`, empty until a repository declares
 so, the first one included; and `owner`, the person who answered the lock-or-default sheet, with
-`by` and `on`: the family's owner.
+`by` and `on`: the family's owner. A member's `pin` is the first twelve hexadecimal digits of the
+hash of `answers.json` as the member copied it: a member joining changes `core.json` and not the
+pin. The command that joins writes the member into the core folder only where the folder can be
+written, and says first what it writes there.
 
 `answers`: `version` and `answers`, one entry per question, no question twice. An answer has `id`
 (the id of its row in the decision ledger), `question`, `kind` (`value`, a value a member
@@ -370,6 +401,16 @@ repository is refused, and the root of a repository made for the core is taken. 
 names, never an e-mail address. `core --change` changes one answer of a core in its folder, its
 value, its hold, or an answer added, and writes nothing into a member repository and tells no
 member: a member learns of it when it next reads the core.
+
+## Not a ledger: the machine's list of cores
+
+Each core this machine built or pinned, with the folder it lives in, and each repository whose
+person said it is of no family listed there, by its main folder (spec 0016, criterion 17). It is one
+file on the machine, outside every repository: the file `DESIGN_ASSEMBLY_CORES` names, else
+`$XDG_CONFIG_HOME/design-assembly/cores.json`, else `~/.config/design-assembly/cores.json`. No
+command sends it anywhere, and none writes over a list it cannot read. With a core in it that can be
+read, `new` and `adopt` ask a repository that declares no family one question, whether it is of that
+family; a list missing or that cannot be read asks nothing and says no error.
 
 ## Not a ledger: the waiting list
 

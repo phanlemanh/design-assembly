@@ -21,6 +21,12 @@ const isMap = (value) => value !== null && typeof value === "object" && !Array.i
 const text = (value) => (typeof value === "string" ? value : undefined);
 const filled = (value) => typeof value === "string" && value.trim() !== "";
 export const isFont = (source) => isMap(source) && source.kind === FONT_KIND;
+// The kind of source that is the core of the family the repository declared it is of (spec 0016,
+// answer 4): a copy of the core kept in the repository, compared by hash. It offers no block of a
+// library; a repository is of one family, so the row is `design/sources/core.json`, id `core`.
+export const CORE_KIND = "core";
+export const CORE_ID = "core";
+export const isCoreSource = (source) => isMap(source) && source.kind === CORE_KIND;
 // Where a source stands on the ladder find and intake walk: before the starter kit and the family's
 // store, or after them, which is where a source that declares nothing stands (spec 0015).
 export const LADDER_PLACES = ["before-starter", "after-family"];
@@ -233,10 +239,14 @@ function parsed(root, name) {
 
 // Every pinned source blocks are picked from, in the order they are looked through: by `order`,
 // the smallest first and a source without one last, then by id. Empty when the repository keeps
-// none. A font is a source of another kind: it offers no block, and is read by `readFontSources`.
+// none. A font is a source of another kind: it offers no block, and is read by `readFontSources`;
+// so is the family core, which the contract reads as the repository's family.
 export function readPinnedSources(root) {
   return sourceFiles(root)
-    .filter((name) => !isFont(parsed(root, name)))
+    .filter((name) => {
+      const source = parsed(root, name);
+      return !isFont(source) && !isCoreSource(source);
+    })
     .map((name) => readSource(root, name))
     .sort(
       (a, b) =>

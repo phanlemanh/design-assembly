@@ -45,8 +45,17 @@ const put = (dir, file, text) => {
 };
 const json = (data) => `${JSON.stringify(data, null, 2)}\n`;
 const read = (dir, file) => JSON.parse(readFileSync(path.join(dir, file), "utf8"));
+// The machine's list of cores of these tests: never the list of the person running them.
+const LIST = path.join(
+  realpathSync(mkdtempSync(path.join(tmpdir(), "design-core-list-"))),
+  "cores.json",
+);
 const core = (args, options = {}) =>
-  spawnSync(execPath, [CORE_COMMAND, ...args], { encoding: "utf8", ...options });
+  spawnSync(execPath, [CORE_COMMAND, ...args], {
+    encoding: "utf8",
+    ...options,
+    env: { ...env, ...options.env, DESIGN_ASSEMBLY_CORES: LIST },
+  });
 const git = (dir, ...args) =>
   spawnSync(
     "git",
@@ -928,7 +937,7 @@ test("no command of the core reaches the network", () => {
   const guarded = (args) =>
     spawnSync(execPath, ["--import", NO_NETWORK, CORE_COMMAND, ...args], {
       encoding: "utf8",
-      env: { ...env, DESIGN_ASSEMBLY_NETWORK_LOG: log },
+      env: { ...env, DESIGN_ASSEMBLY_NETWORK_LOG: log, DESIGN_ASSEMBLY_CORES: LIST },
     });
   const place = path.join(path.dirname(dir), "family-core");
   assert.equal(guarded(["--target", dir, "--json"]).status, 1);
@@ -995,10 +1004,12 @@ test("the plugin's files of the core name no repository the tests are run beside
   }
 });
 
-test("a repository that stands alone is untouched: no other command reads or writes a core", () => {
+test("no other command reads a core folder: the moves of a member go through the core's own modules", () => {
+  // Since slice 2, the guide, adopt, status and upgrade ask the core's modules about a member;
+  // none of them reads a core folder or the first repository itself. That a repository standing
+  // alone is untouched is held by test-core-join.mjs, criterion 1.
   const scripts = readdirSync(path.join(PLUGIN, "scripts")).filter(
-    (name) =>
-      name.endsWith(".mjs") && !["core.mjs", "core-read.mjs", "core-change.mjs"].includes(name),
+    (name) => name.endsWith(".mjs") && !name.startsWith("core"),
   );
   for (const name of scripts) {
     const text = readFileSync(path.join(PLUGIN, "scripts", name), "utf8");

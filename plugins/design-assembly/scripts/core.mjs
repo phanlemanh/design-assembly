@@ -7,6 +7,12 @@
 //        node core.mjs --build --family NAME --core DIR --by NAME [--lock ID]... [--default ID]...
 //                      [--on DATE] [--dry-run] [--target DIR] [--json]
 //        node core.mjs --check --core DIR [--json]
+//        node core.mjs --join [--core DIR] --by NAME [--on DATE] [--dry-run] [--target DIR] [--json]
+//        node core.mjs --settle --by NAME [--why ID=REASON]... [--on DATE] [--dry-run] [--target DIR]
+//        node core.mjs --inherit [--dry-run] [--target DIR] [--json]
+//        node core.mjs --ask [--target DIR] [--json]
+//        node core.mjs --decline [--on DATE] [--dry-run] [--target DIR] [--json]
+// The moves of a member are in core-join.mjs, and say there what each ends with.
 //        node core.mjs --change ID --core DIR --by NAME --why TEXT [--value VALUE]
 //                      [--hold locked|default] [--from DIR] [--on DATE] [--dry-run] [--json]
 // Changing an answer of a built core is scripts/core-change.mjs (slice 4 of item 7.1).
@@ -32,6 +38,8 @@ import { isDay } from "../templates/tools/design-assembly/waiting.mjs";
 import { today } from "./asking.mjs";
 import { changeOf, finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { changeCall } from "./core-change.mjs";
+import { MEMBER_FLAGS, MEMBER_MOVES, MEMBER_USAGE, memberMain } from "./core-join-call.mjs";
+import { addLine } from "./core-list.mjs";
 import { givenProblem, givenValue, placeOf, readFirst, sheetOf } from "./core-read.mjs";
 
 const WIDTH = 100;
@@ -222,12 +230,15 @@ export function buildCore(
       writeFileSync(full, renderJson(data, WIDTH));
     }
   }
+  // The machine's list of cores gains the one built, so the next repository is asked about it.
+  const list = addLine({ family, path: real(core).path, on, how: "built" }, { dryRun });
   return {
     first: firstOf(first),
     family,
     core,
     answers,
     files,
+    list,
     dry_run: dryRun,
   };
 }
@@ -316,6 +327,9 @@ function buildReport(result) {
     ),
     `${result.dry_run ? "would write" : "wrote"}:`,
     ...result.files.map((file) => `  ${file.change.padEnd(7)} ${file.path}`),
+    result.list.why
+      ? `the machine's list of cores (${result.list.file}) was not written: ${result.list.why}`
+      : `the machine's list of cores${result.dry_run ? " would gain" : " gains"} this core: ${result.list.file}`,
     `nothing was written in ${result.first.repository}; nothing was sent anywhere`,
   ];
   return `${lines.join("\n")}\n`;
@@ -330,7 +344,8 @@ const USAGE =
   "usage: node core.mjs [--target DIR] [--family NAME] [--core DIR] [--json]\n" +
   "       node core.mjs --build --family NAME --core DIR --by NAME [--lock ID]... [--default ID]... [--value ID=VALUE]... [--on DATE] [--dry-run] [--target DIR] [--json]\n" +
   "       node core.mjs --check --core DIR [--json]\n" +
-  "       node core.mjs --change ID --core DIR --by NAME --why TEXT [--value VALUE] [--hold locked|default] [--from DIR] [--on DATE] [--dry-run] [--json]\n";
+  "       node core.mjs --change ID --core DIR --by NAME --why TEXT [--value VALUE] [--hold locked|default] [--from DIR] [--on DATE] [--dry-run] [--json]\n" +
+  MEMBER_USAGE;
 const FLAGS = {
   "--family": "value",
   "--core": "value",
@@ -345,7 +360,7 @@ const FLAGS = {
   "--change": "value",
   "--hold": "value",
   "--from": "value",
-  "--why": "value",
+  ...MEMBER_FLAGS,
 };
 const BUILD_ONLY = ["--lock", "--default", "--value", "--by", "--on", "--dry-run"];
 const CHANGE_ONLY = ["--hold", "--from", "--why"];
@@ -357,19 +372,40 @@ async function main(args) {
   if (call.help) return void stdout.write(USAGE);
   const { flags } = call;
   const core = flags["--core"] === undefined ? null : path.resolve(flags["--core"]);
-  if (flags["--build"] && flags["--check"]) {
-    return refuse("--build and --check are two calls; give one", USAGE);
+  const moves = ["--build", "--check", "--change", ...MEMBER_MOVES].filter(
+    (flag) => flags[flag] !== undefined,
+  );
+  if (
+    moves.length > 1 &&
+    moves.includes("--change") &&
+    moves.every((flag) => !MEMBER_MOVES.includes(flag))
+  ) {
+    return refuse("--change is a call of its own; give one of --build, --check, --change", USAGE);
   }
+  if (moves.length > 1) {
+    return refuse(
+      `${moves.join(" and ")} are ${moves.length === 2 ? "two" : moves.length} calls; give one`,
+      USAGE,
+    );
+  }
+  if (MEMBER_MOVES.includes(moves[0])) return memberMain(moves[0], call, USAGE);
   if (flags["--change"] !== undefined) {
-    if (flags["--build"] || flags["--check"]) {
-      return refuse("--change is a call of its own; give one of --build, --check, --change", USAGE);
-    }
     const strayBuild = ["--lock", "--default", "--family"].find((flag) => flag in flags);
     if (strayBuild) return refuse(`${strayBuild} is a flag of --build, not of --change`, USAGE);
-    return changeCall(call, USAGE);
+    // --why is a list for --settle, one reason for each answer; a change takes one reason.
+    const why = flags["--why"] ?? [];
+    if (why.length > 1) return refuse("--why is given once to --change", USAGE);
+    return changeCall({ ...call, flags: { ...flags, "--why": why[0] } }, USAGE);
   }
   const strayChange = CHANGE_ONLY.find((flag) => flag in flags);
-  if (strayChange) return refuse(`${strayChange} is a flag of --change`, USAGE);
+  if (strayChange) {
+    return refuse(
+      strayChange === "--why"
+        ? "--why is a flag of --change, or of --settle"
+        : `${strayChange} is a flag of --change`,
+      USAGE,
+    );
+  }
   if (flags["--check"]) {
     if (!core) return refuse("say which core to check, with --core DIR", USAGE);
     const result = checkCore(core);
