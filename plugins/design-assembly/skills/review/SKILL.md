@@ -127,7 +127,7 @@ Show the user the record, or the pictures with the findings beside them. Do not 
 
 Only after a run with `--out DIR`, and only in this session: the pictures never leave it.
 
-0. Run the review with `--skill <name>` for each skill this session lists. When the owner chose
+0. Run the review with `--skill <name>` for each skill this session lists. Give each name a flag of its own, written out in the call: `--skill one-skill --skill another-skill`, never several names in one value, whether joined by a space or joined by a comma or a semicolon. Names kept together in one variable do not become separate arguments in every shell, and the command refuses a value with white space, a comma or a semicolon in it, or an empty one, as a wrong call. When the owner chose
    an eye for the socket and the session has not it, `eyes` is empty and `falling_back` holds a
    line: say it as it is, and the review is the command's run alone.
 1. Read `eyes` in the `--json` answer. Each entry is a skill the socket board names as a plug of

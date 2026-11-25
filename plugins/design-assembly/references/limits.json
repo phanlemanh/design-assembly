@@ -4640,7 +4640,7 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0090"],
+      "where": ["d0090", "d0108"],
       "status": "open",
       "note": "Which skills and servers a session holds is listed by the skill that runs the command, from what the session shows it, and no run with a person and a real session has yet shown the list is whole."
     },
@@ -5449,6 +5449,19 @@
       "where": ["d0107"],
       "status": "open",
       "note": "The base library's own folder is the repository's, and a mandatory rule is not refused for it; but the lint configuration that sets it apart still asks an exemption lint-config of every item whose record holds a file there, so the builder records an exemption for a choice the repository made."
+    },
+    {
+      "id": "session-names-joined-read-as-none",
+      "area": "capabilities",
+      "kind": "wrong-signal",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0108"],
+      "status": "closed",
+      "note": "A flag that takes the names of a session took any value as one name: when a shell passed every name the session lists as one value with spaces in it, the plugs command matched none, said that no measured outside plug was in the repository or the session, ended with 0 and asked nothing. Seen in the stopped run of the trial with a person, where the setup step of the guide asked no plug question.",
+      "closed": "2026-11-25",
+      "closed_by": "d0108: the session names of plugs (--skill, --server, --needs-sign-in) and of review (--skill) take one name a value; a value with white space, a comma or a semicolon in it, or an empty one, is a wrong call that ends with 2, writes nothing, names the flag and the first names, and says to give each name a flag of its own; plugs says how many names of each kind it read, in its short and full answers and in --json; the four skill pages that pass the names say so"
     }
   ]
 }

@@ -19,7 +19,7 @@ folder two levels above this file).
 `--skill <name>` for each skill or slash command the session lists, `--server <name>` for each server it has, and
 `--needs-sign-in <name>` for each server that is there and waits for a sign-in, each as the
 session lists it. The command matches them only to the names the plug files declare (a name under
-a plugin's prefix, `prefix:name`, counts as the name); never add a name the session does not list. `--session` says the names given are all the session
+a plugin's prefix, `prefix:name`, counts as the name); never add a name the session does not list. Give each name a flag of its own, written out in the call: `--skill one-skill --skill another-skill`, never several names in one value, whether joined by a space or joined by a comma or a semicolon. Names kept together in one variable do not become separate arguments in every shell, and the command refuses a value with white space, a comma or a semicolon in it, or an empty one, as a wrong call. Its line `Read from the session:` says how many names of each kind it read; when that is not how many you gave, the names did not reach it as you meant. `--session` says the names given are all the session
 holds; without it, and without any name, a chosen plug only a session holds is not called missing.
 Without `--target` it reads the folder it is run from. Add `--json` for the data, `--dry-run` to
 see which files of the repository would be written and write none (the page of `--out` is still
