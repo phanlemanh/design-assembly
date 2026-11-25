@@ -95,7 +95,7 @@ function readCoreFolder(core) {
 // The exceptions and the follows the owner answered on the waiting list, by the id of the answer,
 // for the questions about this pin: a refusal with its words is an exception with its reason; a
 // keep is a follow, which the repository carries out itself.
-function answeredOf(root, pin, answers) {
+export function answeredOf(root, pin, answers) {
   let waiting;
   try {
     waiting = readWaiting(root);
@@ -130,7 +130,7 @@ function askOfDiffering(answer, held, pin) {
 
 // The answers of the core put into a repository's ledger, the questions for the locked answers it
 // holds otherwise, and where each answer stands. `reasons` and `exceptions` are given now, by id.
-function holdAnswers(root, pinned, { on, reasons = {}, exceptions = {}, ask = true }) {
+export function holdAnswers(root, pinned, { on, reasons = {}, exceptions = {}, ask = true }) {
   const values = memberValues(pinned, memberFiles(root));
   const answered = answeredOf(root, pinned.label, pinned.answers);
   const given = { reasons, exceptions: { ...answered.exceptions, ...exceptions } };

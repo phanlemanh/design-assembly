@@ -75,7 +75,15 @@ scale, shape). Density, elevation, motion and iconography are not.
   answers; `--settle` writes the owner's exceptions in; `--inherit` gives the guide's blueprint
   what the core answers. A machine that built or pinned a core keeps a list of them outside every
   repository, so `new` and `adopt` ask a new repository one question about its family; a
-  repository that stands alone on a machine with no core is never asked about a family.
+  repository that stands alone on a machine with no core is never asked about a family. `--moved`
+  tells a member that its core moved ahead of its pin, answer by answer, where this machine can
+  look at the core's folder (`status` and `inventory` say the same), and with `--draw` shows a
+  change on the repository's own screen, before and after, in light and in dark; `--accept` and
+  `--accept-all` take the core's answer for what a person accepts, and nothing follows by itself.
+  `--publish` records the family owner's leave to publish the core to one private place and says
+  first what would go where; no script calls the network, so the session pushes, after the
+  person's yes. The plugin's one hook (`hooks/hooks.json`) prints one line at the start of a
+  session when something about the core waits in the repository, and nothing otherwise.
 - `/design-assembly:change` retires a block of the store, or merges it into the block of another
   need. It says the impact first: the screens that reach the block's file (every screen when that
   cannot be traced), the frame, the components that import it, the checks that name its file, and

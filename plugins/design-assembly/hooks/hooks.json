@@ -1,0 +1,18 @@
+{
+  "description": "One line at the start of a session when something about the family's core waits in the repository: the core moved ahead of the pin, a question about the core waits on the owner, or a locked answer is held otherwise. Silent in every other case; no model, no network.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "shell": "bash",
+            "timeout": 10,
+            "command": "f=\"${CLAUDE_PLUGIN_ROOT}/scripts/session-line.mjs\"; command -v node >/dev/null 2>&1 && [ -f \"$f\" ] || exit 0; node \"$f\" --hook 2>/dev/null || exit 0"
+          }
+        ]
+      }
+    ]
+  }
+}

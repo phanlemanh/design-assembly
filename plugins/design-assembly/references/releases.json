@@ -408,6 +408,12 @@
       "templates": "f06dec2cb0868de6001caaf8d0267699900ed925",
       "scripts": "1fa0652bb74c861b2e9567a651e6481242d2a167",
       "tool": "3394f9c9469953fea0e66f8d989109a7802c4d6c"
+    },
+    {
+      "version": "0.63.0",
+      "templates": "d18f86b4618d71dc818fd4964c9a17df383c11f7",
+      "scripts": "1eb80be7ff04421e9f41c129544eed1287d1c64a",
+      "tool": "2341365bca0416aad9280e7e60314dc57613c3a3"
     }
   ]
 }

@@ -121,7 +121,7 @@ export function decided(blueprint) {
 }
 
 // One option of the color section: the theme the source color gives, as the guide would write it.
-function colorOption(source, label, state, css) {
+export function colorOption(source, label, state, css) {
   const inputs = {
     sourceColor: source,
     conformanceLevel: state.conformanceLevel,
@@ -222,7 +222,7 @@ export function around(color) {
 
 // The framework's own type sizes, written out: what the standard scale looks like even in a
 // repository whose stylesheet has a modular scale today.
-function standardType(target, stylesheet) {
+export function standardType(target, stylesheet) {
   const styles = loadStyles(target, stylesheet);
   const floor = { ...styles, css: withoutBlock(styles.css) };
   const found = TYPE_VARIABLES.map((name) => [name, resolve(floor, ":root", name)?.value]).filter(
@@ -851,11 +851,14 @@ export function renderSheet(plan, images) {
 <body>
 <h1>Specimen sheet</h1>
 <p>${escape(
-    plan.sections.every((section) => !section.key)
-      ? "The repository's own screen as it is now, beside the same screen with what the blueprint decides."
-      : plan.sections.every((section) => section.id === "record")
-        ? "The repository's own screen with a record open, once per arrangement, at the widest and the narrowest width its pages are checked at. Answer with a letter."
-        : `The repository's own screen, once per option. Every option shown already meets the rules of the conformance level ${plan.state.conformanceLevel}. Answer with a letter.`,
+    // A sheet drawn for another command says in its own words what it shows.
+    plan.lede
+      ? plan.lede
+      : plan.sections.every((section) => !section.key)
+        ? "The repository's own screen as it is now, beside the same screen with what the blueprint decides."
+        : plan.sections.every((section) => section.id === "record")
+          ? "The repository's own screen with a record open, once per arrangement, at the widest and the narrowest width its pages are checked at. Answer with a letter."
+          : `The repository's own screen, once per option. Every option shown already meets the rules of the conformance level ${plan.state.conformanceLevel}. Answer with a letter.`,
   )}</p>
 ${body}
 </body>
@@ -865,7 +868,7 @@ ${body}
 
 // Draws the plan: opens the repository's first screen in a browser, puts each option's values on
 // the page and takes a picture. Returns why it could not.
-async function draw(target, plan, out) {
+export async function draw(target, plan, out) {
   const stage = await openStage(target);
   if (stage.problem) return { problem: stage.problem };
   const reach = shotsOf(

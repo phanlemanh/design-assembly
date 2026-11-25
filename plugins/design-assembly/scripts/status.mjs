@@ -50,6 +50,7 @@ import { socketsOf } from "./capabilities.mjs";
 import { pushedLines } from "./send-out.mjs";
 import { gateProblem, seenMissing } from "./apply.mjs";
 import { memberLines, memberStatus } from "./core-marks.mjs";
+import { movedLines, movedOf } from "./core-moved.mjs";
 import {
   SEEN_DECISION,
   SEEN_TEST,
@@ -610,10 +611,15 @@ function readLedgers(root) {
     missing: missingFloor(root),
     pushed: pushedLines(root),
     unwhole: unwholeOf(root),
-    // A repository of a family: where each answer of the core it pinned stands. Null otherwise.
-    core: memberStatus(root),
+    // A repository of a family: where each answer of the core it pinned stands, and whether the
+    // core moved ahead of the pin where its folder can be looked at. Null otherwise.
+    core: withMoved(root, memberStatus(root)),
   };
 }
+
+// What a member's status says of its core with whether the core moved ahead of the pin; null on a
+// repository of no family, which reads no list and no folder outside it.
+const withMoved = (root, core) => (core ? { ...core, moved: movedOf(root) } : core);
 
 // The values of the foundations that status --roles reports as not whole, in its order: on a
 // repository the guide wrote, each value it declares that lacks the owner's word or a row with its
@@ -803,7 +809,7 @@ export function report(result) {
     ...result.rhythms.map((rhythm) => `  ${rhythm.name}: ${rhythm.says}`),
     "",
   ];
-  if (result.core) lines.push(...memberLines(result.core), "");
+  if (result.core) lines.push(...memberLines(result.core), ...movedLines(result.core.moved), "");
   if (waiting.length === 0) {
     lines.push("waiting on the owner: nothing in the ledgers or the waiting list");
   } else {

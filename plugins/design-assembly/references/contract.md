@@ -248,6 +248,20 @@ first: a copy that differs, a file missing, a part of a wrong or newer shape, is
 why, and the repository inherits nothing; its own answers stand. The gate, where it holds the core's
 locked answers, says so in red.
 
+The core's folder may move ahead of the pin: its `answers.json` is then not the one copied. Nothing
+of the repository follows by itself. A person accepts the change, one answer or all (`core
+--accept`), and the copy then holds the core's answer for each one accepted and its earlier one for
+each one left, in the core's order; an answer the core no longer holds stays in the copy until its
+retiring is accepted. The pin is the hash of that copy, so it moves with every acceptance, and when
+nothing is left the copy is the core's `answers.json` byte for byte and the pin is the core's own.
+The row then has `accepted`, the last acceptance: `by` and `on` (who accepted, and when), `answers`
+(the ids taken), `core` (the first twelve hexadecimal digits of the hash of the core's answers
+then) and `left` (the ids that changed and were not taken, empty when the copy is whole);
+`pin.taken_on` is that day. A row with no `accepted` reads as before. Accepting writes no value of
+the repository: a locked answer it then holds otherwise becomes a question on the waiting list, as
+on joining, and a default it holds otherwise stays, its row marked `changed` with the reason. The
+copy's list of blocks is left as it was copied.
+
 A source may say its `kind`. One other kind has a meaning here, `font`: a typeface the product uses that
 is neither the floor's nor the system's. A source with no `kind`, or with a word of the
 repository's own, is a library as above, and is read as before. A font has `version`, `id`,
@@ -352,8 +366,14 @@ each problem naming the file and the place.
 the answers were first read from, with `repository` (its name), `read_on` (the day) and `commit`
 (where it stood, or null outside git); `members`, the repositories that declared they are of the
 family, each with `repository`, `joined` (a day) and maybe `pin`, empty until a repository declares
-so, the first one included; and `owner`, the person who answered the lock-or-default sheet, with
-`by` and `on`: the family's owner. A member's `pin` is the first twelve hexadecimal digits of the
+so, the first one included; `owner`, the person who answered the lock-or-default sheet, with
+`by` and `on`: the family's owner; and maybe `publish`, the leave to publish the core to a private
+repository (spec 0016, answer 9), absent until a person gives it: `to`, the one place it is given
+for, kept as host and path with no scheme, no user and no secret; `allowed` (`by`, `on`), who gave
+it and when; and `taken_back` (`by`, `on`) once it was taken back. The leave is for the family and
+for that place: another place is asked anew, and a leave taken back sends nothing until a new one
+is given. No command sends anything: the leave is what the session reads before it creates the
+repository and pushes, each time after the person's yes. A member's `pin` is the first twelve hexadecimal digits of the
 hash of `answers.json` as the member copied it: a member joining changes `core.json` and not the
 pin. The command that joins writes the member into the core folder only where the folder can be
 written, and says first what it writes there.
@@ -399,8 +419,11 @@ decisions do not know is the repository's own, maybe a rule of one kind of scree
 proposed in neither set. The core lies outside every git work tree but its own: a folder inside a
 repository is refused, and the root of a repository made for the core is taken. Its files keep
 names, never an e-mail address. `core --change` changes one answer of a core in its folder, its
-value, its hold, or an answer added, and writes nothing into a member repository and tells no
-member: a member learns of it when it next reads the core.
+value, its hold, or an answer added, and writes nothing into a member repository. A member learns
+of it where it can look at the core's folder: `status`, `inventory` and `core --moved` name each
+answer that changed, with what it was in the copy, what it is in the core, and who changed it,
+when and why as its `history` says; each answer added; and each the core no longer holds. A core
+that cannot be looked at is said, never an error, and the member goes on with its copy.
 
 ## Not a ledger: the machine's list of cores
 
@@ -410,7 +433,24 @@ file on the machine, outside every repository: the file `DESIGN_ASSEMBLY_CORES` 
 `$XDG_CONFIG_HOME/design-assembly/cores.json`, else `~/.config/design-assembly/cores.json`. No
 command sends it anywhere, and none writes over a list it cannot read. With a core in it that can be
 read, `new` and `adopt` ask a repository that declares no family one question, whether it is of that
-family; a list missing or that cannot be read asks nothing and says no error.
+family; a list missing or that cannot be read asks nothing and says no error. A member finds its
+core's folder through the list, by the family's name, and where the list holds more than one core
+of that name, by the one whose members name the repository. The list may also hold `pushed`, each
+push of a core the session made and recorded: `path` (the core's folder), `to` (the place), `on`,
+`by` and `state` (a short hash of the folder's files as pushed), the last push to each place; it is
+kept here and not in the core's folder, so that recording a push changes nothing of what was
+pushed.
+
+## Not a ledger: the line at the start of a session
+
+The plugin has one hook (spec 0016, answer 12), declared in `hooks/hooks.json` for the start of a
+session: it runs `scripts/session-line.mjs`, which prints at most one line, and only when something
+about the family's core waits in the repository the session opened: the core moved ahead of the
+pin, a question about the core waits on the owner, or a locked answer is held otherwise with no
+exception. In every other case it prints nothing: a repository of no family, a folder that is no
+repository, a copy or a list that cannot be read. It reads the declaration first and nothing more
+where there is none; it writes no file, calls no model, no network and no git, and ends well
+whatever goes wrong, so it never stops a session from opening.
 
 ## Not a ledger: the waiting list
 

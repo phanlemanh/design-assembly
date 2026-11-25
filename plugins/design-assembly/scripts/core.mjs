@@ -13,6 +13,8 @@
 //        node core.mjs --ask [--target DIR] [--json]
 //        node core.mjs --decline [--on DATE] [--dry-run] [--target DIR] [--json]
 // The moves of a member are in core-join.mjs, and say there what each ends with.
+//        node core.mjs --moved | --accept ID | --accept-all | --publish   (core-moved-call.mjs:
+//        a member learns the core moved and accepts it; the leave to publish a core)
 //        node core.mjs --change ID --core DIR --by NAME --why TEXT [--value VALUE]
 //                      [--hold locked|default] [--from DIR] [--on DATE] [--dry-run] [--json]
 // Changing an answer of a built core is scripts/core-change.mjs (slice 4 of item 7.1).
@@ -40,6 +42,7 @@ import { changeOf, finish, readCall, Refusal, refuse, start } from "./command.mj
 import { changeCall } from "./core-change.mjs";
 import { MEMBER_FLAGS, MEMBER_MOVES, MEMBER_USAGE, memberMain } from "./core-join-call.mjs";
 import { addLine } from "./core-list.mjs";
+import { MOVED_FLAGS, MOVED_MOVES, MOVED_USAGE, movedMain } from "./core-moved-call.mjs";
 import { givenProblem, givenValue, placeOf, readFirst, sheetOf } from "./core-read.mjs";
 
 const WIDTH = 100;
@@ -345,7 +348,8 @@ const USAGE =
   "       node core.mjs --build --family NAME --core DIR --by NAME [--lock ID]... [--default ID]... [--value ID=VALUE]... [--on DATE] [--dry-run] [--target DIR] [--json]\n" +
   "       node core.mjs --check --core DIR [--json]\n" +
   "       node core.mjs --change ID --core DIR --by NAME --why TEXT [--value VALUE] [--hold locked|default] [--from DIR] [--on DATE] [--dry-run] [--json]\n" +
-  MEMBER_USAGE;
+  MEMBER_USAGE +
+  MOVED_USAGE;
 const FLAGS = {
   "--family": "value",
   "--core": "value",
@@ -361,6 +365,7 @@ const FLAGS = {
   "--hold": "value",
   "--from": "value",
   ...MEMBER_FLAGS,
+  ...MOVED_FLAGS,
 };
 const BUILD_ONLY = ["--lock", "--default", "--value", "--by", "--on", "--dry-run"];
 const CHANGE_ONLY = ["--hold", "--from", "--why"];
@@ -372,13 +377,13 @@ async function main(args) {
   if (call.help) return void stdout.write(USAGE);
   const { flags } = call;
   const core = flags["--core"] === undefined ? null : path.resolve(flags["--core"]);
-  const moves = ["--build", "--check", "--change", ...MEMBER_MOVES].filter(
+  const moves = ["--build", "--check", "--change", ...MEMBER_MOVES, ...MOVED_MOVES].filter(
     (flag) => flags[flag] !== undefined,
   );
   if (
     moves.length > 1 &&
     moves.includes("--change") &&
-    moves.every((flag) => !MEMBER_MOVES.includes(flag))
+    moves.every((flag) => !MEMBER_MOVES.includes(flag) && !MOVED_MOVES.includes(flag))
   ) {
     return refuse("--change is a call of its own; give one of --build, --check, --change", USAGE);
   }
@@ -389,6 +394,7 @@ async function main(args) {
     );
   }
   if (MEMBER_MOVES.includes(moves[0])) return memberMain(moves[0], call, USAGE);
+  if (MOVED_MOVES.includes(moves[0])) return movedMain(moves[0], call, USAGE);
   if (flags["--change"] !== undefined) {
     const strayBuild = ["--lock", "--default", "--family"].find((flag) => flag in flags);
     if (strayBuild) return refuse(`${strayBuild} is a flag of --build, not of --change`, USAGE);

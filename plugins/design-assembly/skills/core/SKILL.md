@@ -1,14 +1,14 @@
 ---
 name: core
-description: Build the core of a family of products — the answers the repositories of one family share, each locked or a default, in a folder of its own on this machine — from the answers a person settled in the family's first repository, after the person answers the lock-or-default sheet; check the shape of a core folder; let the family's owner change an answer of the core (its value, locked or a default, or an answer added), each change with who, when and why; and let a repository declare its family and pin the core, compare the answers it already holds, and settle the owner's answers about those that differ. Use when a second product of the same family uses the plugin and the user says the repositories belong together ("this app is of the same family as that one", "share the design answers between our products", "make a core for the family", "join our family core", "check our core folder", "lock the source colour for the whole family", "change the family's widths"), or when new or adopt asked whether a repository is of the same family as a core of this machine. Not for a repository that stands alone, and never to push anything.
+description: Build the core of a family of products — the answers the repositories of one family share, each locked or a default, in a folder of its own on this machine — from the answers a person settled in the family's first repository, after the person answers the lock-or-default sheet; check the shape of a core folder; let the family's owner change an answer of the core (its value, locked or a default, or an answer added), each change with who, when and why; let a repository declare its family and pin the core, compare the answers it already holds, and settle the owner's answers about those that differ; tell a member that its family's core moved ahead of its pin, show a change before and after on the repository's own screen, and accept it answer by answer; and record the family owner's leave to publish the core to a private repository, saying first what would go where. Use when a second product of the same family uses the plugin and the user says the repositories belong together ("this app is of the same family as that one", "share the design answers between our products", "make a core for the family", "join our family core", "check our core folder", "lock the source colour for the whole family", "change the family's widths", "did our core change?", "show me what the core changed", "accept the new brand colour from the core", "put our core on a private repository"), when new or adopt asked whether a repository is of the same family as a core of this machine, or when the line at the start of a session said the core moved, a question about it waits, or a locked answer is held otherwise. Not for a repository that stands alone. No script pushes anything: the session creates a repository and pushes only after the person's yes.
 ---
 
 # Build the core of a family
 
 The core is a folder outside every repository of the family. This command reads the first
 repository and never writes there; it writes the core only after a person answered the sheet, with
-their name and the day. It calls no model and no network, and pushes nothing: making the folder a
-repository somewhere is the user's to do, later.
+their name and the day. No script calls a model or the network, and none pushes: publishing the
+core to a private repository is section 11, done by the session after the person's yes.
 
 Scripts are in `${CLAUDE_PLUGIN_ROOT}/scripts/` (if the variable is not expanded, use the `scripts/`
 folder two levels above this file).
@@ -96,9 +96,9 @@ says so and writes nothing). It ends with `2` and writes nothing for a missing r
 e-mail address in a name, a reason or a value, a value not written as asked, an answer the core does
 not hold given no `--from`, a core of a newer shape (update the plugin), a core that does not hold
 its shape (run `--check`), or a core inside a repository that is not its own. It writes nothing in
-any member repository and tells no member: tell the user members learn of the change when they next
-read the core, which a later slice builds. It commits nothing, even when the core is a repository of
-its own: committing and review are the owner's.
+any member repository: tell the user each member learns the core moved where it can look at this
+folder (section 9), and that a person there accepts the change, answer by answer. It commits
+nothing, even when the core is a repository of its own: committing and review are the owner's.
 
 ## 7. A repository joins the family
 
@@ -139,6 +139,82 @@ defaults the person may change (with the reason under `changed.<key>`: `why`, `b
 are asked as before. The guide's preview and build print, last, what the core answered and who
 settled it when: read that out.
 
-Not built yet: telling a member the core moved ahead of its pin, the line at the start of a
-session, the blocks of the core, leaving a family, renaming a family, and pushing the core
-anywhere.
+## 9. The core moved ahead of the pin
+
+A member keeps a copy of the core, and nothing follows the core by itself. Where this machine can
+look at the core's folder (the machine's list of cores names it), `status`, `inventory` and
+
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/core.mjs --target <repo> --moved`
+
+name each answer that changed (what it was in the copy, what it is in the core, who changed it,
+when and why), each answer added and each the core no longer holds, and, under `here:`, what
+accepting it would meet in this repository. It ends with `1` when the core is ahead, `0` when it is
+where the repository pinned it, and `0` when the folder cannot be looked at: it says why, the
+repository goes on with its copy, and that is no error. A core kept elsewhere on this machine is
+named with `--core <folder>`, and the machine's list then holds it. If the core's list of blocks
+differs it says so and no more: no move takes the blocks of a core yet.
+
+Read the changes to the person. For a change whose value can be seen, show it:
+
+`core.mjs --target <repo> --moved --draw [--only <id>]... [--out <folder>]`
+
+It lists the value before and after for each change, and draws the repository's own screen before
+(A) and after (B), in light and in dark, for the source colour and the type scale; open the sheet
+it names for the person. Where it cannot draw (no browser in the repository, no stylesheet, an
+answer no picture shows) it says why, and the values in words are the answer. It writes nothing of
+the repository's sources.
+
+The person accepts, one answer or all, and you never accept for them:
+
+`core.mjs --target <repo> --accept <id> [--accept <id>]... --by <name>` or
+`core.mjs --target <repo> --accept-all --by <name>`, with `--dry-run` first to show what it writes.
+
+The copy takes the core's answer for each one accepted and keeps its own for the rest; the pin
+moves, and what was left still shows as ahead. No value of the repository is written over: a locked
+answer it then holds otherwise becomes a question `core-<id>-<pin>` on the decision sheet (follow
+the core, or keep it as an exception with the reason: section 7, step 3), and the gate is red until
+the owner answers; a default it holds otherwise stays, recorded as the repository's own. An
+exception given before still stands while the core's answer it was given against did not change.
+It ends with `1` when a changed answer was left or a question waits, and says when the
+repository's exports fall behind (`make design-exports`).
+
+## 10. The line at the start of a session
+
+The plugin's hook prints one line when a session opens in a member where something waits: the core
+moved ahead of the pin, a question about the core waits on the owner, or a locked answer is held
+otherwise with no exception. When you see that line, say it to the person once, in their language,
+and offer to look (section 9, or the decision sheet); do nothing more until they say so. It is
+silent everywhere else; a repository that stands alone never sees it.
+
+## 11. Publish the core to a private repository
+
+Only the family's owner decides this, and no script sends anything. Ask once, after a core is built
+or when the owner brings it up: "Shall I put the core on a private repository, so the family's
+other machines can reach it?" If they say no, the local folder is fully usable as it is: do not ask
+again in this session, and record nothing.
+
+1. Look first: `core.mjs --publish --core <folder> [--to <place>]`. It prints the leave (none,
+   given, or taken back), every file that would go, the place, the remote's name, that the
+   repository is private, and whether the folder is a git repository yet. Read that to the owner.
+2. On their yes, with the place in their words (`host/owner/name`, or the address of the remote):
+   `core.mjs --publish --core <folder> --allow --to <place> --by <name>`. The leave is one line of
+   the core's `core.json`: for this family and this place only. An address that carries a password
+   or a token is refused; never write one.
+3. Run step 1 again. Push only when it prints both `sends:` and `to:`, and only what it lists. If a
+   file is marked as no part of a core, tell the owner before anything goes. Then, in the core's
+   folder, showing each command before you run it:
+   - make the folder a git repository if it is none yet (`git init`), and record its files there;
+   - create the repository private, for example `gh repo create <owner>/<name> --private --source .
+--remote origin`; never public, and where the repository existed already, check that it is
+     private (`gh repo view <owner>/<name> --json visibility`) before anything goes to it;
+   - `git push -u origin <branch>`.
+4. Record it: `core.mjs --publish --core <folder> --pushed --by <name>`. The record is kept in the
+   machine's list of cores, not in the folder that was pushed; step 1 then says when the folder
+   moved past what was pushed.
+
+Ask first every time the place is new: step 1 says so (`a new place is asked first`) when the
+place named, or the folder's remote, is not the one the leave was given for; a yes for the new
+place is a new `--allow`. `core.mjs --publish --core <folder> --revoke --by <name>` takes the leave
+back: nothing is sent from then on, and what was pushed before stays where it is.
+
+Not built yet: the blocks of the core, leaving a family, and renaming a family.
