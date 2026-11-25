@@ -1,7 +1,7 @@
 ---
 type: spec
 title: Tài sản thương hiệu đủ mảng — logo và bộ biểu tượng vào sổ nguồn, cổng giữ chúng, và repo chưa có thì được dựng
-status: needs-approval
+status: approved
 tier: 1
 links:
   - wiki/specs/0008-capabilities-sockets-and-plugs.md
@@ -35,12 +35,15 @@ sources:
   - "chủ repo, 2026-11-25: «được thiết kế cho nhiều người dùng, nhiều thương hiệu và nhiều giai đoạn của dự án […] nên không cứng về màu thương hiệu hay các thành phần»"
   - "chủ repo, 2026-11-25: «Tôi muốn skill logo làm lại theo chuẩn của design assambly và bổ sung mảnh ghép thiếu đó bao gồm cả logo hay icon nếu người dùng không có»"
   - "chủ repo, 2026-11-25: «Soạn đề bài»"
+  - "chủ repo, 2026-11-25: «gộp», lời cho gộp PR 145 mang đề bài khi còn chờ duyệt"
+  - "chủ repo, 2026-11-25: «Duyệt cả mười hai», đáp câu «Duyệt đề bài 0017 theo khuyến nghị cả mười hai câu?»"
 ---
 
 # 0017 Tài sản thương hiệu đủ mảng — logo và bộ biểu tượng
 
-Máy viết ngày 2026-11-25 theo lời chủ repo («Soạn đề bài»). Đề bài chờ duyệt: chưa câu hỏi nào được đáp, chưa gì
-được dựng, và kế hoạch chưa có mục nào cho việc này. Giai đoạn 7 đang mở; đề bài này không thuộc giai đoạn ấy.
+Máy viết ngày 2026-11-25 theo lời chủ repo («Soạn đề bài»). Chủ repo duyệt đề bài và đáp cả mười hai câu hỏi theo
+khuyến nghị cùng ngày («Duyệt cả mười hai»); lời đáp ghi dưới từng câu. Giai đoạn 12 vào kế hoạch cùng lời duyệt ấy và
+chưa mở: giai đoạn 7 đang mở, và giai đoạn 12 mở sau khi mục 7.1 xong (câu hỏi 10). Chưa gì được dựng.
 
 ## Intent
 
@@ -256,8 +259,9 @@ Mỗi dòng chứng bằng một lệnh hay một bản ghi lượt thử.
 
 ## Plan
 
-Đề bài đề xuất một giai đoạn mới, số 12, «Tài sản thương hiệu đủ mảng». Mục 12.0 và giai đoạn chỉ vào kế hoạch cùng
-lời duyệt, như mục 7.0, 10.0 và 11.0. Mỗi lát một PR, gộp theo lời chủ repo.
+Giai đoạn 12, «Tài sản thương hiệu đủ mảng», vào kế hoạch ngày 2026-11-25 cùng lời duyệt, như giai đoạn 11 đã vào. Nó
+đứng sau giai đoạn 7 và chưa mở, nên mọi mục của nó giữ `todo`, kể cả mục 12.0, theo luật của kế hoạch về một giai
+đoạn chưa mở. Mỗi lát một PR, gộp theo lời chủ repo.
 
 1. **12.0 Đề bài** này, chủ repo duyệt.
 2. **12.1 Bộ biểu tượng** (tiêu chí 1, 2, 3, 5 đến 8, 12, 13, 20 và 21), hai lát:
@@ -300,54 +304,66 @@ Không sửa kho của skill từ kho này. Không sửa Repo Standards, deliver
 
 ## Open questions
 
-Mỗi câu kèm một khuyến nghị. Chưa câu nào được đáp.
+Mỗi câu kèm một khuyến nghị. Chủ repo nhận cả mười hai ngày 2026-11-25 («Duyệt cả mười hai»).
 
 1. **Hai loại mới vào sổ nguồn, hay một sổ riêng cho tài sản thương hiệu?** Khuyến nghị: sổ nguồn. Căn cứ: font (0081)
    và lõi (0016, câu hỏi 4) đã đi lối ấy; sổ đã có ghim theo mã băm và giấy phép; hợp đồng không thêm sổ. Từ chối thì
    thêm một sổ mới với một bên viết mới, và hai chỗ cùng nói về giấy phép.
+   Đã nhận: hai loại mới vào sổ nguồn; hợp đồng không thêm sổ. Thay đổi hình dạng vẫn cần người duyệt ở lát dựng nó.
 
 2. **Sàn của dấu là chữ, plugin không tự sinh hình?** Khuyến nghị: có. Căn cứ: luật 2; và một ô chữ cái sinh từ tên là
    một quyết định thương hiệu không ai đưa. Từ chối thì plugin sinh một ô chữ cái từ tên sản phẩm, màu gốc và bo góc,
    việc ấy cần đọc đường nét của chữ, tức thêm một phụ thuộc cho mọi người cài plugin.
+   Đã nhận: sàn của dấu là chữ; plugin không tự sinh hình nào.
 
 3. **Repo chưa có bộ biểu tượng được khuyến nghị bộ mà bộ khởi đầu đang nhập?** Khuyến nghị: có. Căn cứ: hai mảnh của bộ
    khởi đầu đã nhập bộ ấy, nên khuyến nghị bộ khác là để hai bộ trong một repo. Từ chối thì lối dẫn dắt hỏi mà không
    khuyến nghị, và người dùng mới phải tự biết nên chọn gì.
+   Đã nhận: repo chưa có bộ biểu tượng được khuyến nghị bộ mà các mảnh của bộ khởi đầu đang nhập.
 
 4. **Danh mục gói biểu tượng đã biết là dữ liệu của plugin?** Khuyến nghị: có, một tệp tham chiếu sửa được, như danh
    mục bằng chứng đã biết. Nêu tên một thư viện mã nguồn mở không phải nêu tên thương hiệu của người dùng. Từ chối thì
    cổng chỉ thấy thẻ `svg` viết thẳng, và một bộ biểu tượng thứ hai vào repo mà không gì báo.
+   Đã nhận: danh mục gói biểu tượng đã biết là một tệp tham chiếu của plugin, sửa được.
 
 5. **Dấu là mục của chủ repo, máy dừng?** Khuyến nghị: có, như màu thương hiệu. Căn cứ: dấu khó đảo hơn màu, vì nó ra
    ngoài sản phẩm. Từ chối thì tác tử xếp câu hỏi rồi đi tiếp với phương án nó khuyến nghị, và một dấu chưa ai chốt có
    thể lên tới nhánh chính.
+   Đã nhận: dấu là mục của chủ repo; máy dừng, như với màu thương hiệu.
 
 6. **Quyền dùng một dấu ghi ở khoá `licence`, như font?** Khuyến nghị: có. Một khoá, một nghĩa: điều kiện được dùng,
    bằng lời người. Từ chối thì thêm một khoá riêng cho dấu, và hai loại dòng nói cùng một điều bằng hai tên.
+   Đã nhận: quyền dùng một dấu ghi ở khoá `licence`, như font.
 
 7. **Lựa chọn dấu ở tầng nền; câu `icons` ở lại tầng linh kiện?** Khuyến nghị: có. Căn cứ: dấu đứng cạnh họ chữ và màu
    gốc; bộ biểu tượng là thứ linh kiện nhập. Tầng linh kiện chưa có lối dẫn dắt, nên dòng `icons` do lối nhận và lệnh
    viết dòng đặt. Từ chối thì cả hai về tầng nền, và danh mục quyết định chuẩn phải dời một câu.
+   Đã nhận: lựa chọn dấu ở tầng nền; câu `icons` ở lại tầng linh kiện, và dòng của nó do lối nhận và lệnh viết dòng đặt.
 
 8. **Tệp phích nói điều phích cần trên máy bằng một giá trị mới của `needs`?** Khuyến nghị: có. Căn cứ: phích dựng dấu
    không cần tài khoản hay mạng, nhưng cần một bộ chạy và một thư viện vẽ trên máy; hôm nay bảng phích không nói được
    điều ấy, nên người dùng chỉ biết khi nó hỏng. Từ chối thì điều ấy chỉ nằm ở câu mô tả của phích, không lệnh nào đọc.
+   Đã nhận: tệp phích nói điều phích cần trên máy bằng một giá trị mới của `needs`; tên giá trị ấy chốt ở lát dựng nó.
 
 9. **Phích dựng dấu được phát hành cho người dùng khác thế nào?** Khuyến nghị: thành một plugin thứ hai của chính nơi
    phát hành này, sau lượt đo, và chỉ sau khi chủ repo xác nhận nguồn gốc và giấy phép của bộ máy dựng hình mà skill
    dựa vào. Cho tới đó phích chỉ có trên máy của chủ repo, và bảng phích ghi nó vắng ở mọi máy khác. Cần xác nhận: bộ
    máy ấy đến từ một tệp nén, không có kho gốc. Từ chối thì phần dựng dấu chỉ phục vụ một người, và với mọi người dùng
    khác «repo chưa có dấu» dừng ở chữ của sàn.
+   Đã nhận: phích dựng dấu thành một plugin thứ hai của nơi phát hành này, sau lượt đo và sau khi chủ repo xác nhận nguồn gốc và giấy phép của bộ máy dựng hình. Lời xác nhận ấy chưa có: nó là một lời riêng, không nằm trong lời duyệt này.
 
 10. **Dựng lúc nào so với giai đoạn 7?** Khuyến nghị: thêm giai đoạn 12 vào kế hoạch cùng lời duyệt, và mở nó sau khi
     mục 7.1 xong. Căn cứ: lát 2 của mục 7.1 thêm loại lõi vào đúng phần sổ nguồn của hợp đồng mà mục 12.1 cũng sửa. Từ
     chối thì giai đoạn 12 mở song song, như 10 và 11, và hai nhánh cùng sửa một phần của hợp đồng phải gộp bằng tay.
+    Đã nhận: giai đoạn 12 vào kế hoạch cùng lời duyệt, đứng sau giai đoạn 7, và mở sau khi mục 7.1 xong.
 
 11. **Lượt đo của tiêu chí 19 chạy thế nào?** Khuyến nghị: một lượt cho mỗi ca, trên bản sao bỏ đi; trước mỗi lượt máy
     nêu ước lượng token và trần, và chờ lời cho phép. Từ chối thì phích được cắm với chữ «chưa đo», và `plugs` không
     bao giờ hỏi chủ repo chọn nó.
+    Đã nhận: một lượt đo cho mỗi ca, trên bản sao bỏ đi; trước mỗi lượt máy nêu ước lượng token và trần, và chờ lời cho phép.
 
 12. **Cỡ và nét khi dùng biểu tượng có vào phép kiểm ở giai đoạn này?** Khuyến nghị: không. Dòng ghi cỡ và nét, cuốn
     hướng dẫn nêu chúng, và một dòng sổ giới hạn nói không gì giữ. Căn cứ: cỡ được viết bằng nhiều cách trong mã, và
     một phép kiểm đoán sai thì tệ hơn không có. Từ chối thì thêm một lát cho phép kiểm ấy, sau khi đo trên hai repo
     thật xem nó báo sai bao nhiêu lần.
+    Đã nhận: cỡ và nét khi dùng biểu tượng không vào phép kiểm ở giai đoạn này; một dòng sổ giới hạn nói không gì giữ chúng.
