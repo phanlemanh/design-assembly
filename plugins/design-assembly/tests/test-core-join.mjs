@@ -498,7 +498,11 @@ test("the guide on a member: a locked answer is not asked, a default is filled i
   // The guide builds: each row the core answered says so, and the end of the run says who settled it.
   const applied = run("apply.mjs", ["--target", dir], list);
   assert.equal(applied.status, 0, applied.stderr);
-  assert.equal(noteOf(dir, "source-color"), `inherited from the family core at ${pin}`);
+  // A judgment the core answers says who answered it, as the decision sheet writes an answer.
+  assert.equal(
+    noteOf(dir, "source-color"),
+    `inherited from the family core at ${pin}; answered by ${OWNER} on ${BUILT_ON}`,
+  );
   assert.equal(noteOf(dir, "type-scale-values"), `inherited from the family core at ${pin}`);
   const tail = applied.stdout.slice(applied.stdout.indexOf("answered by the family core"));
   assert.match(

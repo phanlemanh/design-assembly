@@ -48,8 +48,10 @@ with a mark (spec 0016): `inherited from the family core at <pin>`; `changed fro
 at <pin>: <why> (by <name> on <day>)`, for a default the repository holds otherwise; or `kept
 against the family core at <pin>: <why> (by <name> on <day>)`, for a locked answer it keeps as an
 exception. `<pin>` is the first twelve hexadecimal digits of the hash of the core's answers as the
-repository copied them. Whatever else the note says follows after `; `. A row with no mark reads as
-before; a row the core has and the ledger lacks is added with its mark and no check, inherited and
+repository copied them. Whatever else the note says follows after `; `. A judgment the core
+answers, and every row the core adds, also ends with `answered by <name> on <day>`, as the decision
+sheet writes an answer: the family's owner, or the person who gave the reason. A row with no mark
+reads as before; a row the core has and the ledger lacks is added with its mark and no check, inherited and
 not held until a check of the repository holds it.
 
 ### blueprint
@@ -236,7 +238,8 @@ derived file.
 
 A source of the kind `core` is the family the repository declared it is of, and the core it pinned
 (spec 0016, answer 4): `design/sources/core.json`, id `core`, since a repository is of one family.
-It has no catalog and offers no block of a library. It has `family`, the name the core gives;
+It offers no block of a library: its `catalog` names the copy's list of blocks, so a tool older
+than the kind reads it as a library that offers nothing. It has `family`, the name the core gives;
 `snapshot`, the folder of the repository its copy of the core is kept in, `design/core`, holding the
 core's `core.json`, `answers.json` and `blocks/index.json`; `pin.files`, each file of that copy with
 its `sha256`, and maybe `pin.taken_on`, the day it was copied; and `joined`, who said the
