@@ -263,6 +263,17 @@ export function takeBlock(root, { block: wanted, need = wanted, to = null, dryRu
         ...mandatoryOff(root, made.record, codeOf, mandatory),
         ...unexempted(root, made.record, codeOf, mandatory),
       ];
+  // A folder the lint configuration sets apart, on a repository whose decisions hold a rule of
+  // the lint, is refused for any item, and neither a patch nor an exemption settles it: said
+  // before anything is written, so nothing is left to take away.
+  if (!record) {
+    const [apart] = mandatoryOff(root, made.record, () => null, mandatory);
+    if (apart) {
+      throw new Refusal(
+        `${apart}. No patch and no exemption settles that: take the block into a folder the configuration does not name, with --to DIR${NOTHING}`,
+      );
+    }
+  }
   // A rule the configuration turns off for the folder the block lands in is not the block's
   // doing: another folder, one the configuration does not name, has none.
   const folders = record

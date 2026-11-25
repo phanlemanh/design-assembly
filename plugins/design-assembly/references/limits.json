@@ -5763,7 +5763,7 @@
       "opened": "2026-11-25",
       "where": ["d0117"],
       "status": "open",
-      "note": "A member's copy of the core holds the code of every block under design/core/blocks, so a formatter, a lint or a type check of the repository that walks the whole repository reads those files as its own: a formatter that rewrites one makes the copy unreadable and the gate red until it is pinned again, and a lint may report code the repository never uses. The plugin writes no ignore line and reads none: the skill says to tell the owner."
+      "note": "A member's copy of the core holds the code of every block under design/core/blocks, so a formatter, a lint or a type check of the repository that walks the whole repository reads those files as its own: a formatter that rewrites one makes the copy unreadable and the gate red until it is pinned again, and a lint may report code the repository never uses. The join says so in a line of its output, with what the owner may want to do; the plugin writes no ignore line and reads none, so nothing checks that the repository's tools stay off the copy."
     },
     {
       "id": "core-copy-holds-every-block",
@@ -5840,7 +5840,7 @@
       "opened": "2026-11-25",
       "where": ["d0117", "d0105"],
       "status": "open",
-      "note": "The move core --take puts a block where the repository keeps its own components, and the rules the block is held to are read as for any item: a configuration file that names that folder is read, as text, as setting it apart, even where it names the folder to hold it to the rules. On the copy of the reference repository the lint configuration names src/components, so a block taken there is refused as breaking every mandatory rule; the move says so before it writes with --dry-run, and a folder the configuration does not name, given with --to, has none of it."
+      "note": "The move core --take puts a block where the repository keeps its own components, beside the library's folder, and the rules the block is held to are read as for any item: a configuration file that names that folder itself is read, as text, as setting it apart, even where it names the folder to hold it to the rules. The standard floor names only the library's own folder, so a block is taken there with no flag; on the copy of the reference repository the lint configuration names src/components itself, so the move refuses before it writes anything and names --to, and a folder the configuration does not name has none of it."
     }
   ]
 }

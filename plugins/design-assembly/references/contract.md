@@ -339,6 +339,14 @@ rule off, `@ts-nocheck`, `@ts-ignore`, `@ts-expect-error`) or for their folder (
 formatter's ignore list, the lint configuration or the type check's) has its exemption; the row
 then says `conform`. The conform command writes the record, and its skill says how.
 
+A configuration file names a folder when it names that folder itself, written whole: maybe from the
+root (`/` or `./` before it), maybe with a glob after it (`<folder>/`, `<folder>/**`). A folder
+inside it that the file names (`<folder>/ui/**`), a folder whose name starts with its name, and the
+folder of that name under another one are other folders. So the base library's folder, set apart
+by the repository, does not set the folder beside it apart, where the repository keeps its own
+components and where a block of the family core lands. The reading is of the text, as before: a
+glob that covers a folder without naming it is not seen.
+
 ### screen-kinds
 
 One page per kind of screen, with the front matter the acceptance kit defines. Eight keys are
@@ -425,8 +433,12 @@ block and the file: a block names at least one file; a `file` is a path inside t
 need, never one that leads out of it (`..`, a path from the root), no part of its name starts with
 a dot, and it is named once; each file is
 there, at `blocks/<need>/<file>`; it is text, UTF-8, since a block is code a member copies as it
-is; and its bytes have the `sha256` listed. A core whose store fails any of these is not joined:
-`core --join` refuses it and writes nothing.
+is; and its bytes have the `sha256` listed. Each word of `adapters` is a kind of adapter this plugin
+knows (`build`, `browser`, `values`, `components`, `source`, `lint`, `routes`): another word would
+make every member read the block as needing what it can never have. A core whose store fails any of
+these is not joined: `core --join` refuses it and writes nothing. The kinds are held where a core is
+checked and joined, not in the shape a member's gate reads its copy by, so a tool copied in before
+a kind existed still reads a copy that names it.
 
 `members`: one file per member repository, named after it, with `version`, `repository` and `needs`,
 each with `need`, `name` and `description` and nothing else: never code, never the text of a file.

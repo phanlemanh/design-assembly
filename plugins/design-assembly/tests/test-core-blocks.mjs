@@ -20,6 +20,7 @@ import {
 import { readIntakeLedger } from "../templates/tools/design-assembly/intake-ledger.mjs";
 import { ledgerText } from "../templates/tools/design-assembly/screen-fragments.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
+import { folderRulesOff, namesFolder } from "../scripts/conform-rules.mjs";
 import { blockPinOf } from "../scripts/core-blocks.mjs";
 
 import { passingFloor } from "./helpers/answered-roles.mjs";
@@ -194,6 +195,25 @@ test("core --check names a need kept twice, a file missing, a hash that differs,
   assert.equal(check(none).status, 1);
 });
 
+test("core --check names an adapter a block needs that is no kind of adapter this plugin knows", () => {
+  const place = coreFolder({ blocks: [rowsBlock({ adapters: ["components", "nonsense"] })] });
+  const wrong = check(place);
+  assert.equal(wrong.status, 1, wrong.stdout);
+  assert.match(
+    wrong.stdout,
+    /blocks\/index\.json\.blocks\[0\]\.adapters\[1\] is nonsense, which is no kind of adapter: one of build, browser, values, components, source, lint, routes/,
+  );
+  // Such a core is not joined: a member would read the block as needing what it can never have.
+  const dir = storeRepo();
+  const before = snapshot(dir);
+  const refused = join(dir, place, listIn());
+  assert.equal(refused.status, 2);
+  assert.match(refused.stderr, /adapters\[1\] is nonsense/);
+  assert.deepEqual(snapshot(dir), before);
+  // A block that needs no adapter at all holds.
+  assert.equal(check(coreFolder({ blocks: [rowsBlock({ adapters: [] })] })).status, 0);
+});
+
 test("a block may say what it is for; a description that is not words is a wrong shape", () => {
   const place = coreFolder({ blocks: [rowsBlock({ description: 7 })] });
   const wrong = check(place);
@@ -225,6 +245,21 @@ test("joining copies the files of every block into the member, and the pin holds
   assert.equal(pinned.files["blocks/many-rows/order-rows.tsx"], sha(ROWS_CODE));
   // Nothing of the member's own code was written: taking a block is a move of its own.
   assert.ok(!existsSync(path.join(dir, MAIN)));
+  // The command says the copy now holds code, and what the owner may want to do about the
+  // repository's own tools. It writes no ignore line.
+  const LINE =
+    /the copy holds the code of 1 block, 2 files under design\/core\/blocks: it is the core's, kept to be taken from, and no file of this repository uses it\. Keep this repository's formatter, lint and type check off design\/core: a file one of them rewrites there makes the copy unreadable until it is pinned again\. No ignore line was written\n/;
+  assert.match(joined.stdout, LINE);
+  assert.match(join(dir, place, list, ["--dry-run"]).stdout, LINE);
+  const data = JSON.parse(join(dir, place, list, ["--json"]).stdout);
+  assert.deepEqual(data.copied_blocks, { blocks: 1, files: 2, folder: "design/core/blocks" });
+  for (const file of [".prettierignore", ".eslintignore", ".gitignore"]) {
+    assert.ok(!existsSync(path.join(dir, file)), file);
+  }
+  // A core with no block says nothing of it: the join prints as it did.
+  const bare = join(storeRepo(), coreFolder({ blocks: [] }), listIn());
+  assert.equal(bare.status, 0);
+  assert.doesNotMatch(bare.stdout, /the copy holds the code/);
 });
 
 test("a repository that joined before copies held the files of blocks still reads; the block is not offered until it pins again", () => {
@@ -800,6 +835,148 @@ test("criterion 11, broken: a block that breaks a mandatory rule is refused as a
   assert.equal(answerSheet(free.dir, "exemptions-many-orders keep", free.list).status <= 1, true);
   assert.equal(intake(free.dir, free.list, "--need", "many-orders", "--file", MAIN).status, 0);
   assert.equal(blocksOf(free.dir).find((block) => block.need === "many-orders").from, "core");
+});
+
+// The lint configuration of the standard floor: the base library's folder is set apart, and no
+// other folder of components is named.
+const FLOOR_LINT = [
+  "export default [",
+  '  { ignores: ["src/components/ui/**", "src/lib/format.ts"] },',
+  '  { files: ["src/components/ui/**/*.tsx"], rules: {} },',
+  "];",
+  "",
+].join("\n");
+// A decision ledger that holds a rule of the lint: with one, a folder set apart from the lint is
+// refused, never exempted.
+const HELD_RULE = [
+  "version: 1",
+  "decisions:",
+  "  - id: whole-class-names",
+  "    layer: foundations",
+  "    kind: standard",
+  '    source: "class names are written whole"',
+  '    check: "eslint:shadcn/require-static-classes"',
+  "",
+].join("\n");
+
+test("a configuration names a folder only when it names that folder, never a folder inside it or one that starts with its name", () => {
+  const named = (text) => namesFolder(text, "src/components");
+  for (const text of [
+    '"src/components"',
+    "src/components/\n",
+    "/src/components/\n",
+    '["./src/components/**"]',
+    '"src/components/**/*.{ts,tsx}"',
+    "src/components",
+  ]) {
+    assert.equal(named(text), true, text);
+  }
+  for (const text of [
+    '"src/components/ui/**"',
+    "src/components/ui/\n",
+    '"src/components-old/**"',
+    '"src/components.bak"',
+    '"packages/app/src/components/**"',
+    '"other-src/components"',
+  ]) {
+    assert.equal(named(text), false, text);
+  }
+});
+
+test("criterion 11: on a repository of the standard floor, the call intake names goes through with no other flag", () => {
+  const { dir, list } = member({
+    "eslint.config.js": FLOOR_LINT,
+    "design/decisions.yaml": HELD_RULE,
+  });
+  assert.equal(intake(dir, list, "--need", OWN, "order", "rows").status, 1);
+  assert.equal(answerSheet(dir, `intake-${OWN} keep`, list).status <= 1, true);
+  // The call is the one intake prints, word for word.
+  const told = intakeJson(dir, list, "--need", OWN).result;
+  assert.equal(told.chosen.take, `core --take many-rows --need ${OWN}`);
+  const [, ...args] = told.chosen.take.split(" ");
+  const dry = JSON.parse(core(["--target", dir, ...args, "--dry-run", "--json"], list).stdout);
+  assert.deepEqual([dry.rules, dry.folders], [[], []]);
+  const down = core(["--target", dir, ...args, "--json"], list);
+  assert.equal(down.status, 0, down.stdout + down.stderr);
+  const taken = JSON.parse(down.stdout);
+  assert.deepEqual([taken.rules, taken.folders, taken.main], [[], [], MAIN]);
+  // The block lands where the repository keeps its own components, beside the library's folder.
+  assert.equal(text(dir, MAIN), ROWS_CODE);
+  assert.equal(conformOwn(dir, list).status, 0);
+  const done = intake(dir, list, "--need", OWN, "--file", taken.main);
+  assert.equal(done.status, 0, done.stdout + done.stderr);
+  assert.equal(blocksOf(dir).find((block) => block.need === OWN).from, "core");
+});
+
+test("an item set apart by its own folder is still refused, and one beside the library's folder is not", () => {
+  const file = "src/components/kit/narrow-list.tsx";
+  const code = COMPONENT("NarrowList");
+  const record = (at) =>
+    json({
+      version: 1,
+      need: "narrow-list",
+      source: "kit",
+      item: "filter-bar",
+      taken: [{ file: at, sha256: sha(code) }],
+      conformed: [{ file: at, sha256: sha(code) }],
+      patches: [],
+      exemptions: [],
+    });
+  // An item of an outside source in a folder the lint configuration sets apart.
+  const apart = storeRepo({
+    [file]: code,
+    "design/decisions.yaml": HELD_RULE,
+    "design/conform/narrow-list.json": record(file),
+    "eslint.config.js": 'export default [{ ignores: ["src/components/kit/**"] }];\n',
+  });
+  const refused = conform(apart, listIn(), "--need", "narrow-list");
+  assert.equal(refused.status, 1);
+  assert.match(
+    refused.stdout,
+    /eslint\.config\.js sets the folder src\/components\/kit of the item apart from every rule of the lint, among them the mandatory shadcn\/require-static-classes/,
+  );
+  assert.deepEqual(
+    folderRulesOff(apart, JSON.parse(text(apart, "design/conform/narrow-list.json"))),
+    [{ rule: "lint-config", file: "eslint.config.js", folder: "src/components/kit" }],
+  );
+  // The same item beside the library's folder, on the standard floor: the configuration names the
+  // library's folder, not the item's.
+  const beside = "src/components/narrow-list.tsx";
+  const floor = storeRepo({
+    [beside]: code,
+    "design/decisions.yaml": HELD_RULE,
+    "design/conform/narrow-list.json": record(beside),
+    "eslint.config.js": FLOOR_LINT,
+  });
+  assert.deepEqual(
+    folderRulesOff(floor, JSON.parse(text(floor, "design/conform/narrow-list.json"))),
+    [],
+  );
+  const held = conform(floor, listIn(), "--need", "narrow-list");
+  assert.equal(held.status, 0, held.stdout);
+});
+
+test("criterion 11, broken: a folder the lint sets apart, where a decision holds a rule, is refused before anything is written, naming --to", () => {
+  const { dir, list } = member({
+    "eslint.config.js": 'export default [{ ignores: ["src/components/**"] }];\n',
+    "design/decisions.yaml": HELD_RULE,
+  });
+  const before = snapshot(dir);
+  for (const more of [[], ["--dry-run"]]) {
+    const refused = takeOwn(dir, list, ...more);
+    assert.equal(refused.status, 2, more.join(" "));
+    assert.match(
+      refused.stderr,
+      /eslint\.config\.js sets the folder src\/components of the item apart from every rule of the lint, among them the mandatory shadcn\/require-static-classes/,
+    );
+    assert.match(
+      refused.stderr,
+      /No patch and no exemption settles that: take the block into a folder the configuration does not name, with --to DIR\. Nothing was written/,
+    );
+    assert.deepEqual(snapshot(dir), before, more.join(" "));
+  }
+  const elsewhere = takeOwn(dir, list, "--to", "src/family");
+  assert.equal(elsewhere.status, 0, elsewhere.stdout + elsewhere.stderr);
 });
 
 test("criterion 11: a folder the repository's configuration names is said before anything is written, and another folder has none of it", () => {

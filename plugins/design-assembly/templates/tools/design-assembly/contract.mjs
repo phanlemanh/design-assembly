@@ -9,7 +9,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
-import { adapterOf } from "./adapters/index.mjs";
+import { ADAPTER_KINDS, adapterOf } from "./adapters/index.mjs";
 import { tokenHex } from "./color.mjs";
 import {
   INTAKE_LEDGER,
@@ -821,6 +821,16 @@ export function coreStoreProblems(dir, data, file = CORE.parts.blocks.file) {
   blocks.forEach((block, index) => {
     if (typeof block?.need !== "string" || !Array.isArray(block.files)) return;
     const at = `${file}.blocks[${index}]`;
+    // An adapter a block needs is a kind this plugin knows: a member that reads another word reads
+    // a block it can never have. Held here, where a core is checked and joined, and not in the
+    // shape a member's gate reads its copy by, so a tool older than a kind still reads the copy.
+    (Array.isArray(block.adapters) ? block.adapters : []).forEach((kind, place) => {
+      if (typeof kind === "string" && !Object.hasOwn(ADAPTER_KINDS, kind)) {
+        problems.push(
+          `${at}.adapters[${place}] is ${kind}, which is no kind of adapter: one of ${Object.keys(ADAPTER_KINDS).join(", ")}`,
+        );
+      }
+    });
     if (block.files.length === 0) {
       problems.push(`${at}.files names no file: a block is its files`);
       return;

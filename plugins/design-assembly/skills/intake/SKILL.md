@@ -56,7 +56,8 @@ The same call, after the answer:
   (`/design-assembly:conform`). Then call intake again with `--file PATH`, as for any item below:
   the row says `from: core`, the block's need in the core as `source`, the pin, the hash and the
   record. A file in the way is never written over. After the row, the repository writes its
-  component manifest again (`make design-components`), as after any component it adds.
+  component manifest again (`make design-components`), as after any component it adds, and its
+  exports where it keeps them (`make design-exports`): the gate is red on each until then.
 - **An item of an outside source:** the question says what it brings (its files, packages, the
   items it asks for, the repository's files it asks to write over), read from the pinned snapshot.
   After the answer, the call gives its install line and does not run it. The line may need the

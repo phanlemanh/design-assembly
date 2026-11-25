@@ -135,8 +135,10 @@ again with `--join`.
 
 The copy also holds the files of every block of the core, under `design/core/blocks/<need>/`, each
 in the pin with its hash. They are the core's, kept to be taken from: no file of the repository
-imports them, and no formatter may rewrite them. Where the repository's formatter or lint walks
-`design/core`, say so to the owner before anything is added to an ignore list.
+imports them, and no formatter may rewrite them. The join says so in a line of its own when it
+copies a block's files, and writes no ignore line: read that line to the owner, and where the
+repository's formatter, lint or type check walks `design/core`, ask before anything is added to an
+ignore list.
 
 ### A block of the core
 
@@ -145,9 +147,13 @@ block answers a need. Once they kept a block of the core, take it down:
 `core.mjs --target <repo> --take <block> [--need <key>] [--to DIR] [--dry-run]`, where `<block>` is
 the block's need in the core and `<key>` the repository's own need when it is another. It copies
 the files out of the copy, fetches nothing, starts the conform record, and says the intake call that
-follows. It ends with `2` and writes nothing on a repository of no family, a copy that cannot be
-read, a block the copy does not hold or whose adapters the repository lacks, a file in the way, or
-a need the ledger already answers. Run again after the copy was pinned again with a newer block, it
+follows. The block lands where the repository keeps its own components, beside the library's
+folder; on a repository of the standard floor that call goes through as `intake` prints it, with no
+other flag. It ends with `2` and writes nothing on a repository of no family, a copy that cannot be
+read, a block the copy does not hold or whose adapters the repository lacks, a file in the way, a
+component of the block's name already in the repository, a need the ledger already answers, or a
+folder the lint configuration itself sets apart while a decision holds a rule of the lint: then it
+names `--to DIR`, a folder the configuration does not name. Run again after the copy was pinned again with a newer block, it
 writes the files that changed, refuses to write over a file changed by hand, and leaves the record
 to `conform --need <key> --taken-down`.
 

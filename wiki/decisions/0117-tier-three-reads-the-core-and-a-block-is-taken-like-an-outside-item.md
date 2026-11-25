@@ -127,6 +127,33 @@ hạng là lát 3 của mục này), nên mọi lõi có khối trong bài kiể
    được); repo đứng một mình không có dòng ấy. Khối lấy từ lõi vẫn mang gốc `external` trong `inventory`.
 9. **Bảng năng lực** thêm một lối `core-take` qua ổ `components`, vì bước ấy ghi bản chuẩn hoá. Không thêm ổ.
 
+10. **Lối mặc định phải đi trọn trên repo của sàn chuẩn: sửa phép đọc cấu hình, không đổi chỗ đặt khối** (sửa theo
+    bài soát độc lập của head 1dc41f9, điểm 1). Phép đọc sẵn có coi một tệp cấu hình là «nêu» thư mục của món khi
+    chữ của nó chứa tên thư mục ấy; sàn chuẩn đặt thư mục của thư viện (`src/components/ui/**`) ra ngoài lint, nên
+    `src/components`, nơi repo giữ thành phần của riêng nó và nơi khối đáp xuống, bị đọc là «đặt ra ngoài mọi luật».
+    Nay một tệp cấu hình nêu một thư mục khi nó nêu **chính thư mục ấy**, viết trọn (có thể kèm `/`, `./` phía trước
+    hay `/`, `/**` phía sau); thư mục con, thư mục trùng đầu tên, và thư mục cùng tên dưới một thư mục khác là thư
+    mục khác (`namesFolder`, `scripts/conform-rules.mjs`).
+    - **Vì sao chọn cách này, không chọn một thư mục mặc định riêng cho khối của họ:** lỗi nằm ở phép đọc, không ở
+      chỗ đặt. Một thư mục riêng chỉ né được nó nhờ tên thư mục chưa xuất hiện trong cấu hình, và để nguyên lỗi cho
+      mọi món khác đặt cạnh thư mục của thư viện (món từ nguồn ngoài, kể từ đề bài 0015). Khối của họ là thành phần
+      của repo sau khi nhập kho, nên nó ở cùng chỗ với thành phần của repo, nơi các luật của repo áp lên nó.
+    - **Phép đọc này dùng chung với món từ nguồn ngoài.** Bài kiểm chứng: món đặt trong thư mục mà cấu hình nêu đích
+      danh (`src/components/kit/**`) vẫn bị từ chối, cùng câu chữ như trước; mọi bài kiểm sẵn có của `conform` và
+      của luật bắt buộc vẫn xanh.
+    - **Khi cấu hình nêu đích danh thư mục đáp** (trên bản sao repo kiểm chứng, tệp lint nêu `src/components`) và
+      sổ quyết định giữ một luật lint: không bản vá hay dòng miễn nào gỡ được, nên `core --take` từ chối **trước khi
+      ghi gì**, kể cả ở `--dry-run`, và chỉ `--to`. Không còn tệp phải gỡ tay trước khi thử lại.
+11. **`core --join` nói bản chép nay giữ mã** (điểm 2): khi chép tệp của khối, đầu ra có một dòng nêu số khối, số
+    tệp, rằng đó là của lõi và không tệp nào của repo dùng nó, và điều chủ repo có thể muốn làm (giữ trình định
+    dạng, lint và phép kiểm kiểu ngoài `design/core`); `--json` có `copied_blocks`. Lệnh không ghi dòng bỏ qua nào.
+    Lõi không có khối thì đầu ra như cũ.
+12. **`adapters` của một khối là loại bộ chuyển plugin biết** (điểm 3): `build`, `browser`, `values`, `components`,
+    `source`, `lint`, `routes`. `core --check` nêu từ nào không phải loại bộ chuyển, và `core --join` từ chối lõi
+    ấy. Phép kiểm nằm ở `coreStoreProblems`, chạy khi kiểm và khi vào họ, chứ không nằm trong hình dạng mà cổng
+    của thành viên dùng để đọc bản chép: nếu sau này plugin thêm một loại, bản công cụ cũ đã chép vào một thành
+    viên vẫn đọc được bản chép có loại ấy, thay vì coi cả bản chép là sai hình dạng và làm cổng đỏ.
+
 ### Trên mọi loại repo
 
 | Repo                                           | Lệnh làm gì                                                                                                            |
@@ -180,6 +207,17 @@ hạng là lát 3 của mục này), nên mọi lõi có khối trong bài kiể
   một cây thư mục lồng; phép chặn `design/core` phân biệt hoa thường; khối được lấy lần hai cạnh một thành phần cùng
   tên khi nêu `--to`; và một khối có thể mang tệp ẩn (như `.git/hooks/…`). Bài soát cũng nêu bài kiểm tiêu chí 1
   không so với đầu ra của main: phép so ấy là lượt so trên bản sao ở trên, không nằm trong bài kiểm.
+- **Bài soát độc lập của phiên điều phối** trên head 1dc41f9 tìm ba điều, sửa cả ba theo lời chủ repo («Gửi cả ba
+  sang sửa»), mỗi bản sửa có bài kiểm đỏ khi thiếu nó: điểm 10, 11 và 12 ở trên. Thêm một đoạn hợp đồng cần người
+  duyệt, ở mục bản chuẩn hoá: «A configuration file names a folder when it names that folder itself…», và một câu ở
+  mục lõi về loại bộ chuyển. Lượt thử trên bản sao của chính kho này ghi ở dưới.
+- **Lượt thử trên bản sao của chính kho này** (sàn chuẩn, `git archive` của nhánh, lõi mẫu một khối): `core --join`
+  in dòng về mã trong bản chép; `intake` nêu `core --take status-note --need status-note`; đúng lời gọi ấy, không
+  thêm cờ nào, chép khối vào `src/components/status-note.tsx` với 0 luật bị tắt; `conform` giữ; `intake --file` ghi
+  `design/intake/status-note.yaml` với `from: core`. Cổng của bản sao đỏ hai dòng thuộc bước của chính repo (sổ thành
+  phần, rồi bản xuất `DESIGN.md`), và xanh sau `make design-components` và `make design-exports`. Lint của bản sao
+  chạy trên khối đã nhập và trên `design/core` không báo gì; `prettier --check` chỉ báo `blocks/index.json` do bài
+  thử viết tay.
 - **Chưa kiểm được:** lint của repo kiểm chứng trên `design/core` (bản sao không có `node_modules`, nên ESLint
   không nạp được cấu hình); và một khối thật, vì chưa lệnh nào đưa khối lên lõi.
 - **Một điều ngoài lát này, chưa sửa:** `core --join` ghi bản chép qua `writeFiles`, mà hàm ấy coi hai tệp JSON

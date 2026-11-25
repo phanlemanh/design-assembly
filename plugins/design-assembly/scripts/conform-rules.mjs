@@ -69,9 +69,22 @@ function foldersOf(root, record) {
   return [...folders].sort((a, b) => a.length - b.length || (a < b ? -1 : 1));
 }
 
+// Whether a text of the configuration names a folder: the folder itself, written whole, maybe from
+// the root (`/` or `./` before it) and maybe with a glob after it (`/`, `/**`). A folder inside it
+// that the text names (`<folder>/ui/**`), a folder whose name starts with its name
+// (`<folder>-old`), and the folder of that name under another one (`packages/app/<folder>`) are
+// other folders: the base library's folder set apart does not set its parent apart.
+export function namesFolder(text, folder) {
+  const escaped = String(folder).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // Before it: nothing that is part of a path. After it: the end of the name, then no further
+  // name of a folder or a file.
+  const named = new RegExp(`(?<![\\w./-])(?:\\.?/)?${escaped}(?![\\w.-])(?!/[\\w.{[-])`);
+  return named.test(String(text));
+}
+
 // Each rule the repository turns off for the item's folder, with the file of the configuration that
-// does it: a file of the configuration that names one of the item's folders. Read as text: a glob
-// that covers the folder without naming it is not seen.
+// does it: a file of the configuration that names one of the item's folders, the folder itself and
+// not one inside it. Read as text: a glob that covers the folder without naming it is not seen.
 export function folderRulesOff(root, record) {
   const folders = foldersOf(root, record);
   const found = [];
@@ -79,7 +92,7 @@ export function folderRulesOff(root, record) {
     for (const file of files) {
       const text = readText(root, file);
       if (text === null) continue;
-      const folder = folders.find((each) => text.includes(each));
+      const folder = folders.find((each) => namesFolder(text, each));
       if (folder) found.push({ rule, file, folder });
     }
   }

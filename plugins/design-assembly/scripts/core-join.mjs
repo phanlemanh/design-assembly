@@ -373,6 +373,12 @@ export function joinCore(root, { core, by, on, dryRun }) {
     core_file: coreWrite,
     list,
     exports,
+    // The code the copy holds since slice 1 of item 7.2: the files of the blocks, when any.
+    copied_blocks: {
+      blocks: new Set(Object.keys(read0.blockFiles).map((file) => file.split("/")[1])).size,
+      files: Object.keys(read0.blockFiles).length,
+      folder: path.posix.join(PINNED_CORE.snapshot, CORE.parts.blocks.folder),
+    },
     files: writtenFiles(written),
     written,
     dry_run: dryRun,

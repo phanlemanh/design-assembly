@@ -91,6 +91,15 @@ const exportLines = ({ exports, dry_run: dryRun }) =>
       ]
     : [];
 
+// The copy holds code once the core has blocks: said by the command, with what the repository's
+// owner may want to do about the repository's own tools. No ignore line is written.
+const copiedLines = ({ copied_blocks: copied }) =>
+  copied?.files > 0
+    ? [
+        `the copy holds the code of ${copied.blocks} block${copied.blocks === 1 ? "" : "s"}, ${copied.files} file${copied.files === 1 ? "" : "s"} under ${copied.folder}: it is the core's, kept to be taken from, and no file of this repository uses it. Keep this repository's formatter, lint and type check off ${path.posix.dirname(copied.folder)}: a file one of them rewrites there makes the copy unreadable until it is pinned again. No ignore line was written`,
+      ]
+    : [];
+
 function joinReport(result) {
   const lines = [
     `${result.dry_run ? "would pin" : "pinned"} the family core ${result.family} (${result.core}) at ${result.pin}: ${result.repository} ${result.again ? "pins it again" : "declares it is of this family"}`,
@@ -109,6 +118,7 @@ function joinReport(result) {
     `in this repository${result.dry_run ? ", would write" : ""}:`,
     ...fileLines(result.written),
     ...exportLines(result),
+    ...copiedLines(result),
   );
   const core = result.core_file;
   lines.push(
