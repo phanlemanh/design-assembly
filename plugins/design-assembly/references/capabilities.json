@@ -47,6 +47,11 @@
       "id": "core",
       "script": "scripts/core-join.mjs",
       "through": ["decision", "reference"]
+    },
+    {
+      "id": "core-leave",
+      "script": "scripts/core-leave.mjs",
+      "through": ["decision", "reference"]
     }
   ],
   "unseen_writes": {
