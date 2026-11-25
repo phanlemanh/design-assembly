@@ -1181,30 +1181,58 @@ test("from a separate working folder of git, the move prints the same and leaves
 
 // ---- no network, no name of a family -------------------------------------------------------------------
 
-test("the move reaches no network, and its files name no family, no product and no repository", () => {
+// The files this slice adds under the plugin.
+const SLICE_FILES = [
+  "scripts/core-leave.mjs",
+  "scripts/core-leave-call.mjs",
+  "tests/test-core-leave.mjs",
+];
+
+test("the move reaches no network, and the family's name is the user's data: it is in no file once the repository left", () => {
   const dir = adopted();
   const place = coreFolder({ colour: primaryOf(dir) });
   const list = listIn();
   const log = path.join(empty(), "network.log");
   const guarded = (args) =>
     core(args, list, { guard: true, env: { DESIGN_ASSEMBLY_NETWORK_LOG: log } });
+  // Every file of a folder that holds the family's name.
+  const holding = (folder) =>
+    snapshot(folder)
+      .filter((line) => !line.endsWith("/"))
+      .map((line) => line.split(" ")[0])
+      .filter((file) => readFileSync(path.join(folder, file), "utf8").includes(FAMILY));
   assert.equal(guarded(["--target", dir, "--join", "--core", place, "--by", MEMBER]).status, 0);
+  // While a member, the name is in the declaration and the copy of the core, and nowhere else.
+  assert.deepEqual(holding(dir).sort(), ["design/core/core.json", PINNED_CORE.file]);
   assert.equal(
     guarded(["--target", dir, "--leave", "--by", MEMBER, "--why", WHY, "--dry-run"]).status,
     0,
   );
-  assert.equal(guarded(["--target", dir, "--leave", "--by", MEMBER, "--why", WHY]).status, 0);
+  const said = guarded(["--target", dir, "--leave", "--by", MEMBER, "--why", WHY]);
+  assert.equal(said.status, 0, said.stderr);
   assert.ok(!existsSync(log) || readFileSync(log, "utf8") === "", "the network was reached");
-  // Once it left, no file of the repository holds the family's name.
-  const holding = snapshot(dir)
-    .filter((line) => !line.endsWith("/"))
-    .map((line) => line.split(" ")[0])
-    .filter((file) => readFileSync(path.join(dir, file), "utf8").includes(FAMILY));
-  assert.deepEqual(holding, []);
-  for (const file of ["scripts/core-leave.mjs", "scripts/core-leave-call.mjs"]) {
+  // Once it left, no file of the repository holds the name: not a mark, not the blueprint; the
+  // core keeps it in its declaration alone.
+  assert.deepEqual(holding(dir), []);
+  assert.deepEqual(holding(place), ["core.json"]);
+  // Nor does a file this slice adds to the plugin, but for this test, which is where the sample is.
+  for (const file of SLICE_FILES.filter((one) => one !== "tests/test-core-leave.mjs")) {
     const words = readFileSync(path.join(PLUGIN, file), "utf8");
-    assert.ok(!words.includes(FAMILY) && !words.toLowerCase().includes("quillon"), file);
-    assert.doesNotMatch(words, /onehub|onemount|inventory-app/i, file);
+    assert.ok(!words.includes(FAMILY), file);
+    assert.ok(!words.toLowerCase().includes(FAMILY.split(" ")[0].toLowerCase()), file);
+  }
+});
+
+test("the files of the move name no repository the tests are run beside", () => {
+  // The repositories this machine checks the plugin against, when they are named: none of their
+  // names is in a file this slice adds, this test included.
+  const beside = [env.DESIGN_ASSEMBLY_REFERENCE_LEDGER, env.DESIGN_ASSEMBLY_KIT]
+    .filter(Boolean)
+    .map((value) => path.basename(path.resolve(value)).toLowerCase())
+    .filter((name) => name.length > 3);
+  for (const file of SLICE_FILES) {
+    const words = readFileSync(path.join(PLUGIN, file), "utf8").toLowerCase();
+    for (const name of beside) assert.ok(!words.includes(name), `${file} names ${name}`);
   }
 });
 
