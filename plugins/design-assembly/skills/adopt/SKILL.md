@@ -110,10 +110,15 @@ Ask together, in one message: what `needs a person` lists, and, when the preview
 `rows of yours with no check, that could have one` table, the last question below. Ask nothing
 else:
 
+- `family`, when `needs a person` lists it: whether this repository is of the same family as a core
+  this machine keeps. One question, asked once. Yes: follow `/design-assembly:core`, step 6, then
+  run the preview again. No: `core.mjs --target <repo> --decline`; it is not asked again.
 - The conformance level, AA or AAA. Show the ratios first. Pass the answer as `--conformance-level`.
 - The product type. Pass the answer as `--product-type`.
 - Whether the primary color role the script shows is the decided brand colour. Only on a yes, pass
-  `--record source-color`.
+  `--record source-color`. On a repository of a family whose core settled the colour, the script
+  does not ask it: the row is written as inherited. Where the core locks another colour, the
+  question is the core's, on the decision sheet (`/design-assembly:core`, step 6).
 
 - Whether rows of theirs that have no check should get the one the script found. Read the list
   to them. Only for the rows they name, pass `--hold <id>,<id>`: each gains one `check:` line and
@@ -164,6 +169,9 @@ only through the guide.
 Running adopt again adds only what is new. A row already in the ledger is never rewritten.
 
 ## 5. Say what is now true, and what is not
+
+- On a repository of a family, read out the lines under `answered by the family core`: each answer
+  not asked, with who settled it and when.
 
 - Run the audit again. Give held, claimed and recorded from its `coverage` line, as three numbers,
   and the `beyond the core` line beside them. Never add claimed to held. `make design-rate` counts

@@ -13,6 +13,7 @@ import { CORE, LEDGERS, newerLedgers } from "../templates/tools/design-assembly/
 import { LAYER_ALIASES, readLedger } from "../templates/tools/design-assembly/ledger.mjs";
 import { readWaiting, STAMP, UNCONFIRMED } from "../templates/tools/design-assembly/waiting.mjs";
 import { candidateFrom } from "./bring-in.mjs";
+import { homeOf } from "./core-list.mjs";
 import { Refusal } from "./command.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -37,14 +38,9 @@ const git = (root, ...args) => {
   return run.status === 0 ? run.stdout.trim() : null;
 };
 
-// The main folder of a repository: the one git keeps its history beside, read through the folder
-// git shares with every working folder of it, so a separate working folder (a worktree) gives the
-// repository's main folder and not its own; the folder itself outside git.
-export function homeOf(root) {
-  const common = git(root, "rev-parse", "--path-format=absolute", "--git-common-dir");
-  if (common && path.basename(common) === ".git") return realpathSync(path.dirname(common));
-  return realpathSync(root);
-}
+// The main folder of a repository, which a separate working folder of it shares: kept beside the
+// machine's list of cores, which names a repository by it.
+export { homeOf };
 
 // The name a repository goes by: the name of its main folder.
 export const repositoryName = (root) => path.basename(homeOf(root));

@@ -1,6 +1,6 @@
 ---
 name: core
-description: Build the core of a family of products — the answers the repositories of one family share, each locked or a default, in a folder of its own on this machine — from the answers a person settled in the family's first repository, after the person answers the lock-or-default sheet; and check the shape of a core folder. Use when a second product of the same family uses the plugin and the user says the repositories belong together ("this app is of the same family as that one", "share the design answers between our products", "make a core for the family", "check our core folder"). Not for a repository that stands alone, never to write into a repository of the family, and never to push anything.
+description: Build the core of a family of products — the answers the repositories of one family share, each locked or a default, in a folder of its own on this machine — from the answers a person settled in the family's first repository, after the person answers the lock-or-default sheet; check the shape of a core folder; let a repository declare its family and pin the core, compare the answers it already holds, and settle the owner's answers about those that differ. Use when a second product of the same family uses the plugin and the user says the repositories belong together ("this app is of the same family as that one", "share the design answers between our products", "make a core for the family", "join our family core", "check our core folder"), or when new or adopt asked whether a repository is of the same family as a core of this machine. Not for a repository that stands alone, and never to push anything.
 ---
 
 # Build the core of a family
@@ -70,6 +70,45 @@ first repository.
 holds and `1` with each problem naming the file and the place; `2` when the folder is not there or
 a part has a newer shape than this plugin knows (then the plugin must be updated).
 
-Not built yet: a repository declaring its family and pinning the core, inheriting its answers in
-`new` and `adopt`, the gate holding locked answers, the blocks of the core, and pushing the core
-anywhere.
+## 6. A repository joins the family
+
+Only on the person's word that this repository is of the family: their own words, or their yes to
+the one question `new` or `adopt` asked (`core.mjs --ask` prints it). A no is kept on this machine:
+`node ${CLAUDE_PLUGIN_ROOT}/scripts/core.mjs --target <repo> --decline`; the repository is not asked
+again, and nothing is written in it.
+
+1. Preview: `core.mjs --target <repo> --join --core <folder> --by <name> --dry-run`. Without
+   `--core` it takes the one core of the machine's list, and refuses to guess between two. Show the
+   person what it says: the answers of the core and where each stands in this repository, the
+   files it writes here, and the line it writes into the core folder (the repository joins the
+   members); nothing is written yet.
+2. On their yes, the same call without `--dry-run`. It writes `design/sources/core.json` (the
+   family and the pin), the copy of the core in `design/core`, the mark on each row of the
+   decision ledger whose answer the core holds, and, where the repository's gate is this plugin's,
+   the check `family-core` under `ledger-shapes`. Nothing of the repository's values is written
+   over.
+3. It ends with `1` when a locked answer is held otherwise here: a question waits on the decision
+   sheet for each, `core-<id>-<pin>`. Read it to the owner with its recommendation (follow the
+   core). Keep means follow: the repository changes its value itself, and the gate is red until it
+   does. Refuse, with the reason in their own words, means keep this repository's answer as an
+   exception. Write their answer with `/design-assembly:decide`, then run
+   `core.mjs --target <repo> --settle --by <name>`: the exception goes into the row's note and the
+   gate holds it. A reason the owner gives in the session goes in with `--why <id>=<reason>`.
+   Never answer for them.
+
+A copy of the core that differs from its hashes cannot be read: every move says why, the
+repository inherits nothing and its own answers stand, and the gate is red until it is pinned
+again with `--join`.
+
+## 7. The guide on a member
+
+After the guide's step 1 writes the blueprint, run `core.mjs --target <repo> --inherit`. It writes
+into the blueprint each answer of the core the guide would ask, marked `inherited` with the pin and
+whether it is locked, and prints the guide's questions: `inherited` are not asked, `filled` are
+defaults the person may change (with the reason under `changed.<key>`: `why`, `by`, `on`), `asked`
+are asked as before. The guide's preview and build print, last, what the core answered and who
+settled it when: read that out.
+
+Not built yet: telling a member the core moved ahead of its pin, the line at the start of a
+session, the blocks of the core, leaving a family, changing an answer of the core, and pushing the
+core anywhere.

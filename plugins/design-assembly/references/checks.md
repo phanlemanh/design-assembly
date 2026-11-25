@@ -424,6 +424,25 @@ checkout fetches the main branch from the remote named origin, and is red when i
 `main` names the main branch where it has another name, and `intake` the ledger's path where it is
 not the usual one.
 
+## The locked answers of a family's core
+
+On a repository that declares its family (spec 0016), the `ledger-shapes` row also holds, with the
+check `family-core`, the locked answers of the core it pinned, read from its copy in `design/core`.
+It is red:
+
+- when the copy differs from the hashes `design/sources/core.json` holds, or a part of it is
+  missing or of a wrong or newer shape: pin the core again with `core --join`;
+- for each locked answer that is a value (the source colour, how a record opens, the type scale,
+  the widths) that the repository holds otherwise, in its blueprint, its token file or its widths,
+  when the row of that answer in the decision ledger carries no exception against this pin (`kept
+against the family core at <pin>: <why> (by <name> on <day>)`). A colour is compared by its
+  hexadecimal value, whatever the notation.
+
+A default of the core never makes it red, nor does a rule, whose words are not compared, nor an
+answer the repository holds no value for. The check is laid only on a repository that declares a
+family: by `core --join` where the repository's tool knows it, by adopting and the guide, and by
+`upgrade`; a repository that stands alone has nothing of it.
+
 ## The floating parts of an outside item
 
 The `ledger-shapes` row holds, with the check `floating-parts`, that a browser test opens the
@@ -1036,7 +1055,8 @@ is missing, is written again, said under `gate step` before it is, and the gate 
 measured with it. It never writes a ledger row a person wrote, the stylesheet, the Makefile, or a
 tool of the repository's own. Under the `ledger-shapes` row it adds, said under `check` before it
 does, the checks `taken-down`, `choose-first` and `floating-parts` when the tool data lacks them,
-the last only where the repository lists the adapter's test browser, with its browser test when the
+and `family-core` on a repository that declares its family, `floating-parts` only where the
+repository lists the adapter's test browser, with its browser test when the
 repository has none; it lists the conform records that test will hold and runs no browser. A repository with no copy of
 the tool has nothing to upgrade: that is a wrong call, ending with `2`. `--remove`, in the
 specification, is not built (limit `upgrade-has-no-remove`).

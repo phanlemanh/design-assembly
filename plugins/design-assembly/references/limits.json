@@ -5573,8 +5573,10 @@
       "plan": "fix",
       "opened": "2026-11-25",
       "where": ["d0113", "spec"],
-      "status": "open",
-      "note": "A core holds its answers and nothing reads them yet: no repository declares its family or pins the core, new and adopt do not inherit, and no gate holds a locked answer, which are slice 2 of item 7.1."
+      "status": "closed",
+      "note": "A core holds its answers and nothing reads them yet: no repository declares its family or pins the core, new and adopt do not inherit, and no gate holds a locked answer, which are slice 2 of item 7.1.",
+      "closed": "2026-11-25",
+      "closed_by": "slice 2 of item 7.1 (decision 0114): core --join declares the family as design/sources/core.json and pins a copy compared by hash; new and adopt inherit and say what they skipped; a repository with answers of its own is compared answer by answer; the gate holds the locked values (check family-core). What it still does not do is in core-member-not-told-core-moved, core-rule-words-not-compared, core-value-read-from-plugin-places, core-exception-keyed-to-pin and core-follow-not-carried-out"
     },
     {
       "id": "core-value-is-row-words",
@@ -5608,6 +5610,83 @@
       "where": ["d0113"],
       "status": "open",
       "note": "A value a person gives on the sheet, because the first repository's ledgers did not hold it, is checked for its form only (a colour, an option, a scale, widths), not against what the first repository's screens do: a value that differs from them goes into the core as the person said it."
+    },
+    {
+      "id": "core-member-not-told-core-moved",
+      "area": "core",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0114", "spec"],
+      "status": "open",
+      "note": "A member reads its own copy of the core only: when the core folder moves ahead of the pin, nothing says so until the member pins it again with core --join. Criterion 9, slice 3 of item 7.1."
+    },
+    {
+      "id": "core-rule-words-not-compared",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0114"],
+      "status": "open",
+      "note": "A locked answer that is a rule is never compared word for word with the member's row: it is inherited, and held only where a check of the member holds it (criterion 26). A member whose row of that id says another rule is not told."
+    },
+    {
+      "id": "core-value-read-from-plugin-places",
+      "area": "core",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0114"],
+      "status": "open",
+      "note": "A member's value is read from the blueprint, the token file the plugin writes (color.primary) and the widths: a repository that keeps its own token file under other names, or the type scale and how a record opens anywhere but a blueprint, holds no value the gate can compare, so the locked answer is inherited and not compared. The first repository's colour is read by bring-in's reader, which looks wider."
+    },
+    {
+      "id": "core-exception-keyed-to-pin",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0114"],
+      "status": "open",
+      "note": "An exception to a locked answer and a changed default are kept against the pin they were given at: once the family's answers change and the member pins them again, each is asked again, even where the answer it was about did not change."
+    },
+    {
+      "id": "core-follow-not-carried-out",
+      "area": "core",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0114"],
+      "status": "open",
+      "note": "An owner who answers keep, to follow the core, leaves the change to the repository: no command rewrites a stylesheet or a token file to the core's value, and the gate stays red until the repository holds it."
+    },
+    {
+      "id": "core-list-names-no-repository-moved",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0114"],
+      "status": "open",
+      "note": "The machine's list keeps a no by the repository's main folder: a repository moved or cloned to another folder is asked again, and a core folder moved is left out of the question until it is built or pinned again."
+    },
+    {
+      "id": "core-question-only-when-a-command-runs",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0114"],
+      "status": "open",
+      "note": "The one question about a family is asked by adopt, by the guide's preview and by core --ask; it is not on the waiting list, so a session that runs none of them never sees it."
     }
   ]
 }

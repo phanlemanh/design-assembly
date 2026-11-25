@@ -38,6 +38,15 @@ import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.m
 import { TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
 import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-first.mjs";
 import { FLOATING_CHECK } from "../templates/tools/design-assembly/floating-parts.mjs";
+import {
+  FAMILY_CORE_CHECK,
+  memberFiles,
+  memberValues,
+  readPinnedCore,
+  sameCoreValue,
+} from "../templates/tools/design-assembly/contract.mjs";
+import { familyQuestion } from "./core-list.mjs";
+import { inheritedSummary, markLedger, readMember } from "./core-marks.mjs";
 import { whereRulesApply } from "../templates/tools/design-assembly/lint.mjs";
 import {
   PROBED,
@@ -610,6 +619,8 @@ export function adoption(
             CHOOSE_FIRST_CHECK,
             // The floating parts of each item of an outside source are opened by a browser test.
             ...floatingParts(root).checks,
+            // A repository of a family: the locked answers of the core it pinned.
+            ...(readPinnedCore(root) === null ? [] : [FAMILY_CORE_CHECK]),
           ],
         };
       }
@@ -749,13 +760,29 @@ export function adoption(
       });
     }
   }
+  // A repository of a family: the core it pinned answers what it holds, and is not asked again.
+  const member = readMember(root);
+  const pinned = member && !member.pinned.unreadable ? member.pinned : null;
+  const coreColour = pinned?.answers.find((answer) => answer.id === "source-color") ?? null;
   if (open("source-color")) {
     const primary = styles ? ownValue(styles, ":root", "--primary") : null;
     const followed = primary ? expand(styles, ":root", primary) : null;
     const shown = followed && followed !== primary ? `, which is ${followed}` : "";
+    const sameAsCore =
+      coreColour !== null &&
+      primary !== null &&
+      sameCoreValue("source-color", followed ?? primary, coreColour.value);
     if (record.includes("source-color")) {
       if (primary === null) throw new Error("--record source-color: --primary is not declared");
       add("source-color", { kind: "judgment", source: result.stylesheet }, "recorded");
+    } else if (sameAsCore) {
+      // The family's owner settled this colour; the row says it is inherited.
+      add("source-color", { kind: "judgment", source: result.stylesheet }, "recorded");
+    } else if (coreColour?.hold === "locked" && primary !== null) {
+      result.person.push({
+        id: "source-color",
+        why: `--primary is ${primary} in ${result.stylesheet}${shown}, and the family core this repository pinned locks ${coreColour.value}: follow the core, or keep this colour as an exception with its reason. The question waits on the decision sheet (core --join asked it)`,
+      });
     } else if (primary !== null) {
       result.person.push({
         id: "source-color",
@@ -843,6 +870,31 @@ export function adoption(
         fonts: styles ? readLoads(root, styles.css, result.stylesheet).loads : [],
       },
     );
+  }
+  // A repository of a family: each row of an answer of its core says where it stands, and the
+  // report says what the core answered. One that declares none, while this machine keeps a core,
+  // is asked the one question about a family.
+  if (pinned) {
+    const text = result.files[LEDGER] ?? ledgerText;
+    const values = memberValues(pinned, memberFiles(root, result.files));
+    if (text !== null) {
+      const marked = markLedger(text, pinned, values);
+      if (marked.text !== text) result.files[LEDGER] = marked.text;
+      result.family_core = inheritedSummary(pinned, marked.states);
+    } else {
+      result.family_core = inheritedSummary(pinned);
+    }
+  } else if (member) {
+    result.unreadable.push({
+      id: "family-core",
+      why: `the copy of the family core here cannot be read (${member.pinned.unreadable}): the repository inherits nothing and its own answers stand; pin it again with core --join`,
+    });
+  } else {
+    const asked = familyQuestion(root).question;
+    if (asked) {
+      result.person.push({ id: "family", why: `${asked.question} ${asked.recommendation}` });
+      result.family_question = asked;
+    }
   }
   return result;
 }
@@ -969,6 +1021,7 @@ export function report(result) {
   section("cannot be read here:", result.unreadable, reason);
   section("a proof is there but the ledger cannot point at it yet:", result.unclaimed, reason);
   section("already kept by the repository, and left as it is:", result.kept, reason);
+  if ((result.family_core ?? []).length > 0) lines.push("", ...result.family_core);
   section("needs a person:", result.person, reason);
   return lines;
 }

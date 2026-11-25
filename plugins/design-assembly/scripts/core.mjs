@@ -7,6 +7,12 @@
 //        node core.mjs --build --family NAME --core DIR --by NAME [--lock ID]... [--default ID]...
 //                      [--on DATE] [--dry-run] [--target DIR] [--json]
 //        node core.mjs --check --core DIR [--json]
+//        node core.mjs --join [--core DIR] --by NAME [--on DATE] [--dry-run] [--target DIR] [--json]
+//        node core.mjs --settle --by NAME [--why ID=REASON]... [--on DATE] [--dry-run] [--target DIR]
+//        node core.mjs --inherit [--dry-run] [--target DIR] [--json]
+//        node core.mjs --ask [--target DIR] [--json]
+//        node core.mjs --decline [--on DATE] [--dry-run] [--target DIR] [--json]
+// The moves of a member are in core-join.mjs, and say there what each ends with.
 // Exit: reading, 1 when the sheet waits on a person, 0 when no answer of the repository is settled
 // and there is nothing to build from; building, 0 once the core is written (or would be); checking,
 // 0 when the shape holds and 1 when a part of it is wrong, each problem naming the file and the
@@ -27,6 +33,8 @@ import { renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { isDay } from "../templates/tools/design-assembly/waiting.mjs";
 import { today } from "./asking.mjs";
 import { changeOf, finish, readCall, Refusal, refuse, start } from "./command.mjs";
+import { MEMBER_FLAGS, MEMBER_MOVES, MEMBER_USAGE, memberMain } from "./core-join-call.mjs";
+import { addLine } from "./core-list.mjs";
 import { givenProblem, givenValue, placeOf, readFirst, sheetOf } from "./core-read.mjs";
 
 const WIDTH = 100;
@@ -220,12 +228,15 @@ export function buildCore(
       writeFileSync(full, renderJson(data, WIDTH));
     }
   }
+  // The machine's list of cores gains the one built, so the next repository is asked about it.
+  const list = addLine({ family, path: real(core).path, on, how: "built" }, { dryRun });
   return {
     first: firstOf(first),
     family,
     core,
     answers,
     files,
+    list,
     dry_run: dryRun,
   };
 }
@@ -314,6 +325,9 @@ function buildReport(result) {
     ),
     `${result.dry_run ? "would write" : "wrote"}:`,
     ...result.files.map((file) => `  ${file.change.padEnd(7)} ${file.path}`),
+    result.list.why
+      ? `the machine's list of cores (${result.list.file}) was not written: ${result.list.why}`
+      : `the machine's list of cores${result.dry_run ? " would gain" : " gains"} this core: ${result.list.file}`,
     `nothing was written in ${result.first.repository}; nothing was sent anywhere`,
   ];
   return `${lines.join("\n")}\n`;
@@ -327,7 +341,8 @@ function checkReport({ core, version, problems }) {
 const USAGE =
   "usage: node core.mjs [--target DIR] [--family NAME] [--core DIR] [--json]\n" +
   "       node core.mjs --build --family NAME --core DIR --by NAME [--lock ID]... [--default ID]... [--value ID=VALUE]... [--on DATE] [--dry-run] [--target DIR] [--json]\n" +
-  "       node core.mjs --check --core DIR [--json]\n";
+  "       node core.mjs --check --core DIR [--json]\n" +
+  MEMBER_USAGE;
 const FLAGS = {
   "--family": "value",
   "--core": "value",
@@ -339,6 +354,7 @@ const FLAGS = {
   "--by": "value",
   "--on": "value",
   "--dry-run": "switch",
+  ...MEMBER_FLAGS,
 };
 const BUILD_ONLY = ["--lock", "--default", "--value", "--by", "--on", "--dry-run"];
 const blank = (value) => value === undefined || String(value).trim() === "";
@@ -349,9 +365,14 @@ async function main(args) {
   if (call.help) return void stdout.write(USAGE);
   const { flags } = call;
   const core = flags["--core"] === undefined ? null : path.resolve(flags["--core"]);
-  if (flags["--build"] && flags["--check"]) {
-    return refuse("--build and --check are two calls; give one", USAGE);
-  }
+  const moves = ["--build", "--check", ...MEMBER_MOVES].filter((flag) => flags[flag]);
+  if (moves.length > 1)
+    return refuse(
+      `${moves.join(" and ")} are ${moves.length === 2 ? "two" : moves.length} calls; give one`,
+      USAGE,
+    );
+  if (MEMBER_MOVES.includes(moves[0])) return memberMain(moves[0], call, USAGE);
+  if (flags["--why"]) return refuse("--why gives a reason to --settle", USAGE);
   if (flags["--check"]) {
     if (!core) return refuse("say which core to check, with --core DIR", USAGE);
     const result = checkCore(core);
