@@ -11,6 +11,7 @@ import { existsSync, readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 
 import {
+  blockFilesKey,
   CORE,
   coreMarkOf,
   memberFiles,
@@ -19,6 +20,7 @@ import {
   sameCoreValue,
 } from "../templates/tools/design-assembly/contract.mjs";
 import { coreProblem, homeOf, readList } from "./core-list.mjs";
+import { proposalsIn, retiredIn, stateOfProposal } from "./core-records.mjs";
 
 const ANSWERS = CORE.parts.answers.file;
 const BLOCKS = CORE.parts.blocks.file;
@@ -161,7 +163,7 @@ function changeName(copy, now) {
 
 // The answers of the core against the answers a repository copied: each that changed, each added,
 // each the core no longer holds, in the core's order and then the copy's.
-export function answerChanges(copied, current) {
+export function answerChanges(copied, current, retired = {}) {
   const changes = [];
   for (const now of current) {
     const copy = copied.find((item) => item.id === now.id);
@@ -198,6 +200,8 @@ export function answerChanges(copied, current) {
   }
   for (const copy of copied) {
     if (current.some((item) => item.id === copy.id)) continue;
+    // Who retired it, when and why, where the core's folder records it (`retired.json`).
+    const record = retired[copy.id];
     changes.push({
       id: copy.id,
       change: "retired",
@@ -206,6 +210,7 @@ export function answerChanges(copied, current) {
       now: null,
       check: null,
       steps: [],
+      ...(record ? { by: record.by, on: record.on, why: record.why } : {}),
     });
   }
   return changes;
@@ -225,6 +230,69 @@ function hereOf(change, files) {
   };
 }
 
+// The blocks of the core's store against those the repository's copy holds (slice 3 of item 7.2):
+// each added, with who promoted it, when and why; each whose files changed, with who replaced them,
+// when and why, as the block's history says past what the copy holds; and each the store no longer
+// offers, with who retired it, when and why, where the core's folder records it.
+export function blockChanges(copied = [], current = [], retired = {}) {
+  const changes = [];
+  for (const now of current) {
+    const copy = copied.find((item) => item.need === now.need);
+    if (!copy) {
+      changes.push({
+        need: now.need,
+        name: now.name,
+        change: "added",
+        by: now.promoted?.by ?? null,
+        on: now.promoted?.on ?? null,
+        why: now.promoted?.why ?? null,
+        second_use: Boolean(now.second_use),
+      });
+      continue;
+    }
+    if (same(blockFilesKey(copy.files), blockFilesKey(now.files))) continue;
+    const before = Array.isArray(copy.history) ? copy.history.length : 0;
+    const steps = Array.isArray(now.history) ? now.history.slice(before) : [];
+    changes.push({
+      need: now.need,
+      name: now.name,
+      change: "changed",
+      steps,
+      unsigned: steps.length === 0,
+    });
+  }
+  for (const copy of copied) {
+    if (current.some((item) => item.need === copy.need)) continue;
+    const record = retired[copy.need];
+    changes.push({
+      need: copy.need,
+      name: copy.name,
+      change: "retired",
+      ...(record ? { by: record.by, on: record.on, why: record.why } : {}),
+    });
+  }
+  return changes;
+}
+
+// The proposals of this repository the core holds, each with its state, and how many of the
+// family's proposals wait on its owner.
+function proposalsOf(folder, repository) {
+  const all = proposalsIn(folder);
+  return {
+    proposals: all
+      .filter((item) => item.repository === repository && !item.unreadable)
+      .map((item) => ({
+        id: item.id,
+        kind: item.kind,
+        subject: item.subject,
+        on: item.on,
+        state: stateOfProposal(item),
+        ...(item.decided ? { decided: item.decided } : {}),
+      })),
+    proposals_waiting: all.filter((item) => !item.unreadable && !item.decided).length,
+  };
+}
+
 // The core a member pinned against the core's folder now. Null on a repository that declares no
 // family. `state` is `unreadable` (the copy cannot be read: the repository inherits nothing),
 // `unreachable` (the core's folder cannot be looked at, with why), `same` or `ahead`; when ahead,
@@ -240,16 +308,34 @@ export function movedOf(root, { core = null } = {}) {
   const text = readFileSync(path.join(place.path, ANSWERS), "utf8");
   const hash = sha256(text);
   const blocksCopied = (readPinned(root, pinned, BLOCKS) ?? "").toString();
-  const blocksDiffer = sha256(readFileSync(path.join(place.path, BLOCKS))) !== sha256(blocksCopied);
-  const found = { ...base, core: place.path, core_pin: hash.slice(0, PIN_DIGITS), why: null };
+  const blocksNow = readFileSync(path.join(place.path, BLOCKS));
+  const blocksDiffer = sha256(blocksNow) !== sha256(blocksCopied);
+  const retired = retiredIn(place.path);
+  const repository = path.basename(homeOf(root));
+  const found = {
+    ...base,
+    core: place.path,
+    core_pin: hash.slice(0, PIN_DIGITS),
+    why: null,
+    block_changes: blocksDiffer
+      ? blockChanges(
+          pinned.blocks ?? [],
+          JSON.parse(blocksNow.toString()).blocks ?? [],
+          retired.blocks,
+        )
+      : [],
+    ...proposalsOf(place.path, repository),
+  };
   if (hash === pinned.sha256) {
     return { ...found, state: "same", changes: [], form_only: false, blocks_differ: blocksDiffer };
   }
   const files = memberFiles(root);
-  const changes = answerChanges(pinned.answers, JSON.parse(text).answers).map((change) => ({
-    ...change,
-    ...hereOf(change, files),
-  }));
+  const changes = answerChanges(pinned.answers, JSON.parse(text).answers, retired.answers).map(
+    (change) => ({
+      ...change,
+      ...hereOf(change, files),
+    }),
+  );
   return {
     ...found,
     state: "ahead",
@@ -278,7 +364,7 @@ export function changeLines(change) {
   }
   if (change.change === "retired") {
     return [
-      `retired: ${change.id}: it was ${stateWords(change.was)} in the copy, and the core no longer holds it; the core's folder does not say who took it out`,
+      `retired: ${change.id}: it was ${stateWords(change.was)} in the copy, and the core no longer holds it; ${change.by ? `retired ${stepWords(change)}` : "the core's folder does not say who took it out"}`,
     ];
   }
   const what = [
@@ -324,6 +410,40 @@ export const BLOCKS_WORDS =
 export const ACCEPT_WORDS =
   "nothing here changes until a person accepts: core --moved shows each change, core --accept <id> takes one, core --accept-all takes all";
 
+// One change of the core's store as a person reads it.
+export function blockChangeLines(change) {
+  const who = (said) =>
+    said.by ? `by ${said.by} on ${said.on}${said.why ? `, because ${said.why}` : ""}` : null;
+  if (change.change === "added") {
+    return [
+      `block added: ${change.name} (${change.need}); promoted ${who(change) ?? "by no one the store names"}${change.second_use ? "" : "; no second use yet"}`,
+    ];
+  }
+  if (change.change === "retired") {
+    return [
+      `block retired: ${change.name} (${change.need}); ${change.by ? `retired ${who(change)}` : "the core's folder does not say who took it out"}; accepting it (core --accept ${change.need}) leaves a block taken in here as this repository's own`,
+    ];
+  }
+  if (change.unsigned) {
+    return [
+      `block changed: ${change.name} (${change.need}): its files; the store's history does not say who changed them`,
+    ];
+  }
+  return [
+    `block changed: ${change.name} (${change.need}): its files were replaced ${change.steps.map((step) => who(step)).join("; then ")}`,
+  ];
+}
+
+// The proposals of this repository as a person reads them: each that waits, and each the owner
+// answered, with the answer and its reason.
+export function proposalLines(moved) {
+  return (moved.proposals ?? []).map((item) =>
+    item.state === "waiting"
+      ? `proposal ${item.id} of this repository waits on the family's owner since ${item.on}`
+      : `proposal ${item.id} of this repository was ${item.state} by ${item.decided.by} on ${item.decided.on}, because ${item.decided.why}${item.state === "refused" ? ": this repository keeps its own, as it stood" : ": the core changed, and accepting it is here as for any change"}`,
+  );
+}
+
 // The lines `status` and `inventory` print of a member's core against its pin. Empty on a
 // repository that declares no family, and on one whose copy cannot be read, which `status` says.
 export function movedLines(moved) {
@@ -333,7 +453,13 @@ export function movedLines(moved) {
       `  the core's folder cannot be looked at (${moved.why}): whether the core moved is not known, and the repository goes on with its copy`,
     ];
   }
-  const blocks = moved.blocks_differ ? [`  ${BLOCKS_WORDS}`] : [];
+  const blocks = [
+    ...(moved.block_changes ?? []).flatMap((change) =>
+      blockChangeLines(change).map((line) => `    ${line}`),
+    ),
+    ...(moved.blocks_differ ? [`  ${BLOCKS_WORDS}`] : []),
+    ...proposalLines(moved).map((line) => `  ${line}`),
+  ];
   if (moved.state === "same") {
     return [`  the core (${moved.core}) is where this repository pinned it`, ...blocks];
   }

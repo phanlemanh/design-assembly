@@ -45,6 +45,8 @@ import { changeOf, Refusal } from "./command.mjs";
 import { addLine, familyQuestion, homeOf, readList } from "./core-list.mjs";
 import { guideQuestions, markLedger, readMember, settledWords, stateOf } from "./core-marks.mjs";
 import { coreQuestionId } from "./core-moved.mjs";
+import { retiredIn } from "./core-records.mjs";
+import { acceptRetired } from "./core-retire.mjs";
 import { askAll } from "./queue.mjs";
 
 const WIDTH = 100;
@@ -382,6 +384,29 @@ export function joinCore(root, { core, by, on, dryRun }) {
     ),
   });
   Object.assign(files, held.files);
+  // Pinned again: what the core retired since the earlier pin is accepted with it, and becomes the
+  // repository's own as on `core --accept` (slice 3 of item 7.2).
+  const turned =
+    before && !before.unreadable
+      ? acceptRetired(root, {
+          answerIds: before.answers
+            .filter((answer) => !read0.answers.some((now) => now.id === answer.id))
+            .map((answer) => answer.id),
+          blockNeeds: (before.blocks ?? [])
+            .filter(
+              (block) =>
+                !JSON.parse(read0.texts[CORE.parts.blocks.file]).blocks.some(
+                  (now) => now.need === block.need,
+                ),
+            )
+            .map((block) => block.need),
+          answers: before.answers,
+          records: retiredIn(folder),
+          on,
+          files,
+        })
+      : { files: {}, turned: { rows: [], choices: [], blocks: [], not_taken_in: [] } };
+  Object.assign(files, turned.files);
   const check = laidCheck(root);
   if (check.laid === "now") files[THEME] = check.text;
   const exports = exportsBehind(root, files);
@@ -411,6 +436,7 @@ export function joinCore(root, { core, by, on, dryRun }) {
     pin,
     again: Boolean(was || before),
     answers: held.answers,
+    turned: turned.turned,
     check,
     core_file: coreWrite,
     list,

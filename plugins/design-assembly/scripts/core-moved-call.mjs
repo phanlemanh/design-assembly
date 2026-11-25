@@ -23,11 +23,13 @@ import { acceptCore } from "./core-accept.mjs";
 import { addLine } from "./core-list.mjs";
 import {
   ACCEPT_WORDS,
+  blockChangeLines,
   BLOCKS_WORDS,
   changeLines,
   countWords,
   hereWords,
   movedOf,
+  proposalLines,
 } from "./core-moved.mjs";
 import {
   allowPublish,
@@ -134,7 +136,11 @@ function movedReport(moved, listed) {
       if (here) lines.push(`    here: ${here}`);
     }
   }
+  for (const change of moved.block_changes ?? []) {
+    lines.push(...blockChangeLines(change).map((line) => `  ${line}`));
+  }
   if (moved.blocks_differ) lines.push(BLOCKS_WORDS);
+  lines.push(...proposalLines(moved));
   if (moved.state === "ahead") lines.push(ACCEPT_WORDS, "nothing was written");
   return lines;
 }
@@ -154,8 +160,19 @@ function acceptReport(result) {
     ];
   }
   const lines = [
-    `${result.dry_run ? "would accept" : "accepted"} from the family core ${result.family} (${result.core}), as ${result.by} said on ${result.on}: ${result.accepted.length === 0 ? "no answer, only how the file is written" : result.accepted.map((change) => change.id).join(", ")}`,
+    `${result.dry_run ? "would accept" : "accepted"} from the family core ${result.family} (${result.core}), as ${result.by} said on ${result.on}: ${
+      [
+        ...result.accepted.map((change) => change.id),
+        ...(result.blocks_accepted ?? []).map(
+          (change) => `the retiring of the block ${change.need}`,
+        ),
+      ].join(", ") || "no answer, only how the file is written"
+    }`,
   ];
+  for (const change of result.blocks_accepted ?? []) {
+    const [first] = blockChangeLines(change);
+    lines.push(`  ${first.replace(/; accepting it .*$/, "")}`);
+  }
   for (const change of result.accepted) {
     const [first, ...rest] = changeLines(change);
     lines.push(`  ${first}`, ...rest.map((line) => `  ${line}`));
@@ -167,10 +184,30 @@ function acceptReport(result) {
       lines.push(`    here: ${STATE_WORDS[answer.state] ?? answer.state}${here}${question}`);
     }
   }
+  for (const row of result.turned?.rows ?? []) {
+    lines.push(
+      `  the row ${row.id} is this repository's own${result.dry_run ? " once written" : ""}: once ${row.once} from the family core at ${row.pin}, and the core retired it`,
+    );
+  }
+  for (const choice of result.turned?.choices ?? []) {
+    lines.push(
+      `  the blueprint's ${choice.layer}.${choice.key} is this repository's own, under own`,
+    );
+  }
+  for (const block of result.turned?.blocks ?? []) {
+    lines.push(
+      `  ${block.name} (${block.need}, ${block.file}) stays where it is, as this repository's own: its row of the intake ledger says so under own, and still says where it once came from`,
+    );
+  }
+  for (const need of result.turned?.not_taken_in ?? []) {
+    lines.push(`  ${need} was never taken in here: it only leaves the copy`);
+  }
   lines.push(
-    result.whole
-      ? `the pin ${result.dry_run ? "would move" : "moved"} from ${result.pin_was} to ${result.pin}, the core's own: the copy is the core's answers, byte for byte`
-      : `the pin ${result.dry_run ? "would move" : "moved"} from ${result.pin_was} to ${result.pin}: the copy holds the core's answer for what was accepted and the earlier one for what was left, so the core (${result.core_pin}) still shows as ahead`,
+    result.pin === result.pin_was && result.accepted.length === 0
+      ? `the pin stays at ${result.pin}: no answer was accepted`
+      : result.whole
+        ? `the pin ${result.dry_run ? "would move" : "moved"} from ${result.pin_was} to ${result.pin}, the core's own: the copy is the core's answers, byte for byte`
+        : `the pin ${result.dry_run ? "would move" : "moved"} from ${result.pin_was} to ${result.pin}: the copy holds the core's answer for what was accepted and the earlier one for what was left, so the core (${result.core_pin}) still shows as ahead`,
   );
   if (result.left.length > 0) {
     lines.push(`left as they were, still to accept or not: ${result.left.join(", ")}`);

@@ -239,7 +239,9 @@ test("accepting lands whole or not at all: a file that cannot be written leaves 
   assert.equal(gate(dir).status, 0, gate(dir).stderr);
 });
 
-test("the core's list of blocks differing is said, and nothing more of it", () => {
+// Since slice 3 of item 7.2 the look names each block that changed in the store, as it names each
+// answer: here a block added, with who promoted it and when.
+test("the core's list of blocks differing is said, block by block", () => {
   const { dir, place, list } = member();
   // The store gains a block, as the contract states one: its file kept under its need, by its hash.
   const code = "export const DataTable = () => null;\n";
@@ -267,7 +269,12 @@ test("the core's list of blocks differing is said, and nothing more of it", () =
   // The answers are the ones pinned: nothing waits on a person.
   assert.equal(moved.status, 0, moved.stderr);
   assert.match(moved.stdout, /the core's list of blocks is not the one copied here/);
-  assert.doesNotMatch(moved.stdout, /data-table/);
+  assert.match(
+    moved.stdout,
+    new RegExp(
+      `block added: Data table \\(data-table\\); promoted by ${OWNER} on ${CHANGED_ON}; no second use yet`,
+    ),
+  );
   assert.match(status(dir, list).stdout, /the core's list of blocks is not the one copied here/);
   assert.match(inventory(dir, list).stdout, /the core's list of blocks is not the one copied here/);
 });

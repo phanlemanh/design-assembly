@@ -19,7 +19,7 @@ import {
   staysInBlock,
 } from "../templates/tools/design-assembly/contract.mjs";
 import { CORE_ID } from "../templates/tools/design-assembly/sources-ledger.mjs";
-import { componentsOf, fileOf, text } from "./store.mjs";
+import { componentsOf, fileOf, readIntake, readTheme, text } from "./store.mjs";
 
 // The name of the family's store among the stores find walks, and what a row of the intake ledger
 // and a conform record name as where a block of the core came from: the id of the declaration.
@@ -190,11 +190,30 @@ export function coreBlocksBehind(root, records, blind) {
   // On a repository that declares no family, `core` is the id of a library, if of anything: its
   // items are compared as those of any outside source.
   if (!store.declared) return [];
+  // A block the core retired, once accepted, is the repository's own: its row says so under `own`.
+  let owned;
+  try {
+    owned = new Set(
+      readIntake(root, readTheme(root))
+        .blocks.filter((row) => row.own && text(row.from) === CORE_SOURCE)
+        .map((row) => text(row.need)),
+    );
+  } catch {
+    owned = new Set();
+  }
   const found = [];
   for (const record of mine) {
     const need = text(record.need);
     const item = text(record.item) ?? need;
     const said = `${item} (${need})`;
+    if (owned.has(need)) {
+      blind(
+        "outdated",
+        `${said} was taken from the family core, which retired it: the block is the repository's own now, and is compared with no core`,
+        [item],
+      );
+      continue;
+    }
     if (store.unreadable) {
       blind(
         "outdated",

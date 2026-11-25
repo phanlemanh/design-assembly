@@ -5569,9 +5569,9 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-25",
-      "where": ["d0113", "d0115", "spec"],
+      "where": ["d0113", "d0115", "spec", "d0119"],
       "status": "open",
-      "note": "The core command builds a core once, into an empty folder, and since slice 4 of item 7.1 changes one answer at a time with core --change; the family's name, its owner and its first repository are not changed by any command (renaming a family is in no slice of spec 0016), and an answer is not taken out of a core until retiring is built (criterion 24, item 7.2): until then those are edited by hand and checked with core --check."
+      "note": "The core command builds a core once, into an empty folder, and since slice 4 of item 7.1 changes one answer at a time with core --change; since slice 3 of item 7.2 an answer is taken out of a core with core --retire, kept whole in retired.json. The family's name, its owner and its first repository are not changed by any command (renaming a family is in no slice of spec 0016): those are edited by hand and checked with core --check."
     },
     {
       "id": "core-not-declared-by-members",
@@ -5819,9 +5819,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-25",
-      "where": ["d0117"],
+      "where": ["d0117", "d0119"],
       "status": "open",
-      "note": "No command puts a block into a core's store: promoting one, a member's report, a proposal upward and retiring one are slices 2 and 3 of item 7.2. Until then a store is written by hand, in the shape the contract states, and held with core --check; a member reads and takes whatever a store that holds its shape lists."
+      "note": "Since slice 3 of item 7.2 the family's owner fills the store on their word (core --promote, with --replace), a member's proposal granted replaces a block's files, and core --retire takes a block out into retired.json. No command yet records that a second repository took a block in, nor proposes a promotion when a need is met twice: that is the member's report and the proposal of slice 2 of item 7.2. Until then `used_by` names the repository a block was promoted from and those whose proposal replaced it, and `second_use` stays false otherwise."
     },
     {
       "id": "core-copy-holds-code-the-repository-tools-walk",
@@ -5841,9 +5841,9 @@
       "severity": "low",
       "plan": "keep",
       "opened": "2026-11-25",
-      "where": ["d0117"],
+      "where": ["d0117", "d0119"],
       "status": "open",
-      "note": "The copy holds the files of every block of the core, whether the repository takes the block or not, and a file a newer pin no longer lists stays in design/core until someone removes it: no command takes a file of the copy away, and no reader reads a file the pin does not list."
+      "note": "The copy holds the files of every block of the core, whether the repository takes the block or not. Since slice 3 of item 7.2 accepting the retiring of a block takes its files out of the copy and the pin; a file a newer pin no longer lists for another reason, a block replaced with other file names or pinned again with core --join, stays in design/core until someone removes it, and no reader reads a file the pin does not list."
     },
     {
       "id": "core-block-imports-not-read",
@@ -5951,9 +5951,11 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-25",
-      "where": ["d0116", "spec"],
-      "status": "open",
-      "note": "An answer the core no longer holds is reported as retired with nobody named, since the core keeps no record of who took it out, and accepting it drops it from the copy and leaves its row of the decision ledger with the mark of the earlier pin: retiring with its reason and day, and the row becoming the repository's own, are criterion 24 of spec 0016, item 7.2."
+      "where": ["d0116", "spec", "d0119"],
+      "status": "closed",
+      "note": "An answer the core no longer holds is reported as retired with nobody named, since the core keeps no record of who took it out, and accepting it drops it from the copy and leaves its row of the decision ledger with the mark of the earlier pin: retiring with its reason and day, and the row becoming the repository's own, are criterion 24 of spec 0016, item 7.2.",
+      "closed": "2026-11-25",
+      "closed_by": "slice 3 of item 7.2 (decision 0119): retiring keeps the answer whole in the core's retired.json with who, when and why, which core --moved, status and inventory now name; once a member accepts the retiring, the row's mark becomes own since <day>, when the family core retired it, with the reason and the name, and a choice of its blueprint likewise under own. What it still does not do is in core-retiring-unrecorded-names-no-one"
     },
     {
       "id": "core-moved-question-left-on-a-shared-waiting-list",
@@ -6141,6 +6143,116 @@
       "where": ["d0120", "trials"],
       "status": "open",
       "note": "The guide, the change map (affected), the screen list of the guide (src/screens.ts) and the parts of the code still read @/ as src/: a package whose source is elsewhere is read through the answer of source-folders.mjs by the audit, the store's commands, the manifest and the checks that walk the source, not yet by those."
+    },
+    {
+      "id": "core-promote-adapters-are-a-persons-word",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0119"],
+      "status": "open",
+      "note": "The adapters a promoted block needs are the kinds a person names with --adapter, each one the repository it comes from has, or else those of components and source that repository has: nothing reads the block's code for what it reaches, so a block that needs the values or the routes adapter and is promoted with the default is offered to a member that lacks them. See also core-block-imports-not-read."
+    },
+    {
+      "id": "core-promote-licence-is-the-sources-line",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0119"],
+      "status": "open",
+      "note": "Whether a block of an outside source may be passed on rests on the source's licence line, which a person writes in its row, and on a person's word that the line allows it (--licence-allows): the plugin reads no licence file of the source and judges no licence. A source whose row states no line is refused; a line that is wrong is recorded as it is."
+    },
+    {
+      "id": "core-second-use-not-counted",
+      "area": "core",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0119"],
+      "status": "open",
+      "note": "A block promoted on the owner's word says no second use yet, and becomes used by two only when a proposal of another repository replaces its files: a member that takes the block in and uses it as it is is not recorded in used_by, so second_use stays false. Recording the use is the member's report, slice 2 of item 7.2."
+    },
+    {
+      "id": "core-replace-keeps-hashes-not-bytes",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0119"],
+      "status": "open",
+      "note": "Replacing a block's files, by --promote --replace or by a proposal granted, records in the block's history the names and hashes of the files it had, not their bytes: a file the block no longer has leaves its folder, and the earlier block can be read again only from the history of the core's own repository, where it is one."
+    },
+    {
+      "id": "core-retired-need-not-promoted-again",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0119"],
+      "status": "open",
+      "note": "The files of a retired block stay in the core under blocks/<need>/, so the same need is not promoted again: the promotion refuses it, and core --check names a store that offers a need retired.json keeps. A block for that need is promoted under another need."
+    },
+    {
+      "id": "core-retired-block-offered-until-accepted",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0119"],
+      "status": "open",
+      "note": "Tier 3 reads the member's copy and never the core folder, so a block the core retired is still offered by find and taken by core --take until a person accepts the retiring (core --accept, or core --join pinning again): until then core --moved, status and inventory say it was retired, and the repository wins by its pin."
+    },
+    {
+      "id": "core-proposal-carries-a-value-not-a-hold",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0119"],
+      "status": "open",
+      "note": "A proposal carries the value a member holds, or the block's files as it has them, never a hold: a member that wants a lock lowered says so in its reason, and the family's owner lowers it with core --change. A rule is not proposed, its words being its row's."
+    },
+    {
+      "id": "core-proposal-against-a-moved-block-refused",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0119"],
+      "status": "open",
+      "note": "A proposal for a block is made against the core's block as it was, by the hash that named it: once the core's block changed, granting it is refused, the owner refuses it with that reason, and the member proposes again from the newer block."
+    },
+    {
+      "id": "core-proposal-seen-where-the-folder-is",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0119"],
+      "status": "open",
+      "note": "Proposals are files of the core folder: the family's owner sees them only where the folder is reached (core --proposals), a proposal made on one machine reaches another only by the core's own repository, and the first line of a session says a proposal waits in every member, not only where the owner works, since the plugin does not know who the owner is."
+    },
+    {
+      "id": "core-retiring-unrecorded-names-no-one",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0119"],
+      "status": "open",
+      "note": "An answer or a block taken out of the core by hand, or by a plugin older than retired.json, is still read as retired, and once a member accepts it its mark and its row say the core names no one and does not say why: only a retiring made with core --retire carries who, when and why."
     }
   ]
 }

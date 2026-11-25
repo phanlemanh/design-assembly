@@ -262,7 +262,9 @@ function readsBackChanged(before, after, need, added) {
 // The files to write so that the block of `need` in the ledger at `file` holds the keys `added`,
 // such as `retired` and `merged_into`, and nothing else changes. A ledger kept as one file per
 // block changes the block's own file.
-export function ledgerWithChange(root, file, need, added, spelled) {
+// `pending` has texts a move is about to write, read in place of the disk, so two changes of one
+// ledger in one move build on each other.
+export function ledgerWithChange(root, file, need, added, spelled, pending = {}) {
   const refused = () =>
     new Refusal(
       `the intake ledger would not read back with the change to ${need} and every other entry as it was, so nothing was written`,
@@ -288,7 +290,7 @@ export function ledgerWithChange(root, file, need, added, spelled) {
     }
     return { [fragment.file]: content };
   }
-  const before = read(root, file);
+  const before = file in pending ? pending[file] : read(root, file);
   const index = readIntakeLedger(before).blocks.findIndex((entry) => entry?.need === need);
   const content = keepingEndings(before, (said) =>
     withAddedKeys(said, spelled.blocks, index, added, spelled),

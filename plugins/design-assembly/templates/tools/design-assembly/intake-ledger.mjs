@@ -37,6 +37,9 @@ export const INTAKE_KEYS = [
   "conform",
   "searched",
   "nearest",
+  // A block of the family core the core retired, the repository's own since (spec 0016, criterion
+  // 24): since when, who retired it in the core and why.
+  "own",
 ];
 
 // The keys added for the reusable store. A repository that wrote its ledger before them may spell
@@ -54,6 +57,7 @@ const LATER_KEYS = [
   "conform",
   "searched",
   "nearest",
+  "own",
 ];
 
 // The value of `source` that says a block was made by hand, unless the repository writes it its
@@ -161,7 +165,7 @@ export function readIntakeLedger(text) {
 }
 
 // The keys of a block that hold an object whose own keys are named by the contract too.
-const NESTED = ["changed", "retired"];
+const NESTED = ["changed", "retired", "own"];
 
 // Whether a block of a ledger read in the contract's keys was made by hand: its source is the
 // contract's word for that, or the one the ledger gives under `values`.

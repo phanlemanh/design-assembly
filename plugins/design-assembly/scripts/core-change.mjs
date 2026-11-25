@@ -49,7 +49,7 @@ function workTreeOf(dir) {
 // The core to change: its family's name and its answers part. Refused, with nothing written, when
 // it is not a core, holds a part of a newer shape, lies inside a repository that is not its own, or
 // does not hold its shape.
-function readCore(core) {
+export function readCore(core) {
   if (!existsSync(core) || !statSync(core).isDirectory()) {
     throw new Refusal(`${core} is not a folder`);
   }

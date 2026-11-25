@@ -94,7 +94,7 @@ function declarationOf(root) {
 }
 
 // Sets one field of one row of the ledger and changes nothing else of the file.
-function setField(text, id, key, value) {
+export function setField(text, id, key, value) {
   const lines = text.split("\n");
   const isRow = (line) => /^\s*-\s+id:/.test(line);
   const idOf = (line) =>
@@ -117,15 +117,18 @@ function setField(text, id, key, value) {
 // since `on`, who said the repository leaves and why, and the mark it carried. The rest of each
 // note stays. A row whose value only the copy of the core held (its source is the declaration)
 // keeps the value as its source. Gives the text and what was turned, row by row.
-function turnLedger(text, { on, by, why, answers }) {
+// `only`, when given, names the rows turned (the answers the family core retired, criterion 24), and
+// `how` says why the answer is the repository's own: it left its family, or the core retired it.
+export function turnLedger(text, { on, by, why, answers, only = null, how = "left" }) {
   let out = text;
   const rows = [];
   for (const row of parseLedger(text)) {
     const found = coreMarkOf(row.note);
     if (!found.mark) continue;
     const id = String(row.id);
+    if (only && !only.includes(id)) continue;
     const once = { mark: found.mark, pin: found.pin, why: found.why, by: found.by, on: found.on };
-    const head = leftMarkText({ since: on, why, by, once });
+    const head = leftMarkText({ since: on, why: clean(why), by, once, how });
     out = setNote(out, id, [head, found.rest].filter((part) => part !== "").join("; "));
     const turned = { id, once: found.mark, pin: found.pin };
     if (String(row.source ?? "") === PINNED_CORE.file) {
@@ -154,15 +157,36 @@ function settlerOf(layer, key, answers, fallback) {
 // choice once was, inherited (with the pin and the hold) or a default changed (with its reason).
 // A choice once inherited stays a person's answer: it is listed under `confirmed`, with who
 // settled it, so the guide does not write it again as its own proposal. No choice changes.
-function turnBlueprint(blueprint, { on, by, why, pin, answers }) {
+// `only`, when given, names the choices turned, each as `<layer>.<key>`; the others keep their marks.
+// `how` is said under each entry turned when the core retired the answer.
+export function turnBlueprint(blueprint, { on, by, why, pin, answers, only = null, how = "left" }) {
   const layers = {};
   const turned = [];
-  for (const [id, entry] of Object.entries(blueprint.layers ?? {})) {
-    if (!isMap(entry) || (!isMap(entry.inherited) && !isMap(entry.changed))) {
-      layers[id] = entry;
+  for (const [id, whole] of Object.entries(blueprint.layers ?? {})) {
+    if (!isMap(whole) || (!isMap(whole.inherited) && !isMap(whole.changed))) {
+      layers[id] = whole;
+      continue;
+    }
+    const picked = (marks) =>
+      Object.fromEntries(
+        Object.entries(isMap(marks) ? marks : {}).filter(
+          ([key]) => !only || only.includes(`${id}.${key}`),
+        ),
+      );
+    const kept = (marks) =>
+      Object.fromEntries(
+        Object.entries(isMap(marks) ? marks : {}).filter(
+          ([key]) => only && !only.includes(`${id}.${key}`),
+        ),
+      );
+    const entry = { ...whole, inherited: picked(whole.inherited), changed: picked(whole.changed) };
+    const stay = { inherited: kept(whole.inherited), changed: kept(whole.changed) };
+    if (Object.keys(entry.inherited).length + Object.keys(entry.changed).length === 0) {
+      layers[id] = whole;
       continue;
     }
     const { inherited = {}, changed = {}, ...rest } = entry;
+    const said = how === "left" ? {} : { how };
     const own = { ...(isMap(rest.own) ? rest.own : {}) };
     const confirmed = Array.isArray(rest.confirmed) ? [...rest.confirmed] : [];
     const answered = { ...(isMap(rest.answered) ? rest.answered : {}) };
@@ -171,6 +195,7 @@ function turnBlueprint(blueprint, { on, by, why, pin, answers }) {
         since: on,
         by,
         why,
+        ...said,
         once: "inherited",
         ...(mark?.pin ? { pin: mark.pin } : {}),
         ...(mark?.hold ? { hold: mark.hold } : {}),
@@ -182,11 +207,21 @@ function turnBlueprint(blueprint, { on, by, why, pin, answers }) {
       turned.push({ layer: id, key, once: "inherited" });
     }
     for (const [key, reason] of Object.entries(isMap(changed) ? changed : {})) {
-      own[key] = { since: on, by, why, once: "changed", ...(pin ? { pin } : {}), changed: reason };
+      own[key] = {
+        since: on,
+        by,
+        why,
+        ...said,
+        once: "changed",
+        ...(pin ? { pin } : {}),
+        changed: reason,
+      };
       turned.push({ layer: id, key, once: "changed" });
     }
     layers[id] = {
       ...rest,
+      ...(Object.keys(stay.inherited).length > 0 ? { inherited: stay.inherited } : {}),
+      ...(Object.keys(stay.changed).length > 0 ? { changed: stay.changed } : {}),
       ...(confirmed.length > 0 ? { confirmed } : {}),
       ...(Object.keys(answered).length > 0 ? { answered } : {}),
       own,
