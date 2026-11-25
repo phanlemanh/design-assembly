@@ -1,7 +1,8 @@
 // find: whether the store already answers a need, before anything new is made. It reads from the
 // nearest store to the farthest and stops at the first that answers: the repository's own (its
 // intake ledger, its components, its kinds of screen), then the starter kit of this plugin, then
-// the family's store, then the outside sources the repository pinned, in their order; a source the
+// the family's store (the blocks of the family core the repository pinned, read from its copy),
+// then the outside sources the repository pinned, in their order; a source the
 // repository declares before the starter kit is read right after its own store. Words are
 // matched, never meaning: no model is called and nothing is fetched. Read-only; the same repository
 // and the same words always give the same answer. With --out it also hands the answer over as a
@@ -29,6 +30,7 @@ import {
   SOURCES_FOLDER,
 } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { finish, readCall, Refusal, start } from "./command.mjs";
+import { CORE_SOURCE, CORE_WORDS, familyStoreEntry } from "./core-blocks.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { VERSION } from "./stamp.mjs";
 import { componentsOf, fileOf, pinOf, readIntake, readTheme, text } from "./store.mjs";
@@ -102,6 +104,7 @@ function pieceOf(store, tier, said) {
     pin: said.pin ?? null,
     reference: said.reference ?? null,
     ...(said.install ? { install: said.install } : {}),
+    ...(said.adapters ? { adapters: said.adapters } : {}),
     ...(said.component ? { component: said.component } : {}),
     // What the words are matched against, what counts as given whole, and the place of its store
     // among the outside sources; never printed.
@@ -297,10 +300,32 @@ function starterStore(root) {
   ];
 }
 
-// The family's store, tier 3: none exists yet.
-const familyStore = () => [
-  { store: "family", read: null, items: null, why: "no family store exists yet", pieces: [] },
-];
+// The family's store, tier 3: the blocks of the family core the repository pinned, read from its
+// copy of the core. A repository of no family has none, and the entry says so; a copy that cannot
+// be read offers nothing, with why; a block the repository lacks an adapter for is not offered.
+function familyStore(root) {
+  const { blocks, pin, ...entry } = familyStoreEntry(root);
+  return [
+    {
+      ...entry,
+      pieces: blocks.map((block) =>
+        pieceOf(entry.store, 3, {
+          name: block.name,
+          kind: "block",
+          file: block.files[0].kept,
+          files: block.files.map((file) => file.kept),
+          description: block.description,
+          need: block.need,
+          source: CORE_SOURCE,
+          pin,
+          adapters: block.adapters,
+          fields: [block.name, block.need, block.description].filter(Boolean),
+          wholes: [whole(block.name), block.need],
+        }),
+      ),
+    },
+  ];
+}
 
 // The pinned sources split by where each stands on the ladder: before the starter kit and the
 // family's store, or after them, each part in the sources' order (spec 0015).
@@ -412,7 +437,7 @@ export function find(root, { words, kind = null, limit = LIMIT, from = 1 }) {
         ]
       : []),
     { tier: 2, read: () => starterStore(root), unread: ["starter"] },
-    { tier: 3, read: () => familyStore(), unread: ["family"] },
+    { tier: 3, read: () => familyStore(root), unread: ["family"] },
     ...(after.length > 0 || pinned.length === 0
       ? [{ tier: 4, read: () => sourcesStore(after, pinned), unread: ["sources"] }]
       : []),
@@ -460,6 +485,9 @@ function nextOf(matches) {
   if (first.tier === 2) {
     return `${first.name} is in the starter kit: take it in with intake --need ${first.need}, which asks the owner, copies ${first.files.join(", ")} from this plugin, and records it in the intake ledger`;
   }
+  if (first.tier === 3) {
+    return `${first.name} is a block of ${CORE_WORDS}: take it in with intake --need ${first.need}, which asks the owner; core --take ${first.need} then copies ${first.files.join(", ")} from this repository's copy of the core, fetching nothing, and it is conformed before its row is written in the intake ledger`;
+  }
   return `take ${first.name} in with intake --need KEY, which asks the owner, gives its install line${first.install ? ` (${first.install})` : ""} without running it, and records it in the intake ledger`;
 }
 
@@ -481,8 +509,12 @@ function pieceLines(piece) {
   if (piece.props.length > 0) lines.push(`    takes: ${piece.props.join(", ")}`);
   if (piece.variants.length > 0) lines.push(`    variants: ${piece.variants.join(", ")}`);
   if (piece.used_by.length > 0) lines.push(`    used by: ${piece.used_by.join(", ")}`);
+  if (piece.adapters?.length > 0)
+    lines.push(`    needs the adapters: ${piece.adapters.join(", ")}`);
   const from = [piece.from, piece.source].filter(Boolean).join(" ");
-  if (piece.tier !== 1 || piece.from) {
+  if (piece.tier === 3) {
+    lines.push(`    from: ${CORE_WORDS}${piece.pin ? `, pinned ${piece.pin}` : ""}`);
+  } else if (piece.tier !== 1 || piece.from) {
     lines.push(`    from: ${from || "?"}${piece.pin ? `, pinned ${piece.pin}` : ""}`);
   } else if (piece.source) lines.push(`    source: ${piece.source}`);
   if (piece.reference) lines.push(`    see: ${piece.reference}`);

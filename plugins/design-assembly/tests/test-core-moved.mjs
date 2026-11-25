@@ -241,16 +241,19 @@ test("accepting lands whole or not at all: a file that cannot be written leaves 
 
 test("the core's list of blocks differing is said, and nothing more of it", () => {
   const { dir, place, list } = member();
+  // The store gains a block, as the contract states one: its file kept under its need, by its hash.
+  const code = "export const DataTable = () => null;\n";
+  put(place, "blocks/data-table/table.tsx", code);
   put(
     place,
     "blocks/index.json",
     json({
-      version: 1,
+      version: 2,
       blocks: [
         {
           need: "data-table",
           name: "Data table",
-          files: [{ file: "blocks/data-table/table.tsx", sha256: sha("x") }],
+          files: [{ file: "table.tsx", sha256: sha(code) }],
           adapters: [],
           used_by: ["first-app"],
           promoted: { by: OWNER, on: CHANGED_ON },
@@ -259,6 +262,7 @@ test("the core's list of blocks differing is said, and nothing more of it", () =
       ],
     }),
   );
+  assert.equal(core(["--check", "--core", place], list).status, 0);
   const moved = core(["--target", dir, "--moved"], list);
   // The answers are the ones pinned: nothing waits on a person.
   assert.equal(moved.status, 0, moved.stderr);

@@ -21,7 +21,14 @@ import { today } from "./asking.mjs";
 import { finish, Refusal, refuse } from "./command.mjs";
 import { acceptCore } from "./core-accept.mjs";
 import { addLine } from "./core-list.mjs";
-import { ACCEPT_WORDS, changeLines, countWords, hereWords, movedOf } from "./core-moved.mjs";
+import {
+  ACCEPT_WORDS,
+  BLOCKS_WORDS,
+  changeLines,
+  countWords,
+  hereWords,
+  movedOf,
+} from "./core-moved.mjs";
 import {
   allowPublish,
   allowReport,
@@ -127,11 +134,7 @@ function movedReport(moved, listed) {
       if (here) lines.push(`    here: ${here}`);
     }
   }
-  if (moved.blocks_differ) {
-    lines.push(
-      "the core's list of blocks is not the one copied here: no move takes the blocks of a core yet",
-    );
-  }
+  if (moved.blocks_differ) lines.push(BLOCKS_WORDS);
   if (moved.state === "ahead") lines.push(ACCEPT_WORDS, "nothing was written");
   return lines;
 }
@@ -198,11 +201,7 @@ function acceptReport(result) {
   lines.push(
     `in the core folder: ${core.file}: ${core.says}${core.why ? `; not written: ${core.why}` : core.already ? " (already so)" : result.dry_run ? " (not written: --dry-run)" : " (written)"}`,
   );
-  if (result.blocks_differ) {
-    lines.push(
-      "the core's list of blocks is not the one copied here, and stays so: no move takes the blocks of a core yet",
-    );
-  }
+  if (result.blocks_differ) lines.push(BLOCKS_WORDS);
   lines.push("nothing was sent anywhere");
   return lines;
 }

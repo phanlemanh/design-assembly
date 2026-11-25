@@ -40,8 +40,10 @@ sources:
 
 ## Status
 
-Accepted, 2026-11-25, plugin 0.64.0 (dựng ở 0.63.0; nhánh gộp sau nửa «rời họ», quyết định
-[0118](0118-a-repository-leaves-its-family.md), nên lấy main vào bằng một commit gộp và lên 0.64.0). Lát 3 của mục 7.1, dựng theo lời chủ repo («Mở ba lát»), theo
+Accepted, 2026-11-25, plugin 0.65.0 (dựng ở 0.63.0; nhánh gộp sau nửa «rời họ», quyết định
+[0118](0118-a-repository-leaves-its-family.md), rồi sau lát 1 của mục 7.2, quyết định
+[0117](0117-tier-three-reads-the-core-and-a-block-is-taken-like-an-outside-item.md), nên lấy main vào hai
+lần, mỗi lần một commit gộp, và lên 0.64.0 rồi 0.65.0). Lát 3 của mục 7.1, dựng theo lời chủ repo («Mở ba lát»), theo
 đề bài [0016](../specs/0016-the-family-core-is-born-through-the-plugin.md) đã duyệt (tiêu chí 9, 14,
 18, 19; lời đáp 9 và 12), song song với lát 1 của mục 7.2 và nửa «rời họ» của lát 4 trên hai nhánh
 khác. Lát này đổi hợp đồng sổ ở ba chỗ (điều thành viên ghi khi nhận một phần thay đổi của lõi; dòng
@@ -271,6 +273,19 @@ ghim>` chờ mãi, nên móc nói «một câu hỏi chờ» ở mọi phiên v�
   chối; vào họ lại thì được báo lại. Bước rời họ ghi sổ lõi trên máy qua cùng hàm ghi dòng nên các
   lần đẩy đã ghi (`pushed`) ở lại, lời cho phép trong tờ khai của lõi không đổi, và thư mục lõi mất
   một thành viên thì trở về đúng trạng thái đã đẩy. Mỗi điều có bài kiểm.
+- Đứng chung với lát 1 của mục 7.2 (PR #149, quyết định 0117), sau khi lấy main vào lần hai: bản
+  chép của thành viên nay giữ cả tệp của từng khối, và `pin.files` liệt kê chúng. Nhận lời đáp, một
+  câu hay tất cả, chỉ đổi `answers.json`, `core.json` và hai dòng mã băm của chúng: tệp của khối và
+  các dòng `pin.files` của chúng giữ nguyên, bản chép vẫn đọc được, cổng xanh. Kho khối của lõi khác
+  bản chép thì ba chỗ vẫn chỉ nói rằng nó khác, không nêu khối nào, và nói thêm rằng `core --join`
+  là bước ghim khối mới (bước ấy cũng nhận mọi lời đáp của lõi như hiện có). Khối đã lấy về và nhập
+  kho, dòng sổ nhập kho, bản ghi chuẩn hoá và phát hiện của `inventory` không đổi khi nhận lời đáp;
+  `core --take` nói lại đúng điều nó nói, chỉ khác mã ghim nó nêu. Rời họ sau khi nhận một phần thì
+  lời khai (cùng khoá `accepted`) và cả bản chép bị gỡ, dấu ở bản ghim mới thành «own since» như mọi
+  dấu, và câu hỏi đã bị gỡ khỏi hàng chờ không quay lại. Một chỗ đụng thật khi gộp: cờ `--to` là
+  của cả `--take` (một thư mục) lẫn `--publish` (một nơi), mà `core.mjs` của main từ chối `--to`
+  ngoài `--take`; nay các bước của lát này được giao lời gọi trước phép từ chối ấy, và tự kiểm cờ
+  của mình. Mỗi điều có bài kiểm (`tests/test-core-slices-together.mjs`).
 - Tệp dùng chung chỉ sửa đúng dòng lát này cần: `core.mjs` (cờ và chỗ rẽ), `core-join.mjs` (xuất
   `holdAnswers` và `answeredOf`; `--settle` đáp câu hỏi đã có lý do), `core-join-call.mjs` (một dòng
   in), `core-list.mjs` (`pushed`), `core-change.mjs` (một câu),
@@ -281,6 +296,5 @@ ghim>` chờ mãi, nên móc nói «một câu hỏi chờ» ở mọi phiên v�
   chép lệch mã băm (điểm 11); một địa chỉ mang mật khẩu lọt qua ở vài dạng viết, và `origin` mang bí
   mật bị ghi thành nơi đến (điểm 25); một dòng lời cho phép sửa tay bị in lại nguyên văn; và hai bộ
   lời đáp bị so theo thứ tự khoá.
-- Chưa dựng: lấy khối của lõi và báo khối đứng sau (mục 7.2), ghi việc rút một lời đáp (tiêu chí
-  24), viết giá trị của lõi vào tệp kiểu dáng khi chủ repo chọn theo lõi, và
+- Chưa dựng: ghi việc rút một lời đáp (tiêu chí 24), viết giá trị của lõi vào tệp kiểu dáng khi chủ repo chọn theo lõi, và
   một phiên thật để thấy dòng lúc mở phiên.

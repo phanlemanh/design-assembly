@@ -100,6 +100,14 @@ function leaveReport(result) {
   for (const file of result.copy.left_in_place) {
     lines.push(`  left in place: ${file} is no file of the copy the pin lists`);
   }
+  // A block taken in from the core is the repository's code: it stays, and its row is not rewritten.
+  const kept = result.blocks_kept ?? [];
+  if (kept.length > 0) {
+    const pins = [...new Set(kept.map((block) => block.pin).filter(Boolean))];
+    lines.push(
+      `${kept.length} block${kept.length === 1 ? "" : "s"} taken from the core ${kept.length === 1 ? "stays" : "stay"}, as this repository's own from now on: ${kept.map((block) => `${block.name} (${block.file}), for ${block.need}`).join("; ")}; ${kept.length === 1 ? "its row" : "their rows"} of the intake ledger ${kept.length === 1 ? "keeps" : "keep"} from: core and the pin ${pins.join(", ")} as where ${kept.length === 1 ? "it" : "they"} once came from, and ${kept.length === 1 ? "it is" : "they are"} compared with no core any more`,
+    );
+  }
   if (result.exports) {
     lines.push(
       `the exports ${dry ? "would be" : "are"} behind the design ledgers (${result.exports.behind.join(", ")}), so the gate's row ${result.exports.row} is red until they are written again: ${result.exports.command}`,

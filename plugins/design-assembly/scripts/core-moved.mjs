@@ -317,8 +317,10 @@ export function hereWords(change) {
   return null;
 }
 
-const BLOCKS_WORDS =
-  "the core's list of blocks is not the one copied here: no move takes the blocks of a core yet";
+// The blocks of a core are pinned with the copy and taken from it (core --take): accepting an
+// answer never moves them, so a store that differs is said, with the move that pins it.
+export const BLOCKS_WORDS =
+  "the core's list of blocks is not the one copied here: accepting answers leaves the copy's blocks as they are, and pinning the core again with core --join brings the newer ones, with every answer of the core as it is now";
 export const ACCEPT_WORDS =
   "nothing here changes until a person accepts: core --moved shows each change, core --accept <id> takes one, core --accept-all takes all";
 

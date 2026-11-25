@@ -58,6 +58,8 @@ const BRAND = "#0246ff";
 // What a command says of a family a repository is of; the ladder's own line for the family's store,
 // which every repository that stands alone prints, is not it.
 const FAMILY_WORDS = /family core|same family|of no family|left its family/i;
+// What tier 3 of the ladder says on a repository of no family (slice 1 of item 7.2).
+const NO_FAMILY_TIER = "  3 family: this repository is of no family (core --join declares one)\n";
 
 const made = [];
 after(() => made.forEach((dir) => rmSync(dir, { recursive: true, force: true })));
@@ -434,7 +436,9 @@ test("joined, then left: status, audit, find, inventory, adopt, the guide and th
     for (const [index, [script, status, out]] of left.entries()) {
       assert.equal(status, never[index][1], `${kind}: ${script} ends the same`);
       assert.equal(out, never[index][2], `${kind}: ${script} prints the same`);
-      assert.doesNotMatch(out, FAMILY_WORDS, `${kind}: ${script}`);
+      // Since tier 3 of the ladder reads a family's store, its line says the repository is of no
+      // family, here as on the twin: the one line of these commands that speaks of a family.
+      assert.doesNotMatch(out.replace(NO_FAMILY_TIER, ""), FAMILY_WORDS, `${kind}: ${script}`);
     }
     assert.equal(left.at(-1)[1], 0, `${kind}: the gate is green`);
     // But for the marks, the ledger is the twin's, row for row.

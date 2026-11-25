@@ -1,6 +1,6 @@
 ---
 name: core
-description: Build the core of a family of products — the answers the repositories of one family share, each locked or a default, in a folder of its own on this machine — from the answers a person settled in the family's first repository, after the person answers the lock-or-default sheet; check the shape of a core folder; let the family's owner change an answer of the core (its value, locked or a default, or an answer added), each change with who, when and why; let a repository declare its family and pin the core, compare the answers it already holds, and settle the owner's answers about those that differ; tell a member that its family's core moved ahead of its pin, show a change before and after on the repository's own screen, and accept it answer by answer; record the family owner's leave to publish the core to a private repository, saying first what would go where; and let a repository leave its family on its owner's word, each answer it inherited becoming its own with its value as it was. Use when a second product of the same family uses the plugin and the user says the repositories belong together ("this app is of the same family as that one", "share the design answers between our products", "make a core for the family", "join our family core", "check our core folder", "lock the source colour for the whole family", "change the family's widths", "did our core change?", "show me what the core changed", "accept the new brand colour from the core", "put our core on a private repository", "take this app out of the family", "this product leaves the family"), when new or adopt asked whether a repository is of the same family as a core of this machine, or when the line at the start of a session said the core moved, a question about it waits, or a locked answer is held otherwise. Not for a repository that stands alone. No script pushes anything: the session creates a repository and pushes only after the person's yes.
+description: Build the core of a family of products — the answers the repositories of one family share, each locked or a default, in a folder of its own on this machine — from the answers a person settled in the family's first repository, after the person answers the lock-or-default sheet; check the shape of a core folder; let the family's owner change an answer of the core (its value, locked or a default, or an answer added), each change with who, when and why; let a repository declare its family and pin the core, compare the answers it already holds, and settle the owner's answers about those that differ; tell a member that its family's core moved ahead of its pin, show a change before and after on the repository's own screen, and accept it answer by answer; record the family owner's leave to publish the core to a private repository, saying first what would go where; take a block of the core down into a member, from its copy of the core, once its owner kept it; and let a repository leave its family on its owner's word, each answer it inherited becoming its own with its value as it was. Use when a second product of the same family uses the plugin and the user says the repositories belong together ("this app is of the same family as that one", "share the design answers between our products", "make a core for the family", "join our family core", "check our core folder", "lock the source colour for the whole family", "change the family's widths", "did our core change?", "show me what the core changed", "accept the new brand colour from the core", "put our core on a private repository", "take this app out of the family", "this product leaves the family"), when new or adopt asked whether a repository is of the same family as a core of this machine, or when the line at the start of a session said the core moved, a question about it waits, or a locked answer is held otherwise. Not for a repository that stands alone. No script pushes anything: the session creates a repository and pushes only after the person's yes.
 ---
 
 # Build the core of a family
@@ -68,7 +68,10 @@ first repository.
 
 `node ${CLAUDE_PLUGIN_ROOT}/scripts/core.mjs --check --core <folder>` ends with `0` when the shape
 holds and `1` with each problem naming the file and the place; `2` when the folder is not there or
-a part has a newer shape than this plugin knows (then the plugin must be updated).
+a part has a newer shape than this plugin knows (then the plugin must be updated). For a block
+store that is not empty it also holds the files: each is there under `blocks/<need>/`, is text, and
+is the file the list names by its hash; a need twice, a file missing, a hash that differs and a
+file named out of its folder are each named.
 
 ## 6. Change an answer of the core
 
@@ -132,6 +135,35 @@ A copy of the core that differs from its hashes cannot be read: every move says 
 repository inherits nothing and its own answers stand, and the gate is red until it is pinned
 again with `--join`.
 
+The copy also holds the files of every block of the core, under `design/core/blocks/<need>/`, each
+in the pin with its hash. They are the core's, kept to be taken from: no file of the repository
+imports them, and no formatter may rewrite them. The join says so in a line of its own when it
+copies a block's files, and writes no ignore line: read that line to the owner, and where the
+repository's formatter, lint or type check walks `design/core`, ask before anything is added to an
+ignore list.
+
+### A block of the core
+
+`find` offers the blocks of the copy at tier 3, and `/design-assembly:intake` asks the owner which
+block answers a need. Once they kept a block of the core, take it down:
+`core.mjs --target <repo> --take <block> [--need <key>] [--to DIR] [--dry-run]`, where `<block>` is
+the block's need in the core and `<key>` the repository's own need when it is another. It copies
+the files out of the copy, fetches nothing, starts the conform record, and says the intake call that
+follows. The block lands where the repository keeps its own components, beside the library's
+folder; on a repository of the standard floor that call goes through as `intake` prints it, with no
+other flag. It ends with `2` and writes nothing on a repository of no family, a copy that cannot be
+read, a block the copy does not hold or whose adapters the repository lacks, a file in the way, a
+component of the block's name already in the repository, a need the ledger already answers, or a
+folder the lint configuration itself sets apart while a decision holds a rule of the lint: then it
+names `--to DIR`, a folder the configuration does not name. Run again after the copy was pinned again with a newer block, it
+writes the files that changed, refuses to write over a file changed by hand, and leaves the record
+to `conform --need <key> --taken-down`.
+
+A repository that leaves its family (`--leave`) loses the copy, the blocks' files in it included,
+and keeps every block it took in: the block is its own from then on, its row of the intake ledger
+is not rewritten (`from: core` and the pin say where it once came from), and the move names each
+such block. `find` then prints tier 3 as for a repository of no family.
+
 ## 8. The guide on a member
 
 After the guide's step 1 writes the blueprint, run `core.mjs --target <repo> --inherit`. It writes
@@ -154,7 +186,9 @@ accepting it would meet in this repository. It ends with `1` when the core is ah
 where the repository pinned it, and `0` when the folder cannot be looked at: it says why, the
 repository goes on with its copy, and that is no error. A core kept elsewhere on this machine is
 named with `--core <folder>`, and the machine's list then holds it. If the core's list of blocks
-differs it says so and no more: no move takes the blocks of a core yet.
+differs it says so and no more: accepting answers leaves the copy's blocks and their files as they
+are, and pinning the core again with `--join` is what brings the newer blocks (it takes every
+answer of the core as it is now, so say that first).
 
 Read the changes to the person. For a change whose value can be seen, show it:
 
@@ -257,5 +291,5 @@ A repository that left can join again, the same family or another, with `--join`
 marked anew, and an exception it once kept is given again. A member of one family is refused a
 second until it leaves the first.
 
-Not built yet: the blocks of the core, moving to another family in one step, dissolving a
-family, and renaming a family.
+Not built yet: putting a block into the core (promotion, a member's report, a proposal upward,
+retiring one), moving to another family in one step, dissolving a family, and renaming a family.
