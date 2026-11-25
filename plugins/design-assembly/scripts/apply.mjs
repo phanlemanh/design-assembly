@@ -23,6 +23,8 @@ import {
   ROW_PREFIX,
 } from "./principles.mjs";
 import { STAMP, stampText } from "./stamp.mjs";
+import { starterIntakeFiles, starterRows } from "./starter-intake.mjs";
+import { branchBase } from "../templates/tools/design-assembly/owner-calls.mjs";
 import { FILES, heldHere, TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
 import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-first.mjs";
 import { contrast, formatOklch, parseColor } from "../templates/tools/design-assembly/color.mjs";
@@ -758,6 +760,31 @@ export function ownedFileOf(target, template) {
   const folder = componentsFolder(target);
   const placed = { ...OWNED, ...ROW_PARTS, ...RECORD_PARTS }[template];
   return placed ? placed(folder) : (TOAST_PARTS(folder)[template] ?? null);
+}
+
+// The rows of the intake ledger for the pieces of the starter kit, in the ledger the gate reads.
+function starterIntakePlan(target, files, layout) {
+  const named = priorTheme(target)?.checks?.["ledger-shapes"];
+  const file =
+    (Array.isArray(named) ? named.map((check) => check?.ledgers?.intake).find(Boolean) : null) ??
+    LEDGERS.intake.file;
+  const asLaid = (template) => {
+    const text = readFileSync(path.join(PLUGIN, "templates/owned", template), "utf8");
+    return template === RECORD_TEMPLATE && layout ? withRecordLayout(text, layout) : text;
+  };
+  // Whether the main branch has a file: outside git, or with no commit yet, it has none.
+  const found = branchBase(target, { fetch: false });
+  const onMain = (file) =>
+    Boolean(found?.git && found.base) &&
+    found.git("cat-file", "-e", `${found.base}:${file}`).status === 0;
+  const rows = starterRows(target, {
+    file,
+    files,
+    placeOf: (template) => ownedFileOf(target, template),
+    asLaid,
+    onMain,
+  });
+  return starterIntakeFiles(target, file, rows);
 }
 
 // The data table layer: the repository's column types, the file code reads, the rows and checks
@@ -2143,6 +2170,9 @@ export function plan(target, blueprint) {
     rows.push({ id, ...item.row });
     checks[id] = item.checks;
   }
+  // The pieces of the starter kit this run lays, or a build laid and nobody changed, carry their
+  // source in the intake ledger, so the gate does not read them as made by the branch.
+  Object.assign(files, starterIntakePlan(target, files, opening.layout));
   // Every ledger this run leaves has the one shape the contract gives it. Read as it is about to
   // be written; the decisions ledger is written below, and checked by the gate from then on.
   const ledgerFiles = { decisions: FILES.ledger };
