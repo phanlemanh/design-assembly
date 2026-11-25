@@ -127,6 +127,10 @@ function settleReport(result) {
   return [
     `family core ${result.family} at ${result.pin}: ${result.answers.length} answers`,
     ...answerLines(result.answers),
+    ...(result.closed ?? []).map(
+      (id) =>
+        `${result.dry_run ? "would answer" : "answered"} on the decision sheet, as the row's note says: ${id}: refused with its reason, so it waits no longer`,
+    ),
     `${result.dry_run ? "would write" : "files"}:`,
     ...fileLines(result.written),
     ...exportLines(result),

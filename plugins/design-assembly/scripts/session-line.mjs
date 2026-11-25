@@ -43,8 +43,15 @@ async function lineOf(root) {
       return null;
     }
   };
-  const { answerChanges, answersIn, coreOf, countWords, mainFolderOf } =
-    await import("./core-moved.mjs");
+  const {
+    answerChanges,
+    answersIn,
+    coreOf,
+    coreQuestionId,
+    countWords,
+    mainFolderOf,
+    settledQuestions,
+  } = await import("./core-moved.mjs");
   const parts = [];
   let next = null;
 
@@ -67,7 +74,11 @@ async function lineOf(root) {
     next = "core --moved shows each change, and nothing here changes until a person accepts";
   }
 
-  // A question about the core waits on the owner.
+  // A question about the core waits on the owner. One whose answer is recorded already, the
+  // exception with its reason in the row's note against this pin, waits on nobody.
+  const { readLedger } = await import("../templates/tools/design-assembly/ledger.mjs");
+  const ledger = quiet(() => readLedger(root)) ?? [];
+  const settled = settledQuestions(pinned, ledger);
   const waiting = await import("../templates/tools/design-assembly/waiting.mjs");
   const asked =
     quiet(() => {
@@ -79,7 +90,8 @@ async function lineOf(root) {
           row.id.startsWith("core-") &&
           row.kind !== "permission" &&
           !row.answer &&
-          !replaced.has(row.id),
+          !replaced.has(row.id) &&
+          !settled.has(row.id),
       );
     }) ?? [];
   if (asked.length > 0) {
@@ -91,13 +103,15 @@ async function lineOf(root) {
 
   // A locked answer is held otherwise with no exception: what the gate holds red. One whose
   // question waits is said above.
-  const { readLedger } = await import("../templates/tools/design-assembly/ledger.mjs");
   const red = quiet(() => {
-    const rows = readLedger(root) ?? [];
     const values = contract.memberValues(pinned, contract.memberFiles(root));
+    const waits = new Set(asked.map((row) => row.id));
+    const askedOf = pinned.answers.filter((answer) =>
+      waits.has(coreQuestionId(answer.id, pinned.label)),
+    );
     return contract
-      .lockedCoreProblems({ pinned, values }, rows)
-      .filter((line) => !asked.some((row) => line.startsWith(`${row.id.slice(5, -13)}:`)));
+      .lockedCoreProblems({ pinned, values }, ledger)
+      .filter((line) => !askedOf.some((answer) => line.startsWith(`${answer.id}:`)));
   });
   if (red && red.length > 0) {
     parts.push(

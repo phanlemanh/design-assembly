@@ -12,6 +12,7 @@ import path from "node:path";
 
 import {
   CORE,
+  coreMarkOf,
   memberFiles,
   memberValue,
   readPinnedCore,
@@ -37,6 +38,24 @@ const same = (a, b) => canon(a) === canon(b);
 const shown = (value) => (typeof value === "string" ? value : JSON.stringify(value));
 const stateOf = (answer) => ({ value: answer.value, hold: answer.hold });
 export const sameState = (a, b) => a.hold === b.hold && same(a.value, b.value);
+
+// The id of the question about a locked answer the repository holds otherwise: it names the
+// answer and the pin it was asked at.
+export const coreQuestionId = (id, pin) => `core-${id}-${pin}`;
+
+// The questions about the core whose answer is recorded already: a locked answer the repository
+// keeps as an exception, its reason in the row's note against this pin. Such a question waits on
+// nobody, whatever its file says, and no reader counts it.
+export function settledQuestions(pinned, rows = []) {
+  const settled = new Set();
+  for (const answer of pinned?.answers ?? []) {
+    const mark = coreMarkOf(rows.find((row) => String(row.id) === answer.id)?.note);
+    if (mark.mark === "kept" && mark.pin === pinned.label) {
+      settled.add(coreQuestionId(answer.id, pinned.label));
+    }
+  }
+  return settled;
+}
 
 // The main folder of a repository, read from git's own files and with no git run: the folder
 // itself, or, from a separate working folder, the one its `.git` file leads back to. The line at

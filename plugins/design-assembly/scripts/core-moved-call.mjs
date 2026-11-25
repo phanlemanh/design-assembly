@@ -86,13 +86,14 @@ const exportLines = ({ exports, dry_run: dryRun }) =>
     : [];
 
 function movedReport(moved, listed) {
-  const lines = [`family core: ${moved.family}, pinned here at ${moved.pin}`];
   if (moved.state === "unreadable") {
-    lines.push(
+    // The pin is the hash of a copy that can be read: where it cannot, none is said.
+    return [
+      `family core: ${moved.family ?? "the family this repository declares"}: the pin cannot be read`,
       `the copy of the core here cannot be read (${moved.why}): the repository inherits nothing, and whether the core moved is not looked at; pin it again with core --join`,
-    );
-    return lines;
+    ];
   }
+  const lines = [`family core: ${moved.family}, pinned here at ${moved.pin}`];
   if (moved.state === "unreachable") {
     lines.push(
       `the core's folder cannot be looked at: ${moved.why}`,

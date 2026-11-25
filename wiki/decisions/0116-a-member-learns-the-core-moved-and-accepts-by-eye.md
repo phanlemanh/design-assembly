@@ -255,8 +255,19 @@ ghi ở đâu. Mỗi điều được chốt dưới đây.
   mắt chỉ đọc tệp kiểu dáng ở đường dẫn mặc định, mà repo ấy khai `src/app/globals.css`; nay nó đọc
   tệp mà cổng đọc, và lý do không có ảnh ở bản sao là đúng lý do thật (bản sao không cài gói nào,
   nên không có trình duyệt).
+- Bài soát độc lập của phiên điều phối trên head 4f5a029 tìm hai điểm, sửa cả hai theo lời chủ repo
+  («Gửi cả ba sang sửa»), mỗi bản sửa có bài kiểm đỏ khi thiếu nó. (1) Lý do nói trong phiên
+  (`core --settle --why <id>=<lý do>`) ghi ngoại lệ vào dòng sổ nhưng để câu hỏi `core-<id>-<mã
+ghim>` chờ mãi, nên móc nói «một câu hỏi chờ» ở mọi phiên và `status` vẫn đếm nó. Nay bước
+  `--settle` đáp luôn câu hỏi ấy như tờ quyết định sẽ viết: `refuse` kèm lý do, tên và ngày mà ghi
+  chú của dòng giữ (kể cả câu một lần `--settle` của bản trước đã để lại); và `status` cùng dòng lúc
+  mở phiên không bao giờ đếm một câu hỏi mà ngoại lệ của nó đã được ghi ở đúng bản ghim ấy. Mã của
+  câu hỏi (`core-<id>-<mã ghim>`) nay ở một chỗ, `coreQuestionId` của `core-moved.mjs`, và
+  `core-join.mjs` dùng lại nó. (2) Khi bản chép không đọc được, `core --moved` in «pinned here at
+  null»; nay nó nói mã ghim không đọc được, và không in `null` ở đâu.
 - Tệp dùng chung chỉ sửa đúng dòng lát này cần: `core.mjs` (cờ và chỗ rẽ), `core-join.mjs` (xuất
-  `holdAnswers` và `answeredOf`), `core-list.mjs` (`pushed`), `core-change.mjs` (một câu),
+  `holdAnswers` và `answeredOf`; `--settle` đáp câu hỏi đã có lý do), `core-join-call.mjs` (một dòng
+  in), `core-list.mjs` (`pushed`), `core-change.mjs` (một câu),
   `status.mjs` và `inventory.mjs` (mỗi tệp vài dòng), `specimen.mjs` (xuất ba hàm, một lời dẫn).
 - Bảng năng lực không thêm ổ và không thêm lối: `--accept` ghi sổ qua chính hàm của `--join`.
 - Một bài soát độc lập của phần mã mới, chạy trước khi mở PR, tìm ba điểm nặng và hai điểm vừa; cả

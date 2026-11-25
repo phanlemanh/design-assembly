@@ -217,6 +217,25 @@ test("one line when a question about the core waits on the owner, and when a loc
     oneLine(line(dir, list)),
     "design-assembly: 1 question about the core waits on the owner. decide shows the decision sheet.",
   );
+  // The owner's reason given in the session closes the question: nothing is said from then on.
+  const twin = adopted();
+  const twinList = listIn();
+  assert.equal(join(twin, coreFolder({ colour: OTHER }), twinList).status, 1);
+  assert.match(oneLine(line(twin, twinList)), /1 question about the core waits on the owner/);
+  const closed = core(
+    [
+      "--target",
+      twin,
+      "--settle",
+      "--by",
+      MEMBER,
+      "--why",
+      "source-color=this product keeps its own brand",
+    ],
+    twinList,
+  );
+  assert.equal(closed.status, 0, closed.stderr);
+  silent(line(twin, twinList), "a question answered in the session");
   // The question taken away with no answer: the locked answer is held otherwise with no exception.
   const waiting = path.join(dir, "design/waiting");
   rmSync(waiting, { recursive: true });

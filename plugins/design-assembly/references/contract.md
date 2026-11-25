@@ -52,7 +52,10 @@ repository copied them. Whatever else the note says follows after `; `. A judgme
 answers, and every row the core adds, also ends with `answered by <name> on <day>`, as the decision
 sheet writes an answer: the family's owner, or the person who gave the reason. A row with no mark
 reads as before; a row the core has and the ledger lacks is added with its mark and no check, inherited and
-not held until a check of the repository holds it.
+not held until a check of the repository holds it. A question of the waiting list about a locked
+answer the repository holds otherwise, `core-<id>-<pin>`, waits no longer once the row carries the
+`kept` mark against that pin: `core --settle` answers it as the decision sheet would, a refusal
+with the reason, the name and the day of the mark, and no reader counts it as waiting.
 
 ### blueprint
 

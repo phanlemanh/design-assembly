@@ -50,7 +50,7 @@ import { socketsOf } from "./capabilities.mjs";
 import { pushedLines } from "./send-out.mjs";
 import { gateProblem, seenMissing } from "./apply.mjs";
 import { memberLines, memberStatus } from "./core-marks.mjs";
-import { movedLines, movedOf } from "./core-moved.mjs";
+import { coreQuestionId, movedLines, movedOf } from "./core-moved.mjs";
 import {
   SEEN_DECISION,
   SEEN_TEST,
@@ -709,9 +709,18 @@ export function status(root) {
 export function fullStatus(root) {
   const read = readLedgers(root);
   reading = { root, result: resultOf(read, read.waiting) };
+  // A question about a locked answer of the family's core that the repository already keeps as an
+  // exception, with its reason, waits on nobody, whatever its file says.
+  const settled = new Set(
+    (read.core?.answers ?? [])
+      .filter((answer) => answer.state === "kept")
+      .map((answer) => coreQuestionId(answer.id, read.core.pin)),
+  );
   let listed;
   try {
-    listed = sheet(root).questions.filter((item) => item.source === "waiting-list");
+    listed = sheet(root).questions.filter(
+      (item) => item.source === "waiting-list" && !settled.has(item.id),
+    );
   } finally {
     reading = null;
   }

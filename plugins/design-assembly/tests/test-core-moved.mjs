@@ -6,8 +6,10 @@
 // an error; and a repository that stands alone is unchanged. Fixtures only: no model, no network,
 // and a list of cores of each test's own.
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { chmodSync, existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { env, execPath } from "node:process";
 import { after, test } from "node:test";
 
 import { answerChanges } from "../scripts/core-moved.mjs";
@@ -488,6 +490,124 @@ test("a locked answer the repository would then hold otherwise becomes a questio
   );
   assert.equal(settled.status, 0, settled.stderr);
   assert.equal(gate(dir).status, 0, gate(dir).stderr);
+});
+
+test("a reason given in the session closes its question: nothing waits, for status or for the session's first line", () => {
+  const { dir, place, list } = member();
+  change(place, list, "source-color", ["--value", OTHER, "--why", "the brand was redrawn"]);
+  assert.equal(accept(dir, list, ["--accept-all"]).status, 1);
+  const pin = copyPin(dir);
+  const file = `design/waiting/core-source-color-${pin}.json`;
+  const asked = read(dir, file);
+  assert.equal(asked.answer, undefined);
+  const waitingIds = () =>
+    JSON.parse(status(dir, list, ["--json"]).stdout).waiting.map((item) => item.id);
+  const line = () =>
+    spawnSync(execPath, [path.join(PLUGIN, "scripts/session-line.mjs"), "--target", dir], {
+      encoding: "utf8",
+      env: { ...env, DESIGN_ASSEMBLY_CORES: list },
+    });
+  assert.ok(waitingIds().includes(`core-source-color-${pin}`));
+  assert.match(line().stdout, /1 question about the core waits on the owner/);
+
+  // The person gives the reason in the session: the exception is recorded, and the question is
+  // answered as the decision sheet would write it, a refusal with the reason, the name and the day.
+  const why = "this product keeps its own brand";
+  const settle = (more = []) =>
+    core(
+      [
+        "--target",
+        dir,
+        "--settle",
+        "--by",
+        MEMBER,
+        "--on",
+        ACCEPTED_ON,
+        "--why",
+        `source-color=${why}`,
+        ...more,
+      ],
+      list,
+    );
+  const dry = settle(["--dry-run"]);
+  assert.match(
+    dry.stdout,
+    new RegExp(
+      `would answer on the decision sheet, as the row's note says: core-source-color-${pin}`,
+    ),
+  );
+  assert.equal(read(dir, file).answer, undefined, "a dry run answers nothing");
+  const settled = settle();
+  assert.equal(settled.status, 0, settled.stderr);
+  assert.match(
+    settled.stdout,
+    new RegExp(
+      `answered on the decision sheet, as the row's note says: core-source-color-${pin}: refused with its reason, so it waits no longer`,
+    ),
+  );
+  assert.deepEqual(read(dir, file), {
+    ...asked,
+    answer: "refuse",
+    said: why,
+    by: MEMBER,
+    on: ACCEPTED_ON,
+  });
+  // Nothing waits: the decision sheet, status and the session's first line say so, and the gate holds.
+  const sheet = run("decide.mjs", ["--target", dir, "--json"], list);
+  assert.ok(!JSON.parse(sheet.stdout).questions.some((item) => item.id.startsWith("core-")));
+  assert.ok(!waitingIds().some((id) => id.startsWith("core-")));
+  assert.equal(line().stdout, "");
+  assert.equal(gate(dir).status, 0, gate(dir).stderr);
+  // status ends as it does on the same repository with no such question on its list.
+  const withAnswer = status(dir, list);
+  const listed = waitingIds();
+  rmSync(path.join(dir, file));
+  const without = status(dir, list);
+  assert.equal(withAnswer.status, without.status);
+  assert.deepEqual(waitingIds(), listed);
+
+  // A question left unanswered beside an exception already recorded, as a settle of an earlier
+  // version left it: neither status nor the line counts it, and the next settle closes it.
+  put(dir, file, json(asked));
+  assert.ok(!waitingIds().some((id) => id.startsWith("core-")));
+  assert.equal(line().stdout, "");
+  assert.equal(status(dir, list).status, without.status);
+  const again = core(["--target", dir, "--settle", "--by", MEMBER, "--on", "2026-11-30"], list);
+  assert.equal(again.status, 0, again.stderr);
+  // The answer is the one the note holds: who gave the reason, and when.
+  assert.deepEqual(read(dir, file), {
+    ...asked,
+    answer: "refuse",
+    said: why,
+    by: MEMBER,
+    on: ACCEPTED_ON,
+  });
+});
+
+test("where the copy cannot be read, core --moved names no pin: it says the pin cannot be read, and why", () => {
+  const { dir, list } = member();
+  const copy = path.join(dir, COPY, "answers.json");
+  writeFileSync(copy, readFileSync(copy, "utf8").replace("locked", "default"));
+  const moved = core(["--target", dir, "--moved"], list);
+  assert.equal(moved.status, 0, moved.stderr);
+  assert.doesNotMatch(moved.stdout, /null|undefined/);
+  assert.match(moved.stdout, new RegExp(`^family core: ${FAMILY}: the pin cannot be read$`, "m"));
+  assert.match(moved.stdout, /the copy of the core here cannot be read \(.*sha256 differs\)/);
+  // A declaration nobody can read names no family either.
+  writeFileSync(path.join(dir, DECLARATION), "{ not json");
+  const lost = core(["--target", dir, "--moved"], list);
+  assert.equal(lost.status, 0, lost.stderr);
+  assert.doesNotMatch(lost.stdout, /null|undefined/);
+  assert.match(
+    lost.stdout,
+    /^family core: the family this repository declares: the pin cannot be read$/m,
+  );
+  for (const script of ["status.mjs", "inventory.mjs"]) {
+    assert.doesNotMatch(
+      run(script, ["--target", dir], list).stdout,
+      /pinned (here )?at null|family core: null/,
+    );
+  }
 });
 
 test("an exception stands when another answer is accepted, and a question about the earlier pin is asked anew", () => {

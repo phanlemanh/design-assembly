@@ -123,7 +123,9 @@ again, and nothing is written in it.
    does. Refuse, with the reason in their own words, means keep this repository's answer as an
    exception. Write their answer with `/design-assembly:decide`, then run
    `core.mjs --target <repo> --settle --by <name>`: the exception goes into the row's note and the
-   gate holds it. A reason the owner gives in the session goes in with `--why <id>=<reason>`.
+   gate holds it. A reason the owner gives in the session goes in with `--why <id>=<reason>`: the
+   question is then answered on the sheet as a refusal with that reason, their name and the day,
+   so it waits no longer.
    Never answer for them.
 
 A copy of the core that differs from its hashes cannot be read: every move says why, the
