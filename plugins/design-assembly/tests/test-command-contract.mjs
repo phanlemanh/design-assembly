@@ -448,6 +448,25 @@ test("a flag that takes names takes one name a value: white space or an empty va
   assert.match(long, /"alpha beta gamma …"/);
   assert.doesNotMatch(long, /epsilon/);
   assert.match(readCall(["--skill", ""], flags).problem, /^--skill was given an empty value/);
+  // Names joined by a comma or a semicolon are as many names in one value: a wrong call too.
+  for (const value of ["alpha,beta", "alpha;beta", "alpha, beta", "alpha,"]) {
+    const problem = readCall(["--target", dir, "--skill", value], flags).problem;
+    assert.match(problem, /^--skill was given "alpha/, JSON.stringify(value));
+    assert.match(problem, /Give each name a flag of its own: --skill <name> --skill <name>/);
+  }
+  assert.match(readCall(["--skill", "a,b,c,d,e"], flags).problem, /"a,b,c …"/);
+  // Every character a name a session lists holds is still taken: letters, digits, colon, hyphen,
+  // underscore, as in the names of a real session.
+  for (const name of [
+    "frontend-design:frontend-design",
+    "plugin:product-management:figma",
+    "Claude_Browser",
+    "1a59c906-04da",
+  ]) {
+    assert.deepEqual(readCall(["--target", dir, "--skill", name], flags).flags, {
+      "--skill": [name],
+    });
+  }
 });
 
 test("a command that takes words reads every one that is not a flag or a flag's value, in order", () => {

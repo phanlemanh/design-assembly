@@ -50,7 +50,7 @@ Right after the audit, and before the preview, run the setup step of the plugs o
 this session holds: `--skill <name>` for each skill or slash command the session lists, `--server <name>` for each server it
 has, and `--needs-sign-in <name>` for each server that is there and waits for a sign-in. Pass the
 names as the session lists them; the command matches only the names the plug files declare.
-Give each name a flag of its own, written out in the call: `--skill one-skill --skill another-skill`, never several names in one value. Names kept together in one variable do not become separate arguments in every shell, and the command refuses a value with white space in it, or an empty one, as a wrong call.
+Give each name a flag of its own, written out in the call: `--skill one-skill --skill another-skill`, never several names in one value, whether joined by a space or joined by a comma or a semicolon. Names kept together in one variable do not become separate arguments in every shell, and the command refuses a value with white space, a comma or a semicolon in it, or an empty one, as a wrong call. Its line `Read from the session:` says how many names of each kind it read; when that is not how many you gave, the names did not reach it as you meant.
 
 - When it ends with `0` and says no measured plug is in the repository or this session, the step
   does not stop: say its line in one sentence and go on.

@@ -41,25 +41,41 @@ Lượt thử có người đầu tiên ([bản ghi](../../docs/trials/person-tr
 - **Hậu quả.** Một phiên có cả `frontend-design` lẫn `design:design-critique` bị đọc thành một phiên không có gì. Lượt chọn
   phích của chủ repo, nửa đầu dòng «xong khi», không xảy ra.
 
-Tên skill, tên lệnh và tên server mà phiên liệt kê không có khoảng trắng. Một giá trị có khoảng trắng vì vậy là nhiều tên
-bị nối, còn một giá trị rỗng là không tên nào. Cả hai đều không phải điều người gọi muốn nói.
+Tên skill, tên lệnh và tên server mà phiên liệt kê chỉ có chữ, số, dấu hai chấm, gạch nối và gạch dưới: 261 skill và 34
+server của phiên ở lượt đã dừng, cùng 35, 25 và 14 tên tác tử truyền. Một giá trị có khoảng trắng, dấu phẩy hay dấu chấm
+phẩy vì vậy là nhiều tên bị nối, còn một giá trị rỗng là không tên nào. Cả hai đều không phải điều người gọi muốn nói.
+
+Bản soát PR đầu tiên của thay đổi này cho thấy một chuỗi nối bằng dấu phẩy vẫn lọt. Như với dấu cách, kết quả tuỳ tên
+cuối của chuỗi: `archify,frontend-design,design:design-critique` cho riêng câu ổ soát màn, còn
+`design:design-critique,frontend-design,archify` cho câu «No outside plug…».
 
 ## Decision
 
 1. **`readCall` có thêm kiểu cờ `names`:** một danh sách, mỗi giá trị đúng một tên. Một giá trị có khoảng trắng (dấu cách,
-   tab, xuống dòng) hay rỗng là lời gọi sai:
+   tab, xuống dòng), dấu phẩy hay dấu chấm phẩy, hoặc một giá trị rỗng, là lời gọi sai:
    - lệnh thoát 2, không ghi gì, không in câu trả lời;
-   - lời trên luồng lỗi nêu tên cờ và ba từ đầu của giá trị (thêm «…» khi còn nữa);
+   - lời trên luồng lỗi nêu tên cờ và giá trị tới hết tên thứ ba (thêm «…» khi còn nữa);
    - lời ấy bảo: «Give each name a flag of its own: `--skill <name> --skill <name>`».
 2. **Cờ dùng kiểu ấy:** `--skill`, `--server`, `--needs-sign-in` của `plugs`, và `--skill` của `review`. Đó là những cờ
    nhận tên của phiên. Bất kỳ tên nào cũng hợp lệ ở đó, nên một tên lạ không bị từ chối, và chỉ hình dạng của giá trị mới
    bắt được lỗi này.
-3. **Câu «No outside plug that was measured is in this repository or this session»** không còn được in cho một phiên mà
-   lệnh không đọc được tên. Lời gọi ấy dừng trước, ở bước đọc cờ.
-4. **Bốn trang skill truyền tên của phiên** (`plugs`, `new`, `adopt`, `review`) nói cùng một câu: mỗi tên một cờ, viết ra
-   trong lời gọi, ví dụ `--skill one-skill --skill another-skill`, không bao giờ nhiều tên trong một giá trị. Câu ấy nói
-   thêm rằng tên giữ chung trong một biến không thành các đối số riêng ở mọi shell. Trang không nêu tên shell nào, nên lời
-   khuyên đúng với mọi shell.
+3. **Câu «No outside plug that was measured is in this repository or this session»** không còn được in cho một phiên có
+   tên nối bằng khoảng trắng, dấu phẩy hay dấu chấm phẩy. Lời gọi ấy dừng trước, ở bước đọc cờ.
+4. **`plugs` nói nó đọc được bao nhiêu tên mỗi loại**, khi lời gọi nêu phiên: dòng `Read from the session: 35 skills, 25
+servers, 14 servers waiting for a sign-in.`, in cả ở dạng ngắn (`--short`, dạng `new` và `adopt` chạy) lẫn dạng đầy đủ,
+   và khoá `session_read` trong câu trả lời `--json` (`null` khi lời gọi không nêu phiên). Dòng ấy chỉ nói điều đã đọc,
+   không quyết gì. Lượt đã dừng sẽ đọc thành «1 skill, 1 server, 1 server waiting for a sign-in». Vì vậy một danh sách đọc
+   sai hiện ra ngay, dù nó nối bằng ký tự nào.
+5. **Bốn trang skill truyền tên của phiên** (`plugs`, `new`, `adopt`, `review`) nói cùng một câu: mỗi tên một cờ, viết ra
+   trong lời gọi, ví dụ `--skill one-skill --skill another-skill`, không bao giờ nhiều tên trong một giá trị, dù nối bằng
+   dấu cách, dấu phẩy hay dấu chấm phẩy. Câu ấy nói thêm rằng tên giữ chung trong một biến không thành các đối số riêng ở
+   mọi shell. Trang không nêu tên shell nào, nên lời khuyên đúng với mọi shell. Ba trang chạy `plugs` bảo đối chiếu dòng
+   `Read from the session:` với số tên đã truyền.
+
+**Ký tự bị từ chối, và vì sao chỉ những ký tự ấy.** Khoảng trắng, dấu phẩy và dấu chấm phẩy là các ký tự người ta, và
+một shell, dùng để nối một danh sách. Không tên nào phiên liệt kê có chúng. Các ký tự khác (gạch đứng, gạch chéo, dấu
+cộng) chưa thấy ai dùng để nối tên, nên chúng không bị từ chối. Nếu một danh sách nối bằng một ký tự như vậy, dòng đếm ở
+điểm 4 sẽ cho thấy.
 
 **Các cờ khác nhận danh sách tên đã soát:**
 
@@ -72,7 +88,7 @@ bị nối, còn một giá trị rỗng là không tên nào. Cả hai đều k
 
 - Một tác tử truyền tên của phiên sai cách nay thấy lời gọi sai cùng cách sửa, thay vì một bảng phích trống.
 - Dòng giới hạn mới, đóng ngay trong thay đổi này: `session-names-joined-read-as-none`.
-- Dòng `plugs-session-listed-by-the-skill` vẫn mở. Ở lượt đã dừng, tác tử chọn 35 trong khoảng 260 skill phiên liệt kê,
+- Dòng `plugs-session-listed-by-the-skill` vẫn mở. Ở lượt đã dừng, tác tử chọn 35 trong 261 skill phiên liệt kê,
   không truyền cả danh sách, và chưa lượt nào có người cho thấy danh sách được truyền đủ.
 - Lượt thử có người chạy lại từ đầu trên bản sao mới với tác tử mới, theo lời chủ repo. Chi phí của lượt đã dừng (284 299
   token) được đặt cạnh chi phí của lượt mới, không gộp vào.

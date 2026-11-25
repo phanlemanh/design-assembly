@@ -326,6 +326,14 @@ export function plan(
   { caps = readCapabilities(), on = today(), session = null, reask = [] } = {},
 ) {
   const listed = session !== null;
+  // How many names of each kind the call gave: said back, so a list read wrongly shows at once.
+  const read = listed
+    ? {
+        skills: session.skills.length,
+        servers: session.servers.length,
+        needs_sign_in: session.signIn.length,
+      }
+    : null;
   session = session ?? NO_SESSION;
   if (caps.problems.length > 0) {
     throw new Refusal(`the plugin's plug files cannot be read: ${caps.problems.join("; ")}`);
@@ -399,6 +407,7 @@ export function plan(
   return {
     sockets: board,
     session_listed: listed,
+    session_read: read,
     questions: [...open, ...asked],
     later: toAsk.slice(room).map(({ socket }) => plugRowId(socket.id)),
     withdrawn,
@@ -420,6 +429,7 @@ export function carryOut(root, planned, dryRun) {
   return {
     sockets: planned.sockets,
     session_listed: planned.session_listed,
+    session_read: planned.session_read,
     questions: planned.questions,
     later: planned.later,
     withdrawn: planned.withdrawn,
@@ -504,6 +514,10 @@ function missingLines({ sockets, session_listed: listed }) {
     );
 }
 
+// What the call gave of the session, kind by kind. It decides nothing.
+const readLine = ({ skills, servers, needs_sign_in: signIn }) =>
+  `Read from the session: ${plural(skills, "skill", "skills")}, ${plural(servers, "server", "servers")}, ${plural(signIn, "server", "servers")} waiting for a sign-in.`;
+
 // The board and what waits, as a person reads it.
 export function report(result, { short = false } = {}) {
   const { sockets, questions, later, rows } = result;
@@ -515,6 +529,7 @@ export function report(result, { short = false } = {}) {
   const lines = [
     `Plugs: ${sockets.length} sockets: ${plural(sockets.length - open.length, "is", "are")} closed, ${open.length - outside.length} have only the plugin's plug, ${outside.length} have plugs from outside, ${measured.length} of them a measured one.`,
   ];
+  if (result.session_read) lines.push(readLine(result.session_read));
   for (const stage of short ? [] : [...new Set(sockets.map((socket) => socket.stage))]) {
     lines.push(stage, ...sockets.filter((socket) => socket.stage === stage).flatMap(socketLines));
   }
@@ -639,6 +654,7 @@ async function main(args) {
     result: {
       sockets: result.sockets,
       session_listed: result.session_listed,
+      session_read: result.session_read,
       questions: result.questions,
       later: result.later,
       withdrawn: result.withdrawn,

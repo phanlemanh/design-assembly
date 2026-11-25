@@ -226,6 +226,7 @@ test("criterion 1: the command prints the board, and --json is one document by t
   assert.deepEqual(Object.keys(result), [
     "sockets",
     "session_listed",
+    "session_read",
     "questions",
     "later",
     "withdrawn",
@@ -628,10 +629,80 @@ test("criterion 3: names the command cannot read one by one are a wrong call, ne
       assert.doesNotMatch(called.stderr, /No outside plug that was measured/, said);
     }
   }
+  // A comma or a semicolon between names is refused the same way, in whatever order the names are.
+  for (const value of [
+    "archify,frontend-design,design:design-critique",
+    "design:design-critique,frontend-design,archify",
+    "far-eye;sharp-builder",
+  ]) {
+    const called = cli("--target", dir, "--short", "--session", "--dry-run", "--skill", value);
+    assert.equal(called.status, 2, value);
+    assert.equal(called.stdout, "", value);
+    assert.match(called.stderr, /a flag of its own/, value);
+  }
   const named = cli("--target", dir, "--session", "--skill", joined).stderr;
   assert.match(named, /"archify council far-eye …"/);
   // Nothing was written.
   assert.deepEqual(files(), before);
+});
+
+test("criterion 3: the command says how many names of each kind it read from the session, short or not, and in --json", () => {
+  const dir = fixtureRepo();
+  const args = [
+    "--target",
+    dir,
+    "--session",
+    "--dry-run",
+    "--skill",
+    "far-eye",
+    "--skill",
+    "their-plugin:sharp-builder",
+    "--server",
+    "loose-blocks",
+    "--needs-sign-in",
+    "a-host",
+    "--needs-sign-in",
+    "b-host",
+    "--needs-sign-in",
+    "c-host",
+  ];
+  const line = "Read from the session: 2 skills, 1 server, 3 servers waiting for a sign-in.";
+  for (const short of [true, false]) {
+    const printed = cli(...args, ...(short ? ["--short"] : []));
+    assert.ok(
+      printed.stdout.split("\n").includes(line),
+      `${short ? "--short" : "full"}: ${printed.stdout}`,
+    );
+  }
+  const data = JSON.parse(cli(...args, "--json").stdout);
+  assert.deepEqual(data.session_read, { skills: 2, servers: 1, needs_sign_in: 3 });
+  // One of each, as the stopped run's call would have read, says so in the singular.
+  const one = cli(
+    "--target",
+    dir,
+    "--session",
+    "--dry-run",
+    "--short",
+    "--skill",
+    "x",
+    "--server",
+    "y",
+    "--needs-sign-in",
+    "z",
+  );
+  assert.match(
+    one.stdout,
+    /^Read from the session: 1 skill, 1 server, 1 server waiting for a sign-in\.$/m,
+  );
+  // It is a statement of what was read: no session listed, no line, and the questions are the same.
+  const unlisted = cli("--target", dir, "--dry-run", "--short");
+  assert.doesNotMatch(unlisted.stdout, /Read from the session/);
+  assert.equal(JSON.parse(cli("--target", dir, "--dry-run", "--json").stdout).session_read, null);
+  const none = cli("--target", dir, "--dry-run", "--short", "--session");
+  assert.match(
+    none.stdout,
+    /^Read from the session: 0 skills, 0 servers, 0 servers waiting for a sign-in\.$/m,
+  );
 });
 
 test("criterion 3: a measured plug the session holds is asked about, as one the repository holds", () => {
@@ -793,6 +864,7 @@ test("every page that passes the session's names says one name to a flag, writte
     const page = read(PLUGIN, `skills/${skill}/SKILL.md`);
     assert.match(page, /each name a flag of its own/, skill);
     assert.match(page, /never several names in one value/, skill);
+    assert.match(page, /joined by a comma/, skill);
     // Advice true of one shell only would mislead a builder on another.
     assert.doesNotMatch(page, /\b(zsh|bash|fish|PowerShell)\b/, skill);
   }

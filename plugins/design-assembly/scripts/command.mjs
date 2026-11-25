@@ -15,11 +15,14 @@ import { fileURLToPath } from "node:url";
 export const EXIT = { done: 0, work: 1, wrong: 2 };
 
 // The flags every command takes. `switch` takes no value, `value` takes one, `list` may be given
-// more than once, and `names` is a list of names, one name a value: names hold no white space, so
-// a value with white space, or an empty one, is several names joined or none, and a wrong call.
+// more than once, and `names` is a list of names, one name a value. The names a session lists hold
+// letters, digits, colons, hyphens and underscores; a value with white space, a comma or a
+// semicolon in it is several names joined, an empty one is none, and either is a wrong call.
 const COMMON = { "--target": "value", "--json": "switch", "--help": "switch", "-h": "switch" };
 
-// How many words of a refused value the message names: enough to know it, not every name a
+// What a list of names is joined by when it reaches a command as one value.
+const JOINS = /[\s,;]/;
+// How many names of a refused value the message shows: enough to know it, not every name a
 // session lists.
 const NAMED_WORDS = 3;
 
@@ -27,10 +30,12 @@ const NAMED_WORDS = 3;
 function namesProblem(flag, value) {
   const how = `Give each name a flag of its own: ${flag} <name> ${flag} <name>`;
   if (value.trim() === "") return `${flag} was given an empty value; a name is never empty. ${how}`;
-  if (!/\s/.test(value)) return null;
-  const words = value.split(/\s+/).filter(Boolean);
-  const shown = `${words.slice(0, NAMED_WORDS).join(" ")}${words.length > NAMED_WORDS ? " …" : ""}`;
-  return `${flag} was given "${shown}", which has white space in it; a name has none. ${how}`;
+  if (!JOINS.test(value)) return null;
+  const names = [...value.matchAll(/[^\s,;]+/g)];
+  const cut = names.length > NAMED_WORDS ? names[NAMED_WORDS - 1] : names.at(-1);
+  const end = cut ? cut.index + cut[0].length : value.length;
+  const shown = `${value.slice(0, end).replace(/\s+/g, " ").trim()}${names.length > NAMED_WORDS ? " …" : ""}`;
+  return `${flag} was given "${shown}", which joins names by white space, a comma or a semicolon; a name holds none of them. ${how}`;
 }
 
 // Reads a call against the flags a command declares, beside the common ones. Gives the target,

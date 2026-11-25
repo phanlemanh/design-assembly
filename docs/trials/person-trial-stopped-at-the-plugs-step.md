@@ -63,10 +63,7 @@ No outside plug that was measured is in this repository or this session; every s
 
 Lệnh thoát 0, không ghi gì. Tác tử báo cho người đúng như dòng ấy rồi đi tiếp các tầng.
 
-**So với điều phiên liệt kê.** Bản ghi của tác tử có danh sách skill của phiên: khoảng 260 mục. Tác tử chọn 35 mục mà nó
-cho là gần việc thiết kế, không truyền cả danh sách. Các server có công cụ trong phiên khớp 25 tên nó truyền, cộng các
-server của ứng dụng. Như vậy dòng giới hạn `plugs-session-listed-by-the-skill` vẫn mở: lượt này không cho thấy danh sách
-được truyền đủ.
+**So với điều phiên liệt kê.** Bản ghi của tác tử có danh sách skill của phiên: 261 mục (`skill_listing`, `skillCount`). Tác tử chọn 35 mục mà nó cho là gần việc thiết kế, không truyền cả danh sách. Danh sách công cụ hoãn của phiên nêu 34 server. 23 trong số ấy là tên tác tử truyền ở `--server`, viết dấu hai chấm thay dấu gạch dưới ở hai tên plugin. 11 server không được truyền: mười server `ccd_*` của chính ứng dụng và một server tài liệu. Hai tên tác tử truyền không có trong danh sách ấy: `Claude_Browser` và `visualize`, là công cụ đã nạp sẵn chứ không hoãn. Mười bốn tên ở `--needs-sign-in` là các server phiên báo chờ đăng nhập. Mọi tên phiên liệt kê chỉ có chữ, số, dấu hai chấm, gạch nối và gạch dưới. Như vậy dòng giới hạn `plugs-session-listed-by-the-skill` vẫn mở: lượt này không cho thấy danh sách được truyền đủ.
 
 **Kiểm trên bản sao bỏ đi.** Kiểm trên một clone của bản sao, không trên bản sao của tác tử. Cùng các tên ấy, mỗi tên
 một cờ, lệnh thoát 1 với hai câu:
@@ -97,3 +94,12 @@ dừng ở câu màu. Bản sao, bản ghi của tác tử và bằng chứng đ
 
 Con số của phiên chạy thử chỉ tính phần ngữ cảnh tăng thêm trong lượt này. Lúc nhận việc, phiên đã mang 139 517 token
 ngữ cảnh của việc trước. Phần sửa lệnh không tính vào đây. Lượt chạy lại sẽ đặt con số này bên cạnh con số của nó.
+
+**Đếm lại.** Hai bản ghi nằm trong `trial-18/evidence/` của thư mục nháp: `guide-agent-transcript.jsonl` của tác tử và
+`trial-session-transcript.jsonl`, bản chép bản ghi của phiên chạy thử. Lệnh
+[`count-tokens.mjs`](count-tokens.mjs) đếm như trên:
+
+- tác tử: `node docs/trials/count-tokens.mjs --transcript <evidence>/guide-agent-transcript.jsonl`, lấy `total` (175 992) và
+  `tool_calls` (17);
+- phiên chạy thử: thêm `--from 2026-11-24T23:35:48.127Z --to 2026-11-25T01:20:08.948Z`, tức từ lúc việc tới phiên tới lúc lời
+  «Sửa trước» tới, rồi lấy `share` (108 307): `last_context` trừ `first_context`, cộng `written`; và `tool_calls` (35).
