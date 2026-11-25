@@ -37,7 +37,7 @@ sources:
 
 ## Status
 
-Accepted, 2026-11-25, plugin 0.61.0. Lát 2 của mục 7.1, dựng theo lời chủ repo («Mở hai lát»), theo
+Accepted, 2026-11-25, plugin 0.62.0 (gộp cùng nửa đầu lát 4, quyết định [0115](0115-the-family-owner-changes-an-answer-of-the-core.md), plugin 0.61.0). Lát 2 của mục 7.1, dựng theo lời chủ repo («Mở hai lát»), theo
 đề bài [0016](../specs/0016-the-family-core-is-born-through-the-plugin.md) đã duyệt và quyết định
 [0113](0113-the-core-shape-and-the-command-that-builds-it.md). Lát này đổi hợp đồng sổ (sổ nguồn
 ngoài có loại `core`, dấu của lõi ở sổ quyết định và ở bản thiết kế, nghĩa của `pin` trong danh sách
@@ -134,6 +134,23 @@ family core at <pin>: <why> (by <name> on <day>)`; phần còn lại của ghi c
 15. **Bảng năng lực không thêm ổ**: thêm một lối `core` (`scripts/core-join.mjs` qua ổ `decision`
     và `reference`), vì bước ấy ghi sổ quyết định, bản thiết kế và sổ nguồn ngoài.
 
+16. **Lệnh ghi sổ nói khi bản xuất tụt lại** (sửa theo bài soát độc lập, điểm 1). Bản xuất của repo
+    (`DESIGN.md` và `design/export/system`) được viết từ trạng thái của sổ token, bản thiết kế, sổ
+    thành phần và sổ nguồn ngoài, nên `--join` (thêm `design/sources/core.json`) và `--inherit` (đánh
+    dấu bản thiết kế) làm hàng `design-exports` của cổng đỏ. `--join`, `--settle` và `--inherit` nói
+    điều ấy, bằng chữ và trong `--json` (`exports`: các tệp tụt lại và lệnh `make design-exports`);
+    bản xem trước nói «would be». Lệnh không tự viết bản xuất: đó là bước của repo.
+17. **`status` chia câu khoá thành bốn nhóm rời nhau** (sửa theo bài soát độc lập, điểm 2): giữ bởi
+    phép kiểm ở đây, thừa hưởng mà chưa giữ, giữ làm ngoại lệ, khác và chờ chủ repo; bốn số cộng
+    lại bằng số câu khoá. Chỉ câu thừa hưởng mới có thể «held»: phép kiểm của một câu giữ làm ngoại
+    lệ giữ lời đáp của repo, không phải của lõi, nên `held` của nó là `false`.
+18. **Với lõi hình dạng 2** (lời đáp mang `history`, PR #144): các bước của thành viên đọc lõi ấy như
+    lõi hình dạng 1; mã ghim vẫn là mã băm `answers.json` như đã chép; bản chép giữ hình dạng trong
+    cổng của thành viên. `core --change` sau khi thành viên đã vào họ chỉ ghi vào lõi: mã ghim và
+    bản chép của thành viên giữ nguyên, việc báo cho thành viên là lát 3. Hai bước dùng chung cờ
+    `--why`: một danh sách, mà `--settle` nhận mỗi câu một lý do (`<id>=<lý do>`) và `--change` nhận
+    đúng một lần.
+
 ### Trên mọi loại repo
 
 | Repo                                 | Lệnh làm gì                                                                                                                   |
@@ -172,5 +189,7 @@ không ghi gì và nói vì sao.
   (lát 3), `core-rule-words-not-compared`, `core-value-read-from-plugin-places`,
   `core-exception-keyed-to-pin`, `core-follow-not-carried-out`, `core-list-names-no-repository-moved`,
   `core-question-only-when-a-command-runs`.
+- Bài soát độc lập của head eedbaa3 tìm hai điểm, sửa cả hai theo lời chủ repo («Gộp 144, sửa 146»);
+  mỗi bản sửa có một bài kiểm đỏ khi thiếu nó (điểm 16 và 17 ở trên).
 - Chưa dựng: báo khi lõi đi trước bản ghim (9), móc lúc mở phiên (18), nhận bằng mắt (19), đẩy lõi
-  lên đâu, rời họ (25), đổi lời đáp của lõi (22, phiên song song), và cả mục 7.2.
+  lên đâu, rời họ (25), và cả mục 7.2.

@@ -6,7 +6,14 @@
 // blueprint takes what the core answers (`--inherit`); and the machine's list of cores is asked for
 // the one question about a family (`--ask`), or told the repository is of none (`--decline`). No
 // move calls a model or the network.
-import { existsSync, readFileSync, realpathSync, statSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  realpathSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 
@@ -24,6 +31,17 @@ import {
   readPinnedCore,
   CORE_VALUES,
 } from "../templates/tools/design-assembly/contract.mjs";
+import {
+  DESIGN_MD,
+  EXPORTS_DECISION,
+  exportsName,
+  inputsOf,
+  stampIn,
+  stampOf,
+  SYSTEM_FOLDER,
+  SYSTEM_PARTS,
+  withManifest,
+} from "../templates/tools/design-assembly/exports.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { LEDGER } from "../templates/tools/design-assembly/ledger.mjs";
 import { CORE_ID, CORE_KIND } from "../templates/tools/design-assembly/sources-ledger.mjs";
@@ -185,6 +203,53 @@ function holdAnswers(root, pinned, { on, reasons = {}, exceptions = {}, ask = tr
   return { files, answers: report };
 }
 
+// The exports a repository keeps that a move leaves behind the ledgers they are written from, with
+// the command that writes them again: the files a move writes (`files`) are read in place of what
+// is on disk. Null where the repository keeps no exports, or every one is as the ledgers give.
+// The exports are never written here: writing them is the repository's own step.
+const EXPORT_INPUTS = [
+  "design/tokens.json",
+  "design/blueprint.json",
+  "design/component-registry.json",
+];
+const SOURCES_PREFIX = "design/sources/";
+export function exportsBehind(root, files = {}) {
+  const now = (file) => (file in files ? files[file] : read(root, file));
+  let theme;
+  try {
+    theme = JSON.parse(now(THEME) ?? "null");
+  } catch {
+    return null;
+  }
+  if (exportsName(theme) === null) return null;
+  const sources = Object.fromEntries(
+    [
+      ...(existsSync(path.join(root, "design/sources"))
+        ? readdirSync(path.join(root, "design/sources")).map((name) => `${SOURCES_PREFIX}${name}`)
+        : []),
+      ...Object.keys(files).filter((file) => file.startsWith(SOURCES_PREFIX)),
+    ]
+      .filter((file, index, all) => file.endsWith(".json") && all.indexOf(file) === index)
+      .map((file) => [file, now(file)]),
+  );
+  const stamp = stampOf(
+    inputsOf({
+      files: withManifest(root, Object.fromEntries(EXPORT_INPUTS.map((file) => [file, now(file)]))),
+      theme,
+      sources,
+    }),
+  );
+  const behind = [DESIGN_MD, ...SYSTEM_PARTS.map((part) => `${SYSTEM_FOLDER}/${part}`)].filter(
+    (file) => {
+      const text = now(file);
+      return text !== null && stampIn(text) !== stamp;
+    },
+  );
+  return behind.length === 0
+    ? null
+    : { behind, stamp, row: EXPORTS_DECISION, command: "make design-exports" };
+}
+
 // The theme with the check of locked answers laid under `ledger-shapes`, or why it is not: a
 // repository with no gate of this plugin's has nothing to lay it in, and a tool copied in before the
 // check existed would read it as unknown.
@@ -293,6 +358,7 @@ export function joinCore(root, { core, by, on, dryRun }) {
   Object.assign(files, held.files);
   const check = laidCheck(root);
   if (check.laid === "now") files[THEME] = check.text;
+  const exports = exportsBehind(root, files);
   const written = writeFiles(root, files, dryRun);
   // The core's list of members: said first, then written, only where the folder can be written.
   const coreFile = path.join(folder, CORE.parts.declaration.file);
@@ -322,6 +388,7 @@ export function joinCore(root, { core, by, on, dryRun }) {
     check,
     core_file: coreWrite,
     list,
+    exports,
     files: writtenFiles(written),
     written,
     dry_run: dryRun,
@@ -353,11 +420,13 @@ export function settleCore(root, { by, on, why = {}, dryRun }) {
     else given.reasons[id] = entry;
   }
   const held = holdAnswers(root, pinned, { on, ...given });
+  const exports = Object.keys(held.files).length > 0 ? exportsBehind(root, held.files) : null;
   const written = writeFiles(root, held.files, dryRun);
   return {
     family: pinned.family,
     pin: pinned.label,
     answers: held.answers,
+    exports,
     files: writtenFiles(written),
     written,
     dry_run: dryRun,
@@ -457,6 +526,7 @@ export function inheritCore(root, { dryRun }) {
     });
   }
   const files = { [BLUEPRINT]: renderJson({ ...blueprint, layers }, lineWidth(root)) };
+  const exports = exportsBehind(root, files);
   const written = writeFiles(root, files, dryRun);
   const questions = guideQuestions(pinned);
   return {
@@ -466,6 +536,7 @@ export function inheritCore(root, { dryRun }) {
     conflicts,
     questions,
     asked: questions.filter((item) => item.state === "asked").length,
+    exports,
     files: writtenFiles(written),
     written,
     dry_run: dryRun,

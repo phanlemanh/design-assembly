@@ -208,13 +208,22 @@ export function memberStatus(root) {
     const row = rows.find((item) => String(item.id) === answer.id);
     const { state } = stateOf(answer, pinned, values[answer.id], row);
     const check = heldHere(root, answer, row);
+    // Only the core's own answer is held: a check of an answer the repository keeps against the
+    // core, or holds otherwise, holds the repository's answer, not the core's.
+    const held = check.held && state === "inherited";
+    const why =
+      state === "kept"
+        ? "kept against the core as an exception: a check here holds this repository's own answer, not the core's"
+        : state === "differs"
+          ? "this repository holds another answer, and a question waits on the owner"
+          : check.why;
     return {
       id: answer.id,
       hold: answer.hold,
       kind: answer.kind,
       state,
-      held: check.held,
-      ...(check.held ? { by: check.by } : { why: check.why }),
+      held,
+      ...(held ? { by: check.by } : { why }),
     };
   });
   const locked = answers.filter((answer) => answer.hold === "locked");
@@ -227,8 +236,10 @@ export function memberStatus(root) {
     answers,
     locked: locked.length,
     defaults: answers.length - locked.length,
-    // Held: a check of this repository holds it. Claimed and not held: inherited, and nothing here
-    // holds it. Neither is counted as the other.
+    // The locked answers parted, each counted once, the four adding up to `locked`. Held: inherited,
+    // and a check of this repository holds it. Not held: inherited, and nothing here holds it. Kept:
+    // the repository keeps its own answer as an exception. Differs: it holds another, and a question
+    // waits.
     held: count(locked, (answer) => answer.held),
     not_held: count(locked, (answer) => !answer.held && answer.state === "inherited"),
     differs: count(locked, (answer) => answer.state === "differs"),
@@ -250,7 +261,10 @@ export function memberLines(core) {
     `  locked answers: ${core.locked}: ${core.held} held by a check here, ${core.not_held} inherited and not held${core.kept > 0 ? `, ${core.kept} kept against the core as exceptions` : ""}${core.differs > 0 ? `, ${core.differs} differ and wait on the owner` : ""}`,
     `  defaults: ${core.defaults}${core.changed > 0 ? `, ${core.changed} changed with a reason` : ""}`,
   ];
-  for (const answer of core.answers.filter((item) => item.hold === "locked" && !item.held)) {
+  const notHeld = core.answers.filter(
+    (item) => item.hold === "locked" && item.state === "inherited" && !item.held,
+  );
+  for (const answer of notHeld) {
     lines.push(`  not held here: ${answer.id}: ${answer.why}`);
   }
   return lines;

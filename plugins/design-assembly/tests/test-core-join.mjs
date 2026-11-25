@@ -199,7 +199,7 @@ const answer = (id, kind, value, hold, check) => ({
   origin: { repository: "first-app", ledger: LEDGER, by: OWNER, on: "2026-11-20" },
 });
 // A core folder as `core --build` writes it, beside the repositories of the test.
-function coreFolder({ colour = BRAND } = {}) {
+function coreFolder({ colour = BRAND, extra = [] } = {}) {
   const dir = path.join(empty(), "quillon-core");
   put(
     dir,
@@ -241,6 +241,7 @@ function coreFolder({ colour = BRAND } = {}) {
           "default",
           "tool:tools/design-assembly/check.mjs",
         ),
+        ...extra,
       ],
     }),
   );
@@ -337,6 +338,73 @@ test("joining on a branch keeps the gate green: the rows the core brings say who
   const checked = gate(dir);
   assert.equal(checked.status, 0, checked.stderr);
   assert.doesNotMatch(checked.stderr, /decision-sheet/);
+});
+
+test("a move that leaves the repository's exports behind its ledgers says so, and the command that writes them", () => {
+  // A guided repository that brought its exports out (DESIGN.md and the system bundle), each
+  // stamped with the state of the ledgers it was written from.
+  const dir = guided();
+  const brought = run("bring-out.mjs", ["--target", dir], listIn());
+  assert.equal(brought.status, 0, brought.stderr);
+  assert.ok(existsSync(path.join(dir, "DESIGN.md")));
+  const place = coreFolder();
+  const list = listIn();
+  assert.equal(gate(dir).status, 0, gate(dir).stderr);
+  // The preview says it would be so, and writes nothing.
+  const dry = core(
+    [
+      "--target",
+      dir,
+      "--join",
+      "--core",
+      place,
+      "--by",
+      MEMBER,
+      "--on",
+      JOINED_ON,
+      "--dry-run",
+      "--json",
+    ],
+    list,
+  );
+  assert.equal(dry.status, 0, dry.stderr);
+  const preview = JSON.parse(dry.stdout);
+  assert.ok(preview.exports.behind.includes("DESIGN.md"));
+  assert.equal(preview.exports.command, "make design-exports");
+  const said = join(dir, place, list, ["--dry-run"]).stdout;
+  assert.match(
+    said,
+    /the exports would be behind the design ledgers \(DESIGN\.md, .*\), so the gate's row design-exports is red until they are written again: make design-exports/,
+  );
+  // Joined, the gate is red on the exports alone, as the join said; the join writes no export.
+  const done = join(dir, place, list);
+  assert.equal(done.status, 0, done.stderr);
+  assert.match(done.stdout, /the exports are behind the design ledgers .*: make design-exports/);
+  const red = gate(dir);
+  assert.equal(red.status, 1);
+  assert.match(red.stderr, /design-exports: DESIGN\.md was written from the design ledgers at/);
+  assert.doesNotMatch(red.stderr, /family-core|ledger-shapes/);
+  // Written again by the repository's own step, the gate is green; a move that leaves them as they
+  // are says nothing of them.
+  const again = spawnSync(
+    execPath,
+    [path.join(dir, "tools/design-assembly/exports.mjs"), "--write"],
+    {
+      cwd: dir,
+      encoding: "utf8",
+    },
+  );
+  assert.equal(again.status, 0, again.stderr);
+  assert.equal(gate(dir).status, 0, gate(dir).stderr);
+  const quiet = core(["--target", dir, "--settle", "--by", MEMBER, "--json"], list);
+  assert.equal(JSON.parse(quiet.stdout).exports, null);
+  // The blueprint marked by --inherit is an input of the exports too: the preview says so.
+  const inherit = core(["--target", dir, "--inherit", "--dry-run", "--json"], list);
+  assert.ok(JSON.parse(inherit.stdout).exports.behind.includes("DESIGN.md"));
+  assert.match(
+    core(["--target", dir, "--inherit", "--dry-run"], list).stdout,
+    /the exports would be behind the design ledgers .*: make design-exports/,
+  );
 });
 
 test("a copy that differs from its hashes is unreadable: the command says why, the repository inherits nothing", () => {
@@ -746,6 +814,131 @@ test("a locked answer is held where the member has the check, and taking the che
     run("status.mjs", ["--target", dir], list).stdout,
     /not held here: failed-action: no row of this repository names a check for it/,
   );
+});
+
+test("status parts the locked answers: an exception is never counted as the core's answer held", () => {
+  const dir = adopted();
+  // Two locked answers this repository holds otherwise, both of them values.
+  put(dir, "design/screen-sizes.json", json({ version: 1, widths: [375, 1280] }));
+  const place = coreFolder({
+    extra: [
+      answer("test-screen-sizes", "value", [320, 1440], "locked", "test:tests/widths.test.ts"),
+    ],
+  });
+  const list = listIn();
+  assert.equal(join(dir, place, list).status, 1);
+  // Both kept as exceptions, with the owner's reasons.
+  const kept = core(
+    [
+      "--target",
+      dir,
+      "--settle",
+      "--by",
+      OWNER,
+      "--on",
+      JOINED_ON,
+      "--why",
+      "source-color=the product keeps its grey for its regulator",
+      "--why",
+      "test-screen-sizes=its devices are tablets and wall screens",
+    ],
+    list,
+  );
+  assert.equal(kept.status, 0, kept.stderr);
+  // One of them has a check of the repository's own: it holds the repository's widths, not the core's.
+  put(dir, "tests/screens/widths.test.ts", "// decision:test-screen-sizes\nexport {};\n");
+  put(
+    dir,
+    LEDGER,
+    pointRow(text(dir, LEDGER), "test-screen-sizes", "test:tests/screens/widths.test.ts"),
+  );
+  const result = JSON.parse(run("status.mjs", ["--target", dir, "--json"], list).stdout).core;
+  assert.equal(result.locked, 4);
+  assert.equal(result.kept, 2);
+  assert.equal(result.held, 0);
+  assert.equal(result.not_held, 2);
+  assert.equal(result.differs, 0);
+  assert.equal(result.held + result.not_held + result.kept + result.differs, result.locked);
+  const widths = result.answers.find((item) => item.id === "test-screen-sizes");
+  assert.equal(widths.held, false);
+  assert.match(widths.why, /kept against the core as an exception/);
+  assert.match(
+    run("status.mjs", ["--target", dir], list).stdout,
+    /locked answers: 4: 0 held by a check here, 2 inherited and not held, 2 kept against the core as exceptions/,
+  );
+});
+
+test("a member joins a core the owner changed, of shape 2; a later change leaves its pin and copy as they are", () => {
+  const dir = adopted();
+  const place = coreFolder();
+  const list = listIn();
+  // The family's owner changes the locked colour to the one this repository holds.
+  const changed = core(
+    [
+      "--change",
+      "source-color",
+      "--core",
+      place,
+      "--by",
+      OWNER,
+      "--on",
+      JOINED_ON,
+      "--why",
+      "the brand moved",
+      "--value",
+      primaryOf(dir),
+    ],
+    list,
+  );
+  assert.equal(changed.status, 0, changed.stderr);
+  const answers = read(place, "answers.json");
+  assert.equal(answers.version, 2);
+  assert.ok(answers.answers.find((item) => item.id === "source-color").history.length > 0);
+
+  const done = join(dir, place, list);
+  assert.equal(done.status, 0, done.stderr);
+  const pin = pinOf(place);
+  assert.equal(
+    read(dir, PINNED_CORE.file)
+      .pin.files.find((entry) => entry.file === "answers.json")
+      .sha256.slice(0, 12),
+    pin,
+  );
+  assert.match(
+    noteOf(dir, "source-color"),
+    new RegExp(`^inherited from the family core at ${pin}`),
+  );
+  // The copy of a core of shape 2 holds its shape in the member's gate.
+  const green = gate(dir);
+  assert.equal(green.status, 0, green.stderr);
+
+  // A change after the member joined writes the core alone: the member's pin and copy stay.
+  const copy = snapshot(path.join(dir, "design/core"));
+  const later = core(
+    [
+      "--change",
+      "type-scale-values",
+      "--core",
+      place,
+      "--by",
+      OWNER,
+      "--on",
+      JOINED_ON,
+      "--why",
+      "every member uses it",
+      "--hold",
+      "locked",
+    ],
+    list,
+  );
+  assert.equal(later.status, 0, later.stderr);
+  assert.notEqual(pinOf(place), pin);
+  assert.deepEqual(snapshot(path.join(dir, "design/core")), copy);
+  assert.equal(
+    JSON.parse(run("status.mjs", ["--target", dir, "--json"], list).stdout).core.pin,
+    pin,
+  );
+  assert.equal(gate(dir).status, 0);
 });
 
 // ---- criterion 20: a separate working folder ---------------------------------------------------

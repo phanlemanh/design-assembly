@@ -82,6 +82,15 @@ function answerLines(answers) {
 const fileLines = (written) =>
   written.length === 0 ? ["  nothing to write"] : written.map((line) => `  ${line}`);
 
+// The exports a move leaves behind the ledgers, and the command that writes them again: the gate's
+// row of the exports is red until it runs.
+const exportLines = ({ exports, dry_run: dryRun }) =>
+  exports
+    ? [
+        `the exports ${dryRun ? "would be" : "are"} behind the design ledgers (${exports.behind.join(", ")}), so the gate's row ${exports.row} is red until they are written again: ${exports.command}`,
+      ]
+    : [];
+
 function joinReport(result) {
   const lines = [
     `${result.dry_run ? "would pin" : "pinned"} the family core ${result.family} (${result.core}) at ${result.pin}: ${result.repository} ${result.again ? "pins it again" : "declares it is of this family"}`,
@@ -99,6 +108,7 @@ function joinReport(result) {
   lines.push(
     `in this repository${result.dry_run ? ", would write" : ""}:`,
     ...fileLines(result.written),
+    ...exportLines(result),
   );
   const core = result.core_file;
   lines.push(
@@ -119,6 +129,7 @@ function settleReport(result) {
     ...answerLines(result.answers),
     `${result.dry_run ? "would write" : "files"}:`,
     ...fileLines(result.written),
+    ...exportLines(result),
   ];
 }
 
@@ -145,6 +156,7 @@ function inheritReport(result) {
     ...result.questions.map((item) => `  ${item.state.padEnd(9)} ${item.place}`),
     `${result.dry_run ? "would write" : "files"}:`,
     ...fileLines(result.written),
+    ...exportLines(result),
   );
   return lines;
 }
