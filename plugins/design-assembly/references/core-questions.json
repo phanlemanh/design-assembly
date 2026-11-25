@@ -1,0 +1,48 @@
+{
+  "about": "The answers of a repository that may go into the core of a family of products, and where each starts: `locked`, kept as it is by every repository of the family, or `default`, where a new repository starts and may change. Each is a decision of the ledger by its id (references/standard-decisions.json gives its question). An answer listed with `blueprint` or `value` is a value a member compares: `blueprint` names the choice of the blueprint it is, where the guide asked it; `value` says where it is read when the repository has no blueprint: `tokens` the source colour of design/tokens.json, `screen-sizes` the widths of design/screen-sizes.json; and `given` says how a person writes it when the repository holds no such value: `colour` as #rrggbb, `widths` as whole numbers joined by commas, `choice` as one of the options of the blueprint's choice (references/layers.json), `type-scale` as standard or modular and a ratio. Any other answer is a rule: its words are what its row says, and its check holds it. `behaviour` gives the rows that are behaviour rules: every row of that layer that is not listed here; one the standard decisions do not know is the repository's own, maybe a rule of one kind of screen, and starts outside both sets. `outside` names what never goes into the core. These are only the starting sets: the person answering the lock-or-default sheet moves any answer from one to the other, or leaves it out.",
+  "questions": [
+    {
+      "id": "source-color",
+      "start": "locked",
+      "blueprint": {
+        "layer": "foundations",
+        "key": "source_color"
+      },
+      "value": "tokens",
+      "given": "colour"
+    },
+    {
+      "id": "record-panel",
+      "start": "locked",
+      "blueprint": {
+        "layer": "patterns",
+        "key": "record_panel"
+      },
+      "given": "choice"
+    },
+    {
+      "id": "table-density",
+      "start": "default"
+    },
+    {
+      "id": "type-scale-values",
+      "start": "default",
+      "blueprint": {
+        "layer": "foundations",
+        "key": "type_scale"
+      },
+      "given": "type-scale"
+    },
+    {
+      "id": "test-screen-sizes",
+      "start": "default",
+      "value": "screen-sizes",
+      "given": "widths"
+    }
+  ],
+  "behaviour": {
+    "layer": "patterns",
+    "start": "locked"
+  },
+  "outside": ["screen kinds", "column kinds", "copy"]
+}

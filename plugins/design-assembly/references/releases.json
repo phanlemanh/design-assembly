@@ -390,6 +390,12 @@
       "templates": "611c73b307c38e5bbbe760411ad14766ff246003",
       "scripts": "1d1256addfaea2d25ccf8d7235e82ff36b534b96",
       "tool": "6cb7973b19b2ce3f33e54538c30574c7a7f8a90d"
+    },
+    {
+      "version": "0.60.0",
+      "templates": "2d87ee24f43fd71dfb3d383045eaf4cb2f0353aa",
+      "scripts": "06112da50e50911fdc5e9a35ed11638a0d6d353c",
+      "tool": "9a23ddb2d3e5fbd24ea7443b1b62d51d182006cf"
     }
   ]
 }

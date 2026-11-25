@@ -299,6 +299,63 @@ person's first answer, a block taken in, a data model's columns, a part, a sourc
 down, a page about a kind of screen. Its absence is not a gap. The mark is `born` in the contract, `with-the-floor` or
 `with-its-first-entry`, and is read at the contract's own paths.
 
+## Not a ledger: the core of a family
+
+The repositories of one family of products may share a core (spec 0016): the answers the family
+shares, and the blocks that graduated to it. The core is not a ledger of a repository and the gate
+of a repository does not read it: it is a folder of its own on the user's machine, outside every
+repository of the family, which may become a git repository of its own or not. Its shape is stated
+in `contract.mjs` as `CORE`, beside the ledgers, and is shape 1. Every part is a JSON file that
+carries `version`; a tool that finds a part of a newer shape writes nothing and says to update the
+plugin, as for a ledger. The family's name, its answers and its blocks are the user's data, kept in
+the folder; the plugin names none of them. `core --check` says what is wrong with a core folder,
+each problem naming the file and the place.
+
+| Part          | File                        | Holds                                                                      |
+| ------------- | --------------------------- | -------------------------------------------------------------------------- |
+| `declaration` | `core.json`                 | The family's name, where the answers came from, the members, the owner     |
+| `answers`     | `answers.json`              | The answers the family shares, each locked or a default, and what holds it |
+| `blocks`      | `blocks/index.json`         | The blocks that graduated to the family, with their files and users        |
+| `members`     | `members/<repository>.json` | What each member repository has solved, by need                            |
+
+`declaration`: `version`; `family`, the name the person gave, never blank; `first`, the repository
+the answers were first read from, with `repository` (its name), `read_on` (the day) and `commit`
+(where it stood, or null outside git); `members`, the repositories that declared they are of the
+family, each with `repository`, `joined` (a day) and maybe `pin`, empty until a repository declares
+so, the first one included; and `owner`, the person who answered the lock-or-default sheet, with
+`by` and `on`: the family's owner.
+
+`answers`: `version` and `answers`, one entry per question, no question twice. An answer has `id`
+(the id of its row in the decision ledger), `question`, `kind` (`value`, a value a member
+compares, or `rule`, whose words are what its row says and which its check holds), `value` (for a
+value, as the repository settled it: the blueprint's choice, the colour of the token file, the
+widths; never the words of a row; for a rule, the words of its row), `hold`
+(`locked` or `default`), `check` (the check of its row, which holds it, or null when none does: an
+answer no check holds is never counted as held), `why`, `by` and `on` (who made it locked or a
+default on the sheet, and when; nothing is locked without that answer), and `origin`: the
+`repository` and `ledger` it was read from, and `by` and `on` where that ledger names who settled
+it, null where it does not, and `given` (`by` and `on`) when the ledgers did not hold the value and
+the person gave it on the sheet.
+
+`blocks`: `version` and `blocks`, one per need, no need twice. A block has `need`, `name`, `files`
+(each with `file` and `sha256`, kept under `blocks/<need>/`), `adapters` (the adapters it needs),
+`used_by` (the repositories that use it), `promoted` (`by` and `on`) and `second_use`, false until a
+second repository has used it. The list is empty when a core is built.
+
+`members`: one file per member repository, named after it, with `version`, `repository` and `needs`,
+each with `need`, `name` and `description` and nothing else: never code, never the text of a file.
+The folder may be missing until a member reports.
+
+Only answers a person settled go into a core: a row the guide proposed or read off the repository
+and nobody confirmed (its note says a person has not confirmed it), a blueprint answer the guide
+proposed, a question about the row that waits or was refused on the decision sheet, are left out
+and the command says why. A row with no such mark is the repository's own decision, as the gate
+takes it, and its origin names no one when the ledger does not. A behaviour rule the standard
+decisions do not know is the repository's own, maybe a rule of one kind of screen: it is listed and
+proposed in neither set. The core lies outside every git work tree but its own: a folder inside a
+repository is refused, and the root of a repository made for the core is taken. Its files keep
+names, never an e-mail address.
+
 ## Not a ledger: the waiting list
 
 The questions that wait on the owner are not a ledger of the contract: they are not design
