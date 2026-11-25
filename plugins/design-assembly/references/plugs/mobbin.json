@@ -5,5 +5,11 @@
   "names": ["Mobbin"],
   "mcp_servers": ["mobbin"],
   "needs": ["account", "network"],
-  "sends": "The words it searches for, to the Mobbin service under the person's account."
+  "sends": "The words it searches for, to the Mobbin service under the person's account.",
+  "measured": {
+    "reference": {
+      "record": "d0109",
+      "beats_plugin": false
+    }
+  }
 }
