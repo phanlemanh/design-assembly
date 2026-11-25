@@ -11,11 +11,13 @@
 // is written.
 import path from "node:path";
 
+import { CORE, PINNED_CORE } from "../templates/tools/design-assembly/contract.mjs";
 import { isDay } from "../templates/tools/design-assembly/waiting.mjs";
 import { today } from "./asking.mjs";
 import { finish, refuse } from "./command.mjs";
 import { askFamily, declineFamily, inheritCore, joinCore, settleCore } from "./core-join.mjs";
 import { coreProblem, readList } from "./core-list.mjs";
+import { leftLines, usedWords, wholeLines } from "./core-report-call.mjs";
 
 export const MEMBER_MOVES = ["--join", "--settle", "--inherit", "--ask", "--decline"];
 export const MEMBER_FLAGS = {
@@ -100,6 +102,47 @@ const copiedLines = ({ copied_blocks: copied }) =>
       ]
     : [];
 
+// The copy holds what the family's repositories told the core they answered: names only.
+const copiedReportLines = ({ copied_reports: count }) =>
+  count > 0
+    ? [
+        `the copy holds the reports of ${count} ${count === 1 ? "repository" : "repositories"} of the family under ${PINNED_CORE.snapshot}/${CORE.parts.members.folder}: what each answered, by need, name and what it is for, never code; find and intake here know the family's needs as of this pin`,
+      ]
+    : [];
+
+// What joining writes in the core folder beside the member's line: the repository's report, and
+// the store's entries that follow the uses it tells. Each is said before it is written.
+function reportLinesOf({ core_report: report, repository, dry_run: dryRun }) {
+  if (!report) return [];
+  const ending = (changes) =>
+    report.why && changes
+      ? `; not written: ${report.why}`
+      : dryRun
+        ? " (not written: --dry-run)"
+        : report.written
+          ? " (written)"
+          : " (already so)";
+  const lines = report.used.map(
+    (one) => `in the core folder: ${report.index}: ${usedWords(repository, one)}${ending(true)}`,
+  );
+  if (report.unread) {
+    return [
+      ...lines,
+      `in the core folder: ${report.file} is left as it is: the intake ledger of ${repository} tells nothing (${report.unread})`,
+    ];
+  }
+  if (report.why && report.change === "none") {
+    return [...lines, `in the core folder: ${report.file} was not written: ${report.why}`];
+  }
+  if (report.change === "none") return lines;
+  const writes = report.change !== "unchanged";
+  lines.push(
+    `in the core folder: ${report.file}: the report of ${repository}, ${report.needs} need${report.needs === 1 ? "" : "s"} it answered and ${report.uses} block${report.uses === 1 ? "" : "s"} of the core it uses${writes ? ending(true) : " (already so)"}`,
+  );
+  if (writes) lines.push(...wholeLines(report.text));
+  return [...lines, ...leftLines(report.left_out)];
+}
+
 function joinReport(result) {
   const lines = [
     `${result.dry_run ? "would pin" : "pinned"} the family core ${result.family} (${result.core}) at ${result.pin}: ${result.repository} ${result.again ? "pins it again" : "declares it is of this family"}`,
@@ -128,10 +171,12 @@ function joinReport(result) {
     ...fileLines(result.written),
     ...exportLines(result),
     ...copiedLines(result),
+    ...copiedReportLines(result),
   );
   const core = result.core_file;
   lines.push(
     `in the core folder: ${core.file}: ${core.says}${core.why ? `; not written: ${core.why}` : result.dry_run ? " (not written: --dry-run)" : core.written ? " (written)" : " (already so)"}`,
+    ...reportLinesOf(result),
   );
   lines.push(
     result.list.why

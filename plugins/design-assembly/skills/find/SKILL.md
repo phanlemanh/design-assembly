@@ -49,6 +49,18 @@ It stops at the first store that answers, and says so for every store it did not
 4. The outside sources the repository pinned under `design/sources/`, in their `order`. A source
    whose snapshot differs from its pin is unreadable, and none of its items is offered.
 
+In a member of a family, where the walk came to the family's store and nothing nearer answered,
+the answer also says each need another repository of the family answered that the family's store
+does not hold: `in the family, not in its store yet`, with which repository, the block's name and
+what it is for, as that repository told the core (`family_needs` in the data). These are read from
+the copy of the core, as of the pin, and are never a match: nothing is taken from another
+repository, and the order of the stores does not change. Where one is said, `next` names the step
+that comes before a block is made or taken from outside: ask the family's owner to promote it,
+with `core --propose <need> --graduate` (`/design-assembly:core`, section 14). Say this to the
+person; do not run it without their word, and never copy the block from the other repository. A
+repository that lacks an adapter a block of code needs is told the need is not proposed to it, with
+why. On a repository of no family nothing of this is printed.
+
 A source that declares `ladder_place: "before-starter"` is read right after the repository's own
 store, before the starter kit and the family's store: the repository's rule wins over this order.
 With nothing declared, the order above holds.
@@ -62,7 +74,8 @@ With nothing declared, the order above holds.
 - `searched` names every store: what was read, how many pieces, whether it answered, and why it
   could not be read or was not reached.
 - `next` says what to do: use the piece, or take a block in with `intake --need KEY`, which asks
-  the owner and records it in the intake ledger.
+  the owner and records it in the intake ledger; or, in a member of a family, first ask the
+  family's owner to promote the block another of its repositories already has.
 
 Words in one language do not match a catalog written in another. When nothing answers, try the
 words a catalog would use before deciding that nothing exists.

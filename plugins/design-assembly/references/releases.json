@@ -438,6 +438,12 @@
       "templates": "8bb995b9666888cfc86aaac6ec5d02da770e0641",
       "scripts": "ac7ab5f7c66f56656e1f544b89c63a4c771a8640",
       "tool": "9ef50c63da2ff0b5361f9af41f49b3e1ccc6fd9c"
+    },
+    {
+      "version": "0.68.0",
+      "templates": "ce5532c560cd88162da79788eb09d068e4660afe",
+      "scripts": "693db9b5e783f33a7b32542613e3c4f3fe83c876",
+      "tool": "968895d3e20eecbdbbd2c772874efdc7f2532d57"
     }
   ]
 }

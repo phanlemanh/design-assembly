@@ -42,6 +42,7 @@ import { fileChange, Refusal } from "./command.mjs";
 import { exportsBehind } from "./core-join.mjs";
 import { addLine, coreProblem, homeOf, readList } from "./core-list.mjs";
 import { setNote } from "./core-marks.mjs";
+import { reportFileOf } from "./core-report.mjs";
 import { readIntake, readTheme, text as words } from "./store.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -385,9 +386,15 @@ function membersOf(folder) {
 // the repository's own files. A core of another family is a wrong call.
 function coreLineOf({ core, family, repository }) {
   const found = coreFolderOf({ core, family, repository });
-  const left = `if the core's ${CORE.parts.declaration.file} names ${repository} under members, take that line out there by hand, and hold the shape with core --check --core DIR`;
+  // The repository's report goes with its line (slice 2 of item 7.2): the core counts the needs
+  // of the repositories of the family, and one that left is of it no more.
+  const reportFile = reportFileOf(repository);
+  const left = `if the core's ${CORE.parts.declaration.file} names ${repository} under members, take that line out there by hand, delete its report, ${reportFile}, if it is there, and hold the shape with core --check --core DIR`;
   if (found.folder === null) return { reached: false, file: null, why: found.why, left };
   const file = path.join(found.folder, CORE.parts.declaration.file);
+  const report = existsSync(path.join(found.folder, reportFile))
+    ? path.join(found.folder, reportFile)
+    : null;
   const unwritable = (why) => ({ reached: true, file, line: null, why, left });
   const newer = newerCoreParts(found.folder);
   if (newer.length > 0) return unwritable(newer[0]);
@@ -403,14 +410,22 @@ function coreLineOf({ core, family, repository }) {
     );
   }
   const line = declaration.members.find((member) => member.repository === repository);
-  if (!line) return { reached: true, file, line: null, why: null, left: null };
+  if (!line) return { reached: true, file, line: null, report, why: null, left: null };
   const next = {
     ...declaration,
     members: declaration.members.filter((member) => member.repository !== repository),
   };
   const problems = corePartShapeProblems("declaration", next, CORE.parts.declaration.file);
   if (problems.length > 0) return unwritable(problems[0]);
-  return { reached: true, file, line, text: renderJson(next, WIDTH), why: null, left: null };
+  return {
+    reached: true,
+    file,
+    line,
+    report,
+    text: renderJson(next, WIDTH),
+    why: null,
+    left: null,
+  };
 }
 
 // The blocks the repository took in from the core (slice 1 of item 7.2): each stays where it is, as
@@ -499,6 +514,19 @@ export function leaveCore(root, { core = null, by, why, on, dryRun }) {
       coreFile.left = `take the line of ${repository} out of members in ${coreLine.file} by hand, where the core can be written, and hold the shape with core --check`;
     }
   }
+  // Its report in the core: said first, then deleted, only where the folder can be written.
+  const coreReport = { file: coreLine.report ?? null, deleted: false, why: null };
+  if (coreLine.report && !dryRun) {
+    try {
+      unlinkSync(coreLine.report);
+      coreReport.deleted = true;
+    } catch (error) {
+      coreReport.why = `${error.message.split("\n")[0]}: the report is left as it was`;
+      const more = `delete ${coreLine.report} by hand, where the core can be written, and hold the shape with core --check`;
+      coreFile.left = coreFile.left ? `${coreFile.left}; and ${more}` : more;
+    }
+  }
+  delete coreFile.report;
   const list = addLine({ repository: home, on, how: LEFT }, { dryRun });
   return {
     left: true,
@@ -515,6 +543,7 @@ export function leaveCore(root, { core = null, by, why, on, dryRun }) {
     check: check.taken,
     questions: { removed: questions.removed, kept: questions.kept },
     core_file: coreFile,
+    core_report: coreReport,
     list,
     exports,
     files: [...writtenFiles(written), ...gone.map((file) => fileChange(file, "delete"))],

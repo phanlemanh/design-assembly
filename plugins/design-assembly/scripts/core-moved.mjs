@@ -21,6 +21,7 @@ import {
 } from "../templates/tools/design-assembly/contract.mjs";
 import { coreProblem, homeOf, readList } from "./core-list.mjs";
 import { proposalsIn, retiredIn, stateOfProposal } from "./core-records.mjs";
+import { reportState } from "./core-report.mjs";
 
 const ANSWERS = CORE.parts.answers.file;
 const BLOCKS = CORE.parts.blocks.file;
@@ -234,10 +235,26 @@ function hereOf(change, files) {
 // each added, with who promoted it, when and why; each whose files changed, with who replaced them,
 // when and why, as the block's history says past what the copy holds; and each the store no longer
 // offers, with who retired it, when and why, where the core's folder records it.
-export function blockChanges(copied = [], current = [], retired = {}) {
+export function blockChanges(copied = [], current = [], retired = {}, repository = null) {
   const changes = [];
   for (const now of current) {
     const copy = copied.find((item) => item.need === now.need);
+    // A repository of the family told the core it uses the block (slice 2 of item 7.2): said to
+    // every other member, never to the one that told it.
+    const users = copy
+      ? (now.used_by ?? []).filter(
+          (name) => !(copy.used_by ?? []).includes(name) && name !== repository,
+        )
+      : [];
+    if (users.length > 0) {
+      changes.push({
+        need: now.need,
+        name: now.name,
+        change: "used",
+        by: users,
+        second_use: Boolean(now.second_use),
+      });
+    }
     if (!copy) {
       changes.push({
         need: now.need,
@@ -275,12 +292,19 @@ export function blockChanges(copied = [], current = [], retired = {}) {
 }
 
 // The proposals of this repository the core holds, each with its state, and how many of the
-// family's proposals wait on its owner.
-function proposalsOf(folder, repository) {
-  const all = proposalsIn(folder);
+// family's proposals wait on its owner. A graduation (slice 2 of item 7.2) is this repository's
+// too where it names one of its blocks: it then hears what the owner chose. `held` says whether
+// the store has an entry for the need now, offered or retired.
+function proposalsOf(folder, repository, settled = new Set()) {
+  const all = proposalsIn(folder).filter((item) => !item.unreadable);
+  const blocks = (item) => item.graduation?.candidates ?? [];
   return {
     proposals: all
-      .filter((item) => item.repository === repository && !item.unreadable)
+      .filter(
+        (item) =>
+          item.repository === repository ||
+          blocks(item).some((one) => one.repository === repository),
+      )
       .map((item) => ({
         id: item.id,
         kind: item.kind,
@@ -288,8 +312,18 @@ function proposalsOf(folder, repository) {
         on: item.on,
         state: stateOfProposal(item),
         ...(item.decided ? { decided: item.decided } : {}),
+        ...(item.kind === "graduation"
+          ? {
+              asked_by: item.repository,
+              mine: item.repository === repository,
+              blocks: blocks(item),
+              // The block of this repository the graduation names, when it names one.
+              own: blocks(item).find((one) => one.repository === repository) ?? null,
+              held: settled.has(item.subject),
+            }
+          : {}),
       })),
-    proposals_waiting: all.filter((item) => !item.unreadable && !item.decided).length,
+    proposals_waiting: all.filter((item) => !item.decided).length,
   };
 }
 
@@ -309,7 +343,10 @@ export function movedOf(root, { core = null } = {}) {
   const hash = sha256(text);
   const blocksCopied = (readPinned(root, pinned, BLOCKS) ?? "").toString();
   const blocksNow = readFileSync(path.join(place.path, BLOCKS));
-  const blocksDiffer = sha256(blocksNow) !== sha256(blocksCopied);
+  const listDiffers = sha256(blocksNow) !== sha256(blocksCopied);
+  // A store that differs only by who uses its blocks holds the blocks the copy holds: nothing of
+  // it is to be pinned again, and each new use is said on its own.
+  const blocksDiffer = listDiffers && !onlyUsesDiffer(blocksCopied, blocksNow.toString());
   const retired = retiredIn(place.path);
   const repository = path.basename(homeOf(root));
   const found = {
@@ -317,14 +354,24 @@ export function movedOf(root, { core = null } = {}) {
     core: place.path,
     core_pin: hash.slice(0, PIN_DIGITS),
     why: null,
-    block_changes: blocksDiffer
+    block_changes: listDiffers
       ? blockChanges(
           pinned.blocks ?? [],
           JSON.parse(blocksNow.toString()).blocks ?? [],
           retired.blocks,
+          repository,
         )
       : [],
-    ...proposalsOf(place.path, repository),
+    ...proposalsOf(
+      place.path,
+      repository,
+      new Set([
+        ...(JSON.parse(blocksNow.toString()).blocks ?? []).map((block) => block?.need),
+        ...Object.keys(retired.blocks),
+      ]),
+    ),
+    // Where this repository's report to the core stands, and whose report is not the one copied.
+    reports: reportState(root, place.path, pinned),
   };
   if (hash === pinned.sha256) {
     return { ...found, state: "same", changes: [], form_only: false, blocks_differ: blocksDiffer };
@@ -343,6 +390,25 @@ export function movedOf(root, { core = null } = {}) {
     form_only: changes.length === 0,
     blocks_differ: blocksDiffer,
   };
+}
+
+// Whether two lists of blocks say the same of every block but who uses it: the same once
+// `used_by` and `second_use` are left out, and not the same with them.
+function onlyUsesDiffer(copied, current) {
+  try {
+    const bare = (text) =>
+      canon(
+        (JSON.parse(text).blocks ?? []).map((block) => ({
+          ...block,
+          used_by: null,
+          second_use: null,
+        })),
+      );
+    const whole = (text) => canon(JSON.parse(text).blocks ?? []);
+    return bare(copied) === bare(current) && whole(copied) !== whole(current);
+  } catch {
+    return false;
+  }
 }
 
 // One file of the copy of the core a repository keeps, as its bytes, or null.
@@ -419,6 +485,11 @@ export function blockChangeLines(change) {
       `block added: ${change.name} (${change.need}); promoted ${who(change) ?? "by no one the store names"}${change.second_use ? "" : "; no second use yet"}`,
     ];
   }
+  if (change.change === "used") {
+    return [
+      `block used: ${change.name} (${change.need}) is used by ${change.by.join(" and ")}${change.second_use ? " too: a second use" : ""}`,
+    ];
+  }
   if (change.change === "retired") {
     return [
       `block retired: ${change.name} (${change.need}); ${change.by ? `retired ${who(change)}` : "the core's folder does not say who took it out"}; accepting it (core --accept ${change.need}) leaves a block taken in here as this repository's own`,
@@ -438,10 +509,68 @@ export function blockChangeLines(change) {
 // answered, with the answer and its reason.
 export function proposalLines(moved) {
   return (moved.proposals ?? []).map((item) =>
-    item.state === "waiting"
-      ? `proposal ${item.id} of this repository waits on the family's owner since ${item.on}`
-      : `proposal ${item.id} of this repository was ${item.state} by ${item.decided.by} on ${item.decided.on}, because ${item.decided.why}${item.state === "refused" ? ": this repository keeps its own, as it stood" : ": the core changed, and accepting it is here as for any change"}`,
+    item.kind === "graduation"
+      ? graduationWords(item)
+      : item.state === "waiting"
+        ? `proposal ${item.id} of this repository waits on the family's owner since ${item.on}`
+        : `proposal ${item.id} of this repository was ${item.state} by ${item.decided.by} on ${item.decided.on}, because ${item.decided.why}${item.state === "refused" ? ": this repository keeps its own, as it stood" : ": the core changed, and accepting it is here as for any change"}`,
   );
+}
+
+// A graduation as the repository that asked it reads it, or one whose block it names: that it
+// waits, what the owner chose, and what is left to do here.
+function graduationWords(item) {
+  const block = (one) => `${one.name} of ${one.repository}`;
+  const listed = item.blocks.map(block).join(", or ");
+  if (item.state === "waiting") {
+    return item.mine
+      ? `proposal ${item.id} of this repository waits on the family's owner since ${item.on}: it asks that a block for ${item.subject} graduate (${listed})`
+      : `proposal ${item.id}, of ${item.asked_by}, asks the family's owner that a block for ${item.subject} graduate (${listed}): it names a block of this repository, and waits since ${item.on}`;
+  }
+  const said = `by ${item.decided.by} on ${item.decided.on}, because ${item.decided.why}`;
+  if (item.state === "refused") {
+    return item.mine
+      ? `proposal ${item.id} of this repository was refused ${said}: no block for ${item.subject} graduates, and the block refused is not proposed again`
+      : `proposal ${item.id}, of ${item.asked_by}, was refused ${said}: this repository's block for ${item.subject} stays its own, as it stood`;
+  }
+  const chosen = item.blocks.find((one) => one.repository === item.decided.chose);
+  const carried = item.held
+    ? "it is promoted: core --join pins the store, and find gives it at tier 3"
+    : `it is not promoted yet: the family's owner runs core --promote ${item.subject} in ${item.decided.chose}`;
+  // The owner chose this repository's block: it is promoted from here.
+  if (item.own && chosen?.repository === item.own.repository) {
+    return `the family's owner granted ${item.id}, of ${item.asked_by}, ${said}, and chose this repository's ${item.own.name} for ${item.subject}; ${carried}`;
+  }
+  // The owner chose another's: this repository keeps its own.
+  if (item.own) {
+    return `the family's owner chose ${chosen ? block(chosen) : `the block of ${item.decided.chose}`} for ${item.subject} (${item.id}, ${said}): this repository keeps its own ${item.own.name}, as it stood`;
+  }
+  return `proposal ${item.id} of this repository was granted ${said}: the family's owner chose ${chosen ? block(chosen) : `the block of ${item.decided.chose}`} for ${item.subject}; ${carried}`;
+}
+
+// What a member is told of the reports: its own behind its intake ledger, with the move that
+// writes it, and each report in the core that is not the one it copied.
+export function reportStateLines(moved) {
+  const state = moved.reports;
+  if (!state) return [];
+  const lines = [];
+  if (state.own === "behind") {
+    const needs = state.untold.needs.length;
+    const uses = state.untold.uses.length;
+    const what = [
+      ...(needs > 0 ? [`${needs} need${needs === 1 ? "" : "s"} it answered`] : []),
+      ...(uses > 0 ? [`${uses} block${uses === 1 ? "" : "s"} of the core it uses`] : []),
+    ];
+    lines.push(
+      `this repository's report to the core is behind its intake ledger${what.length > 0 ? ` (the core is not told of ${what.join(" and ")})` : ""}: core --report writes it, in the core folder only, and prints first what it writes`,
+    );
+  }
+  for (const name of state.others_differ) {
+    lines.push(
+      `the report of ${name} in the core is not the one copied here: find and intake here know its needs as of the pin, and core --join pins the newer`,
+    );
+  }
+  return lines;
 }
 
 // The lines `status` and `inventory` print of a member's core against its pin. Empty on a
@@ -459,6 +588,7 @@ export function movedLines(moved) {
     ),
     ...(moved.blocks_differ ? [`  ${BLOCKS_WORDS}`] : []),
     ...proposalLines(moved).map((line) => `  ${line}`),
+    ...reportStateLines(moved).map((line) => `  ${line}`),
   ];
   if (moved.state === "same") {
     return [`  the core (${moved.core}) is where this repository pinned it`, ...blocks];

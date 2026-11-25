@@ -695,7 +695,10 @@ const retiredOne = (entry) => ({
 // What a proposal of a member asks: for an answer, the value the member holds, and what the core
 // held when it was made; for a block, its name and the files as the member has them, each with its
 // hash, kept under `proposals/<id>/`, and the hash that named the core's block then.
-export const PROPOSAL_KINDS = ["answer", "block"];
+// A graduation (slice 2 of item 7.2) asks the family's owner to promote a block a repository of the
+// family already has, for a need another meets: it carries no value and no file, only which block
+// of which repository, by its need, its name and what it is for, as that repository's report says.
+export const PROPOSAL_KINDS = ["answer", "block", "graduation"];
 export const PROPOSAL_OUTCOMES = ["granted", "refused"];
 const proposedAnswer = {
   type: "object",
@@ -714,6 +717,24 @@ const proposedBlock = {
   },
   open: true,
 };
+// One block a graduation names: the repository that has it, and what its report tells of it. Never
+// code, a path or a value.
+const graduationCandidate = {
+  type: "object",
+  fields: {
+    repository: required(text),
+    need: required(dashed),
+    name: required(text),
+    description: required(text),
+  },
+};
+// What a graduation asks: the blocks that answer the need in the family, one or, where two
+// repositories answered it in two ways, each of them, for the owner to choose one.
+const proposedGraduation = {
+  type: "object",
+  fields: { candidates: required(list(graduationCandidate)) },
+  open: true,
+};
 const proposalDecided = {
   type: "object",
   fields: {
@@ -721,6 +742,8 @@ const proposalDecided = {
     by: required(said),
     on: required(day),
     why: required(said),
+    // For a graduation granted: the repository whose block the owner chose.
+    chose: text,
   },
   open: true,
 };
@@ -807,6 +830,8 @@ export const CORE = {
     },
     // What each member repository has solved, one file per repository named after it: the key of
     // each need, its name and its description, and nothing else: never code, never a file's text.
+    // Since slice 2 of item 7.2 a report also tells, under `uses`, the needs of the core whose
+    // block the repository took in: a key alone, the block being the core's.
     members: {
       folder: "members",
       ending: ".json",
@@ -825,6 +850,7 @@ export const CORE = {
             },
           }),
         ),
+        uses: list(dashed),
       },
       open: true,
     },
@@ -866,6 +892,7 @@ export const CORE = {
         why: required(said),
         answer: proposedAnswer,
         block: proposedBlock,
+        graduation: proposedGraduation,
         decided: proposalDecided,
       },
       open: true,
@@ -942,7 +969,34 @@ export function familyCoreProblems(dir) {
       );
     }
   }
-  return [...problems, ...retiredClashes(dir)];
+  return [...problems, ...retiredClashes(dir), ...useClashes(dir)];
+}
+
+// A use a report tells of a need the store neither offers nor retired (slice 2 of item 7.2): the
+// block it names is no block of this core. Whether the store's entry names the repository under
+// `used_by` is not held here: the move that tells a use writes the store's entry first, and an
+// entry that lost the name is written again at the repository's next report or pin, which a core
+// that did not hold its shape would refuse.
+function useClashes(dir) {
+  const parts = readCoreParts(dir);
+  const needsOf = (part) => {
+    const found = parts.find((entry) => entry.part === part)?.data?.blocks;
+    return new Set((Array.isArray(found) ? found : []).map((block) => block?.need));
+  };
+  const offered = needsOf("blocks");
+  const gone = needsOf("retired");
+  const problems = [];
+  for (const entry of parts.filter((each) => each.part === "members" && each.data)) {
+    const uses = Array.isArray(entry.data.uses) ? entry.data.uses : [];
+    uses.forEach((need, place) => {
+      if (typeof need === "string" && !offered.has(need) && !gone.has(need)) {
+        problems.push(
+          `${entry.file}.uses[${place}] is ${need}, which the store neither offers nor retired`,
+        );
+      }
+    });
+  }
+  return problems;
 }
 
 // A need the store offers whose files a retired block of that need still keeps in the same
@@ -1150,6 +1204,7 @@ function corePartProblems(part, data, file) {
       problems.push(`${file} proposes an answer and holds a block`);
     if (data.kind === "block" && data.answer)
       problems.push(`${file} proposes a block and holds an answer`);
+    problems.push(...graduationProblems(data, file));
     for (const [key, value] of [
       ["by", data.by],
       ["why", data.why],
@@ -1164,15 +1219,81 @@ function corePartProblems(part, data, file) {
     }
     return problems;
   }
-  if (part === "members" && typeof data.repository === "string") {
+  if (part === "members") {
+    const problems = [];
     const name = path.posix.basename(file);
-    if (name !== `${data.repository}.json`) {
-      return [
+    if (typeof data.repository === "string" && name !== `${data.repository}.json`) {
+      problems.push(
         `${file} is named ${name} and its repository is ${data.repository}: a report is named after its repository`,
-      ];
+      );
     }
+    const needs = Array.isArray(data.needs) ? data.needs : [];
+    problems.push(
+      ...twice(needs, "need").map(
+        (need) => `${file} tells the need ${need} twice: one need, one block`,
+      ),
+    );
+    needs.forEach((one, index) => {
+      for (const key of ["name", "description"]) {
+        if (typeof one?.[key] === "string" && ADDRESS.test(one[key])) {
+          problems.push(
+            `${file}.needs[${index}].${key} holds an e-mail address: a core keeps names, never an address`,
+          );
+        }
+      }
+    });
+    const uses = Array.isArray(data.uses) ? data.uses : [];
+    uses.forEach((need, index) => {
+      if (typeof need === "string" && uses.indexOf(need) !== index) {
+        problems.push(`${file}.uses[${index}] tells the use of ${need} twice`);
+      }
+    });
+    return problems;
   }
   return [];
+}
+
+// What a proposal says about a graduation that its shape alone does not hold: the kind and its
+// content go together, every block it names answers the one need it is about, and one granted
+// names the repository whose block the owner chose.
+function graduationProblems(data, file) {
+  const problems = [];
+  if (data.kind === "graduation" && !data.graduation) {
+    problems.push(`${file} proposes a graduation and names no block`);
+  }
+  if (data.kind !== "graduation" && data.graduation) {
+    problems.push(`${file} proposes ${data.kind} and holds a graduation`);
+  }
+  if (data.kind === "graduation" && (data.answer || data.block)) {
+    problems.push(`${file} proposes a graduation and holds a value or files: it names blocks only`);
+  }
+  if (data.kind !== "graduation") {
+    return data.decided?.chose === undefined
+      ? problems
+      : [...problems, `${file}.decided.chose is said of a graduation only`];
+  }
+  const candidates = Array.isArray(data.graduation?.candidates) ? data.graduation.candidates : [];
+  if (data.graduation && candidates.length === 0) {
+    problems.push(`${file}.graduation.candidates names no block: a graduation is about one`);
+  }
+  candidates.forEach((one, index) => {
+    if (typeof one?.need === "string" && one.need !== data.subject) {
+      problems.push(
+        `${file}.graduation.candidates[${index}].need is ${one.need}, and the proposal is about ${data.subject}`,
+      );
+    }
+  });
+  const chose = data.decided?.chose;
+  if (data.decided?.outcome === "granted") {
+    if (!candidates.some((one) => one?.repository === chose)) {
+      problems.push(
+        `${file}.decided.chose is ${chose ?? "missing"}: a graduation granted names the repository whose block was chosen, one of ${candidates.map((one) => one?.repository).join(", ")}`,
+      );
+    }
+  } else if (chose !== undefined) {
+    problems.push(`${file}.decided.chose is said of a graduation granted only`);
+  }
+  return problems;
 }
 
 // ---- a member of a family: the core it pinned (spec 0016, slice 2 of item 7.1) -----------------
@@ -1180,7 +1301,9 @@ function corePartProblems(part, data, file) {
 // Where a repository keeps the family it declared and the copy of that core: the row of the sources
 // ledger, and the folder the copy is kept in. The copy holds the declaration, the answers, the list
 // of blocks and, since slice 1 of item 7.2, the files of every block, each where the core keeps
-// it; the members' reports stay in the core. A copy pinned before that holds no file of a block.
+// it; since slice 2 of item 7.2 it holds the members' reports too, each byte for byte under
+// `members/`, so a repository knows on every machine which needs the family has answered. A copy
+// pinned before either holds no file of a block, or no report.
 export const PINNED_CORE = { file: `${SOURCES_FOLDER}/${CORE_ID}.json`, snapshot: "design/core" };
 export const COPIED_PARTS = ["declaration", "answers", "blocks"];
 // The check of the gate that holds the locked answers of the core a repository pinned. It is laid

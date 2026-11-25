@@ -36,10 +36,20 @@ import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
 import { fileChange, Refusal } from "./command.mjs";
 import { blockPinOf, CORE_SOURCE, readFamilyStore } from "./core-blocks.mjs";
 import { changeCore } from "./core-change.mjs";
+import {
+  askLines,
+  askWords,
+  GRADUATION,
+  graduationAsk,
+  grantGraduation,
+  grantLines,
+  OWNER_SEES_GRADUATION,
+  promotionCall,
+} from "./core-graduate.mjs";
 import { homeOf } from "./core-list.mjs";
 import { readMember } from "./core-marks.mjs";
 import { coreOf } from "./core-moved.mjs";
-import { placeBlock, readStore, replacedBlock, storeWith } from "./core-promote.mjs";
+import { placeBlock, promoteReport, readStore, replacedBlock, storeWith } from "./core-promote.mjs";
 import { proposalsIn, stateOfProposal } from "./core-records.mjs";
 import { fileOf, insideRoot, readIntake, readTheme, text } from "./store.mjs";
 import { coreMarkOf } from "../templates/tools/design-assembly/contract.mjs";
@@ -206,14 +216,20 @@ const sameProposal = (a, b) =>
       JSON.stringify(blockFilesKey(b.block?.files));
 
 // Writes a proposal of the member into the core folder, or says what it would write.
-export function proposeToCore(root, { id, asBlock = false, by, on, why, core = null, dryRun }) {
+export function proposeToCore(
+  root,
+  { id, asBlock = false, graduate = false, by, on, why, core = null, dryRun },
+) {
   const { pinned, repository, folder } = reachCore(root, core);
-  const isAnswer = !asBlock && pinned.answers.some((item) => item.id === id);
-  const made = isAnswer
-    ? answerProposal(root, { pinned, folder, id })
-    : blockProposal(root, { folder, id });
-  const kind = isAnswer ? "answer" : "block";
   const existing = proposalsIn(folder);
+  const isAnswer = !graduate && !asBlock && pinned.answers.some((item) => item.id === id);
+  // A graduation asks about a block another repository has: it carries neither value nor file.
+  const made = graduate
+    ? graduationAsk(root, { folder, repository, need: id, existing })
+    : isAnswer
+      ? answerProposal(root, { pinned, folder, id })
+      : blockProposal(root, { folder, id });
+  const kind = graduate ? GRADUATION : isAnswer ? "answer" : "block";
   const proposal = {
     version: CORE.version,
     id: "",
@@ -224,7 +240,11 @@ export function proposeToCore(root, { id, asBlock = false, by, on, why, core = n
     by,
     on,
     why,
-    ...(made.answer ? { answer: made.answer } : { block: made.block }),
+    ...(made.graduation
+      ? { graduation: made.graduation }
+      : made.answer
+        ? { answer: made.answer }
+        : { block: made.block }),
   };
   const base = {
     core: folder,
@@ -237,15 +257,18 @@ export function proposeToCore(root, { id, asBlock = false, by, on, why, core = n
     why,
     dry_run: dryRun,
   };
+  // Granted already, and the promotion not carried out yet: nothing more is asked.
+  if (made.owed) return { ...base, owed: made.owed, call: made.call, files: [] };
+  // A graduation is about a need of the family: one waits at a time, whoever asked.
   const waiting = existing.find(
     (item) =>
-      item.repository === repository &&
+      (graduate || item.repository === repository) &&
       item.kind === kind &&
       item.subject === made.subject &&
       !item.decided &&
       !item.unreadable,
   );
-  if (waiting && sameProposal(proposal, waiting)) {
+  if (waiting && (graduate || sameProposal(proposal, waiting))) {
     return { ...base, already: waiting, files: [] };
   }
   if (waiting) {
@@ -282,11 +305,21 @@ export function proposeToCore(root, { id, asBlock = false, by, on, why, core = n
 // The proposal as a person reads it, before and after it is written.
 export function proposeReport(result) {
   const where = `family core: ${result.family}, at ${result.core}`;
+  if (result.owed) {
+    const { decided } = result.owed;
+    return [
+      where,
+      `${result.owed.id} asked this, and the family's owner granted it on ${decided.on} (${decided.by}, because ${decided.why}), choosing the block of ${decided.chose}: nothing was written`,
+      `the promotion is owed: the family's owner runs, in ${decided.chose}: ${result.call}`,
+    ];
+  }
   if (result.already) {
     return [
       where,
-      `${result.already.id} proposes this already, and waits on the family's owner since ${result.already.on}: nothing was written`,
-      OWNER_SEES,
+      result.kind === GRADUATION
+        ? `${result.already.id} asks this already (${result.already.repository}, on ${result.already.on}), and waits on the family's owner: nothing was written`
+        : `${result.already.id} proposes this already, and waits on the family's owner since ${result.already.on}: nothing was written`,
+      result.kind === GRADUATION ? OWNER_SEES_GRADUATION : OWNER_SEES,
     ];
   }
   const { proposal } = result;
@@ -295,6 +328,16 @@ export function proposeReport(result) {
     `${result.dry_run ? "would write" : "wrote"} the proposal ${proposal.id} of ${result.repository}, in the core folder only:`,
     ...result.files.map((file) => `  ${file.change.padEnd(7)} ${file.path}`),
   ];
+  if (proposal.graduation) {
+    return [
+      ...lines,
+      ...askLines(proposal),
+      `  by ${proposal.by} on ${proposal.on}, because ${proposal.why}`,
+      OWNER_SEES_GRADUATION,
+      `nothing of ${result.repository} was written`,
+      "nothing was committed or sent anywhere",
+    ];
+  }
   if (proposal.answer) {
     lines.push(
       `  it proposes ${proposal.subject} becomes ${shown(proposal.answer.value)} (as ${result.held_in} holds it here); the core holds ${shown(proposal.answer.was.value)}, ${proposal.answer.was.hold}`,
@@ -321,20 +364,32 @@ export function proposeReport(result) {
 
 // The proposals a core holds: those that wait on the owner first, then those answered.
 export function listProposals(core) {
-  const { declaration } = readStore(core);
+  const { declaration, index, retired } = readStore(core);
   const all = proposalsIn(core);
+  const settled = new Set([...index.blocks, ...retired.blocks].map((block) => block.need));
   return {
     core,
     family: declaration.family,
     waiting: all.filter((item) => !item.decided),
     answered: all.filter((item) => item.decided),
+    // A graduation granted whose block the store does not hold yet: the promotion is owed.
+    owed: all
+      .filter(
+        (item) =>
+          item.kind === GRADUATION &&
+          item.decided?.outcome === "granted" &&
+          !settled.has(item.subject),
+      )
+      .map((item) => ({ id: item.id, call: promotionCall(core, item), in: item.decided.chose })),
   };
 }
 
 const proposalWords = (item) =>
   item.unreadable
     ? `${item.id}: ${item.unreadable}`
-    : `${item.id}: ${item.repository} proposes ${item.kind === "answer" ? `${item.subject} becomes ${shown(item.answer?.value)}` : `the files of ${item.block?.name} (${item.subject}): ${(item.block?.files ?? []).map((file) => file.file).join(", ")}`}; by ${item.by} on ${item.on}, because ${item.why}`;
+    : item.kind === GRADUATION
+      ? `${item.id}: ${askWords(item)}; by ${item.by} on ${item.on}, because ${item.why}`
+      : `${item.id}: ${item.repository} proposes ${item.kind === "answer" ? `${item.subject} becomes ${shown(item.answer?.value)}` : `the files of ${item.block?.name} (${item.subject}): ${(item.block?.files ?? []).map((file) => file.file).join(", ")}`}; by ${item.by} on ${item.on}, because ${item.why}`;
 
 export function listReport(result) {
   const lines = [`family core: ${result.family}, at ${result.core}`];
@@ -345,10 +400,22 @@ export function listReport(result) {
     lines.push(
       "grant one with core --grant ID --core DIR --by NAME --why TEXT, or refuse it with core --refuse ID --core DIR --by NAME --why TEXT",
     );
+    if (result.waiting.some((item) => item.kind === GRADUATION)) {
+      lines.push(
+        "a graduation is granted with --choose REPOSITORY where it names two blocks; with --from DIR, the folder of the repository that has the block, the grant promotes at once, and without it the grant names the promotion to run there",
+      );
+    }
   }
   for (const item of result.answered) {
+    const owed = (result.owed ?? []).find((each) => each.id === item.id);
+    const carried =
+      item.kind === GRADUATION && item.decided.outcome === "granted"
+        ? owed
+          ? `; chose the block of ${item.decided.chose}; the promotion is owed: run in ${owed.in}: ${owed.call}`
+          : `; chose the block of ${item.decided.chose}; carried out, or settled since: the store has an entry for ${item.subject}`
+        : "";
     lines.push(
-      `  ${item.decided.outcome} ${item.id} (${item.repository}, ${item.subject}): by ${item.decided.by} on ${item.decided.on}, because ${item.decided.why}`,
+      `  ${item.decided.outcome} ${item.id} (${item.repository}, ${item.subject}): by ${item.decided.by} on ${item.decided.on}, because ${item.decided.why}${carried}`,
     );
   }
   return lines;
@@ -356,7 +423,8 @@ export function listReport(result) {
 
 // The owner's answer to a proposal: granted, carried out with the change move or the promotion's
 // replace; or refused. Either way the proposal keeps the answer, who gave it, when and why.
-export function decideProposal(core, { id, outcome, by, on, why, dryRun }) {
+export function decideProposal(core, request) {
+  const { id, outcome, by, on, why, dryRun } = request;
   const { declaration, index } = readStore(core);
   const file = path.join(core, FOLDER, `${id}.json`);
   if (!existsSync(file)) {
@@ -382,9 +450,24 @@ export function decideProposal(core, { id, outcome, by, on, why, dryRun }) {
     why,
     dry_run: dryRun,
   };
+  const isGraduation = proposal.kind === GRADUATION;
+  for (const flag of ["choose", "from"]) {
+    if (request[flag] && !(isGraduation && outcome === "granted")) {
+      throw new Refusal(
+        `--${flag} is said when a graduation is granted: ${id} is ${isGraduation ? "refused here" : `a proposal about ${proposal.kind === "answer" ? "an answer" : "a block's files"}`}${NOTHING}`,
+      );
+    }
+  }
   const carried =
-    outcome === "granted" ? grant(core, proposal, { index, by, on, why, dryRun }) : null;
-  const decided = { ...proposal, decided: { outcome, by, on, why } };
+    outcome !== "granted"
+      ? null
+      : isGraduation
+        ? grantGraduation(core, proposal, request)
+        : grant(core, proposal, { index, by, on, why, dryRun });
+  // The block came from an outside source whose licence line a person reads first: nothing is
+  // answered until they say it allows passing the code on.
+  if (carried?.promoted?.waits) return { ...base, waits: carried.promoted, files: [] };
+  const decided = { ...proposal, decided: carried?.decided ?? { outcome, by, on, why } };
   const problems = corePartShapeProblems("proposals", decided, `${FOLDER}/${id}.json`);
   if (problems.length > 0) {
     throw new Refusal(
@@ -467,7 +550,16 @@ export function decideReport(result) {
     `family core${result.dry_run ? " (not written: --dry-run)" : ""}: ${result.family}, at ${result.core}`,
     `${result.dry_run ? "would answer" : "answered"} ${result.id} of ${proposal.repository}: ${result.outcome}, by ${result.by} on ${result.on}, because ${result.why}`,
   ];
-  if (result.carried?.kind === "answer") {
+  if (result.waits) {
+    return [
+      lines[0],
+      ...promoteReport(result.waits).slice(1),
+      `${result.id} was not answered: run the grant again with --licence-allows once a person read the line`,
+    ];
+  }
+  if (result.carried?.kind === GRADUATION) {
+    lines.push(...grantLines(result, result.carried));
+  } else if (result.carried?.kind === "answer") {
     const change = result.carried.change;
     lines.push(
       `  carried out with the change move: ${change.id}, its value ${shown(change.was.value)} became ${shown(change.became.value)}; its history records who, when and why`,
@@ -484,9 +576,11 @@ export function decideReport(result) {
   lines.push(
     `${result.dry_run ? "would write" : "wrote"}, in the core folder only:`,
     ...result.files.map((file) => `  ${file.change.padEnd(9)} ${file.path}`),
-    result.outcome === "granted"
-      ? "no member repository was written: each member learns the core moved at its next look (core --moved), and accepts it there"
-      : "no member repository was written",
+    result.carried?.kind === GRADUATION
+      ? `no repository was written: ${proposal.repository} is told at its next look (core --moved, status), and takes the block in once it is promoted and the store is pinned again (core --join)`
+      : result.outcome === "granted"
+        ? "no member repository was written: each member learns the core moved at its next look (core --moved), and accepts it there"
+        : "no member repository was written",
     "nothing was committed or sent anywhere",
   );
   return lines;

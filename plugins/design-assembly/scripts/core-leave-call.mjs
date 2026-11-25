@@ -27,7 +27,19 @@ const ONCE_WORDS = {
   kept: "once kept against the core as an exception, with its reason",
 };
 
-function coreLines({ core_file: core, repository, dry_run: dryRun }) {
+// The repository's report in the core goes with its line: said before it is deleted.
+function reportLines({ core_report: report, repository }) {
+  if (!report?.file) return [];
+  const line = `in the core folder: ${report.file}: deletes the report of ${repository}: the family counts the needs of its own repositories`;
+  if (report.deleted) return [`${line} (deleted)`];
+  return [report.why ? `${line}; not deleted: ${report.why}` : `${line} (not deleted: --dry-run)`];
+}
+
+function coreLines(result) {
+  return [...memberLineLines(result), ...reportLines(result)];
+}
+
+function memberLineLines({ core_file: core, repository, dry_run: dryRun }) {
   if (!core.reached) {
     return [
       `the core folder was not reached (${core.why}): the repository ${dryRun ? "would leave" : "left"} all the same`,

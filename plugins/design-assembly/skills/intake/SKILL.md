@@ -58,6 +58,17 @@ The same call, after the answer:
   record. A file in the way is never written over. After the row, the repository writes its
   component manifest again (`make design-components`), as after any component it adds, and its
   exports where it keeps them (`make design-exports`): the gate is red on each until then.
+- **In a member of a family**, two notes may be printed, each said to the person:
+  - before the owner is asked, when another repository of the family answered the need and the
+    family's store does not hold it: `in the family, not in its store yet`, with which repository,
+    the block's name and what it is for, and the step that comes first: ask the family's owner to
+    promote it with `core --propose <need> --graduate` (`/design-assembly:core`, section 14). It is
+    never a candidate of the question: nothing is taken from another repository, and the core is
+    the only way between two. The question still waits on the repository's owner, who may answer
+    it once the family's owner answered theirs;
+  - once the row is written: the family core is not told of the block yet, and
+    `core --report` tells it (`/design-assembly:core`, section 16). This command writes in the
+    repository alone, on every machine the same, and never in the core folder.
 - **An item of an outside source:** the question says what it brings (its files, packages, the
   items it asks for, the repository's files it asks to write over), read from the pinned snapshot.
   After the answer, the call gives its install line and does not run it. The line may need the

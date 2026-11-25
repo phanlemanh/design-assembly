@@ -36,9 +36,11 @@ import {
   blockBrings,
   CORE_SOURCE,
   CORE_WORDS,
+  declaresFamily,
   FAMILY_STORE,
   readFamilyStore,
 } from "./core-blocks.mjs";
+import { needNext, needSentence } from "./core-graduate.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { find, wordsOf } from "./find.mjs";
 import { mandatoryOff, mandatoryRules, unexempted } from "./conform-rules.mjs";
@@ -388,7 +390,18 @@ function candidatesFor(root, { need, words, kind, byHand, why, except = null }) 
   const nearest = near[0]?.name ?? farther.matches[0]?.name ?? NOTHING_ANSWERS;
   const hand = { name: "by-hand", store: "by-hand", why: reason, searched: words, nearest };
   const candidates = byHand ? [hand, ...found] : [...found, hand];
-  return { candidates, near, notes };
+  // In a member of a family: a need another of its repositories answered and the family's store
+  // does not hold is said before anything is made or taken from outside, with the question to
+  // the family's owner. It is never a candidate: nothing is taken from another repository.
+  const family = farther.family_needs;
+  if (family?.length > 0) {
+    const next = needNext(family);
+    for (const one of family) {
+      notes.push(`${needSentence(one)}${one.proposed ? "" : `; not proposed here: ${one.why}`}`);
+    }
+    if (next) notes.push(next);
+  }
+  return { candidates, near, notes, ...(family ? { family_needs: family } : {}) };
 }
 
 // Whether fresh candidates offer what a refused question did not: another first one, or others.
@@ -568,6 +581,7 @@ function needCall(root, state, options) {
       waiting: row.id,
       question: "asked",
       notes: fresh.notes,
+      ...(fresh.family_needs ? { family_needs: fresh.family_needs } : {}),
       row: null,
       next: `asked the owner in ${questionFile(row.id)}: go on with ${row.recommendation}; the row is written once the owner answers on the decision sheet, and this is called again`,
       writes: questionFiles(state, row),
@@ -650,6 +664,17 @@ function needCall(root, state, options) {
     chosen,
     install: chosen.install ?? null,
     row: made.row,
+    // A member's report to its family's core is the core's file: taking a block in writes the
+    // repository alone, the same on every machine, and names the move that tells the core.
+    ...(declaresFamily(root) && rung !== "starter"
+      ? {
+          notes: [
+            rung === FAMILY_STORE
+              ? `the family core is not told of this yet: core --report tells it this repository uses ${chosen.name}, and the store's entry then says who uses the block; it writes in the core folder only, and prints first what it writes`
+              : `the family core is not told of this yet: core --report tells it this repository answered ${need}, by its key, its name and what it is for, never its code; it writes in the core folder only, and prints first what it writes`,
+          ],
+        }
+      : {}),
     next: `${made.row.name} is recorded for ${need}, approved by ${question.by} on ${question.on}`,
     writes,
     work: false,
