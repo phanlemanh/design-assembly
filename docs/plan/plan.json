@@ -599,23 +599,37 @@
       "parallel": [],
       "items": [
         {
+          "id": "7.0",
+          "what": "Đề bài chi tiết cho cả giai đoạn, chủ repo duyệt",
+          "state": "done",
+          "ref": "wiki/specs/0016-the-family-core-is-born-through-the-plugin.md, đã duyệt ngày 2026-11-25 («Duyệt cả mười ba»): plugin dựng lõi khi repo thứ hai cùng họ dùng nó và người cho phép, sửa câu 7 của quyết định 0023 (wiki/decisions/0112-the-plugin-builds-the-family-core.md); repo đứng một mình không đổi gì; repo thừa hưởng bằng cách ghim; lệnh tên core; repo khai họ bằng một tệp của sổ nguồn ngoài; plugin có một móc lúc mở phiên; chủ của họ được chủ động đưa một khối lên lõi; mục này thêm vào kế hoạch cùng lời duyệt ấy, như mục 10.0 và 11.0"
+        },
+        {
           "id": "7.1",
           "what": "Hồ sơ quyết định dùng chung",
-          "state": "todo"
+          "state": "todo",
+          "ref": "wiki/specs/0016-the-family-core-is-born-through-the-plugin.md, tiêu chí 1 đến 9, 14, 15, 17 đến 20, 22, 25 và 26; bốn lát, mỗi lát một PR; mỗi thay đổi hợp đồng sổ cần người duyệt"
         },
         {
           "id": "7.2",
           "what": "Registry khối đã nâng hạng, và đề xuất nâng hạng ở nhịp định kỳ",
-          "state": "todo"
+          "state": "todo",
+          "ref": "wiki/specs/0016-the-family-core-is-born-through-the-plugin.md, tiêu chí 10 đến 13, 21, 23 và 24; ba lát, mỗi lát một PR"
         },
         {
           "id": "7.3",
           "what": "Một repo thứ hai cùng họ thừa hưởng lõi",
-          "state": "todo"
+          "state": "todo",
+          "ref": "wiki/specs/0016-the-family-core-is-born-through-the-plugin.md, tiêu chí 16, câu hỏi 8: lượt thử của dòng «xong khi» trên bản sao, mỗi lượt hỏi chủ repo trước vì tốn token"
         }
       ],
       "done_when": ["Repo thứ hai không bị hỏi lại câu đã trả lời, và dùng lại ít nhất một khối"],
-      "needs_owner": ["Tạo repo cho lõi"]
+      "needs_owner": [
+        "Duyệt mỗi thay đổi hợp đồng sổ",
+        "Chốt câu nào của lõi là khoá",
+        "Cho phép tạo repo lõi và đẩy lên",
+        "Cho phép từng lượt thử tốn token"
+      ]
     }
   ],
   "parked_groups": [

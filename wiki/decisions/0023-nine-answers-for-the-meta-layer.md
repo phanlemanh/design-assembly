@@ -22,6 +22,10 @@ Accepted. Máy phân tích chín câu còn mở của tài liệu kiến trúc v
 duyệt cả chín ngày 2026-11-13 («Duyệt cả chín»). Kiến trúc tổng thể vẫn là đề xuất: bản này chỉ chốt
 chín câu dưới đây.
 
+Câu 7 được sửa ở một điểm bởi
+[0112](0112-the-plugin-builds-the-family-core.md), 2026-11-25: plugin dựng lõi và người cho phép, thay cho việc chủ
+kho tạo kho lõi. Phần còn lại vẫn đúng.
+
 ## Context
 
 Tài liệu kiến trúc lớp meta (`docs/architecture/meta-layer.html`) để lại chín câu chưa quyết. Bốn
