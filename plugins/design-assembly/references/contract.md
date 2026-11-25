@@ -54,6 +54,19 @@ sheet writes an answer: the family's owner, or the person who gave the reason. A
 reads as before; a row the core has and the ledger lacks is added with its mark and no check, inherited and
 not held until a check of the repository holds it.
 
+Once the repository left its family (`core --leave`, spec 0016, criterion 25), each such mark is
+turned, and no value changes: the note begins with `own since <day>, when the repository left its
+family: <why> (by <name>), once ` and then the mark the row carried, word for word (`inherited from
+the family core at <pin>`, `changed from the family core at <pin>: <why> (by <name> on <day>)` or
+`kept against the family core at <pin>: <why> (by <name> on <day>)`). `<day>` is the day it left,
+`<name>` who said so and `<why>` their reason; the pin says where the answer once came from, and
+the note never names the family. Whatever else the note says, the `answered by` of a judgment
+included, follows after `; ` as before, so the row stays a person's answer. An exception and a
+changed default keep their reason and mean nothing more: the answer is the repository's own. A row
+the core added stays, with this mark; where its `source` was `design/sources/core.json`, because
+only the copy held its value, the `source` becomes that value. The guide keeps the mark on a row it
+writes again. A repository that joins a family again has its new mark written in this one's place.
+
 ### blueprint
 
 `version`, `layers` (one entry per layer, with its status and the choice), and the guide's own
@@ -63,6 +76,15 @@ In a repository of a family, a layer may also say `inherited`, by choice key, `{
 choice is the answer of the core it pinned, locked or a default, so the guide does not ask it; and
 `changed`, by choice key, `{ why, by, on }`: a default of the core the repository holds otherwise,
 and why. A blueprint without them reads as before.
+
+Once the repository left its family, a layer says neither: it says `own`, by choice key, `{ since,
+by, why, once }`: the day the choice became the repository's own, who said the repository leaves
+and why, and what the choice once was, `inherited` (then also `pin`, and `hold`) or `changed` (then
+also `pin`, and `changed`, the reason it carried: `why`, `by`, `on`). No choice changes. A choice
+once inherited stays a person's answer: where the layer is not the owner's as a whole, its key is
+listed under `confirmed` and `answered` says who settled it, the family's owner as the core
+recorded it, or the person leaving where the copy could not be read. A choice inherited again loses
+its entry under `own`.
 
 ### tokens
 
@@ -246,7 +268,10 @@ its `sha256`, and maybe `pin.taken_on`, the day it was copied; and `joined`, who
 repository is of the family and when (`by`, `on`). Every reader compares the copy with the hashes
 first: a copy that differs, a file missing, a part of a wrong or newer shape, is unreadable, says
 why, and the repository inherits nothing; its own answers stand. The gate, where it holds the core's
-locked answers, says so in red.
+locked answers, says so in red. `core --leave` removes this file and the copy, the files the pin
+lists and the three parts and nothing else of that folder, whether the copy can be read or not; the
+check `family-core` and the questions about the core that wait on the owner (`core-<id>-<pin>`) go
+with them, and the repository reads as one that declares no family.
 
 A source may say its `kind`. One other kind has a meaning here, `font`: a typeface the product uses that
 is neither the floor's nor the system's. A source with no `kind`, or with a word of the
@@ -356,7 +381,10 @@ so, the first one included; and `owner`, the person who answered the lock-or-def
 `by` and `on`: the family's owner. A member's `pin` is the first twelve hexadecimal digits of the
 hash of `answers.json` as the member copied it: a member joining changes `core.json` and not the
 pin. The command that joins writes the member into the core folder only where the folder can be
-written, and says first what it writes there.
+written, and says first what it writes there. The command that leaves takes the repository's line out of `members`
+the same way: only where the core folder can be reached and holds its shape, saying first the line
+it takes out; where it cannot, the repository leaves all the same, the line stays, and the command
+says what is left to do there.
 
 `answers`: `version` and `answers`, one entry per question, no question twice. An answer has `id`
 (the id of its row in the decision ledger), `question`, `kind` (`value`, a value a member
@@ -411,6 +439,11 @@ file on the machine, outside every repository: the file `DESIGN_ASSEMBLY_CORES` 
 command sends it anywhere, and none writes over a list it cannot read. With a core in it that can be
 read, `new` and `adopt` ask a repository that declares no family one question, whether it is of that
 family; a list missing or that cannot be read asks nothing and says no error.
+
+A repository that left its family is recorded among those that said no, by its main folder, with
+the day and `how: "left"`: it is not asked at once whether it is of a family, and joins one again
+with `core --join`. The core it left stays on the list. A list that cannot be read is left as it
+is, and the repository leaves all the same.
 
 ## Not a ledger: the waiting list
 
