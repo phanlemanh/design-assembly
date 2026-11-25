@@ -27,7 +27,7 @@ import { writeFiles, writtenFiles } from "./apply.mjs";
 import { finish, Refusal, refuse } from "./command.mjs";
 import { folderRulesOff, mandatoryOff, mandatoryRules, unexempted } from "./conform-rules.mjs";
 import { blockFileText, CORE_SOURCE, CORE_WORDS, readFamilyStore } from "./core-blocks.mjs";
-import { fileOf, insideRoot, readIntake, readTheme, text } from "./store.mjs";
+import { componentsOf, fileOf, insideRoot, readIntake, readTheme, text } from "./store.mjs";
 
 export const TAKE_MOVES = ["--take"];
 export const TAKE_FLAGS = { "--take": "value", "--need": "value", "--to": "value" };
@@ -93,13 +93,25 @@ function ownComponents(root) {
 
 // The folder a call names, written as the repository writes a path, inside the repository.
 function folderOf(root, named) {
-  const folder = fileOf(named)?.replace(/\/+$/, "");
-  if (!folder || !insideRoot(root, folder)) {
+  const said = fileOf(named)?.replace(/\/+$/, "");
+  if (!said || !insideRoot(root, said)) {
     throw new Refusal(`--to ${named} is outside the repository${NOTHING}`);
   }
-  if (folder === PINNED_CORE.snapshot || folder.startsWith(`${PINNED_CORE.snapshot}/`)) {
+  // A folder named by its full path is the same folder: every file is read and written by its
+  // path from the repository's root, so the check for a file in the way reads the right one.
+  const folder =
+    path.relative(path.resolve(root), path.resolve(root, said)).split(path.sep).join("/") || ".";
+  // Compared without regard to case: on a disk that tells no case apart they are one folder.
+  const lower = folder.toLowerCase();
+  const copy = PINNED_CORE.snapshot.toLowerCase();
+  if (lower === copy || lower.startsWith(`${copy}/`)) {
     throw new Refusal(
       `--to ${named} is inside the copy of the core: a block is taken into the repository's own code${NOTHING}`,
+    );
+  }
+  if (folder.split("/").some((part) => part.startsWith(".") && part !== ".")) {
+    throw new Refusal(
+      `--to ${named} is a hidden folder, or lies in one: a block is taken into the repository's own code${NOTHING}`,
     );
   }
   return folder;
@@ -123,6 +135,17 @@ function folderOfRecord(record, block) {
 // components, or in the folder named, and the conform record started from them as taken down.
 function firstTake(root, { block, need, to, recordFile }) {
   const folder = to === null ? ownComponents(root) : folderOf(root, to);
+  // A component of the block's name somewhere else in the repository: find does not offer the
+  // block then, and taking it would leave two components of one name.
+  const dests = block.files.map((file) => path.posix.join(folder, file.file));
+  const elsewhere = componentsOf(root).components.find(
+    (component) => component.name === block.name && !dests.includes(component.file),
+  );
+  if (elsewhere) {
+    throw new Refusal(
+      `${block.name} is already in the repository, in ${elsewhere.file}: a block of that name is not offered here, and is not taken beside it${NOTHING}`,
+    );
+  }
   const files = {};
   const entries = [];
   for (const file of block.files) {
@@ -168,7 +191,7 @@ function nextTake(root, { block, need, to, record, recordFile }) {
   const now = dests.map((each) => each.dest).sort();
   if (folder === null || JSON.stringify(now) !== JSON.stringify(held)) {
     throw new Refusal(
-      `the block ${block.need} is ${block.files.map((file) => file.file).join(", ")} in the copy now, and ${recordFile} holds ${held.join(", ")}: the two are not the same files in one folder. Remove ${recordFile} by hand, take the block down afresh, and record each change again with conform --patch${NOTHING}`,
+      `the block ${block.need} is ${block.files.map((file) => file.file).join(", ")} in the copy now, and ${recordFile} holds ${held.join(", ")}: the two are not the same files in one folder. Remove ${recordFile} and the block's files by hand, take the block down afresh, and record each change again with conform --patch${NOTHING}`,
     );
   }
   const files = {};

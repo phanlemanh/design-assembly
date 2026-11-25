@@ -174,6 +174,20 @@ test("core --check names a need kept twice, a file missing, a hash that differs,
   );
   assert.match(outside.stdout, /files\[2\]\.file names order-rows\.tsx twice/);
 
+  // A hidden file, or a file in a hidden folder: a block is code, never a file tools read as
+  // configuration.
+  const hidden = coreFolder({
+    blocks: [
+      rowsBlock({ texts: { "order-rows.tsx": ROWS_CODE, ".git/hooks/pre-commit": "echo\n" } }),
+    ],
+  });
+  const dotted = check(hidden);
+  assert.equal(dotted.status, 1);
+  assert.match(
+    dotted.stdout,
+    /files\[1\]\.file is \.git\/hooks\/pre-commit, a hidden file or one in a hidden folder/,
+  );
+
   // A block with no file at all.
   const none = coreFolder({ blocks: [rowsBlock({ texts: {} })] });
   assert.match(check(none).stdout, /blocks\[0\]\.files names no file: a block is its files/);
@@ -618,11 +632,32 @@ test("criterion 11: a block may be taken for a need of the repository's own, int
   const { dir, list } = member();
   assert.equal(intake(dir, list, "--need", "order-table", "order", "rows").status, 1);
   assert.equal(answerSheet(dir, "intake-order-table keep", list).status <= 1, true);
-  // A folder outside the repository, and one inside the copy of the core, are refused.
-  for (const to of ["../elsewhere", "design/core/blocks"]) {
+  // A folder outside the repository, one inside the copy of the core however its name is cased,
+  // and a hidden one, are refused, and nothing is written.
+  const untouched = snapshot(dir);
+  for (const to of ["../elsewhere", "design/core/blocks", "Design/Core/x", ".git/hooks"]) {
     const refused = take(dir, list, "many-rows", "--need", "order-table", "--to", to);
     assert.equal(refused.status, 2, to);
+    assert.deepEqual(snapshot(dir), untouched, to);
   }
+  // A folder named by its full path is that folder: a file in the way there is still seen.
+  put(dir, "src/components/orders/order-rows.tsx", COMPONENT("SomethingElse"));
+  const whole = take(
+    dir,
+    list,
+    "many-rows",
+    "--need",
+    "order-table",
+    "--to",
+    path.join(dir, "src/components/orders"),
+  );
+  assert.equal(whole.status, 2);
+  assert.match(
+    whole.stderr,
+    /src\/components\/orders\/order-rows\.tsx is there already and is not the block's file/,
+  );
+  assert.ok(!existsSync(path.join(dir, dir.slice(1))), "no folder named after the full path");
+  rmSync(path.join(dir, "src/components/orders"), { recursive: true });
   const down = take(
     dir,
     list,
@@ -661,6 +696,22 @@ test("criterion 11, broken: a file in the way is never written over, and a block
     /the intake ledger already answers filter-list with FilterBar: one need, one solution/,
   );
   assert.deepEqual(snapshot(dir), before);
+  // A component of the block's name is in the repository already, somewhere else: find does not
+  // offer the block, and it is not taken beside it, in whatever folder.
+  const named = member({ "src/components/legacy/order-rows-old.tsx": COMPONENT("OrderRows") });
+  assert.match(
+    // Asked by words only the block's description holds, so the walk reaches tier 3.
+    entry(found(named.dir, named.list, "empty", "state"), "family").why,
+    /OrderRows is already in the repository/,
+  );
+  const kept = snapshot(named.dir);
+  const twice = takeOwn(named.dir, named.list, "--to", "src/components/family");
+  assert.equal(twice.status, 2);
+  assert.match(
+    twice.stderr,
+    /OrderRows is already in the repository, in src\/components\/legacy\/order-rows-old\.tsx/,
+  );
+  assert.deepEqual(snapshot(named.dir), kept);
   // On a repository of no family there is no core to take from.
   const lone = take(storeRepo(), listIn(), "many-rows");
   assert.equal(lone.status, 2);
@@ -885,7 +936,7 @@ test("criterion 11, broken: a block changed by hand is reported as modified, and
   assert.equal(more.status, 2);
   assert.match(
     more.stderr,
-    /the two are not the same files in one folder\. Remove design\/conform\/order-rows\.json by hand, take the block down afresh/,
+    /the two are not the same files in one folder\. Remove design\/conform\/order-rows\.json and the block's files by hand, take the block down afresh/,
   );
 });
 

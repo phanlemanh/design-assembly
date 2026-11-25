@@ -13,6 +13,7 @@ import { adapterOf } from "../templates/tools/design-assembly/adapters/index.mjs
 import {
   CORE,
   coreBlockFile,
+  hiddenInBlock,
   PINNED_CORE,
   readPinnedCore,
   staysInBlock,
@@ -53,6 +54,7 @@ function unheld(pinned, block) {
   if (files.length === 0) return "the core's list names no file for it";
   for (const { file, sha256 } of files) {
     if (!staysInBlock(file)) return `its file ${file} leaves the folder of its need`;
+    if (hiddenInBlock(file)) return `its file ${file} is hidden, or lies in a hidden folder`;
     const kept = coreBlockFile(block.need, file);
     const held = pinned.files?.[kept];
     if (held === undefined) {

@@ -422,7 +422,8 @@ empty when a core is built, and no command fills it yet.
 
 For a store that is not empty, `core --check` also holds the files, and names each by the list, the
 block and the file: a block names at least one file; a `file` is a path inside the folder of its
-need, never one that leads out of it (`..`, a path from the root), and is named once; each file is
+need, never one that leads out of it (`..`, a path from the root), no part of its name starts with
+a dot, and it is named once; each file is
 there, at `blocks/<need>/<file>`; it is text, UTF-8, since a block is code a member copies as it
 is; and its bytes have the `sha256` listed. A core whose store fails any of these is not joined:
 `core --join` refuses it and writes nothing.

@@ -97,8 +97,9 @@ hạng là lát 3 của mục này), nên mọi lõi có khối trong bài kiể
    - Tệp vào thư mục thành phần của riêng repo (cạnh thư mục của thư viện), theo tên lõi đặt; `--to` nêu thư mục
      khác. Mã được chép, không bao giờ liên kết.
    - Không ghi gì và thoát 2 khi: repo không thuộc họ nào, bản chép không đọc được, bản chép không có khối ấy, repo
-     thiếu bộ chuyển, một tệp khác đã nằm ở chỗ ấy (không bao giờ ghi đè), sổ đã đáp nhu cầu ấy bằng khối khác, hay
-     `--to` trỏ ra ngoài repo hoặc vào bản chép.
+     thiếu bộ chuyển, một tệp khác đã nằm ở chỗ ấy (không bao giờ ghi đè), repo đã có một thành phần cùng tên ở
+     chỗ khác, sổ đã đáp nhu cầu ấy bằng khối khác, hay `--to` trỏ ra ngoài repo, vào bản chép (so không phân biệt
+     hoa thường) hoặc vào một thư mục ẩn. `--to` viết bằng đường dẫn đầy đủ là cùng thư mục ấy.
    - Thoát 1 khi đã lấy về mà khối tắt một luật: luật một dòng sổ quyết định giữ thì phải vá, không miễn được; luật
      khác cần dòng miễn, và chủ repo được hỏi danh sách miễn như với mọi món.
 4. **Dòng sổ nhập kho và bản chuẩn hoá gọi khối bằng khoá nhu cầu của nó trong lõi.** Dòng sổ: `from: core`,
@@ -118,7 +119,7 @@ hạng là lát 3 của mục này), nên mọi lõi có khối trong bài kiể
    - Sửa tay: `inventory` báo `modified` bằng đúng phép so sẵn có của món có bản chuẩn hoá.
 6. **Phép kiểm hình dạng của một kho không rỗng** (`coreStoreProblems`, chạy trong `core --check` và trước
    `core --join`): khối có ít nhất một tệp; tên tệp là đường trong thư mục của nhu cầu, không dẫn ra ngoài, không
-   lặp; tệp có đó; là chữ (UTF-8), vì lệnh chép nó nguyên văn; và đúng mã băm đã ghi. Mỗi lỗi nêu danh mục, khối và
+   phần nào bắt đầu bằng dấu chấm (một khối là mã, không là tệp cấu hình hay thư mục của git), không lặp; tệp có đó; là chữ (UTF-8), vì lệnh chép nó nguyên văn; và đúng mã băm đã ghi. Mỗi lỗi nêu danh mục, khối và
    tệp. Khối có thêm khoá tuỳ chọn `description`. Hình dạng của lõi vẫn là 2: không khoá bắt buộc nào thêm.
 7. **`rung` của `intake` thêm giá trị `family`**, cạnh `starter`, `external`, `by-hand`: máy đọc `--json` biết lối
    nào đang đi. Câu hỏi cho chủ repo nêu khối mang gì (tệp, bộ chuyển, chép từ bản chép, không tải gì).
@@ -174,6 +175,11 @@ hạng là lát 3 của mục này), nên mọi lõi có khối trong bài kiể
   `core-block-is-a-block-to-find`, `core-block-of-a-name-the-repository-has`,
   `core-block-folder-the-configuration-names`. Không đóng giới hạn nào: `core-member-not-told-core-moved` (lát 3 của
   mục 7.1) và `capability-cross-repo-has-no-plug` vẫn mở.
+- **Một bài soát bằng tác tử độc lập** trên commit đầu (fa4e338) tìm bốn điều, sửa cả bốn trong cùng PR, mỗi bản
+  sửa có bài kiểm đỏ khi thiếu nó: `--to` viết bằng đường dẫn đầy đủ lọt qua phép «không bao giờ ghi đè» và ghi vào
+  một cây thư mục lồng; phép chặn `design/core` phân biệt hoa thường; khối được lấy lần hai cạnh một thành phần cùng
+  tên khi nêu `--to`; và một khối có thể mang tệp ẩn (như `.git/hooks/…`). Bài soát cũng nêu bài kiểm tiêu chí 1
+  không so với đầu ra của main: phép so ấy là lượt so trên bản sao ở trên, không nằm trong bài kiểm.
 - **Chưa kiểm được:** lint của repo kiểm chứng trên `design/core` (bản sao không có `node_modules`, nên ESLint
   không nạp được cấu hình); và một khối thật, vì chưa lệnh nào đưa khối lên lõi.
 - **Một điều ngoài lát này, chưa sửa:** `core --join` ghi bản chép qua `writeFiles`, mà hàm ấy coi hai tệp JSON

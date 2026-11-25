@@ -800,6 +800,14 @@ export function staysInBlock(file) {
   return !parts.includes("..") && !parts.includes(".") && !parts.includes("");
 }
 
+// Whether a file of a block is hidden, or lies in a hidden folder: a name that starts with a dot.
+// A block is code a member copies into its own folders, and no part of it may land as a file its
+// tools read as configuration, or as a folder of its version control.
+export const hiddenInBlock = (file) =>
+  String(file ?? "")
+    .split("/")
+    .some((part) => part.startsWith("."));
+
 // Whether bytes are text a command can copy as it is: UTF-8, read and written back the same.
 export const isTextFile = (bytes) => Buffer.from(bytes.toString("utf8"), "utf8").equals(bytes);
 
@@ -825,6 +833,12 @@ export function coreStoreProblems(dir, data, file = CORE.parts.blocks.file) {
       if (!staysInBlock(entry.file)) {
         problems.push(
           `${where}.file is ${entry.file}, which leaves ${folder}: a block's files are kept under its need`,
+        );
+        return;
+      }
+      if (hiddenInBlock(entry.file)) {
+        problems.push(
+          `${where}.file is ${entry.file}, a hidden file or one in a hidden folder: a block is code, and no part of its name starts with a dot`,
         );
         return;
       }
