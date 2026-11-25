@@ -66,8 +66,11 @@ scale, shape). Density, elevation, motion and iconography are not.
   lock-or-default sheet of four questions, and, once a person answered, writes the family core, a
   folder of a fixed, versioned shape outside every repository of the family
   (`references/contract.md`). It never writes in the first repository, calls no network and pushes
-  nothing; `--check` says what is wrong with a core folder. A repository that stands alone is never
-  asked about a family.
+  nothing; `--check` says what is wrong with a core folder. `--change` lets the family's owner change
+  one answer of the core (its value, locked or a default, or an answer added from a repository
+  where a person settled it), each change kept in the answer's history with who, when and why; it
+  writes nothing in a member repository. A repository that stands alone is never asked about a
+  family.
 - `/design-assembly:change` retires a block of the store, or merges it into the block of another
   need. It says the impact first: the screens that reach the block's file (every screen when that
   cannot be traced), the frame, the components that import it, the checks that name its file, and

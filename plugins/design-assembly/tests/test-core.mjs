@@ -695,9 +695,12 @@ test("the core is built from the sheet's answers, its shape holds, and the first
   const check = core(["--check", "--core", place, "--json"]);
   assert.equal(check.status, 0, check.stdout);
   assert.deepEqual(JSON.parse(check.stdout).problems, []);
-  assert.match(core(["--check", "--core", place]).stdout, /its shape holds \(shape 1\)/);
+  assert.match(
+    core(["--check", "--core", place]).stdout,
+    new RegExp(`its shape holds \\(shape ${CORE.version}\\)`),
+  );
 
-  // A second build into the same folder writes nothing: changing a core is a later slice.
+  // A second build into the same folder writes nothing: a built core is changed with --change.
   const again = built(dir, place);
   assert.equal(again.status, 2);
   assert.match(again.stderr, /holds a family core already/);
@@ -779,7 +782,9 @@ test("a core of a newer shape is refused: the plugin writes nothing and says to 
   assert.equal(check.stdout, "");
   assert.match(
     check.stderr,
-    /core\.json has shape 2 and this tool knows shape 1 of a family core: update the design-assembly plugin/,
+    new RegExp(
+      `core\\.json has shape ${CORE.version + 1} and this tool knows shape ${CORE.version} of a family core: update the design-assembly plugin`,
+    ),
   );
 
   // A newer part in a folder a build is pointed at: nothing is written there.
@@ -788,7 +793,10 @@ test("a core of a newer shape is refused: the plugin writes nothing and says to 
   const before = snapshot(other);
   const refused = built(dir, other);
   assert.equal(refused.status, 2);
-  assert.match(refused.stderr, /answers\.json has shape 2 .* update the design-assembly plugin/);
+  assert.match(
+    refused.stderr,
+    new RegExp(`answers\\.json has shape ${CORE.version + 1} .* update the design-assembly plugin`),
+  );
   assert.deepEqual(snapshot(other), before);
 });
 
@@ -989,7 +997,8 @@ test("the plugin's files of the core name no repository the tests are run beside
 
 test("a repository that stands alone is untouched: no other command reads or writes a core", () => {
   const scripts = readdirSync(path.join(PLUGIN, "scripts")).filter(
-    (name) => name.endsWith(".mjs") && !["core.mjs", "core-read.mjs"].includes(name),
+    (name) =>
+      name.endsWith(".mjs") && !["core.mjs", "core-read.mjs", "core-change.mjs"].includes(name),
   );
   for (const name of scripts) {
     const text = readFileSync(path.join(PLUGIN, "scripts", name), "utf8");

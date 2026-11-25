@@ -5561,9 +5561,9 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-25",
-      "where": ["d0113", "spec"],
+      "where": ["d0113", "d0115", "spec"],
       "status": "open",
-      "note": "The core command builds a core once, into an empty folder: changing an answer, a hold or the family's name afterwards is slice 4 of item 7.1, and until then the folder is edited by hand and checked with core --check."
+      "note": "The core command builds a core once, into an empty folder, and since slice 4 of item 7.1 changes one answer at a time with core --change; the family's name, its owner and its first repository are not changed by any command (renaming a family is in no slice of spec 0016), and an answer is not taken out of a core until retiring is built (criterion 24, item 7.2): until then those are edited by hand and checked with core --check."
     },
     {
       "id": "core-not-declared-by-members",
@@ -5605,9 +5605,64 @@
       "severity": "low",
       "plan": "keep",
       "opened": "2026-11-25",
-      "where": ["d0113"],
+      "where": ["d0113", "d0115"],
       "status": "open",
-      "note": "A value a person gives on the sheet, because the first repository's ledgers did not hold it, is checked for its form only (a colour, an option, a scale, widths), not against what the first repository's screens do: a value that differs from them goes into the core as the person said it."
+      "note": "A value a person gives on the sheet, because the first repository's ledgers did not hold it, or gives with core --change, is checked for its form only (a colour, an option, a scale, widths), not against what the first repository's screens do: a value that differs from them goes into the core as the person said it."
+    },
+    {
+      "id": "core-change-tells-no-member",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0115", "spec"],
+      "status": "open",
+      "note": "A change of the core is written in its folder only and no member is told: until slice 3 of item 7.1 reports a core ahead of a member's pin (criterion 9), a member keeps the answers of the core it pinned and nothing says the core moved."
+    },
+    {
+      "id": "core-leaving-not-built",
+      "area": "core",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0115", "spec"],
+      "status": "open",
+      "note": "A repository cannot leave its family by a command: leaving (criterion 25) is the second half of slice 4 of item 7.1 and waits for slice 2, which makes a repository a member."
+    },
+    {
+      "id": "core-change-owner-not-checked",
+      "area": "core",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0115"],
+      "status": "open",
+      "note": "The change move records the name given with --by and does not compare it with the owner the core's declaration names: who may change a core is settled by the review of the core's own repository (spec 0016, answer 10), which the plugin does not judge."
+    },
+    {
+      "id": "core-history-not-signed",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0115"],
+      "status": "open",
+      "note": "The check of a core holds that each answer's history is a chain that goes forward and ends at the answer's value and hold, not that a person wrote it: a hand edit that changes an answer and writes a matching entry passes, and so does an edit made before an answer's first change; the review of the core's own repository is what sees it."
+    },
+    {
+      "id": "core-lock-harm-not-recorded",
+      "area": "core",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0115"],
+      "status": "open",
+      "note": "When an answer is raised to locked the change move says the rule that a lock follows a difference that did real harm, and records no such harm: the reason given with --why is the person's own words, and nothing checks that it names one."
     }
   ]
 }
