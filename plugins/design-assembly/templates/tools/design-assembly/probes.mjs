@@ -1,6 +1,7 @@
 // Probes: for a decision a lint rule may hold, source texts that break it. A repository's lint holds
 // the decision when it rejects every probe, and the gate shows that again on each run. The texts
 // come from the adapters; this file only says which decision each set breaks.
+import { leftOut, sourceFolder } from "./source-folders.mjs";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
@@ -111,13 +112,14 @@ export function probeCandidates(root, limit = 60) {
   // The library's files, by its settings: a folder it shares with screens is walked, its own
   // files are left out.
   const library = libraryTest(root);
+  const { folder } = sourceFolder(root);
   const found = [];
   const walk = (dir) => {
     const full = path.join(root, dir);
     if (!existsSync(full) || found.length >= limit) return;
     for (const name of readdirSync(full).sort()) {
       const file = path.posix.join(dir, name);
-      if (name === "node_modules" || name.startsWith(".")) continue;
+      if (name === "node_modules" || name.startsWith(".") || leftOut(folder, file)) continue;
       if (statSync(path.join(root, file)).isDirectory()) {
         if (!library(`${file}/`)) walk(file);
       } else if (/\.[jt]sx$/.test(name) && !/\.(test|spec)\./.test(name) && !library(file)) {
@@ -126,6 +128,6 @@ export function probeCandidates(root, limit = 60) {
       if (found.length >= limit) return;
     }
   };
-  walk("src");
+  walk(folder);
   return found;
 }

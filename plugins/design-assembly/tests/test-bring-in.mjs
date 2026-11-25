@@ -467,16 +467,21 @@ test("review: rgb(), hsl() and 8-digit hex are read; an unreadable primary is na
   assert.equal(read("hsl(0 100% 50%)"), "#ff0000");
   assert.equal(read("hsl(120, 100%, 25%)"), "#008000");
   assert.equal(read("#0246ff80"), "#0246ff");
+  // Read since item 7.4: CIE Lab, as CSS writes it.
+  assert.equal(read("lab(54.29% 80.8 69.89)"), "#ff0000");
   const unreadable = put(
     dir,
     "unreadable.json",
     JSON.stringify({
-      color: { primary: { $value: "lab(50% 40 59)" }, accent: { $value: "#ff0000" } },
+      color: {
+        primary: { $value: "color(display-p3 0.5 0.2 0.1)" },
+        accent: { $value: "#ff0000" },
+      },
     }),
   );
   assert.throws(
     () => candidateFrom(unreadable),
-    /its primary colour color\.primary is written lab\(50% 40 59\), which cannot be read: nothing is guessed/,
+    /its primary colour color\.primary is written color\(display-p3 0\.5 0\.2 0\.1\), which cannot be read: nothing is guessed/,
   );
 });
 

@@ -8,6 +8,7 @@
 // Exit: 0 nothing waits; 1 something waits on a person, the tool differs, or a decision is failing
 // or gone around, or the document was written in fewer formats than asked; 2 a wrong call, or a
 // repository that cannot be read.
+import { workspaceLines, workspaceOf } from "./workspace.mjs";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { stdout } from "node:process";
@@ -300,7 +301,7 @@ export function colorRoleAsks(root, rows, audited) {
   const level = theme.inputs?.conformanceLevel ?? null;
   let styles = null;
   try {
-    styles = loadStyles(root, theme.stylesheet ?? "src/index.css");
+    styles = loadStyles(root, theme.stylesheet ?? findStylesheet(root) ?? DEFAULT_STYLESHEET);
   } catch {
     styles = null;
   }
@@ -491,7 +492,7 @@ function rhythmsOf(audit, broken, birth) {
       : "no ledger: nothing is recorded yet",
     intake: intakeSays(audit.contract.find((item) => item.kind === "intake")),
     change: l
-      ? `${l.automatic} of ${l.total} row(s) name a check that can be found; ${broken.length} failing or bypassed; ${shaped} of ${audit.contract.length} ledger file(s) have the one shape of the contract`
+      ? `${l.automatic} of ${l.total} row(s) name a check that can be found; ${broken.length} failing or bypassed;${l.lacking ? ` ${l.lacking} wait on a lint tool the repository lacks, so they are not held;` : ""} ${shaped} of ${audit.contract.length} ledger file(s) have the one shape of the contract`
       : "no check that this plugin can see in the gate",
     periodic: `${slips}${departed > 0 ? `; ${departed} departure(s) on purpose` : ""}`,
   };
@@ -1100,13 +1101,17 @@ async function main(args) {
   }
   // A wrong call for a document is refused before anything is read.
   const asked = requested(call);
-  const result = fullStatus(call.target);
+  const status = fullStatus(call.target);
+  // The root of a workspace that holds nothing of its own: which package to aim at instead.
+  const space = workspaceOf(call.target);
+  const result = space ? { ...status, workspace: space } : status;
   const handed = await handOver(asked, call.target, (origin) => documentOf(result, origin));
+  const said = space ? `${workspaceLines(space).join("\n")}\n\n` : "";
   return finish({
     json: call.json,
     result: { ...result, ...handed.data },
-    text: `${report(result)}${handed.text}`,
-    work: leavesWork(result) || handed.work,
+    text: `${said}${report(result)}${handed.text}`,
+    work: leavesWork(result) || handed.work || Boolean(space),
   });
 }
 

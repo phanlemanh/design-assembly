@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 
 import { heldHere, readState, runChecks } from "../templates/tools/design-assembly/check.mjs";
 import {
+  lacksTool,
   ledgerRate,
   oldLayerNames,
   pointerProblem,
@@ -37,6 +38,13 @@ import { UNCONFIRMED } from "../templates/tools/design-assembly/waiting.mjs";
 import { finish, readCall, refuse, start } from "./command.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { findProofs } from "./proofs.mjs";
+import {
+  DEFAULT_FOLDER,
+  leftOut,
+  sourceFolder,
+  sourceSaid,
+} from "../templates/tools/design-assembly/source-folders.mjs";
+import { workspaceOf, workspaceLines } from "./workspace.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const reference = (name) =>
@@ -71,7 +79,7 @@ export const PERSON_CALLS = {
   "source-color": "--record source-color",
 };
 
-function walk(root, dir, keep) {
+function walk(root, dir, keep, from = dir) {
   const full = path.join(root, dir);
   if (!existsSync(full)) return [];
   return readdirSync(full)
@@ -79,7 +87,9 @@ function walk(root, dir, keep) {
     .flatMap((name) => {
       if (name.startsWith(".") || SKIP_DIRS.has(name)) return [];
       const relative = path.posix.join(dir, name);
-      if (statSync(path.join(root, relative)).isDirectory()) return walk(root, relative, keep);
+      if (leftOut(from, relative)) return [];
+      if (statSync(path.join(root, relative)).isDirectory())
+        return walk(root, relative, keep, from);
       return keep(relative) ? [relative] : [];
     });
 }
@@ -146,6 +156,9 @@ function fromLedger(root, row, held, proofs, checks) {
       ? { state: "held", by: "this plugin's tool, run now", note: row.note }
       : { state: "failing", by: "this plugin's tool reports a problem" };
   }
+  // A lint rule of a lint tool the repository lacks: nothing runs it, so it is not held, and why.
+  const lacks = lacksTool(root, row.check);
+  if (lacks) return { state: "not-held", by: null, lacks: "lint", seen: lacks };
   if (heldHere(row, checks)) {
     return held.has(row.id)
       ? { state: "held", by: `${row.check}, re-run by this plugin's tool`, note: row.note }
@@ -338,9 +351,21 @@ function slips(root) {
 }
 
 export function audit(root) {
-  const sheets = walk(root, "src", (file) => file.endsWith(".css"));
+  // Where the package keeps its screens and components, as every reader asks it.
+  const answer = sourceFolder(root);
+  const workspace = workspaceOf(root);
+  const state = readState(root);
+  const own = walk(root, answer.folder, (file) => file.endsWith(".css"));
+  // A package whose source folder holds no stylesheet may name one elsewhere, as adopting finds
+  // it: in a sibling package of a workspace, say. That stylesheet and what it imports are read.
+  const named =
+    own.length === 0 && existsSync(path.join(root, state.stylesheet))
+      ? loadStyles(root, state.stylesheet).files
+      : [];
+  const sheets = own.length > 0 ? own : named;
   const library = libraryTest(root);
-  const sources = walk(root, "src", (file) => /\.[jt]sx$/.test(file) && !library(file));
+  const written = walk(root, answer.folder, (file) => /\.[jt]sx$/.test(file));
+  const sources = written.filter((file) => !library(file));
   const rows = readLedger(root) ?? [];
   const facts = {
     declared: declarations(root, sheets),
@@ -352,7 +377,6 @@ export function audit(root) {
     rows,
   };
   const bypass = bypasses(root, sources);
-  const state = readState(root);
   const styles = existsSync(path.join(root, state.stylesheet))
     ? loadStyles(root, state.stylesheet)
     : null;
@@ -420,6 +444,19 @@ export function audit(root) {
   return {
     stylesheets: sheets,
     source_files: sources.length,
+    // Where the source was read, said only where it is not the usual folder.
+    ...(answer.folder === DEFAULT_FOLDER
+      ? {}
+      : {
+          source_folder: {
+            ...answer,
+            read: sourceSaid(answer, sources),
+            files: written.length,
+          },
+        }),
+    ...(named.length > 0 ? { stylesheet_named: state.stylesheet } : {}),
+    // The root of a workspace that holds nothing of its own: which package to aim at instead.
+    ...(workspace ? { workspace } : {}),
     decisions: facts.decisions,
     coverage: {
       core: core.length,
@@ -523,9 +560,21 @@ const proposalsOf = (decisions) => ({
 // By default the report lists what is open in each tier; `all` lists every core decision.
 export function report(result, { all = false } = {}) {
   const lines = [];
-  lines.push(`stylesheets: ${result.stylesheets.join(", ") || "none found under src/"}`);
+  if (result.workspace) lines.push(...workspaceLines(result.workspace), "");
+  const folder = result.source_folder;
+  const under = folder
+    ? folder.folder === "."
+      ? "in the package"
+      : `under ${folder.folder}/`
+    : "under src/";
+  const named = result.stylesheet_named
+    ? ` (the stylesheet the package names, ${result.stylesheet_named}, and what it imports)`
+    : "";
+  lines.push(`stylesheets: ${result.stylesheets.join(", ") || `none found ${under}`}${named}`);
   lines.push(
-    `source files read: ${result.source_files} screens and components of the repository's own, searched for values that go around a scale (the component library's files are left out)`,
+    folder
+      ? `source files read: ${result.source_files} of ${folder.files} screens and components in ${folder.read}, searched for values that go around a scale (the component library's files are left out)`
+      : `source files read: ${result.source_files} screens and components of the repository's own, searched for values that go around a scale (the component library's files are left out)`,
   );
   const c = result.coverage;
   lines.push(
@@ -981,7 +1030,10 @@ async function main(args) {
     json: call.json,
     result: { ...result, ...handed.data },
     text: `${report(result, { all })}${handed.text}`,
-    work: result.decisions.some((decision) => BROKEN.includes(decision.state)) || handed.work,
+    work:
+      result.decisions.some((decision) => BROKEN.includes(decision.state)) ||
+      handed.work ||
+      Boolean(result.workspace),
   });
 }
 

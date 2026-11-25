@@ -12,6 +12,27 @@ export const adapter = {
   // A ledger row that a lint rule holds points at it as `eslint:<rule>`.
   prefix: "eslint",
   configFiles: ["eslint.config.js", "eslint.config.mjs", "eslint.config.ts"],
+  // What shows a repository uses this lint at all, in its folder or one above it: a configuration
+  // file of any shape the lint has read, the key of a package file that holds one, or the lint
+  // among its packages. A repository with none of these has no lint this adapter can run.
+  signs: {
+    files: [
+      "eslint.config.js",
+      "eslint.config.mjs",
+      "eslint.config.cjs",
+      "eslint.config.ts",
+      "eslint.config.mts",
+      "eslint.config.cts",
+      ".eslintrc",
+      ".eslintrc.js",
+      ".eslintrc.cjs",
+      ".eslintrc.json",
+      ".eslintrc.yml",
+      ".eslintrc.yaml",
+    ],
+    packageKey: "eslintConfig",
+    packageName: "eslint",
+  },
   // Files that set paths apart from every rule, beside the configuration.
   ignoreFiles: [".eslintignore"],
   // An exception written in the source, from its first word to the end of its line.
