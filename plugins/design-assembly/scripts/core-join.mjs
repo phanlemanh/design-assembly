@@ -46,6 +46,7 @@ import { addLine, familyQuestion, homeOf, readList } from "./core-list.mjs";
 import { guideQuestions, markLedger, readMember, settledWords, stateOf } from "./core-marks.mjs";
 import { coreQuestionId } from "./core-moved.mjs";
 import { retiredIn } from "./core-records.mjs";
+import { planReport, plans, reportTexts, writePlan } from "./core-report.mjs";
 import { acceptRetired } from "./core-retire.mjs";
 import { askAll } from "./queue.mjs";
 
@@ -336,13 +337,27 @@ export function joinCore(root, { core, by, on, dryRun }) {
   };
   const problems = corePartShapeProblems("declaration", declared, CORE.parts.declaration.file);
   if (problems.length > 0) throw new Refusal(`${problems.join("; ")}. Nothing was written`);
+  // The repository's report to the core (slice 2 of item 7.2): what its intake ledger tells now,
+  // written with the member's line, and the store's entries that follow the uses it tells. A
+  // report that would not hold the core's shape is not written, and the repository joins all the
+  // same.
+  const plan = planReport(root, folder);
+  const tells = plan.problems.length === 0;
+  const reports = {
+    ...reportTexts(folder),
+    ...(tells && plan.text !== null ? { [plan.file]: plan.text } : {}),
+  };
   const copy = {
     [CORE.parts.declaration.file]: renderJson(declared, WIDTH),
     [CORE.parts.answers.file]: answersText,
-    [CORE.parts.blocks.file]: read0.texts[CORE.parts.blocks.file],
+    [CORE.parts.blocks.file]:
+      tells && plan.index ? plan.index.text : read0.texts[CORE.parts.blocks.file],
     // What a member takes a block from: the files of every block, so that a block is taken on
     // any machine, at the pin, with the core out of reach (slice 1 of item 7.2).
     ...read0.blockFiles,
+    // What every repository of the family told the core it answered, names only: find and intake
+    // read these from the copy, the same on every machine.
+    ...reports,
   };
   const source = {
     version: 1,
@@ -428,6 +443,35 @@ export function joinCore(root, { core, by, on, dryRun }) {
       coreWrite.why = `${error.message.split("\n")[0]}: the core's list of members is left as it was; run this again where the core can be written`;
     }
   }
+  // The report: said first with the member's line, then written, the store's entries before it.
+  const coreReport = {
+    file: path.join(folder, plan.file),
+    index: path.join(folder, CORE.parts.blocks.file),
+    change: tells ? plan.change : "none",
+    text: tells ? plan.text : null,
+    needs: plan.data.needs.length,
+    uses: (plan.data.uses ?? []).length,
+    used: tells ? (plan.index?.used ?? []) : [],
+    left_out: plan.left_out,
+    written: false,
+    why: tells
+      ? null
+      : `the report would not hold the core's shape (${plan.problems.join("; ")}), so it was not written: the repository joins all the same`,
+  };
+  // A ledger that tells nothing leaves a report the core holds as it is: said only then.
+  if (plan.kept) coreReport.unread = plan.why;
+  // The report goes with the member's line: where that line could not be written, the core would
+  // hold a report of a repository its declaration does not name.
+  if (coreWrite.why) {
+    coreReport.why = "the member's line was not written, so the report was not either";
+  } else if (!dryRun && tells && plans(plan)) {
+    try {
+      writePlan(folder, plan);
+      coreReport.written = true;
+    } catch (error) {
+      coreReport.why = `${error.message.split("\n")[0]}: the report is left as it was; run core --report where the core can be written`;
+    }
+  }
   const list = addLine({ family: declaration.family, path: folder, on, how: "pinned" }, { dryRun });
   return {
     repository,
@@ -439,6 +483,8 @@ export function joinCore(root, { core, by, on, dryRun }) {
     turned: turned.turned,
     check,
     core_file: coreWrite,
+    core_report: coreReport,
+    copied_reports: Object.keys(reports).length,
     list,
     exports,
     // The code the copy holds since slice 1 of item 7.2: the files of the blocks, when any.

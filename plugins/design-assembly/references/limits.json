@@ -5764,9 +5764,9 @@
       "severity": "medium",
       "plan": "keep",
       "opened": "2026-11-25",
-      "where": ["d0118", "spec"],
+      "where": ["d0118", "spec", "d0121"],
       "status": "open",
-      "note": "When a repository leaves and the core folder cannot be reached, is of a newer shape, does not hold its shape or cannot be written, its line stays in the core's list of members, and no command takes it out later: a repository of no family writes nothing, so the line is taken out by hand and held with core --check. Until then the core names a member that left; nothing tells the family's owner, and nothing tells them either when the line is taken out."
+      "note": "When a repository leaves and the core folder cannot be reached, is of a newer shape, does not hold its shape or cannot be written, its line stays in the core's list of members and, since slice 2 of item 7.2, its report stays under members/: no command takes either out later, since a repository of no family writes nothing, so both are taken out by hand and held with core --check. Until then the core names a member that left; its report is counted by nothing, a report of a repository the declaration does not name being left out wherever needs are read, but nothing tells the family's owner, and nothing tells them either when the line is taken out."
     },
     {
       "id": "core-leave-answered-questions-stay",
@@ -5819,9 +5819,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-25",
-      "where": ["d0117", "d0119"],
-      "status": "open",
-      "note": "Since slice 3 of item 7.2 the family's owner fills the store on their word (core --promote, with --replace), a member's proposal granted replaces a block's files, and core --retire takes a block out into retired.json. No command yet records that a second repository took a block in, nor proposes a promotion when a need is met twice: that is the member's report and the proposal of slice 2 of item 7.2. Until then `used_by` names the repository a block was promoted from and those whose proposal replaced it, and `second_use` stays false otherwise."
+      "where": ["d0117", "d0119", "d0121"],
+      "status": "closed",
+      "note": "Since slice 3 of item 7.2 the family's owner fills the store on their word (core --promote, with --replace), a member's proposal granted replaces a block's files, and core --retire takes a block out into retired.json. No command yet records that a second repository took a block in, nor proposes a promotion when a need is met twice: that is the member's report and the proposal of slice 2 of item 7.2. Until then `used_by` names the repository a block was promoted from and those whose proposal replaced it, and `second_use` stays false otherwise.",
+      "closed": "2026-11-25",
+      "closed_by": "slice 2 of item 7.2 (decision 0121): a repository's report (core --report, and core --join) tells the core each block of the core it took in, and the store's entry follows with used_by and second_use; a need a second repository meets is put to the family's owner as a proposal of the kind graduation, at find and intake and on the periodic line of status. What it still does not do is in core-report-told-only-by-a-move and core-family-needs-known-as-of-the-pin"
     },
     {
       "id": "core-copy-holds-code-the-repository-tools-walk",
@@ -5830,9 +5832,9 @@
       "severity": "medium",
       "plan": "keep",
       "opened": "2026-11-25",
-      "where": ["d0117"],
+      "where": ["d0117", "d0121"],
       "status": "open",
-      "note": "A member's copy of the core holds the code of every block under design/core/blocks, so a formatter, a lint or a type check of the repository that walks the whole repository reads those files as its own: a formatter that rewrites one makes the copy unreadable and the gate red until it is pinned again, and a lint may report code the repository never uses. The join says so in a line of its output, with what the owner may want to do; the plugin writes no ignore line and reads none, so nothing checks that the repository's tools stay off the copy."
+      "note": "A member's copy of the core holds the code of every block under design/core/blocks and, since slice 2 of item 7.2, the report of every repository of the family under design/core/members, so a formatter, a lint or a type check of the repository that walks the whole repository reads those files as its own: a formatter that rewrites one makes the copy unreadable and the gate red until it is pinned again, and a lint may report code the repository never uses. The join says so in a line of its output, with what the owner may want to do; the plugin writes no ignore line and reads none, so nothing checks that the repository's tools stay off the copy."
     },
     {
       "id": "core-copy-holds-every-block",
@@ -6173,9 +6175,11 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-25",
-      "where": ["d0119"],
-      "status": "open",
-      "note": "A block promoted on the owner's word says no second use yet, and becomes used by two only when a proposal of another repository replaces its files: a member that takes the block in and uses it as it is is not recorded in used_by, so second_use stays false. Recording the use is the member's report, slice 2 of item 7.2."
+      "where": ["d0119", "d0121"],
+      "status": "closed",
+      "note": "A block promoted on the owner's word says no second use yet, and becomes used by two only when a proposal of another repository replaces its files: a member that takes the block in and uses it as it is is not recorded in used_by, so second_use stays false. Recording the use is the member's report, slice 2 of item 7.2.",
+      "closed": "2026-11-25",
+      "closed_by": "slice 2 of item 7.2 (decision 0121): a member that takes a block in tells the core with its report, under uses, and the move that writes the report writes the member into used_by of the store's entry, second_use becoming true once two repositories are named. The use is told only when the report is written: core-report-told-only-by-a-move"
     },
     {
       "id": "core-replace-keeps-hashes-not-bytes",
@@ -6253,6 +6257,116 @@
       "where": ["d0119"],
       "status": "open",
       "note": "An answer or a block taken out of the core by hand, or by a plugin older than retired.json, is still read as retired, and once a member accepts it its mark and its row say the core names no one and does not say why: only a retiring made with core --retire carries who, when and why."
+    },
+    {
+      "id": "core-report-told-only-by-a-move",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0121"],
+      "status": "open",
+      "note": "The core learns what a repository answered, and which blocks of the core it uses, only when a person runs core --report or pins the core again: taking a block in writes the repository alone and says the report is behind, as core --moved and status do where the core's folder can be looked at. Until then the store's entry does not name the repository under used_by, and a block two repositories use still says no second use; on a machine that cannot reach the core's folder nothing says the report is behind."
+    },
+    {
+      "id": "core-family-needs-known-as-of-the-pin",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0121"],
+      "status": "open",
+      "note": "The commands find and intake read the needs the family's other repositories answered from the member's copy of the core, as of its pin: a need told to the core after the pin is not said until the member pins again, and the copy holds neither what the core retired nor what its owner refused or granted, so a need retired or refused since is still said, with the step that asks. The move that asks (core --propose --graduate) reads the core's folder and refuses with who retired or refused it, when and why; core --moved says when a report in the core is not the one copied."
+    },
+    {
+      "id": "core-graduation-matches-keys-and-words",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0121"],
+      "status": "open",
+      "note": "Two repositories are seen to have answered one need only when both keep it under the same need key: the periodic line of status counts by key, and a need two repositories keyed otherwise is never counted. find and intake match the words asked against the key, the name and the description a repository told the core, never meaning, as for every store (find-matches-words-not-meaning); and find says a need of the family only where no nearer store answers, so a component of the repository's own that holds the words asked stops the walk at tier 1 and the family's need is not said there: intake, which asks the stores beyond the repository's own, says it (seen on the copy of the second product's package in the trial of decision 0121)."
+    },
+    {
+      "id": "core-graduation-adapters-unknown-before-promotion",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0121"],
+      "status": "open",
+      "note": "A report tells a block by its need, its name and what it is for, never the adapters it needs, so a block not yet promoted is taken to need what every block of code needs, the components and source adapters: a repository that lacks one of those is not proposed to, and one that lacks another adapter the block needs learns so only once the block is promoted, when tier 3 does not offer it and says why. See also core-promote-adapters-are-a-persons-word."
+    },
+    {
+      "id": "core-report-row-needs-a-description",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0121"],
+      "status": "open",
+      "note": "A row of the intake ledger that does not say what its block is for (description) is left out of the report, and so is a block the core retired that the repository keeps as its own, a piece of the starter kit, and a need that is no key: the report move names each with why, but the family is then not told of that block, and it is never proposed for graduation."
+    },
+    {
+      "id": "core-graduation-kind-unknown-to-the-plugin-before",
+      "area": "core",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0121"],
+      "status": "open",
+      "note": "The shape of a core stays 2 and a graduation is a third kind of proposal: plugin 0.67.0, the one version that knows proposals and not this kind, reads a core folder that holds a graduation as not holding its shape and refuses to join or change it until the plugin is updated; older versions do not read proposals at all, and no version reads them from a member's copy."
+    },
+    {
+      "id": "core-first-repository-is-told-nothing",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0121"],
+      "status": "open",
+      "note": "The first repository of a family, which joins only when its owner says so, reports with core --report --core DIR and is promoted from, but has no look at the core: core --moved, status and the first line of a session read a declaration it does not have, so what the family's owner chose, or that a block of it is asked to graduate, reaches it only through the owner; and find and intake there say nothing of the family's needs."
+    },
+    {
+      "id": "core-granted-graduation-is-owed-until-promoted",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0121"],
+      "status": "open",
+      "note": "A graduation granted without the folder of the repository that has the block (--from) promotes nothing: the promotion is owed until the owner runs the call the grant printed, and only core --proposals, the periodic line of status in a member and core --moved of the member that asked say so; the first line of a session counts proposals that wait on an answer and not this one. With --from, the block is written into the store before the proposal records the answer, the two being separate files."
+    },
+    {
+      "id": "core-used-by-is-never-shortened",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0121"],
+      "status": "open",
+      "note": "The key used_by of a block records each repository that told the core it uses the block, and no command takes a name out: a repository that left the family, or retired the row of the block, stays named, and second_use never goes back to false. A block the owner refused to graduate is the same block again by its repository and its name only: renamed, it may be proposed again."
+    },
+    {
+      "id": "core-member-is-a-repository-not-a-package",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0114", "d0121"],
+      "status": "open",
+      "note": "A member of a family is named by the main folder of its repository, also when the folder that joined is a package inside it: two packages of one workspace that each declare the family share one line of the core's members and, since slice 2 of item 7.2, one report, the later written over the earlier, and a block either uses is told as used by the repository. Two repositories whose main folders have one name share them likewise."
     }
   ]
 }

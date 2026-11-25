@@ -30,6 +30,7 @@ import {
   hereWords,
   movedOf,
   proposalLines,
+  reportStateLines,
 } from "./core-moved.mjs";
 import {
   allowPublish,
@@ -140,7 +141,7 @@ function movedReport(moved, listed) {
     lines.push(...blockChangeLines(change).map((line) => `  ${line}`));
   }
   if (moved.blocks_differ) lines.push(BLOCKS_WORDS);
-  lines.push(...proposalLines(moved));
+  lines.push(...proposalLines(moved), ...reportStateLines(moved));
   if (moved.state === "ahead") lines.push(ACCEPT_WORDS, "nothing was written");
   return lines;
 }

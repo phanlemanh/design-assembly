@@ -1,6 +1,6 @@
 ---
 name: core
-description: Build the core of a family of products — the answers the repositories of one family share, each locked or a default, in a folder of its own on this machine — from the answers a person settled in the family's first repository, after the person answers the lock-or-default sheet; check the shape of a core folder; let the family's owner change an answer of the core (its value, locked or a default, or an answer added), each change with who, when and why; let a repository declare its family and pin the core, compare the answers it already holds, and settle the owner's answers about those that differ; tell a member that its family's core moved ahead of its pin, show a change before and after on the repository's own screen, and accept it answer by answer; record the family owner's leave to publish the core to a private repository, saying first what would go where; take a block of the core down into a member, from its copy of the core, once its owner kept it; let the family's owner promote a block of a repository into the core on their word, retire an answer or a block, and grant or refuse a member's proposal; let a member propose upward a block it changed or an answer it holds otherwise; and let a repository leave its family on its owner's word, each answer it inherited becoming its own with its value as it was. Use when a second product of the same family uses the plugin and the user says the repositories belong together ("this app is of the same family as that one", "share the design answers between our products", "make a core for the family", "join our family core", "check our core folder", "lock the source colour for the whole family", "change the family's widths", "did our core change?", "show me what the core changed", "accept the new brand colour from the core", "put our core on a private repository", "take this app out of the family", "this product leaves the family", "put this block into the family core", "propose our change to the core", "retire that answer from the core"), when new or adopt asked whether a repository is of the same family as a core of this machine, or when the line at the start of a session said the core moved, a question about it waits, or a locked answer is held otherwise. Not for a repository that stands alone. No script pushes anything: the session creates a repository and pushes only after the person's yes.
+description: Build the core of a family of products — the answers the repositories of one family share, each locked or a default, in a folder of its own on this machine — from the answers a person settled in the family's first repository, after the person answers the lock-or-default sheet; check the shape of a core folder; let the family's owner change an answer of the core (its value, locked or a default, or an answer added), each change with who, when and why; let a repository declare its family and pin the core, compare the answers it already holds, and settle the owner's answers about those that differ; tell a member that its family's core moved ahead of its pin, show a change before and after on the repository's own screen, and accept it answer by answer; record the family owner's leave to publish the core to a private repository, saying first what would go where; take a block of the core down into a member, from its copy of the core, once its owner kept it; let the family's owner promote a block of a repository into the core on their word, retire an answer or a block, and grant or refuse a member's proposal; let a member propose upward a block it changed or an answer it holds otherwise; let a repository of the family tell the core which needs it answered (its report: key, name and what the block is for, never code), and let a member ask the family's owner that a block another repository has graduate into the family's store; and let a repository leave its family on its owner's word, each answer it inherited becoming its own with its value as it was. Use when a second product of the same family uses the plugin and the user says the repositories belong together ("this app is of the same family as that one", "share the design answers between our products", "make a core for the family", "join our family core", "check our core folder", "lock the source colour for the whole family", "change the family's widths", "did our core change?", "show me what the core changed", "accept the new brand colour from the core", "put our core on a private repository", "take this app out of the family", "this product leaves the family", "put this block into the family core", "propose our change to the core", "retire that answer from the core", "tell the core what this app has", "ask the owner to promote the block the other app has", "which needs of the family wait on a graduation?"), when find or intake said another repository of the family answered a need, when new or adopt asked whether a repository is of the same family as a core of this machine, or when the line at the start of a session said the core moved, a question about it waits, or a locked answer is held otherwise. Not for a repository that stands alone. No script pushes anything: the session creates a repository and pushes only after the person's yes.
 ---
 
 # Build the core of a family
@@ -113,8 +113,9 @@ again, and nothing is written in it.
 1. Preview: `core.mjs --target <repo> --join --core <folder> --by <name> --dry-run`. Without
    `--core` it takes the one core of the machine's list, and refuses to guess between two. Show the
    person what it says: the answers of the core and where each stands in this repository, the
-   files it writes here, and the line it writes into the core folder (the repository joins the
-   members); nothing is written yet.
+   files it writes here, and what it writes into the core folder: the line by which the
+   repository joins the members, and its report (section 16), printed whole; nothing is written
+   yet.
 2. On their yes, the same call without `--dry-run`. It writes `design/sources/core.json` (the
    family and the pin), the copy of the core in `design/core`, the mark on each row of the
    decision ledger whose answer the core holds, and, where the repository's gate is this plugin's,
@@ -140,7 +141,9 @@ in the pin with its hash. They are the core's, kept to be taken from: no file of
 imports them, and no formatter may rewrite them. The join says so in a line of its own when it
 copies a block's files, and writes no ignore line: read that line to the owner, and where the
 repository's formatter, lint or type check walks `design/core`, ask before anything is added to an
-ignore list.
+ignore list. The copy holds the reports of the family's repositories too, under
+`design/core/members/`: what each answered, by need, name and what it is for, never code. `find`
+and `intake` read the family's needs from there, as of the pin.
 
 ### A block of the core
 
@@ -261,8 +264,10 @@ address in either. No value of the repository changes: leaving turns the marks, 
 
 1. Preview: `core.mjs --target <repo> --leave --by <name> --why "<reason>" --dry-run`. Show the
    person what it says: the answers that become the repository's own, the files it changes and
-   removes here, the questions about the core it takes off the waiting list, and the line it takes
-   out of the core's `core.json`. Nothing is written yet. Add `--core <folder>` when the machine's
+   removes here, the questions about the core it takes off the waiting list, the line it takes
+   out of the core's `core.json`, and the report of the repository it deletes there
+   (`members/<repository>.json`: the family counts the needs of its own repositories). Nothing is
+   written yet. Add `--core <folder>` when the machine's
    list does not hold the core, or holds two cores of the family that name this repository.
 2. On their yes, the same call without `--dry-run`. It removes `design/sources/core.json` and the
    copy in `design/core`; turns the mark of each row of the decision ledger the core answered into
@@ -349,6 +354,53 @@ owner's word, with their reason:
   refusal and the reason, the core does not change, and the member is told at its next look
   (`core --moved`, `status`).
 
+### A block another repository has: asking that it graduate
+
+When `find` or `intake` in a member said `in the family, not in its store yet`, another repository
+of the family answered the need and the family's store does not hold it (spec 0016, answer 6). The
+step before a block is made or taken from outside is a question to the family's owner. Say what
+was printed (which repository, the block's name, what it is for), and ask the person for their
+name and why the repository needs it. Never copy the block from the other repository: the core is
+the only way between two.
+
+`core.mjs --target <repo> --propose <need> --graduate --by <name> --why "<reason>" [--core <folder>]
+[--dry-run]`, where `<need>` is the need as the other repository keys it, which `find` printed.
+Preview first. It writes one file `proposals/graduation-<need>-<n>.json` in the core folder, naming
+each block that answers the need in the family by repository, name and what it is for: no code, no
+path, no value. Where two repositories answered the need in two ways it lists both, and asks the
+owner to choose one. It writes nothing and ends with `2`, saying why, when the family's store
+holds the need already (pin it: `core --join`), the core retired it, no other repository answered
+it, the owner refused that block before, or this repository lacks an adapter a block of code needs;
+asked again while it waits, or once it was granted, it says so and writes nothing.
+
+The family's owner sees it with `--proposals`, and answers on their word, with their reason:
+
+- `core.mjs --grant <id> --core <folder> --by <name> --why "<reason>"`, with `--choose <repository>`
+  where the proposal names two blocks. It records the yes, who, when, why and the block chosen,
+  and promotes nothing: it prints the exact call to run in the repository that has the block,
+  `core --promote <need> --core '<folder>' --by '<name>' --why 'granted <id> of <repository>:
+<reason>'` (section 13), each word in single quotes so it runs as printed whatever a name or a reason holds.
+  Read that call to the owner and run it there on their word. Until then
+  `--proposals` ends with `1` and says the promotion is owed.
+- With `--from <folder of the repository that has the block>` the same call promotes at once, by
+  the owner's name and reason given there, and never without them. Offer it when that repository is
+  on this machine. A block that came from an outside source still waits on its licence line: the
+  call ends with `1`, answers nothing, and is run again with `--licence-allows` only on the
+  person's yes (section 13); `--adapter <kind>` names the adapters as for a promotion.
+- `core.mjs --refuse <id> ...` keeps the refusal with its reason; that block is not proposed again
+  for that need.
+
+The member that asked is told at its next look (`core --moved`, `status`). Once the block is
+promoted it pins the store (`core --join`), finds the block at tier 3 and takes it in (section 7);
+`core --report` then tells the core it uses the block, and the store's entry says a second use. A
+repository whose block was not chosen keeps its own, untouched, and is told of the choice at its
+next look.
+
+`status` in a member says, on its periodic line, how many needs of the family wait on a
+graduation and which: one asked and not answered, one granted and not promoted yet, and one two
+repositories answered in two ways that nobody asked about. Where the core's folder cannot be
+looked at it counts from the copy and says so.
+
 ## 15. The family's owner retires an answer or a block
 
 Only on the word of the family's owner, with their reason.
@@ -365,5 +417,34 @@ and a choice of its blueprint likewise under `own`; a block it took in stays whe
 the intake ledger gaining `own`; a block it never took only leaves the copy, and tier 3 no longer
 offers it. No gate turns red. Read out what it says of the exports.
 
-Not built yet: a member's report and a promotion proposed by the machine (slice 2 of item 7.2),
-moving to another family in one step, dissolving a family, and renaming a family.
+## 16. A repository tells the core what it answered
+
+The report of a repository is one file of the core folder, `members/<repository>.json` (spec 0016,
+criterion 12): for each block the repository answered itself, the need's key, the block's name and
+what it is for, as its row of the intake ledger says; and, under `uses`, the needs of the core
+whose block it took in. Nothing else: no code, no text of a file, no path, no hash and no value.
+The other repositories of the family read it from their copy of the core, so `find` and `intake`
+there say when one of them needs what this one has.
+
+`core.mjs --target <repo> --report [--core <folder>] [--dry-run]`. Preview first, and show the
+person the file: the command prints it whole before it writes it. It writes in the core folder
+only, never in the repository, and nothing at all when the core's folder cannot be reached: it
+then ends with `2` and says so, and the repository goes on as it is. Where the report tells a use,
+it first writes the name of the repository into `used_by` of that block in the store's list, and
+says when that is the block's second use. Where the intake ledger is gone or cannot be read, it
+reports nothing, leaves the report the core holds as it is, and says what could not be read: mend
+the ledger first. It says each row it left out, with why: a row with no
+`description` (ask the person for the sentence and add it to the row), a row retired or merged, a
+piece of the starter kit, a block the core retired that the repository keeps as its own.
+
+- Joining and pinning again (`--join`) write the report too, and print it first.
+- Taking a block in (`intake`) never writes in the core folder: it says the core is not told yet,
+  and names this move. `core --moved` and `status` say when the report is behind the intake
+  ledger.
+- Leaving (`--leave`) deletes the report with the member's line; where the core cannot be
+  reached, it says what is left to do there by hand.
+- The first repository of a family, which joins only when its owner says so, reports without
+  joining: the same call with `--core <folder>`. Nothing of it is written, and it declares
+  nothing.
+
+Not built yet: moving to another family in one step, dissolving a family, and renaming a family.

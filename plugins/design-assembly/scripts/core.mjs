@@ -27,6 +27,9 @@
 //                      --refuse ID   (core-owner-call.mjs, slice 3 of item 7.2: the family's owner
 //                      promotes a block and retires an answer or a block; a member proposes upward,
 //                      and the owner grants or refuses)
+//        node core.mjs --report [--core DIR] [--dry-run] [--target DIR] [--json]
+// A repository of a family telling the core which needs it answered is scripts/core-report-call.mjs
+// (slice 2 of item 7.2); asking the owner that a block graduate is --propose NEED --graduate.
 // Exit: reading, 1 when the sheet waits on a person, 0 when no answer of the repository is settled
 // and there is nothing to build from; building, 0 once the core is written (or would be); checking,
 // 0 when the shape holds and 1 when a part of it is wrong, each problem naming the file and the
@@ -56,6 +59,7 @@ import { addLine } from "./core-list.mjs";
 import { MOVED_FLAGS, MOVED_MOVES, MOVED_USAGE, movedMain } from "./core-moved-call.mjs";
 import { OWNER_FLAGS, OWNER_MOVES, OWNER_USAGE, ownerMain } from "./core-owner-call.mjs";
 import { givenProblem, givenValue, placeOf, readFirst, sheetOf } from "./core-read.mjs";
+import { REPORT_FLAGS, REPORT_MOVE, REPORT_USAGE, reportCall } from "./core-report-call.mjs";
 
 const WIDTH = 100;
 const KIND_WORDS = {
@@ -364,7 +368,8 @@ const USAGE =
   LEAVE_USAGE +
   TAKE_USAGE +
   MOVED_USAGE +
-  OWNER_USAGE;
+  OWNER_USAGE +
+  REPORT_USAGE;
 const FLAGS = {
   "--family": "value",
   "--core": "value",
@@ -384,6 +389,7 @@ const FLAGS = {
   ...TAKE_FLAGS,
   ...MOVED_FLAGS,
   ...OWNER_FLAGS,
+  ...REPORT_FLAGS,
 };
 const BUILD_ONLY = ["--lock", "--default", "--value", "--by", "--on", "--dry-run"];
 const CHANGE_ONLY = ["--hold", "--from", "--why"];
@@ -404,6 +410,7 @@ async function main(args) {
     ...TAKE_MOVES,
     ...MOVED_MOVES,
     ...OWNER_MOVES,
+    REPORT_MOVE,
   ].filter((flag) => flags[flag] !== undefined);
   if (
     moves.length > 1 &&
@@ -413,7 +420,8 @@ async function main(args) {
         !MEMBER_MOVES.includes(flag) &&
         flag !== LEAVE_MOVE &&
         !MOVED_MOVES.includes(flag) &&
-        !OWNER_MOVES.includes(flag),
+        !OWNER_MOVES.includes(flag) &&
+        flag !== REPORT_MOVE,
     )
   ) {
     return refuse("--change is a call of its own; give one of --build, --check, --change", USAGE);
@@ -429,6 +437,7 @@ async function main(args) {
   if (MOVED_MOVES.includes(moves[0])) return movedMain(moves[0], call, USAGE);
   // The moves of slice 3 of item 7.2 read their own flags too.
   if (OWNER_MOVES.includes(moves[0])) return ownerMain(moves[0], call, USAGE);
+  if (moves[0] === REPORT_MOVE) return reportCall(call, USAGE);
   const strayOwner = Object.keys(OWNER_FLAGS).find((flag) => flags[flag] !== undefined);
   if (strayOwner) {
     return refuse(

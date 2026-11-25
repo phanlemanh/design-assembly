@@ -14,7 +14,12 @@ import path from "node:path";
 import { stdout } from "node:process";
 import { fileURLToPath } from "node:url";
 
-import { BORN, LEDGERS, missingAtBirth } from "../templates/tools/design-assembly/contract.mjs";
+import {
+  BORN,
+  LEDGERS,
+  missingAtBirth,
+  readPinnedCore,
+} from "../templates/tools/design-assembly/contract.mjs";
 import { SLIPS_FILE } from "../templates/tools/design-assembly/governance.mjs";
 import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
 import { pinnedPackage } from "../templates/tools/design-assembly/adapters/lockfile.mjs";
@@ -51,6 +56,7 @@ import { socketsOf } from "./capabilities.mjs";
 import { pushedLines } from "./send-out.mjs";
 import { gateProblem, seenMissing } from "./apply.mjs";
 import { memberLines, memberStatus } from "./core-marks.mjs";
+import { graduationLine, graduationsCopied, graduationsIn } from "./core-graduate.mjs";
 import { coreQuestionId, movedLines, movedOf } from "./core-moved.mjs";
 import {
   SEEN_DECISION,
@@ -472,7 +478,7 @@ function intakeSays(ledger) {
 }
 
 // One line per rhythm of a repository's life, each read from the repository as it is now.
-function rhythmsOf(audit, broken, birth) {
+function rhythmsOf(audit, broken, birth, core = null) {
   const c = audit.coverage;
   const l = audit.ledger;
   const shaped = audit.contract.filter((item) => item.differs.length === 0).length;
@@ -494,7 +500,9 @@ function rhythmsOf(audit, broken, birth) {
     change: l
       ? `${l.automatic} of ${l.total} row(s) name a check that can be found; ${broken.length} failing or bypassed;${l.lacking ? ` ${l.lacking} wait on a lint tool the repository lacks, so they are not held;` : ""} ${shaped} of ${audit.contract.length} ledger file(s) have the one shape of the contract`
       : "no check that this plugin can see in the gate",
-    periodic: `${slips}${departed > 0 ? `; ${departed} departure(s) on purpose` : ""}`,
+    // In a member of a family, the needs of the family that wait on a graduation (spec 0016,
+    // criterion 13); a repository that stands alone reads as it always did.
+    periodic: `${slips}${departed > 0 ? `; ${departed} departure(s) on purpose` : ""}${core?.graduations ? `; ${graduationLine(core.graduations.waiting, core.graduations)}` : ""}`,
   };
   return RHYTHMS.map(([id, name]) => ({ id, name, says: says[id] }));
 }
@@ -620,7 +628,20 @@ function readLedgers(root) {
 
 // What a member's status says of its core with whether the core moved ahead of the pin; null on a
 // repository of no family, which reads no list and no folder outside it.
-const withMoved = (root, core) => (core ? { ...core, moved: movedOf(root) } : core);
+function withMoved(root, core) {
+  if (!core) return core;
+  const moved = movedOf(root);
+  // The needs of the family that wait on a graduation: read from the core's folder where it can
+  // be looked at, else from what this repository's copy holds at its pin.
+  const there = moved?.core ? graduationsIn(moved.core) : null;
+  const graduations =
+    moved?.state === "unreadable"
+      ? null
+      : there
+        ? { waiting: there, copied: false }
+        : { waiting: graduationsCopied(root, readPinnedCore(root)), copied: true };
+  return { ...core, moved, ...(graduations ? { graduations } : {}) };
+}
 
 // The values of the foundations that status --roles reports as not whole, in its order: on a
 // repository the guide wrote, each value it declares that lacks the owner's word or a row with its
@@ -677,7 +698,7 @@ function resultOf(
     // Core decisions only, as the audit counts them. Two numbers: a claim was not run again here.
     held: audit.coverage.held,
     claimed: audit.coverage.claimed,
-    rhythms: rhythmsOf(audit, broken, birth),
+    rhythms: rhythmsOf(audit, broken, birth, core),
     waiting,
     tool,
     next: nextOf(audit, waiting, broken, tool, seen, missing, unwhole),

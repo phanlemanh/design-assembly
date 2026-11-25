@@ -316,6 +316,14 @@ copy unreadable like any other. The copy is the core's, not the repository's cod
 repository imports from it, and a formatter or a lint that walks the whole repository must leave
 it as it is. A copy pinned before that holds the list of blocks and no file of a block: it still
 reads, the block is not offered, with why, and pinning again with `core --join` brings the files.
+
+Since slice 2 of item 7.2 the copy also holds the report of every repository of the family, each
+where the core keeps it, `design/core/members/<repository>.json`, byte for byte, and `pin.files`
+lists each with its `sha256`: names only, never code. `find` and `intake` read the family's needs
+from these, so a repository gives one answer on every machine, with the core folder out of reach;
+they know a need another repository answered as of the pin, and pinning again brings the newer
+reports. A copy pinned before that holds no report: it still reads, and no need of the family is
+said. The repository's own report in the copy is the one written when it pinned.
 The pin a member is named by stays the first twelve hexadecimal digits of the hash of
 `answers.json`: a block that changes moves the hash that names that block (see `conform`), not the
 pin.
@@ -452,7 +460,7 @@ each problem naming the file and the place.
 | `declaration` | `core.json`                 | The family's name, where the answers came from, the members, the owner     |
 | `answers`     | `answers.json`              | The answers the family shares, each locked or a default, and what holds it |
 | `blocks`      | `blocks/index.json`         | The blocks that graduated to the family, with their files and users        |
-| `members`     | `members/<repository>.json` | What each member repository has solved, by need                            |
+| `members`     | `members/<repository>.json` | What each member repository has solved, by need, and what it uses          |
 | `retired`     | `retired.json`              | The answers and blocks the core retired, whole, with who, when and why     |
 | `proposals`   | `proposals/<id>.json`       | What members proposed to the family's owner, and what the owner answered   |
 
@@ -537,6 +545,32 @@ a kind existed still reads a copy that names it.
 each with `need`, `name` and `description` and nothing else: never code, never the text of a file.
 The folder may be missing until a member reports.
 
+Since slice 2 of item 7.2 a report is written by `core --report`, by `core --join` (joining and
+pinning again) and by no other command; `core --leave` deletes it with the member's line. It is
+read from the repository's intake ledger and from nothing else, so the same ledger gives the same
+file: it carries no day and no person. An intake ledger that is not there, or cannot be read, tells
+nothing and corrects nothing: a report the core holds is left as it is, and the move says what
+could not be read. `needs` has one entry for each block the repository answered
+itself, made by hand or taken from an outside source: the row's `need`, its `name` and its
+`description`, never a path, a hash, a source's name, a value or code. Left out, each said with
+why: a row with no `description`, a row retired or merged, a piece of the starter kit (every
+repository has it from the plugin), a need that is no key, and a block the core retired that the
+repository keeps as its own. A report may also have `uses`: the needs of the core whose block the
+repository took in (`from: core` on its row), each a key and nothing else, since the block is the
+core's and no need the repository answered. A need is told once, a use is told once, and a use
+names a need the store offers or retired. The first repository of a family, which joins only when
+its owner says so (spec 0016, answer 11), reports without joining: `core --report --core DIR`
+writes its report and nothing in the repository. The move prints the file whole before it writes
+it, writes only in the core folder, and writes nothing when the folder cannot be reached.
+
+`used_by` and `second_use` of a block follow the reports: the move that writes a report writes
+first, in `blocks/index.json`, the name of the repository into `used_by` of each block its `uses`
+names, and `second_use` becomes true once `used_by` names two. It is the member's own word about
+its own use, as its line under `members` in `core.json` is; no file of a block changes, and a block
+still reaches the store only by the family's owner's word. A name is never taken out of `used_by`,
+and `second_use` never goes back to false: a repository that left once used the block. An entry
+that lost a name is written again at that repository's next report or pin.
+
 `retired`: `retired.json`, missing until the core retires something (criterion 24), with `version`,
 `answers` and `blocks`. `core --retire` takes an answer out of `answers.json`, or a block out of
 `blocks/index.json`, and keeps it here whole, as it was, its `history` included, with `retired`:
@@ -549,8 +583,8 @@ retired because the core no longer holds it, as before, and reads here who retir
 
 `proposals`: one file per proposal of a member to the family's owner (criterion 23),
 `proposals/<id>.json`, missing until a member proposes. A proposal has `version`, `id` (its kind,
-its subject and a number, as `answer-source-color-1`: the name of its file), `kind` (`answer` or
-`block`), `subject` (the answer's id, or the block's need in the core), `repository` (the member
+its subject and a number, as `answer-source-color-1`: the name of its file), `kind` (`answer`,
+`block` or, since slice 2 of item 7.2, `graduation`), `subject` (the answer's id, or the block's need in the core), `repository` (the member
 proposing), `pin` (the pin it held), and `by`, `on` and `why`. For an answer it has `answer`: `value`,
 the value the member holds, and `was`, the core's `value` and `hold` when it was made. For a block it
 has `block`: `name`, `files` (the files as the member has them, each with `file` and `sha256`, kept
@@ -560,6 +594,21 @@ when it was made. Once the family's owner answered, `decided`: `outcome` (`grant
 granted it and why; a granted block by the promotion's replace, its history saying the same. A
 refused proposal keeps the refusal and the reason, and the member is told at its next look. One
 proposal of a member about one thing waits at a time.
+
+Since slice 2 of item 7.2 a proposal may be of the kind `graduation` (criterion 13, answer 6): a
+member asks the family's owner to promote a block a repository of the family already has, for a
+need the family's store does not hold. Its `subject` is the need, and it has `graduation`:
+`candidates`, one for each repository that told the core it answered that need, each with
+`repository`, `need`, `name` and `description` as that repository's report says, and nothing else:
+it carries no value, no file and no code. Where two repositories answered the need in two ways it
+lists both, for the owner to choose one. One graduation about a need waits at a time, whichever
+member asked. `decided` of one granted also has `chose`, the repository whose block the owner
+chose. Granting promotes nothing by itself: the block is promoted with `core --promote`, in the
+repository that has it, by the owner's name and the reason `granted <id> of <repository>: <why>`;
+the grant prints that call, each word a person gave in single quotes so a shell runs none of it, and
+runs it only when the owner names that repository's folder in the
+same call (`--from DIR`). A block the owner refused is not proposed again for that need, and a need
+the core retired is not proposed.
 
 Only answers a person settled go into a core: a row the guide proposed or read off the repository
 and nobody confirmed (its note says a person has not confirmed it), a blueprint answer the guide

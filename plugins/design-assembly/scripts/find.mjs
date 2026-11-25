@@ -32,6 +32,8 @@ import {
 } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { finish, readCall, Refusal, start } from "./command.mjs";
 import { CORE_SOURCE, CORE_WORDS, familyStoreEntry } from "./core-blocks.mjs";
+import { needLines, needNext, proposedHere } from "./core-graduate.mjs";
+import { familyNeeds } from "./core-report.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { VERSION } from "./stamp.mjs";
 import { componentsOf, fileOf, pinOf, readIntake, readTheme, text } from "./store.mjs";
@@ -473,7 +475,39 @@ export function find(root, { words, kind = null, limit = LIMIT, from = 1 }) {
     .sort((a, b) => a.place - b.place || byRank(a, b))
     .slice(0, limit)
     .map((item) => shown(item.piece));
-  return { words: asked, kind, matches, near: close, searched, next: nextOf(matches) };
+  const answer = { words: asked, kind, matches, near: close, searched, next: nextOf(matches) };
+  // A member of a family: the needs its other repositories answered that the family's store
+  // does not hold, where the walk came to the family's store and nothing nearer answered. The
+  // family is nearer than an outside source, so the question to its owner comes first; nothing is
+  // offered from another repository. A repository of no family has no such key.
+  const family = familyNeeds(root);
+  if (family === null) return answer;
+  const store = searched.find((entry) => entry.store === "family");
+  const reached = Boolean(store) && store.read !== null && !store.found;
+  // A need given whole, by its key or its block's name, is said before one that only holds the words.
+  const measured =
+    reached && kind !== "screen-kind"
+      ? family.needs
+          .map((one) => ({
+            one,
+            ...measure(asked, {
+              fields: [one.name, one.need, one.description],
+              wholes: [whole(one.name), one.need],
+            }),
+          }))
+          .filter((item) => item.match)
+          .sort((a, b) => Number(b.exact) - Number(a.exact))
+      : [];
+  const needs = proposedHere(
+    measured.map((item) => item.one),
+    family.lacking,
+  ).slice(0, limit);
+  return {
+    ...answer,
+    family_needs: needs,
+    ...(needs.length > 0 ? { family_pin: family.pin } : {}),
+    next: needNext(needs) ?? answer.next,
+  };
 }
 
 // What to do with the answer, in one line.
@@ -537,6 +571,7 @@ export function report(result) {
       ...result.near.map((piece) => `  ${piece.name} (${piece.kind}, ${piece.store})`),
     );
   }
+  out.push(...needLines(result.family_needs ?? [], result.family_pin));
   out.push("searched:");
   for (const entry of result.searched) {
     const what = entry.read

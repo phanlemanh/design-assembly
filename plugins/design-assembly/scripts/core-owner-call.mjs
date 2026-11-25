@@ -7,8 +7,15 @@
 //   --propose ID     a member proposes upward what it holds otherwise, an answer or a block it
 //                    took from the core and changed (--block): 0 once written, or when the same
 //                    proposal waits already
-//   --proposals      the proposals a core holds: 1 when one waits on the family's owner, else 0
-//   --grant ID       the owner grants a proposal, carried out with --change or the replace: 0
+//                    With --graduate (slice 2 of item 7.2) it asks instead that a block another
+//                    repository of the family has be promoted for a need: 0 once written, or when
+//                    the need is asked or granted already
+//   --proposals      the proposals a core holds: 1 when one waits on the family's owner, or a
+//                    graduation granted is not promoted yet, else 0
+//   --grant ID       the owner grants a proposal, carried out with --change or the replace: 0. A
+//                    graduation is granted with the block chosen (--choose, where it names two):
+//                    the promotion is named, or made at once from the folder --from names; 1 when
+//                    that block's licence line waits on a person's word, nothing being answered
 //   --refuse ID      the owner refuses a proposal, with the reason: 0
 // Every move ends with 2 on a wrong call, a repository or a core that cannot be read or reached, or
 // a core of a newer shape; then nothing is written. None calls a model or the network.
@@ -48,21 +55,25 @@ export const OWNER_FLAGS = {
   "--adapter": "names",
   "--licence-allows": "switch",
   "--block": "switch",
+  "--graduate": "switch",
+  "--choose": "value",
 };
 export const OWNER_USAGE =
   "       node core.mjs --promote NEED|FILE --core DIR --by NAME --why TEXT [--replace] [--adapter KIND]... [--licence-allows] [--on DATE] [--dry-run] [--target DIR] [--json]\n" +
   "       node core.mjs --retire ID [--block] --core DIR --by NAME --why TEXT [--on DATE] [--dry-run] [--json]\n" +
   "       node core.mjs --propose ID [--block] --by NAME --why TEXT [--core DIR] [--on DATE] [--dry-run] [--target DIR] [--json]\n" +
+  "       node core.mjs --propose NEED --graduate --by NAME --why TEXT [--core DIR] [--on DATE] [--dry-run] [--target DIR] [--json]\n" +
   "       node core.mjs --proposals --core DIR [--json]\n" +
-  "       node core.mjs --grant ID | --refuse ID --core DIR --by NAME --why TEXT [--on DATE] [--dry-run] [--json]\n";
+  "       node core.mjs --grant ID | --refuse ID --core DIR --by NAME --why TEXT [--on DATE] [--dry-run] [--json]\n" +
+  "       node core.mjs --grant ID --core DIR --by NAME --why TEXT [--choose REPOSITORY] [--from DIR [--adapter KIND]... [--licence-allows]]   (a graduation)\n";
 
 const WRITES = ["--core", "--by", "--why", "--on", "--dry-run"];
 const TAKES = {
   "--promote": [...WRITES, "--replace", "--adapter", "--licence-allows"],
   "--retire": [...WRITES, "--block"],
-  "--propose": [...WRITES, "--block"],
+  "--propose": [...WRITES, "--block", "--graduate"],
   "--proposals": ["--core"],
-  "--grant": WRITES,
+  "--grant": [...WRITES, "--choose", "--from", "--adapter", "--licence-allows"],
   "--refuse": WRITES,
 };
 const NEED = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -83,7 +94,7 @@ export function ownerMain(move, call, usage) {
     finish({ json: call.json, result, text: `${lines.join("\n")}\n`, work });
   if (move === "--proposals") {
     const result = listProposals(core);
-    return done(result, listReport(result), result.waiting.length > 0);
+    return done(result, listReport(result), result.waiting.length + result.owed.length > 0);
   }
   const named = String(flags[move]).trim();
   if (move !== "--promote" && !NEED.test(named)) {
@@ -142,7 +153,23 @@ export function ownerMain(move, call, usage) {
     return done(result, retireReport(result));
   }
   if (move === "--propose") {
-    const result = proposeToCore(call.target, { id: named, asBlock, by, on, why, core, dryRun });
+    const graduate = flags["--graduate"] === true;
+    if (graduate && asBlock) {
+      return refuse(
+        "--graduate asks that a block another repository has be promoted, and --block proposes this repository's own change to a block of the core: give one",
+        usage,
+      );
+    }
+    const result = proposeToCore(call.target, {
+      id: named,
+      asBlock,
+      graduate,
+      by,
+      on,
+      why,
+      core,
+      dryRun,
+    });
     return done(result, proposeReport(result));
   }
   const result = decideProposal(core, {
@@ -151,7 +178,11 @@ export function ownerMain(move, call, usage) {
     by,
     on,
     why,
+    choose: blank(flags["--choose"]) ? null : flags["--choose"].trim(),
+    from: blank(flags["--from"]) ? null : path.resolve(flags["--from"]),
+    adapters: flags["--adapter"] ?? [],
+    licenceAllows: flags["--licence-allows"] === true,
     dryRun,
   });
-  return done(result, decideReport(result));
+  return done(result, decideReport(result), Boolean(result.waits));
 }

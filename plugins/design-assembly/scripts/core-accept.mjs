@@ -245,8 +245,9 @@ export function acceptCore(root, { ids = [], all = false, by, on, core = null, d
       ? coreIndexText
       : renderJson({ ...copyIndex, blocks: keptBlocks }, WIDTH)
     : null;
+  // A use another repository told the core is no block to pin: it leaves nothing to take.
   const blocksLeft = (moved.block_changes ?? []).filter(
-    (change) => !blocksAccepted.includes(change.need),
+    (change) => change.change !== "used" && !blocksAccepted.includes(change.need),
   );
   if (indexText !== null) hashes[BLOCKS] = sha256(indexText);
   const nextSource = {
