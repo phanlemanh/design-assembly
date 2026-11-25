@@ -189,6 +189,11 @@ không ghi gì và nói vì sao.
   (lát 3), `core-rule-words-not-compared`, `core-value-read-from-plugin-places`,
   `core-exception-keyed-to-pin`, `core-follow-not-carried-out`, `core-list-names-no-repository-moved`,
   `core-question-only-when-a-command-runs`.
+- Sổ lõi trên máy của bài kiểm: từ lát này `core --build` ghi một dòng, nên mọi bài kiểm gọi lệnh
+  `core` đặt sổ riêng của nó (kể cả `tests/test-core-change.mjs` của lát 4a, sửa khi gộp), và
+  `make plugin-test` bắt đầu với sổ chung rỗng. Hai lần trong lúc dựng, bài kiểm chạy thẳng bằng
+  `node --test` (không qua `make`) đã ghi vào `~/.config/design-assembly/cores.json` của máy này,
+  chỉ với dữ liệu mẫu; cả hai lần tệp và thư mục đã được xoá.
 - Bài soát độc lập của head eedbaa3 tìm hai điểm, sửa cả hai theo lời chủ repo («Gộp 144, sửa 146»);
   mỗi bản sửa có một bài kiểm đỏ khi thiếu nó (điểm 16 và 17 ở trên).
 - Chưa dựng: báo khi lõi đi trước bản ghim (9), móc lúc mở phiên (18), nhận bằng mắt (19), đẩy lõi

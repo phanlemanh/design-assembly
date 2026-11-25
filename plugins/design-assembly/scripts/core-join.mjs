@@ -6,14 +6,7 @@
 // blueprint takes what the core answers (`--inherit`); and the machine's list of cores is asked for
 // the one question about a family (`--ask`), or told the repository is of none (`--decline`). No
 // move calls a model or the network.
-import {
-  existsSync,
-  readdirSync,
-  readFileSync,
-  realpathSync,
-  statSync,
-  writeFileSync,
-} from "node:fs";
+import { existsSync, readFileSync, realpathSync, statSync, writeFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 
@@ -35,12 +28,11 @@ import {
   DESIGN_MD,
   EXPORTS_DECISION,
   exportsName,
-  inputsOf,
+  readInputs,
   stampIn,
   stampOf,
   SYSTEM_FOLDER,
   SYSTEM_PARTS,
-  withManifest,
 } from "../templates/tools/design-assembly/exports.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { LEDGER } from "../templates/tools/design-assembly/ledger.mjs";
@@ -207,41 +199,18 @@ function holdAnswers(root, pinned, { on, reasons = {}, exceptions = {}, ask = tr
 // the command that writes them again: the files a move writes (`files`) are read in place of what
 // is on disk. Null where the repository keeps no exports, or every one is as the ledgers give.
 // The exports are never written here: writing them is the repository's own step.
-const EXPORT_INPUTS = [
-  "design/tokens.json",
-  "design/blueprint.json",
-  "design/component-registry.json",
-];
-const SOURCES_PREFIX = "design/sources/";
 export function exportsBehind(root, files = {}) {
-  const now = (file) => (file in files ? files[file] : read(root, file));
   let theme;
   try {
-    theme = JSON.parse(now(THEME) ?? "null");
+    theme = JSON.parse((THEME in files ? files[THEME] : read(root, THEME)) ?? "null");
   } catch {
     return null;
   }
   if (exportsName(theme) === null) return null;
-  const sources = Object.fromEntries(
-    [
-      ...(existsSync(path.join(root, "design/sources"))
-        ? readdirSync(path.join(root, "design/sources")).map((name) => `${SOURCES_PREFIX}${name}`)
-        : []),
-      ...Object.keys(files).filter((file) => file.startsWith(SOURCES_PREFIX)),
-    ]
-      .filter((file, index, all) => file.endsWith(".json") && all.indexOf(file) === index)
-      .map((file) => [file, now(file)]),
-  );
-  const stamp = stampOf(
-    inputsOf({
-      files: withManifest(root, Object.fromEntries(EXPORT_INPUTS.map((file) => [file, now(file)]))),
-      theme,
-      sources,
-    }),
-  );
+  const stamp = stampOf(readInputs(root, files));
   const behind = [DESIGN_MD, ...SYSTEM_PARTS.map((part) => `${SYSTEM_FOLDER}/${part}`)].filter(
     (file) => {
-      const text = now(file);
+      const text = file in files ? files[file] : read(root, file);
       return text !== null && stampIn(text) !== stamp;
     },
   );

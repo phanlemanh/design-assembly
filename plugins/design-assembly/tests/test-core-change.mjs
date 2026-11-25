@@ -51,8 +51,18 @@ const put = (dir, file, text) => {
 };
 const json = (data) => `${JSON.stringify(data, null, 2)}\n`;
 const read = (dir, file) => JSON.parse(readFileSync(path.join(dir, file), "utf8"));
+// The machine's list of cores of these tests: since slice 2, core --build writes a line there, and
+// it is never the list of the person running them, nor the one other tests of the run read.
+const LIST = path.join(
+  realpathSync(mkdtempSync(path.join(tmpdir(), "design-core-change-list-"))),
+  "cores.json",
+);
 const core = (args, options = {}) =>
-  spawnSync(execPath, [CORE_COMMAND, ...args], { encoding: "utf8", ...options });
+  spawnSync(execPath, [CORE_COMMAND, ...args], {
+    encoding: "utf8",
+    ...options,
+    env: { ...env, ...options.env, DESIGN_ASSEMBLY_CORES: LIST },
+  });
 const git = (dir, ...args) =>
   spawnSync(
     "git",
@@ -897,7 +907,7 @@ test("the move reaches no network", () => {
   const guarded = (args) =>
     spawnSync(execPath, ["--import", NO_NETWORK, CORE_COMMAND, ...args], {
       encoding: "utf8",
-      env: { ...env, DESIGN_ASSEMBLY_NETWORK_LOG: log },
+      env: { ...env, DESIGN_ASSEMBLY_NETWORK_LOG: log, DESIGN_ASSEMBLY_CORES: LIST },
     });
   const base = ["--core", place, "--by", OWNER, "--on", ON, "--why", WHY];
   assert.equal(guarded(["--change", "source-color", "--value", "#101010", ...base]).status, 0);

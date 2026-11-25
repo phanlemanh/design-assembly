@@ -63,7 +63,9 @@ design-decide: ## Print every question that waits on the owner here as one sheet
 plugin-test: ## Run the plugin's own tests: the colour maths, the ledger, and the whole guide on a throwaway repository
 	@node --test tools/reference_paths_test.mjs > /dev/null 2>&1 || (node --test tools/reference_paths_test.mjs; exit 1)
 	@mkdir -p coverage
-	@# The machine's list of cores is the tests' own, never the list of the person running them.
+	@# The machine's list of cores is the tests' own, never the list of the person running them,
+	@# and starts empty: a test that builds a core keeps a list of its own.
+	@rm -f coverage/plugin-test-cores.json
 	@DESIGN_ASSEMBLY_CORES=$(CURDIR)/coverage/plugin-test-cores.json DESIGN_ASSEMBLY_REFERENCE_LEDGER=$(REFERENCE_LEDGER) DESIGN_ASSEMBLY_KIT=$(ACCEPTANCE_KIT) node --test --test-reporter=spec "plugins/design-assembly/tests/*.mjs" > coverage/plugin-test.log 2>&1 || (cat coverage/plugin-test.log; exit 1)
 	@echo "plugin tests: $$(grep -c '^✔' coverage/plugin-test.log) passed, $$(grep -c '^﹣' coverage/plugin-test.log) skipped"
 	@# The reporter is named, so the count reads the same on every version of the runtime. A run
