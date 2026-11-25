@@ -19,6 +19,8 @@
 //        node core.mjs --leave --by NAME --why REASON [--core DIR] [--on DATE] [--dry-run]
 //                      [--target DIR] [--json]
 // A repository leaving its family is scripts/core-leave.mjs, and says there what it ends with.
+//        node core.mjs --take BLOCK [--need KEY] [--to DIR] [--dry-run] [--target DIR] [--json]
+// Taking a block of the core down into a member is scripts/core-take.mjs (slice 1 of item 7.2).
 // Exit: reading, 1 when the sheet waits on a person, 0 when no answer of the repository is settled
 // and there is nothing to build from; building, 0 once the core is written (or would be); checking,
 // 0 when the shape holds and 1 when a part of it is wrong, each problem naming the file and the
@@ -43,6 +45,7 @@ import { changeOf, finish, readCall, Refusal, refuse, start } from "./command.mj
 import { changeCall } from "./core-change.mjs";
 import { MEMBER_FLAGS, MEMBER_MOVES, MEMBER_USAGE, memberMain } from "./core-join-call.mjs";
 import { LEAVE_FLAGS, LEAVE_MOVE, LEAVE_USAGE, leaveCall } from "./core-leave-call.mjs";
+import { TAKE_FLAGS, TAKE_MOVES, TAKE_ONLY, TAKE_USAGE, takeMain } from "./core-take.mjs";
 import { addLine } from "./core-list.mjs";
 import { givenProblem, givenValue, placeOf, readFirst, sheetOf } from "./core-read.mjs";
 
@@ -350,7 +353,8 @@ const USAGE =
   "       node core.mjs --check --core DIR [--json]\n" +
   "       node core.mjs --change ID --core DIR --by NAME --why TEXT [--value VALUE] [--hold locked|default] [--from DIR] [--on DATE] [--dry-run] [--json]\n" +
   MEMBER_USAGE +
-  LEAVE_USAGE;
+  LEAVE_USAGE +
+  TAKE_USAGE;
 const FLAGS = {
   "--family": "value",
   "--core": "value",
@@ -367,6 +371,7 @@ const FLAGS = {
   "--from": "value",
   ...MEMBER_FLAGS,
   ...LEAVE_FLAGS,
+  ...TAKE_FLAGS,
 };
 const BUILD_ONLY = ["--lock", "--default", "--value", "--by", "--on", "--dry-run"];
 const CHANGE_ONLY = ["--hold", "--from", "--why"];
@@ -378,9 +383,14 @@ async function main(args) {
   if (call.help) return void stdout.write(USAGE);
   const { flags } = call;
   const core = flags["--core"] === undefined ? null : path.resolve(flags["--core"]);
-  const moves = ["--build", "--check", "--change", ...MEMBER_MOVES, LEAVE_MOVE].filter(
-    (flag) => flags[flag] !== undefined,
-  );
+  const moves = [
+    "--build",
+    "--check",
+    "--change",
+    ...MEMBER_MOVES,
+    LEAVE_MOVE,
+    ...TAKE_MOVES,
+  ].filter((flag) => flags[flag] !== undefined);
   if (
     moves.length > 1 &&
     moves.includes("--change") &&
@@ -394,6 +404,9 @@ async function main(args) {
       USAGE,
     );
   }
+  if (TAKE_MOVES.includes(moves[0])) return takeMain(call, USAGE);
+  const strayTake = TAKE_ONLY.find((flag) => flag in flags);
+  if (strayTake) return refuse(`${strayTake} is a flag of --take`, USAGE);
   if (MEMBER_MOVES.includes(moves[0])) return memberMain(moves[0], call, USAGE);
   if (moves[0] === LEAVE_MOVE) return leaveCall(call, USAGE);
   if (flags["--change"] !== undefined) {

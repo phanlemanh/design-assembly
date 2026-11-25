@@ -49,6 +49,11 @@
       "through": ["decision", "reference"]
     },
     {
+      "id": "core-take",
+      "script": "scripts/core-take.mjs",
+      "through": ["components"]
+    },
+    {
       "id": "core-leave",
       "script": "scripts/core-leave.mjs",
       "through": ["decision", "reference"]

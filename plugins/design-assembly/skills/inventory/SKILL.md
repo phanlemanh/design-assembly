@@ -57,6 +57,12 @@ entries), the pages of kinds of screen, and `references/starter.json`.
     written at against the hash of the source's pin now, so pinning again on the same day counts;
     take it down at the new pin and run `conform --need <key> --taken-down`. A record written before
     it kept the pin, or a source with no pin, cannot be compared and is named under `blind`.
+    A block taken from the family core is compared block by block: it is behind when the copy of
+    the core the repository pinned holds another block than the one its record took, and never
+    because an answer of the core or another block moved. Take it down again with
+    `core --take <block> --need <key>`, which writes the files that changed and never writes over
+    a hand edit, then run `conform --need <key> --taken-down`. Nothing is said before the
+    repository pins the core again: the repository wins, by pinning.
   - `modified`: a block whose file is not the one taken in (the hash under `taken`, or the template
     of this plugin for a piece of the starter kit), with no `changed` saying why; or not the one its
     last widening recorded under `changed.sha256`.

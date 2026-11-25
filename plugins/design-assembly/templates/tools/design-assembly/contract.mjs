@@ -4,11 +4,12 @@
 //
 // A shape is checked as data. Its `version` says which shape a file has: a reader of shape N reads
 // every file of shape N or older, and a writer that finds a newer shape writes nothing.
+import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
-import { adapterOf } from "./adapters/index.mjs";
+import { ADAPTER_KINDS, adapterOf } from "./adapters/index.mjs";
 import { tokenHex } from "./color.mjs";
 import {
   INTAKE_LEDGER,
@@ -668,6 +669,9 @@ export const CORE = {
     // promoted it on which day, and whether a second repository has used it yet (answer 13).
     blocks: {
       file: "blocks/index.json",
+      // The folder the files of every block are kept under, each block in a folder named after
+      // its need.
+      folder: "blocks",
       question: "which blocks graduated to the family, with their files, adapters and users",
       required: true,
       root: {
@@ -678,6 +682,8 @@ export const CORE = {
             fields: {
               need: required(dashed),
               name: required(text),
+              // What the block is for, in a sentence, where the store says so.
+              description: text,
               files: required(list(hashedFile)),
               adapters: required(list(text)),
               used_by: required(list(text)),
@@ -771,8 +777,102 @@ export function familyCoreProblems(dir) {
       problems.push(entry.problem);
       continue;
     }
-    problems.push(...corePartShapeProblems(entry.part, entry.data, entry.file));
+    const shape = corePartShapeProblems(entry.part, entry.data, entry.file);
+    problems.push(...shape);
+    // The files of the store are read once its list holds its shape.
+    if (entry.part === "blocks" && shape.length === 0) {
+      problems.push(...coreStoreProblems(dir, entry.data, entry.file));
+    }
   }
+  return problems;
+}
+
+// Where a file of a block is kept in a core folder, and in a member's copy of it.
+export const coreBlockFile = (need, file) =>
+  path.posix.join(CORE.parts.blocks.folder, String(need), String(file));
+
+// Whether a block names a file so that it stays in the folder of its need: a path of the folder,
+// never one that leads out of it.
+export function staysInBlock(file) {
+  const name = String(file ?? "");
+  if (name.trim() === "" || path.posix.isAbsolute(name) || /^[A-Za-z]:|\\/.test(name)) return false;
+  const parts = name.split("/");
+  return !parts.includes("..") && !parts.includes(".") && !parts.includes("");
+}
+
+// Whether a file of a block is hidden, or lies in a hidden folder: a name that starts with a dot.
+// A block is code a member copies into its own folders, and no part of it may land as a file its
+// tools read as configuration, or as a folder of its version control.
+export const hiddenInBlock = (file) =>
+  String(file ?? "")
+    .split("/")
+    .some((part) => part.startsWith("."));
+
+// Whether bytes are text a command can copy as it is: UTF-8, read and written back the same.
+export const isTextFile = (bytes) => Buffer.from(bytes.toString("utf8"), "utf8").equals(bytes);
+
+// What is wrong with the files of the block store of a core folder, beside the shape of its list
+// (spec 0016, slice 1 of item 7.2): a block with no file, a file named so that it leaves the
+// folder of its need, a file named twice, a file that is not there, one that is not text, and one
+// that is not the file listed. Each line names the list, the block and the file.
+export function coreStoreProblems(dir, data, file = CORE.parts.blocks.file) {
+  const problems = [];
+  const blocks = Array.isArray(data?.blocks) ? data.blocks : [];
+  blocks.forEach((block, index) => {
+    if (typeof block?.need !== "string" || !Array.isArray(block.files)) return;
+    const at = `${file}.blocks[${index}]`;
+    // An adapter a block needs is a kind this plugin knows: a member that reads another word reads
+    // a block it can never have. Held here, where a core is checked and joined, and not in the
+    // shape a member's gate reads its copy by, so a tool older than a kind still reads the copy.
+    (Array.isArray(block.adapters) ? block.adapters : []).forEach((kind, place) => {
+      if (typeof kind === "string" && !Object.hasOwn(ADAPTER_KINDS, kind)) {
+        problems.push(
+          `${at}.adapters[${place}] is ${kind}, which is no kind of adapter: one of ${Object.keys(ADAPTER_KINDS).join(", ")}`,
+        );
+      }
+    });
+    if (block.files.length === 0) {
+      problems.push(`${at}.files names no file: a block is its files`);
+      return;
+    }
+    const seen = new Set();
+    block.files.forEach((entry, place) => {
+      if (typeof entry?.file !== "string") return;
+      const where = `${at}.files[${place}]`;
+      const folder = `${coreBlockFile(block.need, "")}/`;
+      if (!staysInBlock(entry.file)) {
+        problems.push(
+          `${where}.file is ${entry.file}, which leaves ${folder}: a block's files are kept under its need`,
+        );
+        return;
+      }
+      if (hiddenInBlock(entry.file)) {
+        problems.push(
+          `${where}.file is ${entry.file}, a hidden file or one in a hidden folder: a block is code, and no part of its name starts with a dot`,
+        );
+        return;
+      }
+      if (seen.has(entry.file)) {
+        problems.push(`${where}.file names ${entry.file} twice`);
+        return;
+      }
+      seen.add(entry.file);
+      const kept = coreBlockFile(block.need, entry.file);
+      const full = path.join(dir, kept);
+      if (!existsSync(full) || !statSync(full).isFile()) {
+        problems.push(`${where}: ${kept} is not there`);
+        return;
+      }
+      const bytes = readFileSync(full);
+      if (!isTextFile(bytes)) {
+        problems.push(`${where}: ${kept} is not text: a block's files are code, kept as text`);
+        return;
+      }
+      if (sha256(bytes) !== entry.sha256) {
+        problems.push(`${where}: ${kept} is not the file listed: its sha256 differs`);
+      }
+    });
+  });
   return problems;
 }
 
@@ -841,8 +941,9 @@ function corePartProblems(part, data, file) {
 // ---- a member of a family: the core it pinned (spec 0016, slice 2 of item 7.1) -----------------
 
 // Where a repository keeps the family it declared and the copy of that core: the row of the sources
-// ledger, and the folder the copy is kept in. The copy holds the declaration, the answers and the
-// list of blocks; the members' reports stay in the core.
+// ledger, and the folder the copy is kept in. The copy holds the declaration, the answers, the list
+// of blocks and, since slice 1 of item 7.2, the files of every block, each where the core keeps
+// it; the members' reports stay in the core. A copy pinned before that holds no file of a block.
 export const PINNED_CORE = { file: `${SOURCES_FOLDER}/${CORE_ID}.json`, snapshot: "design/core" };
 export const COPIED_PARTS = ["declaration", "answers", "blocks"];
 // The check of the gate that holds the locked answers of the core a repository pinned. It is laid
@@ -925,6 +1026,8 @@ export function readPinnedCore(root) {
     declaration: data.declaration,
     answers: data.answers.answers,
     blocks: data.blocks.blocks,
+    // Every file of the copy the pin holds, with its hash: each was compared above.
+    files: Object.fromEntries(Object.entries(parts).map(([name, part]) => [name, part.sha256])),
     unreadable: null,
   };
 }

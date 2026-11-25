@@ -1,6 +1,6 @@
 ---
 name: intake
-description: Take a block into the store of a repository for a need, by the ladder of three rungs — a block the intake ledger already keeps for that need, then a piece of the starter kit or an item of a pinned outside source, then one made by hand with why — and record it in the intake ledger with who approved it and when, once the owner has answered on the decision sheet. Also lists, once the owner keeps it, what screens used before the ledger was kept. Use when the user or an agent needs a new block, component or way of working on a screen ("we need a filter bar", "take this block in", "record this component", "add it to the store"), after find says nothing answers a need, or when the inventory reports a component as unrecorded. Not for searching the store (that is find), taking stock of it (that is inventory), or retiring or merging a block.
+description: Take a block into the store of a repository for a need, by the ladder of three rungs — a block the intake ledger already keeps for that need, then a piece of the starter kit, a block of the family core the repository pinned or an item of a pinned outside source, then one made by hand with why — and record it in the intake ledger with who approved it and when, once the owner has answered on the decision sheet. Also lists, once the owner keeps it, what screens used before the ledger was kept. Use when the user or an agent needs a new block, component or way of working on a screen ("we need a filter bar", "take this block in", "record this component", "add it to the store"), after find says nothing answers a need, or when the inventory reports a component as unrecorded. Not for searching the store (that is find), taking stock of it (that is inventory), or retiring or merging a block.
 ---
 
 # Take a block in
@@ -22,8 +22,9 @@ search for, the key's own words when none are given. `--kind component|block` ke
 
 - **Rung one, the store.** The intake ledger has a block for this need: use it. Nothing is written
   and the call ends with 0. This is the second time a need is asked: nobody is called.
-- **Rung two, the starter kit or an outside source.** Up to three candidates, the starter kit's
-  first, else the pinned sources' in their order, and "by-hand" last, go to the waiting list as one
+- **Rung two, the starter kit, the family's store or an outside source.** Up to three candidates,
+  the starter kit's first, else the blocks of the family core the repository pinned, else the
+  pinned sources' in their order, and "by-hand" last, go to the waiting list as one
   question, `design/waiting/intake-<key>.json`. The call ends with 1. Go on with the recommended
   candidate while it waits, as the sheet says; the row is written only after the answer.
 - **Rung three, by hand.** `--by-hand --why SENTENCE` asks to make it by hand, and the sentence is
@@ -43,6 +44,20 @@ The same call, after the answer:
 
 - **A piece of the starter kit** is copied where the guide puts it, and its row is written. A file
   of the repository's own in its place stops the call: nothing is written over.
+- **A block of the family core** (`rung` is `family`) goes the way of an item of an outside source,
+  with one difference: nothing is installed and nothing is fetched. The question says what it
+  brings: its files, the adapters it needs, and that it is copied from the repository's copy of the
+  core. After the answer, the call names the move that takes it down and does not run it:
+  `node ${CLAUDE_PLUGIN_ROOT}/scripts/core.mjs --target <repo> --take <block> --need <key>`
+  (preview with `--dry-run`; `--to DIR` names another folder than the repository's own components).
+  It copies the block's files into the repository, never links them, and starts the conform record
+  `design/conform/<key>.json` as taken down. It ends with `1` when a file of the block turns off a
+  rule: a rule the decision ledger holds is patched, never exempted; any other needs its exemption
+  (`/design-assembly:conform`). Then call intake again with `--file PATH`, as for any item below:
+  the row says `from: core`, the block's need in the core as `source`, the pin, the hash and the
+  record. A file in the way is never written over. After the row, the repository writes its
+  component manifest again (`make design-components`), as after any component it adds, and its
+  exports where it keeps them (`make design-exports`): the gate is red on each until then.
 - **An item of an outside source:** the question says what it brings (its files, packages, the
   items it asks for, the repository's files it asks to write over), read from the pinned snapshot.
   After the answer, the call gives its install line and does not run it. The line may need the

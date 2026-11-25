@@ -266,7 +266,7 @@ test("a repository with nothing, not in git, is searched in every store and ends
   const by = Object.fromEntries(result.searched.map((entry) => [entry.store, entry]));
   assert.match(by.intake.why, /no intake ledger/);
   assert.match(by.starter.why, /needs? the (components|source) adapter/);
-  assert.match(by.family.why, /no family store/);
+  assert.match(by.family.why, /of no family/);
   assert.match(by.sources.why, /no outside source is pinned/);
   assert.match(result.next, /intake ledger/);
   // The command that takes a block in is named, now that it exists.

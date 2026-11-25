@@ -40,7 +40,12 @@ It stops at the first store that answers, and says so for every store it did not
    use any more (`retired`, or `merged_into` another need) is never offered.
 2. The starter kit of this plugin, `references/starter.json`: a piece is offered only where the
    repository has every adapter it needs, and the screen says which piece lacks which adapter.
-3. The family's store: none exists yet, and the screen says so.
+3. The family's store: the blocks of the family core the repository pinned, read from its copy
+   of the core in `design/core`, never from the core folder. A match says its need, its name, its
+   description when the store has one, the adapters it needs, and that it comes from the family's
+   core at which pin. A block is offered only where the repository has every adapter it needs and
+   its copy holds the block's files; a copy that differs from its hashes offers nothing, with why,
+   and the walk goes on. On a repository of no family the line says so.
 4. The outside sources the repository pinned under `design/sources/`, in their `order`. A source
    whose snapshot differs from its pin is unreadable, and none of its items is offered.
 

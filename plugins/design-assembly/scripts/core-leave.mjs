@@ -35,13 +35,14 @@ import {
 } from "../templates/tools/design-assembly/contract.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { LEDGER, parseLedger } from "../templates/tools/design-assembly/ledger.mjs";
-import { isCoreSource } from "../templates/tools/design-assembly/sources-ledger.mjs";
+import { CORE_ID, isCoreSource } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { readWaiting, WAITING_LIST } from "../templates/tools/design-assembly/waiting.mjs";
 import { writeFiles, writtenFiles } from "./apply.mjs";
 import { fileChange, Refusal } from "./command.mjs";
 import { exportsBehind } from "./core-join.mjs";
 import { addLine, coreProblem, homeOf, readList } from "./core-list.mjs";
 import { setNote } from "./core-marks.mjs";
+import { readIntake, readTheme, text as words } from "./store.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const CHOICES = Object.fromEntries(
@@ -377,6 +378,27 @@ function coreLineOf({ core, family, repository }) {
   return { reached: true, file, line, text: renderJson(next, WIDTH), why: null, left: null };
 }
 
+// The blocks the repository took in from the core (slice 1 of item 7.2): each stays where it is, as
+// the repository's own, and its row of the intake ledger is not rewritten. `from` and `pin` on the
+// row then say where the block once came from. An intake ledger that cannot be read names none.
+function blocksKept(root) {
+  let theme;
+  try {
+    theme = readTheme(root);
+  } catch {
+    return [];
+  }
+  return readIntake(root, theme)
+    .blocks.filter((block) => words(block.from) === CORE_ID && !block.retired && !block.merged_into)
+    .map((block) => ({
+      need: words(block.need),
+      name: words(block.name),
+      file: words(block.file),
+      source: words(block.source),
+      pin: words(block.pin),
+    }));
+}
+
 // Leaves the family, or says what leaving would do. `left` is false, and nothing is written, on a
 // repository that declares no family.
 export function leaveCore(root, { core = null, by, why, on, dryRun }) {
@@ -452,6 +474,7 @@ export function leaveCore(root, { core = null, by, why, on, dryRun }) {
     by: said.by,
     why: said.why,
     copy: { readable: unreadable === null, why: unreadable, left_in_place: copy.left },
+    blocks_kept: blocksKept(root),
     rows: ledger.rows,
     blueprint: choices,
     check: check.taken,

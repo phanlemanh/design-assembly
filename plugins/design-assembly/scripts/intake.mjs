@@ -1,11 +1,15 @@
 // intake: take a block into the store for a need, by the ladder of three rungs, with every choice
 // made by the owner through the waiting list. Rung one: the intake ledger has a block for the need,
 // and that is the answer; nothing is written. Rung two: the starter kit of this plugin, else the
-// outside sources the repository pinned, give up to three candidates, and one question goes to the
+// family's store (the blocks of the family core the repository pinned), else the outside sources
+// the repository pinned, give up to three candidates, and one question goes to the
 // waiting list. Rung three: made by hand, with why. Once the owner answered on the decision sheet,
 // the next call carries the answer out: it copies a piece of the starter kit, gives the install
-// line of an outside source without running it, or takes the file made by hand, and writes one
+// line of an outside source without running it, names the move that takes a block of the family
+// core down from the repository's copy of it, or takes the file made by hand, and writes one
 // row with the owner's name and day. No row carries a person's name before a person answered.
+// A block of the family core goes the way of an item of an outside source: taken down, conformed,
+// then taken in (spec 0016, answer 7).
 // With --before it lists, once the owner keeps them, the components screens use that were made
 // before the ledger. No model is called and nothing is fetched or run.
 // Usage: node intake.mjs --need KEY [words of the need] [--kind component|block]
@@ -28,6 +32,13 @@ import { SOURCES_FOLDER } from "../templates/tools/design-assembly/sources-ledge
 import { picked, questionFile } from "../templates/tools/design-assembly/waiting.mjs";
 import { ownedFileOf, writeFiles, writtenFiles } from "./apply.mjs";
 import { finish, readCall, Refusal, start } from "./command.mjs";
+import {
+  blockBrings,
+  CORE_SOURCE,
+  CORE_WORDS,
+  FAMILY_STORE,
+  readFamilyStore,
+} from "./core-blocks.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { find, wordsOf } from "./find.mjs";
 import { mandatoryOff, mandatoryRules, unexempted } from "./conform-rules.mjs";
@@ -49,7 +60,11 @@ const CANDIDATES = 3;
 export const QUESTIONS_SINCE = "0.12.0";
 const BEFORE_ID = "intake-before";
 const BEFORE_WHY = "made before the intake ledger was kept";
-const STORES = { starter: "the starter kit of this plugin", "by-hand": "made by hand" };
+const STORES = {
+  starter: "the starter kit of this plugin",
+  "by-hand": "made by hand",
+  [FAMILY_STORE]: CORE_WORDS,
+};
 const storeWords = (store) =>
   STORES[store] ?? `the outside source ${store.replace(/^sources\//, "")}`;
 
@@ -162,16 +177,21 @@ export function bringsOf(root, sourceId, name) {
 function conformedRecord(root, need, chosen, named) {
   const file = `${CONFORM_FOLDER}/${need}.json`;
   const nothing = ". Nothing was written";
+  // What the record names the item by: its name in the source's catalog, or, for a block of the
+  // family core, the block's need there.
+  const item = chosen.source;
   if (!existsSync(path.join(root, file))) {
     throw new Refusal(
-      `${need} takes ${chosen.name} from the outside source ${chosen.from}, and no conform record ${file} holds its files as taken down and after patching, its patches and its exemptions: conform it first${nothing}`,
+      chosen.store === FAMILY_STORE
+        ? `${need} takes ${chosen.name} from ${CORE_WORDS}, and no conform record ${file} holds its files as taken down and after patching: take it down first with core --take ${item} --need ${need}${nothing}`
+        : `${need} takes ${chosen.name} from the outside source ${chosen.from}, and no conform record ${file} holds its files as taken down and after patching, its patches and its exemptions: conform it first${nothing}`,
     );
   }
   const text = readFileSync(path.join(root, file), "utf8");
   const problems = shapeProblems("conform", text, file);
   if (problems.length > 0) throw new Refusal(`${problems.slice(0, 3).join("; ")}${nothing}`);
   const record = JSON.parse(text);
-  if (record.item !== chosen.name || record.source !== chosen.from) {
+  if (record.item !== item || record.source !== chosen.from) {
     const from = record.source !== chosen.from ? ` from the source ${record.source}` : "";
     throw new Refusal(
       `${file} holds ${record.item}${from}, and the owner kept ${chosen.name} from ${chosen.from}${nothing}`,
@@ -292,6 +312,24 @@ function candidateOf(root, piece, need, words) {
     ...(piece.reference ? { reference: piece.reference } : {}),
     why,
   };
+  if (piece.store === FAMILY_STORE) {
+    // A block of the family core: named in the ledger by its need in the core, taken from the
+    // repository's copy of the core at its pin. Its files are read from that copy, on the disk.
+    const block = readFamilyStore(root).blocks?.find((each) => each.need === piece.need);
+    if (!block) return { left: `${piece.name} is no block of this repository's copy of the core` };
+    return {
+      candidate: {
+        ...said,
+        source: block.need,
+        from: CORE_SOURCE,
+        files: block.files.map((file) => file.kept),
+        adapters: block.adapters,
+        take: `core --take ${block.need} --need ${need}`,
+        brings: blockBrings(block),
+        gate: gateWords(root),
+      },
+    };
+  }
   if (piece.store === "starter") {
     const { places, why: cannot } = starterPlaces(root, piece.files);
     if (!places) return { left: `${piece.name} is in the starter kit, but ${cannot}` };
@@ -586,9 +624,11 @@ function needCall(root, state, options) {
       chosen,
       install,
       next:
-        rung === "external"
-          ? `${question.id} was ${answerOf(question)}: take ${chosen.name} in${install ? ` with ${install}` : ""} (it may need the network and new packages, so ask the owner before you run it; this command never runs it), then call this again with --file PATH, the block's file`
-          : `${question.id} was ${answerOf(question)}: make the block, then call this again with --file PATH, its file`,
+        rung === FAMILY_STORE
+          ? `${question.id} was ${answerOf(question)}: take ${chosen.name} down with ${chosen.take} (it copies the block's files from this repository's copy of the family core, fetches nothing, and starts its conform record; this command never runs it), then call this again with --file PATH, the block's file`
+          : rung === "external"
+            ? `${question.id} was ${answerOf(question)}: take ${chosen.name} in${install ? ` with ${install}` : ""} (it may need the network and new packages, so ask the owner before you run it; this command never runs it), then call this again with --file PATH, the block's file`
+            : `${question.id} was ${answerOf(question)}: make the block, then call this again with --file PATH, its file`,
       writes: {},
       work: true,
     };
@@ -621,7 +661,9 @@ const rungOf = (candidate) =>
     ? "starter"
     : candidate.store === "by-hand"
       ? "by-hand"
-      : "external";
+      : candidate.store === FAMILY_STORE
+        ? FAMILY_STORE
+        : "external";
 
 // ---- what came before the ledger ------------------------------------------------------------------
 
@@ -807,6 +849,8 @@ export function report(result, written) {
     );
   }
   if (result.install) lines.push(`install line, not run: ${result.install}`);
+  if (result.chosen?.take && !result.row)
+    lines.push(`take-down move, not run: ${result.chosen.take}`);
   for (const note of result.notes ?? []) lines.push(`note: ${note}`);
   if (written.length > 0) {
     lines.push(

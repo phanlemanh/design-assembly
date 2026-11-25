@@ -34,6 +34,7 @@ import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.m
 import { pinSha256, SOURCES_FOLDER } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { writeFiles, writtenFiles } from "./apply.mjs";
 import { finish, readCall, Refusal, refuse, start } from "./command.mjs";
+import { blockPinSha256, CORE_SOURCE, declaresFamily } from "./core-blocks.mjs";
 import { exemptionRefused, mandatoryOff, mandatoryRules, unexempted } from "./conform-rules.mjs";
 import { insideRoot } from "./store.mjs";
 
@@ -110,8 +111,13 @@ function readRecord(root, need) {
   return JSON.parse(text);
 }
 
-// The hash of the source's pin as the repository holds it now, shared with the inventory.
-const pinHash = pinSha256;
+// The hash of the source's pin as the repository holds it now, shared with the inventory. An item
+// of the family core has a pin of its own: the hash that names the block in the repository's copy
+// of the core, which moves with the block's files and with nothing else of the core (spec 0016).
+const pinHash = (root, source, item) =>
+  source === CORE_SOURCE && declaresFamily(root)
+    ? blockPinSha256(root, item)
+    : pinSha256(root, source);
 const withPin = (record, pin) => {
   if (pin === null) return record;
   // The pin's hash sits after the item, where a person reads it, and replaces an older one.
@@ -163,7 +169,7 @@ function started(root, need, { source, item, files }) {
         patches: [],
         exemptions: [],
       },
-      pinHash(root, source),
+      pinHash(root, source, item),
     ),
     said: `started ${file}: ${entries.length} files of ${item} from ${source}, as taken down`,
   };
@@ -267,7 +273,7 @@ function unprovenRetake(record, files, pin) {
 // patching is a newer item only when the source has been pinned again since the record was
 // written, and otherwise a hand edit, refused. The patches of each are applied in order.
 function retakenRecord(root, record) {
-  const pin = pinHash(root, record.source);
+  const pin = pinHash(root, record.source, record.item);
   const repinned =
     typeof record.pin_sha256 === "string" && pin !== null && pin !== record.pin_sha256;
   const onDisk = record.conformed.map((entry) => {
@@ -339,7 +345,8 @@ function retakenRecord(root, record) {
 // that do not lead back to the files as taken down, a rule turned off with no exemption.
 export function recordProblems(root, record) {
   const problems = [];
-  const pin = typeof record.pin_sha256 === "string" ? pinHash(root, record.source) : null;
+  const pin =
+    typeof record.pin_sha256 === "string" ? pinHash(root, record.source, record.item) : null;
   if (pin !== null && pin !== record.pin_sha256) {
     problems.push(
       `the pin of ${record.source} is no longer the one the record was written at: take the item down at the new pin, or leave it as it is, and run --taken-down, which records the pin; until then --taken-down would take a file of the item changed by hand for the newer item`,

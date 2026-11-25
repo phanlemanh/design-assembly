@@ -25,6 +25,7 @@ import {
   readPinnedSources,
 } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { finish, readCall, Refusal, start } from "./command.mjs";
+import { coreBlocksBehind, CORE_SOURCE, declaresFamily, familyStoreCount } from "./core-blocks.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { VERSION } from "./stamp.mjs";
 import {
@@ -213,7 +214,10 @@ function storesOf(read) {
         }))
       : [{ store: "external", source: source.id, kind: null, count: null, why: source.unreadable }],
   );
-  return [...repo, ...starter, ...external];
+  // The family's store, on a repository that declares a family: the blocks its copy of the core
+  // holds. A repository of no family has no such line.
+  const family = familyStoreCount(read.root);
+  return [...repo, ...starter, ...(family ? [family] : []), ...external];
 }
 
 // ---- the findings ---------------------------------------------------------------------------------
@@ -375,12 +379,25 @@ function conformRecords(root) {
 // the hash of the pin it was written at, compared with the hash of the pin the repository holds
 // now. Taken in or only taken down, each item is named. Nothing is fetched.
 function recordsBehind(read, blind) {
-  const found = [];
-  for (const record of conformRecords(read.root)) {
+  const records = conformRecords(read.root);
+  // A block of the family core is compared with the repository's copy of the core, block by block.
+  const family = declaresFamily(read.root);
+  const found = family ? coreBlocksBehind(read.root, records, blind) : [];
+  for (const record of records) {
+    if (family && text(record.source) === CORE_SOURCE) continue;
     const need = text(record.need);
     const item = text(record.item) ?? need;
     const source = read.sources.find((each) => each.id === text(record.source));
     const said = `${item} (${need})`;
+    if (!source && text(record.source) === CORE_SOURCE) {
+      // A block of a family core, on a repository that is of no family any more.
+      blind(
+        "outdated",
+        `${said} was taken from a family core this repository is no longer of: the block is the repository's own now, and is compared with no core`,
+        [item],
+      );
+      continue;
+    }
     if (!source) {
       blind("outdated", `${said} names a source that is not pinned`, [item]);
       continue;
