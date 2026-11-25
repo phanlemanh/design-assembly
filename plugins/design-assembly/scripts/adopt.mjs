@@ -46,13 +46,12 @@ import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-fi
 import { FLOATING_CHECK } from "../templates/tools/design-assembly/floating-parts.mjs";
 import {
   FAMILY_CORE_CHECK,
-  memberFiles,
-  memberValues,
   readPinnedCore,
   sameCoreValue,
 } from "../templates/tools/design-assembly/contract.mjs";
-import { familyQuestion } from "./core-list.mjs";
-import { inheritedSummary, markLedger, readMember } from "./core-marks.mjs";
+import { holdAnswers, reasonsBeforeJoining } from "./core-join.mjs";
+import { answeredByCores, familyQuestion } from "./core-list.mjs";
+import { inheritedSummary, readMember } from "./core-marks.mjs";
 import { whereRulesApply } from "../templates/tools/design-assembly/lint.mjs";
 import {
   PROBED,
@@ -90,7 +89,7 @@ import {
 import { declaredFonts, readLoads } from "../templates/tools/design-assembly/fonts.mjs";
 import { COMPONENTS_DECISION, readFolder } from "../templates/tools/design-assembly/components.mjs";
 import { KINDS_FOLDER, readPages } from "../templates/tools/design-assembly/screens.mjs";
-import { TOKENS_DECISION } from "../templates/tools/design-assembly/tokens.mjs";
+import { TOKENS, TOKENS_DECISION } from "../templates/tools/design-assembly/tokens.mjs";
 import {
   BLUEPRINT,
   columnsPlan,
@@ -792,6 +791,10 @@ export function adoption(
   const member = readMember(root);
   const pinned = member && !member.pinned.unreadable ? member.pinned : null;
   const coreColour = pinned?.answers.find((answer) => answer.id === "source-color") ?? null;
+  // A colour the repository holds and its core settles otherwise: what the stylesheet shows, and
+  // where its line goes among what needs a person. Where it stands is read with every answer of
+  // the core, further down, once the files this run lays are known.
+  let ownColour = null;
   if (open("source-color")) {
     const primary = styles ? ownValue(styles, ":root", "--primary") : null;
     const followed = primary ? expand(styles, ":root", primary) : null;
@@ -806,11 +809,11 @@ export function adoption(
     } else if (sameAsCore) {
       // The family's owner settled this colour; the row says it is inherited.
       add("source-color", { kind: "judgment", source: result.stylesheet }, "recorded");
-    } else if (coreColour?.hold === "locked" && primary !== null) {
-      result.person.push({
-        id: "source-color",
-        why: `--primary is ${primary} in ${result.stylesheet}${shown}, and the family core this repository pinned locks ${coreColour.value}: follow the core, or keep this colour as an exception with its reason. The question waits on the decision sheet (core --join asked it)`,
-      });
+    } else if (coreColour && primary !== null) {
+      ownColour = {
+        at: result.person.length,
+        seen: `--primary is ${primary} in ${result.stylesheet}${shown}`,
+      };
     } else if (primary !== null) {
       result.person.push({
         id: "source-color",
@@ -907,14 +910,24 @@ export function adoption(
   // report says what the core answered. One that declares none, while this machine keeps a core,
   // is asked the one question about a family.
   if (pinned) {
-    const text = result.files[LEDGER] ?? ledgerText;
-    const values = memberValues(pinned, memberFiles(root, result.files));
-    if (text !== null) {
-      const marked = markLedger(text, pinned, values);
-      if (marked.text !== text) result.files[LEDGER] = marked.text;
-      result.family_core = inheritedSummary(pinned, marked.states);
-    } else {
-      result.family_core = inheritedSummary(pinned);
+    // Compared as joining compares them, by the same code, on the files this run lays: a locked
+    // answer the repository holds otherwise is asked on the decision sheet in this very run, under
+    // the id the join gives it, and a default it held otherwise before it joined keeps its answer.
+    // A row the ledger had already is never given that reason: only a person gives it then.
+    const before = pinned.joined?.by
+      ? Object.entries(reasonsBeforeJoining(pinned.answers, pinned.joined))
+      : [];
+    const held = holdAnswers(root, pinned, {
+      on: today(),
+      reasons: Object.fromEntries(before.filter(([id]) => !have.has(id))),
+      pending: result.files,
+      who: "adopt",
+    });
+    Object.assign(result.files, held.files);
+    result.family_core = inheritedSummary(pinned, held.answers);
+    if (ownColour) {
+      const line = colourLine(ownColour.seen, coreColour, held);
+      if (line) result.person.splice(ownColour.at, 0, line);
     }
   } else if (member) {
     result.unreadable.push({
@@ -922,13 +935,63 @@ export function adoption(
       why: `the copy of the family core here cannot be read (${member.pinned.unreadable}): the repository inherits nothing and its own answers stand; pin it again with core --join`,
     });
   } else {
-    const asked = familyQuestion(root).question;
+    // The one question about a family comes first, and what a core of the list answers is held
+    // back until it is answered: a repository that joins is never asked what its core answered.
+    const { question: asked, cores = [] } = familyQuestion(root);
     if (asked) {
-      result.person.push({ id: "family", why: `${asked.question} ${asked.recommendation}` });
+      const answered = answeredByCores(cores);
+      result.held_back = result.person
+        .filter((item) => answered.has(item.id))
+        .map((item) => heldBack(item.id, answered.get(item.id), cores.length));
+      result.person = [
+        { id: "family", why: `${asked.question} ${asked.recommendation}` },
+        ...result.person.filter((item) => !answered.has(item.id)),
+      ];
       result.family_question = asked;
     }
   }
   return result;
+}
+
+// A question held back until the family question is answered: which cores answer it, and what
+// becomes of it after. `known` is how many cores the repository is asked about.
+function heldBack(id, by, known) {
+  const other = known > by.length ? " or another" : "";
+  const why =
+    by.length === 1
+      ? `the family core ${by[0].family} answers it (${by[0].hold}): not asked if this repository joins that family, asked as before if it joins none${other}`
+      : `the family cores ${by.map((core) => `${core.family} (${core.hold})`).join(", ")} answer it: not asked if this repository joins one of them, asked as before if it joins none${other}`;
+  return { id, answered_by: by, why };
+}
+
+// The line about a colour the repository holds and its core settles otherwise, or null when
+// nothing of it needs a person: the core's is a default, or the exception is recorded. `seen` says
+// what the stylesheet shows; `held` is where every answer of the core stands, and the questions
+// this run makes. The line names the question of the decision sheet, and says only what is so when
+// it is printed: that the question waits, or that it is among the files of this run.
+function colourLine(seen, answer, held) {
+  const at = held.answers.find((item) => item.id === answer.id);
+  if (answer.hold !== "locked") return null;
+  const lead = `${seen}, and the family core this repository pinned locks ${answer.value}`;
+  const choice = "follow the core, or keep this colour as an exception with its reason";
+  if (at.state === "inherited" && at.held_here === undefined) {
+    // No ledger of the repository holds the colour yet, so the join's comparison sees nothing.
+    return {
+      id: answer.id,
+      why: `${lead}: ${choice}. No question is on the decision sheet yet: ${TOKENS} does not hold the colour, and the question is written once it does`,
+      question: null,
+    };
+  }
+  if (at.state !== "differs") return null;
+  const made = held.asked[answer.id];
+  const why = made
+    ? `${lead}: ${choice}. The question is put on the decision sheet with the files below (${made})`
+    : at.answered === "follow"
+      ? `${lead}: the owner answered ${at.question} on the decision sheet to follow the core, and the repository still holds this colour. Change it to the core's: the gate is red until then`
+      : at.answered
+        ? `${lead}: ${at.question} was refused on the decision sheet with no reason, and an exception is kept only with its reason. Give it with core --settle --why ${answer.id}=<reason> --by <name>`
+        : `${lead}: ${choice}. The question waits on the decision sheet (${at.question})`;
+  return { id: answer.id, why, question: at.question };
 }
 
 // The decisions whose probe draws a component of the library, when the repository has one.
@@ -1056,6 +1119,11 @@ export function report(result) {
   section("already kept by the repository, and left as it is:", result.kept, reason);
   if ((result.family_core ?? []).length > 0) lines.push("", ...result.family_core);
   section("needs a person:", result.person, reason);
+  section(
+    "held back until the family question is answered (put that one question to the person first, alone, then run this again):",
+    result.held_back ?? [],
+    reason,
+  );
   return lines;
 }
 

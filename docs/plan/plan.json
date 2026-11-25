@@ -620,13 +620,19 @@
           "id": "7.3",
           "what": "Một repo thứ hai cùng họ thừa hưởng lõi",
           "state": "todo",
-          "ref": "wiki/specs/0016-the-family-core-is-born-through-the-plugin.md, tiêu chí 16, câu hỏi 8: lượt thử của dòng «xong khi» trên bản sao, mỗi lượt hỏi chủ repo trước vì tốn token"
+          "ref": "wiki/specs/0016-the-family-core-is-born-through-the-plugin.md, tiêu chí 16, câu hỏi 8: lượt thử của dòng «xong khi» trên bản sao, mỗi lượt hỏi chủ repo trước vì tốn token; lượt thử đầu chạy ngày 2026-11-26 (docs/trials/stage-7-done-when.md): ba vế đạt, một vế chưa đạt (repo thứ hai bị hỏi lại câu màu gốc lõi đã đáp); mục 7.5 sửa điều ấy, và lượt thử thứ hai chờ lời chủ repo"
         },
         {
           "id": "7.4",
           "what": "Một repo không có Makefile, và một gói của workspace không giữ thư mục src/, tới được cổng của plugin và được đọc",
           "state": "done",
           "ref": "Chủ repo thêm ngày 2026-11-25 («Mở cả hai», trả lời câu hỏi mở hai phiên song song, trong đó một mục mới sửa hai giới hạn chặn repo cùng họ thứ hai): sửa adopt-without-makefile-writes-nothing và audit-workspace-reads-top-src-only theo câu 6 của quyết định 0023; plugin 0.66.0: wiki/decisions/0120-a-repository-with-no-makefile-and-a-package-with-no-src-folder.md, lượt thử docs/trials/no-makefile-workspace-on-the-second-product.md Việc của mục đã ở main ngày 2026-11-25 (PR #151, gộp ở f615471), nên mục xong."
+        },
+        {
+          "id": "7.5",
+          "what": "Trên đường vào họ, repo thứ hai được hỏi câu «cùng họ?» trước, không bị hỏi câu lõi đã đáp, và câu hỏi về lời đáp khác lõi nằm trên tờ quyết định mà không phải ghim lại lần hai",
+          "state": "done",
+          "ref": "Chủ repo thêm ngày 2026-11-26 («Sửa rồi thử lại», trả lời câu «Anh cho mở lát sửa rồi thử lại («Sửa rồi thử lại»), hay chưa sửa («Chưa sửa»)?» sau lượt thử đầu của mục 7.3): sửa điều tìm thấy 1 và 2 của docs/trials/stage-7-done-when.md; các điều tìm thấy khác vào sổ giới hạn, không sửa; plugin 0.69.0: wiki/decisions/0122-the-family-question-first-and-the-core-question-on-the-first-adopt.md. Việc của mục ở nhánh claude/family-question-first-985719, chờ gộp; lượt thử thứ hai cần lời chủ repo."
         }
       ],
       "done_when": ["Repo thứ hai không bị hỏi lại câu đã trả lời, và dùng lại ít nhất một khối"],

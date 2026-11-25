@@ -61,7 +61,9 @@ blueprint layer by layer and the files written or that would be, as data.
 
 The preview may print a line that starts with `family:`: this machine keeps the core of a family
 of products, and this repository declares none. Ask the person that one question, as printed, and
-nothing more about it. Yes: follow `/design-assembly:core`, step 7. No: run
+nothing more about it. Ask it alone, before the plugs and before any question of a layer: a
+repository of a family is not asked what its core answered, so no layer is asked while this is
+open. Yes: follow `/design-assembly:core`, step 7. No: run
 `core.mjs --target <repo> --decline`, and the repository is not asked again. A repository that
 already declares its family is not asked.
 

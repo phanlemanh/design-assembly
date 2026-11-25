@@ -1581,13 +1581,19 @@ export function readFamilyCore(root) {
 
 const shownValue = (value) => (typeof value === "string" ? value : JSON.stringify(value));
 
+// The id of the question about a locked answer the repository holds otherwise: it names the
+// answer and the pin it was asked at.
+export const coreQuestionId = (id, pin) => `core-${id}-${pin}`;
+
 // Why the gate is red about the core a repository pinned, one line each: a copy that cannot be
 // read, and each locked answer that is a value, that the repository holds otherwise, with no
 // exception recorded against this pin. A default never makes it red, nor does a rule, whose words
-// are not compared, nor an answer the repository holds no value for.
+// are not compared, nor an answer the repository holds no value for. Where the question about such
+// an answer waits on the decision sheet (`waiting`, the rows of the waiting list), the line names
+// it: the owner's answer is what turns the row green.
 export function lockedCoreProblems(family, rows = []) {
   if (!family) return [];
-  const { pinned, values } = family;
+  const { pinned, values, waiting = [] } = family;
   if (pinned.unreadable) {
     return [
       `the copy of the family core in ${pinned.snapshot ?? PINNED_CORE.snapshot} cannot be read: ${pinned.unreadable}. Pin it again with core --join, so the locked answers hold`,
@@ -1601,8 +1607,14 @@ export function lockedCoreProblems(family, rows = []) {
     const row = rows.find((item) => String(item.id) === answer.id);
     const mark = coreMarkOf(row?.note);
     if (mark.mark === "kept" && mark.pin === pinned.label) continue;
+    const question = coreQuestionId(answer.id, pinned.label);
+    const waits = waiting.some((item) => item?.id === question && !item.answer);
     problems.push(
-      `${answer.id}: ${held.from} holds ${shownValue(held.value)}, and the family core this repository pinned locks ${shownValue(answer.value)} (pin ${pinned.label}) with no exception recorded: follow the core, or keep it as an exception with its reason (core --settle)`,
+      `${answer.id}: ${held.from} holds ${shownValue(held.value)}, and the family core this repository pinned locks ${shownValue(answer.value)} (pin ${pinned.label}) with no exception recorded: ${
+        waits
+          ? `the question ${question} waits on the decision sheet (decide): follow the core, or keep it as an exception with its reason, then core --settle`
+          : "follow the core, or keep it as an exception with its reason (core --settle)"
+      }`,
     );
   }
   return problems;

@@ -23,6 +23,7 @@ import path from "node:path";
 import { env } from "node:process";
 
 import {
+  CORE,
   familyCoreProblems,
   newerCoreParts,
   PINNED_CORE,
@@ -190,4 +191,27 @@ export function familyQuestion(root) {
       hard_to_undo: false,
     },
   };
+}
+
+// What the cores a repository is asked about answer, by the id of the answer: for each, the cores
+// that hold it, each with its family, its folder and whether the answer is locked or a default.
+// `cores` is the list the family question names; a core that cannot be read answers nothing here.
+export function answeredByCores(cores = []) {
+  const answered = new Map();
+  for (const { family, path: folder } of cores) {
+    let answers;
+    try {
+      answers = JSON.parse(
+        readFileSync(path.join(folder, CORE.parts.answers.file), "utf8"),
+      ).answers;
+    } catch {
+      continue;
+    }
+    for (const answer of Array.isArray(answers) ? answers : []) {
+      if (typeof answer?.id !== "string") continue;
+      const held = answered.get(answer.id) ?? [];
+      answered.set(answer.id, [...held, { family, core: folder, hold: answer.hold }]);
+    }
+  }
+  return answered;
 }

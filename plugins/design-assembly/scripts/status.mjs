@@ -55,7 +55,7 @@ import { audit, AUDIT, DECIDE, PERSON_CALLS, UNCONFIRMED } from "./audit.mjs";
 import { socketsOf } from "./capabilities.mjs";
 import { pushedLines } from "./send-out.mjs";
 import { gateProblem, seenMissing } from "./apply.mjs";
-import { memberLines, memberStatus } from "./core-marks.mjs";
+import { memberLines, memberStatus, readMember } from "./core-marks.mjs";
 import { graduationLine, graduationsCopied, graduationsIn } from "./core-graduate.mjs";
 import { coreQuestionId, movedLines, movedOf } from "./core-moved.mjs";
 import {
@@ -401,8 +401,10 @@ function fromPrinciple(row, decision, blueprint) {
 }
 
 // What waits on the owner in the ledgers: every row that says nobody has confirmed it, then every
-// call only a person can make that a ledger has no row for. Each is a question, never an answer.
-function waitingOf(audit, rows, blueprint) {
+// call only a person can make that a ledger has no row for. Each is a question, never an answer. A
+// call the family core a repository pinned answers is not one: the core answered it, and where the
+// repository holds it otherwise the core's own question about the difference waits instead.
+function waitingOf(audit, rows, blueprint, answered = new Set()) {
   const decisionOf = (id) => audit.decisions.find((decision) => decision.id === id);
   const proposals = rows
     .filter((row) => UNCONFIRMED.test(row.note ?? ""))
@@ -418,7 +420,8 @@ function waitingOf(audit, rows, blueprint) {
     });
   // A repository with no ledger has not met the plugin: nothing waits there yet.
   const inGuide = audit.next.startsWith("/design-assembly:new");
-  const calls = rows.length === 0 ? [] : Object.entries(PERSON_CALLS);
+  const calls =
+    rows.length === 0 ? [] : Object.entries(PERSON_CALLS).filter(([id]) => !answered.has(id));
   const unanswered = calls
     .map(([id, flag]) => [decisionOf(id), flag])
     .filter(([decision]) => decision && !decision.in_ledger)
@@ -598,6 +601,14 @@ function readBlueprint(root) {
   }
 }
 
+// The ids of the answers of the family core the repository pinned, empty where it declares none or
+// its copy cannot be read.
+function answeredByCore(root) {
+  const member = readMember(root);
+  if (!member || member.pinned.unreadable) return new Set();
+  return new Set(member.pinned.answers.map((answer) => answer.id));
+}
+
 // Everything status reads from the ledgers, read once.
 function readLedgers(root) {
   const audited = audit(root);
@@ -608,7 +619,7 @@ function readLedgers(root) {
     audit: audited,
     broken,
     waiting: [
-      ...waitingOf(audited, rows, readBlueprint(root)),
+      ...waitingOf(audited, rows, readBlueprint(root), answeredByCore(root)),
       ...(typeface ? [typeface] : []),
       ...fontLicenceAsks(root, rows, audited),
       ...colorRoleAsks(root, rows, audited),

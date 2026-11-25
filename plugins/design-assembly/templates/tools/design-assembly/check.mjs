@@ -1319,6 +1319,14 @@ const emptyBranch = () => ({
 // The checks that read what a branch adds, and the waiting list.
 const BRANCH_KINDS = ["decision-sheet", "owner-calls"];
 
+// The family core the repository pinned and how it holds each answer, with the questions that wait
+// on the owner, so that a locked answer held otherwise names the question about it. A waiting list
+// that cannot be read names none. Null when the repository declares no family.
+function familyCoreOf(root, rows) {
+  const family = readFamilyCore(root);
+  return family === null ? null : { ...family, waiting: waitingOf(root, rows).rows ?? [] };
+}
+
 // The waiting list as the gate reads it: its rows, or why it cannot be read.
 function waitingOf(root, rows) {
   try {
@@ -1620,7 +1628,7 @@ export function readState(root) {
     // The family core the repository pinned, and how it holds each answer: read only where the
     // check of its locked answers is laid.
     familyCore: checks.some((check) => check.kind === FAMILY_CORE_CHECK.kind)
-      ? readFamilyCore(root)
+      ? familyCoreOf(root, rows)
       : null,
     tagged: testsOf ? taggedTests(root, testsOf) : [],
   };

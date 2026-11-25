@@ -69,7 +69,8 @@ Without `--target` it reads the folder it is run from. It ends with `0` when not
 a person, with `1` while `needs a person` lists a question (not an error: go to step 3), and with
 `2` on a wrong call or a repository it cannot read, with the reason on the error stream and no
 answer printed. `--json` gives the same as data: `rows` and how each is held, `rerun`, `loose`,
-`person`, and `files`, the files written or that would be.
+`person`, `held_back` (what waits behind the family question, step 3), and `files`, the files
+written or that would be.
 
 A section that is not printed has nothing in it. Read the sections to the person in this order:
 
@@ -85,6 +86,7 @@ A section that is not printed has nothing in it. Read the sections to the person
 | `already kept by the repository, and left as it is`  | A tokens file or a component registry a person keeps, that says something else. It is theirs: untouched |
 | `rows of yours with no check, that could have one`   | The ledger already has the row, with no check. The line says what would hold it. See step 3             |
 | `needs a person`                                     | The questions in step 3                                                                                 |
+| `held back until the family question is answered`    | Questions a family core this machine knows answers. Never put them to the person: see step 3            |
 
 Column types are held only where the repository keeps a table of them
 (`design/column-types.json`). Adopting writes no such table and installs no code: when the data
@@ -106,19 +108,41 @@ the stylesheet declares its own sizes. It does not pin the framework's numbers.
 
 ## 3. Ask only what a person must decide
 
-Ask together, in one message: what `needs a person` lists, and, when the preview has a
-`rows of yours with no check, that could have one` table, the last question below. Ask nothing
-else:
+### The family question first, alone
 
-- `family`, when `needs a person` lists it: whether this repository is of the same family as a core
-  this machine keeps. One question, asked once. Yes: follow `/design-assembly:core`, step 7, then
-  run the preview again. No: `core.mjs --target <repo> --decline`; it is not asked again.
+When `needs a person` lists `family`, it is its first line: whether this repository is of the same
+family as a core this machine keeps. Put that one question to the person alone, before anything
+else of `needs a person`, and wait for the answer. A repository of a family is never asked what its
+core answered, so the rest is only known once this is answered.
+
+- Yes: follow `/design-assembly:core`, step 7, then run the preview again.
+- No: `core.mjs --target <repo> --decline`, then run the preview again; it is not asked again.
+
+While the question is open, the preview lists under `held back until the family question is
+answered` each question a core this machine knows answers, with the core that answers it, locked or
+by default. Never put a held-back question to the person, and never answer one with a flag. After
+the answer the preview is another: a repository that joined is not asked them, and one of no family
+is asked them as before, under `needs a person`. With several cores known, a question any of them
+answers is held back, so a repository that joins one that does not answer it is asked after the
+join, once.
+
+### Then the rest, together
+
+Once no `family` line is left, ask together, in one message: what `needs a person` lists, and, when
+the preview has a `rows of yours with no check, that could have one` table, the last question
+below. Ask nothing else:
+
 - The conformance level, AA or AAA. Show the ratios first. Pass the answer as `--conformance-level`.
 - The product type. Pass the answer as `--product-type`.
 - Whether the primary color role the script shows is the decided brand colour. Only on a yes, pass
   `--record source-color`. On a repository of a family whose core settled the colour, the script
-  does not ask it: the row is written as inherited. Where the core locks another colour, the
-  question is the core's, on the decision sheet (`/design-assembly:core`, step 7).
+  does not ask it: the row is written as inherited, or, where the core's colour is a default and
+  the repository held its own before it joined, as the repository's own answer from before it
+  joined. Where the core locks another colour, the line names the core's question about the
+  difference, `core-source-color-<pin>`: adopt puts it on the decision sheet itself, in the run
+  that lays `design/tokens.json`, and says whether the question waits there or is among the files
+  of this run. Read that question to the owner as `/design-assembly:core`, step 7, says; no second
+  `core --join` is needed for it.
 
 - Whether rows of theirs that have no check should get the one the script found. Read the list
   to them. Only for the rows they name, pass `--hold <id>,<id>`: each gains one `check:` line and
