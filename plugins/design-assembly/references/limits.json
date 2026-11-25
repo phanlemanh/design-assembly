@@ -8,6 +8,7 @@
     "inventory": "The read-only inventory of the store: what each store holds, the state of each piece, six kinds of finding, and what it could not look at.",
     "intake": "The command that takes a block into the store for a need, by the ladder of three rungs, every choice the owner's on the decision sheet.",
     "change": "The command that retires a block of the store, or merges it into the block of another need, after saying what it reaches, on the owner's answer.",
+    "core": "The command that reads the first repository of a product family, lays out the lock-or-default sheet, builds the family core from a person's answers, and checks a core's shape.",
     "status": "The read-only report on what waits on the owner and what to run next.",
     "decide": "The sheet of every question that waits on the owner, and the answers written back.",
     "document": "The document a command hands over, set on the frame every document shares.",
@@ -5541,6 +5542,61 @@
       "where": ["d0111"],
       "status": "open",
       "note": "The parts the build lays cite sections of design/behaviors.md, design/parts.json and a page of a kind under design/patterns; on a new repository whose behaviours page is the floor's older one, none of these is there, and both builders of the trial with a person read the comments as pointing at nothing."
+    },
+    {
+      "id": "core-unmarked-row-is-settled",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0113"],
+      "status": "open",
+      "note": "A row of the decision ledger with no mark of who settled it (no note that a person answered or that nobody confirmed it, no question about it) is read as the repository's own decision, as the gate reads it, so a row a tool wrote unmarked before the marks existed goes to the sheet as settled with no name; the sheet names no one for it and the person answering decides."
+    },
+    {
+      "id": "core-built-once",
+      "area": "core",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0113", "spec"],
+      "status": "open",
+      "note": "The core command builds a core once, into an empty folder: changing an answer, a hold or the family's name afterwards is slice 4 of item 7.1, and until then the folder is edited by hand and checked with core --check."
+    },
+    {
+      "id": "core-not-declared-by-members",
+      "area": "core",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-25",
+      "where": ["d0113", "spec"],
+      "status": "open",
+      "note": "A core holds its answers and nothing reads them yet: no repository declares its family or pins the core, new and adopt do not inherit, and no gate holds a locked answer, which are slice 2 of item 7.1."
+    },
+    {
+      "id": "core-value-is-row-words",
+      "area": "core",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0113"],
+      "status": "open",
+      "note": "The value of an answer whose row is a rule, such as a behaviour rule or the table's density, is the words of the row's source, not a value a member's gate can compare: whether a member keeps it is held by the check the answer names, and an answer with no check is held by nothing."
+    },
+    {
+      "id": "core-sheet-not-on-waiting-list",
+      "area": "core",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-25",
+      "where": ["d0113"],
+      "status": "open",
+      "note": "The lock-or-default sheet is asked in the session and answered by the flags of the build, not kept on a waiting list, since the first repository is never written and the core does not exist before the answers: a sheet left unanswered leaves no trace."
     }
   ]
 }

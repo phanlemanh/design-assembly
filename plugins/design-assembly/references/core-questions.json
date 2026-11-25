@@ -1,0 +1,32 @@
+{
+  "about": "The answers of a repository that may go into the core of a family of products, and where each starts: `locked`, kept as it is by every repository of the family, or `default`, where a new repository starts and may change. Each is a decision of the ledger by its id (references/standard-decisions.json gives its question). `blueprint` names the choice of the blueprint the answer is, where the guide asked it; `value` says where the value is read when the ledger row alone does not say it: `tokens` the source colour of design/tokens.json, `screen-sizes` the widths of design/screen-sizes.json. Every other answer's value is what its row says (`source`). `behaviour` gives the rows that are behaviour rules: every row of that layer that is not listed here. `outside` names what never goes into the core. These are only the starting sets: the person answering the lock-or-default sheet moves any answer from one to the other, or leaves it out.",
+  "questions": [
+    {
+      "id": "source-color",
+      "start": "locked",
+      "blueprint": { "layer": "foundations", "key": "source_color" },
+      "value": "tokens"
+    },
+    {
+      "id": "record-panel",
+      "start": "locked",
+      "blueprint": { "layer": "patterns", "key": "record_panel" }
+    },
+    {
+      "id": "table-density",
+      "start": "default"
+    },
+    {
+      "id": "type-scale-values",
+      "start": "default",
+      "blueprint": { "layer": "foundations", "key": "type_scale" }
+    },
+    {
+      "id": "test-screen-sizes",
+      "start": "default",
+      "value": "screen-sizes"
+    }
+  ],
+  "behaviour": { "layer": "patterns", "start": "locked" },
+  "outside": ["screen kinds", "column kinds", "copy"]
+}

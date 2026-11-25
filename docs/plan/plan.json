@@ -607,8 +607,8 @@
         {
           "id": "7.1",
           "what": "Hồ sơ quyết định dùng chung",
-          "state": "todo",
-          "ref": "wiki/specs/0016-the-family-core-is-born-through-the-plugin.md, tiêu chí 1 đến 9, 14, 15, 17 đến 20, 22, 25 và 26; bốn lát, mỗi lát một PR; mỗi thay đổi hợp đồng sổ cần người duyệt"
+          "state": "doing",
+          "ref": "wiki/specs/0016-the-family-core-is-born-through-the-plugin.md, tiêu chí 1 đến 9, 14, 15, 17 đến 20, 22, 25 và 26; bốn lát, mỗi lát một PR; mỗi thay đổi hợp đồng sổ cần người duyệt; lát 1 (hình dạng của lõi trong hợp đồng, kể cả phép kiểm đi kèm lời đáp; lệnh core dựng lõi từ repo đầu; tờ khoá hay mặc định) ngày 2026-11-25 theo lời chủ repo («Dựng lát 1»), plugin 0.60.0: wiki/decisions/0113-the-core-shape-and-the-command-that-builds-it.md"
         },
         {
           "id": "7.2",

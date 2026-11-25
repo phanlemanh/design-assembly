@@ -515,6 +515,256 @@ export const LEDGERS = {
 // Ledgers the contract names whose one shape is not settled yet, and why.
 export const UNSETTLED = {};
 
+// The core of a family of products (spec 0016): not a ledger of a repository, but a folder of its
+// own, on this machine, that the repositories of one family share. It has a fixed shape, versioned
+// like a ledger: a tool that knows shape N reads every part of shape N or older, and one that finds
+// a newer part writes nothing and says to update the plugin. Every part is a JSON file and carries
+// `version`. The family's name, its answers and its blocks are the user's data, kept in the folder;
+// none is named by the plugin.
+export const CORE_HOLDS = ["locked", "default"];
+// A check as a row of the decision ledger writes it.
+const checkText = { ...text, pattern: `^(test|e2e|tool|${adapterOf("lint").prefix}):` };
+const settled = {
+  type: "object",
+  fields: { by: required(text), on: required(day) },
+  open: true,
+};
+export const CORE = {
+  version: 1,
+  parts: {
+    // Which family the core is of, by the name the person gave it; the repository its answers were
+    // first read from; the repositories that declared they are of it, each with the day it joined
+    // and the pin it holds (spec 0016, answer 11: the first repository is a member only once it
+    // declares so); and who built the core on which day, the family's owner (answer 10).
+    declaration: {
+      file: "core.json",
+      question:
+        "which family this core is of, where its answers came from, and which repositories are of it",
+      required: true,
+      root: {
+        version: required(number),
+        family: required({ ...text, pattern: "\\S" }),
+        first: required({
+          type: "object",
+          fields: {
+            repository: required(text),
+            read_on: required(day),
+            commit: required({ type: "string|null" }),
+          },
+          open: true,
+        }),
+        members: required(
+          list({
+            type: "object",
+            fields: { repository: required(text), joined: required(day), pin: text },
+            open: true,
+          }),
+        ),
+        owner: required(settled),
+      },
+      open: true,
+    },
+    // The answers the family shares: for each, the question, its value, whether it is locked or a
+    // default, the check that holds it (null when none does), why, who settled it in the core on
+    // which day, and where it came from, with who settled it there when the ledger says so.
+    answers: {
+      file: "answers.json",
+      question: "which answers the family shares, locked or default, and what holds each",
+      required: true,
+      root: {
+        version: required(number),
+        answers: required(
+          list({
+            type: "object",
+            fields: {
+              id: required(dashed),
+              question: required(text),
+              value: required({ type: "string|number|boolean|array|object" }),
+              hold: required({ ...text, values: CORE_HOLDS }),
+              check: required({ ...checkText, type: "string|null" }),
+              why: required(text),
+              by: required(text),
+              on: required(day),
+              origin: required({
+                type: "object",
+                fields: {
+                  repository: required(text),
+                  ledger: required(text),
+                  by: { type: "string|null" },
+                  on: { ...day, type: "string|null" },
+                },
+                open: true,
+              }),
+            },
+            open: true,
+          }),
+        ),
+      },
+      open: true,
+    },
+    // The store of graduated blocks: each block by its need, its files kept under
+    // `blocks/<need>/` with their hashes, the adapters it needs, the repositories that use it, who
+    // promoted it on which day, and whether a second repository has used it yet (answer 13).
+    blocks: {
+      file: "blocks/index.json",
+      question: "which blocks graduated to the family, with their files, adapters and users",
+      required: true,
+      root: {
+        version: required(number),
+        blocks: required(
+          list({
+            type: "object",
+            fields: {
+              need: required(dashed),
+              name: required(text),
+              files: required(list(hashedFile)),
+              adapters: required(list(text)),
+              used_by: required(list(text)),
+              promoted: required(settled),
+              second_use: required({ type: "boolean" }),
+            },
+            open: true,
+          }),
+        ),
+      },
+      open: true,
+    },
+    // What each member repository has solved, one file per repository named after it: the key of
+    // each need, its name and its description, and nothing else: never code, never a file's text.
+    members: {
+      folder: "members",
+      ending: ".json",
+      question: "which needs each member repository has solved, by key, name and description",
+      required: false,
+      root: {
+        version: required(number),
+        repository: required(text),
+        needs: required(
+          list({
+            type: "object",
+            fields: {
+              need: required(dashed),
+              name: required(text),
+              description: required(text),
+            },
+          }),
+        ),
+      },
+      open: true,
+    },
+  },
+};
+
+// Why a part of a core is of a newer shape than this tool knows, or null.
+export function coreNewerProblem(data, file) {
+  const found = versionOf(data);
+  if (found === null || found <= CORE.version) return null;
+  return `${file} has shape ${found} and this tool knows shape ${CORE.version} of a family core: update the design-assembly plugin before it writes there`;
+}
+
+// The parts of a core folder, each as { part, file, data } or { part, file, problem } when it
+// cannot be read; a part that is not there and must be is { part, file, missing: true }.
+export function readCoreParts(dir) {
+  const found = [];
+  const readOne = (part, file) => {
+    try {
+      found.push({ part, file, data: JSON.parse(readFileSync(path.join(dir, file), "utf8")) });
+    } catch {
+      found.push({ part, file, problem: `${file} is not valid JSON` });
+    }
+  };
+  for (const [part, spec] of Object.entries(CORE.parts)) {
+    if (spec.file) {
+      if (existsSync(path.join(dir, spec.file))) readOne(part, spec.file);
+      else if (spec.required) found.push({ part, file: spec.file, missing: true });
+      continue;
+    }
+    const folder = path.join(dir, spec.folder);
+    if (!existsSync(folder) || !statSync(folder).isDirectory()) continue;
+    for (const name of readdirSync(folder).sort()) {
+      if (name.endsWith(spec.ending)) readOne(part, `${spec.folder}/${name}`);
+    }
+  }
+  return found;
+}
+
+// Every part of a core folder of a newer shape: the reasons, empty when there is none. A tool that
+// writes a core writes nothing while the list is not empty.
+export function newerCoreParts(dir) {
+  return readCoreParts(dir)
+    .filter((entry) => entry.data !== undefined)
+    .map((entry) => coreNewerProblem(entry.data, entry.file))
+    .filter(Boolean);
+}
+
+// What is wrong with a core folder against its shape, each line naming the file and the place:
+// empty when the core holds. A part of a newer shape is said once, and its content is not judged.
+export function familyCoreProblems(dir) {
+  const problems = [];
+  for (const entry of readCoreParts(dir)) {
+    if (entry.missing) {
+      problems.push(`${entry.file} is missing: a family core has it, empty or not`);
+      continue;
+    }
+    if (entry.problem) {
+      problems.push(entry.problem);
+      continue;
+    }
+    problems.push(...corePartShapeProblems(entry.part, entry.data, entry.file));
+  }
+  return problems;
+}
+
+// What is wrong with the data of one part of a core, written at `file` in the core folder.
+export function corePartShapeProblems(part, data, file) {
+  const spec = CORE.parts[part];
+  if (!spec) return [`${part} is not a part of a family core`];
+  if (typeOf(data) !== "object") return [`${file} is ${typeOf(data)}, the contract says object`];
+  const newer = coreNewerProblem(data, file);
+  if (newer) return [newer];
+  return [
+    ...objectProblems(data, spec.root, spec.open, file),
+    ...corePartProblems(part, data, file),
+  ];
+}
+
+// What a part says that its shape alone does not hold: an answer or a block given twice, a member's
+// report not named after its repository.
+function corePartProblems(part, data, file) {
+  const twice = (items, key) => {
+    const seen = new Set();
+    return (Array.isArray(items) ? items : [])
+      .map((item) => item?.[key])
+      .filter((value) => {
+        if (typeof value !== "string") return false;
+        if (!seen.has(value)) {
+          seen.add(value);
+          return false;
+        }
+        return true;
+      });
+  };
+  if (part === "answers") {
+    return twice(data.answers, "id").map(
+      (id) => `${file} answers ${id} twice: one question, one answer`,
+    );
+  }
+  if (part === "blocks") {
+    return twice(data.blocks, "need").map(
+      (need) => `${file} keeps two blocks for the need ${need}: one need, one block`,
+    );
+  }
+  if (part === "members" && typeof data.repository === "string") {
+    const name = path.posix.basename(file);
+    if (name !== `${data.repository}.json`) {
+      return [
+        `${file} is named ${name} and its repository is ${data.repository}: a report is named after its repository`,
+      ];
+    }
+  }
+  return [];
+}
+
 const typeOf = (value) => (value === null ? "null" : Array.isArray(value) ? "array" : typeof value);
 
 // What is wrong with a value against a field, each line naming where.

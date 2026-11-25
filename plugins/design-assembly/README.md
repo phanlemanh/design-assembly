@@ -60,6 +60,14 @@ scale, shape). Density, elevation, motion and iconography are not.
   themes, the components and the assets), each stamped with the state of the ledgers. The gate goes
   red when a ledger changes and an export is not written again (`make design-exports`). It sends
   nothing anywhere.
+- `/design-assembly:core` builds the core of a product family when a second product of it uses the
+  plugin: it reads the answers a person settled in the family's first repository (from its
+  blueprint, or from its decision ledger and token file when it was adopted), lays out the
+  lock-or-default sheet of four questions, and, once a person answered, writes the family core, a
+  folder of a fixed, versioned shape outside every repository of the family
+  (`references/contract.md`). It never writes in the first repository, calls no network and pushes
+  nothing; `--check` says what is wrong with a core folder. A repository that stands alone is never
+  asked about a family.
 - `/design-assembly:change` retires a block of the store, or merges it into the block of another
   need. It says the impact first: the screens that reach the block's file (every screen when that
   cannot be traced), the frame, the components that import it, the checks that name its file, and

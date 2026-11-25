@@ -700,6 +700,37 @@
       "meaning": "A rule an outside item is let off, kept in its conform record with the rule, the file it is let off in (or the configuration file that lets its folder off) and a person's reason.",
       "source": "The specification of choose before make, conform before intake, 2026-11-24",
       "trust": "coined"
+    },
+    {
+      "term": "product family",
+      "meaning": "The products one person or team makes that share a core: the same answers to the shared design questions, and blocks proved in more than one of them.",
+      "source": "The owner's note on a meta layer for many repositories, 2026-11-13",
+      "trust": "coined"
+    },
+    {
+      "term": "family core",
+      "meaning": "The core design system of a product family, as a folder of a fixed, versioned shape outside every repository of the family: its declaration, the answers it shares, its graduated blocks and its members' reports.",
+      "source": "The specification of the family core born through the plugin, 2026-11-25",
+      "trust": "coined",
+      "avoid": ["shared repo", "core repo"]
+    },
+    {
+      "term": "locked answer",
+      "meaning": "An answer of the family core every repository of the family keeps as it is and is not asked again; a member that differs asks the family's owner or keeps an exception with a reason.",
+      "source": "The specification of the family core born through the plugin, 2026-11-25",
+      "trust": "coined"
+    },
+    {
+      "term": "default answer",
+      "meaning": "An answer of the family core a new repository of the family starts from and may change, with the change and its reason recorded.",
+      "source": "The specification of the family core born through the plugin, 2026-11-25",
+      "trust": "coined"
+    },
+    {
+      "term": "lock-or-default sheet",
+      "meaning": "The four questions a person answers before a family core is built: the family's name, the answers locked, the answers left as defaults, and where the core lives.",
+      "source": "The specification of the family core born through the plugin, 2026-11-25",
+      "trust": "coined"
     }
   ]
 }
