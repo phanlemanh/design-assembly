@@ -11,6 +11,7 @@
 //        [--limit N] [--target DIR] [--json] [--out DIR [--format html|pdf]]
 // Exit: 0 something answers; 1 nothing does, or the document was written in fewer formats than
 // asked; 2 a wrong call, or a repository that cannot be read.
+import { workspaceLines, workspaceOf } from "./workspace.mjs";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { stdout } from "node:process";
@@ -164,7 +165,7 @@ function ownStore(root, theme) {
   const { ledger, blocks } = found;
   const notes = [...found.notes];
   const intake = { store: "intake", read: found.read, items: null, why: found.why, pieces: [] };
-  const { read, missing, problem, components } = componentsOf(root);
+  const { read, missing, problem, components, said } = componentsOf(root);
   const byFile = new Map(components.map((component) => [component.file, component]));
   const live = blocks.filter((block) => !block.retired && !block.merged_into);
   if (ledger) {
@@ -207,7 +208,7 @@ function ownStore(root, theme) {
   const ledgerFiles = new Set(blocks.map((block) => fileOf(block.file)));
   const own = {
     store: "components",
-    read: read ? [`${read}/`] : null,
+    read: read ? [said ? `${read}/ (${said})` : `${read}/`] : null,
     items: read ? components.length : null,
     why: problem ?? (read ? users.why : `no component folder at ${missing}`),
     pieces: components
@@ -660,16 +661,20 @@ async function main(args) {
     throw new Refusal(`say what to find: the words of a need, or a name\n${CALL.trimEnd()}`);
   }
   const asked = requested(call);
-  const result = find(call.target, {
+  const found = find(call.target, {
     words: call.words.join(" "),
     kind,
     limit: Number(limitText),
   });
+  // The root of a workspace that holds nothing of its own: which package to aim at instead.
+  const space = workspaceOf(call.target);
+  const result = space ? { ...found, workspace: space } : found;
   const handed = await handOver(asked, call.target, (origin) => documentOf(result, origin));
+  const said = space ? `${workspaceLines(space).join("\n")}\n\n` : "";
   finish({
     json: call.json,
     result: { ...result, ...handed.data },
-    text: `${report(result)}${handed.text}`,
+    text: `${said}${report(result)}${handed.text}`,
     work: result.matches.length === 0 || handed.work,
   });
 }

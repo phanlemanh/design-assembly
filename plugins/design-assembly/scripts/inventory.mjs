@@ -9,6 +9,7 @@
 //        [--strict] [--target DIR] [--json] [--out DIR [--format html|pdf]]
 // Exit: 0 the inventory is given; 1 with --strict when there is a finding, or when the document was
 // written in fewer formats than asked; 2 a wrong call, or a repository that cannot be read.
+import { workspaceLines, workspaceOf } from "./workspace.mjs";
 import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
@@ -710,7 +711,7 @@ export function inventory(root, { store = "all", kind = null } = {}) {
     return { ...block, file: null };
   });
   const intake = { ...found, blocks };
-  const { components, problem } = componentsOf(root);
+  const { components, problem, read: folder, said: learnt } = componentsOf(root);
   const sources = readPinnedSources(root);
   const live = blocks.filter((block) => !block.retired && !block.merged_into);
   const read = { root, intake, components, sources, live };
@@ -738,6 +739,8 @@ export function inventory(root, { store = "all", kind = null } = {}) {
     findings: findings.filter((finding) => finding.items.some(wanted)),
     blind,
     ...(moved ? { core: moved } : {}),
+    // Where the repository's components were read, said where it is not the usual folder.
+    ...(learnt ? { components_read: `${folder}/ (${learnt})` } : {}),
   };
 }
 
@@ -764,6 +767,7 @@ export function report(result) {
     `inventory: ${plural(result.items.length, "piece", "pieces")} of the repository (${states.join(", ")}), ${plural(result.findings.length, "finding", "findings")}`,
     "stores:",
     ...storeLines(result.stores),
+    ...(result.components_read ? [`  repo components read from ${result.components_read}`] : []),
   ];
   if (result.findings.length > 0) {
     out.push("findings:");
@@ -896,13 +900,20 @@ async function main(args) {
     throw new Refusal("--kind is component, block, screen-kind or behaviour");
   }
   const asked = requested(call);
-  const result = inventory(call.target, { store, kind });
+  const counted = inventory(call.target, { store, kind });
+  // The root of a workspace that holds nothing of its own: which package to aim at instead.
+  const space = workspaceOf(call.target);
+  const result = space ? { ...counted, workspace: space } : counted;
   const handed = await handOver(asked, call.target, (origin) => documentOf(result, origin));
+  const said = space ? `${workspaceLines(space).join("\n")}\n\n` : "";
   finish({
     json: call.json,
     result: { ...result, ...handed.data },
-    text: `${report(result)}${handed.text}`,
-    work: (Boolean(call.flags["--strict"]) && result.findings.length > 0) || handed.work,
+    text: `${said}${report(result)}${handed.text}`,
+    work:
+      (Boolean(call.flags["--strict"]) && result.findings.length > 0) ||
+      handed.work ||
+      Boolean(space),
   });
 }
 

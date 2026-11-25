@@ -139,7 +139,14 @@ stated level that the values do not reach is not a reason to lower the level: re
 2. Run the same command without `--dry-run`. Its last line is `done:` with the number of rows and
    files; it still ends with `1` while a question for a person is open.
    It adds rows to `design/decisions.yaml`, and, when it holds any value, `design/theme.json`,
-   `tools/design-assembly/` and `mk/design-assembly.mk`.
+   `tools/design-assembly/` and `mk/design-assembly.mk`. A repository that keeps no Makefile and
+   has a `package.json` gets no make step and no Makefile: the gate is the package script
+   `design:check` (`design-assembly:check` where `design:check` is already a script of its own,
+   which is never written over), and the report ends with a `gate:` line that says the command to
+   run. Read that line out, and say that the repository's own check and CI run the design check
+   only once a person joins the script there. Where the acceptance kit's file is in the folder
+   adopted, the command is declared to it; where it is above, at the root of a workspace, the line
+   to add is said: show it.
 3. It also writes, from what the repository has, the design tokens file (`design/tokens.json`) and
    the component manifest (`design/component-registry.json`), unless the repository already keeps
    one that says something else: then that file is listed as kept, and `make design-tokens` or

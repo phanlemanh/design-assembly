@@ -7,6 +7,7 @@
 // replace it, and the replace records who and why. Then a member pins the core, finds the block at
 // tier 3 and takes it in. Nothing calls a model or the network, and each test keeps its own list.
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import { after, test } from "node:test";
 
@@ -33,7 +34,7 @@ import {
   storeRepo,
   text,
 } from "./helpers/core-blocks-repo.mjs";
-import { BLOCKS, COMPONENT, intake, source } from "./helpers/store-repo.mjs";
+import { BLOCKS, COMPONENT, healthyFiles, intake, source } from "./helpers/store-repo.mjs";
 
 after(cleanUp);
 
@@ -436,4 +437,61 @@ test("a repository that stands alone is as before; the family's name lands only 
   assert.ok(text(place, "core.json").includes(FAMILY));
   assert.ok(!text(place, "blocks/index.json").includes(FAMILY));
   assert.ok(empty());
+});
+
+// ---- a package that keeps no src/ folder (item 7.4, decision 0120) ------------------------------
+
+// The store fixture as a package whose source is its root: its TypeScript settings map `@/` there,
+// so components live in components/ and no src/ exists.
+function rootPackage(name, drop = []) {
+  const dir = path.join(empty(), name);
+  for (const [file, content] of Object.entries(healthyFiles())) {
+    const moved = file.replace(/^src\//, "");
+    if (drop.includes(moved)) continue;
+    put(dir, moved, content.replaceAll("src/components/", "components/"));
+  }
+  put(dir, "tsconfig.json", '{\n  "compilerOptions": { "paths": { "@/*": ["./*"] } }\n}\n');
+  put(dir, "design/theme.json", json({ version: 1, checks: {} }));
+  return dir;
+}
+
+test("in a package with no src/ folder, a block is promoted from where its row names it, and taken into the package's own components folder", () => {
+  const first = rootPackage("first-root");
+  assert.equal(existsSync(path.join(first, "src")), false);
+  const place = coreFolder({ blocks: [] });
+  const list = listIn();
+  assert.equal(join(first, place, list).status, 0);
+  const done = promote(first, place, list, "filter-list");
+  assert.equal(done.status, 0, done.stdout + done.stderr);
+  assert.equal(text(place, "blocks/filter-list/filter-bar.tsx"), FILTER_BAR);
+  assert.deepEqual(read(place, "blocks/index.json").blocks[0].adapters, ["components", "source"]);
+
+  // A second package of the same kind, without FilterBar, takes it in.
+  const other = rootPackage("second-root", ["components/filter-bar.tsx", "pages/Team.tsx"]);
+  put(
+    other,
+    "design/intake.yaml",
+    intake([BLOCKS[0], BLOCKS[2]]).replaceAll("src/components/", "components/"),
+  );
+  assert.equal(join(other, place, list).status, 0);
+  assert.equal(
+    run("intake.mjs", ["--target", other, "--need", "filter-list", "filter", "bar"], list).status,
+    1,
+  );
+  assert.ok(answerSheet(other, "intake-filter-list keep", list).status <= 1);
+  const down = core(["--target", other, "--take", "filter-list"], list);
+  assert.equal(down.status, 0, down.stdout + down.stderr);
+  assert.match(down.stdout, /create +components\/filter-bar\.tsx/);
+  assert.equal(existsSync(path.join(other, "src")), false, "no src/ is made");
+  const taken = run(
+    "intake.mjs",
+    ["--target", other, "--need", "filter-list", "--file", "components/filter-bar.tsx"],
+    list,
+  );
+  assert.equal(taken.status, 0, taken.stdout + taken.stderr);
+  const row = readIntakeLedger(ledgerText(other, "design/intake.yaml", "intake")).blocks.find(
+    (each) => each.need === "filter-list",
+  );
+  assert.equal(row.file, "components/filter-bar.tsx");
+  assert.equal(row.from, "core");
 });

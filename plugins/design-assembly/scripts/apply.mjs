@@ -5,6 +5,10 @@
 // Exit: 0 done; 1 a built layer is not decided yet, or the preview shows a write that would be
 // refused; 2 a wrong call, a blueprint that cannot be written from, or a repository that cannot
 // be read.
+import {
+  DEFAULT_FOLDER,
+  sourceFolder,
+} from "../templates/tools/design-assembly/source-folders.mjs";
 import { existsSync, mkdirSync, readdirSync, statSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { stdout } from "node:process";
@@ -78,6 +82,7 @@ import {
   starterParts,
 } from "../templates/tools/design-assembly/governance.mjs";
 import {
+  gateHost,
   joinsMkFiles,
   MK_FOLDER,
   readMakefile,
@@ -514,8 +519,14 @@ function answeredProblems(layer, entry, values) {
   return found;
 }
 
-// Why this plugin's checks could not join the repository's gate, or null.
+// Why this plugin's checks could not join the repository's gate, or null: a Makefile that reads
+// every mk file, or, where the repository keeps no Makefile, a script of its package.
 export function gateProblem(target) {
+  return gateHost(target).problem ?? null;
+}
+
+// Why the guide's checks could not join make check, or null: the guide lays its gate step there.
+function makeGateProblem(target) {
   if (!joinsMkFiles(readMakefile(target))) {
     return "the Makefile does not include mk/*.mk, so the checks could not join make check";
   }
@@ -527,7 +538,7 @@ export function floorProblem(target) {
   if (!existsSync(path.join(target, FILES.css))) {
     return `${FILES.css} is missing: this repository has no design floor to build on`;
   }
-  return gateProblem(target);
+  return makeGateProblem(target);
 }
 
 // The key of the tool data that names, one by one, the adopted values that came from the floor:
@@ -626,7 +637,10 @@ export function componentsPlan(target, alreadyHeld, pending = {}) {
   // library shares its folder with the repository's own components, its parts are its files.
   const others = libraryFolders(target).filter((item) => item !== folder);
   const parts = own ? null : libraryParts(target);
-  const options = { library: parts ?? [folder, ...others], pages: readPages(target) };
+  // The folder `@/` stands for: said in the check only where it is not the usual one.
+  const { folder: source } = sourceFolder(target);
+  const away = source === DEFAULT_FOLDER ? {} : { source };
+  const options = { library: parts ?? [folder, ...others], pages: readPages(target), ...away };
   const file = socket(target, "registry") ?? REGISTRY;
   const full = path.join(target, file);
   const before = existsSync(full) ? readFileSync(full, "utf8") : null;
@@ -654,6 +668,7 @@ export function componentsPlan(target, alreadyHeld, pending = {}) {
         ...(own ? { own } : {}),
         ...(parts ? { library: parts } : {}),
         pages: KINDS_FOLDER,
+        ...away,
       },
       // A repository that keeps the manifest out of git said so in its tool data: the choice is
       // carried over, never made here, and it follows the manifest when its path changes.

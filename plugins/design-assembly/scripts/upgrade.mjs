@@ -29,7 +29,7 @@ import { regenerated as columnsNow } from "../templates/tools/design-assembly/co
 import { regenerated as componentsNow } from "../templates/tools/design-assembly/components.mjs";
 import { newerLedgers } from "../templates/tools/design-assembly/contract.mjs";
 import { keptOutOfGit } from "../templates/tools/design-assembly/derived.mjs";
-import { GATE_STEP } from "../templates/tools/design-assembly/host-make.mjs";
+import { GATE_STEP, gateHost } from "../templates/tools/design-assembly/host-make.mjs";
 import { TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
 import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-first.mjs";
 import { FAMILY_CORE_CHECK, readPinnedCore } from "../templates/tools/design-assembly/contract.mjs";
@@ -45,6 +45,7 @@ import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.m
 import { regenerated as tokensNow } from "../templates/tools/design-assembly/tokens.mjs";
 import { floatingTest, sameContent } from "./apply.mjs";
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
+import { workspaceLines, workspaceOf } from "./workspace.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import {
   installedTree,
@@ -315,6 +316,9 @@ export async function upgradePlan(root, accept = {}) {
     }
   }
   const tree = treeHash(path.join(root, TOOL_COPY));
+  // The root of a workspace keeps no copy of the tool: its packages do, and are named.
+  const space = tree === null ? workspaceOf(root) : null;
+  if (space) throw new Refusal(`${workspaceLines(space).join("\n")}\nNothing was written`);
   if (tree === null) {
     throw new Refusal(
       `the repository has no copy of the tool in ${TOOL_COPY}, so there is nothing to upgrade: adopt it first (/design-assembly:adopt), or run the guide (/design-assembly:new)`,
@@ -335,10 +339,13 @@ export async function upgradePlan(root, accept = {}) {
   // The gate step is the plugin's whole: one that is not the installed plugin's is written again.
   const gateStep = read(root, GATE_STEP);
   const installedStep = readFileSync(GATE_SOURCE, "utf8");
+  // A repository whose gate is a script of its package, having no Makefile, gets no make step: the
+  // script runs the tool, whichever version it is.
+  const scripted = gateStep === null && gateHost(root).kind === "script";
   // Upgrade cannot tell a hand edit from an older plugin's step: it names every line of the
   // repository's step the installed one does not have, so a person sees what goes.
   const gateChange =
-    gateStep === installedStep
+    gateStep === installedStep || scripted
       ? null
       : {
           ...fileChange(GATE_STEP, gateStep === null ? "create" : "update"),

@@ -177,6 +177,17 @@ it is drawn with. Look a component up here before reading its source. The shape 
   only what it wrote, and it is skipped where the installed tool has no such command yet. A test
   run some other way, by its runner alone, does not get it. Every string the plugin reads in a
   repository's `Makefile`, `mk/` files and workflows is listed in `references/host-strings.json`.
+- **A repository that keeps no Makefile** (decision 0120, after decision 0023, point 6): where the
+  folder adopted has no `Makefile` and has a `package.json`, the gate is one script of that file,
+  `"design:check": "node tools/design-assembly/check.mjs"`, added as the first of its scripts in the
+  file's own indent. Where `design:check` is already a script that runs something else, it is
+  left as it is and the gate is `design-assembly:check`; where both are taken, no check joins the
+  gate and the report says why. No Makefile and no `mk/` file is written there, by adopting or by
+  upgrading. The check-in-gate row then reads `source: "the package script design:check"`, and its
+  check is `{ "kind": "gate", "script": "design:check" }`. Where the acceptance kit keeps
+  `_acceptance/config.yaml` in that folder, adopting adds `design_assembly: "<command>"` under
+  `executors.script`; where the kit's file is above the folder, the line is said and not written. A
+  repository that has a Makefile is wired as before.
 - A control (a component that renders something a person activates: a button, an input, a
   trigger, an item) is marked `control: true`, with `min_height`: the smallest height its own
   classes declare, over all its variants. A control without `min_height` takes its height from
@@ -785,10 +796,33 @@ a decision about behaviour, such as asking first or offering an undo, enters the
 
 The tool reads the stylesheet the repository names (`design/theme.json`, else `components.json`,
 else `src/index.css`), with its relative imports put in place. A variable that points at another
-with `var()` is followed, down to the framework's own theme. Dark-mode values are read from every dark selector the stylesheet uses (`:root.dark`, `html.dark`,
+with `var()` is followed, down to the framework's own theme: first the unlayered declarations, then
+those an `@layer` block declares, in the stylesheet or a file it imports, then `@theme`. Colours are
+read as `#rrggbb`, `#rgb`, `oklch()`, `lab()`, `hsl()`, `white`, `black` and a mix of two in oklch;
+one with any transparency is not. Dark-mode values are read from every dark selector the stylesheet uses (`:root.dark`, `html.dark`,
 `.dark`), the strongest first. A value it cannot turn into a colour,
 such as a mix of two colours, is not guessed: the check says it cannot read it, and adopting adds
 no check for it.
+
+## Where the source is read
+
+Every reader of the source (the audit, `find`, `inventory`, the component manifest, the lint
+probes and the checks that walk source files) asks one answer, `source-folders.mjs`, for the folder
+the package keeps its screens and components in:
+
+1. `source_folder` in `design/theme.json`, a folder of the package (`.` for its root), when a
+   person writes it; one that names no folder of the package is set aside and said;
+2. else the folder the package's `tsconfig.json` maps the import prefix of its components to (the
+   prefix `components.json` writes, else `@/`): `"@/*": ["./*"]` is the package's root;
+3. else `src`.
+
+Reading the package's root leaves out hidden folders, `node_modules`, `dist`, `build`, `out`,
+`coverage`, `test-results` and `tools/design-assembly`. Where the folder is not `src`, each reader
+says which folders it read and how it knew; where it is `src`, nothing is said, as before.
+
+At the root of a workspace (a `package.json` with `workspaces`) that holds no stylesheet and no
+source of its own, the audit, `status`, `find` and `inventory` name the packages that hold screens
+or a stylesheet and end with `1`; `adopt` and `upgrade` refuse there and write nothing. A row that points at a lint rule, where the repository shows no sign of the lint tool the lint adapter runs (no configuration file of a shape it reads, no key of the package file that holds one, and not among its packages, in its folder or a folder above up to the top of its checkout), is `not-held`, with why, and `status` counts such rows.
 
 ## What a check of this plugin is
 
@@ -824,7 +858,7 @@ passes: a check that cannot fail proves nothing.
 | `slips`             | Every line of the record names a date, what slipped, a layer and what was done                                                                             |
 | `decision-sheet`    | Every judgment the branch writes is answered or asked; nothing goes around a decision                                                                      |
 | `owner-calls`       | A new kind of screen or root colour on the branch has the owner's kept answer                                                                              |
-| `gate`              | `make check` runs the tool in a way that can fail                                                                                                          |
+| `gate`              | `make check` runs the tool in a way that can fail; with `script`, that script of `package.json` runs the check and nothing else                            |
 
 The tool also checks that it and the ledger agree in both directions: every row that points at it
 has checks behind it, and every decision it holds is a row.

@@ -42,7 +42,7 @@ sources:
 
 ## Status
 
-Accepted, 2026-11-25, plugin 0.66.0. Lát 3 của mục 7.2 (tiêu chí 21, 23 và 24 của đề bài
+Accepted, 2026-11-25, plugin 0.67.0 (dựng ở 0.66.0; mục 7.4, quyết định [0120](0120-a-repository-with-no-makefile-and-a-package-with-no-src-folder.md), gộp trước nên nhánh này lấy main vào bằng một commit gộp và lên 0.67.0). Lát 3 của mục 7.2 (tiêu chí 21, 23 và 24 của đề bài
 [0016](../specs/0016-the-family-core-is-born-through-the-plugin.md); lời đáp 13), dựng theo lời chủ repo («Mở cả
 hai»), song song với mục 7.4 trên một nhánh khác. Lát này đổi hợp đồng sổ (mục của kho cho khối được đưa lên, hình
 dạng của đề xuất, cách giữ một lời đáp và một khối đã rút, dấu của thành viên sau khi nhận việc rút) nên cần người
@@ -234,7 +234,11 @@ refused`, người, ngày, lý do; lõi không đổi. Cả hai bắt buộc `--
   `core-retired-block-offered-until-accepted`, `core-proposal-carries-a-value-not-a-hold`,
   `core-proposal-against-a-moved-block-refused`, `core-proposal-seen-where-the-folder-is`,
   `core-retiring-unrecorded-names-no-one`. Giữ nguyên `core-block-kept-after-leaving-says-core`: bước rời họ không đổi.
-- Plugin 0.66.0. Mục 7.4 cũng lên 0.66.0 trên nhánh của nó; nhánh gộp sau lấy main vào bằng một commit gộp, lên bản kế,
-  ghi lại cây và giữ dòng của cả hai bên.
+- Plugin 0.67.0. Mục 7.4 (PR #151, quyết định 0120) gộp trước ở 0.66.0; nhánh này lấy main vào bằng một commit gộp,
+  giữ dòng của cả hai bên ở kế hoạch, sổ giới hạn, chỉ mục, nhật ký và `releases.json`, rồi lên 0.67.0 và ghi lại cây.
+- **Đứng chung với mục 7.4**: gói không giữ `src/` (thư mục nguồn đọc theo `source-folders.mjs`). `core --promote` đọc
+  tệp của khối ở chỗ dòng sổ nêu, nên không cần đổi gì; `core --take` đặt khối vào thư mục linh kiện của chính gói, cạnh
+  thư mục của thư viện mà gói khai (gói giữ nguồn ở đỉnh: `components/`, cạnh `components/ui`), và không tạo `src/`. Bài
+  kiểm dựng hai gói như thế, đưa khối lên từ gói đầu và lấy vào gói thứ hai trọn lối. Không đổi mã.
 - **Chưa dựng**: báo cáo thành viên và đề xuất nâng hạng lúc cần khối và ở nhịp định kỳ (lát 2 của mục 7.2); đề xuất đổi
   mức khoá; ghi lần dùng thứ hai khi một thành viên lấy khối vào.

@@ -1,5 +1,5 @@
 {
-  "about": "Every string this plugin and the tool it installs read in a repository's Makefile, its mk/ files and its workflows. The tool that lays a repository's gate holds these from its side; changing one is changing what it relies on. The module templates/tools/design-assembly/host-make.mjs reads them, and a test of the plugin fails when this file and that module differ, or when another module opens those files or matches their text itself. Kinds: pattern, a regular expression with its flags; target, a target name; word, a prerequisite read as a word; file, the whole file compared; substring, text looked for; variable, a variable of make the gate step reads or adds to.",
+  "about": "Every string this plugin and the tool it installs read in a repository's Makefile, its mk/ files and its workflows, and in the package file of a repository that keeps no Makefile. The tool that lays a repository's gate holds these from its side; changing one is changing what it relies on. The module templates/tools/design-assembly/host-make.mjs reads them, and a test of the plugin fails when this file and that module differ, or when another module opens those files or matches their text itself. Kinds: pattern, a regular expression with its flags; target, a target name; word, a prerequisite read as a word; file, the whole file compared; substring, text looked for; variable, a variable of make the gate step reads or adds to.",
   "workflows": "None: the plugin reads no workflow of a repository.",
   "writes": [
     {
@@ -129,6 +129,29 @@
       "flags": "",
       "files": ["mk/*.mk"],
       "why": "The gate step adds the files this tool keeps out of git to the shared list of derived files."
+    },
+    {
+      "id": "check-script",
+      "kind": "word",
+      "text": "design:check design-assembly:check",
+      "flags": "",
+      "files": ["package.json"],
+      "why": "Where the repository keeps no Makefile, the gate is a script of its package under the first of these names it does not already use; a ledger row's check-in-gate check names the script it holds."
+    },
+    {
+      "id": "script-runs-check",
+      "kind": "pattern",
+      "text": "^node tools/design-assembly/check\\.mjs$",
+      "flags": "",
+      "files": ["package.json"],
+      "why": "The gate's script runs the check and nothing else, so it fails when the check fails."
+    }
+  ],
+  "script_writes": [
+    {
+      "file": "package.json",
+      "text": "\"design:check\": \"node tools/design-assembly/check.mjs\"",
+      "why": "Where the repository keeps no Makefile, adopting adds the gate as the first script of the package file, under the first of the names of check-script the file does not use yet; a script already there is never written over (decision 0120)."
     }
   ]
 }
