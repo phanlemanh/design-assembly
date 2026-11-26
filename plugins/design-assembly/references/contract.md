@@ -369,6 +369,38 @@ the gate fails when its row is gone, loses its licence, or pins what the reposit
 (the lockfile pins another version, a file has another hash). The pin of a font nobody chose is
 compared by the readers that name it, the handoff book and `status`, not by the gate.
 
+A source of the kind `icon-set` is the icon set the product uses (spec 0017; the ledger stays at
+version 1). It has `version`, `id` and `kind`, and no `catalog`: it offers no block, and `find` and
+`intake` look for none in it. It may have `title`; `module`, the module the code imports icons
+from, which is the package where the set is one; `folder`, the folder of the repository its own
+icon files are kept in, where the set is the repository's own files; `sizes`, the sizes in pixels
+the product draws icons at, as a list of numbers; and `stroke`, the stroke width of a set drawn in
+strokes, a number. A person answers `sizes` and `stroke`; no tool writes them, and none holds them
+yet. Two things are required of it, as of a font:
+
+- its `pin`, held in the row itself: either `package` and `version`, the package and the version
+  the repository's lockfile pins it at; or `files`, each icon file by its path from the
+  repository's root (`file`) with its `sha256`.
+- its `licence`, the licence the icon set is used under, in a person's words. No tool writes it.
+
+`proposed` and `own` say what they say of a font: a row `icon-source` or `adopt` wrote has its pin
+and waits on its licence, unheld, and `status` asks for the licence; `own: true` says the
+repository used the set before the row was written. `icon-source` writes the row from a package the
+lockfile pins or from a folder of the repository, each file hashed where it is; it fetches and
+installs nothing and never writes over a row, nor writes a second row for a package a row pins.
+`adopt` proposes the row of the set the component library's settings name, where the lockfile pins
+its package, and writes over nothing. Neither writes a row of the kind, nor lays its check, on a
+repository whose own copy of the tool predates the kind (its `sources-ledger.mjs` names no
+`ICON_SET_KIND`): that gate would read the row as a library with no catalog. They say to bring the
+tool up with `upgrade` first, and what would then be proposed.
+
+The gate fails on an icon set row with no pin, and on one with no licence that no command proposed.
+Once the repository has a row of the kind, the check `icon-set-pin` is laid under the row that holds
+the ledgers' shapes (by `icon-source`, `adopt` or `upgrade`), and the gate fails when an icon set
+pins what the repository no longer has: the lockfile pins another version or does not pin the
+package, or a file is gone or has another hash. The sentence names the row. A repository with no
+row of the kind has no such check and reads as before.
+
 ### conform
 
 One file per need, `design/conform/<need>.json`, for an item of an outside source that was taken
