@@ -773,7 +773,11 @@ or `origin/master`, the first git knows), with what is not committed yet.
   or whose files (each file with its hash) differ from the base, until a question of the waiting
   list names that very item (`pattern:NAME`, `source-color:VALUE` with the new value, or `logo:ID`
   with the id of the row) and the owner kept it. A change to a logo row that leaves its files as
-  they were, its licence say, is no new mark. A
+  they were, its licence say, is no new mark. A question about a mark that offers candidates is
+  answered by keeping (the first) or by naming another: either is the owner's choice when the
+  row says it is that candidate's (`made.candidate`), or names none and the first was kept, and on
+  a pass the wall says which candidate the owner chose, by whom and when. A row of another
+  candidate, or one that names none for a candidate after the first, fails and says which. A
   question asked and not answered, or answered with a refusal or other words, leaves it failing
   and says so. Raising a pull request's rank on the hosting service is not this tool's.
 - **What is not compared.** Outside git, nothing: both pass, and the gate prints that it did not

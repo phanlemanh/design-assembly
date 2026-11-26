@@ -16,11 +16,11 @@ sources:
   - "phiên ở repo sản phẩm đầu tiên gửi gói, 2026-11-26: chủ repo xem trang hệ thiết kế trống ở Colors, Typography, Spacing, Radius và đáp «Sửa rồi gửi lại»"
 ---
 
-# 0128 Token của gói hệ thiết kế là danh sách mà công cụ hệ thiết kế đọc được
+# 0129 Token của gói hệ thiết kế là danh sách mà công cụ hệ thiết kế đọc được
 
 ## Status
 
-Proposed, 2026-11-26, plugin 0.75.0. Ngoài kế hoạch, theo lời chủ repo «Sửa rồi gửi lại»; thuộc cầu nối ra (đề bài
+Proposed, 2026-11-26, plugin 0.76.0. Ngoài kế hoạch, theo lời chủ repo «Sửa rồi gửi lại»; thuộc cầu nối ra (đề bài
 0014), làm chậm lát 2 của mục 12.3 một PR. `ontology/` và hợp đồng không đổi.
 
 ## Context
@@ -53,7 +53,7 @@ không có token font nào và gói để trống họ chữ.
 
 ## Consequences
 
-- Repo đã có bản xuất: sau khi nâng công cụ lên 0.75.0, `make design-exports` viết lại; trước đó cổng đỏ vì dấu trạng
+- Repo đã có bản xuất: sau khi nâng công cụ lên 0.76.0, `make design-exports` viết lại; trước đó cổng đỏ vì dấu trạng
   thái đổi (dòng giới hạn `bring-out-not-rewritten-by-other-writers` vẫn mở).
 - Dòng giới hạn `bring-out-bundle-tokens-not-read-by-design-system-tools` mở và đóng cùng ngày. Ba dòng mới mở:
   `bring-out-bundle-font-files-not-carried`, `bring-out-local-face-unnamed`, `bring-out-type-weights-unwritten`.

@@ -443,8 +443,9 @@ icon of the installed app); the variant is how it is coloured, `color`, `mono` (
 who holds the right to use the mark and where it may be used; no tool writes it. As with a font, a
 row a command wrote says so under `proposed` and is not held until a person writes the licence;
 `own: true` says the repository kept these files before the row was written; and `made`, `by` and
-maybe `on`, may say who made the mark (a person's hand, or a plug) and when. The version of the
-ledger stays 1.
+maybe `on`, may say who made the mark (a person's hand, or a plug) and when, and maybe `candidate`,
+which of the candidates a question of the waiting list offered the mark is, as its package says.
+The version of the ledger stays 1.
 
 `logo-source` writes the row from files named with their role and variant, hashed where they are;
 it draws, fetches and changes no file, and never writes over a row. `adopt` proposes the row from
@@ -476,6 +477,8 @@ closed: a key it does not name is refused):
 - `version`, a number, and `kind`, `logo-package`;
 - `made`: `by`, the plug that made the mark, by its id (one dashed word), and `on`, the day;
 - `title`, not required, the name the mark stands for, and `idea`, the sentence of the mark's idea;
+- `candidate`, not required, which of the candidates the question of `logo:<id>` offered the
+  package holds, by the name the question gives it;
 - `palette`, a list of the mark's colours, each with `name` and `value`, written as the plug writes
   them;
 - `build`, an object of the root numbers of the construction, as the plug keeps them;
@@ -488,9 +491,20 @@ a package with no manifest or one that is not whole, a file the manifest names a
 lacks, a file whose hash differs, and a file of the package the manifest does not name; nothing is
 written then. It draws, rebuilds and fetches nothing, and never calls the plug. The row pins each
 file by its path from the repository's root, says `made` as the manifest says it, and `proposed` as
-for any row a command wrote; the command says who chose the mark, by name and day, from the
-owner's answer on the waiting list that keeps `logo:<id>`, and names the owner's call as the next
-step where there is none.
+for any row a command wrote, with the manifest's `candidate` under `made`; the command says who
+chose the mark, by name and day, from the owner's answer on the waiting list that keeps
+`logo:<id>` or names one of the candidates its question offers, and names the owner's call as the
+next step where there is none. A package of a candidate the question did not offer, of another
+candidate than the one the owner chose, or that names no candidate when the owner chose another
+than the first, is refused in one sentence, and nothing is written.
+
+A question about `logo:<id>` may offer candidates (`decide --ask --candidate NAME`, once per mark,
+the recommended one first). Keeping the question chooses the first; the owner's answer that names
+another chooses that one. Both are the owner's choice: the wall `owner-calls` opens for either when
+the branch's logo row is that candidate's (`made.candidate`), or names no candidate and the first
+was kept; it stays red for a refusal, for words that name no candidate the question offered, and
+for a row of another candidate, saying which. The gate, `status` and the decision sheet say which
+candidate was chosen, by whom and on which day. No other question reads its answer this way.
 
 ### conform
 
