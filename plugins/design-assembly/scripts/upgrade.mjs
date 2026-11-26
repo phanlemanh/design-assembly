@@ -28,6 +28,10 @@ import { gateProblems, ledgerView, readState } from "../templates/tools/design-a
 import { regenerated as columnsNow } from "../templates/tools/design-assembly/columns.mjs";
 import { regenerated as componentsNow } from "../templates/tools/design-assembly/components.mjs";
 import { newerLedgers } from "../templates/tools/design-assembly/contract.mjs";
+import {
+  LOGO_PINS_CHECK,
+  readLogoSources,
+} from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { keptOutOfGit } from "../templates/tools/design-assembly/derived.mjs";
 import { GATE_STEP, gateHost } from "../templates/tools/design-assembly/host-make.mjs";
 import { TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
@@ -408,6 +412,8 @@ export async function upgradePlan(root, accept = {}) {
         ...(floating.change === "none" ? [] : [FLOATING_CHECK]),
         // A repository of a family: the locked answers of the core it pinned.
         ...(readPinnedCore(root) === null ? [] : [FAMILY_CORE_CHECK]),
+        // A repository with a logo row: the pin of every logo row.
+        ...(readLogoSources(root).length === 0 ? [] : [LOGO_PINS_CHECK]),
       ].filter((added) => !shapes.some((check) => check?.kind === added.kind))
     : [];
   const checksAdded = missing.map((added) => ({ row: "ledger-shapes", kind: added.kind }));

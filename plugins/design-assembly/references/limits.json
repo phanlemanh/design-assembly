@@ -3469,7 +3469,7 @@
       "opened": "2026-11-20",
       "where": ["spec", "d0069"],
       "status": "open",
-      "note": "The brand assets socket has a plug for fonts only: a logo and an icon set have no place to be recorded and no check that a screen uses only recorded ones."
+      "note": "The brand assets socket has a plug for fonts and, since plugin 0.70.0, one for the mark (logo-source): a mark has its row and the gate holds its pin, but no check holds that the page icons the build declares and the images the app frame imports are files of a logo row, and an icon set has no place to be recorded and no check that a screen uses only recorded icons."
     },
     {
       "id": "capability-content-has-no-plug",
@@ -6455,6 +6455,72 @@
       "where": ["d0122"],
       "status": "open",
       "note": "On a member whose ledger has no row for the source colour because it holds a colour its core locks otherwise, the audit's next line, and the then line status copies from it, still say the colour is to be confirmed with a person; that line leads to adopt, whose line names the core's question about the difference, and status and the decision sheet no longer list the colour as a call of the person."
+    },
+    {
+      "id": "logo-package-manifest-not-read",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0124"],
+      "status": "open",
+      "note": "The command logo-source writes a mark's row only from files named one by one with their role and variant; a package of mark files with its manifest, as an outside plug leaves one, is refused with one sentence and not read."
+    },
+    {
+      "id": "logo-frame-images-not-proposed",
+      "area": "adopt",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0124"],
+      "status": "open",
+      "note": "The adopt command proposes a logo row only from the page icons the build declares (the links of index.html on one build, the icon files the app folder keeps by name on the other); an image of the mark the app frame imports is not read, says nothing, and a person writes it into the row with logo-source."
+    },
+    {
+      "id": "logo-variant-of-a-page-icon-guessed",
+      "area": "adopt",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0124"],
+      "status": "open",
+      "note": "The row adopt proposes writes every page icon as the variant color, and the report asks a person to correct it: adopt cannot see whether a file is in one colour or drawn for a dark ground, and a row nobody corrected says color of a file that is not."
+    },
+    {
+      "id": "mark-owner-call-not-held",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0124"],
+      "status": "open",
+      "note": "A new logo row, or a changed file of one, does not wait on the owner's word on the decision sheet, and decide --ask has no item logo:<id> yet: the gate holds the pin and the licence, not that the owner chose the mark."
+    },
+    {
+      "id": "mark-gaps-unsaid",
+      "area": "audit",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0124"],
+      "status": "open",
+      "note": "The status and audit commands do not say what a mark lacks (no one-colour variant, no page icon), and the handoff book has no page of brand assets: a mark with one file reads as whole."
+    },
+    {
+      "id": "logo-metadata-icons-not-read",
+      "area": "adopt",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0124"],
+      "status": "open",
+      "note": "On the build of a router app, adopt reads only the icon files the app folder keeps by name; icons a layout declares in its metadata (an address under the public folder) are not read, so a repository that declares its page icons that way is proposed fewer files than its pages show, and a person adds the rest with logo-source."
     }
   ]
 }

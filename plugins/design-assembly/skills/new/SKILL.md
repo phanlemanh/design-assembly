@@ -291,6 +291,26 @@ refuses a typeface that is the owner's without a name and a date.
 A blueprint decided before this choice existed has neither key: the guide leaves the floor's
 declarations as they are, and `status` lists the question until it is answered here.
 
+### The mark
+
+After the typeface, look in the sources ledger for a row of the kind `logo`. With none, ask
+nothing and write nothing: the mark is the floor's, the product's name set in the heading typeface,
+and no file is made. Never draw, generate or fetch a mark, and never offer a letter in a box made
+from the name: that is a brand decision nobody gave.
+
+With one or more, ask one question: the floor's text (`text`) or a row (`source:<id>`). Name each
+row with its files, their roles and variants, and whether it can be chosen: a row whose licence is
+not written, or whose files no longer match their pin, cannot, and the guide refuses it. The mark is
+the owner's to choose: recommend nothing, and put the question to the owner. Their answer goes to
+`layers.foundations.choice.mark`, with `answered.mark`, `{ "by": "<their name>", "on": "<today>" }`.
+
+A mark the repository keeps and the ledger lacks comes in through its row: `node
+<plugin>/scripts/logo-source.mjs --target <repo> --file <path>:<role>:<variant>`, once per file,
+for files already in the repository (roles `mark`, `wordmark`, `lockup-horizontal`,
+`lockup-vertical`, `favicon`, `app-icon`; variants `color`, `mono`, `inverse`). The row has no
+licence: ask the owner who holds the right to use the mark and where it may be used, and write
+their words into the row's `licence`; never write one yourself.
+
 ### The neutral family and the status tones
 
 After the typeface, ask the neutral family on the sheet `specimen.mjs --target <repo> --section

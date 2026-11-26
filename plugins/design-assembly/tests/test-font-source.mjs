@@ -1096,6 +1096,7 @@ test("every command that touches a font runs with the network unreachable, and r
     ["specimen.mjs", "--section", "typeface", "--plan"],
     ["adopt.mjs", "--conformance-level", "AA", "--dry-run"],
     ["font-source.mjs", "--family", "Brand Type", "--package", "brand-type", "--dry-run"],
+    ["logo-source.mjs", "--file", `${FONT_FILE}:mark:color`, "--dry-run"],
     ["status.mjs"],
     ["decide.mjs"],
     ["book.mjs", "--facts"],

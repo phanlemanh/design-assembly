@@ -182,6 +182,14 @@ stated level that the values do not reach is not a reason to lower the level: re
    words into the row's `licence`. A font it cannot pin, loaded from an address outside the
    repository or by a loader that takes it from elsewhere, gets no row: the report says so, and a
    person writes the row. A row already there is left as it is.
+   Likewise for the mark: from the icons the pages declare, as the adapter of the build reads them,
+   it writes one logo row, `design/sources/logo.json`, each file hashed where it is with its role
+   and the variant `color`, and says the repository kept them (`own: true`). It draws, fetches and
+   changes no file. Ask the owner who holds the right to use the mark and where, and write their
+   words into the row's `licence`; correct a variant the report names, and add the other files of
+   the mark with `logo-source`. An icon it cannot read, an address outside the repository or a
+   file that is not there, gets nothing: the report says so. A logo row already there is left as
+   it is, and the gate holds the pin of every logo row from then on.
 5. It writes `.claude/rules/design-assembly.md`: the rules it now holds here, for the agent that
    builds next. Where the guide ran here before and left a blueprint, the page keeps the
    principles and the direction the owner fixed in it; adopting asks for none.

@@ -127,6 +127,25 @@
       "trust": "practice"
     },
     {
+      "term": "mark",
+      "meaning": "The sign a product is known by: a symbol, its name drawn as letters, or the two together, kept as files. Where a repository has none, the floor's mark is the product's name set in the heading typeface.",
+      "source": "Common practice in brand identity; the floor's mark is named in spec 0017",
+      "trust": "practice",
+      "avoid": ["logotype"]
+    },
+    {
+      "term": "mark role",
+      "meaning": "What a file of the mark is for: the symbol alone (mark), the name drawn as letters (wordmark), the two side by side or one above the other (lockup), the icon a browser shows for a page (favicon), or the icon of an installed app (app icon).",
+      "source": "Common practice in brand guidelines; the roles of spec 0017",
+      "trust": "practice"
+    },
+    {
+      "term": "mark variant",
+      "meaning": "How a file of the mark is coloured: in its colours, in one colour, or drawn for a dark ground (inverse).",
+      "source": "Common practice in brand guidelines",
+      "trust": "practice"
+    },
+    {
       "term": "neutral family",
       "meaning": "The greys of a theme: its backgrounds, its text, its surfaces and their edges. Pure grey has no hue; a tinted grey leans a little to the source colour.",
       "source": "Common practice in design systems that derive a theme from one colour",
