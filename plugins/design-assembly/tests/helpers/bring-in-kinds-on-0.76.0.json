@@ -1,0 +1,403 @@
+{
+  "nothing settled, tokens": {
+    "exit": 0,
+    "out": "candidate direction: tokens (a token file, <repo>/outside/tokens.json)\n  colour #cc785c (dark #e0957b), type modular minor-third, corner radius medium\n  colour taken from color.primary\n  fonts named: Inter, Fraunces (a typeface is chosen with its source, not here)\n  computed: color.accent {color.primary} = #cc785c\n  computed: radius.sm calc(var(--radius-base) - 4px) = 8px\n  computed: radius.lg calc({radius.base} + 0.25rem) = 16px\n  computed: font.size.xl 1.44rem = 23.04px\nNo value of it goes against a value the owner settled.\nDraw it beside the plugin's directions: specimen.mjs --section direction --from <repo>/outside/tokens.json\n",
+    "err": ""
+  },
+  "nothing settled, tokens, --json": {
+    "exit": 0,
+    "out": "{\n  \"candidate\": {\n    \"id\": \"outside-tokens\",\n    \"name\": \"tokens\",\n    \"source\": {\n      \"kind\": \"tokens\",\n      \"file\": \"<repo>/outside/tokens.json\"\n    },\n    \"values\": {\n      \"source_color\": \"#cc785c\",\n      \"type_scale\": \"modular\",\n      \"type_ratio\": \"minor-third\",\n      \"corner_radius\": \"medium\"\n    },\n    \"picked\": {\n      \"source_color\": \"color.primary\"\n    },\n    \"dark\": {\n      \"source_color\": \"#e0957b\"\n    },\n    \"assumed\": [],\n    \"approximated\": [],\n    \"fonts\": {\n      \"text\": \"Inter\",\n      \"heading\": \"Fraunces\"\n    },\n    \"resolved\": [\n      {\n        \"token\": \"color.accent\",\n        \"written\": \"{color.primary}\",\n        \"value\": \"#cc785c\"\n      },\n      {\n        \"token\": \"radius.sm\",\n        \"written\": \"calc(var(--radius-base) - 4px)\",\n        \"value\": \"8px\"\n      },\n      {\n        \"token\": \"radius.lg\",\n        \"written\": \"calc({radius.base} + 0.25rem)\",\n        \"value\": \"16px\"\n      },\n      {\n        \"token\": \"font.size.xl\",\n        \"written\": \"1.44rem\",\n        \"value\": \"23.04px\"\n      }\n    ],\n    \"unread\": []\n  },\n  \"questions\": [],\n  \"files\": [],\n  \"dry_run\": true\n}\n",
+    "err": ""
+  },
+  "nothing settled, design-md": {
+    "exit": 0,
+    "out": "candidate direction: Daylight Prestige (a DESIGN.md, <repo>/outside/DESIGN.md)\n  colour #1a1c1e, type standard, corner radius extra-small\n  colour taken from colors.primary\n  fonts named: Public Sans (a typeface is chosen with its source, not here)\n  computed: rounded.md {rounded.sm} = 4px\nNo value of it goes against a value the owner settled.\nDraw it beside the plugin's directions: specimen.mjs --section direction --from <repo>/outside/DESIGN.md\n",
+    "err": ""
+  },
+  "nothing settled, design-md, --json": {
+    "exit": 0,
+    "out": "{\n  \"candidate\": {\n    \"id\": \"outside-daylight-prestige\",\n    \"name\": \"Daylight Prestige\",\n    \"source\": {\n      \"kind\": \"design-md\",\n      \"file\": \"<repo>/outside/DESIGN.md\"\n    },\n    \"values\": {\n      \"source_color\": \"#1a1c1e\",\n      \"type_scale\": \"standard\",\n      \"corner_radius\": \"extra-small\"\n    },\n    \"picked\": {\n      \"source_color\": \"colors.primary\"\n    },\n    \"dark\": null,\n    \"assumed\": [],\n    \"approximated\": [],\n    \"fonts\": {\n      \"text\": \"Public Sans\",\n      \"heading\": \"Public Sans\"\n    },\n    \"resolved\": [\n      {\n        \"token\": \"rounded.md\",\n        \"written\": \"{rounded.sm}\",\n        \"value\": \"4px\"\n      }\n    ],\n    \"unread\": []\n  },\n  \"questions\": [],\n  \"files\": [],\n  \"dry_run\": true\n}\n",
+    "err": ""
+  },
+  "nothing settled, system": {
+    "exit": 0,
+    "out": "candidate direction: Clay Studio (a system of tokens and a README, <repo>/outside/system)\n  colour #cc785c (dark #e0957b), type modular minor-third, corner radius medium\n  colour taken from color.primary\n  fonts named: Inter, Fraunces (a typeface is chosen with its source, not here)\n  computed: color.accent {color.primary} = #cc785c\n  computed: radius.sm calc(var(--radius-base) - 4px) = 8px\n  computed: radius.lg calc({radius.base} + 0.25rem) = 16px\n  computed: font.size.xl 1.44rem = 23.04px\nNo value of it goes against a value the owner settled.\nDraw it beside the plugin's directions: specimen.mjs --section direction --from <repo>/outside/system\n",
+    "err": ""
+  },
+  "nothing settled, system, --json": {
+    "exit": 0,
+    "out": "{\n  \"candidate\": {\n    \"id\": \"outside-clay-studio\",\n    \"name\": \"Clay Studio\",\n    \"source\": {\n      \"kind\": \"system\",\n      \"file\": \"<repo>/outside/system\"\n    },\n    \"values\": {\n      \"source_color\": \"#cc785c\",\n      \"type_scale\": \"modular\",\n      \"type_ratio\": \"minor-third\",\n      \"corner_radius\": \"medium\"\n    },\n    \"picked\": {\n      \"source_color\": \"color.primary\"\n    },\n    \"dark\": {\n      \"source_color\": \"#e0957b\"\n    },\n    \"assumed\": [],\n    \"approximated\": [],\n    \"fonts\": {\n      \"text\": \"Inter\",\n      \"heading\": \"Fraunces\"\n    },\n    \"resolved\": [\n      {\n        \"token\": \"color.accent\",\n        \"written\": \"{color.primary}\",\n        \"value\": \"#cc785c\"\n      },\n      {\n        \"token\": \"radius.sm\",\n        \"written\": \"calc(var(--radius-base) - 4px)\",\n        \"value\": \"8px\"\n      },\n      {\n        \"token\": \"radius.lg\",\n        \"written\": \"calc({radius.base} + 0.25rem)\",\n        \"value\": \"16px\"\n      },\n      {\n        \"token\": \"font.size.xl\",\n        \"written\": \"1.44rem\",\n        \"value\": \"23.04px\"\n      }\n    ],\n    \"unread\": []\n  },\n  \"questions\": [],\n  \"files\": [],\n  \"dry_run\": true\n}\n",
+    "err": ""
+  },
+  "owner settled, tokens": {
+    "exit": 1,
+    "out": "candidate direction: tokens (a token file, <repo>/outside/tokens.json)\n  colour #cc785c (dark #e0957b), type modular minor-third, corner radius medium\n  colour taken from color.primary\n  fonts named: Inter, Fraunces (a typeface is chosen with its source, not here)\n  computed: color.accent {color.primary} = #cc785c\n  computed: radius.sm calc(var(--radius-base) - 4px) = 8px\n  computed: radius.lg calc({radius.base} + 0.25rem) = 16px\n  computed: font.size.xl 1.44rem = 23.04px\nWaiting on the owner: 3 questions; the ledger wins until they answer (/design-assembly:decide).\n  outside-tokens-449356-source-color: The outside direction tokens has the source colour #cc785c; the owner settled #0246ff. Keep #0246ff?\n  outside-tokens-449356-type-scale: The outside direction tokens has the type scale modular; the owner settled standard. Keep standard?\n  outside-tokens-449356-corner-radius: The outside direction tokens has the corner radius medium; the owner settled small. Keep small?\nDraw it beside the plugin's directions: specimen.mjs --section direction --from <repo>/outside/tokens.json\n",
+    "err": ""
+  },
+  "owner settled, tokens, --json": {
+    "exit": 1,
+    "out": "{\n  \"candidate\": {\n    \"id\": \"outside-tokens\",\n    \"name\": \"tokens\",\n    \"source\": {\n      \"kind\": \"tokens\",\n      \"file\": \"<repo>/outside/tokens.json\"\n    },\n    \"values\": {\n      \"source_color\": \"#cc785c\",\n      \"type_scale\": \"modular\",\n      \"type_ratio\": \"minor-third\",\n      \"corner_radius\": \"medium\"\n    },\n    \"picked\": {\n      \"source_color\": \"color.primary\"\n    },\n    \"dark\": {\n      \"source_color\": \"#e0957b\"\n    },\n    \"assumed\": [],\n    \"approximated\": [],\n    \"fonts\": {\n      \"text\": \"Inter\",\n      \"heading\": \"Fraunces\"\n    },\n    \"resolved\": [\n      {\n        \"token\": \"color.accent\",\n        \"written\": \"{color.primary}\",\n        \"value\": \"#cc785c\"\n      },\n      {\n        \"token\": \"radius.sm\",\n        \"written\": \"calc(var(--radius-base) - 4px)\",\n        \"value\": \"8px\"\n      },\n      {\n        \"token\": \"radius.lg\",\n        \"written\": \"calc({radius.base} + 0.25rem)\",\n        \"value\": \"16px\"\n      },\n      {\n        \"token\": \"font.size.xl\",\n        \"written\": \"1.44rem\",\n        \"value\": \"23.04px\"\n      }\n    ],\n    \"unread\": []\n  },\n  \"questions\": [\n    {\n      \"id\": \"outside-tokens-449356-source-color\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction tokens has the source colour #cc785c; the owner settled #0246ff. Keep #0246ff?\",\n      \"recommendation\": \"Keep #0246ff: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): #0246ff is the owner's answer in design/blueprint.json; #cc785c comes from outside/tokens.json\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, source_color\",\n      \"if_refused\": \"nothing changes by itself: to take #cc785c, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    },\n    {\n      \"id\": \"outside-tokens-449356-type-scale\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction tokens has the type scale modular; the owner settled standard. Keep standard?\",\n      \"recommendation\": \"Keep standard: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): standard is the owner's answer in design/blueprint.json; modular comes from outside/tokens.json\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, type_scale\",\n      \"if_refused\": \"nothing changes by itself: to take modular, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    },\n    {\n      \"id\": \"outside-tokens-449356-corner-radius\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction tokens has the corner radius medium; the owner settled small. Keep small?\",\n      \"recommendation\": \"Keep small: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): small is the owner's answer in design/blueprint.json; medium comes from outside/tokens.json\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, corner_radius\",\n      \"if_refused\": \"nothing changes by itself: to take medium, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    }\n  ],\n  \"files\": [\n    {\n      \"path\": \"design/waiting/outside-tokens-449356-source-color.json\",\n      \"change\": \"create\"\n    },\n    {\n      \"path\": \"design/waiting/outside-tokens-449356-type-scale.json\",\n      \"change\": \"create\"\n    },\n    {\n      \"path\": \"design/waiting/outside-tokens-449356-corner-radius.json\",\n      \"change\": \"create\"\n    }\n  ],\n  \"dry_run\": true\n}\n",
+    "err": ""
+  },
+  "owner settled, design-md": {
+    "exit": 1,
+    "out": "candidate direction: Daylight Prestige (a DESIGN.md, <repo>/outside/DESIGN.md)\n  colour #1a1c1e, type standard, corner radius extra-small\n  colour taken from colors.primary\n  fonts named: Public Sans (a typeface is chosen with its source, not here)\n  computed: rounded.md {rounded.sm} = 4px\nWaiting on the owner: 2 questions; the ledger wins until they answer (/design-assembly:decide).\n  outside-daylight-prestige-95a1d5-source-color: The outside direction Daylight Prestige has the source colour #1a1c1e; the owner settled #0246ff. Keep #0246ff?\n  outside-daylight-prestige-95a1d5-corner-radius: The outside direction Daylight Prestige has the corner radius extra-small; the owner settled small. Keep small?\nDraw it beside the plugin's directions: specimen.mjs --section direction --from <repo>/outside/DESIGN.md\n",
+    "err": ""
+  },
+  "owner settled, design-md, --json": {
+    "exit": 1,
+    "out": "{\n  \"candidate\": {\n    \"id\": \"outside-daylight-prestige\",\n    \"name\": \"Daylight Prestige\",\n    \"source\": {\n      \"kind\": \"design-md\",\n      \"file\": \"<repo>/outside/DESIGN.md\"\n    },\n    \"values\": {\n      \"source_color\": \"#1a1c1e\",\n      \"type_scale\": \"standard\",\n      \"corner_radius\": \"extra-small\"\n    },\n    \"picked\": {\n      \"source_color\": \"colors.primary\"\n    },\n    \"dark\": null,\n    \"assumed\": [],\n    \"approximated\": [],\n    \"fonts\": {\n      \"text\": \"Public Sans\",\n      \"heading\": \"Public Sans\"\n    },\n    \"resolved\": [\n      {\n        \"token\": \"rounded.md\",\n        \"written\": \"{rounded.sm}\",\n        \"value\": \"4px\"\n      }\n    ],\n    \"unread\": []\n  },\n  \"questions\": [\n    {\n      \"id\": \"outside-daylight-prestige-95a1d5-source-color\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction Daylight Prestige has the source colour #1a1c1e; the owner settled #0246ff. Keep #0246ff?\",\n      \"recommendation\": \"Keep #0246ff: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): #0246ff is the owner's answer in design/blueprint.json; #1a1c1e comes from outside/DESIGN.md\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, source_color\",\n      \"if_refused\": \"nothing changes by itself: to take #1a1c1e, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    },\n    {\n      \"id\": \"outside-daylight-prestige-95a1d5-corner-radius\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction Daylight Prestige has the corner radius extra-small; the owner settled small. Keep small?\",\n      \"recommendation\": \"Keep small: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): small is the owner's answer in design/blueprint.json; extra-small comes from outside/DESIGN.md\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, corner_radius\",\n      \"if_refused\": \"nothing changes by itself: to take extra-small, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    }\n  ],\n  \"files\": [\n    {\n      \"path\": \"design/waiting/outside-daylight-prestige-95a1d5-source-color.json\",\n      \"change\": \"create\"\n    },\n    {\n      \"path\": \"design/waiting/outside-daylight-prestige-95a1d5-corner-radius.json\",\n      \"change\": \"create\"\n    }\n  ],\n  \"dry_run\": true\n}\n",
+    "err": ""
+  },
+  "owner settled, system": {
+    "exit": 1,
+    "out": "candidate direction: Clay Studio (a system of tokens and a README, <repo>/outside/system)\n  colour #cc785c (dark #e0957b), type modular minor-third, corner radius medium\n  colour taken from color.primary\n  fonts named: Inter, Fraunces (a typeface is chosen with its source, not here)\n  computed: color.accent {color.primary} = #cc785c\n  computed: radius.sm calc(var(--radius-base) - 4px) = 8px\n  computed: radius.lg calc({radius.base} + 0.25rem) = 16px\n  computed: font.size.xl 1.44rem = 23.04px\nWaiting on the owner: 3 questions; the ledger wins until they answer (/design-assembly:decide).\n  outside-clay-studio-e0e4ef-source-color: The outside direction Clay Studio has the source colour #cc785c; the owner settled #0246ff. Keep #0246ff?\n  outside-clay-studio-e0e4ef-type-scale: The outside direction Clay Studio has the type scale modular; the owner settled standard. Keep standard?\n  outside-clay-studio-e0e4ef-corner-radius: The outside direction Clay Studio has the corner radius medium; the owner settled small. Keep small?\nDraw it beside the plugin's directions: specimen.mjs --section direction --from <repo>/outside/system\n",
+    "err": ""
+  },
+  "owner settled, system, --json": {
+    "exit": 1,
+    "out": "{\n  \"candidate\": {\n    \"id\": \"outside-clay-studio\",\n    \"name\": \"Clay Studio\",\n    \"source\": {\n      \"kind\": \"system\",\n      \"file\": \"<repo>/outside/system\"\n    },\n    \"values\": {\n      \"source_color\": \"#cc785c\",\n      \"type_scale\": \"modular\",\n      \"type_ratio\": \"minor-third\",\n      \"corner_radius\": \"medium\"\n    },\n    \"picked\": {\n      \"source_color\": \"color.primary\"\n    },\n    \"dark\": {\n      \"source_color\": \"#e0957b\"\n    },\n    \"assumed\": [],\n    \"approximated\": [],\n    \"fonts\": {\n      \"text\": \"Inter\",\n      \"heading\": \"Fraunces\"\n    },\n    \"resolved\": [\n      {\n        \"token\": \"color.accent\",\n        \"written\": \"{color.primary}\",\n        \"value\": \"#cc785c\"\n      },\n      {\n        \"token\": \"radius.sm\",\n        \"written\": \"calc(var(--radius-base) - 4px)\",\n        \"value\": \"8px\"\n      },\n      {\n        \"token\": \"radius.lg\",\n        \"written\": \"calc({radius.base} + 0.25rem)\",\n        \"value\": \"16px\"\n      },\n      {\n        \"token\": \"font.size.xl\",\n        \"written\": \"1.44rem\",\n        \"value\": \"23.04px\"\n      }\n    ],\n    \"unread\": []\n  },\n  \"questions\": [\n    {\n      \"id\": \"outside-clay-studio-e0e4ef-source-color\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction Clay Studio has the source colour #cc785c; the owner settled #0246ff. Keep #0246ff?\",\n      \"recommendation\": \"Keep #0246ff: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): #0246ff is the owner's answer in design/blueprint.json; #cc785c comes from outside/system\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, source_color\",\n      \"if_refused\": \"nothing changes by itself: to take #cc785c, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    },\n    {\n      \"id\": \"outside-clay-studio-e0e4ef-type-scale\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction Clay Studio has the type scale modular; the owner settled standard. Keep standard?\",\n      \"recommendation\": \"Keep standard: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): standard is the owner's answer in design/blueprint.json; modular comes from outside/system\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, type_scale\",\n      \"if_refused\": \"nothing changes by itself: to take modular, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    },\n    {\n      \"id\": \"outside-clay-studio-e0e4ef-corner-radius\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction Clay Studio has the corner radius medium; the owner settled small. Keep small?\",\n      \"recommendation\": \"Keep small: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): small is the owner's answer in design/blueprint.json; medium comes from outside/system\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, corner_radius\",\n      \"if_refused\": \"nothing changes by itself: to take medium, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    }\n  ],\n  \"files\": [\n    {\n      \"path\": \"design/waiting/outside-clay-studio-e0e4ef-source-color.json\",\n      \"change\": \"create\"\n    },\n    {\n      \"path\": \"design/waiting/outside-clay-studio-e0e4ef-type-scale.json\",\n      \"change\": \"create\"\n    },\n    {\n      \"path\": \"design/waiting/outside-clay-studio-e0e4ef-corner-radius.json\",\n      \"change\": \"create\"\n    }\n  ],\n  \"dry_run\": true\n}\n",
+    "err": ""
+  },
+  "sheet, nothing brought in": {
+    "state": {
+      "productType": "application",
+      "conformanceLevel": "AA",
+      "sourceColor": "#0246ff",
+      "typeScale": "standard",
+      "typeRatio": null,
+      "cornerRadius": "small",
+      "textFont": null,
+      "neutralFamily": null,
+      "recordPanel": null,
+      "assumed": ["conformance level AA", "product type application"]
+    },
+    "sections": [
+      {
+        "id": "direction",
+        "key": "direction",
+        "title": "design direction",
+        "question": "Which direction is the product's? Each is a colour, a type scale and a corner radius that go together: one letter sets all three, and each can be changed after.",
+        "shots": ["ready", "empty"],
+        "options": [
+          {
+            "letter": "A",
+            "value": "workbench",
+            "label": "workbench: #0246ff, modular, major-second, corner radius small",
+            "notes": [
+              "A tool for working all day: dense rows, close steps of type, small corners. The colour is the owner's.",
+              "follows: dense-and-scannable",
+              "source_color #0246ff: the colour the owner gave, kept in every direction: a brand colour is the owner's call",
+              "type_scale modular: the direction follows dense and scannable, a principle of the catalog the owner has not fixed: related steps let headings stay close to the body text without blurring",
+              "type_ratio major-second: the direction follows dense and scannable, a principle of the catalog the owner has not fixed: gentle steps keep many levels of heading on one working screen",
+              "corner_radius small: the direction follows dense and scannable, a principle of the catalog the owner has not fixed: small corners keep tight rows and cells from looking crowded",
+              "light: primary oklch(0.51 0.274 263.68), the source color itself; 6.31:1 on the background, text on it 6.04:1",
+              "dark: primary oklch(0.608 0.211 263.68), moved from the source to reach the contrast ratio; 4.98:1 on the background, text on it 4.51:1"
+            ],
+            "swatches": [
+              {
+                "mode": "light",
+                "background": "oklch(1 0 0)",
+                "primary": "oklch(0.51 0.274 263.68)",
+                "onPrimary": "oklch(0.985 0 0)"
+              },
+              {
+                "mode": "dark",
+                "background": "oklch(0.145 0 0)",
+                "primary": "oklch(0.608 0.211 263.68)",
+                "onPrimary": "oklch(0.205 0 0)"
+              }
+            ],
+            "css": "/* design-assembly:tokens:start - generated from design/blueprint.json. Do not edit: run the guide again. */\n:root {\n  --palette-primary-0: oklch(0 0.088 263.68);\n  --palette-primary-10: oklch(0.241 0.17 263.68);\n  --palette-primary-20: oklch(0.327 0.189 263.68);\n  --palette-primary-30: oklch(0.416 0.233 263.68);\n  --palette-primary-40: oklch(0.505 0.274 263.68);\n  --palette-primary-50: oklch(0.581 0.228 263.68);\n  --palette-primary-60: oklch(0.661 0.179 263.68);\n  --palette-primary-70: oklch(0.744 0.131 263.68);\n  --palette-primary-80: oklch(0.829 0.084 263.68);\n  --palette-primary-90: oklch(0.914 0.041 263.68);\n  --palette-primary-95: oklch(0.957 0.02 263.68);\n  --palette-primary-98: oklch(0.983 0.008 263.68);\n  --palette-primary-99: oklch(0.991 0.004 263.68);\n  --palette-primary-100: oklch(1 0 263.68);\n  --radius: 0.5rem;\n  --text-xs: 0.8125rem;\n  --text-xs--line-height: calc(20 / 13);\n  --text-sm: 0.875rem;\n  --text-sm--line-height: calc(24 / 14);\n  --text-base: 1rem;\n  --text-base--line-height: calc(24 / 16);\n  --text-lg: 1.125rem;\n  --text-lg--line-height: calc(24 / 18);\n  --text-xl: 1.25rem;\n  --text-xl--line-height: calc(28 / 20);\n  --text-2xl: 1.4375rem;\n  --text-2xl--line-height: calc(32 / 23);\n  --text-3xl: 1.625rem;\n  --text-3xl--line-height: calc(36 / 26);\n  --text-4xl: 1.8125rem;\n  --text-4xl--line-height: calc(40 / 29);\n  --text-5xl: 2rem;\n  --text-5xl--line-height: calc(40 / 32);\n  --primary: oklch(0.51 0.274 263.68);\n  --primary-foreground: oklch(0.985 0 0);\n  --ring: oklch(0.51 0.274 263.68);\n}\n\n.dark {\n  --primary: oklch(0.608 0.211 263.68);\n  --primary-foreground: oklch(0.205 0 0);\n  --ring: oklch(0.608 0.211 263.68);\n}\n/* design-assembly:tokens:end */",
+            "modes": ["light", "dark"],
+            "choice": {
+              "direction": "workbench",
+              "source_color": "#0246ff",
+              "type_scale": "modular",
+              "type_ratio": "major-second",
+              "corner_radius": "small"
+            }
+          },
+          {
+            "letter": "B",
+            "value": "precise-instrument",
+            "label": "precise instrument: #0246ff, modular, minor-third, corner radius extra-small",
+            "notes": [
+              "Exact and quiet: nearly square corners, headings that step up clearly. The colour is the owner's.",
+              "follows: precise-and-technical, clear-hierarchy",
+              "source_color #0246ff: the colour the owner gave, kept in every direction: a brand colour is the owner's call",
+              "type_scale modular: the direction follows clear hierarchy, a principle of the catalog the owner has not fixed: every size comes from one ratio, so each step is a visible step",
+              "type_ratio minor-third: the direction follows clear hierarchy, a principle of the catalog the owner has not fixed: clear steps that still fit a working screen",
+              "corner_radius extra-small: the direction follows precise and technical, a principle of the catalog the owner has not fixed: nearly square corners read as exact without looking unfinished",
+              "light: primary oklch(0.51 0.274 263.68), the source color itself; 6.31:1 on the background, text on it 6.04:1",
+              "dark: primary oklch(0.608 0.211 263.68), moved from the source to reach the contrast ratio; 4.98:1 on the background, text on it 4.51:1"
+            ],
+            "swatches": [
+              {
+                "mode": "light",
+                "background": "oklch(1 0 0)",
+                "primary": "oklch(0.51 0.274 263.68)",
+                "onPrimary": "oklch(0.985 0 0)"
+              },
+              {
+                "mode": "dark",
+                "background": "oklch(0.145 0 0)",
+                "primary": "oklch(0.608 0.211 263.68)",
+                "onPrimary": "oklch(0.205 0 0)"
+              }
+            ],
+            "css": "/* design-assembly:tokens:start - generated from design/blueprint.json. Do not edit: run the guide again. */\n:root {\n  --palette-primary-0: oklch(0 0.088 263.68);\n  --palette-primary-10: oklch(0.241 0.17 263.68);\n  --palette-primary-20: oklch(0.327 0.189 263.68);\n  --palette-primary-30: oklch(0.416 0.233 263.68);\n  --palette-primary-40: oklch(0.505 0.274 263.68);\n  --palette-primary-50: oklch(0.581 0.228 263.68);\n  --palette-primary-60: oklch(0.661 0.179 263.68);\n  --palette-primary-70: oklch(0.744 0.131 263.68);\n  --palette-primary-80: oklch(0.829 0.084 263.68);\n  --palette-primary-90: oklch(0.914 0.041 263.68);\n  --palette-primary-95: oklch(0.957 0.02 263.68);\n  --palette-primary-98: oklch(0.983 0.008 263.68);\n  --palette-primary-99: oklch(0.991 0.004 263.68);\n  --palette-primary-100: oklch(1 0 263.68);\n  --radius: 0.25rem;\n  --text-xs: 0.6875rem;\n  --text-xs--line-height: calc(20 / 11);\n  --text-sm: 0.8125rem;\n  --text-sm--line-height: calc(20 / 13);\n  --text-base: 1rem;\n  --text-base--line-height: calc(24 / 16);\n  --text-lg: 1.1875rem;\n  --text-lg--line-height: calc(24 / 19);\n  --text-xl: 1.4375rem;\n  --text-xl--line-height: calc(32 / 23);\n  --text-2xl: 1.75rem;\n  --text-2xl--line-height: calc(36 / 28);\n  --text-3xl: 2.0625rem;\n  --text-3xl--line-height: calc(44 / 33);\n  --text-4xl: 2.5rem;\n  --text-4xl--line-height: calc(52 / 40);\n  --text-5xl: 3rem;\n  --text-5xl--line-height: calc(60 / 48);\n  --primary: oklch(0.51 0.274 263.68);\n  --primary-foreground: oklch(0.985 0 0);\n  --ring: oklch(0.51 0.274 263.68);\n}\n\n.dark {\n  --primary: oklch(0.608 0.211 263.68);\n  --primary-foreground: oklch(0.205 0 0);\n  --ring: oklch(0.608 0.211 263.68);\n}\n/* design-assembly:tokens:end */",
+            "modes": ["light", "dark"],
+            "choice": {
+              "direction": "precise-instrument",
+              "source_color": "#0246ff",
+              "type_scale": "modular",
+              "type_ratio": "minor-third",
+              "corner_radius": "extra-small"
+            }
+          },
+          {
+            "letter": "C",
+            "value": "familiar",
+            "label": "familiar: #0246ff, standard, corner radius floor",
+            "notes": [
+              "Looks and behaves the way people already know: the standard sizes, the floor's corner. The colour is the owner's.",
+              "follows: familiar-over-novel",
+              "source_color #0246ff: the colour the owner gave, kept in every direction: a brand colour is the owner's call",
+              "type_scale standard: the direction follows familiar over novel, a principle of the catalog the owner has not fixed: the sizes people have met in many products already",
+              "corner_radius floor: the direction follows familiar over novel, a principle of the catalog the owner has not fixed: the corner the floor's components were drawn with",
+              "light: primary oklch(0.51 0.274 263.68), the source color itself; 6.31:1 on the background, text on it 6.04:1",
+              "dark: primary oklch(0.608 0.211 263.68), moved from the source to reach the contrast ratio; 4.98:1 on the background, text on it 4.51:1"
+            ],
+            "swatches": [
+              {
+                "mode": "light",
+                "background": "oklch(1 0 0)",
+                "primary": "oklch(0.51 0.274 263.68)",
+                "onPrimary": "oklch(0.985 0 0)"
+              },
+              {
+                "mode": "dark",
+                "background": "oklch(0.145 0 0)",
+                "primary": "oklch(0.608 0.211 263.68)",
+                "onPrimary": "oklch(0.205 0 0)"
+              }
+            ],
+            "css": "/* design-assembly:tokens:start - generated from design/blueprint.json. Do not edit: run the guide again. */\n:root {\n  --palette-primary-0: oklch(0 0.088 263.68);\n  --palette-primary-10: oklch(0.241 0.17 263.68);\n  --palette-primary-20: oklch(0.327 0.189 263.68);\n  --palette-primary-30: oklch(0.416 0.233 263.68);\n  --palette-primary-40: oklch(0.505 0.274 263.68);\n  --palette-primary-50: oklch(0.581 0.228 263.68);\n  --palette-primary-60: oklch(0.661 0.179 263.68);\n  --palette-primary-70: oklch(0.744 0.131 263.68);\n  --palette-primary-80: oklch(0.829 0.084 263.68);\n  --palette-primary-90: oklch(0.914 0.041 263.68);\n  --palette-primary-95: oklch(0.957 0.02 263.68);\n  --palette-primary-98: oklch(0.983 0.008 263.68);\n  --palette-primary-99: oklch(0.991 0.004 263.68);\n  --palette-primary-100: oklch(1 0 263.68);\n  --radius: 0.625rem;\n  --primary: oklch(0.51 0.274 263.68);\n  --primary-foreground: oklch(0.985 0 0);\n  --ring: oklch(0.51 0.274 263.68);\n}\n\n.dark {\n  --primary: oklch(0.608 0.211 263.68);\n  --primary-foreground: oklch(0.205 0 0);\n  --ring: oklch(0.608 0.211 263.68);\n}\n/* design-assembly:tokens:end */",
+            "modes": ["light", "dark"],
+            "choice": {
+              "direction": "familiar",
+              "source_color": "#0246ff",
+              "type_scale": "standard",
+              "corner_radius": "floor"
+            }
+          }
+        ]
+      }
+    ],
+    "dropped": []
+  },
+  "sheet, a token file brought in": {
+    "state": {
+      "productType": "application",
+      "conformanceLevel": "AA",
+      "sourceColor": "#0246ff",
+      "typeScale": "standard",
+      "typeRatio": null,
+      "cornerRadius": "small",
+      "textFont": null,
+      "neutralFamily": null,
+      "recordPanel": null,
+      "assumed": ["conformance level AA", "product type application"]
+    },
+    "sections": [
+      {
+        "id": "direction",
+        "key": "direction",
+        "title": "design direction",
+        "question": "Which direction is the product's? Each is a colour, a type scale and a corner radius that go together: one letter sets all three, and each can be changed after.",
+        "shots": ["ready", "empty"],
+        "options": [
+          {
+            "letter": "A",
+            "value": "workbench",
+            "label": "workbench: #0246ff, modular, major-second, corner radius small",
+            "notes": [
+              "A tool for working all day: dense rows, close steps of type, small corners. The colour is the owner's.",
+              "follows: dense-and-scannable",
+              "source_color #0246ff: the colour the owner gave, kept in every direction: a brand colour is the owner's call",
+              "type_scale modular: the direction follows dense and scannable, a principle of the catalog the owner has not fixed: related steps let headings stay close to the body text without blurring",
+              "type_ratio major-second: the direction follows dense and scannable, a principle of the catalog the owner has not fixed: gentle steps keep many levels of heading on one working screen",
+              "corner_radius small: the direction follows dense and scannable, a principle of the catalog the owner has not fixed: small corners keep tight rows and cells from looking crowded",
+              "light: primary oklch(0.51 0.274 263.68), the source color itself; 6.31:1 on the background, text on it 6.04:1",
+              "dark: primary oklch(0.608 0.211 263.68), moved from the source to reach the contrast ratio; 4.98:1 on the background, text on it 4.51:1"
+            ],
+            "swatches": [
+              {
+                "mode": "light",
+                "background": "oklch(1 0 0)",
+                "primary": "oklch(0.51 0.274 263.68)",
+                "onPrimary": "oklch(0.985 0 0)"
+              },
+              {
+                "mode": "dark",
+                "background": "oklch(0.145 0 0)",
+                "primary": "oklch(0.608 0.211 263.68)",
+                "onPrimary": "oklch(0.205 0 0)"
+              }
+            ],
+            "css": "/* design-assembly:tokens:start - generated from design/blueprint.json. Do not edit: run the guide again. */\n:root {\n  --palette-primary-0: oklch(0 0.088 263.68);\n  --palette-primary-10: oklch(0.241 0.17 263.68);\n  --palette-primary-20: oklch(0.327 0.189 263.68);\n  --palette-primary-30: oklch(0.416 0.233 263.68);\n  --palette-primary-40: oklch(0.505 0.274 263.68);\n  --palette-primary-50: oklch(0.581 0.228 263.68);\n  --palette-primary-60: oklch(0.661 0.179 263.68);\n  --palette-primary-70: oklch(0.744 0.131 263.68);\n  --palette-primary-80: oklch(0.829 0.084 263.68);\n  --palette-primary-90: oklch(0.914 0.041 263.68);\n  --palette-primary-95: oklch(0.957 0.02 263.68);\n  --palette-primary-98: oklch(0.983 0.008 263.68);\n  --palette-primary-99: oklch(0.991 0.004 263.68);\n  --palette-primary-100: oklch(1 0 263.68);\n  --radius: 0.5rem;\n  --text-xs: 0.8125rem;\n  --text-xs--line-height: calc(20 / 13);\n  --text-sm: 0.875rem;\n  --text-sm--line-height: calc(24 / 14);\n  --text-base: 1rem;\n  --text-base--line-height: calc(24 / 16);\n  --text-lg: 1.125rem;\n  --text-lg--line-height: calc(24 / 18);\n  --text-xl: 1.25rem;\n  --text-xl--line-height: calc(28 / 20);\n  --text-2xl: 1.4375rem;\n  --text-2xl--line-height: calc(32 / 23);\n  --text-3xl: 1.625rem;\n  --text-3xl--line-height: calc(36 / 26);\n  --text-4xl: 1.8125rem;\n  --text-4xl--line-height: calc(40 / 29);\n  --text-5xl: 2rem;\n  --text-5xl--line-height: calc(40 / 32);\n  --primary: oklch(0.51 0.274 263.68);\n  --primary-foreground: oklch(0.985 0 0);\n  --ring: oklch(0.51 0.274 263.68);\n}\n\n.dark {\n  --primary: oklch(0.608 0.211 263.68);\n  --primary-foreground: oklch(0.205 0 0);\n  --ring: oklch(0.608 0.211 263.68);\n}\n/* design-assembly:tokens:end */",
+            "modes": ["light", "dark"],
+            "choice": {
+              "direction": "workbench",
+              "source_color": "#0246ff",
+              "type_scale": "modular",
+              "type_ratio": "major-second",
+              "corner_radius": "small"
+            }
+          },
+          {
+            "letter": "B",
+            "value": "precise-instrument",
+            "label": "precise instrument: #0246ff, modular, minor-third, corner radius extra-small",
+            "notes": [
+              "Exact and quiet: nearly square corners, headings that step up clearly. The colour is the owner's.",
+              "follows: precise-and-technical, clear-hierarchy",
+              "source_color #0246ff: the colour the owner gave, kept in every direction: a brand colour is the owner's call",
+              "type_scale modular: the direction follows clear hierarchy, a principle of the catalog the owner has not fixed: every size comes from one ratio, so each step is a visible step",
+              "type_ratio minor-third: the direction follows clear hierarchy, a principle of the catalog the owner has not fixed: clear steps that still fit a working screen",
+              "corner_radius extra-small: the direction follows precise and technical, a principle of the catalog the owner has not fixed: nearly square corners read as exact without looking unfinished",
+              "light: primary oklch(0.51 0.274 263.68), the source color itself; 6.31:1 on the background, text on it 6.04:1",
+              "dark: primary oklch(0.608 0.211 263.68), moved from the source to reach the contrast ratio; 4.98:1 on the background, text on it 4.51:1"
+            ],
+            "swatches": [
+              {
+                "mode": "light",
+                "background": "oklch(1 0 0)",
+                "primary": "oklch(0.51 0.274 263.68)",
+                "onPrimary": "oklch(0.985 0 0)"
+              },
+              {
+                "mode": "dark",
+                "background": "oklch(0.145 0 0)",
+                "primary": "oklch(0.608 0.211 263.68)",
+                "onPrimary": "oklch(0.205 0 0)"
+              }
+            ],
+            "css": "/* design-assembly:tokens:start - generated from design/blueprint.json. Do not edit: run the guide again. */\n:root {\n  --palette-primary-0: oklch(0 0.088 263.68);\n  --palette-primary-10: oklch(0.241 0.17 263.68);\n  --palette-primary-20: oklch(0.327 0.189 263.68);\n  --palette-primary-30: oklch(0.416 0.233 263.68);\n  --palette-primary-40: oklch(0.505 0.274 263.68);\n  --palette-primary-50: oklch(0.581 0.228 263.68);\n  --palette-primary-60: oklch(0.661 0.179 263.68);\n  --palette-primary-70: oklch(0.744 0.131 263.68);\n  --palette-primary-80: oklch(0.829 0.084 263.68);\n  --palette-primary-90: oklch(0.914 0.041 263.68);\n  --palette-primary-95: oklch(0.957 0.02 263.68);\n  --palette-primary-98: oklch(0.983 0.008 263.68);\n  --palette-primary-99: oklch(0.991 0.004 263.68);\n  --palette-primary-100: oklch(1 0 263.68);\n  --radius: 0.25rem;\n  --text-xs: 0.6875rem;\n  --text-xs--line-height: calc(20 / 11);\n  --text-sm: 0.8125rem;\n  --text-sm--line-height: calc(20 / 13);\n  --text-base: 1rem;\n  --text-base--line-height: calc(24 / 16);\n  --text-lg: 1.1875rem;\n  --text-lg--line-height: calc(24 / 19);\n  --text-xl: 1.4375rem;\n  --text-xl--line-height: calc(32 / 23);\n  --text-2xl: 1.75rem;\n  --text-2xl--line-height: calc(36 / 28);\n  --text-3xl: 2.0625rem;\n  --text-3xl--line-height: calc(44 / 33);\n  --text-4xl: 2.5rem;\n  --text-4xl--line-height: calc(52 / 40);\n  --text-5xl: 3rem;\n  --text-5xl--line-height: calc(60 / 48);\n  --primary: oklch(0.51 0.274 263.68);\n  --primary-foreground: oklch(0.985 0 0);\n  --ring: oklch(0.51 0.274 263.68);\n}\n\n.dark {\n  --primary: oklch(0.608 0.211 263.68);\n  --primary-foreground: oklch(0.205 0 0);\n  --ring: oklch(0.608 0.211 263.68);\n}\n/* design-assembly:tokens:end */",
+            "modes": ["light", "dark"],
+            "choice": {
+              "direction": "precise-instrument",
+              "source_color": "#0246ff",
+              "type_scale": "modular",
+              "type_ratio": "minor-third",
+              "corner_radius": "extra-small"
+            }
+          },
+          {
+            "letter": "C",
+            "value": "familiar",
+            "label": "familiar: #0246ff, standard, corner radius floor",
+            "notes": [
+              "Looks and behaves the way people already know: the standard sizes, the floor's corner. The colour is the owner's.",
+              "follows: familiar-over-novel",
+              "source_color #0246ff: the colour the owner gave, kept in every direction: a brand colour is the owner's call",
+              "type_scale standard: the direction follows familiar over novel, a principle of the catalog the owner has not fixed: the sizes people have met in many products already",
+              "corner_radius floor: the direction follows familiar over novel, a principle of the catalog the owner has not fixed: the corner the floor's components were drawn with",
+              "light: primary oklch(0.51 0.274 263.68), the source color itself; 6.31:1 on the background, text on it 6.04:1",
+              "dark: primary oklch(0.608 0.211 263.68), moved from the source to reach the contrast ratio; 4.98:1 on the background, text on it 4.51:1"
+            ],
+            "swatches": [
+              {
+                "mode": "light",
+                "background": "oklch(1 0 0)",
+                "primary": "oklch(0.51 0.274 263.68)",
+                "onPrimary": "oklch(0.985 0 0)"
+              },
+              {
+                "mode": "dark",
+                "background": "oklch(0.145 0 0)",
+                "primary": "oklch(0.608 0.211 263.68)",
+                "onPrimary": "oklch(0.205 0 0)"
+              }
+            ],
+            "css": "/* design-assembly:tokens:start - generated from design/blueprint.json. Do not edit: run the guide again. */\n:root {\n  --palette-primary-0: oklch(0 0.088 263.68);\n  --palette-primary-10: oklch(0.241 0.17 263.68);\n  --palette-primary-20: oklch(0.327 0.189 263.68);\n  --palette-primary-30: oklch(0.416 0.233 263.68);\n  --palette-primary-40: oklch(0.505 0.274 263.68);\n  --palette-primary-50: oklch(0.581 0.228 263.68);\n  --palette-primary-60: oklch(0.661 0.179 263.68);\n  --palette-primary-70: oklch(0.744 0.131 263.68);\n  --palette-primary-80: oklch(0.829 0.084 263.68);\n  --palette-primary-90: oklch(0.914 0.041 263.68);\n  --palette-primary-95: oklch(0.957 0.02 263.68);\n  --palette-primary-98: oklch(0.983 0.008 263.68);\n  --palette-primary-99: oklch(0.991 0.004 263.68);\n  --palette-primary-100: oklch(1 0 263.68);\n  --radius: 0.625rem;\n  --primary: oklch(0.51 0.274 263.68);\n  --primary-foreground: oklch(0.985 0 0);\n  --ring: oklch(0.51 0.274 263.68);\n}\n\n.dark {\n  --primary: oklch(0.608 0.211 263.68);\n  --primary-foreground: oklch(0.205 0 0);\n  --ring: oklch(0.608 0.211 263.68);\n}\n/* design-assembly:tokens:end */",
+            "modes": ["light", "dark"],
+            "choice": {
+              "direction": "familiar",
+              "source_color": "#0246ff",
+              "type_scale": "standard",
+              "corner_radius": "floor"
+            }
+          },
+          {
+            "letter": "D",
+            "value": "outside-tokens",
+            "label": "from tokens.json: #cc785c, modular, minor-third, corner radius medium",
+            "notes": [
+              "taken from <repo>/outside/tokens.json, never written to a ledger: picking it writes its values as the owner's answer, as for any direction",
+              "fonts named: Inter, Fraunces (a typeface is chosen with its source, not here)",
+              "colour taken from color.primary",
+              "the source's own dark colour #e0957b is said, not drawn: dark is derived from the source colour, as for every direction",
+              "light: primary oklch(0.568 0.113 39.15), moved from the source to reach the contrast ratio; 4.72:1 on the background, text on it 4.52:1",
+              "dark: primary oklch(0.658 0.113 39.15), the source color itself; 6.04:1 on the background, text on it 5.47:1"
+            ],
+            "swatches": [
+              {
+                "mode": "light",
+                "background": "oklch(1 0 0)",
+                "primary": "oklch(0.568 0.113 39.15)",
+                "onPrimary": "oklch(0.985 0 0)"
+              },
+              {
+                "mode": "dark",
+                "background": "oklch(0.145 0 0)",
+                "primary": "oklch(0.658 0.113 39.15)",
+                "onPrimary": "oklch(0.205 0 0)"
+              }
+            ],
+            "css": "/* design-assembly:tokens:start - generated from design/blueprint.json. Do not edit: run the guide again. */\n:root {\n  --palette-primary-0: oklch(0 0.075 39.15);\n  --palette-primary-10: oklch(0.232 0.078 39.15);\n  --palette-primary-20: oklch(0.322 0.105 39.15);\n  --palette-primary-30: oklch(0.409 0.113 39.15);\n  --palette-primary-40: oklch(0.494 0.113 39.15);\n  --palette-primary-50: oklch(0.58 0.113 39.15);\n  --palette-primary-60: oklch(0.666 0.113 39.15);\n  --palette-primary-70: oklch(0.753 0.113 39.15);\n  --palette-primary-80: oklch(0.837 0.093 39.15);\n  --palette-primary-90: oklch(0.918 0.043 39.15);\n  --palette-primary-95: oklch(0.959 0.021 39.15);\n  --palette-primary-98: oklch(0.984 0.008 39.15);\n  --palette-primary-99: oklch(0.992 0.004 39.15);\n  --palette-primary-100: oklch(1 0 39.15);\n  --radius: 0.75rem;\n  --text-xs: 0.6875rem;\n  --text-xs--line-height: calc(20 / 11);\n  --text-sm: 0.8125rem;\n  --text-sm--line-height: calc(20 / 13);\n  --text-base: 1rem;\n  --text-base--line-height: calc(24 / 16);\n  --text-lg: 1.1875rem;\n  --text-lg--line-height: calc(24 / 19);\n  --text-xl: 1.4375rem;\n  --text-xl--line-height: calc(32 / 23);\n  --text-2xl: 1.75rem;\n  --text-2xl--line-height: calc(36 / 28);\n  --text-3xl: 2.0625rem;\n  --text-3xl--line-height: calc(44 / 33);\n  --text-4xl: 2.5rem;\n  --text-4xl--line-height: calc(52 / 40);\n  --text-5xl: 3rem;\n  --text-5xl--line-height: calc(60 / 48);\n  --primary: oklch(0.568 0.113 39.15);\n  --primary-foreground: oklch(0.985 0 0);\n  --ring: oklch(0.568 0.113 39.15);\n}\n\n.dark {\n  --primary: oklch(0.658 0.113 39.15);\n  --primary-foreground: oklch(0.205 0 0);\n  --ring: oklch(0.658 0.113 39.15);\n}\n/* design-assembly:tokens:end */",
+            "modes": ["light", "dark"],
+            "choice": {
+              "source_color": "#cc785c",
+              "type_scale": "modular",
+              "type_ratio": "minor-third",
+              "corner_radius": "medium"
+            }
+          }
+        ]
+      }
+    ],
+    "dropped": []
+  },
+  "owner settled a typeface, tokens": {
+    "exit": 1,
+    "out": "candidate direction: tokens (a token file, <repo>/outside/tokens.json)\n  colour #cc785c (dark #e0957b), type modular minor-third, corner radius medium\n  colour taken from color.primary\n  fonts named: Inter, Fraunces (a typeface is chosen with its source, not here)\n  computed: color.accent {color.primary} = #cc785c\n  computed: radius.sm calc(var(--radius-base) - 4px) = 8px\n  computed: radius.lg calc({radius.base} + 0.25rem) = 16px\n  computed: font.size.xl 1.44rem = 23.04px\nWaiting on the owner: 3 questions; the ledger wins until they answer (/design-assembly:decide).\n  outside-tokens-449356-source-color: The outside direction tokens has the source colour #cc785c; the owner settled #0246ff. Keep #0246ff?\n  outside-tokens-449356-type-scale: The outside direction tokens has the type scale modular; the owner settled standard. Keep standard?\n  outside-tokens-449356-corner-radius: The outside direction tokens has the corner radius medium; the owner settled small. Keep small?\nDraw it beside the plugin's directions: specimen.mjs --section direction --from <repo>/outside/tokens.json\n",
+    "err": ""
+  },
+  "owner settled a typeface, tokens, --json": {
+    "exit": 1,
+    "out": "{\n  \"candidate\": {\n    \"id\": \"outside-tokens\",\n    \"name\": \"tokens\",\n    \"source\": {\n      \"kind\": \"tokens\",\n      \"file\": \"<repo>/outside/tokens.json\"\n    },\n    \"values\": {\n      \"source_color\": \"#cc785c\",\n      \"type_scale\": \"modular\",\n      \"type_ratio\": \"minor-third\",\n      \"corner_radius\": \"medium\"\n    },\n    \"picked\": {\n      \"source_color\": \"color.primary\"\n    },\n    \"dark\": {\n      \"source_color\": \"#e0957b\"\n    },\n    \"assumed\": [],\n    \"approximated\": [],\n    \"fonts\": {\n      \"text\": \"Inter\",\n      \"heading\": \"Fraunces\"\n    },\n    \"resolved\": [\n      {\n        \"token\": \"color.accent\",\n        \"written\": \"{color.primary}\",\n        \"value\": \"#cc785c\"\n      },\n      {\n        \"token\": \"radius.sm\",\n        \"written\": \"calc(var(--radius-base) - 4px)\",\n        \"value\": \"8px\"\n      },\n      {\n        \"token\": \"radius.lg\",\n        \"written\": \"calc({radius.base} + 0.25rem)\",\n        \"value\": \"16px\"\n      },\n      {\n        \"token\": \"font.size.xl\",\n        \"written\": \"1.44rem\",\n        \"value\": \"23.04px\"\n      }\n    ],\n    \"unread\": []\n  },\n  \"questions\": [\n    {\n      \"id\": \"outside-tokens-449356-source-color\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction tokens has the source colour #cc785c; the owner settled #0246ff. Keep #0246ff?\",\n      \"recommendation\": \"Keep #0246ff: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): #0246ff is the owner's answer in design/blueprint.json; #cc785c comes from outside/tokens.json\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, source_color\",\n      \"if_refused\": \"nothing changes by itself: to take #cc785c, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    },\n    {\n      \"id\": \"outside-tokens-449356-type-scale\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction tokens has the type scale modular; the owner settled standard. Keep standard?\",\n      \"recommendation\": \"Keep standard: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): standard is the owner's answer in design/blueprint.json; modular comes from outside/tokens.json\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, type_scale\",\n      \"if_refused\": \"nothing changes by itself: to take modular, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    },\n    {\n      \"id\": \"outside-tokens-449356-corner-radius\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction tokens has the corner radius medium; the owner settled small. Keep small?\",\n      \"recommendation\": \"Keep small: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): small is the owner's answer in design/blueprint.json; medium comes from outside/tokens.json\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, corner_radius\",\n      \"if_refused\": \"nothing changes by itself: to take medium, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    }\n  ],\n  \"files\": [\n    {\n      \"path\": \"design/waiting/outside-tokens-449356-source-color.json\",\n      \"change\": \"create\"\n    },\n    {\n      \"path\": \"design/waiting/outside-tokens-449356-type-scale.json\",\n      \"change\": \"create\"\n    },\n    {\n      \"path\": \"design/waiting/outside-tokens-449356-corner-radius.json\",\n      \"change\": \"create\"\n    }\n  ],\n  \"dry_run\": true\n}\n",
+    "err": ""
+  },
+  "owner settled a typeface, design-md": {
+    "exit": 1,
+    "out": "candidate direction: Daylight Prestige (a DESIGN.md, <repo>/outside/DESIGN.md)\n  colour #1a1c1e, type standard, corner radius extra-small\n  colour taken from colors.primary\n  fonts named: Public Sans (a typeface is chosen with its source, not here)\n  computed: rounded.md {rounded.sm} = 4px\nWaiting on the owner: 2 questions; the ledger wins until they answer (/design-assembly:decide).\n  outside-daylight-prestige-95a1d5-source-color: The outside direction Daylight Prestige has the source colour #1a1c1e; the owner settled #0246ff. Keep #0246ff?\n  outside-daylight-prestige-95a1d5-corner-radius: The outside direction Daylight Prestige has the corner radius extra-small; the owner settled small. Keep small?\nDraw it beside the plugin's directions: specimen.mjs --section direction --from <repo>/outside/DESIGN.md\n",
+    "err": ""
+  },
+  "owner settled a typeface, design-md, --json": {
+    "exit": 1,
+    "out": "{\n  \"candidate\": {\n    \"id\": \"outside-daylight-prestige\",\n    \"name\": \"Daylight Prestige\",\n    \"source\": {\n      \"kind\": \"design-md\",\n      \"file\": \"<repo>/outside/DESIGN.md\"\n    },\n    \"values\": {\n      \"source_color\": \"#1a1c1e\",\n      \"type_scale\": \"standard\",\n      \"corner_radius\": \"extra-small\"\n    },\n    \"picked\": {\n      \"source_color\": \"colors.primary\"\n    },\n    \"dark\": null,\n    \"assumed\": [],\n    \"approximated\": [],\n    \"fonts\": {\n      \"text\": \"Public Sans\",\n      \"heading\": \"Public Sans\"\n    },\n    \"resolved\": [\n      {\n        \"token\": \"rounded.md\",\n        \"written\": \"{rounded.sm}\",\n        \"value\": \"4px\"\n      }\n    ],\n    \"unread\": []\n  },\n  \"questions\": [\n    {\n      \"id\": \"outside-daylight-prestige-95a1d5-source-color\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction Daylight Prestige has the source colour #1a1c1e; the owner settled #0246ff. Keep #0246ff?\",\n      \"recommendation\": \"Keep #0246ff: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): #0246ff is the owner's answer in design/blueprint.json; #1a1c1e comes from outside/DESIGN.md\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, source_color\",\n      \"if_refused\": \"nothing changes by itself: to take #1a1c1e, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    },\n    {\n      \"id\": \"outside-daylight-prestige-95a1d5-corner-radius\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction Daylight Prestige has the corner radius extra-small; the owner settled small. Keep small?\",\n      \"recommendation\": \"Keep small: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): small is the owner's answer in design/blueprint.json; extra-small comes from outside/DESIGN.md\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, corner_radius\",\n      \"if_refused\": \"nothing changes by itself: to take extra-small, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    }\n  ],\n  \"files\": [\n    {\n      \"path\": \"design/waiting/outside-daylight-prestige-95a1d5-source-color.json\",\n      \"change\": \"create\"\n    },\n    {\n      \"path\": \"design/waiting/outside-daylight-prestige-95a1d5-corner-radius.json\",\n      \"change\": \"create\"\n    }\n  ],\n  \"dry_run\": true\n}\n",
+    "err": ""
+  },
+  "owner settled a typeface, system": {
+    "exit": 1,
+    "out": "candidate direction: Clay Studio (a system of tokens and a README, <repo>/outside/system)\n  colour #cc785c (dark #e0957b), type modular minor-third, corner radius medium\n  colour taken from color.primary\n  fonts named: Inter, Fraunces (a typeface is chosen with its source, not here)\n  computed: color.accent {color.primary} = #cc785c\n  computed: radius.sm calc(var(--radius-base) - 4px) = 8px\n  computed: radius.lg calc({radius.base} + 0.25rem) = 16px\n  computed: font.size.xl 1.44rem = 23.04px\nWaiting on the owner: 3 questions; the ledger wins until they answer (/design-assembly:decide).\n  outside-clay-studio-e0e4ef-source-color: The outside direction Clay Studio has the source colour #cc785c; the owner settled #0246ff. Keep #0246ff?\n  outside-clay-studio-e0e4ef-type-scale: The outside direction Clay Studio has the type scale modular; the owner settled standard. Keep standard?\n  outside-clay-studio-e0e4ef-corner-radius: The outside direction Clay Studio has the corner radius medium; the owner settled small. Keep small?\nDraw it beside the plugin's directions: specimen.mjs --section direction --from <repo>/outside/system\n",
+    "err": ""
+  },
+  "owner settled a typeface, system, --json": {
+    "exit": 1,
+    "out": "{\n  \"candidate\": {\n    \"id\": \"outside-clay-studio\",\n    \"name\": \"Clay Studio\",\n    \"source\": {\n      \"kind\": \"system\",\n      \"file\": \"<repo>/outside/system\"\n    },\n    \"values\": {\n      \"source_color\": \"#cc785c\",\n      \"type_scale\": \"modular\",\n      \"type_ratio\": \"minor-third\",\n      \"corner_radius\": \"medium\"\n    },\n    \"picked\": {\n      \"source_color\": \"color.primary\"\n    },\n    \"dark\": {\n      \"source_color\": \"#e0957b\"\n    },\n    \"assumed\": [],\n    \"approximated\": [],\n    \"fonts\": {\n      \"text\": \"Inter\",\n      \"heading\": \"Fraunces\"\n    },\n    \"resolved\": [\n      {\n        \"token\": \"color.accent\",\n        \"written\": \"{color.primary}\",\n        \"value\": \"#cc785c\"\n      },\n      {\n        \"token\": \"radius.sm\",\n        \"written\": \"calc(var(--radius-base) - 4px)\",\n        \"value\": \"8px\"\n      },\n      {\n        \"token\": \"radius.lg\",\n        \"written\": \"calc({radius.base} + 0.25rem)\",\n        \"value\": \"16px\"\n      },\n      {\n        \"token\": \"font.size.xl\",\n        \"written\": \"1.44rem\",\n        \"value\": \"23.04px\"\n      }\n    ],\n    \"unread\": []\n  },\n  \"questions\": [\n    {\n      \"id\": \"outside-clay-studio-e0e4ef-source-color\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction Clay Studio has the source colour #cc785c; the owner settled #0246ff. Keep #0246ff?\",\n      \"recommendation\": \"Keep #0246ff: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): #0246ff is the owner's answer in design/blueprint.json; #cc785c comes from outside/system\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, source_color\",\n      \"if_refused\": \"nothing changes by itself: to take #cc785c, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    },\n    {\n      \"id\": \"outside-clay-studio-e0e4ef-type-scale\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction Clay Studio has the type scale modular; the owner settled standard. Keep standard?\",\n      \"recommendation\": \"Keep standard: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): standard is the owner's answer in design/blueprint.json; modular comes from outside/system\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, type_scale\",\n      \"if_refused\": \"nothing changes by itself: to take modular, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    },\n    {\n      \"id\": \"outside-clay-studio-e0e4ef-corner-radius\",\n      \"kind\": \"question\",\n      \"group\": \"outside sources\",\n      \"question\": \"The outside direction Clay Studio has the corner radius medium; the owner settled small. Keep small?\",\n      \"recommendation\": \"Keep small: the ledger wins over an outside source.\",\n      \"basis\": \"the ledger wins (specification 0014): small is the owner's answer in design/blueprint.json; medium comes from outside/system\",\n      \"hard_to_undo\": false,\n      \"where\": \"design/blueprint.json, foundations, corner_radius\",\n      \"if_refused\": \"nothing changes by itself: to take medium, run the guide again and pick it; the ledger changes only then\",\n      \"asked_on\": \"2026-11-23\"\n    }\n  ],\n  \"files\": [\n    {\n      \"path\": \"design/waiting/outside-clay-studio-e0e4ef-source-color.json\",\n      \"change\": \"create\"\n    },\n    {\n      \"path\": \"design/waiting/outside-clay-studio-e0e4ef-type-scale.json\",\n      \"change\": \"create\"\n    },\n    {\n      \"path\": \"design/waiting/outside-clay-studio-e0e4ef-corner-radius.json\",\n      \"change\": \"create\"\n    }\n  ],\n  \"dry_run\": true\n}\n",
+    "err": ""
+  }
+}

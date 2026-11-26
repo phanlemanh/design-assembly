@@ -20,6 +20,7 @@ import { evaluate, readTokens } from "../scripts/outside-tokens.mjs";
 import { specimenPlan } from "../scripts/specimen.mjs";
 import { readWaiting, rowProblems } from "../templates/tools/design-assembly/waiting.mjs";
 import { withoutBlock } from "../templates/tools/design-assembly/theme.mjs";
+import { DESIGN_MD, TOKENS, VARIABLES } from "./helpers/bring-in-samples.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ROOT = path.resolve(PLUGIN, "../..");
@@ -39,105 +40,6 @@ const put = (dir, file, text) => {
   return path.join(dir, file);
 };
 const cli = (...args) => spawnSync(execPath, [BRING_IN, ...args], { encoding: "utf8" });
-
-// A token file: groups, a type on each token, a reference, two expressions, and a dark group.
-const TOKENS = {
-  color: {
-    primary: { $type: "color", $value: "#cc785c" },
-    accent: { $type: "color", $value: "{color.primary}" },
-    dark: { primary: { $type: "color", $value: "#e0957b" } },
-  },
-  radius: {
-    base: { $type: "dimension", $value: "12px" },
-    sm: { $type: "dimension", $value: "calc(var(--radius-base) - 4px)" },
-    lg: { $type: "dimension", $value: "calc({radius.base} + 0.25rem)" },
-  },
-  font: {
-    size: {
-      sm: { $value: "14px" },
-      base: { $value: "16px" },
-      lg: { $value: "19.2px" },
-      xl: { $value: "1.44rem" },
-    },
-    family: { body: { $value: "Inter" }, heading: { $value: "Fraunces" } },
-  },
-};
-
-// A DESIGN.md: its front matter, a mode group, a reference, and the sections after it.
-const DESIGN_MD = [
-  "---",
-  "version: alpha",
-  "name: Daylight Prestige",
-  "colors:",
-  '  primary: "#1A1C1E"',
-  "  light:",
-  '    surface: "#FAFDF7"',
-  "  dark:",
-  '    surface: "#10130E"',
-  "typography:",
-  "  body-md:",
-  "    fontFamily: Public Sans",
-  "    fontSize: 16px",
-  "  h1:",
-  "    fontFamily: Public Sans",
-  "    fontSize: 48px",
-  "rounded:",
-  "  sm: 4px",
-  '  md: "{rounded.sm}"',
-  "---",
-  "",
-  "## Overview",
-  "",
-  "A quiet product.",
-  "",
-].join("\n");
-
-// An export of variables: one collection with a light and a dark mode, colours as channels from 0
-// to 1, a variable that refers to another, and a radius as a number of pixels.
-const VARIABLES = {
-  meta: {
-    variableCollections: {
-      c1: {
-        id: "c1",
-        name: "Theme",
-        defaultModeId: "m1",
-        modes: [
-          { modeId: "m1", name: "Light" },
-          { modeId: "m2", name: "Dark" },
-        ],
-      },
-    },
-    variables: {
-      v1: {
-        id: "v1",
-        name: "brand/blue",
-        resolvedType: "COLOR",
-        variableCollectionId: "c1",
-        valuesByMode: {
-          m1: { r: 2 / 255, g: 70 / 255, b: 1, a: 1 },
-          m2: { r: 0.4, g: 0.55, b: 1, a: 1 },
-        },
-      },
-      v2: {
-        id: "v2",
-        name: "color/primary",
-        resolvedType: "COLOR",
-        variableCollectionId: "c1",
-        valuesByMode: {
-          m1: { type: "VARIABLE_ALIAS", id: "v1" },
-          m2: { type: "VARIABLE_ALIAS", id: "v1" },
-        },
-      },
-      v3: {
-        id: "v3",
-        name: "radius/base",
-        resolvedType: "FLOAT",
-        variableCollectionId: "c1",
-        valuesByMode: { m1: 8, m2: 8 },
-      },
-    },
-  },
-};
 
 // A repository whose owner settled the colour, the type scale and the corner radius.
 function settledRepo() {
