@@ -29,6 +29,8 @@ import {
 } from "../templates/tools/design-assembly/screen-ledger.mjs";
 import {
   answerProblem,
+  choiceSaid,
+  chosenCandidate,
   folderRows,
   takesMany,
   ID,
@@ -48,6 +50,7 @@ import { ROW_CHOICES, writeFiles, writtenFiles } from "./apply.mjs";
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { principleOfRow } from "./principles.mjs";
 import { status } from "./status.mjs";
+import { TOOL_COPY } from "./stamp.mjs";
 import { toolPredates } from "./tool-knows.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -153,6 +156,8 @@ function sheetOf({ rows, waiting, list }) {
         what: row.question,
       });
     } else if (row.answer) {
+      // The owner's choice of a mark among the candidates its question offers: which one.
+      const chosen = chosenCandidate(row);
       answered.push({
         id: row.id,
         source: "waiting-list",
@@ -160,6 +165,7 @@ function sheetOf({ rows, waiting, list }) {
         said: row.said ?? null,
         by: row.by,
         on: row.on,
+        ...(chosen ? { item: row.item, chosen } : {}),
       });
     } else {
       questions.push({
@@ -549,7 +555,15 @@ export function report(result) {
     "",
     `answered: ${answered.length}${answered.length > 0 ? ", listed with --json" : ""}`,
   );
-  const open = answered.filter((item) => item.answer !== "keep").map((item) => item.id);
+  // A mark chosen among candidates is the owner's choice, which the wall and logo-source read.
+  for (const item of answered.filter((entry) => entry.chosen)) {
+    lines.push(
+      `  chosen: ${item.item}, ${choiceSaid({ ...item, candidate: item.chosen, question: item.id })}`,
+    );
+  }
+  const open = answered
+    .filter((item) => item.answer !== "keep" && !item.chosen)
+    .map((item) => item.id);
   if (open.length > 0) {
     lines.push(
       `  refused or given another answer, and no command changes anything for it yet (limit decide-records-a-refusal-and-changes-nothing): ${open.join(", ")}`,
@@ -607,7 +621,7 @@ export const today = () => {
 
 const USAGE = `usage: node decide.mjs [--target DIR] [--only ID[,ID]] [--answers FILE [--by NAME] [--on DATE]]
                       [--ask QUESTION --recommend TEXT --because TEXT (--hard-to-undo | --easy-to-undo)
-                       [--item KIND:WHICH] [--id ID] [--on DATE]]
+                       [--item KIND:WHICH [--candidate NAME ...]] [--id ID] [--on DATE]]
                       [--split] [--dry-run] [--json]
 
   --only     Narrow the sheet, the data and the exit code to these questions.
@@ -631,6 +645,9 @@ const USAGE = `usage: node decide.mjs [--target DIR] [--only ID[,ID]] [--answers
              ledger, or a changed file of one). A new kind of screen, the brand colour and the
              mark are the owner's calls: the agent stops, and the gate stays red until the owner
              keeps it.
+  --candidate With --item logo:ID, a mark the owner chooses from, by its name; once per mark, the
+             recommended one first. Keeping takes the first; the owner answers with the name of
+             another to choose it, and the gate reads either as the owner's choice.
   --id       The question's id, and the name of its file. Without it, made from the item, or
              from the words of the question.
   --replaces The ids of questions that wait and that this one asks the same about more, a comma
@@ -654,6 +671,7 @@ const FLAGS = {
   "--hard-to-undo": "switch",
   "--easy-to-undo": "switch",
   "--item": "value",
+  "--candidate": "list",
   "--id": "value",
   "--replaces": "value",
   "--split": "switch",
@@ -665,6 +683,7 @@ const ASKING = [
   "--hard-to-undo",
   "--easy-to-undo",
   "--item",
+  "--candidate",
   "--id",
   "--replaces",
 ];
@@ -699,6 +718,7 @@ function askCall(root, state, call) {
     hard: flags["--hard-to-undo"] === true,
     easy: flags["--easy-to-undo"] === true,
     item: flags["--item"],
+    candidates: flags["--candidate"],
     id: flags["--id"],
     replaces:
       flags["--replaces"] === undefined
@@ -769,6 +789,25 @@ export function askOf(root, state, ask) {
     });
     if (predates) throw refused(`${predates}, then ask again`);
   }
+  // The candidates of a mark: the gate reads which one the owner chose only from a copy of the tool
+  // that knows it, and an older one stays red for any but the first.
+  if (ask.candidates !== undefined) {
+    if (!String(ask.item ?? "").startsWith("logo:")) {
+      throw refused(
+        "--candidate is taken with --item logo:ID: the mark is the choice among named things a question asks with it",
+      );
+    }
+    const predates = toolPredates(root, {
+      file: "owner-calls.mjs",
+      word: "chosenCandidate",
+      part: "reading which candidate of the mark the owner chose",
+    });
+    if (predates) {
+      throw refused(
+        `the repository's copy of the tool, ${TOOL_COPY}, predates reading which candidate of the mark the owner chose, so its gate would stay red for a mark chosen other than the first: bring the tool up with upgrade first, then ask again`,
+      );
+    }
+  }
   const stranger = ask.item === undefined ? null : strangerScreen(root, ask.item);
   if (stranger) throw refused(`--item: ${stranger}`);
   if (state.list?.shape === "file") {
@@ -828,6 +867,9 @@ export function askOf(root, state, ask) {
     basis: ask.because.trim(),
     hard_to_undo: ask.hard,
     ...(item !== undefined ? { item } : {}),
+    ...(ask.candidates !== undefined
+      ? { candidates: ask.candidates.map((name) => ({ name: String(name).trim() })) }
+      : {}),
     ...(replaces ? { replaces } : {}),
     asked_on: on,
   };
@@ -871,6 +913,10 @@ function askedBefore(row, item) {
     return `${item} was answered in ${on}: the owner kept it; go on with it`;
   if (row.answer === "refuse") {
     return `${item} was answered in ${on}: the owner refused it${said}; stop, and do not build on it`;
+  }
+  const chosen = chosenCandidate(row);
+  if (chosen !== null && row.answer === "value") {
+    return `${item} was answered in ${on}: the owner chose ${chosen}; build on the mark of ${chosen}, not your recommendation`;
   }
   if (row.answer === "value") {
     return `${item} was answered in ${on}, in the owner's own words${said}; stop, and build what they said, not your recommendation`;

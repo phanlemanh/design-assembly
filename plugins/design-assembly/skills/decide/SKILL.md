@@ -140,6 +140,12 @@ question and goes on with its own recommendation:
   brand colour, `--item logo:ID` for a new logo row of `design/sources/` or a changed file of one.
   These are the owner's calls: the script says **stop**, and the agent does not build on it. The
   gate stays red on the branch until the owner keeps that very item here.
+- `--candidate NAME`, with `--item logo:ID` only, once per mark the owner chooses from, the
+  recommended one first. Keeping takes the first; the owner answers with the name of another to
+  choose it, and the gate reads either as the owner's choice. The package of the chosen mark says
+  which candidate it holds (`candidate` in its manifest), and the row `logo-source --package`
+  writes keeps it. On a repository whose installed tool predates this, the script refuses and
+  names upgrade first.
 - `--id ID` names the question; without it the id is made from the item, or from the words.
 - It writes one new file, `design/waiting/<id>.json`, and nothing else. When the waiting list is
   still the shared file, it refuses: run `--split` once first (with `--dry-run` to see it), which

@@ -10,7 +10,12 @@ import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "n
 import path from "node:path";
 
 import { LOGO_PACKAGE } from "../templates/tools/design-assembly/contract.mjs";
-import { logoItem, readWaiting } from "../templates/tools/design-assembly/waiting.mjs";
+import {
+  choiceSaid,
+  chosenCandidate,
+  logoItem,
+  readWaiting,
+} from "../templates/tools/design-assembly/waiting.mjs";
 
 // The path of a folder from the repository's root, or null when it is not a folder inside it. A link
 // that leads out of the repository is outside.
@@ -90,6 +95,7 @@ export function readLogoPackage(root, given) {
     manifest: manifestFile,
     made: { by: manifest.made.by, on: manifest.made.on },
     title: manifest.title ?? null,
+    candidate: manifest.candidate ?? null,
     files: manifest.files.map((entry) => ({
       file: `${folder}/${entry.file}`,
       role: entry.role,
@@ -98,18 +104,44 @@ export function readLogoPackage(root, given) {
   };
 }
 
-// Who chose the mark of a row, as the decision sheet wrote it back: the name and the day of the
-// owner's answer that keeps the item logo:<id>, with the question it answers; null when the waiting
-// list holds no such answer, or cannot be read. Nothing here comes from a plug.
-export function chosenOnSheet(root, id) {
-  let waiting;
+// The questions of the waiting list about the item logo:<id>; none when it cannot be read.
+function markQuestions(root, id) {
   try {
-    waiting = readWaiting(root);
+    return (readWaiting(root)?.rows ?? []).filter((item) => item.item === logoItem(id));
   } catch {
-    return null;
+    return [];
   }
-  const row = (waiting?.rows ?? []).find(
-    (item) => item.item === logoItem(id) && item.answer === "keep",
+}
+
+// Who chose the mark of a row, as the decision sheet wrote it back: the name and the day of the
+// owner's answer that keeps the item logo:<id>, or that names one of the candidates its question
+// offers, with the question it answers and, where it offers candidates, the one chosen; null when
+// the waiting list holds no such answer, or cannot be read. Nothing here comes from a plug.
+export function chosenOnSheet(root, id) {
+  const row = markQuestions(root, id).find(
+    (item) => item.answer === "keep" || chosenCandidate(item) !== null,
   );
-  return row ? { by: row.by, on: row.on, question: row.id } : null;
+  if (!row) return null;
+  const candidate = chosenCandidate(row);
+  return { by: row.by, on: row.on, question: row.id, ...(candidate ? { candidate } : {}) };
+}
+
+// Why a package is not the mark the question of logo:<id> offers or the owner chose, or null: the
+// candidate its manifest names is none the question offers, or another than the one the owner
+// chose; or it names none, and the owner chose another than the first.
+export function candidateProblem(root, id, candidate) {
+  const asked = markQuestions(root, id).find((item) => Array.isArray(item.candidates));
+  if (!asked) return null;
+  const names = asked.candidates.map((item) => item?.name);
+  if (candidate !== null && !names.includes(candidate)) {
+    return `the package holds the mark of ${candidate}, which ${asked.id} of the waiting list does not offer: ${names.join(", ")}`;
+  }
+  const chosen = chosenCandidate(asked);
+  if (chosen === null || chosen === candidate) return null;
+  const said = choiceSaid({ candidate: chosen, question: asked.id, by: asked.by, on: asked.on });
+  if (candidate !== null) {
+    return `${said}, and the package holds the mark of ${candidate}: leave the package of ${chosen}, then run this again`;
+  }
+  if (asked.answer === "keep") return null;
+  return `${said}, and the package names no candidate, so it cannot be told to be the mark of ${chosen}: its manifest says which candidate it holds, as candidate`;
 }

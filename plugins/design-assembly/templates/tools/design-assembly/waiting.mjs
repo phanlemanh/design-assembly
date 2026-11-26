@@ -154,6 +154,36 @@ export function answerProblem(row, said) {
   return `${strangers.join(", ")} ${strangers.length === 1 ? "is" : "are"} not among its candidates: ${names.join(", ")}`;
 }
 
+// The candidate the owner chose, for a question about the mark that offers candidates: the first,
+// the recommended one, for an answer that keeps it; the one named, for an answer that names one of
+// them. Null for a question of any other item, one with no candidates, and any other answer: no
+// other question reads its answer this way.
+export function chosenCandidate(row) {
+  if (kindOf(row?.item) !== "logo" || !Array.isArray(row?.candidates)) return null;
+  const names = row.candidates.map((candidate) => candidate?.name);
+  if (row.answer === "keep") return typeof names[0] === "string" ? names[0] : null;
+  if (row.answer !== "value") return null;
+  const said = String(row.said ?? "").trim();
+  return names.includes(said) ? said : null;
+}
+
+// Each choice of a mark the waiting list holds: the item, the candidate, the question, who chose
+// it and on which day.
+export const markChoices = (rows = []) =>
+  rows
+    .filter((row) => row?.kind !== "permission" && chosenCandidate(row) !== null)
+    .map((row) => ({
+      item: row.item,
+      candidate: chosenCandidate(row),
+      question: row.id,
+      by: row.by,
+      on: row.on,
+    }));
+
+// A choice of a mark, as every reader says it.
+export const choiceSaid = (choice) =>
+  `the owner chose ${choice.candidate} in ${choice.question}, by ${choice.by} on ${choice.on}`;
+
 // Why the candidates of a question cannot be read, or null: a list of things, each with a name of
 // its own.
 function candidatesProblem(candidates) {

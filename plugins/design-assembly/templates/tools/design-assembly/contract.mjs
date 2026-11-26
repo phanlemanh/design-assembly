@@ -488,7 +488,9 @@ export const LEDGERS = {
       },
       made: {
         type: "object",
-        fields: { by: required(text), on: day },
+        // `candidate`: which of the candidates the owner was offered the mark is, as its package
+        // says; the wall holds it against the owner's choice.
+        fields: { by: required(text), on: day, candidate: text },
         open: true,
       },
     },
@@ -658,7 +660,8 @@ export const UNSETTLED = {};
 // The manifest of a package of mark files (spec 0017, «the plug that builds a mark»): not a ledger,
 // but the input of logo-source --package, kept as `manifest.json` in the package's folder by the
 // outside plug that made the mark. It says which plug made it and on which day, the name the mark
-// stands for, the sentence of its idea, its palette, the root numbers of its construction, and
+// stands for, which candidate of the question it holds, the sentence of its idea, its palette, the
+// root numbers of its construction, and
 // each file of the package by its path from the folder, with its hash, its role and its variant.
 // It names no person: who chose the mark is for the decision sheet to say, never the plug.
 const PACKAGE_FILE = '^(?!/)(?!(?:.*/)?\\.\\.(?:/|$))[^"\\\\\\n]+$';
@@ -668,6 +671,9 @@ const PACKAGE_FIELDS = {
   kind: required({ ...text, values: ["logo-package"] }),
   made: required({ type: "object", fields: { by: required(dashed), on: required(day) } }),
   title: written,
+  // Which of the candidates the owner was offered the package holds, by the name the question on
+  // the waiting list gives it. A package made without a question of candidates names none.
+  candidate: written,
   idea: required(written),
   palette: required(
     list({ type: "object", fields: { name: required(written), value: required(written) } }),
