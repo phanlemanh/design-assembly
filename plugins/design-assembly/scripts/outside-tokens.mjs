@@ -216,6 +216,71 @@ function fromTokenFile(data) {
   }));
 }
 
+// Whether a token file is in the shape of a design system's tokens: each family a list of tokens
+// with a name and a value, colours with a value per theme, type as families and groups of styles.
+const isSystemList = (data) =>
+  isObject(data) &&
+  (Array.isArray(data.color?.tokens) ||
+    Array.isArray(data.type?.groups) ||
+    Array.isArray(data.spacing?.tokens) ||
+    Array.isArray(data.radius?.tokens));
+
+// The tokens of a design system's list: a colour by its name and theme, the first theme light where
+// none is named so, a reference `{other}` to a colour of the same theme; the families and the font
+// sizes of the type; the other families as they are listed.
+function fromSystemList(data) {
+  const found = [];
+  const themes = Array.isArray(data.color?.themes) ? data.color.themes : [];
+  const ids = themes.map((theme) => String(theme?.id ?? ""));
+  // A theme is light or dark by its id or name, the first light where neither says; another is
+  // known by its id.
+  const modeIn = (id, index) => {
+    const said = `${id} ${themes[index]?.name ?? ""}`;
+    if (/dark/i.test(said)) return "dark";
+    if (/light/i.test(said) || index === 0) return "light";
+    return id.toLowerCase();
+  };
+  for (const item of Array.isArray(data.color?.tokens) ? data.color.tokens : []) {
+    const name = `color.${item?.name}`;
+    const value = item?.value;
+    const written = (text) => {
+      const alias = /^\{([^}]+)\}$/.exec(String(text ?? ""))?.[1];
+      return alias ? `{color.${alias}}` : writtenOf(text);
+    };
+    if (!isObject(value)) {
+      found.push({ token: name, mode: null, logical: name, written: written(value) });
+      continue;
+    }
+    ids.forEach((id, index) => {
+      // A theme the token does not hold takes the first theme's value.
+      const text = value[id] ?? value[ids[0]];
+      const mode = modeIn(id, index);
+      found.push({ token: `${name}@${mode}`, mode, logical: name, written: written(text) });
+    });
+  }
+  for (const [key, stack] of Object.entries(
+    isObject(data.type?.families) ? data.type.families : {},
+  )) {
+    const token = `font.family.${key}`;
+    found.push({ token, mode: null, logical: token, written: writtenOf(stack) });
+  }
+  for (const group of Array.isArray(data.type?.groups) ? data.type.groups : []) {
+    for (const style of Array.isArray(group?.styles) ? group.styles : []) {
+      if (style?.fontSize === undefined) continue;
+      const token = `font.size.${style.name}`;
+      found.push({ token, mode: null, logical: token, written: writtenOf(style.fontSize) });
+    }
+  }
+  for (const family of ["spacing", "radius"]) {
+    for (const item of Array.isArray(data[family]?.tokens) ? data[family].tokens : []) {
+      // A name that starts with its family's, as `radius-md`, is that step of the family.
+      const token = `${family}.${String(item?.name).replace(new RegExp(`^${family}-`), "")}`;
+      found.push({ token, mode: null, logical: token, written: writtenOf(item?.value) });
+    }
+  }
+  return found;
+}
+
 // The tokens of the front matter of a DESIGN.md: every value of its maps, by its path, and its name.
 function fromDesignMd(source) {
   const text = source.replace(/^\uFEFF/, "");
@@ -283,7 +348,10 @@ export function readTokens(kind, text) {
   let raw;
   if (kind === "design-md") ({ tokens: raw, name } = fromDesignMd(text));
   else if (kind === "variables") raw = fromVariables(JSON.parse(text));
-  else raw = fromTokenFile(JSON.parse(text));
+  else {
+    const data = JSON.parse(text);
+    raw = isSystemList(data) ? fromSystemList(data) : fromTokenFile(data);
+  }
   const byToken = new Map(raw.map((item) => [item.token, item]));
   const done = new Map();
   const resolve = (token, seen) => {

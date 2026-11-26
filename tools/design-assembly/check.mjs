@@ -120,7 +120,7 @@ import {
   scriptThatCannotFail,
 } from "./host-make.mjs";
 import { tokensProblem } from "./tokens.mjs";
-import { exportProblem, inputsOf, unlistedProblems, withManifest } from "./exports.mjs";
+import { exportProblem, inputsOf, typeOf, unlistedProblems, withManifest } from "./exports.mjs";
 import { buildOf } from "./adapters/index.mjs";
 import { fontProblems, readLoads, unloadedCopy } from "./fonts.mjs";
 import {
@@ -1443,6 +1443,11 @@ const exportInputs = (state) =>
     files: withManifest(state.root, state.files ?? {}),
     theme: state.theme,
     sources: state.ledgerFolders?.[LEDGERS.sources.folder] ?? {},
+    // The type the stylesheet gives, as the exports were written from it: what loads a typeface is
+    // read here where the font-loaded check has not read it already.
+    type: state.css
+      ? typeOf(state, (state.fonts ?? readLoads(state.root, state.css, state.stylesheet)).loads)
+      : null,
   });
 
 const lintKey = (id, check) => `${id}:${check.rule}`;

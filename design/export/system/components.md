@@ -1,6 +1,6 @@
 # Components
 
-Written from the design ledgers at 3572f98d4876. Do not change it here: change a ledger, then write it again with make design-exports.
+Written from the design ledgers at 9428b4c448e6. Do not change it here: change a ledger, then write it again with make design-exports.
 
 - **AppFrame** (molecule), `src/components/app-frame.tsx`: appName, navLabel, screens
 - **HeldLabel** (atom), `src/components/held-label.tsx`

@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: "design-assembly"
-description: "The design system of design-assembly, written from the design ledgers at 3572f98d4876. Do not change it here: change a ledger, then write it again with make design-exports."
+description: "The design system of design-assembly, written from the design ledgers at 9428b4c448e6. Do not change it here: change a ledger, then write it again with make design-exports."
 colors:
   accent: "#f5f5f5"
   accent-foreground: "#171717"
@@ -109,7 +109,7 @@ spacing:
 
 ## Overview
 
-The design system of design-assembly, as its design ledgers hold it at 3572f98d4876. Product type: application; conformance level: AA.
+The design system of design-assembly, as its design ledgers hold it at 9428b4c448e6. Product type: application; conformance level: AA.
 
 ## Colors
 
