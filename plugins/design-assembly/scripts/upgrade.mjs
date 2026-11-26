@@ -34,6 +34,10 @@ import { TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
 import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-first.mjs";
 import { FAMILY_CORE_CHECK, readPinnedCore } from "../templates/tools/design-assembly/contract.mjs";
 import {
+  ICON_SET_CHECK,
+  readIconSets,
+} from "../templates/tools/design-assembly/sources-ledger.mjs";
+import {
   conformRecords,
   FLOATING_CHECK,
   FLOATING_TEST,
@@ -72,6 +76,8 @@ const ADDED_CHECKS = {
   [FLOATING_CHECK.kind]: `when a conform record is there and ${FLOATING_TEST}, the browser test that opens the floating parts of its item, is missing`,
   [FAMILY_CORE_CHECK.kind]:
     "when a locked answer of the family core this repository pinned is held otherwise here with no exception, or the copy of the core differs from its hashes",
+  [ICON_SET_CHECK.kind]:
+    "when the lockfile no longer pins an icon package at the version its row of the sources ledger pins, or a file of an icon set has another hash",
 };
 // The gate step the plugin installs beside the tool: upgrade writes it too, whole, when it differs.
 const GATE_SOURCE = path.join(PLUGIN, "templates", GATE_STEP);
@@ -408,6 +414,8 @@ export async function upgradePlan(root, accept = {}) {
         ...(floating.change === "none" ? [] : [FLOATING_CHECK]),
         // A repository of a family: the locked answers of the core it pinned.
         ...(readPinnedCore(root) === null ? [] : [FAMILY_CORE_CHECK]),
+        // A repository with an icon set row: the pin of each icon set (spec 0017).
+        ...(readIconSets(root).length === 0 ? [] : [ICON_SET_CHECK]),
       ].filter((added) => !shapes.some((check) => check?.kind === added.kind))
     : [];
   const checksAdded = missing.map((added) => ({ row: "ledger-shapes", kind: added.kind }));

@@ -168,6 +168,10 @@ scale, shape). Density, elevation, motion and iconography are not.
   Nothing is fetched. A font of the brand comes in through its row of the sources ledger, of the
   kind `font`, with its pin and its licence: `scripts/font-source.mjs` writes the row from a
   package the lockfile pins or files already in the repository, and a person writes the licence.
+- The icon set comes in the same way, as a row of the kind `icon-set`: `scripts/icon-source.mjs`
+  writes it from a package the lockfile pins or a folder of the repository's own icon files, each
+  hashed where it is; adopt proposes it from the icon set the component library's settings name.
+  A person writes the licence, and the gate holds the pin once a row is there.
 - `scripts/apply.mjs` derives a tonal palette and the primary color roles from one source color,
   writes them into the repository's stylesheet, adds its rows to the ledger
   `design/decisions.yaml`, and installs the checks that hold them.

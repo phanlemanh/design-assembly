@@ -450,6 +450,12 @@
       "templates": "efbea7e7af1d49b24dac6285810603112461c168",
       "scripts": "f7af08cc55b328909a405fef4ca4d00289c81074",
       "tool": "0f6ddbdf348d9c36ed7cac07c2cfd1972200df31"
+    },
+    {
+      "version": "0.70.0",
+      "templates": "b9511214b251f2e3404fb65bc4c081843f7aa391",
+      "scripts": "a80b0c3a488dbfd8080ceed279c6c3f57dd3bc69",
+      "tool": "3cba6d92156ecb8cd730efcc78fd0da468e0f939"
     }
   ]
 }

@@ -240,12 +240,13 @@ function parsed(root, name) {
 // Every pinned source blocks are picked from, in the order they are looked through: by `order`,
 // the smallest first and a source without one last, then by id. Empty when the repository keeps
 // none. A font is a source of another kind: it offers no block, and is read by `readFontSources`;
-// so is the family core, which the contract reads as the repository's family.
+// so is the family core, which the contract reads as the repository's family, and so is an icon
+// set, read by `readIconSets`.
 export function readPinnedSources(root) {
   return sourceFiles(root)
     .filter((name) => {
       const source = parsed(root, name);
-      return !isFont(source) && !isCoreSource(source);
+      return !isFont(source) && !isCoreSource(source) && !isIconSet(source);
     })
     .map((name) => readSource(root, name))
     .sort(
@@ -413,4 +414,76 @@ export function readFontSources(root) {
     .map((name) => [name, parsed(root, name)])
     .filter(([, source]) => isFont(source))
     .map(([name, source]) => readFont(root, name, source));
+}
+
+// ---- icon sets (item 12.1 of the plan, spec 0017) ----------------------------------------------
+
+// The kind of source that is the icon set the product uses: the module the code imports icons
+// from, or the folder of the repository's own icon files; its pin, and the licence it is used
+// under, which a person writes. Like a font, it offers no block of a library.
+export const ICON_SET_KIND = "icon-set";
+export const isIconSet = (source) => isMap(source) && source.kind === ICON_SET_KIND;
+// The check of the gate that holds the pin of every icon set of the ledger, laid under the row
+// that holds the ledgers' shapes once the repository has a row of the kind, and not before.
+export const ICON_SET_CHECK = { kind: "icon-set-pin" };
+
+// What an icon set row lacks beside its shape, each sentence naming the row: the pin, always; the
+// licence, unless a command wrote the row and says so under `proposed`.
+export function iconSetRowProblems(source, file) {
+  const problems = [];
+  if (!fontPin(source)) {
+    problems.push(
+      `${file} is an icon set and has no pin: its row says the package and the version the lockfile pins it at, or each of its files with its sha256`,
+    );
+  }
+  if (!filled(source?.licence) && !isMap(source?.proposed)) {
+    problems.push(
+      `${file} is an icon set and has no licence: a person writes the licence the icon set is used under`,
+    );
+  }
+  return problems;
+}
+
+// One icon set of the ledger as the tools use it: what code imports it by, where it comes from,
+// whether the gate holds its row, and how its pin differs from the repository today.
+function readIconSet(root, name, source) {
+  const file = `${SOURCES_FOLDER}/${name}`;
+  const id = name.replace(/\.json$/, "");
+  const problems = iconSetRowProblems(source, file);
+  const pin = fontPin(source);
+  const { drift, blind } = pin ? pinDrift(root, file, pin) : { drift: [], blind: [] };
+  const licensed = filled(source.licence);
+  const from = !pin
+    ? null
+    : pin.package
+      ? `the package ${pin.package} at ${pin.version}`
+      : `${pin.files.length} file${pin.files.length === 1 ? "" : "s"} of the repository`;
+  return {
+    id,
+    file,
+    title: text(source.title) ?? id,
+    module: text(source.module) ?? (pin?.package || null),
+    folder: text(source.folder) ?? null,
+    licence: licensed ? source.licence : null,
+    own: source.own === true,
+    proposed: isMap(source.proposed) ? source.proposed : null,
+    pin,
+    from,
+    held: problems.length === 0 && licensed,
+    waits:
+      problems.length === 0 && !licensed
+        ? `${file} has no licence yet: a person writes the licence the icon set is used under, and the row is held from then on`
+        : null,
+    problems,
+    drift,
+    blind,
+  };
+}
+
+// Every icon set of the ledger, by id. Empty when the repository keeps none.
+export function readIconSets(root) {
+  return sourceFiles(root)
+    .map((name) => [name, parsed(root, name)])
+    .filter(([, source]) => isIconSet(source))
+    .map(([name, source]) => readIconSet(root, name, source));
 }
