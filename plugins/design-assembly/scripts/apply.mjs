@@ -178,6 +178,7 @@ import {
   tokensProblem,
 } from "../templates/tools/design-assembly/tokens.mjs";
 import {
+  ICON_USE_CHECK,
   LOGO_PINS_CHECK,
   readFontSources,
   readLogoSources,
@@ -1671,6 +1672,12 @@ export function rulesPage(checks, has, blueprint = null, facts = {}) {
   section(FIXED_SECTION, fixedFirst(blueprint, held("decision-sheet")));
   section("Type", typefaceRules(checks, blueprint, facts));
   section("Colour", colourRules(checks, blueprint));
+  // The icon set the gate holds the code to, by the row the decision of icons points at.
+  const iconSet = (checks.icons ?? []).find((check) => check?.kind === ICON_USE_CHECK.kind)?.source;
+  section("Icons", [
+    iconSet &&
+      `An icon comes from the icon set of \`${iconSet}\`: no other icon package, and no svg element written by hand in a screen. An icon the set lacks goes in a folder an icon set row of \`design/sources\` records, or the set gets a second row with \`icon-source\`.`,
+  ]);
   const typed = has("src/components/ui/typed-table.tsx");
   section("A table of data", [
     held("display-kind") &&

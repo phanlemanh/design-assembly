@@ -401,6 +401,24 @@ pins what the repository no longer has: the lockfile pins another version or doe
 package, or a file is gone or has another hash. The sentence names the row. A repository with no
 row of the kind has no such check and reads as before.
 
+The icon set row answers the standard question `icons` (components layer): a row of the decision
+ledger, `{ id: icons, layer: components, kind: standard, source: design/sources/<id>.json, check:
+tool:tools/design-assembly/check.mjs }`, points at it, and the tool data holds it with the check
+`icon-set-use`: `{ "kind": "icon-set-use", "source": "design/sources/<id>.json", "sources":
+"<the folder of source it reads>", "packages": [<the icon packages it knows>] }`. The check is red
+when the row it names is no icon set row, when a file of that folder imports a package of
+`packages` (or a module under one) that no icon set row records by its `module` or the package of
+its pin, and when a file that draws (`.jsx`, `.tsx`) and is no part of the component library
+writes an svg element by hand. A file under the `folder` of an icon set row is the set itself and
+is not read. `packages` is copied from the plugin's list of icon packages, `references/icon-packages.json`,
+a file a person edits, when the check is laid. `icon-source` lays the row and the check where the
+gate is installed and the ledger says nothing of icons yet, and says what the check finds today;
+`adopt` lays them only where the check passes now; `upgrade` lays them on a repository with an icon
+set row and none. None lays them on a repository whose copy of the tool predates the check (its
+`check.mjs` names no `ICON_USE_CHECK`), save `upgrade`, which writes the tool that knows it. The
+folder of an icon set is not the folder of an outside source: the check `taken-down` leaves it to
+the code. A repository with no icon set row has neither the row nor the check.
+
 A source of the kind `logo` is the mark of the product (spec 0017), from files the repository
 already keeps. It offers no block of a library, so it has no `catalog`, and the readers of
 libraries leave it out. It has `version`, `id` (`logo` unless a person gives another), `kind` and

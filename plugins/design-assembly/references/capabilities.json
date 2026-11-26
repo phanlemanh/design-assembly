@@ -62,6 +62,11 @@
       "id": "core-retire",
       "script": "scripts/core-retire.mjs",
       "through": ["decision"]
+    },
+    {
+      "id": "icon-source",
+      "script": "scripts/icon-source.mjs",
+      "through": ["brand-assets", "decision"]
     }
   ],
   "unseen_writes": {
