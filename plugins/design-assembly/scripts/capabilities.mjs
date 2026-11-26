@@ -58,7 +58,9 @@ export function readCapabilities(plugin = PLUGIN) {
 // What a plug file may say. `skills` and `mcp_servers` are the names a session lists it under, kept
 // apart; `measured` names, for each socket it fills, the decision record that holds its measure
 // and whether that measure beat the plugin's plug at holding the decision or at what the user must
-// guess; `recommended_by_owner` is the owner's named exception, with their words and the day.
+// guess; `recommended_by_owner` is the owner's named exception, with their words and the day;
+// `machine` says, in a sentence, what must be installed on the machine for a plug that needs it to
+// run, as `sends` says where a plug that needs the network sends what.
 const PLUG_KEYS = [
   "id",
   "about",
@@ -69,13 +71,14 @@ const PLUG_KEYS = [
   "mcp_servers",
   "needs",
   "sends",
+  "machine",
   "detect",
   "measured",
   "recommended_by_owner",
   "file",
 ];
 const PLUG_KINDS = ["skill"];
-export const NEEDS = ["account", "network"];
+export const NEEDS = ["account", "network", "machine"];
 // A decision record, as the limits ledger names one: d and its four digits.
 export const RECORD = /^d\d{4}$/;
 const DAY = /^\d{4}-\d{2}-\d{2}$/;
@@ -156,6 +159,15 @@ function plugReachProblems(plug, where) {
     found.push(`${where}: sends is a written text`);
   } else if (list(plug.needs).includes("network") && plug.sends === undefined) {
     found.push(`${where}: needs the network and does not say what it sends, or where`);
+  }
+  if (plug.machine !== undefined && !filled(plug.machine)) {
+    found.push(`${where}: machine is a written text`);
+  } else if (list(plug.needs).includes("machine") && plug.machine === undefined) {
+    found.push(`${where}: needs the machine and does not say what must be on it`);
+  } else if (plug.machine !== undefined && !list(plug.needs).includes("machine")) {
+    found.push(
+      `${where}: says what must be on the machine and does not list machine among its needs`,
+    );
   }
   if (plug.detect !== undefined) {
     const ways = ["file", "package"].filter((way) => filled(plug.detect?.[way]));

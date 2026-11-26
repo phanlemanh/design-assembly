@@ -675,7 +675,7 @@
           "id": "12.3",
           "what": "Phích dựng dấu, đo theo bốn thước",
           "state": "todo",
-          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, tiêu chí 16 đến 19 và 22; hai lát, mỗi lát một PR; việc làm lại skill nằm ở kho của skill và phải xong trước lát 2; mỗi lượt đo hỏi chủ repo trước vì tốn token"
+          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, tiêu chí 16 đến 19 và 22; hai lát, mỗi lát một PR; việc làm lại skill nằm ở kho của skill và phải xong trước lát 2; mỗi lượt đo hỏi chủ repo trước vì tốn token; lát 1 ngày 2026-11-26 theo lời chủ repo («Dựng lát 1»), plugin 0.74.0, wiki/decisions/0127-the-mark-plug-leaves-a-package-the-plugin-reads.md: tờ kê của gói dấu trong hợp đồng (LOGO_PACKAGE, manifest.json); logo-source --package viết dòng logo từ gói sau khi so mã băm, ghi phích nào dựng và ngày nào, người chọn đọc từ hàng chờ; tệp phích logo-design (loại skill, ổ tài sản thương hiệu, needs machine và khoá machine), bảng phích nêu nó, chưa đo nên không hỏi; icon-source --draw ghi biểu tượng vẽ thêm khi bộ đã ghim không có, kèm nhu cầu và vì sao, vào thư mục một dòng icon-set ghim; tiêu chí 1, 4 (lối gói), 16, 17, 18, 20 và 21; đóng dòng giới hạn logo-package-manifest-not-read. Lát 2 (lượt đo, tiêu chí 19 và 22) chưa mở: chờ skill làm lại ở kho của nó (dòng giới hạn logo-design-plug-unmeasured) và lời chủ repo cho từng lượt đo"
         }
       ],
       "done_when": [

@@ -311,6 +311,12 @@ for files already in the repository (roles `mark`, `wordmark`, `lockup-horizonta
 licence: ask the owner who holds the right to use the mark and where it may be used, and write
 their words into the row's `licence`; never write one yourself.
 
+A mark an outside plug of the brand assets socket built, once the owner chose it, comes in from
+the package it left: `node <plugin>/scripts/logo-source.mjs --target <repo> --package <folder>`. The
+command reads the package's `manifest.json`, compares every file with the hash it lists, and refuses
+a package that does not match; the row says which plug made the mark and on which day. Never write
+who chose the mark yourself: the command reads it from the owner's answer on the waiting list.
+
 ### The neutral family and the status tones
 
 After the typeface, ask the neutral family on the sheet `specimen.mjs --target <repo> --section

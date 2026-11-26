@@ -44,7 +44,7 @@ the plug chosen for it with who chose it and when. Under it, each plug from outs
   a sign-in: tell the user to give it access), `chosen-but-missing` (the ledger chose it and
   neither shows it), or `absent`;
 - `measured in dNNNN`, the decision record that holds its measure, or `unmeasured`;
-- what it needs, and what it sends where.
+- what it needs, what it sends where, and what must be installed on the machine for it to run.
 
 ## 3. The questions
 

@@ -6,8 +6,11 @@
 // the row says a command proposed it, is not held until the licence is there, and `status` asks for
 // it. A row that exists is never written over, and a package a row pins gets no second row. Where
 // the gate is installed, the check of the pin is laid under the row that holds the ledgers' shapes.
+// With --draw, an icon drawn because the pinned set lacks it is recorded in the row of the folder
+// that holds it, with the need and why, and only where no pinned set has an icon of that name.
 // Usage: node icon-source.mjs [--target DIR] (--package NAME | --folder PATH) [--title TEXT]
 //                             [--id ID] [--on DATE] [--dry-run] [--json]
+//        node icon-source.mjs [--target DIR] --draw FILE --need NAME --why TEXT [--on DATE]
 // Exit: 1 the row is written, or would be, and its licence waits on a person; 2 a wrong call, an
 // icon set the repository does not hold, or a row that is already there.
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
@@ -33,6 +36,7 @@ import {
 import { isDay } from "../templates/tools/design-assembly/waiting.mjs";
 import { toolPredates } from "./tool-knows.mjs";
 import { iconsDecision, iconsToday, proposedIconSet, recommendedIconSet } from "./icon-use.mjs";
+import { planDrawn } from "./icon-drawn.mjs";
 
 // The command a row says proposed it, when this script is called by itself.
 const BY = "icon-source";
@@ -241,6 +245,11 @@ const USAGE = `usage: node icon-source.mjs [--target DIR] [--package NAME | --fo
               root. Each file under it is hashed where it is.
   --recommended  The row of the recommended set, written as --package writes it: only where the
               lockfile pins it.
+  --draw      An icon file of the repository, drawn because the pinned set lacks it, with --need
+              (the icon a screen needs) and --why (why the pinned set does not answer it). It is
+              recorded only where no pinned set has an icon of that name, read from the files
+              the repository holds; it goes into the row of the folder that holds it, keeping
+              every pin of that row, or a new row for that folder.
   --title     The name the row gives the set. Without it, the package, or the folder's name.
   --id        The row's id, and the name of its file. Without it, made from the package or the
               folder's name.
@@ -266,8 +275,62 @@ const FLAGS = {
   "--id": "value",
   "--on": "value",
   "--recommended": "switch",
+  "--draw": "value",
+  "--need": "value",
+  "--why": "value",
   "--dry-run": "switch",
 };
+
+// An icon drawn beyond the pinned set, recorded in a row of the repository's own icon files
+// (spec 0017, criterion 18): its file pinned, its need and why written beside it.
+function draw(call, on) {
+  const root = call.target;
+  const flags = call.flags;
+  const dryRun = flags["--dry-run"] === true;
+  const rowOf = (folder, day) => {
+    try {
+      return iconSetRow(root, { origin: iconFolderPin(root, folder), on: day });
+    } catch (error) {
+      throw new Refusal(`${error.message}. Nothing was written`);
+    }
+  };
+  const planned = planDrawn(root, {
+    file: flags["--draw"],
+    need: flags["--need"],
+    why: flags["--why"],
+    on,
+    rowOf,
+  });
+  const theme = withPinCheck(root);
+  const lines = writeFiles(
+    root,
+    { [planned.file]: planned.content, ...(theme ? { [THEME]: theme } : {}) },
+    dryRun,
+  );
+  const waits = planned.fresh || !planned.licensed;
+  const next = iconLicenceStep(planned.file);
+  const text = [
+    `icon drawn: ${planned.entry.file}, for the need ${planned.entry.need}: ${planned.entry.why}`,
+    `  the pinned set lacks it: ${planned.lacking.join("; ")}`,
+    ...lines.map((line) => `  ${line}`),
+    `gate: ${planned.entry.file} is in the folder ${planned.folder} of ${planned.file}, which the check ${ICON_USE_CHECK.kind} does not read`,
+    ...(waits ? [`next: ${next}`] : []),
+    ...(dryRun ? ["preview only: nothing was written"] : []),
+  ];
+  return finish({
+    json: call.json,
+    result: {
+      dry_run: dryRun,
+      row: planned.file,
+      drawn: planned.entry,
+      lacking: planned.lacking,
+      next: waits ? next : null,
+      files: writtenFiles(lines),
+    },
+    text: `${text.join("\n")}\n`,
+    work: waits,
+  });
+}
 
 // Where the lockfile stands on the recommended set, and how its row is written, in a person's words.
 function lockLine(rec) {
@@ -325,6 +388,16 @@ function main(args) {
   const root = call.target;
   const flags = call.flags;
   const named = ["--package", "--folder", "--recommended"].filter((flag) => flags[flag]);
+  if (flags["--draw"] !== undefined) {
+    if (named.length > 0) return refuse(`give --draw or ${named[0]}, not both`, USAGE);
+    const day = flags["--on"] ?? today();
+    if (!isDay(day))
+      throw new Refusal(`--on takes a day written YYYY-MM-DD, and ${day} is not one`);
+    return draw(call, day);
+  }
+  if (flags["--need"] !== undefined || flags["--why"] !== undefined) {
+    return refuse("--need and --why go with --draw, the file of the icon drawn", USAGE);
+  }
   if (named.length === 0) return recommend(call);
   if (named.length > 1) {
     return refuse(

@@ -202,7 +202,7 @@ test("criterion 2: a plug file declares its skill names and its server names apa
     [{ mcp_servers: [""] }, `${at}: mcp_servers is a list of written names, each once`],
     [{ kind: "skill" }, `${at}: is a skill and declares no skill name`],
     [{ kind: "robot" }, `${at}: kind is skill, or left out`],
-    [{ needs: ["money"] }, `${at}: needs money, which is none of account, network`],
+    [{ needs: ["money"] }, `${at}: needs money, which is none of account, network, machine`],
     [{ needs: ["network"] }, `${at}: needs the network and does not say what it sends, or where`],
     [{ detect: { file: "a", package: "b" } }, `${at}: detect names one file or one package`],
     [

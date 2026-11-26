@@ -123,6 +123,7 @@ export function boardOf(
           owner: wordHolds(plug, socket.id) ? plug.recommended_by_owner[socket.id] : null,
           needs: outside.needs,
           sends: plug.sends ?? null,
+          machine: plug.machine ?? null,
           skills: list(plug.skills),
           mcp_servers: list(plug.mcp_servers),
           ...(ladder ? rungOfPlug(pinned, outside.id) : {}),
@@ -480,6 +481,7 @@ function candidateLine(candidate, socket) {
   return [
     `    ${candidate.id.padEnd(22)} ${candidate.state}, ${measure}${owner}${needs}`,
     ...(candidate.sends ? [`      sends: ${candidate.sends}`] : []),
+    ...(candidate.machine ? [`      on the machine: ${candidate.machine}`] : []),
   ];
 }
 

@@ -383,6 +383,17 @@ yet. Two things are required of it, as of a font:
   repository's root (`file`) with its `sha256`.
 - its `licence`, the licence the icon set is used under, in a person's words. No tool writes it.
 
+A row of the repository's own icon files may also have `drawn`: the icons drawn because the pinned
+set lacked them (spec 0017, criterion 18), each with `file`, a file of the row's pin, `need`, the
+icon a screen needed, `why`, why the pinned set did not answer it, and maybe `on`, the day. The gate
+fails on a drawn icon its row's pin does not hold, and on drawn icons recorded on a package's row.
+`icon-source --draw FILE --need NAME --why TEXT` records one: it refuses when the sources ledger
+pins no icon set, when a pinned set has an icon of that name (a package's by the names of its
+installed files, a folder's by the names of its files), and when the package of a pinned set is not
+installed, so that nothing could be read; it adds the file to the row of the folder that holds it,
+keeping every pin of that row, or writes a new row for that folder. The file stays in the folder of
+an icon set row, which the check of the icons used does not read.
+
 `proposed` and `own` say what they say of a font: a row `icon-source` or `adopt` wrote has its pin
 and waits on its licence, unheld, and `status` asks for the licence; `own: true` says the
 repository used the set before the row was written. `icon-source` writes the row from a package the
@@ -455,6 +466,31 @@ shows the rows on a page of brand assets. The foundations layer chooses the mark
 name in the heading typeface with no file made, which a blueprint that names no mark reads as; or
 `source:<id>`, a logo row, chosen only when it is held and its pin holds. The row the guide writes
 for a chosen row, `mark`, is held by the check `logo-row`.
+
+`logo-source --package DIR` writes the row from a package of mark files an outside plug left in the
+repository (spec 0017, the plug that builds a mark). The package is a folder of the repository; it
+holds the files of the chosen mark and, beside them, `manifest.json`, which is not a ledger but the
+input of the command, with a shape of its own (`LOGO_PACKAGE` in the contract's data, version 1,
+closed: a key it does not name is refused):
+
+- `version`, a number, and `kind`, `logo-package`;
+- `made`: `by`, the plug that made the mark, by its id (one dashed word), and `on`, the day;
+- `title`, not required, the name the mark stands for, and `idea`, the sentence of the mark's idea;
+- `palette`, a list of the mark's colours, each with `name` and `value`, written as the plug writes
+  them;
+- `build`, an object of the root numbers of the construction, as the plug keeps them;
+- `files`, at least one, each file of the package by its path from the folder (`file`, never
+  leading out of it), with its `sha256`, its `role` and its `variant`, each named once.
+
+The manifest names no person: who chose the mark is the decision sheet's to say. The command
+compares every file with the hash the manifest lists and refuses, in one sentence naming the file,
+a package with no manifest or one that is not whole, a file the manifest names and the package
+lacks, a file whose hash differs, and a file of the package the manifest does not name; nothing is
+written then. It draws, rebuilds and fetches nothing, and never calls the plug. The row pins each
+file by its path from the repository's root, says `made` as the manifest says it, and `proposed` as
+for any row a command wrote; the command says who chose the mark, by name and day, from the
+owner's answer on the waiting list that keeps `logo:<id>`, and names the owner's call as the next
+step where there is none.
 
 ### conform
 
