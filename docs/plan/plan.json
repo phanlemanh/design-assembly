@@ -595,7 +595,7 @@
     {
       "id": 7,
       "name": "Lõi của họ sản phẩm",
-      "state": "current",
+      "state": "done",
       "parallel": [],
       "items": [
         {
@@ -619,8 +619,8 @@
         {
           "id": "7.3",
           "what": "Một repo thứ hai cùng họ thừa hưởng lõi",
-          "state": "todo",
-          "ref": "wiki/specs/0016-the-family-core-is-born-through-the-plugin.md, tiêu chí 16, câu hỏi 8: lượt thử của dòng «xong khi» trên bản sao, mỗi lượt hỏi chủ repo trước vì tốn token; lượt thử đầu chạy ngày 2026-11-26 (docs/trials/stage-7-done-when.md): ba vế đạt, một vế chưa đạt (repo thứ hai bị hỏi lại câu màu gốc lõi đã đáp); mục 7.5 sửa điều ấy, và lượt thử thứ hai chờ lời chủ repo"
+          "state": "done",
+          "ref": "wiki/specs/0016-the-family-core-is-born-through-the-plugin.md, tiêu chí 16, câu hỏi 8: lượt thử của dòng «xong khi» trên bản sao, mỗi lượt hỏi chủ repo trước vì tốn token; lượt thử đầu chạy ngày 2026-11-26 (docs/trials/stage-7-done-when.md): ba vế đạt, một vế chưa đạt (repo thứ hai bị hỏi lại câu màu gốc lõi đã đáp); mục 7.5 sửa điều ấy, và lượt thử thứ hai chờ lời chủ repo; lượt thử thứ hai chạy ngày 2026-11-26 theo lời chủ repo («Cho chạy»), trên plugin 0.69.0 sau mục 7.5 (docs/trials/stage-7-done-when-second.md): cả bốn vế của tiêu chí 16 đạt, repo thứ hai bị hỏi lại 0 câu lõi đã đáp, nên mục xong."
         },
         {
           "id": "7.4",
@@ -641,12 +641,16 @@
         "Chốt câu nào của lõi là khoá",
         "Cho phép tạo repo lõi và đẩy lên",
         "Cho phép từng lượt thử tốn token"
-      ]
+      ],
+      "closed": {
+        "on": "2026-11-26",
+        "evidence": "Chứng cứ đối chiếu trên nhánh chính c9b0bbe (sau PR #154), plugin 0.69.0. Dòng «xong khi» chứng bằng lượt thử thứ hai của mục 7.3 (docs/trials/stage-7-done-when-second.md), chủ repo cho chạy ngày 2026-11-26 («Cho chạy»), trên bản sao mới của hai sản phẩm cùng họ: lõi dựng từ bản sao sản phẩm đầu với 9 câu khoá và 3 câu mặc định; một tác tử mới đưa gói giữ màn của sản phẩm thứ hai vào họ. Repo thứ hai bị hỏi lại 0 câu lõi đã đáp: câu màu gốc nằm ở dòng «giữ lại tới khi trả lời câu họ» của bản xem trước đầu, không ở danh sách hỏi người (11 câu gặp: 0 hỏi lại, 3 hợp lệ, 8 của riêng lối nhận). Nó dùng lại khối TruncatedText lấy từ lõi qua find, intake, core --take và dòng sổ nhập kho, cùng mã băm ở gói, ở lõi và ở bản chép, dùng ở một màn. Lệnh cổng của gói thoát 0, không dòng đỏ. Số lần quyết thay bằng 0: mọi lời đáp là lời đáp của chủ repo ở lượt đầu («Duyệt cả tờ» cho hai tờ), dùng lại. Phiên điều phối kiểm lại bằng lệnh trên chính bản sao của lượt thử và chạy lại bản xem trước đầu trên một bản sao mới. Lượt thử đầu (docs/trials/stage-7-done-when.md, plugin 0.68.0) đạt ba vế, vế hỏi lại chưa đạt (1 câu); mục 7.5 (PR #154, wiki/decisions/0122-the-family-question-first-and-the-core-question-on-the-first-adopt.md) sửa điều ấy. Còn biết khi đóng: tìm bằng chính lời nhu cầu tiếng Việt thì thang không thấy khối của lõi, phải gõ chữ tiếng Anh (find-matches-words-not-meaning, intake-matches-words-not-meaning); lõi chưa ghi lần dùng thứ hai vì core --report không chạy khi chủ repo chưa được hỏi nó; lint riêng của sản phẩm thứ hai đỏ trên tệp khối lấy về (lint-tool-the-adapter-does-not-know); tám câu khoá ở repo thứ hai chỉ được thừa hưởng, không phép kiểm nào giữ (core-rule-words-not-compared). Chủ repo bảo đóng giai đoạn ngày 2026-11-26 («Đóng giai đoạn 7»)."
+      }
     },
     {
       "id": 12,
       "name": "Tài sản thương hiệu đủ mảng",
-      "state": "next",
+      "state": "current",
       "parallel": [],
       "items": [
         {
@@ -829,6 +833,13 @@
       "stage": 10,
       "why_not_now": "Chủ repo gác lại, gõ ở phiên điều phối ngày 2026-11-25: «Đo Mobbin xong rồi tạm đóng hạng mục này.» Không chặn dòng «xong khi» của giai đoạn 10.",
       "group": "outside-plugs"
+    },
+    {
+      "on": "2026-11-26",
+      "what": "Sáu điều mới của lượt thử thứ hai ở giai đoạn 7 chưa có dòng trong sổ giới hạn (docs/trials/stage-7-done-when-second.md, mục «Điều tìm thấy mới», các điều 1, 2, 5, 6, 7 và 8): dòng «giữ lại» của adopt nói màu gốc không bị hỏi khi vào họ, trong khi repo giữ màu khác vẫn được hỏi câu khác biệt; bản xem trước của việc vào họ không in báo cáo của gói như skill core nói; core --take --dry-run thoát 0 trước khi người đáp câu intake; sổ lõi của máy đổi cách ghi «built» thành «pinned» khi một thành viên trên cùng máy vào họ; lý do của ứng viên làm tay đọc khó; cổng không mở phần nổi của khối lấy về khi repo thiếu bài kiểm phần nổi.",
+      "stage": 7,
+      "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 7, đã chứng ngày 2026-11-26; mỗi điều cần một dòng giới hạn hay một bản sửa của plugin, tức một bản plugin mới, nên không đi cùng phiếu đóng giai đoạn chỉ có chữ.",
+      "group": "breadth"
     }
   ]
 }
