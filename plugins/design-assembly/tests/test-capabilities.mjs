@@ -340,7 +340,39 @@ test("a plug file that cannot be read is named, not thrown", (t) => {
   ]);
 });
 
-test("the brand assets socket has a plug for fonts, which writes its rows in the ledger of the reference socket; logo and icons stay open", () => {
+test("criterion 22: the brand assets socket holds the fonts, the icon set and the mark, and the limit that said it had no plug is closed", () => {
+  const brand = capability(table, "brand-assets");
+  // One plug for each kind of brand asset, each writing its rows through the reference socket.
+  for (const id of ["font-source", "icon-source", "logo-source"]) {
+    const plug = brand.plugs.find((item) => item.id === id);
+    assert.ok(plug, `no plug ${id}`);
+    assert.equal(plug.default, true, id);
+    assert.equal(plug.writes_through, "reference", id);
+  }
+  // Criteria 7, 8 and 9 of spec 0017 are green, so the row closes, saying by which checks.
+  const old = LIMITS.find((row) => row.id === "capability-brand-assets-has-no-plug");
+  assert.equal(old.status, "closed");
+  for (const check of ["icon-set-pin", "logo-pins", "icon-set-use", "logo-use"]) {
+    assert.ok(old.closed_by.includes(check), check);
+  }
+  // The socket no longer points at a limit, and its two faces say what is true now.
+  assert.equal(brand.limit, undefined);
+  assert.match(brand.socket.human.shows, /icon set/);
+  assert.match(brand.socket.human.shows, /mark/);
+  assert.match(brand.socket.machine.rules, /icon/);
+  assert.match(brand.socket.machine.rules, /logo row/);
+  assert.deepEqual(gapProblems(table, LIMITS), []);
+  // What the checks do not see is said by open rows (criterion 22).
+  for (const id of [
+    "icon-package-outside-the-list",
+    "icon-set-sizes-stroke-unheld",
+    "mark-used-outside-the-frame-unheld",
+  ]) {
+    assert.equal(LIMITS.find((row) => row.id === id)?.status, "open", id);
+  }
+});
+
+test("the brand assets socket has a plug for fonts, which writes its rows in the ledger of the reference socket", () => {
   const brand = capability(table, "brand-assets");
   const plug = brand.plugs.find((item) => item.id === "font-source");
   assert.ok(plug, "no plug for fonts");
@@ -350,12 +382,6 @@ test("the brand assets socket has a plug for fonts, which writes its rows in the
   assert.equal(plug.writes_through, "reference");
   assert.deepEqual(brand.socket.writes, []);
   assert.deepEqual(capability(table, "reference").socket.writes, ["sources"]);
-  // The limit is narrowed to the logo and the icon set, not closed.
-  const limit = LIMITS.find((row) => row.id === brand.limit);
-  assert.equal(limit.status, "open");
-  assert.match(limit.note, /logo/);
-  assert.match(limit.note, /icon/);
-  assert.doesNotMatch(limit.note, /a logo, a font or an icon set/);
   // The writer is seen: the script reaches the sources ledger, and the routes that run it may.
   const script = scripts.find((item) => item.path === "scripts/font-source.mjs");
   assert.ok(writesOf(script.text).includes("sources"), "the font script is not seen writing");

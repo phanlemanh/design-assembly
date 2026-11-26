@@ -448,6 +448,16 @@ the preview again.
    its lint rules and guard tool. Without it the audit still shows those decisions with no row.
    It ends with `1` when it still lists a question under `needs a person`: that is not a failure
    of this step.
+   Then the icon set: `node ${CLAUDE_PLUGIN_ROOT}/scripts/icon-source.mjs --target <repo>`, with
+   nothing named. It writes nothing and says which set is recommended: none where the sources
+   ledger has an icon set row; the set the code already imports, where it imports one; else the
+   set the pieces of the starter kit import, read from the plugin's data, so the repository holds
+   one set and not two. Put it to the person: take it, or name another. It installs nothing: a set
+   the lockfile does not pin is installed the way the repository installs a package, then its row
+   is written with `--recommended` (or `--package <name>` for another set, `--folder <path>` for
+   icons kept as files). The row has no licence: ask the owner for it and write their words into
+   the row's `licence`. Where the gate is installed, the row answers `icons` and the gate holds,
+   from then on, that the code takes its icons from it: read out any `gate: red today:` line.
 3. `make format`, then `make design-assembly`. Then the repository's own `make check`.
 4. A failure of `make design-assembly` means a decision is no longer held. Read the message: it
    names the decision and what is wrong. Fix the cause, never the check.

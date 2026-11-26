@@ -35,6 +35,7 @@ import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-fi
 import { FAMILY_CORE_CHECK, readPinnedCore } from "../templates/tools/design-assembly/contract.mjs";
 import {
   ICON_SET_CHECK,
+  ICON_USE_CHECK,
   LOGO_PINS_CHECK,
   LOGO_USE_CHECK,
   readIconSets,
@@ -48,6 +49,9 @@ import {
 } from "../templates/tools/design-assembly/floating-parts.mjs";
 import { adapter as browser } from "../templates/tools/design-assembly/adapters/playwright.mjs";
 import { INTAKE_LEDGER } from "../templates/tools/design-assembly/intake-ledger.mjs";
+import { readSources } from "../templates/tools/design-assembly/governance.mjs";
+import { LEDGER, parseLedger } from "../templates/tools/design-assembly/ledger.mjs";
+import { ICONS_ROW, iconsDecision } from "./icon-use.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import { regenerated as tokensNow } from "../templates/tools/design-assembly/tokens.mjs";
 import { floatingTest, sameContent } from "./apply.mjs";
@@ -81,6 +85,8 @@ const ADDED_CHECKS = {
     "when a locked answer of the family core this repository pinned is held otherwise here with no exception, or the copy of the core differs from its hashes",
   [ICON_SET_CHECK.kind]:
     "when the lockfile no longer pins an icon package at the version its row of the sources ledger pins, or a file of an icon set has another hash",
+  [ICON_USE_CHECK.kind]:
+    "when code imports an icon package no icon set row of the sources ledger records, or a screen writes an svg element by hand",
   [LOGO_PINS_CHECK.kind]:
     "when a file of the mark a logo row of the sources ledger pins has another hash, is gone, or leads out of the repository",
   [LOGO_USE_CHECK.kind]:
@@ -230,6 +236,13 @@ function after(root, written) {
   const state = readState(root);
   state.files = { ...state.files, ...written };
   if (THEME in written) state.theme = JSON.parse(written[THEME]);
+  if (LEDGER in written) state.ledger = parseLedger(written[LEDGER]);
+  // A check the theme written now adds reads its folder of source, which the state on disk did not.
+  for (const check of Object.values(state.theme?.checks ?? {}).flat()) {
+    if (check?.sources && !(check.sources in (state.sources ?? {}))) {
+      state.sources = { ...state.sources, [check.sources]: readSources(root, check.sources) };
+    }
+  }
   if (GATE_STEP in written) state.gate = written[GATE_STEP];
   if (state.theme === null || state.ledger === null) {
     const missing = `${THEME} or the ledger is missing, so the gate step of this tool fails`;
@@ -432,6 +445,26 @@ export async function upgradePlan(root, accept = {}) {
     const checks = { ...theme.checks, "ledger-shapes": [...shapes, ...missing] };
     written[THEME] = renderJson({ ...theme, checks }, lineWidth(root));
   }
+  // A repository with an icon set row and no answer to icons: the row answers it in the decision
+  // ledger, held by the check of the icons the code uses, which the tool written now knows
+  // (spec 0017, criterion 13). A row or a check of icons a person has is left as it is.
+  const rowsAdded = [];
+  const [iconSet] = readIconSets(root);
+  const icons =
+    iconSet && themeText !== null
+      ? iconsDecision(root, {
+          file: iconSet.file,
+          themeText: written[THEME] ?? themeText,
+          toolKnows: true,
+        })
+      : null;
+  const rowsKept = icons?.kept ? [icons.kept] : [];
+  if (icons?.theme) {
+    written[THEME] = icons.theme;
+    written[LEDGER] = icons.ledger;
+    checksAdded.push({ row: ICONS_ROW, kind: ICON_USE_CHECK.kind });
+    rowsAdded.push({ id: ICONS_ROW, source: iconSet.file });
+  }
   const was = tool.length > 0 ? await before(root) : { view: null };
   const now = after(root, written);
   const decisions = changedStates(was.view, now.view);
@@ -482,6 +515,8 @@ export async function upgradePlan(root, accept = {}) {
     accepted,
     gate_step: gateChange,
     checks_added: checksAdded,
+    rows_added: rowsAdded,
+    rows_kept: rowsKept,
     floating_parts: floating.said,
     not_seen: unseen,
     files,
@@ -581,6 +616,10 @@ export function report(plan, dryRun) {
         `  and ${plan.gate_step.dropped.length - SHOWN} more lines it drops, listed with --json`,
       );
     }
+  }
+  for (const line of plan.rows_kept ?? []) lines.push(`row: ${line}`);
+  for (const item of plan.rows_added ?? []) {
+    lines.push(`row: ${item.id} is added to ${LEDGER}, answered by ${item.source}`);
   }
   for (const item of plan.checks_added ?? []) {
     lines.push(

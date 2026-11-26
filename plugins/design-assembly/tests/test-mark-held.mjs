@@ -459,11 +459,14 @@ test("a branch that changes a file of a logo row waits on the owner too; one tha
   assert.equal(wall(dir), null);
 });
 
-// The tool of the release before this slice, taken from the tree of git that the plugin's list of
-// releases records for it: 0.71.0 knows the kind logo and the check of its pins, and neither the
-// item logo:<id> of the waiting list nor the check of the mark's use.
-const OLDER = RELEASES.find((release) => release.version === "0.71.0");
-function withOlderTool(dir) {
+// The tools of the releases before this slice, taken from the trees of git that the plugin's list
+// of releases records for them: 0.71.0 knows the kind logo and the check of its pins, and 0.72.0
+// the icons the code uses too; neither knows the item logo:<id> of the waiting list nor the check
+// of the mark's use.
+const OLDER_RELEASES = ["0.71.0", "0.72.0"].map((version) =>
+  RELEASES.find((release) => release.version === version),
+);
+function withOlderTool(dir, OLDER) {
   const tool = path.join(dir, "tools/design-assembly");
   rmSync(tool, { recursive: true });
   mkdirSync(tool, { recursive: true });
@@ -473,47 +476,49 @@ function withOlderTool(dir) {
   return dir;
 }
 
-test("on a repository whose installed tool of 0.71.0 predates the item, decide --ask --item logo:<id> writes nothing and names upgrade first", () => {
-  const dir = withOlderTool(viteApp(""));
-  const before = gate(dir);
-  assert.equal(before.status, 0, said(before));
-  const done = run(
-    script("decide.mjs"),
-    "--target",
-    dir,
-    "--ask",
-    "Which mark?",
-    "--item",
-    "logo:logo",
-    "--recommend",
-    "the kept one",
-    "--because",
-    "it is there",
-    "--hard-to-undo",
-  );
-  assert.equal(done.status, 2, said(done));
-  assert.match(
-    done.stderr,
-    /predates the item logo:<id> of the waiting list, so its gate would read the question as broken: bring the tool up with upgrade first, then ask again\. Nothing was written/,
-  );
-  assert.equal(existsSync(path.join(dir, WAITING_FOLDER)), false);
-  assert.equal(gate(dir).status, 0);
-});
+for (const OLDER of OLDER_RELEASES) {
+  test(`on a repository whose installed tool of ${OLDER.version} predates the item, decide --ask --item logo:<id> writes nothing and names upgrade first`, () => {
+    const dir = withOlderTool(viteApp(""), OLDER);
+    const before = gate(dir);
+    assert.equal(before.status, 0, said(before));
+    const done = run(
+      script("decide.mjs"),
+      "--target",
+      dir,
+      "--ask",
+      "Which mark?",
+      "--item",
+      "logo:logo",
+      "--recommend",
+      "the kept one",
+      "--because",
+      "it is there",
+      "--hard-to-undo",
+    );
+    assert.equal(done.status, 2, said(done));
+    assert.match(
+      done.stderr,
+      /predates the item logo:<id> of the waiting list, so its gate would read the question as broken: bring the tool up with upgrade first, then ask again\. Nothing was written/,
+    );
+    assert.equal(existsSync(path.join(dir, WAITING_FOLDER)), false);
+    assert.equal(gate(dir).status, 0);
+  });
 
-test("on a repository whose installed tool of 0.71.0 predates the check of the mark's use, logo-source lays only the check of the pins, and the gate stays green", () => {
-  const dir = withOlderTool(viteApp());
-  const done = logoSource(dir, "--file", `${MARK}:mark:color`);
-  assert.equal(done.status, 1, said(done));
-  assert.ok(hasCheck(dir, "logo-pins"));
-  assert.equal(hasCheck(dir, "logo-use"), false);
-  assert.match(
-    done.stdout,
-    /the repository's copy of the tool, tools\/design-assembly, predates the check logo-use: bring the tool up with upgrade, which lays it/,
-  );
-  licensed(dir);
-  const after = gate(dir);
-  assert.equal(after.status, 0, said(after));
-});
+  test(`on a repository whose installed tool of ${OLDER.version} predates the check of the mark's use, logo-source lays only the check of the pins, and the gate stays green`, () => {
+    const dir = withOlderTool(viteApp(), OLDER);
+    const done = logoSource(dir, "--file", `${MARK}:mark:color`);
+    assert.equal(done.status, 1, said(done));
+    assert.ok(hasCheck(dir, "logo-pins"));
+    assert.equal(hasCheck(dir, "logo-use"), false);
+    assert.match(
+      done.stdout,
+      /the repository's copy of the tool, tools\/design-assembly, predates the check logo-use: bring the tool up with upgrade, which lays it/,
+    );
+    licensed(dir);
+    const after = gate(dir);
+    assert.equal(after.status, 0, said(after));
+  });
+}
 
 // ---- criterion 14: status and audit say what the brand assets lack ------------------------------
 

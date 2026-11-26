@@ -189,6 +189,12 @@ stated level that the values do not reach is not a reason to lower the level: re
    the settings this plugin does not know, or a package the lockfile does not pin, gets no row: a
    person writes it with `node ${CLAUDE_PLUGIN_ROOT}/scripts/icon-source.mjs --target <repo>
 --package <name>` (or `--folder <path>` for icons kept as files of the repository).
+   With that row, the standard question `icons` is answered: a row `icons` of the ledger points at
+   it, held by the check `icon-set-use`, which turns the gate red when code imports an icon package
+   of the plugin's list of icon packages that no icon set row records, or a screen writes an svg element by
+   hand. It is laid only when it passes now; where it does not, the report lists each place under
+   `cannot be read here`. Read them out: the fix is the person's call (use the recorded set, give
+   the second set its own row, or move a drawn icon into a folder an icon set row records).
    Likewise for the mark: from the icons the pages declare, as the adapter of the build reads them,
    it writes one logo row, `design/sources/logo.json`, each file hashed where it is with its role
    and the variant `color`, and says the repository kept them (`own: true`). It draws, fetches and

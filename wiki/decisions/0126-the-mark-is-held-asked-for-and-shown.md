@@ -5,6 +5,7 @@ links:
   - wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md
   - wiki/decisions/0124-the-mark-enters-through-the-sources-ledger.md
   - wiki/decisions/0123-the-icon-set-enters-through-the-sources-ledger.md
+  - wiki/decisions/0125-the-gate-holds-which-icons-the-code-uses.md
 sources:
   - plugins/design-assembly/templates/tools/design-assembly/sources-ledger.mjs
   - plugins/design-assembly/templates/tools/design-assembly/check.mjs
@@ -24,17 +25,19 @@ sources:
   - plugins/design-assembly/references/contract.md
   - plugins/design-assembly/references/checks.md
   - plugins/design-assembly/references/limits.json
+  - plugins/design-assembly/references/capabilities.json
   - plugins/design-assembly/tests/test-mark-held.mjs
   - "phiên điều phối, 2026-11-26: chủ repo đáp «Mở hai lát 2» cho câu «Anh cho mở song song lát 2 của 12.1 và 12.2 («Mở hai lát 2»), hay chưa mở («Chưa mở»)?»"
 ---
 
-# 0125 Dấu được giữ, được hỏi và được trình bày
+# 0126 Dấu được giữ, được hỏi và được trình bày
 
 ## Status
 
-Proposed, 2026-11-26, plugin 0.72.0. Lát 2 của mục 12.2, theo đề bài
+Proposed, 2026-11-26, plugin 0.73.0. Lát 2 của mục 12.2, theo đề bài
 [0017](../specs/0017-brand-assets-the-logo-and-the-icon-set.md) (chủ repo duyệt ngày 2026-11-25, «Duyệt cả mười hai»),
-mở song song với lát 2 của mục 12.1 theo lời chủ repo «Mở hai lát 2». Lát này làm mục 12.2 xong. Đổi hàng chờ (mục thứ
+mở song song với lát 2 của mục 12.1 theo lời chủ repo «Mở hai lát 2», và gộp sau nó
+([0125](0125-the-gate-holds-which-icons-the-code-uses.md), plugin 0.72.0) theo lời chủ repo «Gộp lần lượt». Lát này làm mục 12.2 xong. Đổi hàng chờ (mục thứ
 ba của chủ repo) và dữ liệu công cụ (một phép kiểm mới), nên chờ chủ repo duyệt ở PR. `ontology/` không đổi.
 
 ## Context
@@ -66,7 +69,7 @@ chí 10); `status` và `audit` nói điều còn thiếu (tiêu chí 14); cuốn
 --item logo:<id>` hỏi bản chép `waiting.mjs` có `logoItem` không; không có thì từ chối, thoát 2, nêu `upgrade`
    trước. `logo-source` (và `adopt`, qua cùng hàm) hỏi bản chép `check.mjs` có `LOGO_USE_CHECK` không; không có thì
    chỉ đặt `logo-pins` và nói `upgrade` sẽ đặt `logo-use`. `upgrade` và lối dẫn dắt đặt cả hai khi repo có dòng.
-   Bài kiểm dùng đúng bản công cụ 0.71.0 dựng từ cây git mà `references/releases.json` ghi.
+   Bài kiểm dùng đúng bản công cụ 0.71.0 và 0.72.0 dựng từ cây git mà `references/releases.json` ghi.
 5. **`logo-source --into <id>`** thêm tệp vào một dòng đã có, mỗi tệp băm tại chỗ; mọi tệp và mọi lời dòng đang có giữ
    nguyên, tệp đã ghim thì bị từ chối. Đây là bước kế mà câu đỏ của `logo-use` và dòng còn thiếu nêu. Lệnh không ghi
    đè thứ gì dòng đã nói, nên lời tiêu chí 4 («không ghi đè») vẫn đúng; thêm tệp là đổi dấu, nên tường hỏi chủ repo.
@@ -88,8 +91,11 @@ chí 10); `status` và `audit` nói điều còn thiếu (tiêu chí 14); cuốn
 - Đóng hai dòng giới hạn: `mark-owner-call-not-held`, `mark-gaps-unsaid`. Mở năm dòng:
   `logo-owner-answer-stands-for-later-changes`, `logo-use-frame-read-narrowly`, `logo-use-other-builds-unread`,
   `mark-used-outside-the-frame-unheld` (tiêu chí 22 đòi ghi), `icon-set-sizes-written-by-hand`.
-- `capability-brand-assets-has-no-plug` **vẫn mở**: tiêu chí 9 nay xanh, nhưng tiêu chí 8 (cổng giữ biểu tượng màn
-  dùng) là của lát 2 mục 12.1, chưa có trên `main` khi lát này đẩy lên. PR gộp sau đóng nó nếu cả 7, 8 và 9 xanh.
+- `capability-brand-assets-has-no-plug` **đóng** (tiêu chí 22): trên cây đã gộp lát 2 của mục 12.1, tiêu chí 7 (phép
+  kiểm `icon-set-pin` và `logo-pins`), 8 (`icon-set-use`, [0125](0125-the-gate-holds-which-icons-the-code-uses.md)) và
+  9 (`logo-use`) cùng xanh, mỗi phép có bài kiểm làm hỏng. Ổ cắm tài sản thương hiệu thôi trỏ tới dòng giới hạn; hai
+  mặt của nó nói cả phông, bộ biểu tượng và dấu. Điều các phép kiểm chưa thấy nằm ở các dòng mở: gói biểu tượng ngoài
+  danh mục, cỡ và nét khi dùng, dấu dùng ngoài khung ứng dụng.
 - Chạy thử trên bản sao bỏ đi của một repo hàng xóm (khung ứng dụng hiện ảnh dấu từ thư mục công khai): dòng chỉ có
   tệp khoá ngang thì cổng đỏ đúng một câu, nêu tệp dấu mà khung hiện; thêm tệp ấy bằng `--into` thì câu ấy hết; sổ có
   trang 08 với hai tệp theo vai và biến thể. Ghi ở PR.
