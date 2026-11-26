@@ -840,6 +840,13 @@
       "stage": 7,
       "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 7, đã chứng ngày 2026-11-26; mỗi điều cần một dòng giới hạn hay một bản sửa của plugin, tức một bản plugin mới, nên không đi cùng phiếu đóng giai đoạn chỉ có chữ.",
       "group": "breadth"
+    },
+    {
+      "on": "2026-11-26",
+      "what": "Khung dựng của kho đứng ở bản 0.4.0 của repo-setup, trong khi repo-setup đã lên 0.10.5: phép khám (doctor) chấm 93 ở mức starter và đỏ hai dòng vì thế. Dòng design_guards_bite (nặng 3) đỏ vì tests/App.test.tsx đã mang bài kiểm của riêng kho này và tools/ui_select.mjs chưa từng được ghi; bản thân các guard vẫn bắt lỗi (node tools/design_guards.mjs --only guards xanh). Dòng upgrade_wall (nặng 1) đỏ vì make check chưa chạy tools/upgrade_markers.py. Chạy thử apply.py --dry-run: thêm 18 tệp, cập nhật 16, gắn dấu xung đột ở 11 tệp (có tests/App.test.tsx và màn mẫu), tách ba sổ glossary, wiki/index và wiki/log thành thư mục. Kèm một điều ở phía Repo Standards: doctor báo thiếu design/screens.yaml, trong khi sổ màn đã tách thành design/screens/.",
+      "stage": 12,
+      "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 12; nâng khung là một PR riêng, nặng, ngoài kế hoạch và làm chậm mục 12.1. Chủ repo chọn gác lại ngày 2026-11-26 («Ghi để riêng»), sau khi được báo khuyến nghị nâng thành PR riêng sau giai đoạn 12. Điều về design/screens.yaml sửa ở kho Repo Standards.",
+      "group": "small"
     }
   ]
 }
