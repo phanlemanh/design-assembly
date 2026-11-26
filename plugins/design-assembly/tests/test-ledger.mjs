@@ -1,5 +1,6 @@
 // The ledger format: what counts as a well-formed row, how a pointer is resolved, and how rows are
 // merged into a file a person also edits.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

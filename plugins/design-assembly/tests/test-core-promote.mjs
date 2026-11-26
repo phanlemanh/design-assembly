@@ -6,6 +6,7 @@
 // core folder and says first what it writes; a need the core answers is refused with the way to
 // replace it, and the replace records who and why. Then a member pins the core, finds the block at
 // tier 3 and takes it in. Nothing calls a model or the network, and each test keeps its own list.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import path from "node:path";

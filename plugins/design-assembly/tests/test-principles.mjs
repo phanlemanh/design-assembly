@@ -2,6 +2,7 @@
 // guide rests on. The catalog is checked against the layers it speaks to; the rules are checked as
 // functions, then on throwaway repositories with the real floor: the guide, the gate, the decision
 // sheet and the status.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

@@ -2,6 +2,7 @@
 // beside its source, the rows of the ledger that hold it and their checks, and says which lines are
 // not whole; the guide asks the sidebar and the chart questions before its final review; the
 // source colour the owner gave says who gave it and when.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";

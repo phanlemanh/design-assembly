@@ -1,6 +1,7 @@
 // The design tokens file: what is read from a stylesheet, that the file is held to the stylesheet
 // in both directions, that a person's own file is never written over, and, when the acceptance kit
 // is on this machine, that its own reader takes the file.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

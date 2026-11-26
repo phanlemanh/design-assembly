@@ -4,6 +4,7 @@
 // an answer never touches a block, in the copy or taken in; a store of blocks that differs is said
 // and pinned by joining again; and a repository that left is told nothing, with nothing it left
 // behind coming back. Fixtures only: no model, no network, a list of cores of each test's own.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";

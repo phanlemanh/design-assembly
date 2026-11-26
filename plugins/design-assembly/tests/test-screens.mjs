@@ -1,6 +1,7 @@
 // The templates layer, as far as a tool reads it from source: every screen is of one kind with a
 // page of its own, each kind names a real screen as its reference, and pages are checked at the
 // widths a person listed. Each rule is shown going red on a real change.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

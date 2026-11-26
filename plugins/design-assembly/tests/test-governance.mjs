@@ -1,6 +1,7 @@
 // The governance layer, as far as a tool reads it from source: no part of the code imports a
 // part listed above it, and the record of what slipped past the checks can be acted on. Each rule
 // is shown going red on a real change.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

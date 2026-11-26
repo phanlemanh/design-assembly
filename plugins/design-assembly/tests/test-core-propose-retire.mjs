@@ -7,6 +7,7 @@
 // a member learns of it and, once it accepts, keeps what it inherited or took in as its own, with
 // where it came from; no gate turns red, and tier 3 no longer offers a retired block. Nothing calls
 // a model or the network, and each test keeps its own list of cores.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, writeFileSync } from "node:fs";

@@ -1,6 +1,7 @@
 // The frame every document of the plugin shares (specification 0004), and the two commands that
 // hand a document over today: status and audit. The frame is held on a small fixture; the commands
 // on throwaway repositories, where the document is the only thing a call writes.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

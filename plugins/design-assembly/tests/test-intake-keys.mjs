@@ -3,6 +3,7 @@
 // change made on purpose, a block retired or merged into another, the things made before the
 // ledger, and how the repository writes the value "made by hand". A tool of an older version reads
 // a ledger with these keys as keys of the repository's own, and holds it as before.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdtempSync, rmSync } from "node:fs";

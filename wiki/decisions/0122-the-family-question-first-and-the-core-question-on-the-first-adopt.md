@@ -89,6 +89,7 @@ màu gốc mà lõi đã khoá. Phiên điều phối dựng lại được hai 
 - **Bài kiểm.** Một tệp mới, `tests/test-family-first.mjs`, 14 bài, mỗi bài một sổ lõi riêng, không mạng. Năm điểm của
   mục đều có bài thấy đỏ trên 0.68.0 rồi xanh; riêng bốn bài «đứng một mình» là phép so trước và sau, nên xanh cả hai
   phía. Không bài cũ nào phải đổi.
+- **Bài kiểm không đọc sổ lõi của máy.** Từ bản này, lời của `adopt` phụ thuộc sổ lõi, nên mọi tệp bài kiểm nạp `tests/helpers/own-cores.mjs` trước mọi thứ: tiến trình kiểm và mọi tiến trình nó mở đọc một sổ riêng, rỗng, trong thư mục tạm của nó, dù môi trường có nêu sổ nào. Đặt ở từng tiến trình kiểm, không chỉ ở lệnh của `make plugin-test`, để một tệp chạy riêng cũng không đọc sổ khác và hai tệp chạy song song không chung sổ. `tests/test-own-cores.mjs` giữ điều ấy: mỗi tệp nạp nó đầu tiên, và bài kiểm của `adopt` xanh khi môi trường nêu một sổ có lõi khoá màu gốc và thư mục nhà giữ một sổ như thế ở chỗ sổ thật nằm. Phiên điều phối tìm ra điều này lúc soát PR, chủ repo đáp «Gửi sang sửa».
 - **Thử trên một hình dạng thật, bằng tay, không phải lượt thử thứ hai.** Bản sao `git archive` của gói `apps/app` của
   sản phẩm thứ hai và một lõi dựng từ bản sao sản phẩm đầu, chỉ khoá màu gốc. Trước khi đáp: `needs a person` là
   `family`, `conformance-level`, `product-type`; `source-color` nằm ở mục giữ lại. Sau `core --join` (thoát 0,

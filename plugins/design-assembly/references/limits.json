@@ -3337,7 +3337,7 @@
       "opened": "2026-11-19",
       "where": ["d0060", "spec", "trials", "d0122"],
       "status": "open",
-      "note": "Find matches the words of a need against the words of each piece, never their meaning: a need written in the repository's own language does not match a catalog written in English, and a piece described in other words than the ones asked for is near or not found at all. Find takes the marks off the letters of a language that writes them before it compares, so a short word of a need also matches names that hold the same letters and mean something else, and those come back beside the piece meant (seen in the trial of the stage's done-when line on 2026-11-26)."
+      "note": "Find matches the words of a need against the words of each piece, never their meaning: a need written in the repository's own language does not match a catalog written in English, and a piece described in other words than the ones asked for is near or not found at all. Find takes the marks off the letters of a language that writes them before it compares, so a short word of a need also matches names that hold the same letters and mean something else, and those come back beside the piece meant (seen in the first trial of the done-when line of stage 7)."
     },
     {
       "id": "inventory-duplicates-by-name-and-source-only",
@@ -3414,7 +3414,7 @@
       "opened": "2026-11-19",
       "where": ["d0062", "d0060", "d0096", "trials", "d0122"],
       "status": "open",
-      "note": "The candidates are what find matches by words, and an item is offered only when it holds every word of the need: a need written in the repository's language finds no item of a catalog written in English, and in the measurement of d0096 the need «filter status date» found nothing in a catalog that holds a filter builder and a date selector, so it was offered only by hand until its words were changed. In the trial of the stage's done-when line on 2026-11-26 a need asked with a few more words than the description of a block of the family's store holds was offered only by hand, and the block was offered once those words were left out."
+      "note": "The candidates are what find matches by words, and an item is offered only when it holds every word of the need: a need written in the repository's language finds no item of a catalog written in English, and in the measurement of d0096 the need «filter status date» found nothing in a catalog that holds a filter builder and a date selector, so it was offered only by hand until its words were changed. In the first trial of the done-when line of stage 7 a need asked with a few more words than the description of a block of the family's store holds was offered only by hand, and the block was offered once those words were left out."
     },
     {
       "id": "change-lists-the-import-lines-and-edits-none",
@@ -4162,7 +4162,7 @@
       "opened": "2026-11-21",
       "where": ["d0080", "spec", "trials", "d0122"],
       "status": "open",
-      "note": "A font package the stylesheet imports is read where the repository installed it: on a checkout whose packages are not installed, the gate cannot read what such a package loads, so it stays red on a typeface nothing else loads, and its sentence names the package that is not installed and says to install the packages and run the gate again. In a workspace, a package the stylesheet of another package of the workspace imports is looked for from the package adopted: installed under the package that holds the stylesheet, it is read as not installed, the sentence names it so, and the row falls under what would fail today although a loader of the build loads the typeface (seen on the second product's package in the trial of the stage's done-when line on 2026-11-26)."
+      "note": "A font package the stylesheet imports is read where the repository installed it: on a checkout whose packages are not installed, the gate cannot read what such a package loads, so it stays red on a typeface nothing else loads, and its sentence names the package that is not installed and says to install the packages and run the gate again. In a workspace, a package the stylesheet of another package of the workspace imports is looked for from the package adopted: installed under the package that holds the stylesheet, it is read as not installed, the sentence names it so, and the row falls under what would fail today although a loader of the build loads the typeface (seen on the second product's package in the first trial of the done-when line of stage 7)."
     },
     {
       "id": "font-loader-reader-unproven",
@@ -5700,7 +5700,7 @@
       "opened": "2026-11-25",
       "where": ["d0114", "trials", "d0122"],
       "status": "open",
-      "note": "A locked answer that is a rule is never compared word for word with the member's row: it is inherited, and held only where a check of the member holds it (criterion 26). A member whose row of that id says another rule is not told. Joining brings the answer and never its check: a member that has no test of its own for a locked rule holds it by nothing, status counts it as inherited and not held, and the gate stays green, the gate being red only for a locked value the repository holds otherwise (in the trial of the stage's done-when line on 2026-11-26 the second repository held none of the eight locked rules it inherited)."
+      "note": "A locked answer that is a rule is never compared word for word with the member's row: it is inherited, and held only where a check of the member holds it (criterion 26). A member whose row of that id says another rule is not told. Joining brings the answer and never its check: a member that has no test of its own for a locked rule holds it by nothing, status counts it as inherited and not held, and the gate stays green, the gate being red only for a locked value the repository holds otherwise (in the first trial of the done-when line of stage 7 the second repository held none of the eight locked rules it inherited)."
     },
     {
       "id": "core-value-read-from-plugin-places",
@@ -6078,7 +6078,7 @@
       "opened": "2026-11-25",
       "where": ["d0120", "trials", "d0122"],
       "status": "open",
-      "note": "A repository whose lint and format tools are not the one the lint adapter knows (the second product of the family lints and formats with other tools) has no lint-kind check: a ledger row that points at a lint rule waits, is recorded as not held with why, and status counts it, but nothing holds it until an adapter for that tool is written. No adapter is written in item 7.4. A block taken from the family's store is copied byte for byte (core --take), so in such a repository it can fail the repository's own lint and format while this plugin's gate, which does not run that tool, stays green: in the trial of the stage's done-when line on 2026-11-26 the member's own tool reported the block's indentation and one rule of its own, and the conform record held no patch for either."
+      "note": "A repository whose lint and format tools are not the one the lint adapter knows (the second product of the family lints and formats with other tools) has no lint-kind check: a ledger row that points at a lint rule waits, is recorded as not held with why, and status counts it, but nothing holds it until an adapter for that tool is written. No adapter is written in item 7.4. A block taken from the family's store is copied byte for byte (core --take), so in such a repository it can fail the repository's own lint and format while this plugin's gate, which does not run that tool, stays green: in the first trial of the done-when line of stage 7 the member's own tool reported the block's indentation and one rule of its own, and the conform record held no patch for either."
     },
     {
       "id": "workspace-read-from-the-package-file-only",
@@ -6122,7 +6122,7 @@
       "opened": "2026-11-25",
       "where": ["d0120", "trials", "d0122"],
       "status": "open",
-      "note": "Adopting writes the gate's command into the acceptance kit's file only where that file lies in the folder adopted; where it lies above it, at the root of a workspace, the line to add is said and not written, since no command writes outside the folder it is aimed at. Seen again in the trial of the stage's done-when line on 2026-11-26: the line was said, nobody wrote it, and the kit of that workspace does not run the gate."
+      "note": "Adopting writes the gate's command into the acceptance kit's file only where that file lies in the folder adopted; where it lies above it, at the root of a workspace, the line to add is said and not written, since no command writes outside the folder it is aimed at. Seen again in the first trial of the done-when line of stage 7: the line was said, nobody wrote it, and the kit of that workspace does not run the gate."
     },
     {
       "id": "component-manifest-not-written-when-the-library-is-a-sibling",
@@ -6377,7 +6377,7 @@
       "opened": "2026-11-26",
       "where": ["trials", "d0122"],
       "status": "open",
-      "note": "The promotion refuses a block whose row of the intake ledger names a source the repository does not pin, unless the ledger declares that word as its word for made by hand (values: by-hand), and no command of the plugin writes that line: a repository whose intake ledger names its hand-made blocks by a word of its own has every one of them refused until a person writes the line by hand, and a block taken from an outside source is refused until that source is pinned with its licence line (seen in the trial of the stage's done-when line on 2026-11-26, where the line was written by hand on the owner's word)."
+      "note": "The promotion refuses a block whose row of the intake ledger names a source the repository does not pin, unless the ledger declares that word as its word for made by hand (values: by-hand), and no command of the plugin writes that line: a repository whose intake ledger names its hand-made blocks by a word of its own has every one of them refused until a person writes the line by hand, and a block taken from an outside source is refused until that source is pinned with its licence line (seen in the first trial of the done-when line of stage 7, where the line was written by hand on the owner's word)."
     },
     {
       "id": "core-first-repository-known-by-its-folder-name",
@@ -6388,7 +6388,7 @@
       "opened": "2026-11-26",
       "where": ["trials", "d0122"],
       "status": "open",
-      "note": "The promotion knows the first repository of a family, as it knows a member, by the name of its main folder as the core's declaration wrote it: a clone or a copy of that repository kept in a folder of another name is refused as neither the first repository nor a member, though it holds the same ledgers (seen in the trial of the stage's done-when line on 2026-11-26)."
+      "note": "The promotion knows the first repository of a family, as it knows a member, by the name of its main folder as the core's declaration wrote it: a clone or a copy of that repository kept in a folder of another name is refused as neither the first repository nor a member, though it holds the same ledgers (seen in the first trial of the done-when line of stage 7)."
     },
     {
       "id": "core-join-preview-needs-a-name",
@@ -6399,7 +6399,7 @@
       "opened": "2026-11-26",
       "where": ["trials", "d0122"],
       "status": "open",
-      "note": "The preview of joining (core --join --dry-run) ends as a wrong call when no name is given with --by, so a person cannot be shown what joining would write before saying who joins, though the first step of joining in the skill is that preview (seen in the trial of the stage's done-when line on 2026-11-26)."
+      "note": "The preview of joining (core --join --dry-run) ends as a wrong call when no name is given with --by, so a person cannot be shown what joining would write before saying who joins, though the first step of joining in the skill is that preview (seen in the first trial of the done-when line of stage 7)."
     },
     {
       "id": "intake-preview-does-not-print-the-question",
@@ -6410,7 +6410,7 @@
       "opened": "2026-11-26",
       "where": ["trials", "d0122"],
       "status": "open",
-      "note": "The preview of intake (--dry-run), as text and as data, names the file of the waiting list it would write and not the words of the question in it, so a person cannot read what they will be asked before the file is written (seen in the trial of the stage's done-when line on 2026-11-26)."
+      "note": "The preview of intake (--dry-run), as text and as data, names the file of the waiting list it would write and not the words of the question in it, so a person cannot read what they will be asked before the file is written (seen in the first trial of the done-when line of stage 7)."
     },
     {
       "id": "decide-lists-inherited-answers-as-refused",
@@ -6421,7 +6421,7 @@
       "opened": "2026-11-26",
       "where": ["trials", "d0122"],
       "status": "open",
-      "note": "On a repository of a family, the decision sheet counts each row the core answered as answered, and lists it under «refused or given another answer, and no command changes anything for it yet», since its note is not the word keep: the rows a member only inherits read there as refusals nothing acts on (seen in the trial of the stage's done-when line on 2026-11-26)."
+      "note": "On a repository of a family, the decision sheet counts each row the core answered as answered, and lists it under «refused or given another answer, and no command changes anything for it yet», since its note is not the word keep: the rows a member only inherits read there as refusals nothing acts on (seen in the first trial of the done-when line of stage 7)."
     },
     {
       "id": "adopt-family-first-rests-on-the-skill",

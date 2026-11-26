@@ -1,5 +1,6 @@
 // The ladder command on throwaway repositories: one that has not adopted the plugin, and one that
 // has. It measures every step on both, to the end, and writes to neither.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

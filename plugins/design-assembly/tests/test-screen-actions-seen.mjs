@@ -2,6 +2,7 @@
 // role, never a second reckoning of who may do what, and the comparison of what a walk saw with
 // what the table allows gives one sentence per problem, naming the screen, the role, the action and
 // the state, and what to do. Nothing here starts a browser.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

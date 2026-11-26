@@ -1,5 +1,6 @@
 // The specimen sheet: the choices of foundations shown on the repository's own screen. What it
 // shows is decided without a browser, and is the same on every run; drawing it needs one.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {

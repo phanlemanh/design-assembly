@@ -4,6 +4,7 @@
 // repository runs browser tests and has none, and never write over one; and the question of intake
 // says what the gate holds of an outside item, and when the repository's own check does not run.
 // Intake runs no browser. Nothing calls a model or the network.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";

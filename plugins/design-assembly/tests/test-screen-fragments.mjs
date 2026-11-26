@@ -1,6 +1,7 @@
 // The ledger of screens kept as one file per screen. It is the repository's choice: off until one
 // command asks for it, taken back by another. The reader takes both shapes, the file's name is the
 // screen's id, and splitting an existing ledger loses nothing.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {

@@ -1,6 +1,7 @@
 // Adopting on throwaway repositories: one with the floor of the repository this plugin lives in,
 // one that keeps a brand colour of its own across several stylesheets. Every claim is shown in
 // both directions: the check passes on the repository as found, and fails once the value moves.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

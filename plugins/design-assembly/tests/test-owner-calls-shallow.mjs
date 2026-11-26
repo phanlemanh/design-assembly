@@ -1,6 +1,7 @@
 // The two checks of the decision ledger in a shallow checkout, as continuous integration makes one:
 // the history they need to find where the branch left the main one is fetched from the remote, and
 // a checkout that cannot fetch it still fails rather than let a new kind of screen through.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

@@ -1,5 +1,6 @@
 // Runs the whole path on a throwaway repository: apply, check, apply again, then break things.
 // The floor is the real one of the repository this plugin lives in, not a hand-written stand-in.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";

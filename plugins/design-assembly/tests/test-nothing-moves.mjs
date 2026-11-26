@@ -4,6 +4,7 @@
 // record was made with tests/helpers/four-kinds.mjs on that version; the words that move with every
 // version (its number, the counts of its known limits, the folder a fixture sits in, the day) are
 // put back to one word on both sides.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";

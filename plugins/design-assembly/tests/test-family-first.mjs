@@ -5,6 +5,7 @@
 // one adopt run that laid the value, written by the code the join uses, under the same id. A
 // repository that stands alone is asked what plugin 0.68.0 asked it. Every repository and core is a
 // fixture in a throwaway folder, and each test keeps its own list of cores.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";

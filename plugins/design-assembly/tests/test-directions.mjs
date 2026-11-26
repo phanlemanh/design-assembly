@@ -2,6 +2,7 @@
 // corner radius that go together, each value with what it rests on. The catalog is checked against
 // the layers and the principles; the choice of directions as a function; the sheet as a plan and,
 // where this repository has a browser, drawn on its own screen in light and in dark.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {

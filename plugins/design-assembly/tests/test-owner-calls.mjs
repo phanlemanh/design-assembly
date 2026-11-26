@@ -5,6 +5,7 @@
 //                   decision the ledger has no row for
 //   owner-calls     the wall: a branch that adds a page of a kind of screen, or changes the root
 //                   colour line, is red until the waiting list holds the owner's answer for it
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

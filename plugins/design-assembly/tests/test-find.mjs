@@ -2,6 +2,7 @@
 // to the farthest, stopping at the first that answers: the repository's own (its intake ledger, its
 // components, its kinds of screen), then the starter kit of this plugin, then the family's store,
 // then the outside sources it pinned. Words are matched, never meaning; no model, no network.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

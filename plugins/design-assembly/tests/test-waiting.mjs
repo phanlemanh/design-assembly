@@ -2,6 +2,7 @@
 // queues a question with `decide --ask` and edits no shared file; `decide` shows that question with
 // every other; an answer is written into that question's own file; one shared file is split into
 // one file per question and stops before a question could be lost.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

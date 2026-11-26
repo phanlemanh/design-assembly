@@ -5,6 +5,7 @@
 // the day the answer carries. The rules page points a builder at the sheet, and the socket board
 // names the command as the plug of the screen brief socket. Each test runs the commands on a
 // throwaway repository.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

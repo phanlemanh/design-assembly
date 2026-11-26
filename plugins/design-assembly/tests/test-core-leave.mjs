@@ -6,6 +6,7 @@
 // machine's list records that it left. After it the repository behaves as one that stands alone.
 // Every repository and core is a fixture in a throwaway folder; nothing calls a model or the
 // network, and each test keeps its own list of cores, never the list of the person running them.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

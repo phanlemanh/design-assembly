@@ -1,5 +1,6 @@
 // The audit on throwaway repositories in each starting state: nothing, a floor, a floor that is
 // bypassed, another team's ledger, and one the guide has been applied to.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

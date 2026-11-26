@@ -4,6 +4,7 @@
 // store holds, turns it red; and a second row for one need turns it red. What a branch adds is read
 // against where it left the main branch, so a repository that is green today stays green on the
 // files and rows it already has. Nothing calls a model or the network.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";

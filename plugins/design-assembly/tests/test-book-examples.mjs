@@ -2,6 +2,7 @@
 // with the repository's own values inside the book, and, where it has a browser, its own screen as
 // it is beside the same screen with the rule broken by a stylesheet. Each don't breaks exactly its
 // rule, which the tests measure; each do keeps it.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

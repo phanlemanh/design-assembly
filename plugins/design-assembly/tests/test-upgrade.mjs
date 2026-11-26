@@ -3,6 +3,7 @@
 // ledgers would be added, removed or changed, which decisions change state and whether the gate
 // stays green; it writes exactly that, and stops without writing when an entry would be lost or the
 // gate would turn red, unless the person said they accept it.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

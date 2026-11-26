@@ -4,6 +4,7 @@
 // repository's choice, off until it asks. One command writes every derived file a repository keeps
 // out of git, so it can run before anything of the repository's own reads one; the gate runs it
 // first, and the plugin's make step runs it before the tests when the tests are a step of the gate.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {

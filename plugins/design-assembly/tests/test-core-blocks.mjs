@@ -5,6 +5,7 @@
 // says when a block is behind the copy and when it was changed by hand; and a repository of no
 // family is as it was. No command fills a store yet, so each core is a fixture the test writes.
 // Nothing calls a model or the network, and each test keeps its own list of cores.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";

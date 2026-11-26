@@ -2,6 +2,7 @@
 // this repository hold; the page of the contract names every ledger and key the data names; the
 // gate turns red on a changed copy; a newer shape is never written over. When the reference
 // repository and the acceptance kit are on this machine, their files and readers are tried too.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {

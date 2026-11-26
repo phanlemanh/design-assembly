@@ -1,6 +1,7 @@
 // The six findings of the inventory, both ways: on a healthy repository it finds nothing and
 // --strict ends with 0; each install makes its own finding show, once, and no other; taking the
 // install out makes it go; all six installed give all six.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import path from "node:path";

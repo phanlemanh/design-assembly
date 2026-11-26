@@ -6,6 +6,7 @@
 // puts none on the page. A question about the data model, or about something every screen shares,
 // is asked once and read by the sheet of every screen it concerns. And what the sheet prints of
 // its own limits names no trial and tells nothing a builder did.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";

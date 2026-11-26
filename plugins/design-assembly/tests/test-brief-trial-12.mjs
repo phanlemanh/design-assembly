@@ -7,6 +7,7 @@
 // against what stands in the repository now, where that can be read. The kind slot does not give
 // the reference screen's job as the screen's own, and the decision sheet takes no question about
 // a slot of a screen the ledger of screens does not have.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";

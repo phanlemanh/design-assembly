@@ -3,6 +3,7 @@
 // actions slot of the brief say so only where the repository has actions and a ledger of screens
 // that declares buttons; the parts the guide installs that draw an action's button take its name
 // and put the mark, each with its own test.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";

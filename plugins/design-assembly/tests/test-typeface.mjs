@@ -3,6 +3,7 @@
 // the guide writes names both, the design tokens file has a group `font`, and the gate holds that
 // a typeface the stylesheet names is loaded, as each build stack loads one. A repository set up
 // before this version keeps every value and a green gate, and the question waits on its owner.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {

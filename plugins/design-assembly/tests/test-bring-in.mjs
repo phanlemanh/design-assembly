@@ -5,6 +5,7 @@
 // an expression or a reference becomes its final value; a value against a row the owner settled
 // becomes a question, never a new row. Every sample is a fixture: nothing calls a model or the
 // network.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

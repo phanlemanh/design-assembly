@@ -1,4 +1,5 @@
 // Every name the guide shows a person must be a term of the vocabulary.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";

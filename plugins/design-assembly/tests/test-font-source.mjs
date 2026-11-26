@@ -2,6 +2,7 @@
 // where the font comes from, its pin and its licence; a typeface other than the floor's or the
 // system's is chosen only when that row is there; the guide and adopt write the row from what the
 // repository already holds, and a person fills the licence. No command reaches the network.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

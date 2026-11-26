@@ -3,6 +3,7 @@
 // file, which components import it, which checks name it, and each import line to fix. Then one
 // question on the waiting list. Once the owner keeps it, the block's entry in the intake ledger says
 // so; no file is removed and no screen's code is changed.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
