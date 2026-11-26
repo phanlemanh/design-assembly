@@ -116,6 +116,14 @@ import {
   startingSizes,
 } from "./apply.mjs";
 import { licenceStep, ownFonts, today } from "./font-source.mjs";
+import {
+  licenceStep as markLicenceStep,
+  ownMark,
+  themeWithLogoPins,
+  logoToolPredates,
+} from "./logo-source.mjs";
+import { TOOL_COPY } from "./stamp.mjs";
+import { readLogoSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { iconLicenceStep, ownIconSet } from "./icon-source.mjs";
 import { findProofs } from "./proofs.mjs";
 
@@ -943,6 +951,18 @@ export function adoption(
       },
     );
   }
+  // The repository's own mark, proposed only where the tool the gate runs after this run knows the
+  // kind: the one laid now, or the copy installed. A repository with a mark in the sources ledger,
+  // or one proposed now, then has the gate hold the pin of every logo row beside the shapes of the
+  // ledgers.
+  const knowsMark =
+    Object.keys(result.files).some((file) => file.startsWith(`${TOOL_COPY}/`)) ||
+    logoToolPredates(root) === null;
+  proposeMark(root, result, knowsMark);
+  if (knowsMark && (result.marks || readLogoSources(root).length > 0)) {
+    const laid = themeWithLogoPins(root, result.files[FILES.theme] ?? read(root, FILES.theme));
+    if (laid) result.files[FILES.theme] = laid;
+  }
   // A repository of a family: each row of an answer of its core says where it stands, and the
   // report says what the core answered. One that declares none, while this machine keeps a core,
   // is asked the one question about a family.
@@ -988,6 +1008,48 @@ export function adoption(
     }
   }
   return result;
+}
+
+// The repository's own mark, from the icons its pages declare: its row of the sources ledger is
+// proposed from the files the repository keeps, hashed in place, and the licence is a person's, so
+// the row waits on it. A row that is there is left as it is; what cannot be read is a person's to
+// write. A repository whose pages declare no icon hears nothing of a mark.
+function proposeMark(root, result, knows) {
+  const mark = ownMark(root, { on: today(), by: "adopt" });
+  for (const why of mark.cannot ?? []) result.person.push({ id: "logo-source", why });
+  for (const file of mark.exists ?? []) {
+    result.kept.push({
+      id: "logo-source",
+      why: `the repository's own mark: ${file} is already there, and is left as it is`,
+    });
+  }
+  if (!mark.proposed) return;
+  // A row the installed gate cannot read would turn it red: upgrade comes first, and nothing is
+  // written; the report says what adopting again would propose.
+  if (!knows) {
+    const files = mark.proposed.files.map((entry) => entry.file);
+    result.person.push({
+      id: "logo-source",
+      why: `${logoToolPredates(root)}, then adopt again, which would propose ${mark.proposed.row} from ${files.length} file(s) of the repository (${files.join(", ")})`,
+    });
+    return;
+  }
+  result.files[mark.proposed.row] = mark.proposed.content;
+  result.marks = [
+    {
+      row: mark.proposed.row,
+      own: true,
+      from: mark.proposed.from,
+      files: mark.proposed.files,
+    },
+  ];
+  result.person.push(
+    { id: "logo-licence", why: markLicenceStep(mark.proposed.row) },
+    {
+      id: "logo-variant",
+      why: `each file of ${mark.proposed.row} is written as the variant color: write mono for a file in one colour, or inverse for one drawn for a dark ground, and give the other files of the mark with logo-source`,
+    },
+  );
 }
 
 // A question held back until the family question is answered: which cores answer it, and what
@@ -1149,6 +1211,12 @@ export function report(result) {
     "the repository's own font, proposed as a row of the sources ledger (a person writes its licence):",
     result.fonts,
     (font) => `${font.shown}: ${font.row}, from ${font.from}; loaded by ${font.loaded_by}`,
+  );
+  section(
+    "the repository's own mark, proposed as a row of the sources ledger (a person writes its licence):",
+    result.marks ?? [],
+    (mark) =>
+      `${mark.row}, from ${mark.from}: ${mark.files.map((entry) => `${entry.file} (${entry.role})`).join(", ")}`,
   );
   section(
     "the repository's own icon set, proposed as a row of the sources ledger (a person writes its licence):",

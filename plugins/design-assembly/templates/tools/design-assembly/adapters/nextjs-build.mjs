@@ -28,6 +28,8 @@ export const adapter = {
   fontLoads,
   fontsSay:
     "no @font-face rule of the stylesheet declares it, no package the stylesheet imports does, and no font loader in a layout file sets it",
+  // The icons the app folder keeps by name, each with its role and its file (spec 0017).
+  markFiles,
   // This adapter writes no code that loads a font: a person writes it, and this says what.
   fontHint: (font, stylesheet) =>
     font.variable
@@ -251,4 +253,27 @@ async function serve(require, target) {
     await wait(200);
   }
   return { origin: `http://127.0.0.1:${port}`, load: null, close };
+}
+
+// The names of the files the app router serves as the icons of every page: the icon a browser
+// shows, and the icon of the installed app.
+const ICON_NAMES = [
+  [/^(favicon\.ico|icon\d*\.(ico|jpe?g|png|svg))$/, "favicon"],
+  [/^apple-icon\d*\.(jpe?g|png)$/, "app-icon"],
+];
+
+// The icons the app folder keeps by name, at its top, each with its role and its file, by name.
+function markFiles(root) {
+  const found = [];
+  for (const folder of APP_FOLDERS) {
+    const full = path.join(root, folder);
+    if (!existsSync(full) || !statSync(full).isDirectory()) continue;
+    for (const name of readdirSync(full).sort()) {
+      const file = path.posix.join(folder, name);
+      if (!statSync(path.join(root, file)).isFile()) continue;
+      const role = ICON_NAMES.find(([pattern]) => pattern.test(name))?.[1];
+      if (role) found.push({ said: file, role, file });
+    }
+  }
+  return found;
 }

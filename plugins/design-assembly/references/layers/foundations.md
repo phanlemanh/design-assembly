@@ -147,6 +147,25 @@ by `scripts/font-source.mjs`; the licence is the owner's to write. The guide nev
 typeface each names is loaded by the repository, as its build loads one, or is a family every
 device has. Weight and letter spacing are not chosen in this version.
 
+## Mark
+
+One choice, `mark`, asked after the typeface, and only where the sources ledger has a logo row:
+with none there is no choice to make, nothing is asked or written, and the mark is the floor's.
+
+| Option        | Why                                                                               | Trade-off                                                                    | Label       |
+| ------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ----------- |
+| `text`        | The floor's mark: the product's name in the heading typeface. No file, no drawing | It says the name; it is no sign of the brand                                 | `manual`    |
+| `source:<id>` | The mark the repository keeps, with its row in the sources ledger, pinned         | Its row and its licence come first: who holds the right to use it, and where | `automated` |
+
+A logo row is written from files the repository already keeps, each named with its role and its
+variant, by `scripts/logo-source.mjs`; `adopt` proposes one from the icons the pages declare. The
+licence is the owner's to write. The guide never draws, fetches or generates a mark, and a row that
+is not there, waits on its licence, or no longer pins its files as they are, cannot be chosen.
+
+**Held by:** for `source:<id>`, a check that the row can still be chosen, under the row `mark`, and
+the check `logo-pins`, which holds the pin of every logo row. `text` makes no file and has nothing
+to hold.
+
 ## What the floor's components do not follow
 
 Checked in a browser on 2026-11-11 with the shadcn components the floor installs:
@@ -181,6 +200,8 @@ Choice keys:
 - `corner_radius`: `floor`, `none`, `extra-small`, `small`, `medium` or `large`.
 - `text_font`: `floor`, `system` or `source:<id>`, the id of a font row of the sources ledger.
 - `heading_font`: `text`, `floor`, `system` or `source:<id>`. The two are written together.
+- `mark`: `text` or `source:<id>`, the id of a logo row of the sources ledger. Left out, it reads
+  as `text`. Written only when the person answered it, with who and when under `answered.mark`.
 
 When the person gave a typeface, or confirmed the one proposed, write who and when beside it:
 `"answered": { "text_font": { "by": "<their name>", "on": "YYYY-MM-DD" }, "heading_font": { ... } }`.

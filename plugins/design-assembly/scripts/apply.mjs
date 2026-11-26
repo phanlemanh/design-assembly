@@ -177,7 +177,13 @@ import {
   TOKENS_DECISION,
   tokensProblem,
 } from "../templates/tools/design-assembly/tokens.mjs";
-import { readFontSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
+import {
+  LOGO_PINS_CHECK,
+  readFontSources,
+  readLogoSources,
+  sourcedLogo,
+  sourceLogoId,
+} from "../templates/tools/design-assembly/sources-ledger.mjs";
 import {
   applyBlock,
   buildTheme,
@@ -393,6 +399,9 @@ export function themeInputs(blueprint) {
       cornerRadius: choice.corner_radius,
       ...(choice.text_font !== undefined ? { textFont: choice.text_font } : {}),
       ...(choice.heading_font !== undefined ? { headingFont: choice.heading_font } : {}),
+      // The mark, where the blueprint names one: it writes no value of the theme, and the gate
+      // compares it with the blueprint as it compares every answer.
+      ...(choice.mark !== undefined ? { mark: choice.mark } : {}),
       // The owner's word for each question of the table of colour roles, and the roles it makes
       // follow another. A blueprint without words leaves the floor's roles as they are.
       ...colorRoleInputs(blueprint),
@@ -405,8 +414,9 @@ export function themeInputs(blueprint) {
 // One line per problem in the blueprint. Empty means it can be applied, or, with `preview`, that a
 // preview can be shown: a preview is what the person looks at BEFORE approving, so it accepts a
 // blueprint that is still being designed. `sources` is the fonts of the sources ledger, as
-// `readFontSources` gives them: a typeface that names one is held against its row.
-export function blueprintProblems(blueprint, { preview = false, sources } = {}) {
+// `readFontSources` gives them: a typeface that names one is held against its row. `logos` is the
+// logo rows, as `readLogoSources` gives them, which a mark that names one is held against.
+export function blueprintProblems(blueprint, { preview = false, sources, logos } = {}) {
   const found = [];
   if (!preview && blueprint.status !== "approved") {
     found.push(
@@ -457,10 +467,21 @@ export function blueprintProblems(blueprint, { preview = false, sources } = {}) 
     for (const choice of layer.choices.filter((c) => applies(c, values) && !c.asked_by)) {
       const value = values[choice.key];
       if (value === undefined) {
+        // A choice that reads as one of its options when the blueprint does not name it.
+        if (choice.unset !== undefined) continue;
         if (!LATER_CHOICES.includes(choice.key) || anyLater) {
           found.push(`${layer.id}: no ${choice.name}`);
         }
-      } else if (choice.sourced && sourceFontId(value) !== null) {
+      } else if (choice.sourced?.kind === "logo" && sourceLogoId(value) !== null) {
+        // A logo row: it can be chosen when the row is there, whole, with its licence and a pin
+        // that still holds. Where the ledger was not read, only the form of the value is held.
+        if (logos === undefined) continue;
+        try {
+          sourcedLogo(value, logos);
+        } catch (error) {
+          found.push(`${layer.id}: ${choice.name} ${value}: ${error.message}`);
+        }
+      } else if (choice.sourced?.kind === "font" && sourceFontId(value) !== null) {
         // A row of the sources ledger: it can be chosen when the row is there and whole. Where
         // the ledger was not read, only the form of the value is held.
         if (sources === undefined) continue;
@@ -499,8 +520,9 @@ function answeredProblems(layer, entry, values) {
     if (values[choice.key] === undefined) continue;
     const owners = entry.source === "user" || (entry.confirmed ?? []).includes(choice.key);
     const said = entry.answered?.[choice.key];
-    // A later choice must say who gave it; any other may, and then says it whole.
-    const later = LATER_CHOICES.includes(choice.key);
+    // A later choice must say who gave it, and so must one that reads as an option when unset, such
+    // as the mark; any other may, and then says it whole.
+    const later = LATER_CHOICES.includes(choice.key) || choice.unset !== undefined;
     if (!later && said === undefined) continue;
     if (later && !owners) continue;
     if (!owners) {
@@ -1966,7 +1988,28 @@ function decisions(blueprint, theme, foundations, styles, before = []) {
         .map((value) => ({ kind: "font-row", value })),
     ];
   }
+  rows.push(...markRows(blueprint, checks));
   return { rows, inputs: foundations.inputs, checks };
+}
+
+// The row of the mark the foundations layer chose from the sources ledger, with the check that holds
+// it; `checks` takes the check. None for the floor's text, which makes no file and has nothing to
+// hold, and none where the blueprint names no mark (spec 0017).
+function markRows(blueprint, checks) {
+  const value = blueprint.layers.foundations.choice?.mark;
+  if (sourceLogoId(value) === null) return [];
+  const said = blueprint.layers.foundations.answered?.mark;
+  checks.mark = [{ kind: "logo-row", value }];
+  return [
+    {
+      id: "mark",
+      layer: "foundations",
+      kind: "closed",
+      source: `${BLUEPRINT}, mark ${value}`,
+      check: TOOL,
+      note: `${said ? `answered by ${said.by} on ${said.on}; ` : ""}the gate holds that the row is there, whole, with its licence, and that its pin still holds the files of the mark`,
+    },
+  ];
 }
 
 // The rows of the status tones the owner chose, and of the brand's own colours for them, with the
@@ -2059,6 +2102,8 @@ function record(layer, entry, rows, values, blueprint) {
   const lines = [`# ${layer.title[0].toUpperCase()}${layer.title.slice(1)}`, ""];
   lines.push(`Status: decided (${entry.source}).`, "", "## Choice", "");
   for (const choice of layer.choices.filter((c) => applies(c, values))) {
+    // A choice the blueprint does not name, that reads as one of its options then, says nothing.
+    if (values[choice.key] === undefined && choice.unset !== undefined) continue;
     if (values[choice.key] === undefined) {
       const kept = choice.asked_by ? entry.roles?.[choice.asked_by] : null;
       lines.push(
@@ -2259,6 +2304,8 @@ export function plan(target, blueprint) {
         ...floating.checks,
         // A repository of a family: the locked answers of the core it pinned.
         ...(readPinnedCore(target) === null ? [] : [FAMILY_CORE_CHECK]),
+        // A repository with a logo row: the pin of every logo row.
+        ...(readLogoSources(target).length === 0 ? [] : [LOGO_PINS_CHECK]),
       ],
     };
     Object.assign(files, floating.files);
@@ -2523,6 +2570,7 @@ function main(args) {
     ...blueprintProblems(blueprint, {
       preview: dryRun,
       sources: readFontSources(target),
+      logos: readLogoSources(target),
     }),
     // A repository of a family: what the blueprint holds against the core it pinned.
     ...blueprintCoreProblems(target, blueprint),

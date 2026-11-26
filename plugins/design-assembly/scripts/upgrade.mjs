@@ -35,7 +35,9 @@ import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-fi
 import { FAMILY_CORE_CHECK, readPinnedCore } from "../templates/tools/design-assembly/contract.mjs";
 import {
   ICON_SET_CHECK,
+  LOGO_PINS_CHECK,
   readIconSets,
+  readLogoSources,
 } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import {
   conformRecords,
@@ -78,6 +80,8 @@ const ADDED_CHECKS = {
     "when a locked answer of the family core this repository pinned is held otherwise here with no exception, or the copy of the core differs from its hashes",
   [ICON_SET_CHECK.kind]:
     "when the lockfile no longer pins an icon package at the version its row of the sources ledger pins, or a file of an icon set has another hash",
+  [LOGO_PINS_CHECK.kind]:
+    "when a file of the mark a logo row of the sources ledger pins has another hash, is gone, or leads out of the repository",
 };
 // The gate step the plugin installs beside the tool: upgrade writes it too, whole, when it differs.
 const GATE_SOURCE = path.join(PLUGIN, "templates", GATE_STEP);
@@ -414,6 +418,8 @@ export async function upgradePlan(root, accept = {}) {
         ...(floating.change === "none" ? [] : [FLOATING_CHECK]),
         // A repository of a family: the locked answers of the core it pinned.
         ...(readPinnedCore(root) === null ? [] : [FAMILY_CORE_CHECK]),
+        // A repository with a logo row: the pin of every logo row.
+        ...(readLogoSources(root).length === 0 ? [] : [LOGO_PINS_CHECK]),
         // A repository with an icon set row: the pin of each icon set (spec 0017).
         ...(readIconSets(root).length === 0 ? [] : [ICON_SET_CHECK]),
       ].filter((added) => !shapes.some((check) => check?.kind === added.kind))

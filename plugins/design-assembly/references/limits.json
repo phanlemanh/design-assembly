@@ -3469,7 +3469,7 @@
       "opened": "2026-11-20",
       "where": ["spec", "d0069"],
       "status": "open",
-      "note": "The brand assets socket has a plug for fonts and one for the icon set's row and its pin (plugin 0.70.0, item 12.1 slice 1): a logo has no place to be recorded yet, and no check holds that a screen uses only the recorded icon set or logo."
+      "note": "The brand assets socket has a plug for fonts, one for the icon set's row and its pin (plugin 0.70.0, item 12.1 slice 1), and one for the mark's row and its pin (plugin 0.71.0, item 12.2 slice 1): no check holds that a screen uses only the recorded icon set, nor that the page icons the build declares and the images the app frame imports are files of a logo row."
     },
     {
       "id": "capability-content-has-no-plug",
@@ -6521,6 +6521,85 @@
       "plan": "keep",
       "where": ["d0123"],
       "note": "On a repository whose copy of the tool predates the kind icon-set, adopt proposes no icon set row and says to upgrade first, even on a run that lays the newer tool itself because it adds other checks: the row is proposed on the next run."
+    },
+    {
+      "id": "logo-package-manifest-not-read",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0124"],
+      "status": "open",
+      "note": "The command logo-source writes a mark's row only from files named one by one with their role and variant; a package of mark files with its manifest, as an outside plug leaves one, is refused with one sentence and not read."
+    },
+    {
+      "id": "logo-frame-images-not-proposed",
+      "area": "adopt",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0124"],
+      "status": "open",
+      "note": "The adopt command proposes a logo row only from the page icons the build declares (the links of index.html on one build, the icon files the app folder keeps by name on the other); an image of the mark the app frame imports is not read, says nothing, and a person writes it into the row with logo-source."
+    },
+    {
+      "id": "logo-variant-of-a-page-icon-guessed",
+      "area": "adopt",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0124"],
+      "status": "open",
+      "note": "The row adopt proposes writes every page icon as the variant color, and the report asks a person to correct it: adopt cannot see whether a file is in one colour or drawn for a dark ground, and a row nobody corrected says color of a file that is not."
+    },
+    {
+      "id": "mark-owner-call-not-held",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0124"],
+      "status": "open",
+      "note": "A new logo row, or a changed file of one, does not wait on the owner's word on the decision sheet, and decide --ask has no item logo:<id> yet: the gate holds the pin and the licence, not that the owner chose the mark."
+    },
+    {
+      "id": "mark-gaps-unsaid",
+      "area": "audit",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0124"],
+      "status": "open",
+      "note": "The status and audit commands do not say what a mark lacks (no one-colour variant, no page icon), and the handoff book has no page of brand assets: a mark with one file reads as whole."
+    },
+    {
+      "id": "logo-metadata-icons-not-read",
+      "area": "adopt",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0124"],
+      "status": "open",
+      "note": "On the build of a router app, adopt reads only the icon files the app folder keeps by name; icons a layout declares in its metadata (an address under the public folder) are not read, so a repository that declares its page icons that way is proposed fewer files than its pages show, and a person adds the rest with logo-source."
+    },
+    {
+      "id": "logo-row-turns-an-older-gate-red",
+      "area": "adopt",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0124"],
+      "status": "closed",
+      "note": "On a repository whose installed tool predates the kind logo, adopt wrote a logo row and laid the check of its pins, and the repository's own gate turned red on a row it read as a library with no catalog and on a check it did not know.",
+      "closed": "2026-11-26",
+      "closed_by": "adopt and logo-source ask the installed copy of the tool whether its sources ledger knows LOGO_KIND, with the helper toolPredates the icon set also uses, as core --join asks for its check; where it does not, nothing is written and the report names upgrade first, held by plugin tests on the tools of releases 0.69.0 and 0.70.0"
     }
   ]
 }

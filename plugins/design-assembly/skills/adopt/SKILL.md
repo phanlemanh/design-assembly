@@ -189,6 +189,16 @@ stated level that the values do not reach is not a reason to lower the level: re
    the settings this plugin does not know, or a package the lockfile does not pin, gets no row: a
    person writes it with `node ${CLAUDE_PLUGIN_ROOT}/scripts/icon-source.mjs --target <repo>
 --package <name>` (or `--folder <path>` for icons kept as files of the repository).
+   Likewise for the mark: from the icons the pages declare, as the adapter of the build reads them,
+   it writes one logo row, `design/sources/logo.json`, each file hashed where it is with its role
+   and the variant `color`, and says the repository kept them (`own: true`). It draws, fetches and
+   changes no file. Ask the owner who holds the right to use the mark and where, and write their
+   words into the row's `licence`; correct a variant the report names, and add the other files of
+   the mark with `logo-source`. An icon it cannot read, an address outside the repository or a
+   file that is not there, gets nothing: the report says so. A logo row already there is left as
+   it is, and the gate holds the pin of every logo row from then on. Where the repository's installed tool
+   is older than the kind, nothing of the mark is written: the report says to run `upgrade` first
+   and what adopting again would propose.
 5. It writes `.claude/rules/design-assembly.md`: the rules it now holds here, for the agent that
    builds next. Where the guide ran here before and left a blueprint, the page keeps the
    principles and the direction the owner fixed in it; adopting asks for none.

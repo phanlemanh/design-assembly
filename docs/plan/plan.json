@@ -669,7 +669,7 @@
           "id": "12.2",
           "what": "Dấu vào sổ nguồn, sàn của dấu là chữ, và dấu là mục của chủ repo",
           "state": "todo",
-          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, tiêu chí 4, 9, 10, 11, 14 và 15; hai lát, mỗi lát một PR; đổi hợp đồng sổ, cần người duyệt"
+          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, tiêu chí 4, 9, 10, 11, 14 và 15; hai lát, mỗi lát một PR; đổi hợp đồng sổ, cần người duyệt; lát 1 (loại nguồn logo trong hợp đồng; lệnh logo-source viết dòng từ tệp đã trong repo, gói có tờ kê bị từ chối bằng một câu; adopt đề xuất từ biểu tượng trang, không ghi đè; cổng giữ ghim bằng phép kiểm logo-pins; lựa chọn dấu ở tầng nền giữa chữ của sàn và source:<id>; tiêu chí 1, 2, 4, 5, 6, 7, 11, 20 và 21 của phần dấu) ngày 2026-11-26 theo lời chủ repo («Mở hai lát»), plugin 0.71.0: wiki/decisions/0124-the-mark-enters-through-the-sources-ledger.md; lát 2 chưa dựng"
         },
         {
           "id": "12.3",
