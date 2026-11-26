@@ -30,7 +30,7 @@ sources:
 
 ## Status
 
-Proposed, 2026-11-26, plugin 0.74.0. Lát 1 của mục 12.3, theo đề bài
+Proposed, 2026-11-26, plugin 0.74.0, PR 162. Lát 1 của mục 12.3, theo đề bài
 [0017](../specs/0017-brand-assets-the-logo-and-the-icon-set.md) (chủ repo duyệt ngày 2026-11-25, «Duyệt cả mười hai»),
 mở theo lời chủ repo «Dựng lát 1». Đổi hợp đồng (hình dạng tờ kê của gói dấu, khoá `drawn` của dòng `icon-set`) và
 khoá của tệp phích (giá trị `machine` của `needs`, khoá `machine`), nên chờ chủ repo duyệt ở PR. `ontology/` không đổi.
