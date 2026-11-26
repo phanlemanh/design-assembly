@@ -668,8 +668,8 @@
         {
           "id": "12.2",
           "what": "Dấu vào sổ nguồn, sàn của dấu là chữ, và dấu là mục của chủ repo",
-          "state": "todo",
-          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, tiêu chí 4, 9, 10, 11, 14 và 15; hai lát, mỗi lát một PR; đổi hợp đồng sổ, cần người duyệt; lát 1 (loại nguồn logo trong hợp đồng; lệnh logo-source viết dòng từ tệp đã trong repo, gói có tờ kê bị từ chối bằng một câu; adopt đề xuất từ biểu tượng trang, không ghi đè; cổng giữ ghim bằng phép kiểm logo-pins; lựa chọn dấu ở tầng nền giữa chữ của sàn và source:<id>; tiêu chí 1, 2, 4, 5, 6, 7, 11, 20 và 21 của phần dấu) ngày 2026-11-26 theo lời chủ repo («Mở hai lát»), plugin 0.71.0: wiki/decisions/0124-the-mark-enters-through-the-sources-ledger.md; lát 2 chưa dựng"
+          "state": "done",
+          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, tiêu chí 4, 9, 10, 11, 14 và 15; hai lát, mỗi lát một PR; đổi hợp đồng sổ, cần người duyệt; lát 1 (loại nguồn logo trong hợp đồng; lệnh logo-source viết dòng từ tệp đã trong repo, gói có tờ kê bị từ chối bằng một câu; adopt đề xuất từ biểu tượng trang, không ghi đè; cổng giữ ghim bằng phép kiểm logo-pins; lựa chọn dấu ở tầng nền giữa chữ của sàn và source:<id>; tiêu chí 1, 2, 4, 5, 6, 7, 11, 20 và 21 của phần dấu) ngày 2026-11-26 theo lời chủ repo («Mở hai lát»), plugin 0.71.0: wiki/decisions/0124-the-mark-enters-through-the-sources-ledger.md; lát 2 (mục logo:<id> của chủ repo trên hàng chờ và tường owner-calls giữ nhánh thêm hay đổi tệp của dòng logo; cổng giữ dấu bằng phép kiểm logo-use: biểu tượng trang nền dựng khai và ảnh khung ứng dụng nhập phải là tệp của một dòng logo; status và audit nói điều còn thiếu mà không làm cổng đỏ; trang tài sản thương hiệu của cuốn hướng dẫn; logo-source --into thêm tệp vào dòng đã có; tiêu chí 1, 9, 10, 14, 15, 20 và 21) ngày 2026-11-26 theo lời chủ repo («Mở hai lát 2»), plugin 0.72.0: wiki/decisions/0125-the-mark-is-held-asked-for-and-shown.md, PR 158 (lát 1) và PR của lát 2; mục xong"
         },
         {
           "id": "12.3",

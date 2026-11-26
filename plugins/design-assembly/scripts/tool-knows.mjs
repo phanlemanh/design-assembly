@@ -15,8 +15,8 @@ import { TOOL_COPY } from "./stamp.mjs";
 // Null when the repository has no copy of the tool (a command that lays the tool lays the newer
 // one), or when its copy knows the part; else the sentence that says why nothing is written.
 // `file` is the file of the copy, `word` the name it reads the part by, `part` the part as a person
-// reads it.
-export function toolPredates(root, { file, word, part }) {
+// reads it, `what` what would be written: a row, or a question.
+export function toolPredates(root, { file, word, part, what = "row" }) {
   const copy = path.join(root, TOOL_COPY);
   if (!existsSync(copy)) return null;
   let text;
@@ -26,5 +26,5 @@ export function toolPredates(root, { file, word, part }) {
     text = "";
   }
   if (text.includes(word)) return null;
-  return `the repository's copy of the tool, ${TOOL_COPY}, predates ${part}, so its gate would read the row as broken: bring the tool up with upgrade first`;
+  return `the repository's copy of the tool, ${TOOL_COPY}, predates ${part}, so its gate would read the ${what} as broken: bring the tool up with upgrade first`;
 }

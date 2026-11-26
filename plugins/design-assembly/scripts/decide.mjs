@@ -48,6 +48,7 @@ import { ROW_CHOICES, writeFiles, writtenFiles } from "./apply.mjs";
 import { fileChange, finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { principleOfRow } from "./principles.mjs";
 import { status } from "./status.mjs";
+import { toolPredates } from "./tool-knows.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const json = (file) => JSON.parse(readFileSync(path.join(PLUGIN, file), "utf8"));
@@ -626,9 +627,10 @@ const USAGE = `usage: node decide.mjs [--target DIR] [--only ID[,ID]] [--answers
              pattern:NAME (a new page of a kind of screen), source-color:VALUE (the root colour),
              screen:ID:SLOT (one slot of the brief of one screen, which the ledger of
              screens must have), screens:principles or screens:model-changes:NAMES (one slot
-             asked once for every screen it concerns). A new kind of screen and
-             the brand colour are the owner's calls: the agent stops, and the gate stays red
-             until the owner keeps it.
+             asked once for every screen it concerns), logo:ID (a new logo row of the sources
+             ledger, or a changed file of one). A new kind of screen, the brand colour and the
+             mark are the owner's calls: the agent stops, and the gate stays red until the owner
+             keeps it.
   --id       The question's id, and the name of its file. Without it, made from the item, or
              from the words of the question.
   --replaces The ids of questions that wait and that this one asks the same about more, a comma
@@ -755,6 +757,17 @@ export function askOf(root, state, ask) {
   }
   if (ask.item !== undefined && itemProblem(ask.item)) {
     throw refused(`--item: ${itemProblem(ask.item)}`);
+  }
+  // A question about the mark, on a repository whose gate reads the waiting list with a copy of the
+  // tool that predates the item: the gate would read the question as broken.
+  if (String(ask.item ?? "").startsWith("logo:")) {
+    const predates = toolPredates(root, {
+      file: "waiting.mjs",
+      word: "logoItem",
+      part: "the item logo:<id> of the waiting list",
+      what: "question",
+    });
+    if (predates) throw refused(`${predates}, then ask again`);
   }
   const stranger = ask.item === undefined ? null : strangerScreen(root, ask.item);
   if (stranger) throw refused(`--item: ${stranger}`);

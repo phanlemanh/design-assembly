@@ -22,6 +22,7 @@ import {
 } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { Buffer } from "node:buffer";
 import { env, execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";

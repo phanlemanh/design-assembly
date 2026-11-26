@@ -86,8 +86,9 @@ const SHARED = new RegExp(
 // a kind of screen (its file name, without .md), the root colour line (its value, as written), a
 // need a block is taken in for (its key), what a ledger lists as made before it (the ledger's
 // name), the block of a need that is retired or merged (the need's key), or one slot of the brief
-// of one screen (the screen's id in the ledger of screens, a colon, the slot's id). Pattern and
-// colour are the owner's calls: an agent that asks one does not go on. One slot asked for every
+// of one screen (the screen's id in the ledger of screens, a colon, the slot's id), or the mark of
+// the product (the id of its logo row in the sources ledger). Pattern, colour and mark are the
+// owner's calls: an agent that asks one does not go on. One slot asked for every
 // screen it concerns is written `screens:principles`, or `screens:model-changes:NAMES`. A slot of a
 // screen is not:
 // nothing a branch changes tells the gate that a screen was built on an open slot, so the gate
@@ -96,6 +97,8 @@ export const ITEMS = {
   decision: { which: /^[a-z0-9][a-z0-9-]*$/, owners: false },
   pattern: { which: /^[a-z0-9][a-z0-9._-]*$/i, owners: true },
   "source-color": { which: /^\S(?:.*\S)?$/, owners: true },
+  // A new logo row, or a changed file of one (spec 0017): the owner chooses the mark.
+  logo: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: true },
   need: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: false },
   before: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: false },
   block: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: false },
@@ -207,6 +210,9 @@ export function itemProblem(item) {
 // Whether a question about this item is the owner's to answer before the work goes on.
 export const mustAsk = (item) =>
   typeof item === "string" && itemProblem(item) === null && ITEMS[item.split(":")[0]].owners;
+
+// The item for the mark of the product, from the id of its logo row in the sources ledger.
+export const logoItem = (id) => `logo:${id}`;
 
 // The item for the root colour line of a stylesheet, from the value it holds.
 export const colourItem = (value) => `source-color:${String(value).replace(/\s+/g, " ").trim()}`;

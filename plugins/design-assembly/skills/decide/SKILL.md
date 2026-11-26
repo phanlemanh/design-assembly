@@ -137,8 +137,9 @@ question and goes on with its own recommendation:
   agent writes into the ledger is asked this way, or says in its note that a person has not
   confirmed it; the gate fails otherwise.
 - `--item pattern:NAME` for a new page of a kind of screen, `--item source-color:VALUE` for a new
-  brand colour. These are the owner's calls: the script says **stop**, and the agent does not
-  build on it. The gate stays red on the branch until the owner keeps that very item here.
+  brand colour, `--item logo:ID` for a new logo row of `design/sources/` or a changed file of one.
+  These are the owner's calls: the script says **stop**, and the agent does not build on it. The
+  gate stays red on the branch until the owner keeps that very item here.
 - `--id ID` names the question; without it the id is made from the item, or from the words.
 - It writes one new file, `design/waiting/<id>.json`, and nothing else. When the waiting list is
   still the shared file, it refuses: run `--split` once first (with `--dry-run` to see it), which

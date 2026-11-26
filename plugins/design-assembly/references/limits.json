@@ -3467,9 +3467,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-20",
-      "where": ["spec", "d0069"],
+      "where": ["spec", "d0069", "d0125"],
       "status": "open",
-      "note": "The brand assets socket has a plug for fonts, one for the icon set's row and its pin (plugin 0.70.0, item 12.1 slice 1), and one for the mark's row and its pin (plugin 0.71.0, item 12.2 slice 1): no check holds that a screen uses only the recorded icon set, nor that the page icons the build declares and the images the app frame imports are files of a logo row."
+      "note": "The brand assets socket has a plug for fonts, one for the icon set's row and its pin (plugin 0.70.0, item 12.1 slice 1), and one for the mark's row and its pin (plugin 0.71.0, item 12.2 slice 1); the gate holds the mark's use (plugin 0.72.0, item 12.2 slice 2: the page icons the build declares and the images the app frame imports are files of a logo row). No check yet holds that a screen uses only the recorded icon set (item 12.1 slice 2)."
     },
     {
       "id": "capability-content-has-no-plug",
@@ -6562,9 +6562,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-26",
-      "where": ["spec", "d0124"],
-      "status": "open",
-      "note": "A new logo row, or a changed file of one, does not wait on the owner's word on the decision sheet, and decide --ask has no item logo:<id> yet: the gate holds the pin and the licence, not that the owner chose the mark."
+      "where": ["spec", "d0124", "d0125"],
+      "status": "closed",
+      "note": "A new logo row, or a changed file of one, does not wait on the owner's word on the decision sheet, and decide --ask has no item logo:<id> yet: the gate holds the pin and the licence, not that the owner chose the mark.",
+      "closed": "2026-11-26",
+      "closed_by": "decide --ask takes the item logo:<id> and tells the agent to stop, and the wall owner-calls holds a branch that adds a logo row or changes a file of one until the waiting list holds the owner's answer that keeps that very item, held by plugin tests on git repositories; on a repository whose installed tool predates the item, decide asks nothing and names upgrade first. What the wall still does not see is limit logo-owner-answer-stands-for-later-changes"
     },
     {
       "id": "mark-gaps-unsaid",
@@ -6573,9 +6575,11 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-26",
-      "where": ["spec", "d0124"],
-      "status": "open",
-      "note": "The status and audit commands do not say what a mark lacks (no one-colour variant, no page icon), and the handoff book has no page of brand assets: a mark with one file reads as whole."
+      "where": ["spec", "d0124", "d0125"],
+      "status": "closed",
+      "note": "The status and audit commands do not say what a mark lacks (no one-colour variant, no page icon), and the handoff book has no page of brand assets: a mark with one file reads as whole.",
+      "closed": "2026-11-26",
+      "closed_by": "status and audit say what the brand assets lack (a mark with no one-colour variant, a mark with no page icon, an icon set with no sizes), each with its next step, and neither the exit code nor the gate changes for it; the handoff book has a page of brand assets that draws each file of the mark from its own bytes, held by plugin tests"
     },
     {
       "id": "logo-metadata-icons-not-read",
@@ -6600,6 +6604,61 @@
       "note": "On a repository whose installed tool predates the kind logo, adopt wrote a logo row and laid the check of its pins, and the repository's own gate turned red on a row it read as a library with no catalog and on a check it did not know.",
       "closed": "2026-11-26",
       "closed_by": "adopt and logo-source ask the installed copy of the tool whether its sources ledger knows LOGO_KIND, with the helper toolPredates the icon set also uses, as core --join asks for its check; where it does not, nothing is written and the report names upgrade first, held by plugin tests on the tools of releases 0.69.0 and 0.70.0"
+    },
+    {
+      "id": "logo-owner-answer-stands-for-later-changes",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0125"],
+      "status": "open",
+      "note": "The wall names the mark by the id of its row, logo:<id>, as spec 0017 writes the item: once the owner kept logo:<id>, a later branch that changes a file of that row again passes the wall on the same answer, and only the check of the pins and the licence hold the new files."
+    },
+    {
+      "id": "logo-use-frame-read-narrowly",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0125"],
+      "status": "open",
+      "note": "The check logo-use reads the app frame as the adapter of the build gives it: on one build the files right under src/, on the other the layout files of the app router and the modules of the repository they import, one step down. A frame drawn deeper, an image named through a variable or an alias other than @/, and a page icon a layout declares in its metadata are not read, and turn nothing red."
+    },
+    {
+      "id": "logo-use-other-builds-unread",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0125"],
+      "status": "open",
+      "note": "On a build whose adapter says neither where the page icons are declared nor which files are the frame, the check logo-use reads nothing and passes, and does not say that it read nothing."
+    },
+    {
+      "id": "mark-used-outside-the-frame-unheld",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0125"],
+      "status": "open",
+      "note": "An image of the mark that a screen below the app frame shows is not read: the check logo-use holds the page icons and the frame only (spec 0017, criterion 22), so a screen may show a file no logo row pins."
+    },
+    {
+      "id": "icon-set-sizes-written-by-hand",
+      "area": "status",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0125"],
+      "status": "open",
+      "note": "When an icon set records no sizes, status and audit name a person's step, writing the sizes into the row by hand: no command writes them, since they are a person's answer (spec 0017, question 12)."
     }
   ]
 }

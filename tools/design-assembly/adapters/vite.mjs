@@ -1,7 +1,7 @@
 // The build adapter for Vite: the repository's own development server, taken from its packages,
 // serving extra modules beside the repository's and changing a module as it is served, never on
 // disk.
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -41,6 +41,9 @@ export const adapter = {
   // The icons the page declares, each with its role and the file of the repository it is, or
   // none when the address leads out of the repository or to no file (spec 0017).
   markFiles,
+  // The files of the app frame, where an image of the mark is shown on every screen: the files
+  // right under the source folder, which hold the application and list its screens (spec 0017).
+  frameFiles,
   // What a person writes to load a font this stack has no rule of its own for.
   fontHint: (font, stylesheet) =>
     font.pin?.package ? importLine(font.pin.package, stylesheet) : null,
@@ -180,7 +183,19 @@ function markFiles(root) {
     const own = path.posix.normalize(bare.replace(/^\//, ""));
     const file =
       away || own.startsWith("..") ? null : ([`${PUBLIC_FOLDER}${own}`, own].find(isFile) ?? null);
-    found.push({ said: href, role, file });
+    found.push({ said: href, role, file, in: "index.html" });
   }
   return found;
+}
+
+// The files right under src/ that are modules of the application, tests and declarations left out:
+// the frame every screen stands in. A screen sits deeper, and is not the frame.
+function frameFiles(root) {
+  const folder = path.join(root, "src");
+  if (!existsSync(folder) || !statSync(folder).isDirectory()) return [];
+  return readdirSync(folder)
+    .sort()
+    .filter((name) => /\.[cm]?[jt]sx?$/.test(name) && !/\.(test|spec|d)\.[cm]?[jt]sx?$/.test(name))
+    .map((name) => `src/${name}`)
+    .filter((file) => statSync(path.join(root, file)).isFile());
 }

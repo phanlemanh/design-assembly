@@ -179,6 +179,7 @@ import {
 } from "../templates/tools/design-assembly/tokens.mjs";
 import {
   LOGO_PINS_CHECK,
+  LOGO_USE_CHECK,
   readFontSources,
   readLogoSources,
   sourcedLogo,
@@ -2305,7 +2306,8 @@ export function plan(target, blueprint) {
         // A repository of a family: the locked answers of the core it pinned.
         ...(readPinnedCore(target) === null ? [] : [FAMILY_CORE_CHECK]),
         // A repository with a logo row: the pin of every logo row.
-        ...(readLogoSources(target).length === 0 ? [] : [LOGO_PINS_CHECK]),
+        // and that the page icons and the images of the app frame are files of a logo row.
+        ...(readLogoSources(target).length === 0 ? [] : [LOGO_PINS_CHECK, LOGO_USE_CHECK]),
       ],
     };
     Object.assign(files, floating.files);

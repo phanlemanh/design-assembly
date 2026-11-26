@@ -30,6 +30,11 @@ export const adapter = {
     "no @font-face rule of the stylesheet declares it, no package the stylesheet imports does, and no font loader in a layout file sets it",
   // The icons the app folder keeps by name, each with its role and its file (spec 0017).
   markFiles,
+  // The folder whose files this build serves from the root of the site.
+  publicFolder: "public",
+  // The files of the app frame: the layout files of the app router, and the modules of the
+  // repository each of them imports, one step down, where the frame is often drawn (spec 0017).
+  frameFiles,
   // This adapter writes no code that loads a font: a person writes it, and this says what.
   fontHint: (font, stylesheet) =>
     font.variable
@@ -272,8 +277,53 @@ function markFiles(root) {
       const file = path.posix.join(folder, name);
       if (!statSync(path.join(root, file)).isFile()) continue;
       const role = ICON_NAMES.find(([pattern]) => pattern.test(name))?.[1];
-      if (role) found.push({ said: file, role, file });
+      if (role) found.push({ said: file, role, file, in: file });
     }
   }
   return found;
+}
+
+// The endings a module of the repository is found by, and the folder an import that starts with
+// `@/` leads to: the source folder where the repository keeps one, else its root.
+const MODULE_ENDINGS = [
+  ".tsx",
+  ".ts",
+  ".jsx",
+  ".js",
+  "/index.tsx",
+  "/index.ts",
+  "/index.jsx",
+  "/index.js",
+];
+function moduleFile(root, from, specifier) {
+  let base;
+  if (specifier.startsWith(".")) base = path.posix.join(path.posix.dirname(from), specifier);
+  else if (specifier.startsWith("@/")) {
+    const src = existsSync(path.join(root, "src")) ? "src/" : "";
+    base = `${src}${specifier.slice(2)}`;
+  } else return null;
+  const normal = path.posix.normalize(base);
+  if (normal.startsWith("..")) return null;
+  for (const ending of ["", ...MODULE_ENDINGS]) {
+    const file = `${normal}${ending}`;
+    const full = path.join(root, file);
+    if (/\.[cm]?[jt]sx?$/.test(file) && existsSync(full) && statSync(full).isFile()) return file;
+  }
+  return null;
+}
+
+// The layout files of the app router, and the modules of the repository they import, once each.
+function frameFiles(root) {
+  const layouts = APP_FOLDERS.flatMap((folder) => layoutFiles(root, folder));
+  const found = new Set(layouts);
+  for (const layout of layouts) {
+    const source = readFileSync(path.join(root, layout), "utf8");
+    for (const [, specifier] of source.matchAll(
+      /(?:^|\n)\s*import\s+(?:[^"';]*?\s+from\s+)?["']([^"']+)["']/g,
+    )) {
+      const file = moduleFile(root, layout, specifier);
+      if (file) found.add(file);
+    }
+  }
+  return [...found];
 }

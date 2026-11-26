@@ -751,9 +751,12 @@ or `origin/master`, the first git knows), with what is not committed yet.
   the choices a machine reads: values, components, kinds of screen, states, words and column
   types. Free layout inside one screen is outside it.
 - **`owner-calls`: the wall.** It fails on a page under `design/patterns` that the branch adds,
-  and on a root colour line (the last `--primary` of a top-level `:root` block of the stylesheet,
-  as written) that differs from the base, until a question of the waiting list names that very
-  item (`pattern:NAME`, or `source-color:VALUE` with the new value) and the owner kept it. A
+  on a root colour line (the last `--primary` of a top-level `:root` block of the stylesheet, as
+  written) that differs from the base, and on a logo row of `design/sources/` that the branch adds
+  or whose files (each file with its hash) differ from the base, until a question of the waiting
+  list names that very item (`pattern:NAME`, `source-color:VALUE` with the new value, or `logo:ID`
+  with the id of the row) and the owner kept it. A change to a logo row that leaves its files as
+  they were, its licence say, is no new mark. A
   question asked and not answered, or answered with a refusal or other words, leaves it failing
   and says so. Raising a pull request's rank on the hosting service is not this tool's.
 - **What is not compared.** Outside git, nothing: both pass, and the gate prints that it did not
@@ -1020,7 +1023,7 @@ writes nothing. It reads two sources.
   the default, or `permission`), a `group` (the heading it is printed under), a `recommendation`,
   a `basis`, `hard_to_undo` (true or false), a `where` (the record that states it), an
   `if_refused` (what refusing costs), an `item` (the one thing it is about: `decision:ID`,
-  `pattern:NAME` or `source-color:VALUE`) and `asked_on` (the day an agent asked it). A row of
+  `pattern:NAME`, `source-color:VALUE` or `logo:ID`, among others) and `asked_on` (the day an agent asked it). A row of
   kind `permission` is something only the owner gives, step by step: it is listed, takes no
   answer, and is not counted. The questions of a folder are listed in the order of their ids.
 
@@ -1047,8 +1050,9 @@ question). Decide writes one new file under `design/waiting/` and touches no oth
 branches that each ask merge with nothing in common. It refuses, and writes nothing, when the
 question is not whole, when its id waits already or is a row of the ledger, and when the waiting
 list is still one shared file. It then tells the agent to go on with its own recommendation, or,
-for an item of kind `pattern` or `source-color`, to stop: those are the owner's calls, and the wall
-holds them. `--split` turns the shared file into one file per question; it writes the files from
+for an item of kind `pattern`, `source-color` or `logo`, to stop: those are the owner's calls, and
+the wall holds them. On a repository whose copy of the tool predates the item `logo:ID`, decide
+refuses to ask it and names `upgrade` first, since that gate would read the question as broken. `--split` turns the shared file into one file per question; it writes the files from
 memory, reads them back, and writes nothing if one question would not come back the same. The
 shared file's own `about` is not a question and is printed, not kept.
 

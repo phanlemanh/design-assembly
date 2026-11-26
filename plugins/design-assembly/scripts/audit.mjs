@@ -45,6 +45,7 @@ import {
   sourceSaid,
 } from "../templates/tools/design-assembly/source-folders.mjs";
 import { workspaceOf, workspaceLines } from "./workspace.mjs";
+import { brandGaps, gapLines } from "./brand-assets.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const reference = (name) =>
@@ -504,6 +505,8 @@ export function audit(root) {
     tiers,
     departures: departures(root),
     slips: slips(root),
+    // What the brand assets lack, which no check holds: only where there is something to say.
+    ...brandKey(root),
     limits: {
       open: open.length,
       high: open.filter((limit) => limit.severity === "high").map((limit) => limit.id),
@@ -512,6 +515,12 @@ export function audit(root) {
     // Where this plugin is blind: every open row of its limits ledger, in the ledger's own words.
     blind: open.map(({ id, area, severity, note }) => ({ id, area, severity, note })),
   };
+}
+
+// The key of what the brand assets lack, on a repository whose rows of them lack something.
+function brandKey(root) {
+  const gaps = brandGaps(root);
+  return gaps.length > 0 ? { brand_gaps: gaps } : {};
 }
 
 const LABEL = {
@@ -638,6 +647,13 @@ export function report(result, { all = false } = {}) {
       result.slips.count === 0
         ? `${SLIPS_FILE}: no line yet. An empty record is not proof that nothing slipped`
         : `${SLIPS_FILE}: ${result.slips.count} line(s)${result.slips.latest ? `, the latest on ${result.slips.latest}` : ""}`,
+    );
+  }
+  // What the brand assets lack: said, never red (spec 0017, criterion 14).
+  if (result.brand_gaps) {
+    lines.push(
+      `brand assets: ${result.brand_gaps.length} thing(s) lacking, which no check holds:`,
+      ...gapLines(result.brand_gaps).map((line) => `  ${line}`),
     );
   }
   // The plugin's own blind spots, so nothing above reads as more than it is.
@@ -821,6 +837,12 @@ export function documentOf(result, origin, { all = false } = {}) {
       title: `${plural(result.ledger.old_layer_names.length, "row uses", "rows use")} an older layer name`,
       detail: "They are read as they are, and can be renamed whenever convenient.",
       evidence: [`in ${LEDGER_FILE}`],
+    },
+    result.brand_gaps && {
+      severity: "note",
+      title: "What the brand assets lack",
+      detail: "No check holds these, and the gate does not turn red for them.",
+      evidence: gapLines(result.brand_gaps),
     },
     result.slips && {
       severity: "note",

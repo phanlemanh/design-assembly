@@ -170,7 +170,11 @@ scale, shape). Density, elevation, motion and iconography are not.
   package the lockfile pins or files already in the repository, and a person writes the licence.
   The mark comes in the same way, as a row of the kind `logo`: `scripts/logo-source.mjs` writes it
   from files of the mark already in the repository, each with its role and its variant, and draws
-  nothing; the foundations layer then chooses the floor's text or that row.
+  nothing; the foundations layer then chooses the floor's text or that row. With `--into` it adds
+  files to that row. Once a repository has a logo row, the gate holds that the page icons and the
+  images of the app frame are its files (`logo-use`), a new row or a changed file of one waits on
+  the owner's word (`decide --ask --item logo:<id>`), `status` and `audit` say what the mark lacks,
+  and the handoff book shows it on a page of brand assets.
 - The icon set comes in the same way, as a row of the kind `icon-set`: `scripts/icon-source.mjs`
   writes it from a package the lockfile pins or a folder of the repository's own icon files, each
   hashed where it is; adopt proposes it from the icon set the component library's settings name.
