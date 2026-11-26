@@ -8,7 +8,14 @@ import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, readdirSync, readFileSync, statSync, symlinkSync } from "node:fs";
+import {
+  existsSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import path from "node:path";
 import { env, execPath } from "node:process";
 import { after, test } from "node:test";
@@ -625,6 +632,86 @@ test("adopt adds no check of the pin while an icon set row already pins what the
     ),
     JSON.stringify(data.unreadable),
   );
+});
+
+// ---- a repository whose installed tool predates the kind --------------------------------------
+
+// The repository's copy of the tool made into one from before the kind: it gives the word no
+// meaning, so its gate reads a row of the kind as a library, which must name a catalog.
+function aged(dir) {
+  const copy = path.join(dir, "tools/design-assembly");
+  for (const name of readdirSync(copy)) {
+    const file = path.join(copy, name);
+    if (!name.endsWith(".mjs") || statSync(file).isDirectory()) continue;
+    const before = readFileSync(file, "utf8");
+    const after = before
+      .replace(
+        /export const isIconSet = \(source\) => isMap\(source\) && source\.kind === ICON_SET_KIND;/,
+        "export const isIconSet = () => false;",
+      )
+      .replaceAll("ICON_SET_KIND", "UNKNOWN_KIND");
+    if (after !== before) writeFileSync(file, after);
+  }
+}
+// An adopted repository with its library's settings, its lockfile and an old copy of the tool; the
+// settings name the icon set only after it was adopted, as a repository adopted long ago.
+function adoptedLongAgo() {
+  const dir = floor("harbor-ledger");
+  put(
+    dir,
+    "package.json",
+    json({ name: "harbor-ledger", dependencies: { "lucide-react": "^1.0.0" } }),
+  );
+  put(dir, "components.json", json({ style: "new-york", tailwind: { css: "src/index.css" } }));
+  put(dir, "package-lock.json", LOCKFILE("1.3.0", "lucide-react"));
+  for (let round = 0; round < 2; round += 1) {
+    const done = adopt(dir, "--product-type", "application");
+    assert.ok([0, 1].includes(done.status), done.stderr);
+  }
+  aged(dir);
+  put(
+    dir,
+    "components.json",
+    json({ style: "new-york", tailwind: { css: "src/index.css" }, iconLibrary: "lucide" }),
+  );
+  return dir;
+}
+
+test("on a repository whose installed tool predates the kind, adopt writes no icon set row, names the upgrade step, and its gate stays as it was", () => {
+  const dir = adoptedLongAgo();
+  const before = gate(dir);
+  assert.equal(before.status, 0, before.stdout + before.stderr);
+  const theme = text(dir, "design/theme.json");
+
+  const preview = JSON.parse(adopt(dir, "--dry-run", "--json").stdout);
+  assert.equal(preview.icon_sets, undefined);
+  const step = preview.person.find((item) => item.id === "icon-set-source");
+  assert.ok(step, JSON.stringify(preview.person));
+  assert.match(
+    step.why,
+    /components\.json names the icon set lucide, and the repository's copy of the tool, tools\/design-assembly, predates the kind icon-set, so its gate would read the row as broken: bring the tool up with upgrade first, then run adopt again; it would then propose design\/sources\/lucide-react\.json, the package lucide-react at 1\.3\.0, as the lockfile pins it/,
+  );
+
+  const done = adopt(dir);
+  assert.ok([0, 1].includes(done.status), done.stderr);
+  assert.equal(existsSync(path.join(dir, "design/sources/lucide-react.json")), false);
+  assert.equal(
+    text(dir, "design/theme.json"),
+    theme,
+    "a check the old tool does not know was laid",
+  );
+  const after = gate(dir);
+  assert.equal(after.status, before.status, after.stdout + after.stderr);
+
+  // The command says the same, and writes nothing.
+  const refused = command(dir, "--package", "lucide-react");
+  assert.equal(refused.status, 2);
+  assert.match(
+    refused.stderr,
+    /predates the kind icon-set, so its gate would read the row as broken: bring the tool up with upgrade first/,
+  );
+  assert.match(refused.stderr, /Nothing was written/);
+  assert.equal(existsSync(path.join(dir, "design/sources/lucide-react.json")), false);
 });
 
 // ---- criterion 21: the names are the repository's data -----------------------------------------

@@ -6510,6 +6510,17 @@
       "plan": "fix",
       "where": ["d0123"],
       "note": "The adopt command lays the check icon-set-pin only on the run that first adds the row holding the ledgers' shapes: on a repository adopted before, a re-run proposes the icon set row without laying the check, and the gate holds the pin only once upgrade or icon-source lays it."
+    },
+    {
+      "opened": "2026-11-26",
+      "status": "open",
+      "id": "icon-set-row-waits-a-run-after-the-tool",
+      "area": "adopt",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "where": ["d0123"],
+      "note": "On a repository whose copy of the tool predates the kind icon-set, adopt proposes no icon set row and says to upgrade first, even on a run that lays the newer tool itself because it adds other checks: the row is proposed on the next run."
     }
   ]
 }

@@ -389,7 +389,10 @@ repository used the set before the row was written. `icon-source` writes the row
 lockfile pins or from a folder of the repository, each file hashed where it is; it fetches and
 installs nothing and never writes over a row, nor writes a second row for a package a row pins.
 `adopt` proposes the row of the set the component library's settings name, where the lockfile pins
-its package, and writes over nothing.
+its package, and writes over nothing. Neither writes a row of the kind, nor lays its check, on a
+repository whose own copy of the tool predates the kind (its `sources-ledger.mjs` names no
+`ICON_SET_KIND`): that gate would read the row as a library with no catalog. They say to bring the
+tool up with `upgrade` first, and what would then be proposed.
 
 The gate fails on an icon set row with no pin, and on one with no licence that no command proposed.
 Once the repository has a row of the kind, the check `icon-set-pin` is laid under the row that holds

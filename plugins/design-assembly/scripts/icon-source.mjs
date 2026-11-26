@@ -29,6 +29,7 @@ import {
   SOURCES_VERSION,
 } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { isDay } from "../templates/tools/design-assembly/waiting.mjs";
+import { toolPredates } from "./tool-knows.mjs";
 
 // The command a row says proposed it, when this script is called by itself.
 const BY = "icon-source";
@@ -142,6 +143,15 @@ export function withPinCheck(root) {
   return renderJson({ ...theme, checks }, lineWidth(root));
 }
 
+// Why no row of the kind is written here, or null: the repository's copy of the tool predates the
+// kind, and its gate would read the row as a library with no catalog.
+export const iconToolPredates = (root) =>
+  toolPredates(root, {
+    file: "sources-ledger.mjs",
+    word: "ICON_SET_KIND",
+    part: `the kind ${ICON_SET_KIND}`,
+  });
+
 // What a person does next with a row a command wrote.
 export const iconLicenceStep = (file) =>
   `write the licence the icon set is used under into licence of ${file}, in a person's words: until then the row is not held`;
@@ -188,6 +198,12 @@ export function ownIconSet(root, { on, by }) {
   }
   if (written.problems.length > 0)
     return { cannot: `${named}, and ${written.problems.join("; ")}` };
+  const predates = iconToolPredates(root);
+  if (predates) {
+    return {
+      cannot: `${named}, and ${predates}, then run adopt again; it would then propose ${written.file}, ${fromOf(origin.pin)}`,
+    };
+  }
   return {
     row: written.file,
     content: written.content,
@@ -278,6 +294,8 @@ function main(args) {
       `${listed.file} already pins ${origin.pin.package}: a package has one row. Change that row by hand. Nothing was written`,
     );
   }
+  const predates = iconToolPredates(root);
+  if (predates) throw new Refusal(`${predates}, then run this again. Nothing was written`);
   const theme = withPinCheck(root);
   const lines = writeFiles(
     root,

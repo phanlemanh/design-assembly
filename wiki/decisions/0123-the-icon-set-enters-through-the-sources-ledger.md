@@ -69,6 +69,20 @@ mục 12.1 là: loại nguồn `icon-set` trong hợp đồng; lệnh viết dò
 7. Bảng năng lực có phích thứ hai ở ổ tài sản thương hiệu, `icon-source`; giới hạn `capability-brand-assets-has-no-plug`
    thu hẹp còn logo và việc giữ màn chỉ dùng thứ đã ghi, vẫn mở (tiêu chí 22 đóng nó khi tiêu chí 7, 8 và 9 xanh).
 
+8. **Không viết dòng mà cổng đã cài đọc không được.** Phiên điều phối soát PR 157 và thấy: trên bản sao một repo nhận
+   từ lâu (công cụ đóng dấu 0.36.1), `adopt` viết dòng `icon-set` và cổng của chính repo ấy đỏ, vì hợp đồng cũ đọc mọi
+   nguồn như thư viện phải có `catalog`. Chủ repo cho gửi về sửa («Gửi cả hai sửa»). Nay `adopt` và `icon-source` hỏi
+   bản sao công cụ của repo (`tools/design-assembly/`) trước: bản sao không nêu `ICON_SET_KIND` trong
+   `sources-ledger.mjs` thì không dòng nào được viết và không phép kiểm nào được đặt. `adopt` nói ở «needs a person»
+   rằng đưa công cụ lên bằng `upgrade` trước, rồi chạy lại, và nêu dòng khi ấy sẽ được đề xuất; `icon-source` từ chối
+   bằng cùng câu. Repo chưa có bản sao (lối nhận đặt công cụ mới trong cùng lượt) và repo có bản sao đã biết loại này
+   chạy như trước. Hàm dùng chung nằm riêng ở `scripts/tool-knows.mjs`.
+
+   **Vì sao đọc bản sao, không đọc dấu phiên bản.** Cổng đọc dòng là chính bản sao ấy. Dấu phiên bản chỉ nói bản sao
+   đến từ phiên bản nào, không nói một bản sao đã bị sửa sau đó, hay một bản sao không có dấu, đọc được gì. Thêm nữa,
+   phiên bản mang loại mới chưa chốt cho tới khi PR gộp: hai lát của giai đoạn 12 dựng song song, và PR gộp sau đổi số
+   phiên bản. Bản sao chỉ được đọc như chữ, không bao giờ chạy.
+
 ## Consequences
 
 - Một repo dùng bộ biểu tượng của thư viện linh kiện được ghim bộ ấy sau một lần `adopt`, và đổi phiên bản gói mà
@@ -78,5 +92,7 @@ mục 12.1 là: loại nguồn `icon-set` trong hợp đồng; lệnh viết dò
   viện; `adopt` chạy lại trên repo đã nhận đề xuất dòng mà không đặt phép kiểm ghim.
 - Bảng chữ → gói nằm ở bộ chuyển của thư viện linh kiện, không phải danh mục gói biểu tượng của lát 2; lát 2 có thể dời
   nó.
+- Repo có công cụ cũ mà `adopt` đưa công cụ mới vào ngay trong lượt ấy (vì thêm phép kiểm khác) vẫn chưa được đề xuất
+  dòng ở lượt đó; lượt sau mới đề xuất (dòng giới hạn `icon-set-row-waits-a-run-after-the-tool`).
 - Còn lại cho lát 2 của mục 12.1: danh mục gói biểu tượng, cổng giữ biểu tượng màn dùng, câu chuẩn `icons` được đáp,
   khuyến nghị của lối dẫn dắt.
