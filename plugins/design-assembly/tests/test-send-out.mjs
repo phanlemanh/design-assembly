@@ -22,6 +22,7 @@ import { execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { bringOut } from "../scripts/bring-out.mjs";
 import { readCapabilities } from "../scripts/capabilities.mjs";
 import { pushedOf, sendOut, PUSHED } from "../scripts/send-out.mjs";
 import { report, status } from "../scripts/status.mjs";
@@ -52,13 +53,16 @@ const put = (dir, file, text) => {
 };
 const cli = (...args) => spawnSync(execPath, [BRING_OUT, ...args], { encoding: "utf8" });
 
-// A copy of this repository with its exports, its waiting list emptied.
+// A copy of this repository with its exports, its waiting list emptied. The exports are written
+// again from what the copy holds: its type is read from a stylesheet and packages it does not
+// carry, so the exports of the repository would be behind it.
 function copyRepo() {
   const dir = mkdtempSync(path.join(tmpdir(), "design-send-out-"));
   made.push(dir);
   for (const file of COPIED)
     cpSync(path.join(ROOT, file), path.join(dir, file), { recursive: true });
   rmSync(path.join(dir, "design/waiting"), { recursive: true, force: true });
+  bringOut(dir, { dryRun: false });
   return dir;
 }
 // Answers a question the way the decision sheet writes it back.

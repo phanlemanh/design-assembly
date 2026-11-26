@@ -17,7 +17,11 @@ folder two levels above this file).
 `node ${CLAUDE_PLUGIN_ROOT}/scripts/bring-out.mjs --target <repo>`. It writes `DESIGN.md` at the
 root and the bundle under `design/export/system/` (`README.md`, `tokens.json`, `components.md`,
 `assets.json`), adds one check of the gate for each to `design/theme.json`, and the row
-`design-exports` of the decision ledger, which points at the tool. `--name NAME` names the system;
+`design-exports` of the decision ledger, which points at the tool. The bundle's `tokens.json` is in
+the shape a design system tool of an assistant reads: each family a list of tokens with a name, a
+value (a colour has one per theme, light first) and its use; type as the families the stylesheet and
+its font loader give and the steps of the scale. A face hosted by a font service is named, with no
+file. `--name NAME` names the system;
 by default the name the exports already have, else the package's name. Add `--json` for the data,
 `--dry-run` to write nothing.
 

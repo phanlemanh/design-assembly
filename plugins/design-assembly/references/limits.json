@@ -6810,6 +6810,52 @@
       "where": ["spec", "d0127"],
       "status": "open",
       "note": "A drawn icon is recorded with its need and why; nothing checks that it follows the grid and the stroke the icon set row records (spec 0017: a drawn icon follows the row's grid and stroke), as nothing holds the sizes and stroke in use (limit icon-set-sizes-stroke-unheld)."
+    },
+    {
+      "id": "bring-out-bundle-tokens-not-read-by-design-system-tools",
+      "area": "capabilities",
+      "kind": "wrong-signal",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0092", "d0128"],
+      "status": "closed",
+      "note": "The system bundle's tokens.json was written as groups of `$value`s (dark under color.dark, type under font), and the design system tool of an assistant it was sent to reads only lists of tokens with a name, a value per theme and a use, so it showed the colours, type, spacing and corners of the first product that sent one as empty; and the face the build's font loader sets was not exported at all.",
+      "closed": "2026-11-26",
+      "closed_by": "d0128: the bundle's tokens.json is lists (colours with a light and a dark value, a role that follows another as {other}; type as families and groups of styles with size and line height; spacing and radius), each token with its use from the plugin's table of colour roles; the families are read from the stylesheet and what loads each (the build's font loader names a hosted face); held by plugin tests with a repository like the first that sent its bundle, seen failing on the old shape"
+    },
+    {
+      "id": "bring-out-bundle-font-files-not-carried",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0128"],
+      "status": "open",
+      "note": "A font the sources ledger pins as files of the repository is listed in assets.json with its files, and the files are not copied into the bundle, so the bundle's type lists no font file and a tool that reads it names the face without being able to load it."
+    },
+    {
+      "id": "bring-out-local-face-unnamed",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-26",
+      "where": ["d0128"],
+      "status": "open",
+      "note": "A face the build's font loader takes from files of the repository (next/font/local) is set under a name the loader makes up, so the bundle names no family for it: its typefaces entry says what loads it with family null, and its type has no stack for that key."
+    },
+    {
+      "id": "bring-out-type-weights-unwritten",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-26",
+      "where": ["d0128"],
+      "status": "open",
+      "note": "The steps of the type scale in the bundle carry a size and a line height and no weight, because no ledger holds which weight a step is set in."
     }
   ]
 }

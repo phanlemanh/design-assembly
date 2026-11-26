@@ -63,19 +63,17 @@ function layoutFiles(root, folder) {
 }
 
 // The modules of the build's font loader a layout file imports, by the name each is called with:
-// the default import of a module, and each name imported from it.
+// the default import of a module, and each name imported from it, each with the kind of module and
+// the name it is imported as.
 function loaderNames(source) {
   const names = new Map();
   const imports =
     /import\s+(?:([\w$]+)\s*,?\s*)?(?:\{([^}]*)\})?\s*from\s+["']next\/font\/(google|local)["']/g;
   for (const [, whole, listed, kind] of source.matchAll(imports)) {
-    if (whole) names.set(whole, kind);
+    if (whole) names.set(whole, { kind, imported: whole });
     for (const item of (listed ?? "").split(",")) {
-      const name = item
-        .trim()
-        .split(/\s+as\s+/)
-        .pop();
-      if (name) names.set(name, kind);
+      const [imported, name = imported] = item.trim().split(/\s+as\s+/);
+      if (name) names.set(name, { kind, imported });
     }
   }
   return names;
@@ -150,7 +148,13 @@ function fontLoads(root, css, stylesheet) {
         by,
         via: "loader",
         file,
-        loader: names.get(call?.name) ?? null,
+        loader: names.get(call?.name)?.kind ?? null,
+        // The face a hosted loader sets is the function it imports, a space written as `_`; one of
+        // local files is named by nothing a reader can see. It is no family a stylesheet can name.
+        face:
+          names.get(call?.name)?.kind === "google"
+            ? names.get(call?.name).imported.replace(/_/g, " ")
+            : null,
         files: call ? namedFiles(root, file, call.text) : [],
       });
     }

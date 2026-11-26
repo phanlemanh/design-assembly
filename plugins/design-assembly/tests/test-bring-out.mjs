@@ -28,6 +28,7 @@ import { regenerated } from "../templates/tools/design-assembly/components.mjs";
 import {
   designMdProblems,
   DESIGN_MD,
+  ROLE_PAIRS,
   SYSTEM_FOLDER,
   stampIn,
 } from "../templates/tools/design-assembly/exports.mjs";
@@ -136,13 +137,26 @@ test("criterion 14: the system bundle holds a README, tokens of both themes, typ
     assert.ok(existsSync(path.join(dir, SYSTEM_FOLDER, file)), file);
   }
   const tokens = JSON.parse(read(dir, `${SYSTEM_FOLDER}/tokens.json`));
-  assert.equal(tokens.color.primary.$value, "#0246ff");
-  assert.match(tokens.color.dark.primary.$value, /^#[0-9a-f]{6}/);
-  assert.equal(tokens.color["sidebar-primary"].$value, "{color.primary}");
-  assert.equal(tokens.radius.base.$value, "10px");
-  assert.equal(tokens.spacing.unit.$value, "4px");
-  assert.equal(tokens.font.size.base.$value, "16px");
-  assert.equal(tokens.font.family.body.$value, "Geist Variable");
+  const colour = (name) => tokens.color.tokens.find((item) => item.name === name);
+  assert.deepEqual(tokens.color.themes, [
+    { id: "light", name: "Light" },
+    { id: "dark", name: "Dark" },
+  ]);
+  assert.equal(colour("primary").value.light, "#0246ff");
+  assert.match(colour("primary").value.dark, /^#[0-9a-f]{6}/);
+  assert.equal(
+    colour("primary").usage,
+    "Text on background. Ground of the text primary-foreground.",
+  );
+  // A role that follows another is a reference to it, in both themes.
+  assert.deepEqual(colour("sidebar-primary").value, { light: "{primary}", dark: "{primary}" });
+  assert.match(colour("sidebar-primary").usage, /^Follows primary: it takes that role's value\./);
+  const token = (family, name) => tokens[family].tokens.find((item) => item.name === name);
+  assert.equal(token("radius", "radius-base").value, "10px");
+  assert.equal(token("spacing", "spacing-unit").value, "4px");
+  const styles = tokens.type.groups.flatMap((group) => group.styles);
+  assert.equal(styles.find((style) => style.name === "text-base").fontSize, "16px");
+  assert.equal(tokens.type.families.sans, '"Geist Variable", sans-serif');
   assert.match(tokens.$description, /written from the design ledgers at [0-9a-f]{12}/i);
   assert.match(read(dir, `${SYSTEM_FOLDER}/README.md`), /^# fixture-product\n/);
   assert.match(read(dir, `${SYSTEM_FOLDER}/components.md`), /\bItemList\b/);
@@ -164,7 +178,7 @@ test("criterion 14, broken: a bundle file changed by hand, or left behind a ledg
   bringOut(dir, { dryRun: false });
   const file = `${SYSTEM_FOLDER}/tokens.json`;
   const tokens = JSON.parse(read(dir, file));
-  tokens.color.primary.$value = "#123456";
+  tokens.color.tokens.find((item) => item.name === "primary").value.light = "#123456";
   put(dir, file, `${JSON.stringify(tokens, null, 2)}\n`);
   assert.match(
     exportsCheck(dir).problem,
@@ -316,4 +330,263 @@ test("review: a path in the component list is a code span, the file's own path, 
   const list = read(dir, `${SYSTEM_FOLDER}/components.md`);
   assert.match(list, /`src\/components\/app-frame\.tsx`/);
   assert.doesNotMatch(list, /\\-/);
+});
+
+// ---- the bundle as a design system tool reads it -------------------------------------------------
+
+// The forty colour roles of a product like the first one that sent its bundle out: the floor's, the
+// status tones with their text, and two of its own.
+const ROLES = [
+  ...Object.keys(ROLE_PAIRS),
+  "destructive-foreground",
+  "success-foreground",
+  "warning-foreground",
+  "info-foreground",
+  "invert",
+  "invert-foreground",
+];
+const hex = (index, shift) =>
+  `#${((index * 2654435 + shift) & 0xffffff).toString(16).padStart(6, "0")}`;
+const TEXT_SIZES = {
+  xs: ["0.75rem", "calc(1 / 0.75)"],
+  sm: ["0.875rem", "calc(1.25 / 0.875)"],
+  base: ["1rem", "calc(1.5 / 1)"],
+  lg: ["1.125rem", "calc(1.75 / 1.125)"],
+  xl: ["1.25rem", "calc(1.75 / 1.25)"],
+  "2xl": ["1.5rem", "calc(2 / 1.5)"],
+  "3xl": ["1.875rem", "calc(2.25 / 1.875)"],
+  "4xl": ["2.25rem", "calc(2.5 / 2.25)"],
+  "5xl": ["3rem", "1"],
+};
+
+// A repository built with Next.js whose running text is a hosted face its build's font loader sets
+// (the stylesheet names only the variable), forty colour roles in light and dark, some dark ones
+// written as CSS that is no hexadecimal, the type scale, corners and the floor's spacing unit.
+function hostedFaceRepo({ face = "Inter" } = {}) {
+  const dir = mkdtempSync(path.join(tmpdir(), "design-bring-out-hosted-"));
+  made.push(dir);
+  cpSync(
+    path.join(PLUGIN, "templates/tools/design-assembly"),
+    path.join(dir, "tools/design-assembly"),
+    {
+      recursive: true,
+    },
+  );
+  put(
+    dir,
+    "package.json",
+    `${JSON.stringify({ name: "hosted-face", dependencies: { next: "16.0.0" } })}\n`,
+  );
+  put(dir, "next.config.mjs", "export default {};\n");
+  put(
+    dir,
+    "src/app/layout.tsx",
+    `import { ${face.replace(/ /g, "_")} } from "next/font/google";\n\nconst sans = ${face.replace(/ /g, "_")}({ subsets: ["latin"], variable: "--font-sans" });\n\nexport default function Layout({ children }) {\n  return <html className={sans.variable}><body>{children}</body></html>;\n}\n`,
+  );
+  const color = Object.fromEntries(
+    ROLES.map((role, index) => {
+      const dark =
+        index % 7 === 0
+          ? "oklch(1 0 0 / 10%)"
+          : index % 5 === 0
+            ? `color-mix(in oklch, ${hex(index, 0)} 60%, white)`
+            : hex(index, 99);
+      return [
+        role,
+        { $type: "color", $value: hex(index, 0), $extensions: { "design-assembly": { dark } } },
+      ];
+    }),
+  );
+  const text = Object.fromEntries(
+    Object.entries(TEXT_SIZES).map(([step, [size]]) => [
+      step,
+      { $type: "dimension", $value: size },
+    ]),
+  );
+  const radius = Object.fromEntries(
+    [
+      ["sm", "0.375rem"],
+      ["md", "0.5rem"],
+      ["lg", "0.625rem"],
+      ["xl", "0.875rem"],
+    ].map(([step, size]) => [step, { $type: "dimension", $value: size }]),
+  );
+  put(dir, "design/tokens.json", `${JSON.stringify({ color, radius, text }, null, 2)}\n`);
+  put(
+    dir,
+    "src/app/globals.css",
+    [
+      "@theme inline {",
+      "  --font-heading: var(--font-sans);",
+      "  --font-sans: var(--font-sans);",
+      "  --font-mono: ui-monospace, SFMono-Regular, monospace;",
+      ...Object.entries(TEXT_SIZES).flatMap(([step, [size, leading]]) => [
+        `  --text-${step}: ${size};`,
+        `  --text-${step}--line-height: ${leading};`,
+      ]),
+      "}",
+      ":root {",
+      ...ROLES.map((role) => `  --${role}: ${color[role].$value};`),
+      "}",
+      "",
+    ].join("\n"),
+  );
+  put(
+    dir,
+    "design/theme.json",
+    `${JSON.stringify({ version: 1, stylesheet: "src/app/globals.css", inputs: { conformanceLevel: "AA" }, checks: {} }, null, 2)}\n`,
+  );
+  put(dir, "design/decisions.yaml", "decisions:\n");
+  return dir;
+}
+
+// What a design system tool takes as a name, a colour and a length.
+const NAME = /^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$/;
+const COLOUR = /^(#[0-9a-f]{6}([0-9a-f]{2})?|\{[A-Za-z0-9][A-Za-z0-9_.-]*\})$/;
+const LENGTH = /^-?\d*\.?\d+(px|rem|em|%)?$/;
+
+test("the system bundle's tokens are lists a design system tool reads: forty roles in light and dark, the hosted face, the scale, corners and spacing, each with its use", () => {
+  const dir = hostedFaceRepo();
+  bringOut(dir, { name: "Hosted Face", dryRun: false });
+  const tokens = JSON.parse(read(dir, `${SYSTEM_FOLDER}/tokens.json`));
+  assert.equal(tokens.name, "Hosted Face");
+  assert.equal(tokens.version, 1);
+  assert.deepEqual(
+    tokens.color.themes.map((theme) => theme.id),
+    ["light", "dark"],
+  );
+  assert.equal(tokens.color.tokens.length, 40);
+  for (const item of tokens.color.tokens) {
+    assert.match(item.value.light, COLOUR, item.name);
+    assert.match(item.value.dark, COLOUR, item.name);
+    assert.ok(item.usage.length > 0, item.name);
+  }
+  // A dark value the stylesheet writes with alpha, or mixed, is written as the hexadecimal it is.
+  assert.equal(tokens.color.tokens.find((item) => item.name === ROLES[7]).value.dark, "#ffffff1a");
+  // Each role's use is the plugin's table of colour roles, never words made up for it.
+  const use = (name) => tokens.color.tokens.find((item) => item.name === name).usage;
+  assert.equal(use("muted-foreground"), "Text on muted, background.");
+  assert.equal(use("ring"), "A part that is not text, against background.");
+  assert.match(
+    use("chart-3"),
+    /^Measured in no pair: a chart's colours are read beside each other/,
+  );
+  assert.match(use("invert"), /the plugin's table of colour roles does not describe it/);
+  // The face the build's font loader sets is the family, named only, since it is hosted.
+  assert.deepEqual(tokens.type.fonts, []);
+  assert.deepEqual(tokens.type.families, {
+    sans: '"Inter"',
+    heading: '"Inter"',
+    mono: "ui-monospace, SFMono-Regular, monospace",
+  });
+  assert.deepEqual(
+    tokens.type.groups.map((group) => [group.name, group.family, group.styles.length]),
+    [
+      ["Text", "sans", 4],
+      ["Headings", "heading", 5],
+    ],
+  );
+  const styles = tokens.type.groups.flatMap((group) => group.styles);
+  assert.deepEqual(
+    styles.find((style) => style.name === "text-sm"),
+    {
+      name: "text-sm",
+      fontSize: "14px",
+      lineHeight: "20px",
+      usage: "Running text: step sm of the type scale.",
+    },
+  );
+  assert.deepEqual(tokens.spacing.tokens, [
+    {
+      name: "spacing-unit",
+      value: "4px",
+      usage: "The spacing unit: every distance is a multiple of it.",
+    },
+  ]);
+  assert.deepEqual(
+    tokens.radius.tokens.map((item) => [item.name, item.value]),
+    [
+      ["radius-base", "10px"],
+      ["radius-sm", "6px"],
+      ["radius-md", "8px"],
+      ["radius-lg", "10px"],
+      ["radius-xl", "14px"],
+    ],
+  );
+  // Every name is one a tool takes, each used once across the families.
+  const names = [
+    ...tokens.color.tokens,
+    ...tokens.spacing.tokens,
+    ...tokens.radius.tokens,
+    ...styles,
+  ].map((item) => item.name);
+  for (const name of names) assert.match(name, NAME);
+  assert.equal(new Set(names).size, names.length);
+  for (const item of [...tokens.spacing.tokens, ...tokens.radius.tokens]) {
+    assert.match(item.value, LENGTH);
+    assert.ok(item.usage);
+  }
+  assert.equal(tokens.$left_out, undefined);
+  // The assets say which face it is and what loads it; the sources ledger pins no font file here.
+  const assets = JSON.parse(read(dir, `${SYSTEM_FOLDER}/assets.json`));
+  assert.deepEqual(assets.typefaces[0], {
+    key: "sans",
+    variable: "--font-sans",
+    family: "Inter",
+    loaded_by: "the font loader in src/app/layout.tsx",
+    hosted: "google",
+  });
+  assert.deepEqual(assets.fonts, []);
+  // The DESIGN.md names the face too.
+  assert.match(read(dir, DESIGN_MD), /^ {4}fontFamily: "Inter"$/m);
+  // The gate holds what was written.
+  assert.equal(exportsCheck(dir).problem, null);
+  // What goes out comes back in: the bridge in reads the lists.
+  const back = candidateFrom(path.join(dir, SYSTEM_FOLDER));
+  assert.equal(back.values.source_color, hex(ROLES.indexOf("primary"), 0));
+  assert.equal(back.values.type_scale, "standard");
+  assert.equal(back.fonts.text, '"Inter"');
+});
+
+test("the system bundle, broken: the face the build loads changes and the exports are not written again, the gate goes red", () => {
+  const dir = hostedFaceRepo();
+  bringOut(dir, { dryRun: false });
+  assert.equal(exportsCheck(dir).problem, null);
+  put(
+    dir,
+    "src/app/layout.tsx",
+    read(dir, "src/app/layout.tsx").replaceAll("Inter", "Roboto_Mono"),
+  );
+  assert.match(exportsCheck(dir).problem, /tokens\.json was written from the design ledgers at/);
+  bringOut(dir, { dryRun: false });
+  const tokens = JSON.parse(read(dir, `${SYSTEM_FOLDER}/tokens.json`));
+  assert.equal(tokens.type.families.sans, '"Roboto Mono"');
+});
+
+test("the system bundle: a name a design system tool would not take is left out of the lists and named", () => {
+  const dir = hostedFaceRepo();
+  const tokens = JSON.parse(read(dir, "design/tokens.json"));
+  tokens.color["-odd name"] = { $type: "color", $value: "#123456" };
+  put(dir, "design/tokens.json", `${JSON.stringify(tokens, null, 2)}\n`);
+  bringOut(dir, { dryRun: false });
+  const written = JSON.parse(read(dir, `${SYSTEM_FOLDER}/tokens.json`));
+  assert.ok(!written.color.tokens.some((item) => item.name === "-odd name"));
+  assert.deepEqual(written.$left_out, ["-odd name"]);
+});
+
+test("the pairs the exports write a colour role's use from are the plugin's table of colour roles", () => {
+  const table = JSON.parse(readFileSync(path.join(PLUGIN, "references/color-roles.json"), "utf8"));
+  const fromTable = Object.fromEntries(
+    table.roles.map((entry) => [
+      entry.role.slice(2),
+      Object.fromEntries(
+        [
+          ["on", entry.on?.map((role) => role.slice(2))],
+          ["against", entry.against?.map((role) => role.slice(2))],
+          ["unmeasured", entry.unmeasured],
+        ].filter(([, value]) => value !== undefined),
+      ),
+    ]),
+  );
+  assert.deepEqual(ROLE_PAIRS, fromTable);
 });

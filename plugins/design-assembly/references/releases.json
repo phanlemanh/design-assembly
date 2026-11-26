@@ -480,6 +480,12 @@
       "templates": "c15a7f4e6636c2e6ce0ad8aa46b98f2f7b2ee7fd",
       "scripts": "09be0d609a4d9e85c3fc37ebccae8a95df9b5c09",
       "tool": "d05f57152e3ba43b6ec3f2bb4099f116052839a1"
+    },
+    {
+      "version": "0.75.0",
+      "templates": "29ef2351e49ae52c3e8e2b7f2b6a6a9be909baf4",
+      "scripts": "c1c1c13889ed7d28d324c7a10286c7db079c1fab",
+      "tool": "6ebbfce0bf258e3b6d43b120d0b66181e9117b43"
     }
   ]
 }
