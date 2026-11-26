@@ -3469,7 +3469,7 @@
       "opened": "2026-11-20",
       "where": ["spec", "d0069"],
       "status": "open",
-      "note": "The brand assets socket has a plug for fonts, one for the icon set's row and its pin (plugin 0.70.0, item 12.1 slice 1), and one for the mark's row and its pin (plugin 0.71.0, item 12.2 slice 1): no check holds that a screen uses only the recorded icon set, nor that the page icons the build declares and the images the app frame imports are files of a logo row."
+      "note": "The brand assets socket has a plug for fonts, one for the icon set's row, its pin and the icons the code uses (plugins 0.70.0 and 0.72.0, item 12.1), and one for the mark's row and its pin (plugin 0.71.0, item 12.2 slice 1): no check holds that the page icons the build declares and the images the app frame imports are files of a logo row (spec 0017, criterion 9, item 12.2 slice 2). Criterion 22 closes this row once criteria 7, 8 and 9 are green."
     },
     {
       "id": "capability-content-has-no-plug",
@@ -6469,14 +6469,16 @@
     },
     {
       "opened": "2026-11-26",
-      "status": "open",
+      "status": "closed",
       "id": "icon-set-use-unheld",
       "area": "checks",
       "kind": "no-check",
       "severity": "medium",
       "plan": "fix",
-      "where": ["d0123", "spec"],
-      "note": "The gate holds the pin of an icon set row, not its use: a screen that imports icons from another icon package, or writes an svg element of its own, is not red. Slice 2 of item 12.1 (spec 0017, criterion 8) adds the list of known icon packages and that check."
+      "where": ["d0123", "spec", "d0125"],
+      "note": "The gate holds the pin of an icon set row, not its use: a screen that imports icons from another icon package, or writes an svg element of its own, is not red. Slice 2 of item 12.1 (spec 0017, criterion 8) adds the list of known icon packages and that check.",
+      "closed": "2026-11-26",
+      "closed_by": "The check icon-set-use (plugin 0.72.0, item 12.1 slice 2, d0125): on a repository with an icon set row, a file that imports a package of the plugin's list of icon packages (references/icon-packages.json) that no icon set row records, or a file that draws a screen and writes an svg element by hand, turns the gate red; a file of a folder an icon set row records does not. Laid under the row icons of the decision ledger by icon-source, adopt and upgrade, held by plugin tests that break it"
     },
     {
       "opened": "2026-11-26",
@@ -6600,6 +6602,74 @@
       "note": "On a repository whose installed tool predates the kind logo, adopt wrote a logo row and laid the check of its pins, and the repository's own gate turned red on a row it read as a library with no catalog and on a check it did not know.",
       "closed": "2026-11-26",
       "closed_by": "adopt and logo-source ask the installed copy of the tool whether its sources ledger knows LOGO_KIND, with the helper toolPredates the icon set also uses, as core --join asks for its check; where it does not, nothing is written and the report names upgrade first, held by plugin tests on the tools of releases 0.69.0 and 0.70.0"
+    },
+    {
+      "id": "icon-set-folder-read-as-outside-source",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0123", "d0125"],
+      "status": "closed",
+      "note": "The check taken-down read the folder an icon set row records as the folder of an outside source: a screen that used an icon kept as a file of that folder turned the gate red, asking for a conform record and an intake row the icon set never needs.",
+      "closed": "2026-11-26",
+      "closed_by": "The check taken-down leaves out the folder of a row of the kind icon-set (plugin 0.72.0, d0125), held by a plugin test where a screen imports an icon of the recorded folder and the gate stays green. A repository whose installed tool is 0.70.0 or 0.71.0 keeps the old reading until upgrade brings the tool up"
+    },
+    {
+      "id": "icon-packages-copied-when-laid",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0125"],
+      "status": "open",
+      "note": "The check icon-set-use carries the plugin's list of icon packages as it was when the check was laid: a package added to references/icon-packages.json later reaches a repository only when a person writes it into the check's packages, or takes the check out and lays it again. No command refreshes the list."
+    },
+    {
+      "id": "icon-package-outside-the-list",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-26",
+      "where": ["d0125", "spec"],
+      "status": "open",
+      "note": "An icon package the list of icon packages does not name is not seen: code that imports icons from it keeps the gate green beside the recorded set. The list is data a person edits (spec 0017, answer 4, criterion 22)."
+    },
+    {
+      "id": "icon-svg-rule-reads-every-drawing-file",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0125", "spec"],
+      "status": "open",
+      "note": "The spec holds the svg elements a screen's file writes; the tool cannot tell a screen from a component of the repository's own in every repository, so the check reads every .jsx and .tsx file of the folder of source that is no part of the component library and no file of a folder an icon set row records. An svg that is no icon, a chart or an illustration drawn in such a file, is red too: it moves to a part of the library or to a recorded folder, or the file goes under the check's skip."
+    },
+    {
+      "id": "icon-use-reads-written-imports",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-26",
+      "where": ["d0125"],
+      "status": "open",
+      "note": "The check icon-set-use reads an import as written (from, import and import() with a plain name): a package reached through require, an import() whose name is built while the code runs, or a module of the repository's own that only passes on another package's icons, is not seen."
+    },
+    {
+      "id": "icon-set-recommendation-asked-not-told",
+      "area": "status",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-26",
+      "where": ["d0125", "spec"],
+      "status": "open",
+      "note": "The icon set the guide recommends to a repository with none is said by icon-source when the guide or a person runs it with no package or folder: status and audit do not list it, so a repository with no icon set row reads as before (spec 0017, criterion 1)."
     }
   ]
 }

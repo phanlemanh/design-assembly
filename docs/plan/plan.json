@@ -662,8 +662,8 @@
         {
           "id": "12.1",
           "what": "Bộ biểu tượng vào sổ nguồn, và cổng giữ nó",
-          "state": "todo",
-          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, tiêu chí 1, 2, 3, 5 đến 8, 12, 13, 20 và 21; hai lát, mỗi lát một PR; đổi hợp đồng sổ, cần người duyệt. Lát 1 dựng ngày 2026-11-26 ở plugin 0.70.0 (quyết định 0123): loại nguồn `icon-set` trong hợp đồng, lệnh `icon-source`, `adopt` đề xuất dòng từ cài đặt của thư viện linh kiện, cổng giữ ghim bằng phép kiểm `icon-set-pin`; tiêu chí 1, 2, 3, 5, 6, 7 (phần bộ biểu tượng), 20 và 21 có bài kiểm. Lát 2 còn lại: danh mục gói biểu tượng, cổng giữ biểu tượng màn dùng, câu chuẩn `icons` được đáp, khuyến nghị của lối dẫn dắt (tiêu chí 8, 12, 13)"
+          "state": "done",
+          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, tiêu chí 1, 2, 3, 5 đến 8, 12, 13, 20 và 21; hai lát, mỗi lát một PR; đổi hợp đồng sổ, cần người duyệt. Lát 1 (PR 157, plugin 0.70.0, wiki/decisions/0123-the-icon-set-enters-through-the-sources-ledger.md): loại nguồn `icon-set` trong hợp đồng, lệnh `icon-source`, `adopt` đề xuất dòng từ cài đặt của thư viện linh kiện, cổng giữ ghim bằng phép kiểm `icon-set-pin`; tiêu chí 1, 2, 3, 5, 6, 7 (phần bộ biểu tượng), 20 và 21. Lát 2 (PR của nhánh claude/icon-set-slice-2-732a35, plugin 0.72.0, wiki/decisions/0125-the-gate-holds-which-icons-the-code-uses.md): danh mục gói biểu tượng `references/icon-packages.json`, cổng giữ biểu tượng mã dùng bằng phép kiểm `icon-set-use`, câu chuẩn `icons` được đáp bằng dòng trỏ tới dòng nguồn, khuyến nghị bộ của bộ khởi đầu qua `icon-source` không cờ; tiêu chí 1, 8, 12, 13, 20 và 21. Mục xong ngày 2026-11-26"
         },
         {
           "id": "12.2",

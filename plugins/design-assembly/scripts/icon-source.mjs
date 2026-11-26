@@ -21,15 +21,18 @@ import { adapterOf } from "../templates/tools/design-assembly/adapters/index.mjs
 import { pinnedPackage } from "../templates/tools/design-assembly/adapters/lockfile.mjs";
 import { newerProblem, shapeProblems } from "../templates/tools/design-assembly/contract.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
+import { LEDGER } from "../templates/tools/design-assembly/ledger.mjs";
 import {
   ICON_SET_CHECK,
   ICON_SET_KIND,
+  ICON_USE_CHECK,
   readIconSets,
   SOURCES_FOLDER,
   SOURCES_VERSION,
 } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { isDay } from "../templates/tools/design-assembly/waiting.mjs";
 import { toolPredates } from "./tool-knows.mjs";
+import { iconsDecision, iconsToday, proposedIconSet, recommendedIconSet } from "./icon-use.mjs";
 
 // The command a row says proposed it, when this script is called by itself.
 const BY = "icon-source";
@@ -152,6 +155,16 @@ export const iconToolPredates = (root) =>
     part: `the kind ${ICON_SET_KIND}`,
   });
 
+// The package of the recommended icon set. It throws where there is none to write: the ledger has an
+// icon set already, or nothing is recommended.
+function recommendedPackage(root) {
+  const rec = recommendedIconSet(root);
+  if (rec.row)
+    throw new Error(`${rec.row} is the icon set of the sources ledger: nothing to recommend`);
+  if (rec.none) throw new Error("no icon set is recommended here: give --package or --folder");
+  return rec.package;
+}
+
 // What a person does next with a row a command wrote.
 export const iconLicenceStep = (file) =>
   `write the licence the icon set is used under into licence of ${file}, in a person's words: until then the row is not held`;
@@ -214,14 +227,20 @@ export function ownIconSet(root, { on, by }) {
   };
 }
 
-const USAGE = `usage: node icon-source.mjs [--target DIR] (--package NAME | --folder PATH) [--title TEXT]
-                            [--id ID] [--on DATE] [--dry-run] [--json]
+const USAGE = `usage: node icon-source.mjs [--target DIR] [--package NAME | --folder PATH | --recommended]
+                            [--title TEXT] [--id ID] [--on DATE] [--dry-run] [--json]
+
+  With none of the three, says which icon set is recommended here and writes nothing: none where
+  the sources ledger has an icon set row; the set the code already imports, where it imports one;
+  else the set the pieces of the plugin's starter kit import.
 
   --package   The package the icons come in, the module the code imports them from. The row pins
               the version the repository's lockfile pins it at; a package the lockfile does not
               pin gets no row.
   --folder    The folder of the repository its own icon files are kept in, by its path from the
               root. Each file under it is hashed where it is.
+  --recommended  The row of the recommended set, written as --package writes it: only where the
+              lockfile pins it.
   --title     The name the row gives the set. Without it, the package, or the folder's name.
   --id        The row's id, and the name of its file. Without it, made from the package or the
               folder's name.
@@ -231,11 +250,13 @@ const USAGE = `usage: node icon-source.mjs [--target DIR] (--package NAME | --fo
 
   Writes one file, ${SOURCES_FOLDER}/<id>.json, and never writes over one, nor writes a second row for a
   package a row pins. Where the gate is installed, it also lays the check of the icon sets' pins
-  in ${THEME}. It fetches and installs nothing. The row has no licence: a person writes it, and
+  in ${THEME}, and answers icons in design/decisions.yaml with the row, held by the check of the
+  icons the code uses. It fetches and installs nothing. The row has no licence: a person writes it, and
   the row is held from then on.
 
-  Ends with 1 when the row is written, since its licence waits on a person; with 2 on a wrong
-  call, an icon set the repository does not hold, or a row that is already there.
+  Ends with 1 when the row is written, since its licence waits on a person, and when a set is
+  recommended, since a person chooses it; with 0 when the ledger already has an icon set; with 2 on
+  a wrong call, an icon set the repository does not hold, or a row that is already there.
 `;
 
 const FLAGS = {
@@ -244,8 +265,58 @@ const FLAGS = {
   "--title": "value",
   "--id": "value",
   "--on": "value",
+  "--recommended": "switch",
   "--dry-run": "switch",
 };
+
+// Where the lockfile stands on the recommended set, and how its row is written, in a person's words.
+function lockLine(rec) {
+  const install = `install it as the repository installs a package, then write its row with icon-source --recommended; nothing is installed here`;
+  if (rec.lockfile === null) {
+    return `the repository has no lockfile this tool reads: ${install.replace("install it", `install ${rec.package}`)}`;
+  }
+  if (rec.version === null) return `${rec.lockfile} does not pin ${rec.package}: ${install}`;
+  return `${rec.lockfile} pins ${rec.package} at ${rec.version}: write its row with icon-source --recommended`;
+}
+
+// The icon set recommended here, said and never written (spec 0017, criterion 12).
+function recommend(call) {
+  const root = call.target;
+  const rec = recommendedIconSet(root);
+  if (rec.row) {
+    return finish({
+      json: call.json,
+      result: { recommended: null, row: rec.row },
+      text: `icon set: ${rec.row} is the icon set of the sources ledger: nothing to recommend\n`,
+      work: false,
+    });
+  }
+  if (rec.none) {
+    return finish({
+      json: call.json,
+      result: { recommended: null, row: null },
+      text: "icon set: no row of the kind icon-set in the sources ledger, and the pieces of the starter kit import no icon package this plugin knows: write the row of the set you choose with icon-source --package NAME, or --folder PATH\n",
+      work: true,
+    });
+  }
+  const why =
+    rec.because === "imported"
+      ? `the icon set the code already imports (${rec.files} file(s))`
+      : `the icon set the pieces of the starter kit import (${rec.pieces.join(", ")})`;
+  const text = [
+    "icon set: no row of the kind icon-set in the sources ledger",
+    `recommended: ${rec.package}, ${why}: one set in the repository, not two`,
+    `  ${lockLine(rec)}`,
+    "  or choose another set, and write its row with icon-source --package NAME, or --folder PATH for icons kept as files of the repository",
+    "nothing was written",
+  ];
+  return finish({
+    json: call.json,
+    result: { recommended: rec, row: null },
+    text: `${text.join("\n")}\n`,
+    work: true,
+  });
+}
 
 function main(args) {
   const call = readCall(args, FLAGS);
@@ -253,9 +324,11 @@ function main(args) {
   if (call.help) return void stdout.write(USAGE);
   const root = call.target;
   const flags = call.flags;
-  if (Boolean(flags["--package"]) === Boolean(flags["--folder"])) {
+  const named = ["--package", "--folder", "--recommended"].filter((flag) => flags[flag]);
+  if (named.length === 0) return recommend(call);
+  if (named.length > 1) {
     return refuse(
-      "give --package or --folder, one of the two: where the icon set comes from",
+      "give --package, --folder or --recommended, one of the three: where the icon set comes from",
       USAGE,
     );
   }
@@ -264,9 +337,9 @@ function main(args) {
   const dryRun = flags["--dry-run"] === true;
   let origin;
   try {
-    origin = flags["--package"]
-      ? iconPackagePin(root, flags["--package"])
-      : iconFolderPin(root, flags["--folder"]);
+    origin = flags["--folder"]
+      ? iconFolderPin(root, flags["--folder"])
+      : iconPackagePin(root, flags["--package"] ?? recommendedPackage(root));
   } catch (error) {
     throw new Refusal(`${error.message}. Nothing was written`);
   }
@@ -296,17 +369,43 @@ function main(args) {
   }
   const predates = iconToolPredates(root);
   if (predates) throw new Refusal(`${predates}, then run this again. Nothing was written`);
-  const theme = withPinCheck(root);
+  const pinned = withPinCheck(root);
+  // Where the gate is installed, the row answers the standard question icons, held by the check of
+  // the icons the code uses; what that check finds today is said.
+  const icons = iconsDecision(root, {
+    file: written.file,
+    ...(pinned ? { themeText: pinned } : {}),
+  });
+  const theme = icons?.theme ?? pinned;
+  const redToday = icons?.theme
+    ? iconsToday(root, [...readIconSets(root), proposedIconSet(written.file, written.content)])
+    : [];
   const lines = writeFiles(
     root,
-    { [written.file]: written.content, ...(theme ? { [THEME]: theme } : {}) },
+    {
+      [written.file]: written.content,
+      ...(theme ? { [THEME]: theme } : {}),
+      ...(icons?.ledger ? { [LEDGER]: icons.ledger } : {}),
+    },
     dryRun,
   );
   const next = iconLicenceStep(written.file);
   const text = [
     `icon set: ${written.row.title}, from ${fromOf(origin.pin)}`,
     ...lines.map((line) => `  ${line}`),
-    ...(theme ? [`gate: the check ${ICON_SET_CHECK.kind} holds the pin from now on`] : []),
+    ...(pinned ? [`gate: the check ${ICON_SET_CHECK.kind} holds the pin from now on`] : []),
+    ...(icons?.theme
+      ? [
+          `gate: the check ${ICON_USE_CHECK.kind} holds which icons the code uses, under the row icons of ${LEDGER}`,
+        ]
+      : []),
+    ...(redToday.length > 0
+      ? [
+          `gate: red today: ${redToday.slice(0, 3).join("; ")}${redToday.length > 3 ? `; and ${redToday.length - 3} more` : ""}`,
+        ]
+      : []),
+    ...(icons?.predates ? [`gate: ${icons.predates}`] : []),
+    ...(icons?.kept ? [`gate: ${icons.kept}`] : []),
     ...(origin.stated ? [`licence: ${origin.stated}`] : []),
     `next: ${next}`,
     ...(dryRun ? ["preview only: nothing was written"] : []),
@@ -318,7 +417,9 @@ function main(args) {
       row: written.file,
       icon_set: written.row,
       stated: origin.stated,
-      check_laid: theme !== null,
+      check_laid: pinned !== null,
+      icons_laid: Boolean(icons?.theme),
+      red_today: redToday,
       next,
       files: writtenFiles(lines),
     },

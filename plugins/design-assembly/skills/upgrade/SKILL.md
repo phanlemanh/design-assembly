@@ -59,6 +59,11 @@ It ends with:
   data lacks, is added: today the checks of items taken down, of the choice and of floating parts
   under `ledger-shapes`. The first can turn the gate red when the code uses an item of an outside
   source not taken in; say so before you run it.
+- `row:` a row of the decision ledger the installed tool answers and the ledger lacks, added with
+  its check: today `icons`, on a repository with an icon set row and no answer to it, held by
+  `icon-set-use`. It can turn the gate red where code imports an icon package no icon set row
+  records, or a screen writes an svg element by hand; the preview's gate line says so before
+  anything is written.
 - `floating parts:` where the repository lists the adapter's test browser, upgrade writes the
   browser test `tests/e2e/floating-parts.spec.ts` when the repository has none, and never writes
   over one. It lists the conform records whose items the test will hold. Upgrade runs no browser:
