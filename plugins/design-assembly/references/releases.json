@@ -474,6 +474,12 @@
       "templates": "dc4f81acc9d3d88d1c4fba196e85d32e4f837a57",
       "scripts": "0ecd50574ba2bbce1a2028601db8dcd0cdf4e015",
       "tool": "68aa680f4b78295587d4777408e19bf71aa861ed"
+    },
+    {
+      "version": "0.74.0",
+      "templates": "c15a7f4e6636c2e6ce0ad8aa46b98f2f7b2ee7fd",
+      "scripts": "09be0d609a4d9e85c3fc37ebccae8a95df9b5c09",
+      "tool": "d05f57152e3ba43b6ec3f2bb4099f116052839a1"
     }
   ]
 }

@@ -6,8 +6,11 @@
 // there, and `status` asks for it. A row that exists is never written over. Where the gate is laid,
 // the check that holds the pin of every logo row is laid beside the row.
 // With --into, the files are added to a row already there, and nothing it pins or says is changed.
-// Usage: node logo-source.mjs [--target DIR] --file PATH:ROLE:VARIANT [--file ...] [--title NAME]
-//                             [--id ID | --into ID] [--on DATE] [--dry-run] [--json]
+// With --package, the files are those of a package an outside plug left, read with its manifest:
+// each compared with the hash the manifest lists, the row saying which plug made the mark and on
+// which day; who chose it is read from the decision sheet, never from the package.
+// Usage: node logo-source.mjs [--target DIR] (--file PATH:ROLE:VARIANT [--file ...] | --package DIR)
+//                             [--title NAME] [--id ID | --into ID] [--on DATE] [--dry-run] [--json]
 // Exit: 0 files added to a row a person finished; 1 the row is written, or would be, and its
 // licence waits on a person; 2 a wrong call, a file the repository does not hold, or a row that is
 // already there.
@@ -18,6 +21,7 @@ import { stdout } from "node:process";
 import { writeFiles, writtenFiles } from "./apply.mjs";
 import { finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { filesPin, idOf, today } from "./font-source.mjs";
+import { chosenOnSheet, readLogoPackage } from "./logo-package.mjs";
 import { buildOf } from "../templates/tools/design-assembly/adapters/index.mjs";
 import { newerProblem, shapeProblems } from "../templates/tools/design-assembly/contract.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
@@ -82,7 +86,7 @@ function packageName(root) {
 // The row of a mark, as it would be written, with its file. Each named file is hashed where it is,
 // and keeps the role and the variant it was named with. It throws on a file that is not there, or
 // one named twice. The row has no licence: no tool writes one.
-export function logoRow(root, { files, title, id, own = false, by = BY, on }) {
+export function logoRow(root, { files, title, id, own = false, made = null, by = BY, on }) {
   const seen = new Set();
   for (const entry of files) {
     if (seen.has(entry.file)) {
@@ -110,6 +114,7 @@ export function logoRow(root, { files, title, id, own = false, by = BY, on }) {
       })),
     },
     ...(own ? { own: true } : {}),
+    ...(made ? { made } : {}),
     proposed: { by, on },
   };
   const file = `${SOURCES_FOLDER}/${named}.json`;
@@ -245,15 +250,20 @@ export function ownMark(root, { on, by }) {
   };
 }
 
-const USAGE = `usage: node logo-source.mjs [--target DIR] --file PATH:ROLE:VARIANT [--file ...]
+const USAGE = `usage: node logo-source.mjs [--target DIR] (--file PATH:ROLE:VARIANT [--file ...] | --package DIR)
                             [--title NAME] [--id ID] [--on DATE] [--dry-run] [--json]
 
   --file      A file of the mark, already in the repository, by its path from its root, with its
               role and its variant; once per file. Each is hashed where it is.
               Roles: ${LOGO_ROLES.join(", ")}.
               Variants: ${LOGO_VARIANTS.join(", ")}.
-  --title     The name of the product the mark stands for. Without it, the name the repository's
-              package gives.
+  --package   A folder of the repository holding a package of mark files an outside plug left,
+              with its manifest, manifest.json, beside them: every file is compared with the
+              hash the manifest lists, and the package holds no file it does not name. The row
+              says which plug made the mark and on which day; who chose it is read from the
+              waiting list. In place of --file.
+  --title     The name of the product the mark stands for. Without it, the title of the package's
+              manifest, else the name the repository's package gives.
   --id        The row's id, and the name of its file. Without it, ${LOGO_ID}.
   --into      The id of a logo row already there: the files are added to it, each hashed where it
               is, and nothing the row pins or says is changed. A file it pins is refused.
@@ -286,16 +296,29 @@ function main(args) {
   if (call.help) return void stdout.write(USAGE);
   const root = call.target;
   const flags = call.flags;
-  if (flags["--package"] !== undefined) {
-    throw new Refusal(
-      "a package of mark files with its manifest is not read yet: give each file already in the repository with --file PATH:ROLE:VARIANT. Nothing was written",
+  const given = flags["--file"] ?? [];
+  const fromPackage = flags["--package"] !== undefined;
+  if (fromPackage && given.length > 0) {
+    return refuse(
+      "give --file or --package, not both: where the files of the mark come from",
+      USAGE,
     );
   }
-  const given = flags["--file"] ?? [];
-  if (given.length === 0) {
-    return refuse("--file names a file of the mark, as PATH:ROLE:VARIANT, once per file", USAGE);
+  if (!fromPackage && given.length === 0) {
+    return refuse(
+      "--file names a file of the mark, as PATH:ROLE:VARIANT, once per file; or --package names a package of them",
+      USAGE,
+    );
   }
-  const files = given.map(namedFile);
+  let pack = null;
+  if (fromPackage) {
+    try {
+      pack = readLogoPackage(root, flags["--package"]);
+    } catch (error) {
+      throw new Refusal(`${error.message}. Nothing was written`);
+    }
+  }
+  const files = pack ? pack.files : given.map(namedFile);
   const on = flags["--on"] ?? today();
   if (!isDay(on)) throw new Refusal(`--on takes a day written YYYY-MM-DD, and ${on} is not one`);
   const id = flags["--id"] === undefined ? undefined : idOf(flags["--id"]);
@@ -303,14 +326,17 @@ function main(args) {
   const dryRun = flags["--dry-run"] === true;
   if (flags["--into"] !== undefined) {
     if (id !== undefined) throw new Refusal("give --id or --into, not both");
+    if (pack)
+      throw new Refusal("give --package or --into, not both: a package makes a row of its own");
     return addInto(root, { into: flags["--into"], files, dryRun, json: call.json });
   }
   let written;
   try {
     written = logoRow(root, {
       files,
-      title: flags["--title"] ?? packageName(root),
+      title: flags["--title"] ?? pack?.title ?? packageName(root),
       id,
+      made: pack?.made ?? null,
       on,
     });
   } catch (error) {
@@ -345,13 +371,21 @@ function main(args) {
     dryRun,
   );
   const next = licenceStep(written.file);
+  // Who chose the mark: the owner's answer on the decision sheet, never a word of the package.
+  const chosen = chosenOnSheet(root, written.row.id);
+  const name = written.row.title ?? written.row.id;
   const text = [
-    `mark: ${written.row.title ?? written.row.id}, from ${files.length} file(s) of the repository, hashed where they are`,
+    pack
+      ? `mark: ${name}, from the package ${pack.folder}, made by ${pack.made.by} on ${pack.made.on}; its ${files.length} file(s) match the hashes its manifest lists`
+      : `mark: ${name}, from ${files.length} file(s) of the repository, hashed where they are`,
     ...files.map((entry) => `  ${entry.file}: ${entry.role}, ${entry.variant}`),
     ...lines.map((line) => `  ${line}`),
     ...(theme ? gateLines(root) : []),
+    ...(chosen
+      ? [`chosen: by ${chosen.by} on ${chosen.on}, in ${chosen.question} of the waiting list`]
+      : []),
     `next: ${next}`,
-    `then: ${ownerStep(written.row.id)}`,
+    ...(chosen ? [] : [`then: ${ownerStep(written.row.id)}`]),
     ...(dryRun ? ["preview only: nothing was written"] : []),
   ];
   return finish({
@@ -360,6 +394,8 @@ function main(args) {
       dry_run: dryRun,
       row: written.file,
       mark: written.row,
+      ...(pack ? { package: pack.folder, made: pack.made } : {}),
+      chosen,
       next,
       files: writtenFiles(lines),
     },

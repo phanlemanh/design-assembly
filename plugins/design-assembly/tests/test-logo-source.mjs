@@ -288,17 +288,7 @@ test("logo-source refuses a file that is not there, a file without a role or var
   assert.equal(text(dir, ROW), kept);
 });
 
-test("a package of mark files with a manifest is not read in this slice, and the command says so in one sentence", () => {
-  const dir = markRepository();
-  put(dir, "brand/manifest.json", pretty({ files: [] }));
-  const done = logoSource(dir, "--package", "brand");
-  assert.equal(done.status, 2);
-  assert.match(
-    done.stderr,
-    /a package of mark files with its manifest is not read yet: give each file already in the repository with --file PATH:ROLE:VARIANT/,
-  );
-  assert.equal(existsSync(path.join(dir, ROW)), false);
-});
+// The package path, a package with its manifest, is held by tests/test-mark-plug.mjs (item 12.3).
 
 // ---- criterion 5: a row a command wrote is not held until a person writes its licence -----------
 

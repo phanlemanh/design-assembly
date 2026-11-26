@@ -450,7 +450,30 @@ export function iconSetRowProblems(source, file) {
       `${file} is an icon set and has no licence: a person writes the licence the icon set is used under`,
     );
   }
-  return problems;
+  return [...problems, ...drawnProblems(source, file)];
+}
+
+// The key of an icon set row that records the icons drawn because the pinned set lacked them (spec
+// 0017, criterion 18): each a file of the row's pin, kept in the folder of the repository's own
+// icons, with the need and why. A command asks the repository's copy of the tool for this name
+// before it writes the key.
+export const ICON_DRAWN = "drawn";
+
+// What the drawn icons of an icon set row say wrongly: a drawn icon on a package's row, which keeps
+// no file of the repository, or one its pin does not hold.
+function drawnProblems(source, file) {
+  const drawn = Array.isArray(source?.[ICON_DRAWN]) ? source[ICON_DRAWN] : [];
+  if (drawn.length === 0) return [];
+  const pin = isMap(source?.pin) ? source.pin : {};
+  if (filled(pin.package) || !filled(source?.folder)) {
+    return [
+      `${file} is a package's icon set and records drawn icons: a drawn icon goes into the folder of an icon set row of the repository's own files`,
+    ];
+  }
+  const pinned = new Set((Array.isArray(pin.files) ? pin.files : []).map((entry) => entry?.file));
+  return drawn
+    .filter((entry) => filled(entry?.file) && !pinned.has(entry.file))
+    .map((entry) => `${file} records the drawn icon ${entry.file}, which its pin does not hold`);
 }
 
 // One icon set of the ledger as the tools use it: what code imports it by, where it comes from,

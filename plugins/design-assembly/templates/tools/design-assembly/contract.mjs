@@ -555,6 +555,19 @@ export const LEDGERS = {
       },
       sizes: list(number),
       stroke: number,
+      // The icons drawn because the pinned set lacked them (spec 0017, criterion 18): each file of
+      // the pin that was drawn, the icon a screen needed, why the pinned set did not answer, and
+      // the day it was recorded. Only a row of the repository's own files has them.
+      drawn: list({
+        type: "object",
+        fields: {
+          file: required(text),
+          need: required({ ...text, pattern: "\\S" }),
+          why: required({ ...text, pattern: "\\S" }),
+          on: day,
+        },
+        open: true,
+      }),
       own: { type: "boolean" },
       proposed: {
         type: "object",
@@ -641,6 +654,64 @@ export const LEDGERS = {
 
 // Ledgers the contract names whose one shape is not settled yet, and why.
 export const UNSETTLED = {};
+
+// The manifest of a package of mark files (spec 0017, «the plug that builds a mark»): not a ledger,
+// but the input of logo-source --package, kept as `manifest.json` in the package's folder by the
+// outside plug that made the mark. It says which plug made it and on which day, the name the mark
+// stands for, the sentence of its idea, its palette, the root numbers of its construction, and
+// each file of the package by its path from the folder, with its hash, its role and its variant.
+// It names no person: who chose the mark is for the decision sheet to say, never the plug.
+const PACKAGE_FILE = '^(?!/)(?!(?:.*/)?\\.\\.(?:/|$))[^"\\\\\\n]+$';
+const written = { ...text, pattern: "\\S" };
+const PACKAGE_FIELDS = {
+  version: required(number),
+  kind: required({ ...text, values: ["logo-package"] }),
+  made: required({ type: "object", fields: { by: required(dashed), on: required(day) } }),
+  title: written,
+  idea: required(written),
+  palette: required(
+    list({ type: "object", fields: { name: required(written), value: required(written) } }),
+  ),
+  build: required({ type: "object" }),
+  files: required(
+    list({
+      type: "object",
+      fields: {
+        file: required({ ...text, pattern: PACKAGE_FILE }),
+        sha256: required({ ...text, pattern: "^[0-9a-f]{64}$" }),
+        role: required({ ...text, values: LOGO_ROLES }),
+        variant: required({ ...text, values: LOGO_VARIANTS }),
+      },
+    }),
+  ),
+};
+export const LOGO_PACKAGE = {
+  file: "manifest.json",
+  kind: "logo-package",
+  version: 1,
+  fields: PACKAGE_FIELDS,
+  // What is wrong with a manifest read as data, each line naming where; empty when it is whole.
+  problems(data, file) {
+    if (typeOf(data) !== "object") return [`${file} is ${typeOf(data)}, the contract says object`];
+    const version = versionOf(data);
+    if (version !== null && version > LOGO_PACKAGE.version) {
+      return [
+        `${file} has shape ${version} and this tool knows shape ${LOGO_PACKAGE.version}: update the design-assembly plugin`,
+      ];
+    }
+    const problems = objectProblems(data, PACKAGE_FIELDS, false, file);
+    const files = Array.isArray(data.files) ? data.files : [];
+    if (Array.isArray(data.files) && files.length === 0)
+      problems.push(`${file}.files names no file`);
+    const named = files.map((entry) => String(entry?.file ?? ""));
+    for (const twice of new Set(named.filter((name, index) => named.indexOf(name) !== index))) {
+      problems.push(
+        `${file} names ${twice} twice: each file of the mark has one role and one variant`,
+      );
+    }
+    return problems;
+  },
+};
 
 // The core of a family of products (spec 0016): not a ledger of a repository, but a folder of its
 // own, on this machine, that the repositories of one family share. It has a fixed shape, versioned

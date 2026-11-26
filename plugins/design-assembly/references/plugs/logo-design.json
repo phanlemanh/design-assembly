@@ -1,0 +1,10 @@
+{
+  "id": "logo-design",
+  "about": "A skill that builds a mark where the repository has none: it reads the repository's answers, draws two or three marks, asks the owner one question to choose, and leaves a package of the chosen mark with its manifest for logo-source to read.",
+  "kind": "skill",
+  "sockets": ["brand-assets"],
+  "names": ["logo-design"],
+  "skills": ["logo-design"],
+  "needs": ["machine"],
+  "machine": "Python 3 to run the skill's build script, and the drawing library that script imports, installed on this machine; it calls no service and sends nothing out."
+}

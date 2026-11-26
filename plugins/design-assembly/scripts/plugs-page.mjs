@@ -65,7 +65,8 @@ function candidateOf(candidate, socket) {
   const needs =
     candidate.needs.length > 0 ? `; needs ${candidate.needs.join(" and ")}` : "; needs nothing";
   const sends = candidate.sends ? `; sends: ${candidate.sends}` : "";
-  return `${candidate.id}: ${candidate.state}, ${measure}${owner}${needs}${sends}`;
+  const machine = candidate.machine ? `; on the machine: ${candidate.machine}` : "";
+  return `${candidate.id}: ${candidate.state}, ${measure}${owner}${needs}${sends}${machine}`;
 }
 
 const candidatesOf = (socket) =>

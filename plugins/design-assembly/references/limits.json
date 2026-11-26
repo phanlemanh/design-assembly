@@ -6533,9 +6533,11 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-26",
-      "where": ["spec", "d0124"],
-      "status": "open",
-      "note": "The command logo-source writes a mark's row only from files named one by one with their role and variant; a package of mark files with its manifest, as an outside plug leaves one, is refused with one sentence and not read."
+      "where": ["spec", "d0124", "d0127"],
+      "status": "closed",
+      "note": "The command logo-source writes a mark's row only from files named one by one with their role and variant; a package of mark files with its manifest, as an outside plug leaves one, is refused with one sentence and not read.",
+      "closed": "2026-11-26",
+      "closed_by": "logo-source --package reads a package of mark files with its manifest (plugin 0.74.0, item 12.3 slice 1, d0127): the manifest has its shape in the contract (LOGO_PACKAGE), every file is compared with the hash it lists, a package with no manifest, a file off its hash, a file the manifest names and lacks, or a file it does not name, is refused in one sentence naming the file; the row says which plug made the mark and on which day, and who chose it is read from the waiting list. Held by plugin tests"
     },
     {
       "id": "logo-frame-images-not-proposed",
@@ -6731,6 +6733,83 @@
       "where": ["spec", "d0126"],
       "status": "open",
       "note": "When an icon set records no sizes, status and audit name a person's step, writing the sizes into the row by hand: no command writes them, since they are a person's answer (spec 0017, question 12)."
+    },
+    {
+      "id": "logo-package-rebuild-unchecked",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0127"],
+      "status": "open",
+      "note": "The manifest of a mark package keeps the root numbers of the mark's construction, and spec 0017 says building again from them gives the hashes listed; logo-source compares each file with the hash the manifest lists and never builds anything, so whether the numbers give the files back is for the plug to hold."
+    },
+    {
+      "id": "logo-package-palette-not-compared",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0127"],
+      "status": "open",
+      "note": "The palette a mark package's manifest lists is not compared with the root colour the repository chose, and no question is asked when they differ (spec 0017, the plug that builds a mark, point 6): a person brings it in with bring-in."
+    },
+    {
+      "id": "logo-choice-of-another-candidate-reads-as-otherwise",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0126", "d0127"],
+      "status": "open",
+      "note": "When the owner picks a mark other than the first candidate of the question on logo:<id>, the decision sheet writes the answer as a value naming that candidate, and the wall owner-calls reads only a kept answer: it says the owner answered otherwise and stays red, and logo-source names no one as having chosen, though the owner chose. Until the wall reads a value that names a candidate, the owner keeps the recommendation, or the question is asked again with the chosen mark first."
+    },
+    {
+      "id": "logo-design-plug-unmeasured",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0127"],
+      "status": "open",
+      "note": "The plug logo-design is declared at the brand assets socket and never measured: plugs lists it and never asks the owner to choose it (spec 0017, criterion 16). Before slice 2 of item 12.3 measures it, its skill is remade in its own repository: it reads the repository's answers (the root colour, the heading typeface, the corner radius) as its inputs and brings no typeface, ratio or language of its own; it offers two or three marks different in structure, each with one sentence and drawn at page-icon size; it queues exactly one question with the item logo:<id> and stops; and it leaves a package whose manifest has the contract's shape LOGO_PACKAGE, naming no person. Its plug file names the drawing library on the machine in general words until the skill says which."
+    },
+    {
+      "id": "plug-machine-needs-unchecked",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0127"],
+      "status": "open",
+      "note": "A plug file says in a sentence what must be on the machine for the plug to run (needs machine, and the key machine), and the board shows it; no command checks that the runner or the library is there, so a plug the session holds that lacks them fails only when it runs."
+    },
+    {
+      "id": "icon-drawn-set-read-by-file-names",
+      "area": "capabilities",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0127"],
+      "status": "open",
+      "note": "Whether a pinned icon set that is a package has an icon is read from the names of the files the installed package holds: a package that keeps every icon in one file, or names its files otherwise than its icons, reads as lacking the icon, and icon-source --draw records a drawn icon the set may have."
+    },
+    {
+      "id": "icon-drawn-grid-unheld",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0127"],
+      "status": "open",
+      "note": "A drawn icon is recorded with its need and why; nothing checks that it follows the grid and the stroke the icon set row records (spec 0017: a drawn icon follows the row's grid and stroke), as nothing holds the sizes and stroke in use (limit icon-set-sizes-stroke-unheld)."
     }
   ]
 }
