@@ -318,7 +318,7 @@
       "socket": {
         "writes": [],
         "outputs": [
-          "the fonts, as rows of the sources ledger recorded through the reference socket; the logo and the icon set have no place yet"
+          "the fonts and the icon set, as rows of the sources ledger recorded through the reference socket; the logo has no place yet"
         ],
         "checks": ["make design-assembly"],
         "decides": "owner",
@@ -339,6 +339,14 @@
           "scripts": ["scripts/font-source.mjs"],
           "writes_through": "reference",
           "step_of": "new"
+        },
+        {
+          "id": "icon-source",
+          "kind": "command",
+          "default": true,
+          "scripts": ["scripts/icon-source.mjs"],
+          "writes_through": "reference",
+          "step_of": "adopt"
         }
       ],
       "limit": "capability-brand-assets-has-no-plug",

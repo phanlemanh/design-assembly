@@ -656,14 +656,14 @@
         {
           "id": "12.0",
           "what": "Đề bài chi tiết cho cả giai đoạn, chủ repo duyệt",
-          "state": "todo",
-          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, đã duyệt ngày 2026-11-25 («Duyệt cả mười hai»): logo và bộ biểu tượng vào sổ nguồn bằng hai loại mới theo nếp của font, cổng giữ ghim và giữ rằng màn chỉ dùng thứ đã ghi, sàn của dấu là chữ, dấu là mục của chủ repo, một phích ngoài dựng dấu khi repo chưa có; giai đoạn này đứng sau giai đoạn 7 và mở sau khi mục 7.1 xong (câu hỏi 10); mục giữ todo vì giai đoạn chưa mở, theo luật của kế hoạch"
+          "state": "done",
+          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, đã duyệt ngày 2026-11-25 («Duyệt cả mười hai»): logo và bộ biểu tượng vào sổ nguồn bằng hai loại mới theo nếp của font, cổng giữ ghim và giữ rằng màn chỉ dùng thứ đã ghi, sàn của dấu là chữ, dấu là mục của chủ repo, một phích ngoài dựng dấu khi repo chưa có; giai đoạn này đứng sau giai đoạn 7 và mở sau khi mục 7.1 xong (câu hỏi 10); giai đoạn mở ngày 2026-11-26 khi giai đoạn 7 đóng (PR 155); mục đóng cùng PR của lát 1 mục 12.1, ngày 2026-11-26"
         },
         {
           "id": "12.1",
           "what": "Bộ biểu tượng vào sổ nguồn, và cổng giữ nó",
           "state": "todo",
-          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, tiêu chí 1, 2, 3, 5 đến 8, 12, 13, 20 và 21; hai lát, mỗi lát một PR; đổi hợp đồng sổ, cần người duyệt"
+          "ref": "wiki/specs/0017-brand-assets-the-logo-and-the-icon-set.md, tiêu chí 1, 2, 3, 5 đến 8, 12, 13, 20 và 21; hai lát, mỗi lát một PR; đổi hợp đồng sổ, cần người duyệt. Lát 1 dựng ngày 2026-11-26 ở plugin 0.70.0 (quyết định 0123): loại nguồn `icon-set` trong hợp đồng, lệnh `icon-source`, `adopt` đề xuất dòng từ cài đặt của thư viện linh kiện, cổng giữ ghim bằng phép kiểm `icon-set-pin`; tiêu chí 1, 2, 3, 5, 6, 7 (phần bộ biểu tượng), 20 và 21 có bài kiểm. Lát 2 còn lại: danh mục gói biểu tượng, cổng giữ biểu tượng màn dùng, câu chuẩn `icons` được đáp, khuyến nghị của lối dẫn dắt (tiêu chí 8, 12, 13)"
         },
         {
           "id": "12.2",

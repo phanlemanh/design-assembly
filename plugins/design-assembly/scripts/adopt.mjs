@@ -45,6 +45,10 @@ import { TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
 import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-first.mjs";
 import { FLOATING_CHECK } from "../templates/tools/design-assembly/floating-parts.mjs";
 import {
+  ICON_SET_CHECK,
+  readIconSets,
+} from "../templates/tools/design-assembly/sources-ledger.mjs";
+import {
   FAMILY_CORE_CHECK,
   readPinnedCore,
   sameCoreValue,
@@ -112,6 +116,7 @@ import {
   startingSizes,
 } from "./apply.mjs";
 import { licenceStep, ownFonts, today } from "./font-source.mjs";
+import { iconLicenceStep, ownIconSet } from "./icon-source.mjs";
 import { findProofs } from "./proofs.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -584,6 +589,34 @@ export function adoption(
         });
       }
     }
+    // The icon set the component library's settings name is the repository's own: its row of the
+    // sources ledger is proposed from the package the lockfile pins (spec 0017, criterion 6). A row
+    // that pins it is left as it is; the licence is a person's, so the row waits on it.
+    const icons = ownIconSet(root, { on: today(), by: "adopt" });
+    if (icons?.exists) {
+      result.kept.push({ id: "icon-set-source", why: icons.exists });
+    } else if (icons?.unreadable) {
+      result.unreadable.push({ id: "icon-set-source", why: icons.unreadable });
+    } else if (icons?.cannot) {
+      result.person.push({ id: "icon-set-source", why: icons.cannot });
+    } else if (icons) {
+      result.files[icons.row] = icons.content;
+      result.icon_sets = [
+        {
+          row: icons.row,
+          module: icons.module,
+          named_by: icons.named_by,
+          from: icons.from,
+          stated: icons.stated,
+        },
+      ];
+      result.person.push({
+        id: "icon-set-licence",
+        why: `${iconLicenceStep(icons.row)}${icons.stated ? `. ${icons.stated}` : ""}`,
+      });
+    }
+    // Once the repository has a row of an icon set, or gets one now, its pin is held.
+    const iconRows = readIconSets(root).length > 0 || Boolean(icons?.row);
     const artifacts = { [TOKENS_DECISION]: tokens, [COMPONENTS_DECISION]: components };
     // Every ledger the repository has, or gets in this run, has the one shape of the contract:
     // held from here on. A ledger that differs gets no row, and the differences are said.
@@ -641,6 +674,8 @@ export function adoption(
             ...floatingParts(root).checks,
             // A repository of a family: the locked answers of the core it pinned.
             ...(readPinnedCore(root) === null ? [] : [FAMILY_CORE_CHECK]),
+            // A repository with an icon set row: the pin of each icon set.
+            ...(iconRows ? [ICON_SET_CHECK] : []),
           ],
         };
       }
@@ -1112,6 +1147,11 @@ export function report(result) {
     "the repository's own font, proposed as a row of the sources ledger (a person writes its licence):",
     result.fonts,
     (font) => `${font.shown}: ${font.row}, from ${font.from}; loaded by ${font.loaded_by}`,
+  );
+  section(
+    "the repository's own icon set, proposed as a row of the sources ledger (a person writes its licence):",
+    result.icon_sets ?? [],
+    (set) => `${set.module}: ${set.row}, from ${set.from}; named by ${set.named_by}`,
   );
   section("would fail today, so nothing was added:", result.failing, reason);
   section("cannot be read here:", result.unreadable, reason);

@@ -121,7 +121,7 @@ import { tokensProblem } from "./tokens.mjs";
 import { exportProblem, inputsOf, unlistedProblems, withManifest } from "./exports.mjs";
 import { buildOf } from "./adapters/index.mjs";
 import { fontProblems, readLoads, unloadedCopy } from "./fonts.mjs";
-import { readFontSources } from "./sources-ledger.mjs";
+import { ICON_SET_CHECK, readFontSources, readIconSets } from "./sources-ledger.mjs";
 import {
   branchFacts,
   branchDone,
@@ -428,6 +428,28 @@ const KINDS = {
     },
     change(state) {
       return { ...state, fontSources: [] };
+    },
+  },
+  // Every icon set of the sources ledger still pins what the repository holds: the version the
+  // lockfile pins its package at, or the hash of each of its files (spec 0017, criterion 7). Laid
+  // only once the repository has a row of the kind.
+  [ICON_SET_CHECK.kind]: {
+    run(state) {
+      const drift = (state.iconSets ?? []).flatMap((set) => set.drift);
+      if (drift.length === 0) return null;
+      const more = drift.length > 3 ? `; and ${drift.length - 3} more` : "";
+      return `${drift.slice(0, 3).join("; ")}${more}`;
+    },
+    // An icon set whose package the lockfile pins at another version.
+    change(state) {
+      const file = "design/sources/changed-copy.json";
+      return {
+        ...state,
+        iconSets: [
+          ...(state.iconSets ?? []),
+          { file, drift: [`${file} pins changed-copy at 1.0.0, and the lockfile pins 2.0.0`] },
+        ],
+      };
     },
   },
   // Every typeface the stylesheet names is loaded, as the repository's build loads one, or is a
@@ -1596,6 +1618,8 @@ export function readState(root) {
     // The fonts of the sources ledger, each with how its pin differs from the repository today,
     // and how the repository's build writes what loads one.
     fontSources: readFontSources(root),
+    // The icon sets of the sources ledger, each with how its pin differs from the repository today.
+    iconSets: readIconSets(root),
     fontFaces: buildOf(root).fontFaces ?? null,
     files: Object.fromEntries(named),
     // The fragments of each such ledger kept as a folder, or null where it is one file.
