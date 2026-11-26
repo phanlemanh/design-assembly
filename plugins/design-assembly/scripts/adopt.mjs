@@ -112,7 +112,14 @@ import {
   startingSizes,
 } from "./apply.mjs";
 import { licenceStep, ownFonts, today } from "./font-source.mjs";
-import { licenceStep as markLicenceStep, ownMark, themeWithLogoPins } from "./logo-source.mjs";
+import {
+  licenceStep as markLicenceStep,
+  ownMark,
+  themeWithLogoPins,
+  TOOL_TOO_OLD,
+  toolKnowsLogo,
+} from "./logo-source.mjs";
+import { TOOL_COPY } from "./stamp.mjs";
 import { readLogoSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { findProofs } from "./proofs.mjs";
 
@@ -841,8 +848,6 @@ export function adoption(
     else add(proof.id, { kind: proof.kind, source: proof.source, check: proof.check }, "claimed");
   }
 
-  proposeMark(root, result);
-
   // Rows a lint rule holds, of the repository's or added just now. The tool lints texts that break
   // the decision, and holds the row when the lint rejects every one; the row is not rewritten.
   rerunLint(root, [...existing, ...result.rows], theme, checks, result);
@@ -910,9 +915,15 @@ export function adoption(
       },
     );
   }
-  // A repository with a mark in the sources ledger, or one proposed now: the gate, where it is
-  // laid, holds the pin of every logo row beside the shapes of the ledgers.
-  if (result.marks || readLogoSources(root).length > 0) {
+  // The repository's own mark, proposed only where the tool the gate runs after this run knows the
+  // kind: the one laid now, or the copy installed. A repository with a mark in the sources ledger,
+  // or one proposed now, then has the gate hold the pin of every logo row beside the shapes of the
+  // ledgers.
+  const knowsMark =
+    Object.keys(result.files).some((file) => file.startsWith(`${TOOL_COPY}/`)) ||
+    toolKnowsLogo(root);
+  proposeMark(root, result, knowsMark);
+  if (knowsMark && (result.marks || readLogoSources(root).length > 0)) {
     const laid = themeWithLogoPins(root, result.files[FILES.theme] ?? read(root, FILES.theme));
     if (laid) result.files[FILES.theme] = laid;
   }
@@ -967,7 +978,7 @@ export function adoption(
 // proposed from the files the repository keeps, hashed in place, and the licence is a person's, so
 // the row waits on it. A row that is there is left as it is; what cannot be read is a person's to
 // write. A repository whose pages declare no icon hears nothing of a mark.
-function proposeMark(root, result) {
+function proposeMark(root, result, knows) {
   const mark = ownMark(root, { on: today(), by: "adopt" });
   for (const why of mark.cannot ?? []) result.person.push({ id: "logo-source", why });
   for (const file of mark.exists ?? []) {
@@ -977,6 +988,16 @@ function proposeMark(root, result) {
     });
   }
   if (!mark.proposed) return;
+  // A row the installed gate cannot read would turn it red: upgrade comes first, and nothing is
+  // written; the report says what adopting again would propose.
+  if (!knows) {
+    const files = mark.proposed.files.map((entry) => entry.file);
+    result.person.push({
+      id: "logo-source",
+      why: `${TOOL_TOO_OLD}: bring it up with upgrade first, then adopt again, which would propose ${mark.proposed.row} from ${files.length} file(s) of the repository (${files.join(", ")})`,
+    });
+    return;
+  }
   result.files[mark.proposed.row] = mark.proposed.content;
   result.marks = [
     {

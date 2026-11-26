@@ -6,7 +6,7 @@
 // mark between the floor's text and such a row. No command reaches the network.
 import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
   cpSync,
@@ -27,6 +27,7 @@ import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { blueprintProblems } from "../scripts/apply.mjs";
+import { RELEASES } from "../scripts/stamp.mjs";
 import { fullStatus } from "../scripts/status.mjs";
 import { readState, runChecks } from "../templates/tools/design-assembly/check.mjs";
 import { LEDGERS, shapeProblems } from "../templates/tools/design-assembly/contract.mjs";
@@ -598,6 +599,67 @@ test("the guide makes no file for the floor's text, and holds a chosen row with 
   const red = gate(sourced);
   assert.notEqual(red.status, 0);
   assert.match(red.stdout + red.stderr, /mark: .*has no licence/);
+});
+
+// ---- a repository whose installed tool predates the kind ----------------------------------------
+
+// The tool of the release before the kind logo, 0.69.0, taken from the tree of git that the plugin's
+// list of releases records for it, laid in a repository adopted today with its stamp. Its gate does
+// not know the kind nor the check of the pins.
+const OLD_RELEASE = RELEASES.find((release) => release.version === "0.69.0");
+function withOldTool(dir) {
+  const tool = path.join(dir, "tools/design-assembly");
+  rmSync(tool, { recursive: true });
+  mkdirSync(tool, { recursive: true });
+  const archive = execFileSync("git", ["-C", ROOT, "archive", OLD_RELEASE.tool]);
+  execFileSync("tar", ["-x", "-C", tool], { input: archive });
+  put(dir, "design/tool-stamp.json", pretty({ version: "0.69.0", tree: OLD_RELEASE.tool }));
+  put(dir, "index.html", '<link rel="icon" href="/favicon.svg" />\n');
+  put(dir, FAVICON, MARK_SVG);
+  put(dir, MARK, MARK_SVG);
+  return dir;
+}
+
+test("adopt writes no logo row and lays no check the installed tool does not know: its gate stays as green, and the report names upgrade first", () => {
+  const dir = withOldTool(adopted());
+  const before = gate(dir);
+  assert.equal(before.status, 0, before.stdout + before.stderr);
+  const done = adopt(dir);
+  assert.ok([0, 1].includes(done.status), done.stderr);
+  assert.equal(existsSync(path.join(dir, ROW)), false);
+  assert.equal(
+    json(dir, "design/theme.json").checks["ledger-shapes"].some(
+      (check) => check.kind === "logo-pins",
+    ),
+    false,
+  );
+  const after = gate(dir);
+  assert.equal(after.status, before.status, after.stdout + after.stderr);
+  assert.equal(after.stdout, before.stdout);
+  assert.match(
+    done.stdout,
+    /logo-source: the tool of this repository is older than the kind logo: bring it up with upgrade first, then adopt again, which would propose design\/sources\/logo\.json from 1 file\(s\) of the repository \(public\/favicon\.svg\)/,
+  );
+  assert.doesNotMatch(done.stdout, /logo-licence/);
+  // Once upgrade brings the tool in, adopt proposes the row as it does elsewhere.
+  const upgraded = run(script("upgrade.mjs"), "--target", dir);
+  assert.ok([0, 1].includes(upgraded.status), upgraded.stdout + upgraded.stderr);
+  const again = adopt(dir, "--dry-run");
+  assert.match(again.stdout, new RegExp(`create +${ROW}`));
+});
+
+test("logo-source writes nothing on a repository whose installed tool predates the kind, and names upgrade first", () => {
+  const dir = withOldTool(adopted());
+  const theme = text(dir, "design/theme.json");
+  const done = logoSource(dir, "--file", `${MARK}:mark:color`);
+  assert.equal(done.status, 2, done.stdout);
+  assert.match(
+    done.stderr,
+    /the tool of this repository is older than the kind logo: bring it up with upgrade first, then run this again\. Nothing was written/,
+  );
+  assert.equal(existsSync(path.join(dir, ROW)), false);
+  assert.equal(text(dir, "design/theme.json"), theme);
+  assert.equal(gate(dir).status, 0);
 });
 
 // ---- criteria 20 and 21: no network, and no brand of anyone in the plugin -----------------------

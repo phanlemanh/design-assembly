@@ -79,12 +79,24 @@ Luật đầu tiên của đề bài: repo chưa có dòng nào của loại m�
 7. **Repo không có dấu không đổi.** Bản ghi `no-mark-on-0.69.0.json` được ghi trên main trước khi dựng (commit đầu của
    nhánh): `status`, `audit`, `adopt --dry-run` (chữ và JSON), `apply --dry-run` và cổng, trên bốn loại repo đề bài nêu.
    Sau khi dựng, cả bốn in và thoát y như vậy.
+8. **Công cụ đã cài cũ hơn loại `logo` thì không viết gì.** (Thêm sau lời duyệt «Gửi cả hai sửa» của chủ repo, từ một
+   điều phiên điều phối tìm thấy: trên bản sao một repo cài công cụ 0.36.1, `adopt` viết dòng `logo` và đặt `logo-pins`,
+   và cổng của chính repo ấy đỏ, vì hợp đồng cũ đọc mọi nguồn là thư viện phải có `catalog` và không biết phép kiểm.)
+   `adopt` và `logo-source` hỏi **chính bản công cụ của repo** (`tools/design-assembly/`): `contract.mjs` có `isLogo`
+   và `check.mjs` có `"logo-pins"` không — như `core --join` hỏi `FAMILY_CORE_CHECK` trước khi đặt phép kiểm của nó.
+   Không dựa vào số phiên bản của tem (`design/tool-stamp.json`), vì cái cổng chạy là bản chép chứ không phải tem: bản
+   chép có thể bị sửa sau khi đóng tem, và repo cũ có thể không có tem. Repo chưa có bản chép nào, hay lượt `adopt` đặt
+   công cụ ngay trong lượt ấy, làm như cũ. Khi bản chép không biết loại: `adopt` không ghi dòng, không đặt phép kiểm, và
+   dòng «needs a person» nói «… older than the kind logo: bring it up with upgrade first, then adopt again, which would
+   propose design/sources/logo.json from N file(s) of the repository (…)»; `logo-source` từ chối, thoát 2, cùng lời. Hàm
+   hỏi nằm riêng trong `scripts/tool-knows.mjs` để PR của bộ biểu tượng dùng chung. Bài kiểm dựng bản công cụ đúng của
+   bản phát hành 0.69.0 từ cây git mà `references/releases.json` ghi.
 
 ## Consequences
 
 - Một repo có tệp dấu được ghi và ghim chúng mà không vẽ lại; một byte đổi làm cổng đỏ.
 - Phích dựng dấu (mục 12.3) có sẵn chỗ để ghi gói của nó, trừ phần tờ kê.
-- Sáu dòng mới trong sổ giới hạn: `logo-package-manifest-not-read`, `logo-frame-images-not-proposed`,
+- Một dòng giới hạn mở và đóng cùng ngày, `logo-row-turns-an-older-gate-red`, cho lời khẳng định ở điểm 8. Sáu dòng mới còn mở trong sổ giới hạn: `logo-package-manifest-not-read`, `logo-frame-images-not-proposed`,
   `logo-variant-of-a-page-icon-guessed`, `logo-metadata-icons-not-read`, `mark-owner-call-not-held`,
   `mark-gaps-unsaid`. Dòng `logo-metadata-icons-not-read` đến từ lượt chạy thử trên bản sao bỏ đi của một ứng dụng
   cùng họ: bố cục khai biểu tượng trang trong metadata, nên `adopt` chỉ đề xuất một trong bốn tệp. Giới hạn

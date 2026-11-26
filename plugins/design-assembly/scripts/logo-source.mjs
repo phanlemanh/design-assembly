@@ -29,6 +29,7 @@ import {
   SOURCES_VERSION,
 } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { isDay } from "../templates/tools/design-assembly/waiting.mjs";
+import { installedToolKnows } from "./tool-knows.mjs";
 
 // The command a row says proposed it, when this script is called by itself.
 const BY = "logo-source";
@@ -127,6 +128,14 @@ export function themeWithLogoPins(root, text) {
   const checks = { ...theme.checks, [SHAPES_ROW]: [...shapes, LOGO_PINS_CHECK] };
   return renderJson({ ...theme, checks }, lineWidth(root));
 }
+
+// The words of the tool's files that say it knows the kind logo: its contract reads a logo row, and
+// its gate runs the check of the pins. A copy of the tool older than the kind has neither.
+const LOGO_IN_TOOL = { "contract.mjs": "isLogo", "check.mjs": `"${LOGO_PINS_CHECK.kind}"` };
+// Whether the repository's installed tool reads a logo row and runs its check, or it has none.
+export const toolKnowsLogo = (root) => installedToolKnows(root, LOGO_IN_TOOL);
+// What is said where the installed tool predates the kind.
+export const TOOL_TOO_OLD = "the tool of this repository is older than the kind logo";
 
 // What a person does next with a row a command wrote.
 export const licenceStep = (file) =>
@@ -259,6 +268,12 @@ function main(args) {
   }
   if (written.problems.length > 0) {
     throw new Refusal(`${written.problems.join("; ")}. Nothing was written`);
+  }
+  // A row the installed gate cannot read would turn it red: upgrade comes first.
+  if (!toolKnowsLogo(root)) {
+    throw new Refusal(
+      `${TOOL_TOO_OLD}: bring it up with upgrade first, then run this again. Nothing was written`,
+    );
   }
   const full = path.join(root, written.file);
   if (existsSync(full)) {

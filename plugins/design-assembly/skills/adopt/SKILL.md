@@ -189,7 +189,9 @@ stated level that the values do not reach is not a reason to lower the level: re
    words into the row's `licence`; correct a variant the report names, and add the other files of
    the mark with `logo-source`. An icon it cannot read, an address outside the repository or a
    file that is not there, gets nothing: the report says so. A logo row already there is left as
-   it is, and the gate holds the pin of every logo row from then on.
+   it is, and the gate holds the pin of every logo row from then on. Where the repository's installed tool
+   is older than the kind, nothing of the mark is written: the report says to run `upgrade` first
+   and what adopting again would propose.
 5. It writes `.claude/rules/design-assembly.md`: the rules it now holds here, for the agent that
    builds next. Where the guide ran here before and left a blueprint, the page keeps the
    principles and the direction the owner fixed in it; adopting asks for none.

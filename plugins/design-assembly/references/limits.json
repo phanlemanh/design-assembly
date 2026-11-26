@@ -6521,6 +6521,19 @@
       "where": ["d0124"],
       "status": "open",
       "note": "On the build of a router app, adopt reads only the icon files the app folder keeps by name; icons a layout declares in its metadata (an address under the public folder) are not read, so a repository that declares its page icons that way is proposed fewer files than its pages show, and a person adds the rest with logo-source."
+    },
+    {
+      "id": "logo-row-turns-an-older-gate-red",
+      "area": "adopt",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0124"],
+      "status": "closed",
+      "note": "On a repository whose installed tool predates the kind logo, adopt wrote a logo row and laid the check of its pins, and the repository's own gate turned red on a row it read as a library with no catalog and on a check it did not know.",
+      "closed": "2026-11-26",
+      "closed_by": "adopt and logo-source ask the installed copy of the tool whether it reads a logo row and runs logo-pins, as core --join asks for its check; where it does not, nothing is written and the report names upgrade first, held by two plugin tests on the tool of release 0.69.0"
     }
   ]
 }
