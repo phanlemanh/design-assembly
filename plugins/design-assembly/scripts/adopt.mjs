@@ -91,7 +91,12 @@ import {
   wordsFromListed,
 } from "./color-roles.mjs";
 import { declaredFonts, readLoads } from "../templates/tools/design-assembly/fonts.mjs";
-import { COMPONENTS_DECISION, readFolder } from "../templates/tools/design-assembly/components.mjs";
+import {
+  COMPONENTS_DECISION,
+  keepsSettings,
+  libraryParts,
+  readFolder,
+} from "../templates/tools/design-assembly/components.mjs";
 import { KINDS_FOLDER, readPages } from "../templates/tools/design-assembly/screens.mjs";
 import { TOKENS, TOKENS_DECISION } from "../templates/tools/design-assembly/tokens.mjs";
 import {
@@ -125,6 +130,8 @@ import {
 import { TOOL_COPY } from "./stamp.mjs";
 import { readLogoSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { iconLicenceStep, ownIconSet } from "./icon-source.mjs";
+import { ICONS_ROW, iconsCheck, iconsDecision, proposedIconSet } from "./icon-use.mjs";
+import { readSources } from "../templates/tools/design-assembly/governance.mjs";
 import { findProofs } from "./proofs.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -625,6 +632,22 @@ export function adoption(
     }
     // Once the repository has a row of an icon set, or gets one now, its pin is held.
     const iconRows = readIconSets(root).length > 0 || Boolean(icons?.row);
+    // The icon set proposed now, as the gate will read it once written.
+    const proposedSets = icons?.row ? [proposedIconSet(icons.row, icons.content)] : [];
+    // And the standard question icons is answered by that row, held by the check of the icons the
+    // code uses: added, as every check here, only when it passes now (spec 0017, criterion 13).
+    const iconsKept = iconRows
+      ? iconsDecision(root, { file: icons?.row ?? readIconSets(root)[0].file })?.kept
+      : null;
+    if (iconsKept) result.kept.push({ id: ICONS_ROW, why: iconsKept });
+    else if (iconRows && open(ICONS_ROW)) {
+      const file = icons?.row ?? readIconSets(root)[0].file;
+      candidates[ICONS_ROW] = {
+        what: `the code takes its icons from the icon set ${file} records`,
+        row: { kind: "standard", source: file },
+        checks: [iconsCheck(root, file)],
+      };
+    }
     const artifacts = { [TOKENS_DECISION]: tokens, [COMPONENTS_DECISION]: components };
     // Every ledger the repository has, or gets in this run, has the one shape of the contract:
     // held from here on. A ledger that differs gets no row, and the differences are said.
@@ -742,8 +765,22 @@ export function adoption(
         package: trialPackage(root, host),
         // What loads a typeface, as the adapter of the repository's build reads it.
         fonts: readLoads(root, styles.css, result.stylesheet),
-        // The icon sets of the ledger as they are: a row proposed now pins what the lockfile has.
-        iconSets: readIconSets(root),
+        // The icon sets of the ledger as they are, and the row proposed now, which pins what the
+        // lockfile has.
+        iconSets: [...readIconSets(root), ...proposedSets],
+        // The source a check of the icons used reads, and the parts of the component library it
+        // leaves out: read only where that check is a candidate.
+        ...(candidates[ICONS_ROW]
+          ? {
+              sources: Object.fromEntries(
+                candidates[ICONS_ROW].checks.map((item) => [
+                  item.sources,
+                  readSources(root, item.sources),
+                ]),
+              ),
+              library: keepsSettings(root) ? libraryParts(root) : null,
+            }
+          : {}),
         displays: columns.displays ?? {},
         files: {
           ...starting,

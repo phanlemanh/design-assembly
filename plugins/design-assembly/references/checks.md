@@ -435,6 +435,23 @@ checkout fetches the main branch from the remote named origin, and is red when i
 `main` names the main branch where it has another name, and `intake` the ledger's path where it is
 not the usual one.
 
+## The icons the code uses
+
+On a repository with a row of the kind `icon-set` in its sources ledger (spec 0017), the row
+`icons` of the decision ledger points at that row and is held by the check `icon-set-use`. It is red:
+
+- for a file of the folder of source the check names that imports an icon package the check
+  carries, or a module under one, that no icon set row records;
+- for a file that draws a screen (`.jsx`, `.tsx`, no part of the component library) and writes an
+  svg element by hand;
+- when the row the decision points at is no icon set row.
+
+A file under the folder an icon set row records is the set itself, and is read by neither rule: an
+icon the pinned set lacks is drawn there. Which packages are icon packages is the plugin's
+list of icon packages, `references/icon-packages.json`, copied into the check when it is laid. The sizes and
+stroke a row writes are held by no check. `icon-source` with no package or folder names the set
+recommended: the one the code imports, else the one the starter kit's pieces import.
+
 ## The locked answers of a family's core
 
 On a repository that declares its family (spec 0016), the `ledger-shapes` row also holds, with the

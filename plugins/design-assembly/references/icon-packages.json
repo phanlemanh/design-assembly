@@ -1,0 +1,29 @@
+{
+  "about": "The icon packages this plugin knows: public packages that ship icons as components or modules, by the name code imports them from. A module under a package (name/path) is that package. Once a repository has a row of the kind icon-set in its sources ledger, the gate turns red when code imports a package of this list that no such row records. Data a person may edit: a package added here reaches a repository when the check of the icons used is laid there. It names public libraries, never a user's brand.",
+  "version": 1,
+  "packages": [
+    "@ant-design/icons",
+    "@carbon/icons-react",
+    "@fortawesome/free-brands-svg-icons",
+    "@fortawesome/free-regular-svg-icons",
+    "@fortawesome/free-solid-svg-icons",
+    "@fortawesome/react-fontawesome",
+    "@heroicons/react",
+    "@hugeicons/react",
+    "@iconify/react",
+    "@mdi/js",
+    "@mdi/react",
+    "@mui/icons-material",
+    "@phosphor-icons/react",
+    "@primer/octicons-react",
+    "@radix-ui/react-icons",
+    "@remixicon/react",
+    "@tabler/icons-react",
+    "iconoir-react",
+    "lucide-react",
+    "phosphor-react",
+    "react-bootstrap-icons",
+    "react-feather",
+    "react-icons"
+  ]
+}

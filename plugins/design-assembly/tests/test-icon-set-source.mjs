@@ -325,9 +325,10 @@ test("the command never writes over a row, nor writes a second row for a package
 
 test("a wrong call is refused with a sentence and writes nothing", () => {
   const dir = floor("harbor-ledger");
+  // With nothing named, the command recommends a set and writes nothing (slice 2): not wrong.
   for (const args of [
-    [],
     ["--package", PACKAGE, "--folder", "src"],
+    ["--package", PACKAGE, "--recommended"],
     ["--package", PACKAGE, "--on", "today"],
   ]) {
     const refused = command(dir, ...args);

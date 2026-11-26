@@ -431,6 +431,10 @@ export const isIconSet = (source) => isMap(source) && source.kind === ICON_SET_K
 // The check of the gate that holds the pin of every icon set of the ledger, laid under the row
 // that holds the ledgers' shapes once the repository has a row of the kind, and not before.
 export const ICON_SET_CHECK = { kind: "icon-set-pin" };
+// The check of the gate that holds which icons the code uses, laid under the row `icons` of the
+// decision ledger once the repository has a row of the kind, and not before. It names the row the
+// decision points at, the folder of source it reads, and the packages it knows as icon packages.
+export const ICON_USE_CHECK = { kind: "icon-set-use" };
 
 // What an icon set row lacks beside its shape, each sentence naming the row: the pin, always; the
 // licence, unless a command wrote the row and says so under `proposed`.

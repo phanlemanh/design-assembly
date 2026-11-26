@@ -11,6 +11,7 @@ import { contrast } from "./color.mjs";
 import { cellProblems, columnsProblem, readDisplays, typesProblem } from "./columns.mjs";
 import {
   componentsProblem,
+  inLibrary,
   keepsSettings,
   libraryParts,
   readFolder,
@@ -50,6 +51,7 @@ import {
 } from "./patterns.mjs";
 import {
   againstDirection,
+  iconUseProblems,
   importsOf,
   importsProblem,
   readSources,
@@ -123,6 +125,8 @@ import { buildOf } from "./adapters/index.mjs";
 import { fontProblems, readLoads, unloadedCopy } from "./fonts.mjs";
 import {
   ICON_SET_CHECK,
+  ICON_USE_CHECK,
+  isIconSet,
   readFontSources,
   readIconSets,
   readLogoSources,
@@ -458,6 +462,39 @@ const KINDS = {
           { file, drift: [`${file} pins changed-copy at 1.0.0, and the lockfile pins 2.0.0`] },
         ],
       };
+    },
+  },
+  // The code takes its icons from the icon sets of the sources ledger (spec 0017, criterion 8): no
+  // file imports an icon package of the list the check carries that no row records, and no
+  // file that draws a screen writes an svg element by hand. The row the decision points at is an
+  // icon set row. Laid only once the repository has a row of the kind.
+  [ICON_USE_CHECK.kind]: {
+    run(state, check) {
+      const sets = state.iconSets ?? [];
+      if (!sets.some((set) => set.file === check.source)) {
+        return `${check.source} is no icon set row of the sources ledger: the icons decision points at the row of the set the code uses`;
+      }
+      const skip = liveSkip(state, check);
+      const found = iconUseProblems(state.sources?.[check.sources] ?? {}, {
+        sets,
+        packages: check.packages,
+        library: (file) => inLibrary(file, skip),
+      });
+      if (found.length === 0) return null;
+      const more = found.length > 5 ? `; and ${found.length - 5} more` : "";
+      const named = sets
+        .map((set) => set.module ?? set.pin?.package ?? (set.folder && `the folder ${set.folder}`))
+        .filter(Boolean);
+      return `${found.slice(0, 5).join("; ")}${more}: an icon comes from the icon set the sources ledger records (${named.join(", ")}); a second set the code uses needs a row of its own: write its row with icon-source; an icon the set lacks goes in a folder an icon set row records`;
+    },
+    // A file of the folder the check reads draws an svg element by hand.
+    change(state, check) {
+      const file = `${check.sources}/changed-copy.tsx`;
+      const sources = {
+        ...state.sources?.[check.sources],
+        [file]: "export const C = () => <svg />;\n",
+      };
+      return { ...state, sources: { ...state.sources, [check.sources]: sources } };
     },
   },
   // Every logo row of the sources ledger still pins the files of the mark the repository holds:
@@ -1311,16 +1348,21 @@ export const TAKEN_DOWN_CHECK = { kind: "taken-down", sources: "src" };
 // The folder each pinned source declares for its items' files, without its last slash. A source
 // written before the key, or one that cannot be read, declares none.
 function declaredFolders(state) {
-  return Object.values(state.ledgerFolders?.[SOURCES_FOLDER] ?? {})
-    .map((text) => {
-      try {
-        return JSON.parse(text);
-      } catch {
-        return null;
-      }
-    })
-    .filter((source) => typeof source?.folder === "string" && source.folder.trim() !== "")
-    .map((source) => ({ source: source.id, folder: source.folder.replace(/\/+$/, "") }));
+  return (
+    Object.values(state.ledgerFolders?.[SOURCES_FOLDER] ?? {})
+      .map((text) => {
+        try {
+          return JSON.parse(text);
+        } catch {
+          return null;
+        }
+      })
+      .filter((source) => typeof source?.folder === "string" && source.folder.trim() !== "")
+      // The folder of an icon set is the set itself, which the code uses freely: no item of an
+      // outside source is taken in from it.
+      .filter((source) => !isIconSet(source))
+      .map((source) => ({ source: source.id, folder: source.folder.replace(/\/+$/, "") }))
+  );
 }
 
 // The files of every item taken down and not taken in, each with its conform record: a record
