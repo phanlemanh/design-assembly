@@ -69,6 +69,11 @@ export function observe(dir, version) {
   return seen;
 }
 
+// A number of the data printed to twelve decimal places: the last digits of a ratio computed in
+// floating point differ from one machine to another (the record was made on one, the check of the
+// repository runs on another), and they are no reading of the repository.
+export const steady = (text) => String(text).replace(/(\d+\.\d{12})\d+/g, "$1");
+
 export const RECORD = path.join(
   path.dirname(fileURLToPath(import.meta.url)),
   "no-mark-on-0.69.0.json",
