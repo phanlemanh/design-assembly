@@ -601,6 +601,32 @@ test("upgrade lays the check of the pin on a repository that has an icon set row
   );
 });
 
+test("adopt adds no check of the pin while an icon set row already pins what the lockfile no longer has, and says why", () => {
+  const dir = withLibrary();
+  put(
+    dir,
+    "design/sources/lucide-react.json",
+    json(
+      packaged({
+        id: "lucide-react",
+        module: "lucide-react",
+        pin: { package: "lucide-react", version: "1.0.0" },
+      }),
+    ),
+  );
+  const data = JSON.parse(adopt(dir, "--dry-run", "--json").stdout);
+  assert.ok(
+    data.unreadable.some(
+      (item) =>
+        item.id === "ledger-shapes" &&
+        /lucide-react\.json pins lucide-react at 1\.0\.0, and package-lock\.json pins 1\.3\.0/.test(
+          item.why,
+        ),
+    ),
+    JSON.stringify(data.unreadable),
+  );
+});
+
 // ---- criterion 21: the names are the repository's data -----------------------------------------
 
 test("the plugin names no icon package of these tests: what the command writes comes from the repository", () => {

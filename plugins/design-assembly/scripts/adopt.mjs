@@ -734,6 +734,8 @@ export function adoption(
         package: trialPackage(root, host),
         // What loads a typeface, as the adapter of the repository's build reads it.
         fonts: readLoads(root, styles.css, result.stylesheet),
+        // The icon sets of the ledger as they are: a row proposed now pins what the lockfile has.
+        iconSets: readIconSets(root),
         displays: columns.displays ?? {},
         files: {
           ...starting,
