@@ -7,8 +7,10 @@
 // the check that holds the pin of every logo row is laid beside the row.
 // With --into, the files are added to a row already there, and nothing it pins or says is changed.
 // With --package, the files are those of a package an outside plug left, read with its manifest:
-// each compared with the hash the manifest lists, the row saying which plug made the mark and on
-// which day; who chose it is read from the decision sheet, never from the package.
+// each compared with the hash the manifest lists, the row saying which plug made the mark, on
+// which day, and which candidate of the question it is; who chose it is read from the decision
+// sheet, never from the package, and a package of a candidate the question did not offer, or of one
+// the owner did not choose, is refused.
 // Usage: node logo-source.mjs [--target DIR] (--file PATH:ROLE:VARIANT [--file ...] | --package DIR)
 //                             [--title NAME] [--id ID | --into ID] [--on DATE] [--dry-run] [--json]
 // Exit: 0 files added to a row a person finished; 1 the row is written, or would be, and its
@@ -21,7 +23,7 @@ import { stdout } from "node:process";
 import { writeFiles, writtenFiles } from "./apply.mjs";
 import { finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { filesPin, idOf, today } from "./font-source.mjs";
-import { chosenOnSheet, readLogoPackage } from "./logo-package.mjs";
+import { candidateProblem, chosenOnSheet, readLogoPackage } from "./logo-package.mjs";
 import { buildOf } from "../templates/tools/design-assembly/adapters/index.mjs";
 import { newerProblem, shapeProblems } from "../templates/tools/design-assembly/contract.mjs";
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
@@ -260,8 +262,9 @@ const USAGE = `usage: node logo-source.mjs [--target DIR] (--file PATH:ROLE:VARI
   --package   A folder of the repository holding a package of mark files an outside plug left,
               with its manifest, manifest.json, beside them: every file is compared with the
               hash the manifest lists, and the package holds no file it does not name. The row
-              says which plug made the mark and on which day; who chose it is read from the
-              waiting list. In place of --file.
+              says which plug made the mark, on which day, and which candidate of the question it
+              is; who chose it is read from the waiting list, and a package of a candidate the
+              owner did not choose is refused. In place of --file.
   --title     The name of the product the mark stands for. Without it, the title of the package's
               manifest, else the name the repository's package gives.
   --id        The row's id, and the name of its file. Without it, ${LOGO_ID}.
@@ -319,6 +322,10 @@ function main(args) {
     }
   }
   const files = pack ? pack.files : given.map(namedFile);
+  const rowId = flags["--id"] === undefined ? LOGO_ID : idOf(flags["--id"]);
+  // A package of a mark the question did not offer, or of one the owner did not choose.
+  const stranger = pack && rowId !== "" ? candidateProblem(root, rowId, pack.candidate) : null;
+  if (stranger) throw new Refusal(`${stranger}. Nothing was written`);
   const on = flags["--on"] ?? today();
   if (!isDay(on)) throw new Refusal(`--on takes a day written YYYY-MM-DD, and ${on} is not one`);
   const id = flags["--id"] === undefined ? undefined : idOf(flags["--id"]);
@@ -336,7 +343,9 @@ function main(args) {
       files,
       title: flags["--title"] ?? pack?.title ?? packageName(root),
       id,
-      made: pack?.made ?? null,
+      made: pack
+        ? { ...pack.made, ...(pack.candidate ? { candidate: pack.candidate } : {}) }
+        : null,
       on,
     });
   } catch (error) {
@@ -382,7 +391,9 @@ function main(args) {
     ...lines.map((line) => `  ${line}`),
     ...(theme ? gateLines(root) : []),
     ...(chosen
-      ? [`chosen: by ${chosen.by} on ${chosen.on}, in ${chosen.question} of the waiting list`]
+      ? [
+          `chosen: by ${chosen.by} on ${chosen.on}, in ${chosen.question} of the waiting list${chosen.candidate ? `: candidate ${chosen.candidate}` : ""}`,
+        ]
       : []),
     `next: ${next}`,
     ...(chosen ? [] : [`then: ${ownerStep(written.row.id)}`]),

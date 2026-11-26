@@ -138,6 +138,7 @@ import {
   branchFacts,
   branchDone,
   branchNotes,
+  choiceLines,
   sheetProblem,
   taggedTests,
   wallProblem,
@@ -1338,7 +1339,11 @@ const KINDS = {
       return wallProblem({ branch: state.branch ?? null, waiting: state.waiting });
     },
     notes: (state) => branchNotes(state.branch ?? null),
-    done: (state) => branchDone(state.branch ?? null),
+    // What the wall read, beside the history fetched: the mark the owner chose among candidates.
+    done: (state) => [
+      ...branchDone(state.branch ?? null),
+      ...choiceLines({ branch: state.branch ?? null, waiting: state.waiting }),
+    ],
     // The branch adds a page of a kind of screen that nobody asked the owner about.
     change(state) {
       const branch = state.branch && !state.branch.problem ? state.branch : emptyBranch();

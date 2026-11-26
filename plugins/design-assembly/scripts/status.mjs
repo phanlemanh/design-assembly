@@ -28,7 +28,7 @@ import {
   readLogoSources,
   readIconSets,
 } from "../templates/tools/design-assembly/sources-ledger.mjs";
-import { readWaiting } from "../templates/tools/design-assembly/waiting.mjs";
+import { markChoices, readWaiting } from "../templates/tools/design-assembly/waiting.mjs";
 import {
   darkScopes,
   DEFAULT_STYLESHEET,
@@ -705,6 +705,8 @@ function readLedgers(root) {
     unwhole: unwholeOf(root),
     // What the brand assets lack, which no check holds: empty with no row of their kinds.
     brand: brandGaps(root),
+    // Each mark the owner chose among the candidates its question offered (spec 0017).
+    chosen: markChoices(listedRows(root, rows)),
     // A repository of a family: where each answer of the core it pinned stands, and whether the
     // core moved ahead of the pin where its folder can be looked at. Null otherwise.
     core: withMoved(root, memberStatus(root)),
@@ -773,10 +775,25 @@ function birthSays({ all, missing }) {
 }
 
 function resultOf(
-  { audit, broken, tool, sockets, seen, birth, missing, pushed, unwhole, core, brand = [] },
+  {
+    audit,
+    broken,
+    tool,
+    sockets,
+    seen,
+    birth,
+    missing,
+    pushed,
+    unwhole,
+    core,
+    brand = [],
+    chosen = [],
+  },
   waiting,
 ) {
   return {
+    // Only a repository whose owner chose a mark among candidates has this key.
+    ...(chosen.length > 0 ? { marks_chosen: chosen } : {}),
     // Only a repository with brand assets that lack something has this key (spec 0017).
     ...(brand.length > 0 ? { brand_gaps: brand } : {}),
     // Only a repository of a family has this key: one that stands alone reads as before.
@@ -947,6 +964,17 @@ export function report(result) {
       const rest = waiting.slice(SHOWN).map((item) => item.id);
       lines.push(`  and ${rest.length} more, listed with --json: ${rest.join(", ")}`);
     }
+  }
+  // The mark the owner chose among candidates: which, by whom, when.
+  if (result.marks_chosen) {
+    lines.push(
+      "",
+      "marks chosen on the decision sheet:",
+      ...result.marks_chosen.map(
+        (choice) =>
+          `  ${choice.item}: ${choice.candidate}, by ${choice.by} on ${choice.on}, in ${choice.question} of the waiting list`,
+      ),
+    );
   }
   // What the brand assets lack: said, never red (spec 0017, criterion 14).
   if (result.brand_gaps) {

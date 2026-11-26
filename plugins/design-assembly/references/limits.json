@@ -6763,9 +6763,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-26",
-      "where": ["spec", "d0126", "d0127"],
-      "status": "open",
-      "note": "When the owner picks a mark other than the first candidate of the question on logo:<id>, the decision sheet writes the answer as a value naming that candidate, and the wall owner-calls reads only a kept answer: it says the owner answered otherwise and stays red, and logo-source names no one as having chosen, though the owner chose. Until the wall reads a value that names a candidate, the owner keeps the recommendation, or the question is asked again with the chosen mark first."
+      "where": ["spec", "d0126", "d0127", "d0128"],
+      "status": "closed",
+      "note": "When the owner picks a mark other than the first candidate of the question on logo:<id>, the decision sheet writes the answer as a value naming that candidate, and the wall owner-calls reads only a kept answer: it says the owner answered otherwise and stays red, and logo-source names no one as having chosen, though the owner chose. Until the wall reads a value that names a candidate, the owner keeps the recommendation, or the question is asked again with the chosen mark first.",
+      "closed": "2026-11-26",
+      "closed_by": "decide --ask --candidate offers the marks of logo:<id>, the recommended one first; keeping chooses the first and naming another chooses that one, and the wall reads either as the owner's choice when the branch's logo row is that candidate's (made.candidate, written by logo-source --package from the manifest's candidate) or names none and the first was kept; a refusal, words that name no offered candidate and a row of another candidate stay red, saying which; the gate, status, the decision sheet and logo-source --package name the candidate, who chose it and when (plugin 0.75.0, d0128), held by plugin tests that also compare every other item and question with the tool and scripts of 0.74.0, and on a repository whose installed tool is 0.74.0 decide refuses --candidate and names upgrade first"
     },
     {
       "id": "logo-design-plug-unmeasured",
@@ -6810,6 +6812,28 @@
       "where": ["spec", "d0127"],
       "status": "open",
       "note": "A drawn icon is recorded with its need and why; nothing checks that it follows the grid and the stroke the icon set row records (spec 0017: a drawn icon follows the row's grid and stroke), as nothing holds the sizes and stroke in use (limit icon-set-sizes-stroke-unheld)."
+    },
+    {
+      "id": "logo-design-skill-names-no-candidate",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["spec", "d0128"],
+      "status": "open",
+      "note": "The plugin reads which mark the owner chose from a question asked with decide --ask --candidate and from the candidate a package's manifest names; the skill logo-design, in its own repository, does neither yet. Until it asks with the candidates and writes candidate into its manifest, a mark chosen other than the first stays red on the wall, which says the row names no candidate, and logo-source --package refuses the package; keeping the first reads as before."
+    },
+    {
+      "id": "logo-kept-row-names-no-candidate",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-26",
+      "where": ["d0128"],
+      "status": "open",
+      "note": "A logo row that names no candidate (written from files with logo-source --file, or from a package whose manifest names none) passes the wall when the owner kept the first candidate, as before candidates were read: nothing tells whether its files are the first candidate's. The row of a package that names its candidate is held against the choice."
     }
   ]
 }
