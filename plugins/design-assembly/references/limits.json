@@ -3469,7 +3469,7 @@
       "opened": "2026-11-20",
       "where": ["spec", "d0069"],
       "status": "open",
-      "note": "The brand assets socket has a plug for fonts and, since plugin 0.70.0, one for the mark (logo-source): a mark has its row and the gate holds its pin, but no check holds that the page icons the build declares and the images the app frame imports are files of a logo row, and an icon set has no place to be recorded and no check that a screen uses only recorded icons."
+      "note": "The brand assets socket has a plug for fonts, one for the icon set's row and its pin (plugin 0.70.0, item 12.1 slice 1), and one for the mark's row and its pin (plugin 0.71.0, item 12.2 slice 1): no check holds that a screen uses only the recorded icon set, nor that the page icons the build declares and the images the app frame imports are files of a logo row."
     },
     {
       "id": "capability-content-has-no-plug",
@@ -6457,6 +6457,72 @@
       "note": "On a member whose ledger has no row for the source colour because it holds a colour its core locks otherwise, the audit's next line, and the then line status copies from it, still say the colour is to be confirmed with a person; that line leads to adopt, whose line names the core's question about the difference, and status and the decision sheet no longer list the colour as a call of the person."
     },
     {
+      "opened": "2026-11-26",
+      "status": "open",
+      "id": "icon-set-pin-reads-one-lockfile",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "fix",
+      "where": ["d0123"],
+      "note": "An icon set that is a package is pinned by the version package-lock.json pins it at, and that file alone is read: a repository whose packages another package manager locks gets no row from icon-source or adopt, and the pin of a row a person wrote is not compared there, which the reader says."
+    },
+    {
+      "opened": "2026-11-26",
+      "status": "open",
+      "id": "icon-set-use-unheld",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "where": ["d0123", "spec"],
+      "note": "The gate holds the pin of an icon set row, not its use: a screen that imports icons from another icon package, or writes an svg element of its own, is not red. Slice 2 of item 12.1 (spec 0017, criterion 8) adds the list of known icon packages and that check."
+    },
+    {
+      "opened": "2026-11-26",
+      "status": "open",
+      "id": "icon-set-sizes-stroke-unheld",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "where": ["d0123", "spec"],
+      "note": "The sizes and the stroke width an icon set row may carry are a person's answer, written into the row by hand: no command writes them and no check holds that a screen draws icons at those sizes or that stroke (spec 0017, answer 12)."
+    },
+    {
+      "opened": "2026-11-26",
+      "status": "open",
+      "id": "icon-set-settings-words-few",
+      "area": "adopt",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "fix",
+      "where": ["d0123"],
+      "note": "The adopt command reads the icon set from the iconLibrary setting of a shadcn component library only, and knows four of its words (lucide, radix, tabler, phosphor): any other word, or a library whose settings say nothing of icons, gets no row proposed, and adopt says a person writes it with icon-source."
+    },
+    {
+      "opened": "2026-11-26",
+      "status": "open",
+      "id": "adopt-lays-icon-pin-check-on-first-run",
+      "area": "adopt",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "where": ["d0123"],
+      "note": "The adopt command lays the check icon-set-pin only on the run that first adds the row holding the ledgers' shapes: on a repository adopted before, a re-run proposes the icon set row without laying the check, and the gate holds the pin only once upgrade or icon-source lays it."
+    },
+    {
+      "opened": "2026-11-26",
+      "status": "open",
+      "id": "icon-set-row-waits-a-run-after-the-tool",
+      "area": "adopt",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "where": ["d0123"],
+      "note": "On a repository whose copy of the tool predates the kind icon-set, adopt proposes no icon set row and says to upgrade first, even on a run that lays the newer tool itself because it adds other checks: the row is proposed on the next run."
+    },
+    {
       "id": "logo-package-manifest-not-read",
       "area": "capabilities",
       "kind": "no-check",
@@ -6533,7 +6599,7 @@
       "status": "closed",
       "note": "On a repository whose installed tool predates the kind logo, adopt wrote a logo row and laid the check of its pins, and the repository's own gate turned red on a row it read as a library with no catalog and on a check it did not know.",
       "closed": "2026-11-26",
-      "closed_by": "adopt and logo-source ask the installed copy of the tool whether it reads a logo row and runs logo-pins, as core --join asks for its check; where it does not, nothing is written and the report names upgrade first, held by two plugin tests on the tool of release 0.69.0"
+      "closed_by": "adopt and logo-source ask the installed copy of the tool whether its sources ledger knows LOGO_KIND, with the helper toolPredates the icon set also uses, as core --join asks for its check; where it does not, nothing is written and the report names upgrade first, held by plugin tests on the tools of releases 0.69.0 and 0.70.0"
     }
   ]
 }

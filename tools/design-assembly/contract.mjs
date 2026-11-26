@@ -23,8 +23,10 @@ import {
   FONT_FIELDS,
   FONT_STYLES,
   fontRowProblems,
+  iconSetRowProblems,
   isCoreSource,
   isFont,
+  isIconSet,
   isLogo,
   LADDER_PLACES,
   LOGO_ROLES,
@@ -366,10 +368,10 @@ export const LEDGERS = {
     folder: SOURCES_FOLDER,
     ending: ".json",
     question:
-      "which outside libraries blocks are picked from, in what order, at which pin; and which fonts the product uses, from where, at which pin, under which licence",
+      "which outside libraries blocks are picked from, in what order, at which pin; which fonts the product uses, and which icon set, from where, at which pin, under which licence",
     born: BORN.firstEntry,
     writer:
-      "a person, or the repository's own tool that pins a source; a font's row, the guide or adopt from what the repository holds, and its licence a person; one file per source",
+      "a person, or the repository's own tool that pins a source; a font's row, the guide or adopt from what the repository holds; an icon set's row, icon-source or adopt from what the repository holds; the licence a person; one file per source",
     version: 1,
     format: "json-sources",
     root: {
@@ -522,6 +524,41 @@ export const LEDGERS = {
           core: required({ ...text, pattern: "^[0-9a-f]{12}$" }),
           left: required(list(dashed)),
         },
+        open: true,
+      },
+    },
+    // A source of the kind `icon-set` (spec 0017): the icon set the product uses. No catalog: it
+    // offers no block of a library. The module the code imports icons from, which is the package
+    // where the set is one; or the folder the repository keeps its own icon files in. A pin the row
+    // itself holds, the package at the version the lockfile pins it at or each file with its hash;
+    // the sizes the product uses and the stroke width of a set drawn in strokes, as a person
+    // answers them; and the licence, which a person writes. `own` and `proposed` as for a font.
+    "icon-set": {
+      catalog: text,
+      module: text,
+      folder: text,
+      pin: {
+        type: "object",
+        fields: {
+          package: text,
+          version: text,
+          files: list({
+            type: "object",
+            fields: {
+              file: required(text),
+              sha256: required({ ...text, pattern: "^[0-9a-f]{64}$" }),
+            },
+            open: true,
+          }),
+        },
+        open: true,
+      },
+      sizes: list(number),
+      stroke: number,
+      own: { type: "boolean" },
+      proposed: {
+        type: "object",
+        fields: { by: required(text), on: required(day) },
         open: true,
       },
     },
@@ -2022,14 +2059,19 @@ function sourceProblems(textOfFile, file) {
   // more what a font says of itself. So is the family core the repository pinned.
   const font = isFont(data);
   const core = isCoreSource(data);
+  // An icon set is a source of its own kind too (spec 0017).
+  const iconSet = isIconSet(data);
+  // And so is the mark (spec 0017).
   const logo = isLogo(data);
   const variant = font
     ? LEDGERS.sources.font
     : core
       ? LEDGERS.sources.core
-      : logo
-        ? LEDGERS.sources.logo
-        : {};
+      : iconSet
+        ? LEDGERS.sources["icon-set"]
+        : logo
+          ? LEDGERS.sources.logo
+          : {};
   const root = { ...LEDGERS.sources.root, ...variant };
   const problems = objectProblems(data, root, LEDGERS.sources.open, file);
   const name = path.basename(file);
@@ -2039,6 +2081,7 @@ function sourceProblems(textOfFile, file) {
     );
   }
   if (font) return [...problems, ...fontRowProblems(data, file)];
+  if (iconSet) return [...problems, ...iconSetRowProblems(data, file)];
   // The mark: its pin and its licence, past its shape.
   if (logo) return [...problems, ...logoRowProblems(data, file)];
   if (core) {

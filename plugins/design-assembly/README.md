@@ -171,6 +171,10 @@ scale, shape). Density, elevation, motion and iconography are not.
   The mark comes in the same way, as a row of the kind `logo`: `scripts/logo-source.mjs` writes it
   from files of the mark already in the repository, each with its role and its variant, and draws
   nothing; the foundations layer then chooses the floor's text or that row.
+- The icon set comes in the same way, as a row of the kind `icon-set`: `scripts/icon-source.mjs`
+  writes it from a package the lockfile pins or a folder of the repository's own icon files, each
+  hashed where it is; adopt proposes it from the icon set the component library's settings name.
+  A person writes the licence, and the gate holds the pin once a row is there.
 - `scripts/apply.mjs` derives a tonal palette and the primary color roles from one source color,
   writes them into the repository's stylesheet, adds its rows to the ledger
   `design/decisions.yaml`, and installs the checks that hold them.

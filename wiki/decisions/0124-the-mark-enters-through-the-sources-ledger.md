@@ -30,7 +30,7 @@ sources:
 
 ## Status
 
-Proposed, 2026-11-26, plugin 0.70.0. Lát 1 của mục 12.2 trong kế hoạch, theo đề bài
+Proposed, 2026-11-26, plugin 0.71.0 (gộp sau lát 1 của mục 12.1, plugin 0.70.0). Lát 1 của mục 12.2 trong kế hoạch, theo đề bài
 [0017](../specs/0017-brand-assets-the-logo-and-the-icon-set.md) (chủ repo duyệt ngày 2026-11-25, «Duyệt cả mười hai»),
 mở song song với lát 1 của mục 12.1 theo lời chủ repo «Mở hai lát». Đổi hợp đồng sổ và giá trị của bản thiết kế, nên
 chờ chủ repo duyệt ở PR. `ontology/` không đổi.
@@ -89,7 +89,10 @@ Luật đầu tiên của đề bài: repo chưa có dòng nào của loại m�
    công cụ ngay trong lượt ấy, làm như cũ. Khi bản chép không biết loại: `adopt` không ghi dòng, không đặt phép kiểm, và
    dòng «needs a person» nói «… older than the kind logo: bring it up with upgrade first, then adopt again, which would
    propose design/sources/logo.json from N file(s) of the repository (…)»; `logo-source` từ chối, thoát 2, cùng lời. Hàm
-   hỏi nằm riêng trong `scripts/tool-knows.mjs` để PR của bộ biểu tượng dùng chung. Bài kiểm dựng bản công cụ đúng của
+   hỏi là `toolPredates` của `scripts/tool-knows.mjs`, do lát 1 của mục 12.1 (quyết định
+   [0123](0123-the-icon-set-enters-through-the-sources-ledger.md)) đưa vào; hàm riêng tôi viết làm cùng việc nên bỏ khi
+   gộp. Loại `logo` hỏi `sources-ledger.mjs` có `LOGO_KIND` không, như loại `icon-set` hỏi `ICON_SET_KIND`, nên bản
+   công cụ 0.70.0 (biết bộ biểu tượng, chưa biết dấu) cũng được coi là cũ. Bài kiểm dựng bản công cụ đúng của
    bản phát hành 0.69.0 từ cây git mà `references/releases.json` ghi.
 
 ## Consequences
@@ -101,4 +104,4 @@ Luật đầu tiên của đề bài: repo chưa có dòng nào của loại m�
   `mark-gaps-unsaid`. Dòng `logo-metadata-icons-not-read` đến từ lượt chạy thử trên bản sao bỏ đi của một ứng dụng
   cùng họ: bố cục khai biểu tượng trang trong metadata, nên `adopt` chỉ đề xuất một trong bốn tệp. Giới hạn
   `capability-brand-assets-has-no-plug` vẫn mở, câu của nó thu hẹp: tiêu chí 22 đóng nó khi 7, 8 và 9 xanh.
-- Lát 1 của mục 12.1 sửa cùng các tệp hợp đồng và sổ nguồn; PR gộp sau sẽ gộp bằng tay.
+- Lát 1 của mục 12.1 (PR #157, plugin 0.70.0) gộp trước; lát này kéo `main` vào bằng merge commit, giữ cả hai loại trong hợp đồng, sổ nguồn và cổng, và lên 0.71.0.

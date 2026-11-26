@@ -182,6 +182,13 @@ stated level that the values do not reach is not a reason to lower the level: re
    words into the row's `licence`. A font it cannot pin, loaded from an address outside the
    repository or by a loader that takes it from elsewhere, gets no row: the report says so, and a
    person writes the row. A row already there is left as it is.
+   The same for the icon set the component library's settings name (`iconLibrary` in
+   `components.json`): where the lockfile pins its package, it writes the row of the kind
+   `icon-set`, `own: true`, and the check `icon-set-pin` that holds its pin. Ask the owner for the
+   licence the icon set is used under, and write their words into the row's `licence`. A word of
+   the settings this plugin does not know, or a package the lockfile does not pin, gets no row: a
+   person writes it with `node ${CLAUDE_PLUGIN_ROOT}/scripts/icon-source.mjs --target <repo>
+--package <name>` (or `--folder <path>` for icons kept as files of the repository).
    Likewise for the mark: from the icons the pages declare, as the adapter of the build reads them,
    it writes one logo row, `design/sources/logo.json`, each file hashed where it is with its role
    and the variant `color`, and says the repository kept them (`own: true`). It draws, fetches and

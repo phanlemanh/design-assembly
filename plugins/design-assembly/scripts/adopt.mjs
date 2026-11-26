@@ -45,6 +45,10 @@ import { TAKEN_DOWN_CHECK } from "../templates/tools/design-assembly/check.mjs";
 import { CHOOSE_FIRST_CHECK } from "../templates/tools/design-assembly/choose-first.mjs";
 import { FLOATING_CHECK } from "../templates/tools/design-assembly/floating-parts.mjs";
 import {
+  ICON_SET_CHECK,
+  readIconSets,
+} from "../templates/tools/design-assembly/sources-ledger.mjs";
+import {
   FAMILY_CORE_CHECK,
   readPinnedCore,
   sameCoreValue,
@@ -116,11 +120,11 @@ import {
   licenceStep as markLicenceStep,
   ownMark,
   themeWithLogoPins,
-  TOOL_TOO_OLD,
-  toolKnowsLogo,
+  logoToolPredates,
 } from "./logo-source.mjs";
 import { TOOL_COPY } from "./stamp.mjs";
 import { readLogoSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
+import { iconLicenceStep, ownIconSet } from "./icon-source.mjs";
 import { findProofs } from "./proofs.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -593,6 +597,34 @@ export function adoption(
         });
       }
     }
+    // The icon set the component library's settings name is the repository's own: its row of the
+    // sources ledger is proposed from the package the lockfile pins (spec 0017, criterion 6). A row
+    // that pins it is left as it is; the licence is a person's, so the row waits on it.
+    const icons = ownIconSet(root, { on: today(), by: "adopt" });
+    if (icons?.exists) {
+      result.kept.push({ id: "icon-set-source", why: icons.exists });
+    } else if (icons?.unreadable) {
+      result.unreadable.push({ id: "icon-set-source", why: icons.unreadable });
+    } else if (icons?.cannot) {
+      result.person.push({ id: "icon-set-source", why: icons.cannot });
+    } else if (icons) {
+      result.files[icons.row] = icons.content;
+      result.icon_sets = [
+        {
+          row: icons.row,
+          module: icons.module,
+          named_by: icons.named_by,
+          from: icons.from,
+          stated: icons.stated,
+        },
+      ];
+      result.person.push({
+        id: "icon-set-licence",
+        why: `${iconLicenceStep(icons.row)}${icons.stated ? `. ${icons.stated}` : ""}`,
+      });
+    }
+    // Once the repository has a row of an icon set, or gets one now, its pin is held.
+    const iconRows = readIconSets(root).length > 0 || Boolean(icons?.row);
     const artifacts = { [TOKENS_DECISION]: tokens, [COMPONENTS_DECISION]: components };
     // Every ledger the repository has, or gets in this run, has the one shape of the contract:
     // held from here on. A ledger that differs gets no row, and the differences are said.
@@ -650,6 +682,8 @@ export function adoption(
             ...floatingParts(root).checks,
             // A repository of a family: the locked answers of the core it pinned.
             ...(readPinnedCore(root) === null ? [] : [FAMILY_CORE_CHECK]),
+            // A repository with an icon set row: the pin of each icon set.
+            ...(iconRows ? [ICON_SET_CHECK] : []),
           ],
         };
       }
@@ -708,6 +742,8 @@ export function adoption(
         package: trialPackage(root, host),
         // What loads a typeface, as the adapter of the repository's build reads it.
         fonts: readLoads(root, styles.css, result.stylesheet),
+        // The icon sets of the ledger as they are: a row proposed now pins what the lockfile has.
+        iconSets: readIconSets(root),
         displays: columns.displays ?? {},
         files: {
           ...starting,
@@ -921,7 +957,7 @@ export function adoption(
   // ledgers.
   const knowsMark =
     Object.keys(result.files).some((file) => file.startsWith(`${TOOL_COPY}/`)) ||
-    toolKnowsLogo(root);
+    logoToolPredates(root) === null;
   proposeMark(root, result, knowsMark);
   if (knowsMark && (result.marks || readLogoSources(root).length > 0)) {
     const laid = themeWithLogoPins(root, result.files[FILES.theme] ?? read(root, FILES.theme));
@@ -994,7 +1030,7 @@ function proposeMark(root, result, knows) {
     const files = mark.proposed.files.map((entry) => entry.file);
     result.person.push({
       id: "logo-source",
-      why: `${TOOL_TOO_OLD}: bring it up with upgrade first, then adopt again, which would propose ${mark.proposed.row} from ${files.length} file(s) of the repository (${files.join(", ")})`,
+      why: `${logoToolPredates(root)}, then adopt again, which would propose ${mark.proposed.row} from ${files.length} file(s) of the repository (${files.join(", ")})`,
     });
     return;
   }
@@ -1181,6 +1217,11 @@ export function report(result) {
     result.marks ?? [],
     (mark) =>
       `${mark.row}, from ${mark.from}: ${mark.files.map((entry) => `${entry.file} (${entry.role})`).join(", ")}`,
+  );
+  section(
+    "the repository's own icon set, proposed as a row of the sources ledger (a person writes its licence):",
+    result.icon_sets ?? [],
+    (set) => `${set.module}: ${set.row}, from ${set.from}; named by ${set.named_by}`,
   );
   section("would fail today, so nothing was added:", result.failing, reason);
   section("cannot be read here:", result.unreadable, reason);

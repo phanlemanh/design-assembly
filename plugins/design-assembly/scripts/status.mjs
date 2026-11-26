@@ -26,6 +26,7 @@ import { pinnedPackage } from "../templates/tools/design-assembly/adapters/lockf
 import {
   readFontSources,
   readLogoSources,
+  readIconSets,
 } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { readWaiting } from "../templates/tools/design-assembly/waiting.mjs";
 import {
@@ -181,6 +182,39 @@ export function fontLicenceAsks(root, rows, audited) {
         basis: asked
           ? `${MEASURED}the owner answered ${asked.id} of the waiting list by ${asked.by} on ${asked.on}, and ${font.file} still has no licence`
           : `${MEASURED}${written}`,
+        answer,
+      },
+    ];
+  });
+}
+
+// The id of the question that asks the licence of an icon set of the sources ledger.
+export const iconLicenceAskId = (set) => `icon-set-licence-${set.id}`;
+
+// The licence of each icon set row a command wrote and no person finished (spec 0017, criterion
+// 5): the row has its pin and no licence, so it is not held. No tool writes a licence; the question
+// waits here until a person does, as the licence of a font does.
+export function iconSetLicenceAsks(root, rows, audited) {
+  const sets = readIconSets(root).filter((set) => set.waits);
+  if (sets.length === 0) return [];
+  const listed = listedRows(root, rows);
+  const answer = audited.values === "generated" ? "/design-assembly:new" : "/design-assembly:adopt";
+  return sets.flatMap((set) => {
+    const asked = listed.findLast((row) => row.id === iconLicenceAskId(set));
+    if (asked && !asked.answer) return [];
+    const stated = set.pin?.package ? pinnedPackage(root, set.pin.package).license : null;
+    const by = set.proposed ? ` was written by ${set.proposed.by} on ${set.proposed.on}` : "";
+    return [
+      {
+        id: iconLicenceAskId(set),
+        source: "sources",
+        question: `Which licence is the icon set ${set.title} used under?`,
+        recommendation: asked
+          ? `Write the owner's answer into licence of ${set.file}, in their words: the decision sheet recorded it and changed no row of the sources ledger.`
+          : `Write the licence the icon set is used under into licence of ${set.file}, in the owner's words: no tool writes one.${stated ? ` The lockfile says its package states ${stated}: read it first.` : ""}`,
+        basis: asked
+          ? `${MEASURED}the owner answered ${asked.id} of the waiting list by ${asked.by} on ${asked.on}, and ${set.file} still has no licence`
+          : `${MEASURED}${set.file}${by} from ${set.from}, and has no licence, so the row is not held`,
         answer,
       },
     ];
@@ -658,6 +692,7 @@ function readLedgers(root) {
       ...(typeface ? [typeface] : []),
       ...fontLicenceAsks(root, rows, audited),
       ...logoLicenceAsks(root, rows, audited),
+      ...iconSetLicenceAsks(root, rows, audited),
       ...colorRoleAsks(root, rows, audited),
     ],
     tool: toolOf(root),
