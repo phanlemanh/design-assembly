@@ -229,8 +229,12 @@
           "id": "bring-in",
           "kind": "command",
           "default": false,
-          "scripts": ["scripts/bring-in.mjs", "scripts/outside-tokens.mjs"],
-          "reads": ["blueprint"]
+          "scripts": [
+            "scripts/bring-in.mjs",
+            "scripts/outside-tokens.mjs",
+            "scripts/outside-variables.mjs"
+          ],
+          "reads": ["blueprint", "sources"]
         }
       ],
       "layers": ["foundations"],

@@ -492,6 +492,12 @@
       "templates": "ed8cd3537f0962d1d1fa45812e27b2fff160db02",
       "scripts": "fa15a8f4706b2a3ee6bd9b730f3230b990255784",
       "tool": "80ed15e5d52b6cd1682e5a299772586e0854ee35"
+    },
+    {
+      "version": "0.77.0",
+      "templates": "ed8cd3537f0962d1d1fa45812e27b2fff160db02",
+      "scripts": "528512ed6c172021833a482d63702f261fb190fa",
+      "tool": "80ed15e5d52b6cd1682e5a299772586e0854ee35"
     }
   ]
 }

@@ -25,7 +25,10 @@ where.
 from the path: a folder is a system of `tokens.json` and `README.md`, a `.md` file is a DESIGN.md,
 a JSON file of variables by collection is an export of variables, any other JSON file is a token
 file; `--kind tokens|design-md|variables|system` says it when that guess is wrong. Add `--json` for
-the data, `--dry-run` to write no question.
+the data, `--dry-run` to write no question. When an export of variables holds its source colour in
+two collections with two values, the command refuses and names both: ask the user which, and run it
+again with `--collection <name>` (or the collection's id, where two share a name); never choose one
+for them.
 
 It ends with:
 
@@ -39,7 +42,10 @@ It ends with:
 Tell the user the candidate's colour (and the token it was taken from), type scale and corner
 radius, then each line under it as it is: what an expression or a reference was computed to, what the source does not say (the floor's
 value is drawn), what was taken to the plugin's nearest value, what could not be read, and the
-fonts it names (a typeface is chosen with its source, not here).
+fonts it names (a typeface is chosen with its source, not here). For an export of variables, also
+say each line of what it counted: the values read, the collections set aside as copies of a library
+or hidden from publishing, the variables the foundations do not use, the values the export holds
+none for, the axes of modes it did not carry and the mode it took, and colours below full alpha.
 
 ## 4. Draw it beside the plugin's directions
 
