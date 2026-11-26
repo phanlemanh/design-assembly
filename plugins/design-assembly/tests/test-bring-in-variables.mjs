@@ -222,17 +222,36 @@ test("criterion 7: on an export of the real shape no value is lost to a hole of 
   );
   const { values, no_value: none } = candidate.variables;
   assert.deepEqual(values, { read: 40, variables: 25, collections: 5 });
-  assert.deepEqual(none, { empty: 1, missing: 1, aliases: 1, undeclared: 1 });
+  assert.deepEqual(none, { empty: 1, missing: 1, aliases: 1, undeclared: 1, orphans: 0 });
   // Every value of a kept collection is read, or counted with why.
   const kept = Object.values(data.meta.variables).filter(
     (item) => item.variableCollectionId !== "c-lib" && item.resolvedType !== "BOOLEAN",
   );
   const modes = (item) => data.meta.variableCollections[item.variableCollectionId].modes.length;
   const pairs = kept.reduce((sum, item) => sum + modes(item), 0);
+  // A variable with no value counts once; its every mode is a pair with no value.
+  const emptyPairs = kept
+    .filter((item) => Object.keys(item.valuesByMode).length === 0)
+    .reduce((sum, item) => sum + modes(item), 0);
   assert.equal(
-    values.read + none.empty + none.missing + none.aliases + candidate.unread.length,
+    values.read + emptyPairs + none.missing + none.aliases + candidate.unread.length,
     pairs,
   );
+  // A variable of a collection the export does not list is counted, never lost in silence.
+  const orphan = exportOf();
+  orphan.meta.variables["v-orphan"] = {
+    id: "v-orphan",
+    name: "color/stray",
+    resolvedType: "COLOR",
+    variableCollectionId: "c-gone",
+    valuesByMode: { "g-1": { r: 0, g: 0, b: 0, a: 1 } },
+  };
+  assert.equal(candidateFrom(saved(orphan)).variables.no_value.orphans, 1);
+  assert.match(shown(orphan), /1 variable names a collection the export does not list/);
+  // A mode the export writes as nothing is passed over, not a crash.
+  const odd = exportOf();
+  odd.meta.variableCollections["c-size"].modes.push(null);
+  assert.equal(candidateFrom(saved(odd)).values.source_color, INK_500);
   assert.match(shown(data), /^ {2}read: 40 values of 25 variables in 5 collections$/m);
 });
 
@@ -270,6 +289,17 @@ test("beyond the seven: a colour below full alpha keeps it and says so; a name t
   assert.deepEqual(dup, ["#010203", "#070809"]);
   // A hidden variable of a visible collection is read like any other.
   assert.equal(valueOf(tokens, "Look:color.muted@light"), "#777777");
+  // A colour reached through an alias keeps its alpha too, and is counted.
+  const through = exportOf();
+  through.meta.variables["v-veil"] = {
+    id: "v-veil",
+    name: "color/veil",
+    resolvedType: "COLOR",
+    variableCollectionId: "c-base",
+    valuesByMode: { "b-value": { type: "VARIABLE_ALIAS", id: "v-ink-fade" } },
+  };
+  assert.equal(valueOf(read(through).tokens, "Base:color.veil"), "#3366cc80");
+  assert.equal(candidateFrom(saved(through)).variables.alpha, 2);
   const text = shown(data);
   assert.match(
     text,
@@ -331,6 +361,35 @@ test("open question 5: a typeface that differs from the ledger's becomes a quest
   // A typeface nobody settled asks nothing.
   const open = settledRepo({});
   assert.ok(!conflictsOf(open, candidateFrom(file)).some((item) => item.key === "text_font"));
+  // The system font: a named family differs from it, a generic family is it.
+  const system = settledRepo({ text_font: "system", heading_font: "text" });
+  assert.ok(conflictsOf(system, candidateFrom(file)).some((item) => item.key === "text_font"));
+  const generic = exportOf();
+  generic.meta.variables["v-family"].valuesByMode["b-value"] = "system-ui, sans-serif";
+  const genericFile = saved(generic);
+  assert.ok(
+    !conflictsOf(system, candidateFrom(genericFile)).some((item) => item.key === "text_font"),
+  );
+  // A heading typeface of its own is asked apart from the text's.
+  const headed = exportOf();
+  headed.meta.variables["v-heading"] = {
+    id: "v-heading",
+    name: "font/family/heading",
+    resolvedType: "STRING",
+    variableCollectionId: "c-base",
+    valuesByMode: { "b-value": "Quill Serif" },
+  };
+  const fonts = conflictsOf(floor, candidateFrom(saved(headed)))
+    .filter((item) => item.key.endsWith("_font"))
+    .map((item) => [item.key, item.outside, item.settled_name]);
+  assert.deepEqual(fonts, [
+    ["text_font", "Lumen Grotesk", "Geist Variable"],
+    ["heading_font", "Quill Serif", "Geist Variable"],
+  ]);
+  // A stylesheet that cannot be found asks nothing rather than fail the run.
+  const broken = settledRepo();
+  put(broken, "components.json", "{ no");
+  assert.doesNotThrow(() => conflictsOf(broken, candidateFrom(file)));
 });
 
 test("the kinds 13.1 does not change, and the sheet with nothing brought in, read as plugin 0.76.0 printed them", () => {

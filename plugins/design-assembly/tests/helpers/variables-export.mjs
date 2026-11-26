@@ -174,14 +174,17 @@ export function exportOf() {
   };
 }
 
-// The same export with its collections and its variables listed in the other order.
+// The same export read in the other order: its collections, its variables, and the values of each
+// variable. The modes of a collection keep the order the file declares, which the report repeats.
 export function reversed(data) {
   const flip = (map) => Object.fromEntries(Object.entries(map).reverse());
+  const variables = Object.fromEntries(
+    Object.entries(data.meta.variables)
+      .reverse()
+      .map(([id, item]) => [id, { ...item, valuesByMode: flip(item.valuesByMode) }]),
+  );
   return {
     ...data,
-    meta: {
-      variableCollections: flip(data.meta.variableCollections),
-      variables: flip(data.meta.variables),
-    },
+    meta: { variableCollections: flip(data.meta.variableCollections), variables },
   };
 }

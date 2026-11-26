@@ -55,7 +55,7 @@ function writtenOf(value) {
 // the default (else the first) is carried; the dark carried is the one whose name says the same
 // beside the word, else the first.
 function modesOf(collection) {
-  const modes = Array.isArray(collection.modes) ? collection.modes : [];
+  const modes = Array.isArray(collection.modes) ? collection.modes.filter(isObject) : [];
   const def = modes.find((mode) => mode.modeId === collection.defaultModeId) ?? modes[0] ?? null;
   const lights = modes.filter((mode) => readsLight(mode.name));
   const darks = modes.filter((mode) => readsDark(mode.name));
@@ -107,8 +107,13 @@ function modeIn(from, modeId, to) {
 // one name twice in a collection, the axes of modes not carried, colours below full alpha.
 export function readVariables(data, evaluate) {
   const meta = isObject(data.meta) ? data.meta : data;
-  const variables = isObject(meta.variables) ? meta.variables : null;
-  if (!variables) throw new Error("it lists no variables");
+  if (!isObject(meta.variables)) throw new Error("it lists no variables");
+  // Each variable by its key, with an id: the key where the variable writes none.
+  const variables = Object.fromEntries(
+    Object.entries(meta.variables)
+      .filter(([, item]) => isObject(item))
+      .map(([id, item]) => [id, { ...item, id: String(item.id ?? id) }]),
+  );
   const given = isObject(meta.variableCollections) ? meta.variableCollections : {};
   const all = Object.entries(given).map(([id, item]) => ({
     id: String(item?.id ?? id),
@@ -157,7 +162,7 @@ export function readVariables(data, evaluate) {
 
   const counted = {
     not_used: { variables: 0, values: 0, types: new Set() },
-    no_value: { empty: 0, missing: 0, aliases: 0, undeclared: 0 },
+    no_value: { empty: 0, missing: 0, aliases: 0, undeclared: 0, orphans: 0 },
     alpha: 0,
   };
   const tokens = [];
@@ -169,8 +174,12 @@ export function readVariables(data, evaluate) {
     String(variable.name),
     String(variable.id),
   ];
+  // A variable of a collection the export does not list is counted, never read.
+  counted.no_value.orphans = Object.values(variables).filter(
+    (variable) => !byId.has(String(variable.variableCollectionId)),
+  ).length;
   const mine = Object.values(variables)
-    .filter((variable) => isObject(variable) && label.has(collectionOf(variable).id))
+    .filter((variable) => label.has(collectionOf(variable).id))
     .sort((a, b) => {
       const [x, y] = [order(a), order(b)];
       return byText(x[0], y[0]) || byText(x[1], y[1]) || byText(x[2], y[2]);
@@ -209,10 +218,11 @@ export function readVariables(data, evaluate) {
         : isAlias(raw)
           ? `{${raw.id}}`
           : writtenOf(raw);
-      if (isChannels(raw) && typeof raw.a === "number" && raw.a < 1) counted.alpha += 1;
       try {
         const value = resolve(variable, mode.modeId, []);
         readIds.add(variable.id);
+        // A colour below full alpha, written or reached through an alias, keeps its alpha.
+        if (/^#[0-9a-f]{8}$/i.test(value) && !/ff$/i.test(value)) counted.alpha += 1;
         tokens.push({
           token,
           mode: key,
@@ -311,6 +321,8 @@ export function variablesLines(summary) {
       `${plural(none.missing, "value")} ${none.missing === 1 ? "is" : "are"} missing in a mode of ${none.missing === 1 ? "its" : "their"} collection`,
     none.aliases &&
       `${plural(none.aliases, "alias", "aliases")} ${none.aliases === 1 ? "ends" : "end"} at one of them`,
+    none.orphans &&
+      `${plural(none.orphans, "variable")} ${none.orphans === 1 ? "names" : "name"} a collection the export does not list`,
     none.undeclared &&
       `${plural(none.undeclared, "value")} ${none.undeclared === 1 ? "sits" : "sit"} under a mode ${none.undeclared === 1 ? "its" : "their"} collection does not declare`,
   ].filter(Boolean);

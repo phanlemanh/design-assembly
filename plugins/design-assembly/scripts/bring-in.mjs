@@ -420,19 +420,27 @@ export function conflictsOf(root, candidate) {
   return [...keys, ...fontConflicts(root, candidate, choice, theirs)];
 }
 
-// The family a name of a typeface is: its first family, without quotes, in lower case.
-const familyKey = (text) =>
-  String(firstFamily(String(text)).name ?? text)
+// The system font, as the ledger's word `system` names it.
+const SYSTEM_FAMILY = "the system font";
+
+// The family a name of a typeface is: its first family, without quotes, in lower case; a generic
+// family (system-ui, sans-serif and their like) is the system font.
+function familyKey(text) {
+  if (text === SYSTEM_FAMILY) return SYSTEM_FAMILY;
+  const first = firstFamily(String(text));
+  if (first.generic !== undefined) return SYSTEM_FAMILY;
+  return String(first.name ?? text)
     .replace(/^["']|["']$/g, "")
     .trim()
     .toLowerCase();
+}
 
 // The family of the typeface the ledger settled for a key: the family of the font row it names, the
 // floor's own declaration in the stylesheet, or the system font; null where it cannot be read.
 function ledgerFamily(root, choice, key) {
   const value = choice[key];
   if (key === "heading_font" && value === "text") return ledgerFamily(root, choice, "text_font");
-  if (value === "system") return "the system font";
+  if (value === "system") return SYSTEM_FAMILY;
   if (sourceFontId(value) !== null) {
     try {
       const row = JSON.parse(readFileSync(path.join(root, sourceFontFile(value)), "utf8"));
@@ -442,9 +450,15 @@ function ledgerFamily(root, choice, key) {
     }
   }
   if (value !== "floor") return null;
-  const sheet = findStylesheet(root);
-  if (!sheet) return null;
-  const declared = themeDeclarations({ css: withoutBlock(loadStyles(root, sheet).css) });
+  let declared;
+  try {
+    const sheet = findStylesheet(root);
+    if (!sheet) return null;
+    declared = themeDeclarations({ css: withoutBlock(loadStyles(root, sheet).css) });
+  } catch {
+    // A settings file that cannot be read names no stylesheet: nothing is asked.
+    return null;
+  }
   // A family that is a variable is the variable's own declaration, followed a few steps at most.
   let variable = key === "text_font" ? FONT_VARIABLES[0] : FONT_VARIABLES[1];
   for (let step = 0; step < 4 && variable; step += 1) {

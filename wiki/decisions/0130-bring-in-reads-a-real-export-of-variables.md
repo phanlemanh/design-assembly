@@ -61,8 +61,9 @@ nhầm biến cùng tên. Mẫu thử của cầu chỉ có một collection, ba
    Mode không mang vẫn được đọc dưới tên của nó, không bao giờ thành `light` hay `dark`, và mỗi trục không mang có một
    dòng nêu các mode và mode đã lấy (tiêu chí 6).
 7. **Mọi thứ bỏ lại được đếm, mỗi loại một dòng**: biến kiểu ổ nền không dùng (đúng/sai) (tiêu chí 5); biến không có giá
-   trị, giá trị thiếu một mode, alias dừng ở chúng, giá trị dưới mode không khai, tách khỏi dòng `not read` của alias
-   không trỏ tới biến nào; tên trùng trong một collection; màu có alpha dưới 1, giữ dạng `#rrggbbaa`. Dòng «read» nêu số
+   trị, giá trị thiếu một mode, alias dừng ở chúng, giá trị dưới mode không khai, biến của collection bản xuất không liệt
+   kê, tách khỏi dòng `not read` của alias không trỏ tới biến nào; tên trùng trong một collection; màu có alpha dưới 1,
+   viết thẳng hay qua alias, giữ dạng `#rrggbbaa`. Dòng «read» nêu số
    giá trị, biến, collection đọc được. Dòng `not read` còn lại chỉ là lỗi đọc thật.
 8. **Font khác sổ thành câu hỏi** (câu hỏi mở 5), với bản xuất biến: họ chữ của ứng viên so với họ chữ chủ repo đã chốt
    (`text_font`, `heading_font`), đọc từ dòng font của sổ nguồn, từ khai báo của sàn trong stylesheet, hay «the system
