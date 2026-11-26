@@ -4,6 +4,7 @@
 // longer fits; running it twice gives the same hashes; a hand edit is reported for the very file;
 // and a rule turned off for the item's folder in the formatter, the lint configuration or the type
 // check needs its exemption. No model and no network: patches are applied by the local git.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";

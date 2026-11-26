@@ -2,6 +2,7 @@
 // rejects a raw table and one that rejects only part of what breaks a class name. The rule that
 // rejects every probe gains the tool's check, and the gate fails once that rule is turned off; the
 // other stays claimed, with what it lets through.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import {

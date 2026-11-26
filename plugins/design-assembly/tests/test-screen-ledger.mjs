@@ -2,6 +2,7 @@
 // by the gate, and read by the screen checks in place of the code, so states built by a function
 // are no longer read as missing. When the reference repository is on this machine, its ledger is
 // read too.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";

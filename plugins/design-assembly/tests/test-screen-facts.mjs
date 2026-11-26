@@ -4,6 +4,7 @@
 // on it with the roles that hold them. It reads the ledger through the one reader every tool uses,
 // so one file and one file per screen give the same answer, and so does a ledger that spells its
 // keys its own way. Its keys are pinned here; the kit holds them from its side with a sample.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";

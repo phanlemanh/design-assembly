@@ -2,6 +2,7 @@
 // screen's page, through every file it imports, to the files a change touched. What cannot be
 // traced asks for the whole suite. Tried on this repository, whose screens are listed in code, and
 // on a made-up repository whose screens are the pages of its folders.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

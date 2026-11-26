@@ -1,5 +1,6 @@
 // The book a design system is handed over as: every value on a page is read from the repository,
 // the same state gives the same book, and a book says when it no longer matches.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

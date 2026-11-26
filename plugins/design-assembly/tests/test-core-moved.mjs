@@ -5,6 +5,7 @@
 // becomes a question, and nothing is written over; a core that cannot be looked at is said, never
 // an error; and a repository that stands alone is unchanged. Fixtures only: no model, no network,
 // and a list of cores of each test's own.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { chmodSync, existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";

@@ -5,6 +5,7 @@
 // check itself; the item's own text on the screen goes through the repository's words table; and
 // the repository's own accessibility check runs as the repository configured it. The browser is
 // the repository's own, on pages served from this machine; nothing calls a model or the network.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { createRequire } from "node:module";

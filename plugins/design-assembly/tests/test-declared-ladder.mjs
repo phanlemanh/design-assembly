@@ -4,6 +4,7 @@
 // kept inside the catalog the repository already has is read, so a catalog pinned in that shape
 // answers. A source says which plug it is, so it need not share the plug's id; and an earlier
 // choice of that plug at a ladder socket is applied once the plug is pinned as a source.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import path from "node:path";

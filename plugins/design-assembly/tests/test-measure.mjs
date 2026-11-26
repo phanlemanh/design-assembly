@@ -2,6 +2,7 @@
 // sees where text stands on its ground, the ratio the level asks of it, and how the marks of many
 // pictures become findings a person can count. The page itself is read by a probe that runs in the
 // browser; these tests give the same code what such a probe reports.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { test } from "node:test";
 

@@ -1,6 +1,7 @@
 // The adapters: each declares its kind and the names it owns, and no name an adapter owns appears
 // in the plugin's core code. The core is the scripts, the tool a repository runs, and the make file
 // the guide installs; the adapters' folder and the code a repository owns once installed are not.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";

@@ -1,6 +1,7 @@
 // The ledger of screens joined with the domain model: an action offered to nobody who may run it,
 // a record shown to a role that may not view it, and a button no role that opens the screen may
 // press each fail; what the model or the ledger plans for later is listed as a debt.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

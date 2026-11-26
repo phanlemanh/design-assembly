@@ -2,6 +2,7 @@
 // of screens with its model, has the adapter's test browser and keeps the file of ways in, which
 // the guide never writes. The row of the ledger comes with the test, the gate holds both files,
 // and the installed test of every page stays as it was, byte for byte.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";

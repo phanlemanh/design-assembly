@@ -1,6 +1,7 @@
 // The common contract of every command (specification 0004), held for each command that exists:
 // how it is called, what a machine gets back, how it ends, and what it leaves on disk. One table,
 // one row per command; a new command adds its row and is held to the same contract.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

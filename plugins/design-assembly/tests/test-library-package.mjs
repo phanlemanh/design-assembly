@@ -2,6 +2,7 @@
 // named by the package's own alias and shared with the components the package writes itself. The
 // library's files are told from the repository's own by the settings and by the library's list of
 // items, never by the name of a folder; every check that leaves the library out reads that one list.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

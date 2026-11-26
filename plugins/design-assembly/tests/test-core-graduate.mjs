@@ -10,6 +10,7 @@
 // block of code needs is not proposed to. Then the whole path: granted, promoted, pinned, found
 // at tier 3, taken in, and the store's entry says a second use.
 // Nothing calls a model or the network, and each test keeps its own list of cores.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";

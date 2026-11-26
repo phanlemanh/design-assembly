@@ -3,6 +3,7 @@
 // ones the machine measured and the ones an eye saw, is put in one of three groups by what it rests
 // on; and only with --queue does a question reach the waiting list, one new file each. Every
 // findings file here is written by hand, so no model is called and each test gives one answer.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

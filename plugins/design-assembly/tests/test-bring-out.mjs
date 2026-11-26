@@ -3,6 +3,7 @@
 // README, tokens of both themes, type, spacing, corners, the components and the assets) second,
 // each stamped with the state of the ledgers it was written from; the gate goes red when a ledger
 // changes and an export is not written again. Every run is on a copy; nothing calls the network.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {

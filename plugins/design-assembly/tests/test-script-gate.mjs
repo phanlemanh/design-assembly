@@ -4,6 +4,7 @@
 // the repository already has, and says every file it would touch before it touches one. The rows it
 // writes name a check that is found and run; status counts them held. A repository with a Makefile
 // is wired as it always was. Every repository is a synthetic fixture in a throwaway folder.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import path from "node:path";

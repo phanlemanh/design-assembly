@@ -4,6 +4,7 @@
 // reason and each exemption with its rule; a file of the repository that uses an item not taken in
 // turns the gate red; and intake refuses a row while the record is missing or a rule is off with
 // no exemption. Nothing calls a model or the network.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { cpSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

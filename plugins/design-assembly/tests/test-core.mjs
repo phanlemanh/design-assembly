@@ -3,6 +3,7 @@
 // first repository of a family, lays out the lock-or-default sheet and builds the core folder from
 // the answers; and the check of a core's shape. Every repository is a fixture: nothing calls a
 // model or the network, and no test reads or writes anything outside its own throwaway folders.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

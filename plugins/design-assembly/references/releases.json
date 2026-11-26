@@ -444,6 +444,12 @@
       "templates": "ce5532c560cd88162da79788eb09d068e4660afe",
       "scripts": "693db9b5e783f33a7b32542613e3c4f3fe83c876",
       "tool": "968895d3e20eecbdbbd2c772874efdc7f2532d57"
+    },
+    {
+      "version": "0.69.0",
+      "templates": "efbea7e7af1d49b24dac6285810603112461c168",
+      "scripts": "f7af08cc55b328909a405fef4ca4d00289c81074",
+      "tool": "0f6ddbdf348d9c36ed7cac07c2cfd1972200df31"
     }
   ]
 }

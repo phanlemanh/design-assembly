@@ -6,6 +6,7 @@
 // the core is told as a use, and the store's entry follows: `used_by` and `second_use`. Leaving
 // takes the report out with the member's line. `core --check` holds the shape of every report.
 // Nothing calls a model or the network, and each test keeps its own list of cores.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { existsSync, rmSync } from "node:fs";
 import path from "node:path";

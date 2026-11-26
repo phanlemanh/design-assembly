@@ -2,6 +2,7 @@
 // width in light and in dark, two things are measured on it with no model called, a pack is written
 // for an eye to read later, and a record is handed to a person. The repository is never written to.
 // Each test runs the command on a throwaway application with places planted to break a measurement.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
 import { spawnSync } from "node:child_process";

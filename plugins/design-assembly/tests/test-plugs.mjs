@@ -2,6 +2,7 @@
 // criteria 1, 4, 5 and 6): the board of every socket with its candidates, the questions it puts on
 // the waiting list, and the rows an answer becomes. Each rule is seen holding on fixture plugs and
 // broken in one place, with a message that names where. Nothing calls a model or the network.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {

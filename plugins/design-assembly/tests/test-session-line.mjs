@@ -3,6 +3,7 @@
 // repository the session opened; in every other case it prints nothing, and whatever goes wrong it
 // ends with 0. It calls no model, no network and no git. Fixtures only, each with a list of cores
 // of its own.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";

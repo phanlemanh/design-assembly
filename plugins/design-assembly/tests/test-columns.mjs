@@ -1,6 +1,7 @@
 // Column types: what is read from the data model, the table a person owns, the file derived from
 // both, and the three things a screen may not set on a table itself. Every check is shown going
 // red on a real change.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

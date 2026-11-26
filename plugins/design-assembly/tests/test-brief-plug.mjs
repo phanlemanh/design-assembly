@@ -4,6 +4,7 @@
 // default plug of the screen brief socket and the limits ledger says what is still open, the skill
 // page says how it is run, and the readers of the sheet take the keys of a page of a kind from the
 // floor's one table.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";

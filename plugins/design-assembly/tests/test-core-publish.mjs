@@ -3,6 +3,7 @@
 // same way; before any push, exactly what would go where; a push the session made, recorded; and a
 // refusal that leaves the folder as usable as before. No test creates a repository or pushes: the
 // scripts call no network, and every call here runs with the network unreachable.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";

@@ -2,6 +2,7 @@
 // at which pin, and where the list of what each offers is. One file per source, so that pinning
 // one source again writes one file. The tools never fetch: a pin is read, and the snapshot it names
 // is compared with the hashes it records.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { Buffer } from "node:buffer";
 import { createHash } from "node:crypto";

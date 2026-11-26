@@ -3,6 +3,7 @@
 // reaches its threshold from the moment it is written (criterion 8); a brand's own status colour
 // through the row brand-exceptions; a pair that waits held to the ratio it was measured at; and a
 // repository set up before this version that changes no value (criterion 10 for the new choices).
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";

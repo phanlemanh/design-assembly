@@ -3,6 +3,7 @@
 // row or line its answer comes from, or open, with why. The repository is never written to, and the
 // same repository gives the same sheet on any day. Each test runs the command on a throwaway
 // repository that is only read.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

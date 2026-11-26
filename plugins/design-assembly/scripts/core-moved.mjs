@@ -14,6 +14,7 @@ import {
   blockFilesKey,
   CORE,
   coreMarkOf,
+  coreQuestionId,
   memberFiles,
   memberValue,
   readPinnedCore,
@@ -42,9 +43,9 @@ const shown = (value) => (typeof value === "string" ? value : JSON.stringify(val
 const stateOf = (answer) => ({ value: answer.value, hold: answer.hold });
 export const sameState = (a, b) => a.hold === b.hold && same(a.value, b.value);
 
-// The id of the question about a locked answer the repository holds otherwise: it names the
-// answer and the pin it was asked at.
-export const coreQuestionId = (id, pin) => `core-${id}-${pin}`;
+// The id of the question about a locked answer the repository holds otherwise, as the contract
+// gives it: every reader of the waiting list, and the gate, name the question the same way.
+export { coreQuestionId };
 
 // The questions about the core whose answer is recorded already: a locked answer the repository
 // keeps as an exception, its reason in the row's note against this pin. Such a question waits on

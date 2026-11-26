@@ -4,6 +4,7 @@
 // on which day and why, as an entry of the answer's history, which `core --check` holds. The move
 // writes only the core's answers; no member repository is written or told. Every repository and
 // every core is a fixture in a throwaway folder: nothing calls a model or the network.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

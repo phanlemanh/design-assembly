@@ -1,6 +1,7 @@
 // The status on throwaway repositories: nothing, a floor, one the guide proposed every answer for,
 // and one a person answered. Every claim is shown in both directions, and every run leaves the
 // repository as it found it.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

@@ -1,6 +1,7 @@
 // States, words and error messages, as far as a tool reads them from source: every screen declares
 // the states every view of data has, no screen writes its own words, and an error message has
 // both of its parts. Each rule is shown going red on a real change.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

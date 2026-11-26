@@ -1,6 +1,7 @@
 // The component manifest: what is read from component source, that the file is held to the source
 // in both directions, that a person's own file is never written over, and, when the acceptance kit
 // is on this machine, that its plan check accepts the names and variants and rejects wrong ones.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {

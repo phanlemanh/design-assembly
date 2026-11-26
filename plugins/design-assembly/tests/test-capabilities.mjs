@@ -1,6 +1,7 @@
 // The capability table: twenty sockets, the plugs that fill them, and the checks that hold it. Each
 // check is seen green on the real table and red on a copy broken in one place, with a message that
 // names what is wrong.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

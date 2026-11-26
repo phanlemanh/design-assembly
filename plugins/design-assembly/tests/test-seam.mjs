@@ -4,6 +4,7 @@
 // derived target in the gate's shared lists, the strings this plugin reads in a repository's
 // Makefile, mk/ files and workflows, all of them listed in one reference file, and a status that
 // always ends with a next step or with what is missing.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {

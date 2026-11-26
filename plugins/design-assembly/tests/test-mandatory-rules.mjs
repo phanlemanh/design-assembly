@@ -3,6 +3,7 @@
 // decision ledger holds it; conform and intake refuse every way an item turns one off; a record
 // written before keeps the gate green and is named; and before intake writes the row of an outside
 // item, the owner keeps or refuses the list of its exemptions. Nothing calls a model or the network.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { readFileSync, rmSync, writeFileSync } from "node:fs";

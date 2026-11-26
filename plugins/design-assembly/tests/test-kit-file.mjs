@@ -1,5 +1,6 @@
 // Where the tests find a file of the acceptance kit: at the kit's root, or inside the folder of one
 // of its plugins, for a kit that keeps each plugin in a folder of its own.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";

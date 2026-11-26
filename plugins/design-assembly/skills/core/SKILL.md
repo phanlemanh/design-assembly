@@ -121,7 +121,13 @@ again, and nothing is written in it.
    decision ledger whose answer the core holds, and, where the repository's gate is this plugin's,
    the check `family-core` under `ledger-shapes`. Nothing of the repository's values is written
    over.
-3. It ends with `1` when a locked answer is held otherwise here: a question waits on the decision
+3. A repository that has no ledgers yet (it joins before `adopt` or the guide ran, which is the
+   order `adopt` gives: the family question first) holds nothing to compare: every answer reads
+   `inherited`, the join ends with `0` and asks nothing. Run the preview of `adopt` again: it no
+   longer asks what the core answers. When `adopt` then lays a value the core locks otherwise, it
+   asks the same question, under the same id, in that run, and its line names the file. Never join
+   a second time to get the question.
+4. It ends with `1` when a locked answer is held otherwise here: a question waits on the decision
    sheet for each, `core-<id>-<pin>`. Read it to the owner with its recommendation (follow the
    core). Keep means follow: the repository changes its value itself, and the gate is red until it
    does. Refuse, with the reason in their own words, means keep this repository's answer as an
@@ -211,7 +217,7 @@ The person accepts, one answer or all, and you never accept for them:
 The copy takes the core's answer for each one accepted and keeps its own for the rest; the pin
 moves, and what was left still shows as ahead. No value of the repository is written over: a locked
 answer it then holds otherwise becomes a question `core-<id>-<pin>` on the decision sheet (follow
-the core, or keep it as an exception with the reason: section 7, step 3), and the gate is red until
+the core, or keep it as an exception with the reason: section 7, step 4), and the gate is red until
 the owner answers; a default it holds otherwise stays, recorded as the repository's own. An
 exception given before still stands while the core's answer it was given against did not change.
 It ends with `1` when a changed answer was left or a question waits, and says when the

@@ -2,6 +2,7 @@
 // first which screens it reaches, asking the owner, then recording the change on the block's row;
 // and the inventory names each item of an outside source that stands behind its source's pin, by
 // the pin its conform record was written at. Nothing calls a model or the network.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

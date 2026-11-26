@@ -1,5 +1,6 @@
 // The ledger of what this plugin is known not to hold. A limit written only in prose is lost the
 // next time someone reads past it, so every one of them has a row here, and the row is checked.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";

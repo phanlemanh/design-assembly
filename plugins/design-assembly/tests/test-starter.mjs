@@ -3,6 +3,7 @@
 // screens, a component and the floor's browser test, `adopt --starter` writes every ledger the
 // contract says a repository has from birth, asks nothing, leaves each person's call on the
 // waiting list, and leaves the guide free to write over what came from the floor.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";

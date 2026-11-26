@@ -3,6 +3,7 @@
 // specimen sheet; a repository with no browser gets the values before and after in words, and why
 // there is no picture. What is drawn is decided without a browser and is the same on every run;
 // drawing it needs one, and that test is skipped where the test machine has none.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, rmSync, statSync } from "node:fs";
 import path from "node:path";

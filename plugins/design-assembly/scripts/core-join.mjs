@@ -144,14 +144,30 @@ function askOfDiffering(answer, held, pin) {
   };
 }
 
+// The reason each default of a core is recorded with where the repository held it otherwise before
+// it joined: its own answer stays, under the name of the person who said it is of the family.
+export const reasonsBeforeJoining = (answers, { by, on }) =>
+  Object.fromEntries(
+    answers
+      .filter((answer) => answer.hold === "default")
+      .map((answer) => [answer.id, { why: BEFORE_JOINING, by, on }]),
+  );
+
 // The answers of the core put into a repository's ledger, the questions for the locked answers it
 // holds otherwise, and where each answer stands. `reasons` and `exceptions` are given now, by id.
-export function holdAnswers(root, pinned, { on, reasons = {}, exceptions = {}, ask = true }) {
-  const values = memberValues(pinned, memberFiles(root));
+// `pending` has the texts a command is about to write, read in place of what is on disk: the
+// ledger and the files a value is read from, so a command that lays them asks in the same run;
+// `who` is the command that asks, as a refusal names it.
+export function holdAnswers(
+  root,
+  pinned,
+  { on, reasons = {}, exceptions = {}, ask = true, pending = {}, who = "core" },
+) {
+  const values = memberValues(pinned, memberFiles(root, pending));
   const answered = answeredOf(root, pinned.label, pinned.answers);
   const given = { reasons, exceptions: { ...answered.exceptions, ...exceptions } };
   const files = {};
-  const text = read(root, LEDGER);
+  const text = pending[LEDGER] ?? read(root, LEDGER);
   let states;
   if (text === null) {
     // Without a ledger no row is marked; where each answer stands is read the same way.
@@ -174,7 +190,7 @@ export function holdAnswers(root, pinned, { on, reasons = {}, exceptions = {}, a
   );
   let queued = [];
   if (ask && asks.some(Boolean)) {
-    const made = askAll(root, asks, { on, who: "core" });
+    const made = askAll(root, asks, { on, who });
     Object.assign(files, made.files);
     queued = made.queued;
   }
@@ -208,7 +224,13 @@ export function holdAnswers(root, pinned, { on, reasons = {}, exceptions = {}, a
           }),
     };
   });
-  return { files, answers: report };
+  // The questions this very call makes, by the id of the answer: the file each goes to.
+  const asked = Object.fromEntries(
+    differing
+      .map((answer, index) => [answer.id, queued[index]?.file])
+      .filter(([, file]) => Boolean(file)),
+  );
+  return { files, answers: report, asked };
 }
 
 // The questions about this pin that still wait although their answer is recorded: a locked answer
@@ -392,11 +414,7 @@ export function joinCore(root, { core, by, on, dryRun }) {
   const held = holdAnswers(root, pinned, {
     on,
     // A default the repository held otherwise before it joined keeps that answer, and says so.
-    reasons: Object.fromEntries(
-      read0.answers
-        .filter((answer) => answer.hold === "default")
-        .map((answer) => [answer.id, { why: BEFORE_JOINING, by, on }]),
-    ),
+    reasons: reasonsBeforeJoining(read0.answers, { by, on }),
   });
   Object.assign(files, held.files);
   // Pinned again: what the core retired since the earlier pin is accepted with it, and becomes the

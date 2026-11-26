@@ -1,6 +1,7 @@
 // The inventory of the store: how many pieces each store and each kind holds, the state of each
 // piece of the repository, what it finds, and what it could not look at and why. Read-only, the
 // same twice, no network; with --strict a finding ends the call with 1.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { chmodSync, lstatSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";

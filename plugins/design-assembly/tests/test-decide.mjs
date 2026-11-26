@@ -2,6 +2,7 @@
 // list kept as data. Nothing is written before a person answers; an answer carries a name and a
 // date; a refusal stays, with what the owner said. Then this repository's own waiting list: every
 // row of the page it was converted from is in the data, and the machine answered none.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

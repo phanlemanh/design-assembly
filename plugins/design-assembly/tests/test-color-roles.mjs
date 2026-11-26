@@ -1,6 +1,7 @@
 // Item 9.2, slice 1 of specification 0012: the table of colour roles, the roles that follow the
 // primary colour, contrast on every pair the table declares, and a repository set up before this
 // version that neither changes a value nor turns red (criteria 6, 7, 9 and 10).
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from "node:fs";

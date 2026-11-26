@@ -5,6 +5,7 @@
 // say where they read. A stylesheet in a sibling package is found by every reader, and a value
 // declared in a cascade layer of a file it imports is followed. A lint rule of a lint tool the
 // repository lacks is never held. Every repository is a synthetic fixture.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import path from "node:path";
 import { after, test } from "node:test";

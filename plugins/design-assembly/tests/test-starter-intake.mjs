@@ -5,6 +5,7 @@
 // The build now writes a row of the intake ledger for each piece it lays: the starter kit, at its
 // pin, with the hash of the file as laid. A piece the repository edits later is still seen, and a
 // file a person adds is held as before. Nothing calls a model or the network.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

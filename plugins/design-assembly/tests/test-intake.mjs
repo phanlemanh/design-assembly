@@ -2,6 +2,7 @@
 // through the waiting list, so no row of the ledger carries a person's name before a person
 // answered (specification 0006, part B3). The repository's own store first; then the starter kit
 // or a pinned source, as candidates the owner picks from; then made by hand, with why.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";

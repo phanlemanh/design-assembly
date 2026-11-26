@@ -4,6 +4,7 @@
 // sends says first what goes where; a push is recorded where the repository keeps it, and the
 // owner is asked once whether to make the system the default there; status says when the copy
 // there is behind the ledgers. Nothing here sends anything: the skill does, after this says it may.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import {

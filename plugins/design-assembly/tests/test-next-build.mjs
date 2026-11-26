@@ -2,6 +2,7 @@
 // packages; a Next.js application is served by its own development server, from its own packages,
 // and the handoff book draws its screens there. What that server cannot do, serve a module of the
 // plugin's own beside the repository's, is said, never guessed around.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawn, spawnSync } from "node:child_process";
 import {

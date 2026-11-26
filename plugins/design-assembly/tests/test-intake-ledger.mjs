@@ -3,6 +3,7 @@
 // after the need, so that two changes that each take in a block write two files and never meet.
 // The fragments are the screens' own way of keeping a ledger, given another list and another key
 // to name each file by; a repository that spells the keys its own way says so under `keys`.
+import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
