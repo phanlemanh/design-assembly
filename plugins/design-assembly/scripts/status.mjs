@@ -57,6 +57,7 @@ import { sheet, WAITING_FOLDER, WAITING_LIST } from "./decide.mjs";
 import { DOCUMENT_FLAGS, handOver, plural, requested } from "./document.mjs";
 import { audit, AUDIT, DECIDE, PERSON_CALLS, UNCONFIRMED } from "./audit.mjs";
 import { socketsOf } from "./capabilities.mjs";
+import { brandGaps, gapLines } from "./brand-assets.mjs";
 import { pushedLines } from "./send-out.mjs";
 import { gateProblem, seenMissing } from "./apply.mjs";
 import { memberLines, memberStatus, readMember } from "./core-marks.mjs";
@@ -702,6 +703,8 @@ function readLedgers(root) {
     missing: missingFloor(root),
     pushed: pushedLines(root),
     unwhole: unwholeOf(root),
+    // What the brand assets lack, which no check holds: empty with no row of their kinds.
+    brand: brandGaps(root),
     // A repository of a family: where each answer of the core it pinned stands, and whether the
     // core moved ahead of the pin where its folder can be looked at. Null otherwise.
     core: withMoved(root, memberStatus(root)),
@@ -770,10 +773,12 @@ function birthSays({ all, missing }) {
 }
 
 function resultOf(
-  { audit, broken, tool, sockets, seen, birth, missing, pushed, unwhole, core },
+  { audit, broken, tool, sockets, seen, birth, missing, pushed, unwhole, core, brand = [] },
   waiting,
 ) {
   return {
+    // Only a repository with brand assets that lack something has this key (spec 0017).
+    ...(brand.length > 0 ? { brand_gaps: brand } : {}),
     // Only a repository of a family has this key: one that stands alone reads as before.
     ...(core ? { core } : {}),
     tier: audit.tier,
@@ -942,6 +947,14 @@ export function report(result) {
       const rest = waiting.slice(SHOWN).map((item) => item.id);
       lines.push(`  and ${rest.length} more, listed with --json: ${rest.join(", ")}`);
     }
+  }
+  // What the brand assets lack: said, never red (spec 0017, criterion 14).
+  if (result.brand_gaps) {
+    lines.push(
+      "",
+      "brand assets lack, which no check holds and the gate does not turn red for:",
+      ...gapLines(result.brand_gaps).map((line) => `  ${line}`),
+    );
   }
   lines.push("", `tool: ${tool.says}`);
   if (tool.differs && tool.copy !== null) {

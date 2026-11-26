@@ -5,9 +5,9 @@
 //                   decision sheet: red for a judgment this branch writes that no person answered
 //                   and no question asks, for source that goes around a decided scale, and for a
 //                   test that proves a decision the ledger has no row for
-//   owner-calls     the wall: a branch that adds a page of a kind of screen, or changes the root
-//                   colour line, is red until the waiting list holds the owner's answer that keeps
-//                   that very item
+//   owner-calls     the wall: a branch that adds a page of a kind of screen, changes the root
+//                   colour line, or adds a logo row or changes a file of one, is red until the
+//                   waiting list holds the owner's answer that keeps that very item
 //
 // What a branch adds is read from git, against where the branch left the main one, with what is
 // not committed yet. A shallow checkout fetches the history it needs from the remote named origin.
@@ -20,7 +20,8 @@ import { env } from "node:process";
 import { inLibrary, VENDOR } from "./components.mjs";
 import { parseLedger } from "./ledger.mjs";
 import { NOT_A_KIND } from "./screens.mjs";
-import { colourItem, STAMP, UNCONFIRMED } from "./waiting.mjs";
+import { LOGO_KIND, SOURCES_FOLDER } from "./sources-ledger.mjs";
+import { colourItem, logoItem, STAMP, UNCONFIRMED } from "./waiting.mjs";
 
 // How source goes around a decision about using a scale: a raw value where a role or a step of
 // the scale is decided. One detector, read by the audit and by the gate.
@@ -328,13 +329,52 @@ function compare({ root, git, base, main, pages, stylesheet, ledger, atBase }) {
     .filter((row) => !was.has(String(row.id)) || shape(was.get(String(row.id))) !== shape(row))
     .map((row) => String(row.id));
 
+  // The files each logo row pins, at the base and now, by the row's id.
+  const listedSources = git("ls-tree", "-r", "--name-only", "-z", base, "--", `${SOURCES_FOLDER}/`);
+  if (listedSources.status !== 0)
+    return { problem: `git could not list ${SOURCES_FOLDER} at ${base}` };
+  const sourcesAtBase = listedSources.stdout
+    .split("\0")
+    .filter((file) => file.endsWith(".json") && path.posix.dirname(file) === SOURCES_FOLDER);
+  const folderNow = path.join(root, SOURCES_FOLDER);
+  const sourcesNow = existsSync(folderNow)
+    ? readdirSync(folderNow)
+        .filter((name) => name.endsWith(".json"))
+        .map((name) => `${SOURCES_FOLDER}/${name}`)
+    : [];
+
   return {
     base,
     main,
     pages_added: pagesAdded,
     colour: { base: rootColour(atBase(stylesheet)), now: rootColour(read(stylesheet)) },
     judgments,
+    marks: {
+      base: markPins(sourcesAtBase.map((file) => [file, atBase(file)])),
+      now: markPins(sourcesNow.map((file) => [file, read(file)])),
+    },
   };
+}
+
+// The files each logo row pins, as one line per file of its hash and path, by the row's id: what a
+// branch changes when it changes the mark. A file that is not JSON, or not a logo, is no row here.
+function markPins(files) {
+  const pins = {};
+  for (const [file, text] of files) {
+    let row;
+    try {
+      row = JSON.parse(text ?? "null");
+    } catch {
+      continue;
+    }
+    if (row?.kind !== LOGO_KIND) continue;
+    const entries = Array.isArray(row.pin?.files) ? row.pin.files : [];
+    pins[path.posix.basename(file, ".json")] = entries
+      .map((entry) => `${entry?.sha256 ?? ""} ${entry?.file ?? ""}`)
+      .sort()
+      .join("\n");
+  }
+  return pins;
 }
 
 // A branch that is where the repository meets the plugin, or a repository with no commit yet:
@@ -422,6 +462,7 @@ export function sheetProblem({ ledger, branch, waiting, blueprint, sources, tagg
 
 const WHAT = {
   pattern: (which) => `a new kind of screen (${which})`,
+  logo: (which) => `a new mark, or a changed file of one (${SOURCES_FOLDER}/${which}.json),`,
   "source-color": (which) =>
     which === "none" ? "taking the root colour line away" : `a new root colour (${which})`,
 };
@@ -434,6 +475,11 @@ export function ownersItems(branch) {
   if (colour.base !== colour.now && (colour.base !== null || colour.now !== null)) {
     items.push(colour.now === null ? "source-color:none" : colourItem(colour.now));
   }
+  // A logo row this branch adds, or one whose files it changes: the owner chooses the mark.
+  const marks = branch.marks ?? { base: {}, now: {} };
+  for (const id of Object.keys(marks.now ?? {}).sort()) {
+    if (marks.base?.[id] !== marks.now[id]) items.push(logoItem(id));
+  }
   return items;
 }
 
@@ -444,7 +490,7 @@ export function wallProblem({ branch, waiting }) {
   if (unread) problems.push(unread);
   if (branch?.problem) {
     problems.push(
-      `what this branch adds cannot be read, so a new kind of screen or a new brand colour would pass unseen: ${branch.problem}`,
+      `what this branch adds cannot be read, so a new kind of screen, a new brand colour or a new mark would pass unseen: ${branch.problem}`,
     );
   }
   for (const item of ownersItems(branch)) {

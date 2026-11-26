@@ -328,11 +328,11 @@
         "checks": ["make design-assembly"],
         "decides": "owner",
         "human": {
-          "shows": "the fonts the repository loads, and where each comes from",
-          "asks": "which font the product uses, and the licence a font is used under"
+          "shows": "the fonts the repository loads, the icon set its code imports and the mark its pages show, and where each comes from",
+          "asks": "which font the product uses, which mark it shows, and the licence each is used under"
         },
         "machine": {
-          "rules": "a typeface the stylesheet names is loaded, and a font of the sources ledger is chosen only with its pin and its licence",
+          "rules": "a typeface the stylesheet names is loaded; a font, an icon set or a mark of the sources ledger keeps its pin and its licence; the code imports icons only from a recorded icon set; the page icons and the images the app frame imports are files of a logo row",
           "held_by": "make design-assembly"
         }
       },
@@ -362,7 +362,6 @@
           "step_of": "adopt"
         }
       ],
-      "limit": "capability-brand-assets-has-no-plug",
       "layers": ["foundations"],
       "tiers": ["foundations"]
     },

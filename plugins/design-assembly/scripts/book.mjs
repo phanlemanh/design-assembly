@@ -54,6 +54,7 @@ import {
 import { breakingCss, EXAMPLE_RULES, examplePairs, exampleRules } from "./examples.mjs";
 import { escape, familyStyles, originOf } from "./family.mjs";
 import { audit } from "./audit.mjs";
+import { brandAssets } from "./brand-assets.mjs";
 import { MAIN_MS, openStage, printPdf, reachState, stageAdapters } from "./stage.mjs";
 
 export const OUT = "coverage/design-book";
@@ -106,6 +107,21 @@ export const WORDS = {
   needs: "needs",
   heldTag: "held",
   notRead: "not measured",
+  brandTitle: "Brand assets",
+  brandQuestion: "Which mark the product carries, and which icons it draws with",
+  brandLede:
+    "Each file of the mark is drawn here from the file the repository pins, by its role and its variant; the icon set is named with what its row records. Nothing on this page is drawn by the book.",
+  brandMark: "The mark",
+  brandIcons: "The icon set",
+  brandFloorText:
+    "The mark is the floor's text: the product's name set in the heading typeface, and no file.",
+  brandNoIcons: "No icon set is recorded yet.",
+  brandRow: "row",
+  brandPin: "pins",
+  brandSizes: "sizes",
+  brandNoSizes: "no sizes recorded",
+  brandStroke: "stroke",
+  brandUnread: "the file cannot be read",
   typeTitle: "Type and shape",
   typeQuestion: "Which sizes, which corners, which distances",
   typeLede:
@@ -403,7 +419,46 @@ export function collectFacts(target) {
     rules: audited.decisions
       .filter((decision) => decision.in_ledger && EXAMPLE_RULES.includes(decision.id))
       .map((decision) => decision.id),
+    // The mark and the icon set, as their rows of the sources ledger say them: only a repository
+    // with a row of either kind has this key, and its book a page of brand assets (spec 0017).
+    ...brandOf(target),
   };
+}
+
+const brandOf = (target) => {
+  const brand = brandAssets(target);
+  return brand === null ? {} : { brand };
+};
+
+// The media type a page shows a file of the mark as, by its ending.
+const IMAGE_TYPES = {
+  svg: "image/svg+xml",
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  gif: "image/gif",
+  webp: "image/webp",
+  avif: "image/avif",
+  ico: "image/x-icon",
+};
+
+// The pictures of the mark, by file: each file the facts name, read from the repository as it is
+// and put in the page whole. The facts never hold them; a file that cannot be read has none.
+export function markPictures(target, facts) {
+  const pictures = {};
+  for (const mark of facts.brand?.marks ?? []) {
+    for (const entry of mark.files) {
+      const type = IMAGE_TYPES[path.extname(entry.file).slice(1).toLowerCase()];
+      if (!type) continue;
+      try {
+        const bytes = readFileSync(path.join(target, entry.file));
+        pictures[entry.file] = `data:${type};base64,${bytes.toString("base64")}`;
+      } catch {
+        // No picture: the page says the file cannot be read.
+      }
+    }
+  }
+  return pictures;
 }
 
 // Pairs of text and ground that do not reach the contrast ratio of the conformance level. The
@@ -1093,13 +1148,65 @@ function examplesSheet(facts, w, drawn) {
   return sheet(7, w.examplesTitle, w.examplesQuestion, w.examplesLede, rows);
 }
 
-function closing(w, audience) {
+// The page of brand assets: the mark by role and variant, each file drawn from its own bytes, and
+// the icon set with what its row records. A repository with no row of either kind has no page.
+function brandSheet(facts, w, pictures, number) {
+  const brand = facts.brand;
+  if (!brand) return "";
+  const licence = (said) =>
+    said ? `${escape(w.fontLicence)}: ${escape(said)}` : escape(w.fontNoLicence);
+  const differs = (said) => (said ? ` · ${escape(w.fontDiffers)}: ${escape(said)}` : "");
+  const marks =
+    brand.marks.length === 0
+      ? `<p>${escape(w.brandFloorText)}</p>`
+      : brand.marks
+          .map((mark) => {
+            const files = mark.files
+              .map((entry) => {
+                const label = `${entry.role} · ${entry.variant}`;
+                const picture = pictures?.[entry.file];
+                return `<figure class="mark">${
+                  picture
+                    ? `<img src="${picture}" alt="${escape(label)}" />`
+                    : `<p class="muted">${escape(w.brandUnread)}</p>`
+                }<figcaption>${escape(label)}<br /><code>${escape(entry.file)}</code></figcaption></figure>`;
+              })
+              .join("");
+            return `<h4>${escape(mark.title)}</h4><div class="marks">${files}</div>
+        <p class="muted">${escape(w.brandRow)} <code>${escape(mark.row)}</code> · ${licence(mark.licence)}${differs(mark.differs)}</p>`;
+          })
+          .join("");
+  const icons =
+    brand.icons.length === 0
+      ? `<p>${escape(w.brandNoIcons)}</p>`
+      : brand.icons
+          .map((set) => {
+            const sizes =
+              set.sizes.length > 0
+                ? `${escape(w.brandSizes)} ${set.sizes.join(", ")} px`
+                : escape(w.brandNoSizes);
+            const stroke = set.stroke === null ? "" : ` · ${escape(w.brandStroke)} ${set.stroke}`;
+            return `<h4>${escape(set.title)}</h4>
+        <p>${sizes}${stroke}</p>
+        <p class="muted">${escape(w.brandRow)} <code>${escape(set.row)}</code>${set.from ? ` · ${escape(w.brandPin)} ${escape(set.from)}` : ""} · ${licence(set.licence)}${differs(set.differs)}</p>`;
+          })
+          .join("");
+  return sheet(
+    number,
+    w.brandTitle,
+    w.brandQuestion,
+    w.brandLede,
+    `<div class="two"><div><h3>${escape(w.brandMark)}</h3>${marks}</div><div><h3>${escape(w.brandIcons)}</h3>${icons}</div></div>`,
+  );
+}
+
+function closing(w, audience, number = 8) {
   const commands =
     audience === "builder"
       ? `<h3>${escape(w.commands)}</h3><ul class="plain mono"><li>make check</li><li>make design-assembly</li><li>make design-rate</li><li>make design-tokens</li></ul>`
       : "";
   return sheet(
-    8,
+    number,
     w.closeTitle,
     w.closeTitle,
     w.closeLede,
@@ -1191,7 +1298,7 @@ function fontLines(facts, w) {
 // The book as one page that needs nothing else: its pictures are inside it.
 export function renderBook(
   facts,
-  { audience = "client", words = {}, drawn = null, unable = null } = {},
+  { audience = "client", words = {}, drawn = null, unable = null, marks = null } = {},
 ) {
   const w = {
     ...WORDS,
@@ -1341,6 +1448,8 @@ ${familyStyles(look)}
   .ex-dialog p { margin: 0 0 12px; }
   .ex-dialog span { display: inline-block; padding: 3px 14px; border: 1px solid #9a9a9a; border-radius: 4px; background: #fff; }
   .ex-screen { margin-top: 20px; }
+  .marks { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-end; }
+  .mark img { display: block; max-width: 160px; max-height: 96px; border: 0; border-radius: 0; }
   @media print { .book { padding: 0 24px; } .sheet { padding: 40px 0; } }
 </style>
 </head>
@@ -1354,7 +1463,8 @@ ${kindsSheet(facts, w, audience, drawn)}
 ${pathsSheet(facts, w, audience, drawn)}
 ${statesSheet(facts, w, audience, drawn)}
 ${examplesSheet(facts, w, drawn)}
-${closing(w, audience)}
+${brandSheet(facts, w, marks, 8)}
+${closing(w, audience, facts.brand ? 9 : 8)}
 </main>
 <script type="application/json" id="${FACTS_ID}">${manifest}</script>
 </body>
@@ -1665,6 +1775,7 @@ async function main(args) {
       words,
       drawn: drawn.problem ? null : drawn,
       unable: drawn.problem ? drawn.why : null,
+      marks: markPictures(target, facts),
     }),
   );
   lines.push(

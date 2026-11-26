@@ -37,6 +37,7 @@ import {
   ICON_SET_CHECK,
   ICON_USE_CHECK,
   LOGO_PINS_CHECK,
+  LOGO_USE_CHECK,
   readIconSets,
   readLogoSources,
 } from "../templates/tools/design-assembly/sources-ledger.mjs";
@@ -88,6 +89,8 @@ const ADDED_CHECKS = {
     "when code imports an icon package no icon set row of the sources ledger records, or a screen writes an svg element by hand",
   [LOGO_PINS_CHECK.kind]:
     "when a file of the mark a logo row of the sources ledger pins has another hash, is gone, or leads out of the repository",
+  [LOGO_USE_CHECK.kind]:
+    "when a page icon the build declares, or an image the app frame imports, is no file of a logo row",
 };
 // The gate step the plugin installs beside the tool: upgrade writes it too, whole, when it differs.
 const GATE_SOURCE = path.join(PLUGIN, "templates", GATE_STEP);
@@ -432,7 +435,7 @@ export async function upgradePlan(root, accept = {}) {
         // A repository of a family: the locked answers of the core it pinned.
         ...(readPinnedCore(root) === null ? [] : [FAMILY_CORE_CHECK]),
         // A repository with a logo row: the pin of every logo row.
-        ...(readLogoSources(root).length === 0 ? [] : [LOGO_PINS_CHECK]),
+        ...(readLogoSources(root).length === 0 ? [] : [LOGO_PINS_CHECK, LOGO_USE_CHECK]),
         // A repository with an icon set row: the pin of each icon set (spec 0017).
         ...(readIconSets(root).length === 0 ? [] : [ICON_SET_CHECK]),
       ].filter((added) => !shapes.some((check) => check?.kind === added.kind))

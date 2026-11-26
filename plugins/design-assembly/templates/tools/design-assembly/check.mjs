@@ -126,7 +126,9 @@ import { fontProblems, readLoads, unloadedCopy } from "./fonts.mjs";
 import {
   ICON_SET_CHECK,
   ICON_USE_CHECK,
+  LOGO_USE_CHECK,
   isIconSet,
+  markUseProblems,
   readFontSources,
   readIconSets,
   readLogoSources,
@@ -518,6 +520,27 @@ const KINDS = {
             file,
             drift: [`${file}: changed.svg is not the file it was pinned with`],
           },
+        ],
+      };
+    },
+  },
+  // Once the repository has a logo row, the mark it shows comes from a row: the page icons its build
+  // declares and the images its app frame shows are files a logo row pins (spec 0017, criterion 9).
+  // Laid beside the check of the pins, only where the repository has a logo row.
+  [LOGO_USE_CHECK.kind]: {
+    run(state) {
+      const problems = state.markUse ?? [];
+      if (problems.length === 0) return null;
+      const more = problems.length > 3 ? `; and ${problems.length - 3} more` : "";
+      return `${problems.slice(0, 3).join("; ")}${more}`;
+    },
+    // A page icon no logo row pins.
+    change(state) {
+      return {
+        ...state,
+        markUse: [
+          ...(state.markUse ?? []),
+          "public/changed-copy.svg, a page icon the build declares (index.html), is no file of a logo row",
         ],
       };
     },
@@ -1713,6 +1736,11 @@ export function readState(root) {
     fontFaces: buildOf(root).fontFaces ?? null,
     // The logo rows of the sources ledger, each with how its pin differs from the repository today.
     logoSources: readLogoSources(root),
+    // The page icons and the images of the app frame that no logo row pins: read only where the
+    // check of the mark's use is laid.
+    markUse: checks.some((check) => check.kind === LOGO_USE_CHECK.kind)
+      ? markUseProblems(root, buildOf(root), readLogoSources(root))
+      : null,
     files: Object.fromEntries(named),
     // The fragments of each such ledger kept as a folder, or null where it is one file.
     fragments: Object.fromEntries(

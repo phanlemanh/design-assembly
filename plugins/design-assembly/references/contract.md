@@ -441,7 +441,17 @@ the icons the pages declare, as the adapter of the build reads them. The gate fa
 with no pin, a file without its role or variant or named twice, and one with no licence that no
 command proposed. Where the repository has a logo row, the check `logo-pins` beside the shapes of
 the ledgers fails on a file of its pin changed by one byte, gone, or led out of the repository; the
-sentence names the row. The foundations layer chooses the mark: `text`, the floor's, the product's
+sentence names the row. Beside it, the check `logo-use` fails on a page icon the build declares, and
+on an image the app frame shows, that no logo row pins: the adapter of the build says where page
+icons are declared and which files are the frame (the files right under `src/` on one build; the
+layout files of the app router and the modules of the repository they import on the other), and an
+image is one the frame imports by a path, or names by an address from the root of the site served
+from the public folder. `logo-source --into ID` adds files to a row already there, each hashed where
+it is, and changes nothing the row pins or says. A new logo row, or a changed file of one, is the
+owner's call: the waiting list asks it with the item `logo:ID`, and the wall `owner-calls` holds the
+branch until the owner keeps it. What a mark lacks (no one-colour variant, no page icon), and an
+icon set with no sizes, `status` and `audit` say without turning the gate red; the handoff book
+shows the rows on a page of brand assets. The foundations layer chooses the mark: `text`, the floor's, the product's
 name in the heading typeface with no file made, which a blueprint that names no mark reads as; or
 `source:<id>`, a logo row, chosen only when it is held and its pin holds. The row the guide writes
 for a chosen row, `mark`, is held by the check `logo-row`.

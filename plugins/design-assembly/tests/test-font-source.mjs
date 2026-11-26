@@ -1101,7 +1101,21 @@ test("every command that touches a font runs with the network unreachable, and r
     // The recommendation reads the starter kit's data and the repository's code, and fetches nothing.
     ["icon-source.mjs"],
     ["status.mjs"],
+    ["audit.mjs"],
     ["decide.mjs"],
+    [
+      "decide.mjs",
+      "--ask",
+      "Which mark?",
+      "--item",
+      "logo:logo",
+      "--recommend",
+      "the floor's text",
+      "--because",
+      "no file of a mark is kept",
+      "--hard-to-undo",
+      "--dry-run",
+    ],
     ["book.mjs", "--facts"],
     ["upgrade.mjs", "--dry-run"],
   ];

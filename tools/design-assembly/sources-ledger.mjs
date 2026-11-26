@@ -653,3 +653,86 @@ export function sourcedLogo(value, logos) {
   if (cannot) throw new Error(cannot);
   return logo;
 }
+
+// ---- the mark in use -----------------------------------------------------------------------------
+// Once a repository has a logo row, the mark it shows comes from a row (spec 0017, criterion 9): the
+// page icons its build declares, and the images its app frame shows, are files a logo row pins. The
+// build's adapter says where the page icons are declared and which files are the frame; this reads
+// what the frame shows and compares. A repository with no logo row is never asked.
+export const LOGO_USE_CHECK = { kind: "logo-use" };
+// The endings of a file a page shows as an image.
+const IMAGE = /\.(svg|png|jpe?g|gif|webp|avif|ico)$/i;
+const IMPORTED = /(?:^|\n)\s*import\s+(?:[^"';]*?\s+from\s+)?["']([^"']+)["']/g;
+const ADDRESSED = /["'`](\/(?!\/)[^"'`\s?#]+)(?:[?#][^"'`]*)?["'`]/g;
+
+// The images a file of the frame shows, as files of the repository: an image it imports by a path
+// from its own folder, or from the source folder by `@/`; and an address from the root of the site,
+// served from the build's public folder. What leads to no file of the repository is not read.
+export function frameImages(root, frame, publicFolder) {
+  const isFile = (file) => {
+    const full = inside(root, file);
+    return full !== null && existsSync(full) && statSync(full).isFile();
+  };
+  const found = [];
+  for (const from of frame) {
+    let source;
+    try {
+      source = readFileSync(path.join(root, from), "utf8");
+    } catch {
+      continue;
+    }
+    const files = new Set();
+    for (const [, specifier] of source.matchAll(IMPORTED)) {
+      const bare = specifier.replace(/[?#].*$/, "");
+      if (!IMAGE.test(bare)) continue;
+      const file = bare.startsWith(".")
+        ? path.posix.normalize(path.posix.join(path.posix.dirname(from), bare))
+        : bare.startsWith("@/")
+          ? `${existsSync(path.join(root, "src")) ? "src/" : ""}${bare.slice(2)}`
+          : null;
+      if (file && isFile(file)) files.add(file);
+    }
+    if (publicFolder) {
+      for (const [, address] of source.matchAll(ADDRESSED)) {
+        if (!IMAGE.test(address)) continue;
+        const file = path.posix.normalize(`${publicFolder}${address}`);
+        if (isFile(file)) files.add(file);
+      }
+    }
+    for (const file of [...files].sort()) found.push({ file, in: from });
+  }
+  return found;
+}
+
+// Why the mark the repository shows does not come from its logo rows, one sentence per file: a
+// page icon the build declares, or an image the frame shows, that no logo row pins. Empty when the
+// repository has no logo row, or the build is not read for either.
+export function markUseProblems(root, build, logos) {
+  if ((logos ?? []).length === 0) return [];
+  const pinned = new Set(
+    logos.flatMap((logo) => (logo.pin?.files ?? []).map((entry) => entry.file)),
+  );
+  const into = `logo-source --into ${logos[0].id}`;
+  const problems = [];
+  const icons = typeof build?.markFiles === "function" ? build.markFiles(root) : [];
+  for (const icon of icons) {
+    const where = icon.in ?? icon.said;
+    if (icon.file === null) {
+      problems.push(
+        `the page declares the icon ${icon.said} (${where}), which is no file of the repository, so no logo row can pin it: declare a file of the repository a logo row pins`,
+      );
+    } else if (!pinned.has(icon.file)) {
+      problems.push(
+        `${icon.file}, a page icon the build declares (${where}), is no file of a logo row: add it to the row with ${into}, or declare a file a logo row pins`,
+      );
+    }
+  }
+  const frame = typeof build?.frameFiles === "function" ? build.frameFiles(root) : [];
+  for (const image of frameImages(root, frame, build?.publicFolder ?? null)) {
+    if (pinned.has(image.file)) continue;
+    problems.push(
+      `${image.file}, an image the app frame imports in ${image.in}, is no file of a logo row: add it to the row with ${into}, or show a file a logo row pins`,
+    );
+  }
+  return problems;
+}
