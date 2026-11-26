@@ -27,7 +27,11 @@ import {
   isCoreSource,
   isFont,
   isIconSet,
+  isLogo,
   LADDER_PLACES,
+  LOGO_ROLES,
+  LOGO_VARIANTS,
+  logoRowProblems,
   SOURCES_FOLDER,
 } from "./sources-ledger.mjs";
 import { parseLedger } from "./ledger.mjs";
@@ -448,6 +452,43 @@ export const LEDGERS = {
       proposed: {
         type: "object",
         fields: { by: required(text), on: required(day) },
+        open: true,
+      },
+    },
+    // A source of the kind `logo` (spec 0017): the mark of the product. No catalog: it offers no
+    // block. Its pin, each file of the mark already in the repository with its hash, its role and
+    // its variant; the licence, who holds the right to use the mark and where, which a person
+    // writes. `own` says the repository kept the files before the row was written, `proposed`
+    // which command wrote the row and when, and `made` who made the mark, when it says so.
+    logo: {
+      catalog: text,
+      pin: required({
+        type: "object",
+        fields: {
+          files: required(
+            list({
+              type: "object",
+              fields: {
+                file: required({ ...text, pattern: '^[^"\\\\\\n]+$' }),
+                sha256: required({ ...text, pattern: "^[0-9a-f]{64}$" }),
+                role: required({ ...text, values: LOGO_ROLES }),
+                variant: required({ ...text, values: LOGO_VARIANTS }),
+              },
+              open: true,
+            }),
+          ),
+        },
+        open: true,
+      }),
+      own: { type: "boolean" },
+      proposed: {
+        type: "object",
+        fields: { by: required(text), on: required(day) },
+        open: true,
+      },
+      made: {
+        type: "object",
+        fields: { by: required(text), on: day },
         open: true,
       },
     },
@@ -2020,13 +2061,17 @@ function sourceProblems(textOfFile, file) {
   const core = isCoreSource(data);
   // An icon set is a source of its own kind too (spec 0017).
   const iconSet = isIconSet(data);
+  // And so is the mark (spec 0017).
+  const logo = isLogo(data);
   const variant = font
     ? LEDGERS.sources.font
     : core
       ? LEDGERS.sources.core
       : iconSet
         ? LEDGERS.sources["icon-set"]
-        : {};
+        : logo
+          ? LEDGERS.sources.logo
+          : {};
   const root = { ...LEDGERS.sources.root, ...variant };
   const problems = objectProblems(data, root, LEDGERS.sources.open, file);
   const name = path.basename(file);
@@ -2037,6 +2082,8 @@ function sourceProblems(textOfFile, file) {
   }
   if (font) return [...problems, ...fontRowProblems(data, file)];
   if (iconSet) return [...problems, ...iconSetRowProblems(data, file)];
+  // The mark: its pin and its licence, past its shape.
+  if (logo) return [...problems, ...logoRowProblems(data, file)];
   if (core) {
     if (data.id !== CORE_ID) {
       problems.push(

@@ -27,6 +27,11 @@ export const isFont = (source) => isMap(source) && source.kind === FONT_KIND;
 export const CORE_KIND = "core";
 export const CORE_ID = "core";
 export const isCoreSource = (source) => isMap(source) && source.kind === CORE_KIND;
+// The kind of source that is the mark of the product (spec 0017): each file of the mark the
+// repository keeps, with its role, its variant and its hash. It offers no block of a library; it is
+// read by `readLogoSources`, below.
+export const LOGO_KIND = "logo";
+export const isLogo = (source) => isMap(source) && source.kind === LOGO_KIND;
 // Where a source stands on the ladder find and intake walk: before the starter kit and the family's
 // store, or after them, which is where a source that declares nothing stands (spec 0015).
 export const LADDER_PLACES = ["before-starter", "after-family"];
@@ -73,7 +78,7 @@ export function catalogItems(catalog) {
 }
 
 // A path a source names, inside the repository, or null when it leads out of it.
-function inside(root, file) {
+export function inside(root, file) {
   const full = path.resolve(root, String(file));
   const within = (from, to) => {
     const relative = path.relative(from, to);
@@ -240,13 +245,13 @@ function parsed(root, name) {
 // Every pinned source blocks are picked from, in the order they are looked through: by `order`,
 // the smallest first and a source without one last, then by id. Empty when the repository keeps
 // none. A font is a source of another kind: it offers no block, and is read by `readFontSources`;
-// so is the family core, which the contract reads as the repository's family, and so is an icon
-// set, read by `readIconSets`.
+// so is the family core, which the contract reads as the repository's family, so is an icon set,
+// read by `readIconSets`, and so is the mark, read by `readLogoSources`.
 export function readPinnedSources(root) {
   return sourceFiles(root)
     .filter((name) => {
       const source = parsed(root, name);
-      return !isFont(source) && !isCoreSource(source) && !isIconSet(source);
+      return !isFont(source) && !isCoreSource(source) && !isIconSet(source) && !isLogo(source);
     })
     .map((name) => readSource(root, name))
     .sort(
@@ -486,4 +491,161 @@ export function readIconSets(root) {
     .map((name) => [name, parsed(root, name)])
     .filter(([, source]) => isIconSet(source))
     .map(([name, source]) => readIconSet(root, name, source));
+}
+
+// ---- the mark ------------------------------------------------------------------------------------
+// The mark of the product in the sources ledger (spec 0017): a source of the kind `logo` names each
+// file of the mark the repository keeps, with its role, its variant and its hash, and the licence a
+// person writes for it: who holds the right to use the mark, and where it may be used. Nothing here
+// draws or fetches: a file is hashed where it is, and a row is held once it is whole.
+// What a file of the mark is for: the symbol alone, the name drawn as letters, the two side by side
+// or one above the other, the icon a browser shows for the page, and the icon of the installed app.
+export const LOGO_ROLES = [
+  "mark",
+  "wordmark",
+  "lockup-horizontal",
+  "lockup-vertical",
+  "favicon",
+  "app-icon",
+];
+// How a file of the mark is coloured: in its colours, in one colour, or drawn for a dark ground.
+export const LOGO_VARIANTS = ["color", "mono", "inverse"];
+// The check of the gate that holds the pin of every logo row, laid beside the row's shapes.
+export const LOGO_PINS_CHECK = { kind: "logo-pins" };
+// A logo row as a choice of the foundations layer names it: `source:` and the id of its row.
+const SOURCED = /^source:([a-z0-9]+(?:-[a-z0-9]+)*)$/;
+
+// The pin of a mark, as the row itself says it: each file by its path from the repository's root,
+// with its hash, role and variant. Null when the row does not say every file whole.
+export function logoPin(source) {
+  const files = Array.isArray(source?.pin?.files) ? source.pin.files : [];
+  const whole = files.every(
+    (entry) =>
+      filled(entry?.file) &&
+      /^[0-9a-f]{64}$/.test(String(entry?.sha256 ?? "")) &&
+      LOGO_ROLES.includes(entry?.role) &&
+      LOGO_VARIANTS.includes(entry?.variant),
+  );
+  return files.length > 0 && whole ? { files } : null;
+}
+
+// What a logo row lacks beside its shape, each sentence naming the row. The pin is required of every
+// row, and a file is named once. The licence is required of a row a person finished: a row a command
+// wrote says so under `proposed`, and waits on its licence without being held.
+export function logoRowProblems(source, file) {
+  const problems = [];
+  if (!logoPin(source)) {
+    problems.push(
+      `${file} is a logo and has no pin: its row names each file of the mark with its sha256, its role and its variant`,
+    );
+  }
+  const named = (Array.isArray(source?.pin?.files) ? source.pin.files : []).map((entry) =>
+    String(entry?.file ?? ""),
+  );
+  for (const twice of new Set(named.filter((name, index) => named.indexOf(name) !== index))) {
+    problems.push(
+      `${file} names ${twice} twice: each file of the mark has one role and one variant`,
+    );
+  }
+  if (!filled(source?.licence) && !isMap(source?.proposed)) {
+    problems.push(
+      `${file} is a logo and has no licence: a person writes who holds the right to use the mark and where it may be used, and until then the mark cannot be chosen`,
+    );
+  }
+  return problems;
+}
+
+// How the files of a mark differ from its pin today, each sentence naming the row.
+function filesDrift(root, file, files) {
+  const drift = [];
+  for (const entry of files) {
+    const full = inside(root, entry.file);
+    if (full === null) {
+      drift.push(`${file}: ${entry.file}, a file of its pin, is outside the repository`);
+      continue;
+    }
+    if (!existsSync(full) || !statSync(full).isFile()) {
+      drift.push(`${file}: ${entry.file}, a file of its pin, is not there`);
+      continue;
+    }
+    const hash = createHash("sha256").update(readFileSync(full)).digest("hex");
+    if (hash !== entry.sha256) {
+      drift.push(
+        `${file}: ${entry.file} is not the file it was pinned with: its sha256 differs from the pin`,
+      );
+    }
+  }
+  return drift;
+}
+
+// One logo row as the tools use it: its title, its files, whether the gate holds it, and how its pin
+// differs from the repository today.
+function readLogo(root, name, source) {
+  const file = `${SOURCES_FOLDER}/${name}`;
+  const problems = [];
+  const version = Number(source.version);
+  if (Number.isFinite(version) && version > SOURCES_VERSION) {
+    problems.push(
+      `${file} has shape ${version} and this tool knows shape ${SOURCES_VERSION}: update the design-assembly plugin`,
+    );
+  }
+  problems.push(...logoRowProblems(source, file));
+  const pin = logoPin(source);
+  const drift = pin ? filesDrift(root, file, pin.files) : [];
+  const licensed = filled(source.licence);
+  return {
+    id: name.replace(/\.json$/, ""),
+    file,
+    title: filled(source.title) ? source.title : name.replace(/\.json$/, ""),
+    licence: licensed ? source.licence : null,
+    // The repository kept these files before the row was written: its own mark, kept as found.
+    own: source.own === true,
+    proposed: isMap(source.proposed) ? source.proposed : null,
+    pin,
+    // The gate holds a row that is whole: its shape, its pin and its licence.
+    held: problems.length === 0 && licensed,
+    // A row a command wrote, that only a person's licence is missing from.
+    waits:
+      problems.length === 0 && !licensed
+        ? `${file} has no licence yet: a person writes who holds the right to use the mark and where it may be used, and the row is held from then on`
+        : null,
+    problems,
+    drift,
+  };
+}
+
+// Every logo row of the ledger, by id. Empty when the repository keeps none.
+export function readLogoSources(root) {
+  const folder = path.join(root, SOURCES_FOLDER);
+  if (!existsSync(folder) || !statSync(folder).isDirectory()) return [];
+  return readdirSync(folder)
+    .filter((name) => name.endsWith(".json") && statSync(path.join(folder, name)).isFile())
+    .sort()
+    .flatMap((name) => {
+      try {
+        const source = JSON.parse(readFileSync(path.join(folder, name), "utf8"));
+        return isLogo(source) ? [readLogo(root, name, source)] : [];
+      } catch {
+        return [];
+      }
+    });
+}
+
+// The id of the logo row a choice names, or null when the value is a word.
+export const sourceLogoId = (value) => SOURCED.exec(String(value ?? ""))?.[1] ?? null;
+
+// The logo row a choice names, among the rows read from the ledger. It throws one sentence when the
+// mark cannot be chosen: its row is missing, is not whole, waits on its licence, or pins files the
+// repository no longer holds as they were.
+export function sourcedLogo(value, logos) {
+  const id = sourceLogoId(value);
+  const logo = (logos ?? []).find((item) => item.id === id);
+  if (!logo) {
+    throw new Error(
+      `the sources ledger has no logo row ${SOURCES_FOLDER}/${id}.json: a mark is chosen once its row is there, of the kind logo, with its pin and its licence`,
+    );
+  }
+  const cannot = logo.problems[0] ?? logo.waits ?? logo.drift[0] ?? null;
+  if (cannot) throw new Error(cannot);
+  return logo;
 }

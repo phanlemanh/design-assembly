@@ -401,6 +401,33 @@ pins what the repository no longer has: the lockfile pins another version or doe
 package, or a file is gone or has another hash. The sentence names the row. A repository with no
 row of the kind has no such check and reads as before.
 
+A source of the kind `logo` is the mark of the product (spec 0017), from files the repository
+already keeps. It offers no block of a library, so it has no `catalog`, and the readers of
+libraries leave it out. It has `version`, `id` (`logo` unless a person gives another), `kind` and
+`pin`, and may have `title`, the name of the product the mark stands for. Its `pin` holds `files`,
+each file of the mark by its path from the repository's root (`file`) with its `sha256`, its `role`
+and its `variant`, each one word: the role is what the file is for, `mark` (the symbol alone),
+`wordmark` (the name drawn as letters), `lockup-horizontal` or `lockup-vertical` (the two side by
+side, or one above the other), `favicon` (the icon a browser shows for the page) or `app-icon` (the
+icon of the installed app); the variant is how it is coloured, `color`, `mono` (one colour) or
+`inverse` (drawn for a dark ground). A file is named once. Its `licence` says, in a person's words,
+who holds the right to use the mark and where it may be used; no tool writes it. As with a font, a
+row a command wrote says so under `proposed` and is not held until a person writes the licence;
+`own: true` says the repository kept these files before the row was written; and `made`, `by` and
+maybe `on`, may say who made the mark (a person's hand, or a plug) and when. The version of the
+ledger stays 1.
+
+`logo-source` writes the row from files named with their role and variant, hashed where they are;
+it draws, fetches and changes no file, and never writes over a row. `adopt` proposes the row from
+the icons the pages declare, as the adapter of the build reads them. The gate fails on a logo row
+with no pin, a file without its role or variant or named twice, and one with no licence that no
+command proposed. Where the repository has a logo row, the check `logo-pins` beside the shapes of
+the ledgers fails on a file of its pin changed by one byte, gone, or led out of the repository; the
+sentence names the row. The foundations layer chooses the mark: `text`, the floor's, the product's
+name in the heading typeface with no file made, which a blueprint that names no mark reads as; or
+`source:<id>`, a logo row, chosen only when it is held and its pin holds. The row the guide writes
+for a chosen row, `mark`, is held by the check `logo-row`.
+
 ### conform
 
 One file per need, `design/conform/<need>.json`, for an item of an outside source that was taken

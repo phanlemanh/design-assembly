@@ -25,6 +25,7 @@ import { readLedger } from "../templates/tools/design-assembly/ledger.mjs";
 import { pinnedPackage } from "../templates/tools/design-assembly/adapters/lockfile.mjs";
 import {
   readFontSources,
+  readLogoSources,
   readIconSets,
 } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { readWaiting } from "../templates/tools/design-assembly/waiting.mjs";
@@ -214,6 +215,38 @@ export function iconSetLicenceAsks(root, rows, audited) {
         basis: asked
           ? `${MEASURED}the owner answered ${asked.id} of the waiting list by ${asked.by} on ${asked.on}, and ${set.file} still has no licence`
           : `${MEASURED}${set.file}${by} from ${set.from}, and has no licence, so the row is not held`,
+        answer,
+      },
+    ];
+  });
+}
+
+// The licence of each logo row a command wrote and no person finished: who holds the right to use
+// the mark, and where it may be used. The row has its pin and no licence, so it is not held and the
+// mark cannot be chosen; no tool writes a licence, and the question waits here until a person does.
+// One that waits on the waiting list is the list's to show; one the owner answered there still
+// waits here, until the answer is in the row.
+export function logoLicenceAsks(root, rows, audited) {
+  const marks = readLogoSources(root).filter((mark) => mark.waits);
+  if (marks.length === 0) return [];
+  const listed = listedRows(root, rows);
+  const answer = audited.values === "generated" ? "/design-assembly:new" : "/design-assembly:adopt";
+  return marks.flatMap((mark) => {
+    const id = `logo-licence-${mark.id}`;
+    const asked = listed.findLast((row) => row.id === id);
+    if (asked && !asked.answer) return [];
+    const files = mark.pin.files.map((entry) => entry.file).join(", ");
+    return [
+      {
+        id,
+        source: "sources",
+        question: `Who holds the right to use the mark ${mark.title}, and where may it be used?`,
+        recommendation: asked
+          ? `Write the owner's answer into licence of ${mark.file}, in their words: the decision sheet recorded it and changed no row of the sources ledger.`
+          : `Write who holds the right to use the mark, and where, into licence of ${mark.file}, in the owner's words: no tool writes one.`,
+        basis: asked
+          ? `${MEASURED}the owner answered ${asked.id} of the waiting list by ${asked.by} on ${asked.on}, and ${mark.file} still has no licence`
+          : `${MEASURED}${mark.file} was written by ${mark.proposed?.by ?? "a person"}${mark.proposed?.on ? ` on ${mark.proposed.on}` : ""} from ${files}, and has no licence, so the row is not held and the mark cannot be chosen`,
         answer,
       },
     ];
@@ -658,6 +691,7 @@ function readLedgers(root) {
       ...waitingOf(audited, rows, readBlueprint(root), answeredByCore(root)),
       ...(typeface ? [typeface] : []),
       ...fontLicenceAsks(root, rows, audited),
+      ...logoLicenceAsks(root, rows, audited),
       ...iconSetLicenceAsks(root, rows, audited),
       ...colorRoleAsks(root, rows, audited),
     ],

@@ -121,7 +121,13 @@ import { tokensProblem } from "./tokens.mjs";
 import { exportProblem, inputsOf, unlistedProblems, withManifest } from "./exports.mjs";
 import { buildOf } from "./adapters/index.mjs";
 import { fontProblems, readLoads, unloadedCopy } from "./fonts.mjs";
-import { ICON_SET_CHECK, readFontSources, readIconSets } from "./sources-ledger.mjs";
+import {
+  ICON_SET_CHECK,
+  readFontSources,
+  readIconSets,
+  readLogoSources,
+  sourcedLogo,
+} from "./sources-ledger.mjs";
 import {
   branchFacts,
   branchDone,
@@ -198,6 +204,7 @@ const KINDS = {
         cornerRadius: foundations.corner_radius ?? "floor",
         textFont: foundations.text_font,
         headingFont: foundations.heading_font,
+        mark: foundations.mark,
       };
       const applied = state.theme?.inputs ?? {};
       // The owner's word for each question of the table of colour roles, as the guide applies it.
@@ -238,6 +245,7 @@ const KINDS = {
       const later = [
         "textFont",
         "headingFont",
+        "mark",
         "colorRoles",
         "neutralFamily",
         "statusTones",
@@ -450,6 +458,46 @@ const KINDS = {
           { file, drift: [`${file} pins changed-copy at 1.0.0, and the lockfile pins 2.0.0`] },
         ],
       };
+    },
+  },
+  // Every logo row of the sources ledger still pins the files of the mark the repository holds:
+  // a file changed by one byte, gone, or led out of the repository is red, and the sentence names
+  // the row (spec 0017). A repository with no logo row has nothing here to hold.
+  "logo-pins": {
+    run(state) {
+      const problems = (state.logoSources ?? []).flatMap((mark) => mark.drift);
+      if (problems.length === 0) return null;
+      const more = problems.length > 3 ? `; and ${problems.length - 3} more` : "";
+      return `${problems.slice(0, 3).join("; ")}${more}`;
+    },
+    // A logo row whose one file is no longer the file it was pinned with.
+    change(state) {
+      const file = "design/sources/changed-copy.json";
+      return {
+        ...state,
+        logoSources: [
+          ...(state.logoSources ?? []),
+          {
+            file,
+            drift: [`${file}: changed.svg is not the file it was pinned with`],
+          },
+        ],
+      };
+    },
+  },
+  // The mark the foundations layer chose from the sources ledger can still be chosen: its row is
+  // there, whole, with its licence, and its pin still holds what the repository has.
+  "logo-row": {
+    run(state, check) {
+      try {
+        sourcedLogo(check.value, state.logoSources);
+        return null;
+      } catch (error) {
+        return error.message;
+      }
+    },
+    change(state) {
+      return { ...state, logoSources: [] };
     },
   },
   // Every typeface the stylesheet names is loaded, as the repository's build loads one, or is a
@@ -1621,6 +1669,8 @@ export function readState(root) {
     // The icon sets of the sources ledger, each with how its pin differs from the repository today.
     iconSets: readIconSets(root),
     fontFaces: buildOf(root).fontFaces ?? null,
+    // The logo rows of the sources ledger, each with how its pin differs from the repository today.
+    logoSources: readLogoSources(root),
     files: Object.fromEntries(named),
     // The fragments of each such ledger kept as a folder, or null where it is one file.
     fragments: Object.fromEntries(
