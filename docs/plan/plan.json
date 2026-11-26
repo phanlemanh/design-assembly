@@ -689,6 +689,54 @@
         "Cho phép từng lượt đo tốn token",
         "Xác nhận nguồn gốc và giấy phép của bộ máy dựng hình trước khi phát hành phích"
       ]
+    },
+    {
+      "id": 13,
+      "name": "Figma ở ổ nền",
+      "state": "next",
+      "parallel": [],
+      "items": [
+        {
+          "id": "13.0",
+          "what": "Đề bài chi tiết cho cả giai đoạn, chủ repo duyệt",
+          "state": "todo",
+          "ref": "wiki/specs/0018-figma-at-the-foundations-socket.md, đã duyệt ngày 2026-11-26 («Duyệt cả bảy nhưng chọn đường file .fig»): biến của một tệp Figma vào thành một hướng ứng viên, đọc từ tệp người mang tới, sổ thắng; lối tệp .fig đi trước theo lời chủ repo (câu hỏi 1, khác khuyến nghị), bản xuất sẵn có của Figma là lối thứ hai; plugin không đóng gói, không tải, không gọi công cụ đọc .fig; giai đoạn này đứng sau giai đoạn 12 (câu hỏi 3); mục giữ todo vì giai đoạn chưa mở, theo luật của kế hoạch"
+        },
+        {
+          "id": "13.1",
+          "what": "Cầu nối vào đọc đúng bản xuất biến thật: alias sang collection khác, tên trùng, bản sao ẩn của thư viện, biến đúng/sai, trục mode",
+          "state": "todo",
+          "ref": "wiki/specs/0018-figma-at-the-foundations-socket.md, tiêu chí 1 đến 7, và font khác sổ thành câu hỏi (câu hỏi 5); một lát, một PR; đóng ba mục gác lại ngày 2026-11-26; theo câu hỏi 3 lát này làm được trước khi giai đoạn 12 đóng, khi chủ repo mở nó"
+        },
+        {
+          "id": "13.2",
+          "what": "Cầu đọc thư mục bản xuất sẵn có của Figma, lối thứ hai",
+          "state": "todo",
+          "ref": "wiki/specs/0018-figma-at-the-foundations-socket.md, tiêu chí 8 và 9; một lát, một PR; chờ một bản xuất thật để xem hình dạng trước khi dựng; không đứng trên đường tới dòng «xong khi»"
+        },
+        {
+          "id": "13.3",
+          "what": "Tệp phích Figma, bước plugs, skill bring-in dẫn lối tệp .fig trước, và bản xuất biến có ghim",
+          "state": "todo",
+          "ref": "wiki/specs/0018-figma-at-the-foundations-socket.md, tiêu chí 10 đến 13; một lát, một PR; đổi hợp đồng sổ nếu có, cần người duyệt"
+        },
+        {
+          "id": "13.4",
+          "what": "Đo phích Figma theo bốn thước ở ổ nền, bản quyết định và phán quyết",
+          "state": "todo",
+          "ref": "wiki/specs/0018-figma-at-the-foundations-socket.md, tiêu chí 14; cần một tệp .fig của hệ thật và lời cho chạy công cụ đọc của bên thứ ba; mỗi lượt đo hỏi chủ repo trước vì tốn token"
+        }
+      ],
+      "done_when": [
+        "Từ một tệp .fig của một tệp Figma thật của chủ repo, một người mang biến vào thành một hướng ứng viên mà không tự quyết chỗ nào về hình dạng dữ liệu, và mỗi giá trị ngược sổ là một câu hỏi",
+        "Phích Figma có bản quyết định với số đo bốn thước ở ổ nền"
+      ],
+      "needs_owner": [
+        "Lưu tệp Figma của hệ thật về máy",
+        "Cho phép mỗi lần tải hay chạy công cụ đọc .fig của bên thứ ba",
+        "Duyệt thay đổi hợp đồng sổ, nếu có",
+        "Cho phép từng lượt đo tốn token"
+      ]
     }
   ],
   "parked_groups": [
@@ -847,6 +895,27 @@
       "stage": 12,
       "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 12; nâng khung là một PR riêng, nặng, ngoài kế hoạch và làm chậm mục 12.1. Chủ repo chọn gác lại ngày 2026-11-26 («Ghi để riêng»), sau khi được báo khuyến nghị nâng thành PR riêng sau giai đoạn 12. Điều về design/screens.yaml sửa ở kho Repo Standards.",
       "group": "small"
+    },
+    {
+      "on": "2026-11-26",
+      "what": "Cầu nối vào (bring-in, loại variables) bỏ alias trỏ sang một collection có mode tên light hay dark: token của collection ấy chỉ được khoá là tên@light hay tên@dark, không còn bản không mang mode, nên một biến ở collection có mode khác (Mode 1, alpine, sheets) trỏ sang thì «names no token»; 103 giá trị bị bỏ trên bản xuất biến của một tệp .fig thật (hệ thiết kế AG Grid v3.2.0)",
+      "stage": 13,
+      "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 12 đang mở; thấy ở lượt thử tay Figma ngày 2026-11-26 (docs/trials/figma-variables-hands-on.md, mục «Lối thứ ba»); chủ repo cho ghi vào đây cùng ngày («Ghi ba lỗ hổng vào parked»). Chủ repo duyệt đề bài 0018 (wiki/specs/0018-figma-at-the-foundations-socket.md) ngày 2026-11-26; là việc của mục 13.1, rời phần gác lại khi mục ấy xong.",
+      "group": "outside-plugs"
+    },
+    {
+      "on": "2026-11-26",
+      "what": "Cầu nối vào (bring-in, loại variables) đè lặng lẽ khi hai collection có biến trùng tên: token chỉ được khoá bằng tên và mode, không có collection, nên bản đọc sau thay bản đọc trước mà không dòng nào báo; trên cùng tệp ấy 42 khoá bị ghi hai lần trở lên, 9 khoá có giá trị khác nhau; cầu cũng không bỏ collection là bản sao ẩn của thư viện ngoài (remote, hiddenFromPublishing), nơi 22 trên 33 tên trùng đến từ",
+      "stage": 13,
+      "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 12 đang mở; thấy ở lượt thử tay Figma ngày 2026-11-26 (docs/trials/figma-variables-hands-on.md, mục «Lối thứ ba»); chủ repo cho ghi vào đây cùng ngày («Ghi ba lỗ hổng vào parked»). Chủ repo duyệt đề bài 0018 (wiki/specs/0018-figma-at-the-foundations-socket.md) ngày 2026-11-26; là việc của mục 13.1, rời phần gác lại khi mục ấy xong.",
+      "group": "outside-plugs"
+    },
+    {
+      "on": "2026-11-26",
+      "what": "Cầu nối vào (bring-in, loại variables) từ chối mọi biến đúng/sai như một giá trị không đọc được («not text, a length or a colour»), mỗi biến một dòng, thay vì nói một lần rằng loại ấy không thuộc ổ nền; 59 dòng trên cùng tệp ấy, che các dòng không đọc được thật",
+      "stage": 13,
+      "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 12 đang mở; không làm sai giá trị nào của ứng viên; thấy ở lượt thử tay Figma ngày 2026-11-26 (docs/trials/figma-variables-hands-on.md, mục «Lối thứ ba»); chủ repo cho ghi vào đây cùng ngày («Ghi ba lỗ hổng vào parked»). Chủ repo duyệt đề bài 0018 (wiki/specs/0018-figma-at-the-foundations-socket.md) ngày 2026-11-26; là việc của mục 13.1, rời phần gác lại khi mục ấy xong.",
+      "group": "outside-plugs"
     }
   ]
 }
