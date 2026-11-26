@@ -706,7 +706,7 @@
           "id": "13.1",
           "what": "Cầu nối vào đọc đúng bản xuất biến thật: alias sang collection khác, tên trùng, bản sao ẩn của thư viện, biến đúng/sai, trục mode",
           "state": "todo",
-          "ref": "wiki/specs/0018-figma-at-the-foundations-socket.md, tiêu chí 1 đến 7, và font khác sổ thành câu hỏi (câu hỏi 5); một lát, một PR; đóng ba mục gác lại ngày 2026-11-26; theo câu hỏi 3 lát này làm được trước khi giai đoạn 12 đóng, khi chủ repo mở nó"
+          "ref": "wiki/specs/0018-figma-at-the-foundations-socket.md, tiêu chí 1 đến 7, và font khác sổ thành câu hỏi (câu hỏi 5); một lát, một PR; theo câu hỏi 3 lát này làm được trước khi giai đoạn 12 đóng, khi chủ repo mở nó. Dựng sớm ngày 2026-11-26 theo lời chủ repo («Dựng 13.1», đáp câu «Anh cho dựng lát 13.1 («Dựng 13.1»), hay chưa mở («Chưa mở»)?»), PR này, plugin 0.77.0, wiki/decisions/0130-bring-in-reads-a-real-export-of-variables.md: bộ đọc riêng cho bản xuất biến (scripts/outside-variables.mjs), mỗi biến là token của collection của nó, alias đi theo id sang mode cùng tên, không thì mode đọc sáng hay tối như mode nguồn, không thì mode mặc định; collection remote hay hiddenFromPublishing bị gạt trước khi so tên, đếm trong một dòng; màu gốc ở hai collection với hai giá trị bị từ chối, --collection chọn; biến đúng/sai, biến không có giá trị, giá trị thiếu mode, giá trị dưới mode không khai, tên trùng trong một collection, trục mode không mang, màu có alpha mỗi thứ một dòng đếm; font khác sổ thành câu hỏi với bản xuất biến; mẫu thử bịa cùng hình dạng tệp thật của docs/trials/figma-fig-real-sample.md (trang thử vào cùng PR). Mục giữ todo vì giai đoạn 13 chưa mở, theo luật của kế hoạch; commit mang Plan: off-plan. Ba mục gác lại ngày 2026-11-26 về ba lỗ hổng của cầu (alias sang collection có mode sáng hay tối, tên trùng giữa collection cùng bản sao ẩn, biến đúng/sai mỗi biến một dòng) rời phần gác lại vào lát này: tiêu chí 1, tiêu chí 2 và 4, tiêu chí 5, theo quyết định 0130"
         },
         {
           "id": "13.2",
@@ -895,27 +895,6 @@
       "stage": 12,
       "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 12; nâng khung là một PR riêng, nặng, ngoài kế hoạch và làm chậm mục 12.1. Chủ repo chọn gác lại ngày 2026-11-26 («Ghi để riêng»), sau khi được báo khuyến nghị nâng thành PR riêng sau giai đoạn 12. Điều về design/screens.yaml sửa ở kho Repo Standards.",
       "group": "small"
-    },
-    {
-      "on": "2026-11-26",
-      "what": "Cầu nối vào (bring-in, loại variables) bỏ alias trỏ sang một collection có mode tên light hay dark: token của collection ấy chỉ được khoá là tên@light hay tên@dark, không còn bản không mang mode, nên một biến ở collection có mode khác (Mode 1, alpine, sheets) trỏ sang thì «names no token»; 103 giá trị bị bỏ trên bản xuất biến của một tệp .fig thật (hệ thiết kế AG Grid v3.2.0)",
-      "stage": 13,
-      "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 12 đang mở; thấy ở lượt thử tay Figma ngày 2026-11-26 (docs/trials/figma-variables-hands-on.md, mục «Lối thứ ba»); chủ repo cho ghi vào đây cùng ngày («Ghi ba lỗ hổng vào parked»). Chủ repo duyệt đề bài 0018 (wiki/specs/0018-figma-at-the-foundations-socket.md) ngày 2026-11-26; là việc của mục 13.1, rời phần gác lại khi mục ấy xong.",
-      "group": "outside-plugs"
-    },
-    {
-      "on": "2026-11-26",
-      "what": "Cầu nối vào (bring-in, loại variables) đè lặng lẽ khi hai collection có biến trùng tên: token chỉ được khoá bằng tên và mode, không có collection, nên bản đọc sau thay bản đọc trước mà không dòng nào báo; trên cùng tệp ấy 42 khoá bị ghi hai lần trở lên, 9 khoá có giá trị khác nhau; cầu cũng không bỏ collection là bản sao ẩn của thư viện ngoài (remote, hiddenFromPublishing), nơi 22 trên 33 tên trùng đến từ",
-      "stage": 13,
-      "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 12 đang mở; thấy ở lượt thử tay Figma ngày 2026-11-26 (docs/trials/figma-variables-hands-on.md, mục «Lối thứ ba»); chủ repo cho ghi vào đây cùng ngày («Ghi ba lỗ hổng vào parked»). Chủ repo duyệt đề bài 0018 (wiki/specs/0018-figma-at-the-foundations-socket.md) ngày 2026-11-26; là việc của mục 13.1, rời phần gác lại khi mục ấy xong.",
-      "group": "outside-plugs"
-    },
-    {
-      "on": "2026-11-26",
-      "what": "Cầu nối vào (bring-in, loại variables) từ chối mọi biến đúng/sai như một giá trị không đọc được («not text, a length or a colour»), mỗi biến một dòng, thay vì nói một lần rằng loại ấy không thuộc ổ nền; 59 dòng trên cùng tệp ấy, che các dòng không đọc được thật",
-      "stage": 13,
-      "why_not_now": "Không chặn dòng «xong khi» của giai đoạn 12 đang mở; không làm sai giá trị nào của ứng viên; thấy ở lượt thử tay Figma ngày 2026-11-26 (docs/trials/figma-variables-hands-on.md, mục «Lối thứ ba»); chủ repo cho ghi vào đây cùng ngày («Ghi ba lỗ hổng vào parked»). Chủ repo duyệt đề bài 0018 (wiki/specs/0018-figma-at-the-foundations-socket.md) ngày 2026-11-26; là việc của mục 13.1, rời phần gác lại khi mục ấy xong.",
-      "group": "outside-plugs"
     }
   ]
 }

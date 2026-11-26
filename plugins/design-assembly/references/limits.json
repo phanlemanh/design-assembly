@@ -4717,9 +4717,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0091"],
-      "status": "open",
-      "note": "The bridge in reads a token file, a DESIGN.md, an export of variables and a system folder from samples written for its tests after the public pages of each format, and no file a tool from outside really made has yet been read by it."
+      "where": ["d0091", "d0130"],
+      "status": "closed",
+      "note": "The bridge in reads a token file, a DESIGN.md, an export of variables and a system folder from samples written for its tests after the public pages of each format, and no file a tool from outside really made has yet been read by it.",
+      "closed": "2026-11-26",
+      "closed_by": "d0130: an export of variables a tool from outside made from a real file was read by the bridge, and its counts (values read, values left and why, collections set aside, questions) are recorded with the pull request; the bridge's tests read a made-up export of the same shape. What is still read only from samples has a row of its own: bring-in-token-file-design-md-system-read-from-samples"
     },
     {
       "id": "bring-in-reads-colour-type-and-corner-only",
@@ -4753,6 +4755,83 @@
       "where": ["d0091"],
       "status": "open",
       "note": "When the owner refuses to keep a settled value against an outside one, the question records the refusal and nothing else changes until someone runs the guide again and picks the outside value."
+    },
+    {
+      "id": "bring-in-token-file-design-md-system-read-from-samples",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0130"],
+      "status": "open",
+      "note": "The bridge in reads a token file, a DESIGN.md and a system folder from samples written for its tests after the public pages of each format, and no such file a tool from outside really made has yet been read by it; only an export of variables has been."
+    },
+    {
+      "id": "bring-in-font-question-for-variables-only",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0130"],
+      "status": "open",
+      "note": "A typeface an outside source names that differs from the one the owner settled becomes a question only for an export of variables; for a token file, a DESIGN.md or a system folder the bridge still names the font and asks nothing, as it did before item 13.1."
+    },
+    {
+      "id": "bring-in-alias-mode-by-name",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0130"],
+      "status": "open",
+      "note": "An alias into another collection is read in the mode of the same name there, else the mode that reads light or dark as its own mode does, else that collection's default, while the design tool decides by the mode a frame sets for each collection, which an export does not hold; nothing has compared what the bridge reads with what the tool draws."
+    },
+    {
+      "id": "bring-in-axes-take-the-default-mode",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-26",
+      "where": ["d0130"],
+      "status": "open",
+      "note": "An axis of modes other than light and dark (a portal, a density, a breakpoint) is named with the mode taken, and the candidate takes that collection's default mode only: the values of its other modes are read and counted, and never reach a direction, which has no key for them."
+    },
+    {
+      "id": "bring-in-other-keys-taken-by-collection-name",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0130"],
+      "status": "open",
+      "note": "Only the source colour is refused when two collections hold it with two values: a corner radius or a typeface two collections hold is taken from the first collection by its name, and said only in the computed lines, and --collection narrows the colour alone."
+    },
+    {
+      "id": "bring-in-no-value-not-told-apart",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-26",
+      "where": ["d0130"],
+      "status": "open",
+      "note": "A variable with no value, a value missing in a mode and a value under a mode its collection does not declare are counted in one line, and the bridge cannot tell whether the file holds them so or the tool that read the file lost them; on the first real export 36 variables of the file's own collections held none."
+    },
+    {
+      "id": "bring-in-one-line-per-alias",
+      "area": "capabilities",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-26",
+      "where": ["d0130"],
+      "status": "open",
+      "note": "The report of the bridge in prints one computed line for every value it reached through an alias or a sum, so on a real export of variables more than a thousand such lines stand between the candidate and the questions that wait."
     },
     {
       "id": "bring-out-design-md-not-run-through-its-validator",

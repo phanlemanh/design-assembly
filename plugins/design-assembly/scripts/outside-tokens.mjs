@@ -7,6 +7,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 
 import { readYaml } from "../templates/tools/design-assembly/yaml.mjs";
+import { readVariables } from "./outside-variables.mjs";
 
 export const KINDS = ["tokens", "design-md", "variables", "system"];
 // The pixels of one rem, as a browser reads a length when nothing changes its root size.
@@ -144,7 +145,7 @@ export function evaluate(written, source) {
   return result.px ? `${round(result.value)}px` : `${round(result.value)}`;
 }
 
-// ---- the three shapes ----------------------------------------------------------------------------
+// ---- the shapes of a token file and of a DESIGN.md ----------------------------------------------------------------------------
 
 // The groups under which a group named light or dark is a mode of the theme, not a shade.
 const THEME_ROOTS = ["color", "colors", "colour", "colours", "theme", "themes"];
@@ -162,14 +163,6 @@ function modeOf(segments) {
     mode: segments[at].toLowerCase(),
     logical: segments.filter((_, index) => index !== at).join("."),
   };
-}
-
-// The mode a named mode of an export is: light or dark by its name, else the default is no mode
-// and the others are known by their name.
-function namedMode(name, isDefault) {
-  if (/dark/i.test(name)) return "dark";
-  if (/light/i.test(name)) return "light";
-  return isDefault ? null : String(name).toLowerCase();
 }
 
 // A colour written as channels from 0 to 1, as `#rrggbb`.
@@ -301,34 +294,6 @@ function fromDesignMd(source) {
   return { tokens: found, name: typeof data.name === "string" ? data.name : null };
 }
 
-// The tokens of an export of variables: each variable in each mode of its collection, its name's
-// slashes read as the dots of a path, a reference to another variable written as one.
-function fromVariables(data) {
-  const meta = isObject(data.meta) ? data.meta : data;
-  const collections = isObject(meta.variableCollections) ? meta.variableCollections : {};
-  const variables = isObject(meta.variables) ? meta.variables : null;
-  if (!variables) throw new Error("it lists no variables");
-  const pathOf = (variable) => String(variable.name).split("/").join(".");
-  const found = [];
-  for (const variable of Object.values(variables)) {
-    const collection = collections[variable.variableCollectionId] ?? {};
-    const modes = Array.isArray(collection.modes) ? collection.modes : [];
-    for (const [modeId, value] of Object.entries(variable.valuesByMode ?? {})) {
-      const named = modes.find((mode) => mode.modeId === modeId)?.name ?? modeId;
-      const mode = namedMode(named, modeId === collection.defaultModeId);
-      const alias = isObject(value) && value.type === "VARIABLE_ALIAS" ? variables[value.id] : null;
-      const written = alias
-        ? `{${pathOf(alias)}}`
-        : isObject(value) && value.type === "VARIABLE_ALIAS"
-          ? `{${value.id}}`
-          : writtenOf(value);
-      const token = pathOf(variable);
-      found.push({ token: mode ? `${token}@${mode}` : token, mode, logical: token, written });
-    }
-  }
-  return found;
-}
-
 // ---- reading ------------------------------------------------------------------------------------
 
 // The kind of what a path holds: a folder is a system of tokens and a README, a .md file is a
@@ -343,11 +308,16 @@ export function kindOf(file, text) {
 }
 
 // Every token of a text of one kind, each with its final value, and the ones that could not be read.
+// An export of variables is read by its own reader (outside-variables.mjs), which also says what it
+// counted and set aside.
 export function readTokens(kind, text) {
+  if (kind === "variables") {
+    const { tokens, unread, summary } = readVariables(JSON.parse(text), evaluate);
+    return { tokens, unread, name: null, variables: summary };
+  }
   let name = null;
   let raw;
   if (kind === "design-md") ({ tokens: raw, name } = fromDesignMd(text));
-  else if (kind === "variables") raw = fromVariables(JSON.parse(text));
   else {
     const data = JSON.parse(text);
     raw = isSystemList(data) ? fromSystemList(data) : fromTokenFile(data);
