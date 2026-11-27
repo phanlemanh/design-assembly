@@ -90,7 +90,11 @@ test("the plug file of logo-design declares a skill at the brand assets socket, 
   assert.deepEqual(plug.skills, ["logo-design"]);
   assert.deepEqual(plug.needs, ["machine"]);
   assert.match(plug.machine, /\S/);
-  // Never measured in this slice: the measure is slice 2's, on the owner's word.
+  // What it asks is what the skill asks: up to three questions put in one sitting, not one.
+  assert.match(plug.about, /at most three questions in one sitting/);
+  assert.doesNotMatch(plug.about, /one question/);
+  // No measured entry: the measured runs never saw a row held, and a measured entry makes the board
+  // ask the owner to choose the plug.
   assert.equal(plug.measured, undefined);
   assert.equal(plug.recommended_by_owner, undefined);
   // It sends nothing anywhere: it needs no account and no network.
