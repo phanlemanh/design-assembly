@@ -155,6 +155,7 @@ chữ đã viết) ghi ngay cạnh số của công cụ.
 - **Năm dòng mới:** `logo-package-drawing-checked-by-the-plug-only`, `logo-row-titled-by-the-name-not-the-wordmark`,
   `icon-set-choice-not-asked-of-the-owner`, `decide-ask-takes-a-licence-as-a-recommendation`,
   `status-calls-a-queued-ground-a-measurement`.
+- **Mức nặng giữ nguyên:** dòng `logo-package-drawing-checked-by-the-plug-only` thay cho dòng mức nặng vừa đóng và cũng ở mức nặng, theo lời chủ repo («Làm cả hai», 2026-11-28, sau lượt kiểm độc lập của phiên điều phối): một gói có chữ khuyết nét vẫn qua lệnh của plugin với mọi mã băm khớp, tức phép kiểm xanh trong khi thứ nó giữ đã hỏng. Số giới hạn mức nặng mà plugin in ra không đổi.
 - **Vẫn mở, lượt này gặp lại:** `logo-design-plug-unmeasured` (câu của nó thêm phần lượt này), `logo-licence-sentence-stalls-the-row`,
   `logo-plug-small-mark-unseen`, `logo-package-unrecorded-unseen`, `logo-package-formatter-collides` (tác tử thêm sáu
   dòng vào tệp bỏ qua của bộ định dạng), `decide-ask-says-red-on-the-main-branch`, `status-next-names-new-for-a-licence`,

@@ -7067,7 +7067,7 @@
       "id": "logo-package-drawing-checked-by-the-plug-only",
       "area": "capabilities",
       "kind": "partial-check",
-      "severity": "medium",
+      "severity": "high",
       "plan": "fix",
       "opened": "2026-11-28",
       "where": ["d0132", "trials"],

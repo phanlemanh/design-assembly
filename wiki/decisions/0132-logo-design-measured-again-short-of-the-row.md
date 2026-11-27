@@ -16,6 +16,7 @@ sources:
   - plugins/design-assembly/references/limits.json
   - "chủ repo, 2026-11-27, bốn nhãn anh bấm cho bốn câu của ca B: «cloud-pier (Recommended)», «Geist (Recommended)», «Ben May (Recommended)», «16, 14, 12 (Recommended)»"
   - "chủ repo, 2026-11-28: «Chuyển bốn lời trước», khi hai câu phải tự gõ (quyền dùng dấu, giấy phép bộ biểu tượng) chưa có"
+  - "chủ repo, 2026-11-28: «Làm cả hai», đáp câu «Anh chọn «Làm cả hai» hay «Chỉ đẩy và gộp»?» của phiên điều phối, trong đó có việc giữ dòng giới hạn thay thế ở mức nặng"
 ---
 
 # 0132 Skill logo-design 0.4.0 đo lại, vẫn dừng trước dòng dấu
@@ -64,7 +65,7 @@ quyết thay, nên cần một lượt đo mới trên một bản sao làm lạ
 - Sổ giới hạn: đóng `logo-package-drawing-unchecked` và `logo-plug-wordmark-language-unasked`; mở năm dòng
   `logo-package-drawing-checked-by-the-plug-only`, `logo-row-titled-by-the-name-not-the-wordmark`,
   `icon-set-choice-not-asked-of-the-owner`, `decide-ask-takes-a-licence-as-a-recommendation`,
-  `status-calls-a-queued-ground-a-measurement`. Cách xử lý ghi ở năm dòng mới là đề xuất của phiên đo, chờ chủ repo.
+  `status-calls-a-queued-ground-a-measurement`. Cách xử lý ghi ở năm dòng mới là đề xuất của phiên đo, chờ chủ repo. Dòng `logo-package-drawing-checked-by-the-plug-only` ở mức nặng theo lời chủ repo («Làm cả hai», 2026-11-28): nó thay cho dòng mức nặng vừa đóng, nên số giới hạn mức nặng plugin in ra không đổi.
 - Lượt ngồi của skill gọn lại còn tối đa ba câu, nhưng hai câu giữ dòng sổ nằm ngoài lượt ấy: câu quyền dùng dấu chỉ
   hiện ra sau khi dòng đã viết, và không có chỗ nào trên hàng chờ cho nó. Đó vẫn là điểm vướng của
   `logo-licence-sentence-stalls-the-row`.
