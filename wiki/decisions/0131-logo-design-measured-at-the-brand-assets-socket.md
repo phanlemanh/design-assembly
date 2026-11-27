@@ -41,13 +41,13 @@ bốn thước, trên bản sao bỏ đi, bằng đề chuẩn. Ổ này chưa c
    nguyên như lúc tác tử nhận.
 2. **Số đo** ([bản ghi](../../docs/trials/logo-design-measured-at-brand-assets.md)):
 
-   | Thước                 | Ca A: có bộ biểu tượng, chưa có dấu                                                                                                                                                  | Ca B: chưa có gì                                                       | Sàn của plugin (dấu là chữ) |
-   | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | --------------------------- |
-   | 1. Giữ được không     | Gói có tờ kê; `verify` 0; `logo-source --package --dry-run` khớp mọi mã băm, đọc người chọn từ hàng chờ; cổng xanh trước khi ghi. Dòng dấu, giấy phép và cổng sau khi ghi: chưa thấy | Như ca A; bộ biểu tượng có dòng ghim, chưa có giấy phép                | Không tệp nào để giữ        |
-   | 2. Phải đoán mấy chỗ  | 10: 2 vào hàng chờ, 8 lặng lẽ                                                                                                                                                        | 11: 3 vào hàng chờ, 8 lặng lẽ                                          | 0                           |
-   | … quyết thay chủ repo | 0 (đọc chặt: 1, dấu nhỏ của biểu tượng trang chủ repo không thấy)                                                                                                                    | 0 (đọc chặt: 1, dòng bộ biểu tượng ghi theo khuyến nghị trước lời đáp) | 0                           |
-   | 3. Chạy được ở đâu    | Trên máy, không mạng, không tài khoản, không khoá: Python 3, cairo; chữ đi kèm dấu cần họ chữ tiêu đề cài trên máy, và tên bản cài phải khớp tên trong sổ                            | như ca A                                                               | Mọi nơi                     |
-   | 4. Tốn bao nhiêu      | 289 898 token                                                                                                                                                                        | 308 442 token                                                          | 0                           |
+   | Thước                 | Ca A: có bộ biểu tượng, chưa có dấu                                                                                                                                                                                                                                                         | Ca B: chưa có gì                                                       | Sàn của plugin (dấu là chữ) |
+   | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | --------------------------- |
+   | 1. Giữ được không     | Chữ «u» và «r» của dấu khuyết nét ở mọi tệp có chữ, mà mọi lệnh kiểm vẫn qua (lượt kiểm độc lập thấy). Gói có tờ kê; `verify` 0; `logo-source --package --dry-run` khớp mọi mã băm, đọc người chọn từ hàng chờ; cổng xanh trước khi ghi. Dòng dấu, giấy phép và cổng sau khi ghi: chưa thấy | Như ca A; bộ biểu tượng có dòng ghim, chưa có giấy phép                | Không tệp nào để giữ        |
+   | 2. Phải đoán mấy chỗ  | 10: 2 vào hàng chờ, 8 lặng lẽ                                                                                                                                                                                                                                                               | 11: 3 vào hàng chờ, 8 lặng lẽ                                          | 0                           |
+   | … quyết thay chủ repo | 0 (đọc chặt: 1, dấu nhỏ của biểu tượng trang chủ repo không thấy)                                                                                                                                                                                                                           | 0 (đọc chặt: 1, dòng bộ biểu tượng ghi theo khuyến nghị trước lời đáp) | 0                           |
+   | 3. Chạy được ở đâu    | Trên máy, không mạng, không tài khoản, không khoá: Python 3, cairo; chữ đi kèm dấu cần họ chữ tiêu đề cài trên máy, và tên bản cài phải khớp tên trong sổ                                                                                                                                   | như ca A                                                               | Mọi nơi                     |
+   | 4. Tốn bao nhiêu      | 289 898 token                                                                                                                                                                                                                                                                               | 308 442 token                                                          | 0                           |
 
    Cả lượt, tính cả phiên điều phối: 1 023 545 tới lúc viết bản ghi token, trần 1,3 triệu.
 
@@ -64,10 +64,12 @@ bốn thước, trên bản sao bỏ đi, bằng đề chuẩn. Ổ này chưa c
 
 ## Consequences
 
-- Tám dòng giới hạn mới, mở ngày 2026-11-27: `logo-plug-typeface-name-not-matched`,
+- Chín dòng giới hạn mới (thêm `logo-package-drawing-unchecked`), mở ngày 2026-11-27: `logo-plug-typeface-name-not-matched`,
   `logo-plug-wordmark-language-unasked`, `logo-plug-small-mark-unseen`, `logo-package-unrecorded-unseen`,
   `logo-licence-sentence-stalls-the-row`, `logo-package-formatter-collides`, `decide-ask-says-red-on-the-main-branch`,
   `status-next-names-new-for-a-licence`. Không dòng nào đóng.
+- Gói qua mọi lệnh kiểm mà chữ của dấu vẫn vẽ sai: các lệnh hiện có so mã băm và hình dạng tờ kê, không xem hình vẽ.
+  Lượt kiểm độc lập thấy lỗi, không phải lượt đo. Dòng giới hạn mới `logo-package-drawing-unchecked`; sửa ở kho skill.
 - Tiêu chí 19 đạt một phần: hai ca chạy theo đề chuẩn, số đo ghi ở đây, khuyến nghị không đổi; thước 1 dừng ở bước
   chạy thử. Tiêu chí 22: mỗi điều lượt này không thấy có một dòng. Dòng «xong khi» thứ hai của giai đoạn 12 chưa đạt:
   ca B để lại một bộ biểu tượng có dòng ghim và một dấu chủ repo chọn, với 0 lần quyết thay theo cách đếm, nhưng không

@@ -6857,7 +6857,18 @@
       "opened": "2026-11-26",
       "where": ["spec", "d0127", "d0131", "trials"],
       "status": "open",
-      "note": "The plug logo-design is declared at the brand assets socket and measured only in part, so it carries no measured entry: plugs lists it and never asks the owner to choose it (spec 0017, criterion 16). On 2026-11-27 (d0131) its remade skill ran the standard brief on two throwaway copies, one with a pinned icon set and one with nothing: it read the repository's answers, offered three marks different in structure, queued the choice as logo:<id> with candidates and stopped, and after the owner chose it left a package that its own verify and logo-source --package --dry-run accepted, every hash matching and the chooser read from the decision sheet. The run stopped at the dry run by the owner's word, because the sentence of who holds the right to use the mark was not given: the written row, its licence and the gate after the row were never seen. The measure is whole once a run reaches a held row and a green gate on the same copy."
+      "note": "The plug logo-design is declared at the brand assets socket and measured only in part, so it carries no measured entry: plugs lists it and never asks the owner to choose it (spec 0017, criterion 16). On 2026-11-27 (d0131) its remade skill ran the standard brief on two throwaway copies, one with a pinned icon set and one with nothing: it read the repository's answers, offered three marks different in structure, queued the choice as logo:<id> with candidates and stopped, and after the owner chose it left a package that its own verify and logo-source --package --dry-run accepted, every hash matching and the chooser read from the decision sheet, while the letters of its wordmark were drawn with holes that no check saw (logo-package-drawing-unchecked). The run stopped at the dry run by the owner's word, because the sentence of who holds the right to use the mark was not given: the written row, its licence and the gate after the row were never seen. The measure is whole once a run reaches a held row and a green gate on the same copy."
+    },
+    {
+      "id": "logo-package-drawing-unchecked",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-27",
+      "where": ["d0131", "trials"],
+      "status": "open",
+      "note": "No command looks at the drawing of a mark package: the plug's verify and logo-source --package compare hashes and the manifest's shape only. In the first measured run the letters of the wordmark were drawn with holes where their outlines overlap, filled by the even-odd rule, in every file that holds the text, and every check passed; an independent look at the images found it."
     },
     {
       "id": "logo-plug-typeface-name-not-matched",

@@ -9,7 +9,10 @@ nghìn, trần 700 nghìn)?», lời đáp «Chạy cả hai ca». Bản quyết
 **Kết luận ngắn:**
 
 - Gói dấu của phương án chủ repo chọn dựng được ở cả hai ca: 34 tệp (ca A) và 26 tệp (ca B). Lệnh kiểm gói của skill
-  đạt, và `logo-source --package --dry-run` của plugin so khớp mọi mã băm, đọc đúng người chọn từ tờ quyết định.
+  đạt, và `logo-source --package --dry-run` của plugin so khớp mọi mã băm, đọc đúng người chọn từ tờ quyết định. Nhưng chữ
+  «Cloud Pier» vẽ sai ở cả hai ca: chữ «u» và «r» khuyết nét, ở mọi tệp có chữ. Lượt kiểm độc lập của phiên điều phối thấy
+  lỗi này, không phải lượt đo; mọi lệnh kiểm hiện có đều qua, vì không lệnh nào xem hình vẽ. Gói «qua kiểm» chỉ có nghĩa
+  là tệp khớp tờ kê, không có nghĩa là dấu vẽ đúng.
 - Lượt đo dừng ở bước chạy thử theo lời chủ repo («Dừng ở đây»): câu ai giữ quyền dùng dấu, dùng ở đâu, được hỏi nhiều lần
   và không được viết. Dòng dấu chưa được ghi, nên dòng được giữ và cổng sau khi ghi chưa thấy ở cả hai ca. Cổng của hai
   bản sao xanh ở bước chạy thử.
@@ -114,6 +117,16 @@ Phiên điều phối đo bằng lệnh, không gọi mô hình, trên chính b�
 
 Điều không lệnh nào giữ, thấy khi kiểm:
 
+- **Chữ của dấu khuyết nét, và mọi lệnh kiểm vẫn qua.** Lượt kiểm độc lập của phiên điều phối (sau lượt đo, trước khi
+  gộp) thấy một vết trắng nhỏ ở chỗ nét cong gặp nét thẳng của chữ «u» và «r» trong «Cloud Pier». Phiên đo kiểm lại:
+  thấy bằng mắt ở `png/logo-horizontal-xl.png` của cả hai ca; trong SVG, mỗi tệp có chữ là một đường bao tô theo luật
+  chẵn lẻ (`fill-rule="evenodd"`), và tô lại cùng đường bao theo luật khác không (nonzero) bằng cairo thì có thêm mực ở
+  cả chín tệp có chữ của mỗi ca (chữ, hai khoá, ba biến thể): 265 điểm ảnh ở chữ ca A, 678 ở chữ ca B, ở cỡ vẽ thử. Tức
+  là các nét của chữ chồng lên nhau, và luật chẵn lẻ khoét chỗ chồng thành lỗ. Vì sao nét chồng (có thể máy lấy tệp
+  biến thiên `Geist[wght].ttf`, vốn giữ các đường bao chồng) là giả thuyết, chưa chứng. Gói «Bến Mây» của chặng 2 đã bị
+  dựng đè ở chặng 3 và tệp của nó không còn, nên không kiểm được. `verify`, `logo-source --package --dry-run` và
+  `make check` đều qua: lệnh kiểm gói so mã băm và hình dạng tờ kê, không xem hình. Sửa ở kho skill, không ở đây; dòng
+  giới hạn mới `logo-package-drawing-unchecked`.
 - **Ca A có một dấu chủ repo không thấy.** Sau lời chọn, tác tử thấy chi tiết của cloud-pier mờ ở 16 px và vẽ thêm một
   dấu nhỏ theo luật của skill («a simpler mark for small sizes»). Biểu tượng trang của gói vẽ từ dấu nhỏ ấy, tức chỗ
   dùng đầu tiên mà đề nêu là một hình chủ repo chưa từng thấy. Tờ kê ghi nó là vai `mark`; không gì đòi chủ repo xem lại.
@@ -215,13 +228,13 @@ Sàn của dấu là chữ: tên sản phẩm bằng họ chữ tiêu đề, kh�
 nói gì); `design/blueprint.json` không có khoá nào về dấu; `index.html` chỉ có `<title>Bến Mây</title>`, không biểu
 tượng trang.
 
-| Thước             | Sàn (chữ)                         | Phích logo-design                                                      |
-| ----------------- | --------------------------------- | ---------------------------------------------------------------------- |
-| Giữ được không    | Không tệp nào để giữ; tên là chữ  | Gói có tờ kê, mã băm, lệnh nhận của plugin so khớp; xem thước 1        |
-| Phải đoán mấy chỗ | 0 chỗ, 0 câu: không ai vẽ gì      | 10 và 11 chỗ; 2 và 3 câu cho chủ repo                                  |
-| Chạy được ở đâu   | Mọi nơi                           | Máy có Python, cairo, và họ chữ tiêu đề cài trên máy                   |
-| Tốn bao nhiêu     | 0 token                           | khoảng 270 và 290 nghìn mỗi ca                                         |
-| Để lại gì         | Không biểu tượng trang, không dấu | Dấu, chữ, hai khoá, biểu tượng trang, biểu tượng ứng dụng, ba biến thể |
+| Thước             | Sàn (chữ)                         | Phích logo-design                                                           |
+| ----------------- | --------------------------------- | --------------------------------------------------------------------------- |
+| Giữ được không    | Không tệp nào để giữ; tên là chữ  | Gói có tờ kê, mã băm, lệnh nhận so khớp; chữ khuyết nét không lệnh nào thấy |
+| Phải đoán mấy chỗ | 0 chỗ, 0 câu: không ai vẽ gì      | 10 và 11 chỗ; 2 và 3 câu cho chủ repo                                       |
+| Chạy được ở đâu   | Mọi nơi                           | Máy có Python, cairo, và họ chữ tiêu đề cài trên máy                        |
+| Tốn bao nhiêu     | 0 token                           | khoảng 270 và 290 nghìn mỗi ca                                              |
+| Để lại gì         | Không biểu tượng trang, không dấu | Dấu, chữ, hai khoá, biểu tượng trang, biểu tượng ứng dụng, ba biến thể      |
 
 Sàn thắng ở ba thước vì nó không làm việc mà đề đòi: thẻ trình duyệt vẫn không có dấu. Đây là chỗ bốn thước không tự
 phân xử; chủ repo quyết (thước nào nặng hơn là lời của anh, theo tiêu chí 19).
@@ -246,5 +259,6 @@ phân xử; chủ repo quyết (thước nào nặng hơn là lời của anh, t
 8. `da help` không có (`help.mjs` không tồn tại); tệp chạy của lượt đo, không phải của plugin. Không ghi.
 9. Câu quyền dùng dấu được hỏi nhiều lần mà không được viết; lượt đo dừng ở bước chạy thử. Đây là một điểm vướng của lối
    giao gói, không phải lỗi của người. Dòng giới hạn mới `logo-licence-sentence-stalls-the-row`.
-10. Điều của kho skill, không ghi ở sổ của plugin: bán kính đọc nhầm khoá; mã băm theo ngày; bản dựng cần skill ngoài repo;
+10. Điều của kho skill, không ghi ở sổ của plugin, là điểm mở ở kho ấy: chữ của dấu tô theo luật chẵn lẻ nên nét chồng
+    thành lỗ; bán kính đọc nhầm khoá; mã băm theo ngày; bản dựng cần skill ngoài repo;
     phép kiểm ở 16 px chỉ bằng mắt.
