@@ -6855,9 +6855,108 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-26",
-      "where": ["spec", "d0127"],
+      "where": ["spec", "d0127", "d0131", "trials"],
       "status": "open",
-      "note": "The plug logo-design is declared at the brand assets socket and never measured: plugs lists it and never asks the owner to choose it (spec 0017, criterion 16). Before slice 2 of item 12.3 measures it, its skill is remade in its own repository: it reads the repository's answers (the root colour, the heading typeface, the corner radius) as its inputs and brings no typeface, ratio or language of its own; it offers two or three marks different in structure, each with one sentence and drawn at page-icon size; it queues exactly one question with the item logo:<id> and stops; and it leaves a package whose manifest has the contract's shape LOGO_PACKAGE, naming no person. Its plug file names the drawing library on the machine in general words until the skill says which."
+      "note": "The plug logo-design is declared at the brand assets socket and measured only in part, so it carries no measured entry: plugs lists it and never asks the owner to choose it (spec 0017, criterion 16). On 2026-11-27 (d0131) its remade skill ran the standard brief on two throwaway copies, one with a pinned icon set and one with nothing: it read the repository's answers, offered three marks different in structure, queued the choice as logo:<id> with candidates and stopped, and after the owner chose it left a package that its own verify and logo-source --package --dry-run accepted, every hash matching and the chooser read from the decision sheet, while the letters of its wordmark were drawn with holes that no check saw (logo-package-drawing-unchecked). The run stopped at the dry run by the owner's word, because the sentence of who holds the right to use the mark was not given: the written row, its licence and the gate after the row were never seen. The measure is whole once a run reaches a held row and a green gate on the same copy."
+    },
+    {
+      "id": "logo-package-drawing-unchecked",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-27",
+      "where": ["d0131", "trials"],
+      "status": "open",
+      "note": "No command looks at the drawing of a mark package: the plug's verify and logo-source --package compare hashes and the manifest's shape only. In the first measured run the letters of the wordmark were drawn with holes where their outlines overlap, filled by the even-odd rule, in every file that holds the text, and every check passed; an independent look at the images found it."
+    },
+    {
+      "id": "logo-plug-typeface-name-not-matched",
+      "area": "capabilities",
+      "kind": "stack-bound",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-27",
+      "where": ["d0131", "trials"],
+      "status": "open",
+      "note": "The mark plug outlines its wordmark only in a typeface installed on the machine, and matches it by the name the repository's font row gives. A repository that loads its heading typeface as a web font package names it as that package does (Geist Variable), while the same family installed on the machine is listed under another name (Geist): the plug reports the typeface missing even after it is installed, and the owner has to answer the name once more. Nothing ties the family the wordmark was drawn in to the font row, so a wordmark drawn in another family passes every check."
+    },
+    {
+      "id": "logo-plug-wordmark-language-unasked",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-27",
+      "where": ["d0131", "trials"],
+      "status": "open",
+      "note": "The mark plug sets the wordmark to the product's name as written and never asks in which language or script the text of a logo is to be. When the owner wants it in English or without diacritics, he says so after the package is built, and the package is built again. The plug also takes the wordmark's text and the product's name as two inputs while its page says they are one: with a wordmark of other words, the manifest's title, the brand sheet and the preview keep the name, and logo-source --package titles the row from the manifest, so the row is named by words the logo does not show."
+    },
+    {
+      "id": "logo-plug-small-mark-unseen",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-27",
+      "where": ["d0131", "trials"],
+      "status": "open",
+      "note": "After the owner chose a mark, the plug may draw a simpler mark for small sizes and build the page icon from it, as its own rule says when a detail is lost at 16 px. The page icon is then a drawing the owner never saw, recorded with the role mark; neither the plugin nor the plug asks him to look at it."
+    },
+    {
+      "id": "logo-package-unrecorded-unseen",
+      "area": "status",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-27",
+      "where": ["d0131", "trials"],
+      "status": "open",
+      "note": "A mark the owner chose, whose package is built and verified but whose row is not written, is not seen by status or audit: they name the choice on the decision sheet and nothing waits for the mark. The question of who holds the right to use it appears only once logo-source --package writes the row."
+    },
+    {
+      "id": "logo-licence-sentence-stalls-the-row",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-27",
+      "where": ["d0131", "trials"],
+      "status": "open",
+      "note": "The row of a mark is held only once a person writes who holds the right to use it and where. In the first measured run the owner was asked for that sentence several times, chose and answered everything else, and did not write it; the run stopped at the dry run. How the sentence is best asked for is not known."
+    },
+    {
+      "id": "logo-package-formatter-collides",
+      "area": "capabilities",
+      "kind": "conflict",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-27",
+      "where": ["d0131", "trials"],
+      "status": "open",
+      "note": "The mark package and the files the plug writes beside it lie in the repository, and the repository's formatter check refuses some of them (the manifest, the brand sheet, its README). Formatting them breaks the hashes the package lists, so a builder adds them to the formatter's ignore file by hand; no page says so and no check reads it."
+    },
+    {
+      "id": "decide-ask-says-red-on-the-main-branch",
+      "area": "decide",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-27",
+      "where": ["d0131", "trials"],
+      "status": "open",
+      "note": "The command decide --ask on an owner's item (logo:<id>) says the gate is red until the owner answers, but the wall owner-calls holds a branch only: on the main branch, or a repository with no other branch, the gate stays green with the question open."
+    },
+    {
+      "id": "status-next-names-new-for-a-licence",
+      "area": "status",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-27",
+      "where": ["d0131", "trials"],
+      "status": "open",
+      "note": "When the only answer that waits is the licence of a row a command wrote, status names /design-assembly:new as the next step, while the row says the licence is written by hand into the row's file."
     },
     {
       "id": "plug-machine-needs-unchecked",
