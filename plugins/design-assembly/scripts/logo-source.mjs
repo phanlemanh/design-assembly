@@ -1,21 +1,24 @@
 // Writes the row of the product's mark into the sources ledger, design/sources/<id>.json, from
 // files the repository already keeps: each file named with its role and its variant, and hashed
 // where it is. It draws nothing, fetches nothing and changes no file of the mark: a file that is not
-// there gets no row. The licence is a person's to write (who holds the right to use the mark, and
-// where it may be used): the row says a command proposed it, is not held until the licence is
-// there, and `status` asks for it. A row that exists is never written over. Where the gate is laid,
-// the check that holds the pin of every logo row is laid beside the row.
+// there gets no row. For a mark brought in from files, the licence is a person's to write (who
+// holds the right to use the mark, and where it may be used): the row says a command proposed it,
+// is not held until the licence is there, and `status` asks for it. A row that exists is never
+// written over. Where the gate is laid, the check that holds the pin of every logo row is laid
+// beside the row.
 // With --into, the files are added to a row already there, and nothing it pins or says is changed.
 // With --package, the files are those of a package an outside plug left, read with its manifest:
 // each compared with the hash the manifest lists, the row saying which plug made the mark, on
 // which day, and which candidate of the question it is; who chose it is read from the decision
 // sheet, never from the package, and a package of a candidate the question did not offer, or of one
-// the owner did not choose, is refused.
+// the owner did not choose, is refused. A mark built in the repository this way is the repository's
+// asset, as its code is: the row's licence is written by that rule, the row says so under
+// `licence_from`, and no sentence of a person is waited for.
 // Usage: node logo-source.mjs [--target DIR] (--file PATH:ROLE:VARIANT [--file ...] | --package DIR)
 //                             [--title NAME] [--id ID | --into ID] [--on DATE] [--dry-run] [--json]
-// Exit: 0 files added to a row a person finished; 1 the row is written, or would be, and its
-// licence waits on a person; 2 a wrong call, a file the repository does not hold, or a row that is
-// already there.
+// Exit: 0 files added to a row that has its licence, or the row of a package written for a mark the
+// owner chose; 1 the row is written, or would be, and its licence or the owner's choice waits on a
+// person; 2 a wrong call, a file the repository does not hold, or a row that is already there.
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { stdout } from "node:process";
@@ -29,12 +32,15 @@ import { newerProblem, shapeProblems } from "../templates/tools/design-assembly/
 import { lineWidth, renderJson } from "../templates/tools/design-assembly/json.mjs";
 import {
   isLogo,
+  LICENCE_FROM,
   LOGO_KIND,
   LOGO_PINS_CHECK,
   LOGO_USE_CHECK,
   LOGO_ROLES,
   LOGO_VARIANTS,
   readLogoSources,
+  REPOSITORY_ASSET,
+  REPOSITORY_ASSET_LICENCE,
   SOURCES_FOLDER,
   SOURCES_VERSION,
 } from "../templates/tools/design-assembly/sources-ledger.mjs";
@@ -87,8 +93,13 @@ function packageName(root) {
 
 // The row of a mark, as it would be written, with its file. Each named file is hashed where it is,
 // and keeps the role and the variant it was named with. It throws on a file that is not there, or
-// one named twice. The row has no licence: no tool writes one.
-export function logoRow(root, { files, title, id, own = false, made = null, by = BY, on }) {
+// one named twice. The row of files brought in has no licence: a person writes it. `built` says the
+// mark was built in the repository, from a package a plug left: its row carries the licence of
+// the rule that such a mark is the repository's asset, and says the rule wrote it.
+export function logoRow(
+  root,
+  { files, title, id, own = false, made = null, built = false, by = BY, on },
+) {
   const seen = new Set();
   for (const entry of files) {
     if (seen.has(entry.file)) {
@@ -117,6 +128,9 @@ export function logoRow(root, { files, title, id, own = false, made = null, by =
     },
     ...(own ? { own: true } : {}),
     ...(made ? { made } : {}),
+    ...(built && made
+      ? { licence: REPOSITORY_ASSET_LICENCE, [LICENCE_FROM]: { rule: REPOSITORY_ASSET } }
+      : {}),
     proposed: { by, on },
   };
   const file = `${SOURCES_FOLDER}/${named}.json`;
@@ -187,7 +201,11 @@ export const logoToolPredates = (root) =>
     part: `the kind ${LOGO_KIND}`,
   });
 
-// What a person does next with a row a command wrote.
+// What the command says of the licence of a mark built in the repository.
+export const ruleLine = () =>
+  `licence: by the rule for a mark built in the repository, not a person's sentence: ${REPOSITORY_ASSET_LICENCE}`;
+
+// What a person does next with a row a command wrote from files brought in.
 export const licenceStep = (file) =>
   `write who holds the right to use the mark, and where it may be used, into licence of ${file}, in a person's words: until then the row is not held and the mark cannot be chosen`;
 
@@ -264,7 +282,9 @@ const USAGE = `usage: node logo-source.mjs [--target DIR] (--file PATH:ROLE:VARI
               hash the manifest lists, and the package holds no file it does not name. The row
               says which plug made the mark, on which day, and which candidate of the question it
               is; who chose it is read from the waiting list, and a package of a candidate the
-              owner did not choose is refused. In place of --file.
+              owner did not choose is refused. A mark built in the repository this way is the
+              repository's asset, as its code is: the row's licence is written by that rule,
+              and the row says so. In place of --file.
   --title     The name of the product the mark stands for. Without it, the title of the package's
               manifest, else the name the repository's package gives.
   --id        The row's id, and the name of its file. Without it, ${LOGO_ID}.
@@ -276,11 +296,13 @@ const USAGE = `usage: node logo-source.mjs [--target DIR] (--file PATH:ROLE:VARI
 
   Writes one file, ${SOURCES_FOLDER}/<id>.json, and never writes over one; where the gate is laid,
   the check that holds the pin of every logo row is added to ${THEME}. It draws, fetches and
-  changes nothing else. The row has no licence: a person writes who holds the right to use the mark
-  and where, and the row is held from then on.
+  changes nothing else. The row of files named with --file has no licence: a person writes who
+  holds the right to use the mark and where, and the row is held from then on. The row of a
+  package carries the licence of the rule and waits on none.
 
-  Ends with 1 when the row is written, since its licence waits on a person; with 2 on a wrong
-  call, a file the repository does not hold, or a row that is already there.
+  Ends with 0 when the row of a package is written for a mark the owner chose; with 1 when the
+  row is written and its licence, or the owner's choice of the mark, waits on a person; with 2 on a
+  wrong call, a file the repository does not hold, or a row that is already there.
 `;
 
 const FLAGS = {
@@ -346,6 +368,8 @@ function main(args) {
       made: pack
         ? { ...pack.made, ...(pack.candidate ? { candidate: pack.candidate } : {}) }
         : null,
+      // A package a plug left in the repository is a mark built in it.
+      built: pack !== null,
       on,
     });
   } catch (error) {
@@ -379,9 +403,13 @@ function main(args) {
     { [written.file]: written.content, ...(theme ? { [THEME]: theme } : {}) },
     dryRun,
   );
-  const next = licenceStep(written.file);
   // Who chose the mark: the owner's answer on the decision sheet, never a word of the package.
   const chosen = chosenOnSheet(root, written.row.id);
+  // The licence of files brought in waits on a person; a mark built in the repository has the
+  // rule's, and only the owner's choice of the mark is left, where it was not made.
+  const licensed = typeof written.row.licence === "string";
+  const owner = chosen ? null : ownerStep(written.row.id);
+  const next = licensed ? owner : licenceStep(written.file);
   const name = written.row.title ?? written.row.id;
   const text = [
     pack
@@ -395,8 +423,9 @@ function main(args) {
           `chosen: by ${chosen.by} on ${chosen.on}, in ${chosen.question} of the waiting list${chosen.candidate ? `: candidate ${chosen.candidate}` : ""}`,
         ]
       : []),
-    `next: ${next}`,
-    ...(chosen ? [] : [`then: ${ownerStep(written.row.id)}`]),
+    ...(licensed ? [ruleLine()] : []),
+    ...(next ? [`next: ${next}`] : []),
+    ...(!licensed && owner ? [`then: ${owner}`] : []),
     ...(dryRun ? ["preview only: nothing was written"] : []),
   ];
   return finish({
@@ -411,8 +440,8 @@ function main(args) {
       files: writtenFiles(lines),
     },
     text: `${text.join("\n")}\n`,
-    // The licence waits on a person, whatever was written.
-    work: true,
+    // Something waits on a person while the licence is not written or the owner has not chosen.
+    work: next !== null,
   });
 }
 
@@ -459,11 +488,17 @@ function addInto(root, { into, files, dryRun, json }) {
     : null;
   const lines = writeFiles(root, { [file]: content, ...(theme ? { [THEME]: theme } : {}) }, dryRun);
   const waits = typeof row.licence !== "string" || row.licence.trim() === "";
+  const byRule = row[LICENCE_FROM]?.rule === REPOSITORY_ASSET;
   const text = [
     `mark: ${row.title ?? row.id}, ${files.length} file(s) added to ${file}, hashed where they are; every file it pinned is kept`,
     ...files.map((entry) => `  ${entry.file}: ${entry.role}, ${entry.variant}`),
     ...lines.map((line) => `  ${line}`),
     ...(theme ? gateLines(root) : []),
+    ...(byRule
+      ? [
+          `licence: ${file} is licensed by the rule for a mark built in the repository, which speaks of files made in it: where a file added now was brought in from outside, write the licence in a person's words and take ${LICENCE_FROM} out`,
+        ]
+      : []),
     ...(waits ? [`next: ${licenceStep(file)}`] : []),
     `${waits ? "then" : "next"}: ${ownerStep(id)}`,
     ...(dryRun ? ["preview only: nothing was written"] : []),

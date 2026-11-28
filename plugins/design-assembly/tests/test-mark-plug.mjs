@@ -31,7 +31,10 @@ import { plugProblems, readCapabilities } from "../scripts/capabilities.mjs";
 import { namesUnder } from "../scripts/icon-drawn.mjs";
 import { plan } from "../scripts/plugs.mjs";
 import { LOGO_PACKAGE, shapeProblems } from "../templates/tools/design-assembly/contract.mjs";
-import { readLogoSources } from "../templates/tools/design-assembly/sources-ledger.mjs";
+import {
+  readLogoSources,
+  REPOSITORY_ASSET_LICENCE,
+} from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { adopted, listIn, OWNER } from "./helpers/core-family.mjs";
 
 const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -255,7 +258,8 @@ test("logo-source --package writes the logo row from the package: which plug mad
   const before = snapshot(dir);
   const gateBefore = gate(dir).status;
   const done = logoSource(dir, "--package", PACKAGE, "--on", "2026-11-27");
-  assert.equal(done.status, 1, done.stdout + done.stderr);
+  // The owner chose the mark, and its licence is the rule's: nothing waits on a person.
+  assert.equal(done.status, 0, done.stdout + done.stderr);
   assert.equal(done.reached, "");
   assert.deepEqual(json(dir, ROW), {
     version: 1,
@@ -274,6 +278,10 @@ test("logo-source --package writes the logo row from the package: which plug mad
       ],
     },
     made: { by: "logo-design", on: "2026-11-26" },
+    // A mark built in the repository is its asset, as its code is: the rule writes the licence,
+    // and the row says so.
+    licence: REPOSITORY_ASSET_LICENCE,
+    licence_from: { rule: "repository-asset" },
     proposed: { by: "logo-source", on: "2026-11-27" },
   });
   assert.match(
@@ -296,7 +304,8 @@ test("logo-source --package writes the logo row from the package: which plug mad
   assert.equal(gate(dir).status, gateBefore);
   const [mark] = readLogoSources(dir);
   assert.deepEqual(mark.drift, []);
-  assert.match(mark.waits, /no licence yet/);
+  assert.equal(mark.waits, null);
+  assert.equal(mark.held, true);
   const data = JSON.parse(
     logoSource(packaged(), "--package", PACKAGE, "--dry-run", "--json").stdout,
   );
@@ -305,14 +314,14 @@ test("logo-source --package writes the logo row from the package: which plug mad
   assert.equal(data.chosen, null);
 });
 
-test("without the owner's answer, the row names the owner's call as the step after its licence", () => {
+test("without the owner's answer, the row names the owner's call as the next step", () => {
   const dir = packaged();
   const done = logoSource(dir, "--package", PACKAGE);
   assert.equal(done.status, 1, done.stderr);
   assert.doesNotMatch(done.stdout, /chosen:/);
   assert.match(
     done.stdout,
-    /then: a new mark, or a changed file of one, is the owner's call: ask with decide --ask --item logo:logo/,
+    /next: a new mark, or a changed file of one, is the owner's call: ask with decide --ask --item logo:logo/,
   );
 });
 

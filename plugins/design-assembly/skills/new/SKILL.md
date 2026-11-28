@@ -315,7 +315,11 @@ A mark an outside plug of the brand assets socket built, once the owner chose it
 the package it left: `node <plugin>/scripts/logo-source.mjs --target <repo> --package <folder>`. The
 command reads the package's `manifest.json`, compares every file with the hash it lists, and refuses
 a package that does not match; the row says which plug made the mark and on which day. Never write
-who chose the mark yourself: the command reads it from the owner's answer on the waiting list.
+who chose the mark yourself: the command reads it from the owner's answer on the waiting list. A
+mark built in the repository this way is the repository's asset, as its code is: the command
+writes the row's licence by that rule and says so in the row (`licence_from`). Ask the owner for
+no sentence about the right to use it, and write none; that sentence is asked only for a mark
+brought in with `--file`.
 
 ### The neutral family and the status tones
 
@@ -461,9 +465,17 @@ the preview again.
    one set and not two. Put it to the person: take it, or name another. It installs nothing: a set
    the lockfile does not pin is installed the way the repository installs a package, then its row
    is written with `--recommended` (or `--package <name>` for another set, `--folder <path>` for
-   icons kept as files). The row has no licence: ask the owner for it and write their words into
-   the row's `licence`. Where the gate is installed, the row answers `icons` and the gate holds,
-   from then on, that the code takes its icons from it: read out any `gate: red today:` line.
+   icons kept as files). Which set the product takes is the owner's call, never yours: where the
+   owner has not kept it, the command writes one question about it on the waiting list
+   (`icon-set:<id>`) and says `owner: asked in …`. Stop there, put that question to the owner
+   with the decision sheet, and go on once they keep it; a branch that adds the row is red at the
+   gate until then. A set the owner refused gets no row. The licence of a package is the one the
+   installed package declares: the command writes it into the row and says where it was read, so
+   ask nobody for it. Only where the command prints `next: write the licence …` (the package is
+   not installed or declares none, or the icons are files of the repository), ask the owner for
+   it and write their words into the row's `licence`; never write one yourself. Where the gate
+   is installed, the row answers `icons` and the gate holds, from then on, that the code takes
+   its icons from it: read out any `gate: red today:` line.
 3. `make format`, then `make design-assembly`. Then the repository's own `make check`.
 4. A failure of `make design-assembly` means a decision is no longer held. Read the message: it
    names the decision and what is wrong. Fix the cause, never the check.

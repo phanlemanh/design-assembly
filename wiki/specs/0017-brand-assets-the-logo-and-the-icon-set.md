@@ -37,6 +37,12 @@ sources:
   - "chủ repo, 2026-11-25: «Soạn đề bài»"
   - "chủ repo, 2026-11-25: «gộp», lời cho gộp PR 145 mang đề bài khi còn chờ duyệt"
   - "chủ repo, 2026-11-25: «Duyệt cả mười hai», đáp câu «Duyệt đề bài 0017 theo khuyến nghị cả mười hai câu?»"
+  - "chủ repo, 2026-11-28: «Đồng ý theo lời khuyên», đáp câu «việc vẽ biểu tượng còn thiếu nên làm bằng skill riêng (tôi khuyên) hay gộp vào `logo-design`?»; lời khuyên ấy có điểm: trong mục 12.3, khi `icon-source` ghi một bộ chủ repo chưa chọn thì xếp một câu hỏi lên hàng chờ"
+  - "chủ repo, 2026-11-28, sau khi phiên đo giải thích «quyền dùng logo là gì»: «Đây là giai đoạn tạo ra logo, giống như code việc quyết định nó thuộc về người dùng, nếu trong truòng hợp nằm ở repo thì bản quyền thuộc về repo và người tạo.»"
+  - "chủ repo, 2026-11-28: «Tôi nghĩ đơn giản hoá và ứng xử như code được tạo ra đi như một tài sản số tương tự dòng code», đáp câu hỏi đó là luật cho plugin hay lời đáp riêng cho một logo"
+  - "chủ repo, 2026-11-28: «Lucide-react dùng đúng giấy phép của bộ ngoài»"
+  - "chủ repo, 2026-11-28: «Mở lát 12.3», đáp câu «Anh cho mở lát 12.3 đưa ba lời của anh vào plugin chứ?»"
+  - wiki/decisions/0134-three-owner-rules-for-brand-assets.md
 ---
 
 # 0017 Tài sản thương hiệu đủ mảng — logo và bộ biểu tượng
@@ -107,6 +113,36 @@ nên không cứng về màu thương hiệu hay thành phần. Vì thế đề 
 4. **Dấu mới chờ lời chủ repo,** như màu thương hiệu. Máy dừng, không dựng tiếp trên một dấu chưa ai chốt.
 5. **Plugin không nêu tên thương hiệu nào.** Tên, dấu, bảng màu là dữ liệu của người dùng, nằm trong repo của họ.
 
+### Sửa đổi ngày 2026-11-28, chờ chủ repo duyệt
+
+Phần này sửa một đề bài đã duyệt, nên **chưa có hiệu lực của một đề bài đã duyệt cho tới khi chủ repo duyệt nó**. Nó
+đưa ba lời của chủ repo ngày 2026-11-28 vào đề bài; máy viết theo lời «Mở lát 12.3» (đáp câu «Anh cho mở lát 12.3 đưa
+ba lời của anh vào plugin chứ?»). Cách dựng và từng điểm máy tự chọn ghi ở
+[0134](../decisions/0134-three-owner-rules-for-brand-assets.md). Ba chỗ của đề bài bị sửa được đánh dấu «Sửa
+2026-11-28» ngay tại chỗ: mục «Hai loại nguồn mới», tiêu chí 5 và câu hỏi 6.
+
+1. **Chọn bộ biểu tượng là mục của chủ repo.** Lời chủ repo, nguyên văn: «Đồng ý theo lời khuyên», đáp câu «việc vẽ
+   biểu tượng còn thiếu nên làm bằng skill riêng (tôi khuyên) hay gộp vào `logo-design`?». Lời khuyên anh đồng ý có
+   điểm: trước hết, trong mục 12.3, khi `icon-source` ghi một bộ chủ repo chưa chọn thì xếp một câu hỏi lên hàng chờ.
+   Đề bài nay nói: dòng `icon-set` mới chờ lời chủ repo giữ mục `icon-set:<id>`, như dòng `logo` chờ `logo:<id>`.
+2. **Logo dựng trong repo là tài sản của repo, như code.** Lời chủ repo, nguyên văn, sau khi được giải thích «quyền
+   dùng logo là gì»: «Đây là giai đoạn tạo ra logo, giống như code việc quyết định nó thuộc về người dùng, nếu trong
+   truòng hợp nằm ở repo thì bản quyền thuộc về repo và người tạo.» Và khi được hỏi đó là luật cho plugin hay lời đáp
+   riêng cho một logo: «Tôi nghĩ đơn giản hoá và ứng xử như code được tạo ra đi như một tài sản số tương tự dòng code».
+   Đề bài nay nói: dòng `logo` viết từ một gói có tờ kê do phích để lại trong repo không chờ một câu quyền dùng riêng;
+   lệnh ghi giấy phép theo luật này và dòng nói rõ giấy phép đến từ luật.
+3. **Bộ biểu tượng là gói ngoài dùng đúng giấy phép của gói ấy.** Lời chủ repo, nguyên văn: «Lucide-react dùng đúng
+   giấy phép của bộ ngoài». Ghi chú của phiên đo không chép câu hỏi đứng ngay trước lời này; câu còn chờ anh khi ấy là
+   câu `icon-set-licence-lucide-react` của lượt đo thứ hai, hỏi bộ ấy được dùng theo giấy phép nào. Đề bài nay nói: dòng `icon-set` của một gói ngoài mang giấy phép chính
+   gói đã cài tự khai, và dòng nói nó đọc từ đâu.
+
+Cách phiên điều phối hiểu ba lời (là cách hiểu, không phải lời chủ repo, cần anh xác nhận): luật 2 chỉ phủ logo **dựng
+trong repo**; logo mang từ ngoài vào (tệp đã có, hay dòng `adopt` đề xuất từ biểu tượng trang) vẫn chờ câu của người.
+Luật 3 chỉ phủ bộ biểu tượng **là một gói ngoài**; bộ là tệp của repo, và gói không khai giấy phép hay chưa cài, vẫn
+chờ câu của người. Font không bị ba lời này chạm tới.
+
+Luật không đổi số 1 vẫn đứng: repo chưa có dòng nào của hai loại thì không thêm câu hỏi bắt buộc, cổng không đổi.
+
 ## Thiết kế
 
 ### Hai loại nguồn mới
@@ -122,6 +158,21 @@ vẫn là 1.
 Cả hai đòi hai điều như font: **ghim** nằm ngay trong dòng, và **giấy phép** bằng lời của một người (với logo: ai giữ
 quyền dùng dấu này, và dùng được ở đâu). Dòng do một lệnh viết ghi `proposed` và chưa được giữ cho tới khi người viết
 giấy phép. Một dòng `logo` có thể ghi thêm ai dựng nó (tay người, hay phích nào, ngày nào).
+
+> **Sửa 2026-11-28, chờ chủ repo duyệt.** Giấy phép không còn luôn là câu của một người; hai trường hợp có luật:
+>
+> - **Logo dựng trong repo** (dòng viết từ gói có tờ kê do phích để lại): là tài sản số của repo như dòng code, theo
+>   lời chủ repo «Tôi nghĩ đơn giản hoá và ứng xử như code được tạo ra đi như một tài sản số tương tự dòng code». Lệnh
+>   ghi giấy phép theo luật, dòng nói giấy phép đến từ luật (khoá `licence_from`), và dòng được giữ ngay.
+> - **Bộ biểu tượng là gói ngoài:** dùng đúng giấy phép chính gói ấy công bố, theo lời chủ repo «Lucide-react dùng
+>   đúng giấy phép của bộ ngoài». Lệnh đọc giấy phép gói đã cài tự khai (không mạng), ghi vào dòng, và dòng nói nó
+>   đọc từ đâu (`licence_from`).
+>
+> Mọi trường hợp khác vẫn như trên, chờ câu của một người: logo từ tệp đã có hay do `adopt` đề xuất, bộ biểu tượng là
+> tệp của repo, gói không khai giấy phép hay chưa cài, và font.
+>
+> Thêm một điều: **dòng `icon-set` mới là mục của chủ repo** (`icon-set:<id>`), như dòng `logo`. Lệnh viết dòng xếp
+> một câu hỏi lên hàng chờ khi chủ repo chưa chọn bộ ấy, và trên nhánh, cổng đỏ cho tới khi anh giữ mục ấy.
 
 Hai loại này không phải kho khối: `find` và `intake` không tìm khối trong chúng.
 
@@ -199,6 +250,13 @@ Mỗi dòng chứng bằng một lệnh hay một bản ghi lượt thử.
    kê, hay có tệp lệch mã băm đã kê, bị từ chối bằng một câu nêu tệp. Lệnh không vẽ, không đổi tệp nào, không ghi đè.
 5. **Dòng do lệnh viết chưa được giữ** cho tới khi người viết giấy phép. `status` nêu câu ấy là bước kế, và không bao
    giờ điền thay.
+   **Sửa 2026-11-28, chờ chủ repo duyệt:** tiêu chí này nay chỉ áp cho thứ mang từ ngoài vào mà không có luật: font,
+   logo từ tệp đã có hay do `adopt` đề xuất, bộ biểu tượng là tệp của repo, và gói không khai giấy phép hay chưa cài.
+   Dòng `logo` viết từ gói của phích mang giấy phép của luật «tài sản của repo như code» và được giữ ngay; dòng
+   `icon-set` của một gói ngoài mang giấy phép gói đã cài tự khai. Cả hai nói trong dòng giấy phép đến từ đâu
+   (`licence_from`); máy vẫn không bao giờ viết thay một câu của người. Thêm: lệnh viết dòng `icon-set` cho một bộ chủ
+   repo chưa chọn thì xếp đúng một câu hỏi `icon-set:<id>` lên hàng chờ, và nhánh thêm dòng ấy đỏ ở cổng cho tới khi
+   chủ repo giữ mục ấy; bộ chủ repo đã bác thì không có dòng.
 6. **Lối nhận đề xuất, không ghi đè.** Trên repo có bộ biểu tượng mà cài đặt của thư viện linh kiện nêu, và trên repo
    có tệp biểu tượng trang, `adopt` đề xuất dòng `own`. Thứ nó không đọc được, hay nền dựng bộ chuyển chưa đọc, báo cáo
    nói người viết dòng. Tệp của repo nguyên vẹn. Có bài kiểm.
@@ -334,6 +392,12 @@ Mỗi câu kèm một khuyến nghị. Chủ repo nhận cả mười hai ngày 
 6. **Quyền dùng một dấu ghi ở khoá `licence`, như font?** Khuyến nghị: có. Một khoá, một nghĩa: điều kiện được dùng,
    bằng lời người. Từ chối thì thêm một khoá riêng cho dấu, và hai loại dòng nói cùng một điều bằng hai tên.
    Đã nhận: quyền dùng một dấu ghi ở khoá `licence`, như font.
+   **Sửa 2026-11-28, chờ chủ repo duyệt:** khoá `licence` vẫn là một khoá, một nghĩa. Điều đổi là ai viết nó: với logo
+   dựng trong repo, lệnh viết theo luật của chủ repo («Đây là giai đoạn tạo ra logo, giống như code việc quyết định nó
+   thuộc về người dùng, nếu trong truòng hợp nằm ở repo thì bản quyền thuộc về repo và người tạo.»), và khoá mới
+   `licence_from` nói giấy phép đến từ luật chứ không từ một câu của người; với bộ biểu tượng là gói ngoài, lệnh chép
+   giấy phép gói tự khai («Lucide-react dùng đúng giấy phép của bộ ngoài») và `licence_from` nêu gói, phiên bản và tệp
+   đã khai. Dòng không có `licence_from` là dòng mang câu của người, như trước.
 
 7. **Lựa chọn dấu ở tầng nền; câu `icons` ở lại tầng linh kiện?** Khuyến nghị: có. Căn cứ: dấu đứng cạnh họ chữ và màu
    gốc; bộ biểu tượng là thứ linh kiện nhập. Tầng linh kiện chưa có lối dẫn dắt, nên dòng `icons` do lối nhận và lệnh

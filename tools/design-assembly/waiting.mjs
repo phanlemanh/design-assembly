@@ -87,8 +87,9 @@ const SHARED = new RegExp(
 // need a block is taken in for (its key), what a ledger lists as made before it (the ledger's
 // name), the block of a need that is retired or merged (the need's key), or one slot of the brief
 // of one screen (the screen's id in the ledger of screens, a colon, the slot's id), or the mark of
-// the product (the id of its logo row in the sources ledger). Pattern, colour and mark are the
-// owner's calls: an agent that asks one does not go on. One slot asked for every
+// the product (the id of its logo row in the sources ledger), or the icon set the product takes
+// (the id of its icon set row there). Pattern, colour, mark and icon set are the owner's calls: an
+// agent that asks one does not go on. One slot asked for every
 // screen it concerns is written `screens:principles`, or `screens:model-changes:NAMES`. A slot of a
 // screen is not:
 // nothing a branch changes tells the gate that a screen was built on an open slot, so the gate
@@ -99,6 +100,9 @@ export const ITEMS = {
   "source-color": { which: /^\S(?:.*\S)?$/, owners: true },
   // A new logo row, or a changed file of one (spec 0017): the owner chooses the mark.
   logo: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: true },
+  // A new icon set row, or a row that names another set (spec 0017 as amended): the owner chooses
+  // which icon set the product takes.
+  "icon-set": { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: true },
   need: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: false },
   before: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: false },
   block: { which: /^[a-z0-9]+(-[a-z0-9]+)*$/, owners: false },
@@ -243,6 +247,11 @@ export const mustAsk = (item) =>
 
 // The item for the mark of the product, from the id of its logo row in the sources ledger.
 export const logoItem = (id) => `logo:${id}`;
+
+// The item for the icon set the product takes, from the id of its icon set row in the sources
+// ledger. A command asks the repository's copy of the tool for this name before it writes a
+// question about the item.
+export const iconSetItem = (id) => `icon-set:${id}`;
 
 // The item for the root colour line of a stylesheet, from the value it holds.
 export const colourItem = (value) => `source-color:${String(value).replace(/\s+/g, " ").trim()}`;

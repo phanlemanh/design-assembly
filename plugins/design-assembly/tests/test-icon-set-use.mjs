@@ -358,26 +358,43 @@ function withOldTool(dir) {
   return dir;
 }
 
-test("on a repository whose installed tool of 0.71.0 predates the check, icon-source writes the row, lays no check that tool does not know, and names upgrade; upgrade lays it", () => {
+test("on a repository whose installed tool of 0.71.0 predates the check, icon-source writes nothing and names upgrade, since that tool cannot read the question to the owner; upgrade lays the check on a row a person wrote", () => {
   const dir = withOldTool(adopted());
   put(dir, "package-lock.json", LOCKFILE({ [PACKAGE]: "2.4.1" }));
   put(dir, "src/screens/harbor-home.tsx", importing(PACKAGE));
   const before = gate(dir);
   assert.equal(before.status, 0, before.stdout + before.stderr);
 
+  // Which icon set the product takes is the owner's call, asked on the waiting list: a tool that
+  // predates the item would read the question as broken, so the command writes nothing there.
   const done = command(dir, "--package", PACKAGE);
-  assert.equal(done.status, 1, done.stderr);
-  assert.ok(existsSync(path.join(dir, ROW)));
+  assert.equal(done.status, 2, done.stdout + done.stderr);
+  assert.match(
+    done.stderr,
+    /predates the item icon-set:<id> of the waiting list, so its gate would read the question as broken: bring the tool up with upgrade first, then run this again\. Nothing was written/,
+  );
+  assert.equal(existsSync(path.join(dir, ROW)), false);
+  assert.equal(existsSync(path.join(dir, "design/waiting")), false);
+
+  // A row a person wrote there is read by that tool, with no check of the icons the code uses.
+  put(
+    dir,
+    ROW,
+    json({
+      version: 1,
+      id: ID,
+      kind: "icon-set",
+      title: PACKAGE,
+      module: PACKAGE,
+      pin: { package: PACKAGE, version: "2.4.1" },
+      licence: LICENCE,
+    }),
+  );
   assert.equal("icons" in read(dir, "design/theme.json").checks, false);
   assert.equal(
     rowsOf(dir).some((row) => row.id === "icons"),
     false,
   );
-  assert.match(
-    done.stdout,
-    /gate: the repository's copy of the tool, tools\/design-assembly, predates the check icon-set-use, so the gate does not hold yet which icons the code uses: bring the tool up with upgrade, which lays it/,
-  );
-  licensed(dir);
   const after = gate(dir);
   assert.equal(after.status, 0, after.stdout + after.stderr);
 

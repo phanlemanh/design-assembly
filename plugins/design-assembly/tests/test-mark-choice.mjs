@@ -266,7 +266,8 @@ test("logo-source --package writes the candidate its manifest names into the row
   const dir = packaged();
   ask(dir, question({ answer: "value", words: SECOND }));
   const done = logoSource(dir, "--package", PACKAGE, "--on", ANSWERED);
-  assert.equal(done.status, 1, said(done));
+  // The owner chose the mark, and a mark built in the repository waits on no licence sentence.
+  assert.equal(done.status, 0, said(done));
   assert.equal(done.reached, "");
   assert.deepEqual(json(dir, ROW).made, { by: "logo-design", on: ASKED, candidate: SECOND });
   assert.match(
@@ -479,9 +480,9 @@ test("from the question to the gate: the owner chooses the second candidate, the
   put(dir, `${PACKAGE}/feathers.svg`, FEATHERS_SVG);
   put(dir, `${PACKAGE}/manifest.json`, pretty(manifest(SECOND)));
   const written = logoSource(dir, "--package", PACKAGE);
-  assert.equal(written.status, 1, said(written));
-  const row = json(dir, ROW);
-  put(dir, ROW, pretty({ ...row, licence: `${PRODUCT} is ours; used everywhere.` }));
+  assert.equal(written.status, 0, said(written));
+  // No person writes a sentence into the row: a mark built in the repository is its asset.
+  assert.deepEqual(json(dir, ROW).licence_from, { rule: "repository-asset" });
   const after = gate(dir);
   assert.equal(after.status, 0, said(after));
   assert.match(after.stdout, new RegExp(`owner-calls: logo:logo: ${chose(SECOND)}`));
@@ -604,9 +605,10 @@ test("on a repository whose installed tool of 0.74.0 predates it, a row that say
   const dir = withOlderTool(packaged(FIRST), RELEASE);
   ask(dir, question({ answer: "keep", candidates: null }));
   const written = logoSource(dir, "--package", PACKAGE);
-  assert.equal(written.status, 1, said(written));
+  assert.equal(written.status, 0, said(written));
   assert.equal(json(dir, ROW).made.candidate, FIRST);
-  put(dir, ROW, pretty({ ...json(dir, ROW), licence: "Ours." }));
+  // That tool reads the rule's licence, and where it came from, as a row that is whole.
+  assert.deepEqual(json(dir, ROW).licence_from, { rule: "repository-asset" });
   const after = gate(dir);
   assert.equal(after.status, 0, said(after));
 });

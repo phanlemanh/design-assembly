@@ -209,7 +209,7 @@ test("the reader of libraries does not return an icon set; the reader of icon se
 
 // ---- criterion 3: the command writes the row ---------------------------------------------------
 
-test("the command writes the row of an icon package the lockfile pins: its version, no licence, nothing fetched, nothing else touched", () => {
+test("the command writes the row of an icon package the lockfile pins and does not hold installed: its version, no licence, nothing fetched, nothing else touched but the question to the owner", () => {
   const dir = floor("harbor-ledger");
   put(dir, "package-lock.json", LOCKFILE());
   const before = files(dir);
@@ -241,9 +241,14 @@ test("the command writes the row of an icon package the lockfile pins: its versi
     done.stdout,
     /^next: write the licence the icon set is used under into licence of design\/sources\/quillmark-glyphs\.json/m,
   );
-  // The row is the one file added; every file of the repository is as it was.
+  // The package is not installed here, so the licence it declares cannot be read, and is said so.
+  assert.match(done.stdout, /^licence: the package @quillmark\/glyphs is not installed here/m);
+  // The row and the question that asks the owner which set the product takes are the files
+  // added; every file of the repository is as it was.
+  const QUESTION = `design/waiting/icon-set-${ID}.json`;
+  assert.equal(read(dir, QUESTION).item, `icon-set:${ID}`);
   assert.deepEqual(
-    files(dir).filter((line) => !line.startsWith(`${ROW} `)),
+    files(dir).filter((line) => !line.startsWith(`${ROW} `) && !line.startsWith(`${QUESTION} `)),
     before,
   );
 });

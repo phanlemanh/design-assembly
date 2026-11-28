@@ -184,8 +184,12 @@ stated level that the values do not reach is not a reason to lower the level: re
    person writes the row. A row already there is left as it is.
    The same for the icon set the component library's settings name (`iconLibrary` in
    `components.json`): where the lockfile pins its package, it writes the row of the kind
-   `icon-set`, `own: true`, and the check `icon-set-pin` that holds its pin. Ask the owner for the
-   licence the icon set is used under, and write their words into the row's `licence`. A word of
+   `icon-set`, `own: true`, and the check `icon-set-pin` that holds its pin. An outside package is
+   used under the licence it declares: where the package is installed at the pinned version and
+   states a licence, the row carries it, with where it was read under `licence_from`, and nobody
+   is asked. Only where the report lists `icon-set-licence` under `needs a person` (the package
+   is not installed, or declares none), ask the owner for the licence the icon set is used under,
+   and write their words into the row's `licence`; never write one yourself. A word of
    the settings this plugin does not know, or a package the lockfile does not pin, gets no row: a
    person writes it with `node ${CLAUDE_PLUGIN_ROOT}/scripts/icon-source.mjs --target <repo>
 --package <name>` (or `--folder <path>` for icons kept as files of the repository).

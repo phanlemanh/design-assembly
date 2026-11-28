@@ -340,7 +340,7 @@
         "decides": "owner",
         "human": {
           "shows": "the fonts the repository loads, the icon set its code imports and the mark its pages show, and where each comes from",
-          "asks": "which font the product uses, which mark it shows, and the licence each is used under"
+          "asks": "which font the product uses, which icon set it takes, which mark it shows, and the licence of what is brought in from outside: a font, a mark kept as files, an icon set its package declares no licence for"
         },
         "machine": {
           "rules": "a typeface the stylesheet names is loaded; a font, an icon set or a mark of the sources ledger keeps its pin and its licence; the code imports icons only from a recorded icon set; the page icons and the images the app frame imports are files of a logo row",
