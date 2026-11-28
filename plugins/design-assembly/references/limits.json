@@ -4730,9 +4730,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-23",
-      "where": ["d0091"],
+      "where": ["d0091", "d0135"],
       "status": "open",
-      "note": "The bridge in takes a source's primary colour, its type scale and its corner radius into the candidate, and leaves its spacing, its other colours, its motion and its components unread, so a direction drawn from it differs from the source in all of them."
+      "note": "The bridge in takes a source's primary colour, its type scale and its corner radius into the candidate, and leaves its spacing, its other colours, its motion and its components unread, so a direction drawn from it differs from the source in all of them. On the first real export of variables 1 633 values were read, and the candidate held four keys of the foundations and named one typeface."
     },
     {
       "id": "bring-in-names-fonts-without-choosing",
@@ -4818,9 +4818,9 @@
       "severity": "low",
       "plan": "keep",
       "opened": "2026-11-26",
-      "where": ["d0130"],
+      "where": ["d0130", "d0135"],
       "status": "open",
-      "note": "A variable with no value, a value missing in a mode and a value under a mode its collection does not declare are counted in one line, and the bridge cannot tell whether the file holds them so or the tool that read the file lost them; on the first real export 36 variables of the file's own collections held none."
+      "note": "A variable with no value, a value missing in a mode and a value under a mode its collection does not declare are counted in one line, and the bridge cannot tell whether the file holds them so or the tool that read the file lost them; on the first real export 36 variables of the file's own collections held none. There 80 aliases ended at one of them, 72 at a variable with no value and 8 at a value missing in a mode, all inside the file's own collections, and no export the tool itself makes was there to tell which side lost them."
     },
     {
       "id": "bring-in-one-line-per-alias",
@@ -7130,8 +7130,10 @@
       "plan": "fix",
       "opened": "2026-11-28",
       "where": ["spec", "d0133"],
-      "status": "open",
-      "note": "The plug of the design tool whose variables are brought in as a file is declared at the direction and foundations sockets and was never measured on the four measures, so it carries no measured entry: plugs lists it and never asks the owner to choose it. The way it leads with was tried by hand twice (trials) and was never walked by a person from the saved file to a candidate direction. The measure is item 13.4 of the plan."
+      "status": "closed",
+      "note": "The plug of the design tool whose variables are brought in as a file is declared at the direction and foundations sockets and was never measured on the four measures, so it carries no measured entry: plugs lists it and never asks the owner to choose it. The way it leads with was tried by hand twice (trials) and was never walked by a person from the saved file to a candidate direction. The measure is item 13.4 of the plan.",
+      "closed": "2026-11-28",
+      "closed_by": "d0135: the plug was measured on the four measures at the foundations socket, from a saved file of a real system read by the reader that was tried, on a throwaway copy with the standard brief. It carries a measured entry there, it did not beat the plugin's plug, and plugs offers it at that socket when it is here. What the run left open is in the rows design-file-plug-unmeasured-at-direction and design-file-plug-measured-on-one-file."
     },
     {
       "id": "design-file-own-export-not-read",
@@ -7151,9 +7153,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-28",
-      "where": ["spec", "d0133"],
+      "where": ["spec", "d0133", "d0135"],
       "status": "open",
-      "note": "The plug file names the reader of a saved design file that was tried, with its licence, and tells the person to read the licence before running it. Whether that licence allows the use, whether decoding the file's unpublished format is allowed by the terms of the tool's maker, and whether the reader loses values on the way, were not checked by this plugin, which never runs a reader."
+      "note": "The plug file names the reader of a saved design file that was tried, with its licence, and tells the person to read the licence before running it. Whether that licence allows the use, whether decoding the file's unpublished format is allowed by the terms of the tool's maker, and whether the reader loses values on the way, were not checked by this plugin, which never runs a reader. The measured run of d0135 ran that reader once on a real file and checked none of the three."
     },
     {
       "id": "design-tool-server-matched-by-declared-name",
@@ -7195,7 +7197,7 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-28",
-      "where": ["spec", "d0133"],
+      "where": ["spec", "d0133", "d0135"],
       "status": "open",
       "note": "The gate holds the shape of a row of the kind variables and not its pin: a kept export that changed after it was pinned leaves the gate green, and only variables-source --check says so, when a person or a skill runs it."
     },
@@ -7429,6 +7431,61 @@
       "where": ["trials"],
       "status": "open",
       "note": "When the owner keeps an icon set, the gate's owner-calls line and the lines of status and of the decision sheet about what was chosen name the mark only: none says which icon set was kept, by whom, on which day. The row still says a command proposed it and names no person, and icon-source cannot be run again to say who chose, since the row is there and the command ends with 2. The answer is found only in the file of the waiting list. Seen on the re-run of the two measured copies of item 12.3."
+    },
+    {
+      "id": "design-file-plug-unmeasured-at-direction",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["d0135", "trials"],
+      "status": "open",
+      "note": "The plug of the design tool whose variables are brought in as a file is measured at the foundations socket alone. At the direction socket, which it fills too, it carries no measured entry: plugs lists it there and never offers it."
+    },
+    {
+      "id": "design-file-plug-measured-on-one-file",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["d0135", "trials"],
+      "status": "open",
+      "note": "The measure of the plug of the design tool whose variables are brought in as a file rests on one saved file of one real system, one build of the one reader that was tried, one machine, and one builder who followed the skill once. Saving the file from the tool was not walked, since the file was already on the machine; the reader was run by the measuring session and not by a person; no export the tool itself makes of that file was there to compare the reader's with; and the case without the plug was counted from the plugin's own commands, not run by a builder."
+    },
+    {
+      "id": "bring-in-keep-leaves-the-gate-red-on-exports",
+      "area": "capabilities",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["d0135", "trials"],
+      "status": "open",
+      "note": "Keeping an export of variables writes a row of the sources ledger, which moves the stamp the repository's exports were written from: the gate then fails on design-exports until make design-exports writes them again. The bring-in skill says the command writes one row and nothing else, and does not say this, so a builder who follows it ends on a red gate and has to find the cause; in the measured run the builder did, by taking the row away and putting it back."
+    },
+    {
+      "id": "bring-in-kept-export-fails-the-format-check",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["d0135", "trials"],
+      "status": "open",
+      "note": "An export of variables kept as its reader left it does not pass the format check of a repository whose formatter reaches the folder it is kept in: on the first real export that check failed on that file alone. The repository's own lint then stays red until the file is rewritten, which moves the pin, or its folder is put out of the formatter's reach. The skill names both ways out and runs neither, and no command says which the repository needs."
+    },
+    {
+      "id": "bring-in-says-no-value-goes-against-once-answered",
+      "area": "capabilities",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["d0135", "trials"],
+      "status": "open",
+      "note": "Once the owner has answered the questions of an outside source by keeping the settled values, running the bridge in again on the same source says that no value of it goes against a value the owner settled, and ends with 0, though the candidate still differs from the ledger in each of them: the report does not tell that nothing differs from that each difference was answered."
     }
   ]
 }

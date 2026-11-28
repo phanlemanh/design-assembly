@@ -465,7 +465,7 @@ const filesUnder = (folder) =>
     .filter((file) => statSync(path.join(PLUGIN, file)).isFile())
     .map((file) => ({ path: file, text: readFileSync(path.join(PLUGIN, file), "utf8") }));
 
-test("0018 criterion 10: the plug file fills direction and foundations, says how a session lists it, what it needs and what it sends, and carries no measure", () => {
+test("0018 criterion 10: the plug file fills direction and foundations, says how a session lists it, what it needs and what it sends, and is measured at foundations alone", () => {
   const plug = filePlug();
   assert.ok(plug, "no plug file says the ways to bring a file in");
   assert.deepEqual(plug.sockets, ["direction", "foundations"]);
@@ -480,8 +480,10 @@ test("0018 criterion 10: the plug file fills direction and foundations, says how
   assert.match(plug.machine, /reader the person runs themself/);
   assert.match(plug.machine, /licence/);
   assert.match(plug.machine, /does not bundle, download, build or call/);
-  // Unmeasured until it is measured on the four measures: no entry, and no word of the owner.
-  assert.equal(plug.measured, undefined);
+  // Measured on the four measures at the foundations socket, where the run of item 13.4 took the
+  // numbers from a real saved file; the direction socket was not measured, so it has no entry
+  // there. It did not beat the plugin's plug, and no word of the owner recommends it.
+  assert.deepEqual(plug.measured, { foundations: { record: "d0135", beats_plugin: false } });
   assert.equal(plug.recommended_by_owner, undefined);
   assert.deepEqual(caps().problems, []);
 });
@@ -578,20 +580,27 @@ test("0018 criterion 11: the board shows the plug absent, in the session or wait
   const [server] = plug.mcp_servers;
   const dir = empty();
   const stateOf = (...args) => {
-    const shown = offline(PLUGS, "--target", dir, "--json", "--session", ...args);
-    assert.equal(shown.status, 0, shown.stderr);
+    const shown = offline(PLUGS, "--target", dir, "--json", "--dry-run", "--session", ...args);
+    assert.ok([0, 1].includes(shown.status), shown.stderr);
     assert.equal(shown.reached, "");
     const result = JSON.parse(shown.stdout);
-    assert.deepEqual(result.questions, []);
-    assert.deepEqual(result.files, []);
-    return ["direction", "foundations"].map((id) => {
+    // Measured at foundations and not at direction: the board says each as it is.
+    const states = ["direction", "foundations"].map((id) => {
       const candidate = result.sockets
         .find((socket) => socket.id === id)
         .candidates.find((item) => item.id === plug.id);
-      assert.equal(candidate.measured, "unmeasured");
+      assert.equal(candidate.measured, id === "foundations" ? "d0135" : "unmeasured");
       assert.deepEqual(candidate.needs, plug.needs);
       return candidate.state;
     });
+    // Only a measured plug that is here is asked about (the next test): one that is absent or
+    // waits for a sign-in leaves no question and no file.
+    if (!states.includes("in-session")) {
+      assert.equal(shown.status, 0, shown.stderr);
+      assert.deepEqual(result.questions, []);
+      assert.deepEqual(result.files, []);
+    }
+    return states;
   };
   assert.deepEqual(stateOf(), ["absent", "absent"]);
   assert.deepEqual(stateOf("--server", server), ["in-session", "in-session"]);
@@ -603,11 +612,15 @@ test("0018 criterion 11: the board shows the plug absent, in the session or wait
   const board = offline(PLUGS, "--target", dir, "--session", "--needs-sign-in", server);
   assert.equal(board.status, 0, board.stderr);
   assert.match(board.stdout, new RegExp(`${plug.id} +needs-sign-in, unmeasured, needs account`));
+  assert.match(
+    board.stdout,
+    new RegExp(`${plug.id} +needs-sign-in, measured in d0135, needs account`),
+  );
   assert.match(board.stdout, new RegExp(`${plug.id} waits for a sign-in`));
   assert.deepEqual(readdirSync(dir), []);
 });
 
-test("0018 criterion 11: while it is unmeasured no question offers it or recommends it, whatever else the session holds", () => {
+test("0018 criterion 11: measured at foundations alone, it is offered there and never recommended, and at direction no question offers it", () => {
   const all = caps();
   const plug = filePlug();
   // A session that holds every plug from outside by every name its file declares.
@@ -616,63 +629,80 @@ test("0018 criterion 11: while it is unmeasured no question offers it or recomme
     servers: all.plugs.flatMap((each) => each.mcp_servers ?? []),
     signIn: [],
   };
+  const offeredAt = (planned, id) =>
+    recommendationOf(planned.sockets.find((socket) => socket.id === id))?.candidates ?? [];
   const asked = plan(empty(), { caps: all, on: ON, session });
-  // The sockets it fills are asked about, for the measured plugs there: the look is not empty.
-  assert.ok(asked.questions.some((question) => question.id === "plug-direction"));
+  // It did not beat the plugin's plug, and no word of the owner names it: no question of the
+  // round recommends it, whichever socket the question is about.
   for (const question of asked.questions) {
-    assert.ok(
-      question.candidates.every((candidate) => candidate.name !== plug.id),
-      `${question.id} offers the unmeasured plug`,
-    );
     assert.ok(!question.recommendation.startsWith(`${plug.id}:`), question.recommendation);
   }
-  // Whatever the round left for later: at no socket of the board is it among what a question
-  // would offer, and both sockets it fills do have a question to offer.
-  for (const socket of asked.sockets) {
-    const offered = recommendationOf(socket)?.candidates ?? [];
+  // At the foundations socket, where it was measured, the session is asked about it.
+  const question = asked.questions.find((item) => item.id === "plug-foundations");
+  assert.ok(question.candidates.some((candidate) => candidate.name === plug.id));
+  // At every other socket of the board it is not among what a question would offer: direction,
+  // which it fills too, was not measured.
+  assert.ok(asked.questions.some((item) => item.id === "plug-direction"));
+  for (const socket of asked.sockets.filter((each) => each.id !== "foundations")) {
     assert.ok(
-      offered.every((candidate) => candidate.name !== plug.id),
-      `the ${socket.id} socket would offer the unmeasured plug`,
+      offeredAt(asked, socket.id).every((candidate) => candidate.name !== plug.id),
+      `the ${socket.id} socket would offer the plug, which was not measured there`,
     );
   }
-  for (const id of plug.sockets) {
-    assert.ok(recommendationOf(asked.sockets.find((socket) => socket.id === id)), id);
-  }
-  // What holds it back is the measure: with one, the same session is asked about it.
-  const measured = all.plugs.map((each) =>
-    each.id === plug.id
-      ? { ...each, measured: { foundations: { record: "d0088", beats_plugin: false } } }
-      : each,
-  );
-  const then = plan(empty(), { caps: { ...all, plugs: measured }, on: ON, session });
-  const question = then.questions.find((item) => item.id === "plug-foundations");
-  assert.ok(question.candidates.some((candidate) => candidate.name === plug.id));
-  // And a question written by hand that recommends it is refused, with its file.
-  const dir = empty();
-  put(
-    dir,
-    "design/waiting/plug-direction.json",
-    `${JSON.stringify({
-      id: "plug-direction",
-      kind: "question",
-      question: "Which plug works the direction socket in this repository?",
-      recommendation: `${plug.id}: by hand`,
-      basis: "none",
-      hard_to_undo: false,
-      where: "the direction socket",
-      if_refused: "the direction socket keeps the plugin's plug directions",
-      item: "decision:plug-direction",
-      asked_on: ON,
-      candidates: [
-        { name: plug.id, about: "by hand" },
-        { name: "directions", about: "as today" },
-      ],
-    })}\n`,
-  );
+  for (const id of plug.sockets) assert.ok(offeredAt(asked, id).length > 0, id);
+  // What lets it be offered is the measure: without one, the same session is not asked about it
+  // at foundations either; with one at direction, it is asked about there too.
+  const withMeasure = (measured) => ({
+    ...all,
+    plugs: all.plugs.map((each) => (each.id === plug.id ? { ...each, measured } : each)),
+  });
+  const before = plan(empty(), { caps: withMeasure(undefined), on: ON, session });
+  assert.ok(offeredAt(before, "foundations").every((candidate) => candidate.name !== plug.id));
+  const both = plan(empty(), {
+    caps: withMeasure({
+      ...plug.measured,
+      direction: { record: "d0088", beats_plugin: false },
+    }),
+    on: ON,
+    session,
+  });
+  assert.ok(offeredAt(both, "direction").some((candidate) => candidate.name === plug.id));
+  // And a question written by hand that recommends it is refused, with its file: at direction
+  // because it was never measured there, at foundations because it did not beat the plugin's plug.
+  const byHand = (socket, plugins) => {
+    const dir = empty();
+    put(
+      dir,
+      `design/waiting/plug-${socket}.json`,
+      `${JSON.stringify({
+        id: `plug-${socket}`,
+        kind: "question",
+        question: `Which plug works the ${socket} socket in this repository?`,
+        recommendation: `${plug.id}: by hand`,
+        basis: "none",
+        hard_to_undo: false,
+        where: `the ${socket} socket`,
+        if_refused: `the ${socket} socket keeps the plugin's plug ${plugins}`,
+        item: `decision:plug-${socket}`,
+        asked_on: ON,
+        candidates: [
+          { name: plug.id, about: "by hand" },
+          { name: plugins, about: "as today" },
+        ],
+      })}\n`,
+    );
+    return dir;
+  };
   assert.throws(
-    () => plan(dir, { caps: all, on: ON, session }),
+    () => plan(byHand("direction", "directions"), { caps: all, on: ON, session }),
     new RegExp(
       `plug-direction\\.json recommends ${plug.id}, which was never measured at the direction socket: an unmeasured plug is never the recommendation`,
+    ),
+  );
+  assert.throws(
+    () => plan(byHand("foundations", "tokens"), { caps: all, on: ON, session }),
+    new RegExp(
+      `plug-foundations\\.json recommends ${plug.id}, which was measured in d0135 and did not beat the plugin's plug at the foundations socket`,
     ),
   );
 });
