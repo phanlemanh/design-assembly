@@ -6855,9 +6855,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-26",
-      "where": ["spec", "d0127", "d0131", "trials"],
+      "where": ["spec", "d0127", "d0131", "d0132", "trials"],
       "status": "open",
-      "note": "The plug logo-design is declared at the brand assets socket and measured only in part, so it carries no measured entry: plugs lists it and never asks the owner to choose it (spec 0017, criterion 16). On 2026-11-27 (d0131) its remade skill ran the standard brief on two throwaway copies, one with a pinned icon set and one with nothing: it read the repository's answers, offered three marks different in structure, queued the choice as logo:<id> with candidates and stopped, and after the owner chose it left a package that its own verify and logo-source --package --dry-run accepted, every hash matching and the chooser read from the decision sheet, while the letters of its wordmark were drawn with holes that no check saw (logo-package-drawing-unchecked). The run stopped at the dry run by the owner's word, because the sentence of who holds the right to use the mark was not given: the written row, its licence and the gate after the row were never seen. The measure is whole once a run reaches a held row and a green gate on the same copy."
+      "note": "The plug logo-design is declared at the brand assets socket and measured only in part, so it carries no measured entry: plugs lists it and never asks the owner to choose it (spec 0017, criterion 16). On 2026-11-27 (d0131) its remade skill ran the standard brief on two throwaway copies, one with a pinned icon set and one with nothing: it read the repository's answers, offered three marks different in structure, queued the choice as logo:<id> with candidates and stopped, and after the owner chose it left a package that its own verify and logo-source --package --dry-run accepted, every hash matching and the chooser read from the decision sheet, while the letters of its wordmark were drawn with holes that no check saw (logo-package-drawing-unchecked). The run stopped at the dry run by the owner's word, because the sentence of who holds the right to use the mark was not given: the written row, its licence and the gate after the row were never seen. The measure is whole once a run reaches a held row and a green gate on the same copy. On 2026-11-28 (d0132) the skill at 0.4.0 ran again, one fresh copy with nothing and the first run's copy built again by commands: it put its questions in one sitting, the owner chose the mark, the typeface and the text, and both packages passed its verify with the letters looked at and the dry run of logo-source --package; the two sentences only a person writes (the right to use the mark, the licence of the icon set) were asked and not given, so once more no row of a mark was written and the gate after it was not seen. It still carries no measured entry."
     },
     {
       "id": "logo-package-drawing-unchecked",
@@ -6867,8 +6867,10 @@
       "plan": "fix",
       "opened": "2026-11-27",
       "where": ["d0131", "trials"],
-      "status": "open",
-      "note": "No command looks at the drawing of a mark package: the plug's verify and logo-source --package compare hashes and the manifest's shape only. In the first measured run the letters of the wordmark were drawn with holes where their outlines overlap, filled by the even-odd rule, in every file that holds the text, and every check passed; an independent look at the images found it."
+      "status": "closed",
+      "note": "No command looks at the drawing of a mark package: the plug's verify and logo-source --package compare hashes and the manifest's shape only. In the first measured run the letters of the wordmark were drawn with holes where their outlines overlap, filled by the even-odd rule, in every file that holds the text, and every check passed; an independent look at the images found it.",
+      "closed": "2026-11-28",
+      "closed_by": "d0132: the plug's own verify (logo-design 0.4.0) looks at the letters of every file that holds the wordmark: on the first run's package it ended 2 and named the holes in thirteen files, and on the packages built again in the second measured run it ended 0, saying the letters of 13 files were looked at and have no hole; what still looks at no drawing is the row logo-package-drawing-checked-by-the-plug-only"
     },
     {
       "id": "logo-plug-typeface-name-not-matched",
@@ -6889,8 +6891,10 @@
       "plan": "fix",
       "opened": "2026-11-27",
       "where": ["d0131", "trials"],
-      "status": "open",
-      "note": "The mark plug sets the wordmark to the product's name as written and never asks in which language or script the text of a logo is to be. When the owner wants it in English or without diacritics, he says so after the package is built, and the package is built again. The plug also takes the wordmark's text and the product's name as two inputs while its page says they are one: with a wordmark of other words, the manifest's title, the brand sheet and the preview keep the name, and logo-source --package titles the row from the manifest, so the row is named by words the logo does not show."
+      "status": "closed",
+      "note": "The mark plug sets the wordmark to the product's name as written and never asks in which language or script the text of a logo is to be. When the owner wants it in English or without diacritics, he says so after the package is built, and the package is built again. The plug also takes the wordmark's text and the product's name as two inputs while its page says they are one: with a wordmark of other words, the manifest's title, the brand sheet and the preview keep the name, and logo-source --package titles the row from the manifest, so the row is named by words the logo does not show.",
+      "closed": "2026-11-28",
+      "closed_by": "d0132: logo-design 0.4.0 asks for the text of the wordmark before it builds when the product's name holds a letter outside basic Latin (logo-wordmark-text-<slug>, queued in the same sitting as the choice of mark), and its engine refuses to draw such a name until the brand's file says the text; seen on both copies of the second measured run; the part about the row's title is the row logo-row-titled-by-the-name-not-the-wordmark"
     },
     {
       "id": "logo-plug-small-mark-unseen",
@@ -7058,6 +7062,61 @@
       "where": ["d0129"],
       "status": "open",
       "note": "The steps of the type scale in the bundle carry a size and a line height and no weight, because no ledger holds which weight a step is set in."
+    },
+    {
+      "id": "logo-package-drawing-checked-by-the-plug-only",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "high",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["d0132", "trials"],
+      "status": "open",
+      "note": "The drawing of a mark package is looked at by the plug's own verify only, and only for holes in the letters of the wordmark: logo-source --package compares each file with the hash the manifest lists and looks at no drawing, so the first run's package, which the plug's verify now refuses for its letters, still passes the dry run of logo-source with every hash matching. Nothing looks at the mark itself, at the simpler mark drawn for small sizes, or at how the mark and the wordmark sit together."
+    },
+    {
+      "id": "logo-row-titled-by-the-name-not-the-wordmark",
+      "area": "capabilities",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["d0132", "trials"],
+      "status": "open",
+      "note": "The plug takes the text of the wordmark and the name of the product as two inputs: when the owner answers a wordmark of other words than the name, the manifest's title keeps the name and logo-source --package titles the row from the manifest, so the row is named by words the logo does not show. Seen in the second measured run on both copies, whose wordmarks read otherwise than the name the row would carry."
+    },
+    {
+      "id": "icon-set-choice-not-asked-of-the-owner",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["d0132", "trials"],
+      "status": "open",
+      "note": "Nothing holds that the owner chose the icon set: icon-source writes the row as proposed, from the package the code already imports or the recommended one, and no wall asks for his word as owner-calls does for a mark. In the first measured run the builder queued the choice and the owner kept it; in the second, another builder on the same brief recorded the set the code uses and asked only its licence and its sizes, and the gate was green both ways."
+    },
+    {
+      "id": "decide-ask-takes-a-licence-as-a-recommendation",
+      "area": "decide",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["d0132", "trials"],
+      "status": "open",
+      "note": "The command decide --ask takes any words as the recommendation of a question, also the wording of a licence, which only a person writes: keeping such a question records the owner as confirming a sentence an agent drafted, and the row's licence stays unwritten all the same. In the second measured run a builder queued the licence of the icon set with a sentence drafted from what the package states; the owner did not answer it and nobody copied it."
+    },
+    {
+      "id": "status-calls-a-queued-ground-a-measurement",
+      "area": "status",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["d0132", "trials"],
+      "status": "open",
+      "note": "For a question an agent queued, status prints the ground the agent gave after the words a measurement on this repository: the waiting list gives this ground, so a reason an agent wrote, such as a count of classes in the code, reads as something the plugin measured."
     }
   ]
 }

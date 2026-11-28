@@ -1,6 +1,6 @@
 {
   "id": "logo-design",
-  "about": "A skill that builds a mark where the repository has none: it reads the repository's answers, draws two or three marks, asks the owner one question to choose, and leaves a package of the chosen mark with its manifest for logo-source to read.",
+  "about": "A skill that builds a mark where the repository has none: it reads the repository's answers, draws two or three marks, asks the owner at most three questions in one sitting (which mark, and the wordmark's typeface and text when the repository does not settle them), and leaves a package of the chosen mark with its manifest for logo-source to read.",
   "kind": "skill",
   "sockets": ["brand-assets"],
   "names": ["logo-design"],
