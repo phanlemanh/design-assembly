@@ -43,6 +43,8 @@ sources:
   - "chủ repo, 2026-11-28: «Tôi nghĩ đơn giản hoá và ứng xử như code được tạo ra đi như một tài sản số tương tự dòng code», đáp câu hỏi đó là luật cho plugin hay lời đáp riêng cho một logo"
   - "chủ repo, 2026-11-28: «Lucide-react dùng đúng giấy phép của bộ ngoài»"
   - "chủ repo, 2026-11-28: «Mở lát 12.3», đáp câu «Anh cho mở lát 12.3 đưa ba lời của anh vào plugin chứ?»"
+  - "chủ repo, 2026-11-28: «Duyệt bản quyết định 0134 và phần sửa đề bài 0017»"
+  - "chủ repo, 2026-11-28: «Phủ cả 18 điểm», đáp câu «Lời «Duyệt bản quyết định 0134» của anh có xác nhận cả 18 điểm ấy không?» về mười tám điểm máy tự chọn của quyết định 0134"
   - wiki/decisions/0134-three-owner-rules-for-brand-assets.md
 ---
 
@@ -116,7 +118,7 @@ nên không cứng về màu thương hiệu hay thành phần. Vì thế đề 
 
 ### Sửa đổi ngày 2026-11-28, chủ repo duyệt cùng ngày
 
-**Chủ repo đã duyệt phần sửa này ngày 2026-11-28:** PR 170 được gộp theo lời anh «Gộp PR 170», đáp câu «Anh duyệt phần sửa đề bài 0017 và cho gộp PR 170 chứ?». Lời ấy phủ phần sửa đề bài; từ đó phần sửa có hiệu lực của một đề bài đã duyệt. Mười tám điểm máy tự chọn của [0134](../decisions/0134-three-owner-rules-for-brand-assets.md) không được xác nhận từng điểm, nên vẫn chờ anh xác nhận.
+**Chủ repo đã duyệt phần sửa này ngày 2026-11-28:** PR 170 được gộp theo lời anh «Gộp PR 170», đáp câu «Anh duyệt phần sửa đề bài 0017 và cho gộp PR 170 chứ?». Lời ấy phủ phần sửa đề bài; từ đó phần sửa có hiệu lực của một đề bài đã duyệt. Mười tám điểm máy tự chọn của [0134](../decisions/0134-three-owner-rules-for-brand-assets.md) không được xác nhận từng điểm, nên lúc ấy còn chờ anh xác nhận. Cùng ngày anh duyệt tiếp bằng lời «Duyệt bản quyết định 0134 và phần sửa đề bài 0017», và đáp «Phủ cả 18 điểm» khi được hỏi «Lời «Duyệt bản quyết định 0134» của anh có xác nhận cả 18 điểm ấy không?»: bản quyết định 0134 là Accepted và cả mười tám điểm đã được anh xác nhận.
 
 Phần này sửa một đề bài đã duyệt, nên lúc viết nó chưa có hiệu lực cho tới khi chủ repo duyệt. Nó
 đưa ba lời của chủ repo ngày 2026-11-28 vào đề bài; máy viết theo lời «Mở lát 12.3» (đáp câu «Anh cho mở lát 12.3 đưa
