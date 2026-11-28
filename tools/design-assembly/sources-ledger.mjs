@@ -246,12 +246,19 @@ function parsed(root, name) {
 // the smallest first and a source without one last, then by id. Empty when the repository keeps
 // none. A font is a source of another kind: it offers no block, and is read by `readFontSources`;
 // so is the family core, which the contract reads as the repository's family, so is an icon set,
-// read by `readIconSets`, and so is the mark, read by `readLogoSources`.
+// read by `readIconSets`, so is the mark, read by `readLogoSources`, and so is an export of
+// variables, read by `readVariablesSources`.
 export function readPinnedSources(root) {
   return sourceFiles(root)
     .filter((name) => {
       const source = parsed(root, name);
-      return !isFont(source) && !isCoreSource(source) && !isIconSet(source) && !isLogo(source);
+      return (
+        !isFont(source) &&
+        !isCoreSource(source) &&
+        !isIconSet(source) &&
+        !isLogo(source) &&
+        !isVariablesSource(source)
+      );
     })
     .map((name) => readSource(root, name))
     .sort(
@@ -676,6 +683,102 @@ export function sourcedLogo(value, logos) {
   if (cannot) throw new Error(cannot);
   return logo;
 }
+
+// ---- an export of variables, kept with its pin ---------------------------------------------------
+// The kind of source that is an export of the variables of a design tool, as the bridge in reads one
+// (spec 0018, criterion 13): the file the repository keeps, by its path from the root, with its hash
+// and the day it was taken; the row's `plug` names the plug it came through, when it came through
+// one. It offers no block of a library. Nothing here fetches or copies: a file is hashed where it
+// is, and what is pinned is the export, never the design file it was read from.
+export const VARIABLES_KIND = "variables";
+export const isVariablesSource = (source) => isMap(source) && source.kind === VARIABLES_KIND;
+
+// The pin of an export of variables, as the row itself says it: the day it was taken, and each file
+// by its path from the repository's root, with its hash. Null when the row does not say them whole.
+export function variablesPin(source) {
+  const pin = isMap(source?.pin) ? source.pin : null;
+  const files = Array.isArray(pin?.files) ? pin.files : [];
+  const whole = files.every(
+    (entry) => filled(entry?.file) && /^[0-9a-f]{64}$/.test(String(entry?.sha256 ?? "")),
+  );
+  return filled(pin?.fetched_at) && files.length > 0 && whole
+    ? { fetched_at: pin.fetched_at, files }
+    : null;
+}
+
+// Whether a pin names a file by its path from the repository's root: not from the machine's root,
+// and with no step out of a folder.
+const fromRoot = (file) =>
+  !file.startsWith("/") && !/^[A-Za-z]:/.test(file) && !file.split(/[\\/]/).includes("..");
+
+// What a row of an export of variables lacks beside its shape, each sentence naming the row: its
+// pin; a file of the pin named by a path that is not from the repository's root, or kept in the
+// folder of the ledger's own rows, where it would be read as a row; a file named twice. It waits
+// on no licence: the row says where a file came from and what it was, not a right to use it.
+export function variablesRowProblems(source, file) {
+  const pin = variablesPin(source);
+  if (!pin) {
+    return [
+      `${file} is an export of variables and has no pin: its row names the file kept in the repository with its sha256, and the day it was taken`,
+    ];
+  }
+  const named = pin.files.map((entry) => String(entry.file));
+  const problems = [];
+  for (const name of new Set(named)) {
+    if (!fromRoot(name)) {
+      problems.push(`${file}: its pin names ${name}, which is no path from the repository's root`);
+    } else if (path.posix.dirname(path.posix.normalize(name)) === SOURCES_FOLDER) {
+      problems.push(
+        `${file}: its pin names ${name}, a file in the folder of the ledger's own rows, where it would be read as a row`,
+      );
+    }
+  }
+  for (const twice of new Set(named.filter((name, index) => named.indexOf(name) !== index))) {
+    problems.push(`${file} names ${twice} twice: a file of an export is pinned once`);
+  }
+  return problems;
+}
+
+// One export of variables of the ledger as the tools use it: the plug it came through, the day it
+// was taken, and how its pin differs from the repository today.
+function readVariablesSource(root, name, source) {
+  const file = `${SOURCES_FOLDER}/${name}`;
+  const id = name.replace(/\.json$/, "");
+  const problems = [];
+  const version = Number(source.version);
+  if (Number.isFinite(version) && version > SOURCES_VERSION) {
+    problems.push(
+      `${file} has shape ${version} and this tool knows shape ${SOURCES_VERSION}: update the design-assembly plugin`,
+    );
+  }
+  problems.push(...variablesRowProblems(source, file));
+  const pin = variablesPin(source);
+  return {
+    id,
+    file,
+    title: text(source.title) ?? id,
+    plug: text(source.plug) ?? null,
+    fetched_at: pin?.fetched_at ?? null,
+    pin,
+    problems,
+    drift: pin ? filesDrift(root, file, pin.files) : [],
+  };
+}
+
+// Every export of variables of the ledger, by id. Empty when the repository keeps none.
+export function readVariablesSources(root) {
+  return sourceFiles(root)
+    .map((name) => [name, parsed(root, name)])
+    .filter(([, source]) => isVariablesSource(source))
+    .map(([name, source]) => readVariablesSource(root, name, source));
+}
+
+// The files of the ledger that are not JSON, by their path: a reader that looks for rows of one
+// kind cannot tell whether such a file was one, and says so instead of saying there is none.
+export const unreadSourceFiles = (root) =>
+  sourceFiles(root)
+    .filter((name) => parsed(root, name) === null)
+    .map((name) => `${SOURCES_FOLDER}/${name}`);
 
 // ---- the mark in use -----------------------------------------------------------------------------
 // Once a repository has a logo row, the mark it shows comes from a row (spec 0017, criterion 9): the

@@ -5,17 +5,38 @@
 // an expression or a reference becomes its final value; a value against a row the owner settled
 // becomes a question, never a new row. Every sample is a fixture: nothing calls a model or the
 // network.
+// And the plug a design tool's system comes through (specification 0018, criteria 10 to 12, with 15
+// and 16): its plug file says the ways a person gets a file the bridge reads, the saved file first;
+// the board shows where it stands and never asks about it while it is unmeasured; and the skill
+// says each way, runs no reader for the person, and says what a call sends before it is made.
 import "./helpers/own-cores.mjs";
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
-import { execPath } from "node:process";
+import { env, execPath } from "node:process";
 import { after, test } from "node:test";
 import { fileURLToPath } from "node:url";
 
 import { bringIn, candidateFrom, conflictsOf } from "../scripts/bring-in.mjs";
+import {
+  coreFiles,
+  coreProblems,
+  outsideNamesIn,
+  plugProblems,
+  readCapabilities,
+} from "../scripts/capabilities.mjs";
+import { plan, recommendationOf } from "../scripts/plugs.mjs";
 import { evaluate, readTokens } from "../scripts/outside-tokens.mjs";
 import { specimenPlan } from "../scripts/specimen.mjs";
 import { readWaiting, rowProblems } from "../templates/tools/design-assembly/waiting.mjs";
@@ -418,4 +439,286 @@ test("review: a day that is no day is refused by the command's own message", () 
   const wrong = cli("--target", dir, "--from", file, "--on", "2026-13-40");
   assert.equal(wrong.status, 2);
   assert.match(wrong.stderr, /--on 2026-13-40 is not a day written YYYY-MM-DD/);
+});
+
+// ---- specification 0018, criteria 10 to 12, 15 and 16: the plug a design tool's system comes through
+
+const NO_NETWORK = path.join(PLUGIN, "tests/helpers/no-network.mjs");
+const PLUGS = path.join(PLUGIN, "scripts/plugs.mjs");
+// A command run with the network unreachable, with what it reached for.
+function offline(file, ...args) {
+  const log = path.join(empty(), "reached.log");
+  const done = spawnSync(execPath, ["--import", NO_NETWORK, file, ...args], {
+    encoding: "utf8",
+    env: { ...env, DESIGN_ASSEMBLY_NETWORK_LOG: log },
+  });
+  return { ...done, reached: existsSync(log) ? readFileSync(log, "utf8") : "" };
+}
+// The plug file that says the ways to bring a file in: the only one, found by what it declares, so
+// that no file but the plug's own names the tool.
+const caps = () => readCapabilities();
+const filePlug = () => caps().plugs.find((plug) => Array.isArray(plug.ways));
+// Every file under a folder of the plugin, by its path from the plugin, with its text.
+const filesUnder = (folder) =>
+  readdirSync(path.join(PLUGIN, folder), { recursive: true })
+    .map((name) => path.posix.join(folder, String(name).split(path.sep).join("/")))
+    .filter((file) => statSync(path.join(PLUGIN, file)).isFile())
+    .map((file) => ({ path: file, text: readFileSync(path.join(PLUGIN, file), "utf8") }));
+
+test("0018 criterion 10: the plug file fills direction and foundations, says how a session lists it, what it needs and what it sends, and carries no measure", () => {
+  const plug = filePlug();
+  assert.ok(plug, "no plug file says the ways to bring a file in");
+  assert.deepEqual(plug.sockets, ["direction", "foundations"]);
+  // A session lists it by its server, which only tells the setup step that it is there.
+  assert.ok(plug.mcp_servers.length > 0);
+  assert.equal(plug.skills, undefined);
+  assert.deepEqual(plug.needs, ["account", "network", "machine"]);
+  assert.match(plug.sends, /file key and node ids/);
+  assert.match(plug.sends, /the file path sends nothing/);
+  // The two things the saved-file way needs, and the reader that was tried with its licence.
+  assert.match(plug.machine, /right to save the file to (this|the) machine/);
+  assert.match(plug.machine, /reader the person runs themself/);
+  assert.match(plug.machine, /licence/);
+  assert.match(plug.machine, /does not bundle, download, build or call/);
+  // Unmeasured until it is measured on the four measures: no entry, and no word of the owner.
+  assert.equal(plug.measured, undefined);
+  assert.equal(plug.recommended_by_owner, undefined);
+  assert.deepEqual(caps().problems, []);
+});
+
+test("0018 criterion 10: the saved file is the first way and the bridge reads it; the tool's own export is the second, and is said not to be read yet", () => {
+  const { ways } = filePlug();
+  assert.equal(ways.length, 2);
+  const [first, second] = ways;
+  assert.equal(first.reads, "variables");
+  assert.equal(first.not_read, undefined);
+  // The person runs the reader: the plug file says so in the way itself.
+  assert.match(first.how, /yourself|themself/);
+  assert.match(first.how, /never enters a repository/);
+  assert.equal(second.reads, undefined);
+  assert.match(second.not_read, /does not read (that|this|the) folder yet/);
+  assert.match(second.how, /\S/);
+});
+
+test("0018 criterion 10: a plug file's ways are held to their shape, each red with its file", () => {
+  const { table } = caps();
+  const at = "references/plugs/drafting.json";
+  const base = {
+    id: "drafting",
+    about: "A fixture tool that keeps a system.",
+    sockets: ["direction"],
+    names: ["Drafting"],
+    needs: [],
+    file: at,
+  };
+  const read = { id: "saved-file", how: "Save it, read it yourself.", reads: "variables" };
+  const waits = { id: "own-export", how: "Export it.", not_read: "No reader yet." };
+  assert.deepEqual(plugProblems([{ ...base, ways: [read, waits] }], table), []);
+  for (const [ways, said] of [
+    [[], `${at}: ways is a list of the ways to get a file, each with an id and how`],
+    ["a file", `${at}: ways is a list of the ways to get a file, each with an id and how`],
+    [[{ how: "Save it.", reads: "variables" }], `${at}: a way has no id written in-dashes`],
+    [[{ id: "saved-file", reads: "variables" }], `${at}: the way saved-file does not say how`],
+    [
+      [{ id: "saved-file", how: "Save it." }],
+      `${at}: the way saved-file says neither which kind the bridge reads it as, nor why it is not read`,
+    ],
+    [
+      [{ ...read, not_read: "And yet." }],
+      `${at}: the way saved-file says both that the bridge reads it and why it is not read`,
+    ],
+    [
+      [{ ...read, reads: "paper" }],
+      `${at}: the way saved-file is read as paper, which is none of tokens, design-md, variables, system`,
+    ],
+    [[read, read], `${at}: the way saved-file is listed twice`],
+    [
+      [waits, read],
+      `${at}: the first way is the one a person is led to, and the bridge does not read own-export`,
+    ],
+  ]) {
+    assert.deepEqual(plugProblems([{ ...base, ways }], table), [said], JSON.stringify(ways));
+  }
+});
+
+test("0018 criterion 16: the tool, the reader that was tried and its licence are named in the plug's folder only", () => {
+  const plug = filePlug();
+  const [tool, ...reader] = plug.names;
+  // The reader and its licence are names the clean-core check looks for too, and the plug file
+  // says them where it says what must be on the machine.
+  assert.ok(
+    reader.length >= 2,
+    "the reader that was tried and its licence are not among the names",
+  );
+  for (const name of reader) assert.ok(plug.machine.includes(name), name);
+  const core = coreFiles().map((file) => ({
+    path: file,
+    text: readFileSync(path.join(PLUGIN, file), "utf8"),
+  }));
+  assert.deepEqual(coreProblems(caps().plugs, core), []);
+  // Past the core: no file of the plugin outside the plugs' folder names the tool, and none at
+  // all, its tests among them, names the reader or its licence.
+  const outside = (file) => !file.path.startsWith("references/plugs/");
+  const rest = [
+    ...["scripts", "templates", "skills", "hooks", "references"].flatMap(filesUnder),
+    { path: "README.md", text: readFileSync(path.join(PLUGIN, "README.md"), "utf8") },
+  ].filter(outside);
+  const named = (files, names) =>
+    files
+      .filter((file) => outsideNamesIn(file.text, [{ names }]).length > 0)
+      .map((file) => file.path);
+  assert.deepEqual(named(rest, [tool, ...plug.mcp_servers]), []);
+  assert.deepEqual(named([...rest, ...filesUnder("tests")], reader), []);
+  // Seen failing: the same look finds a name put into a file.
+  assert.deepEqual(named([{ path: "x.md", text: `read with ${reader[0]}` }], reader), ["x.md"]);
+});
+
+test("0018 criterion 11: the board shows the plug absent, in the session or waiting for a sign-in, as the session lists its server", () => {
+  const plug = filePlug();
+  const [server] = plug.mcp_servers;
+  const dir = empty();
+  const stateOf = (...args) => {
+    const shown = offline(PLUGS, "--target", dir, "--json", "--session", ...args);
+    assert.equal(shown.status, 0, shown.stderr);
+    assert.equal(shown.reached, "");
+    const result = JSON.parse(shown.stdout);
+    assert.deepEqual(result.questions, []);
+    assert.deepEqual(result.files, []);
+    return ["direction", "foundations"].map((id) => {
+      const candidate = result.sockets
+        .find((socket) => socket.id === id)
+        .candidates.find((item) => item.id === plug.id);
+      assert.equal(candidate.measured, "unmeasured");
+      assert.deepEqual(candidate.needs, plug.needs);
+      return candidate.state;
+    });
+  };
+  assert.deepEqual(stateOf(), ["absent", "absent"]);
+  assert.deepEqual(stateOf("--server", server), ["in-session", "in-session"]);
+  // A server listed under a plugin's prefix is the same server.
+  assert.deepEqual(stateOf("--server", `their-plugin:${server}`), ["in-session", "in-session"]);
+  assert.deepEqual(stateOf("--needs-sign-in", server), ["needs-sign-in", "needs-sign-in"]);
+  // A skill of the same name is not its server: only what the plug file declares counts.
+  assert.deepEqual(stateOf("--skill", server), ["absent", "absent"]);
+  const board = offline(PLUGS, "--target", dir, "--session", "--needs-sign-in", server);
+  assert.equal(board.status, 0, board.stderr);
+  assert.match(board.stdout, new RegExp(`${plug.id} +needs-sign-in, unmeasured, needs account`));
+  assert.match(board.stdout, new RegExp(`${plug.id} waits for a sign-in`));
+  assert.deepEqual(readdirSync(dir), []);
+});
+
+test("0018 criterion 11: while it is unmeasured no question offers it or recommends it, whatever else the session holds", () => {
+  const all = caps();
+  const plug = filePlug();
+  // A session that holds every plug from outside by every name its file declares.
+  const session = {
+    skills: all.plugs.flatMap((each) => each.skills ?? []),
+    servers: all.plugs.flatMap((each) => each.mcp_servers ?? []),
+    signIn: [],
+  };
+  const asked = plan(empty(), { caps: all, on: ON, session });
+  // The sockets it fills are asked about, for the measured plugs there: the look is not empty.
+  assert.ok(asked.questions.some((question) => question.id === "plug-direction"));
+  for (const question of asked.questions) {
+    assert.ok(
+      question.candidates.every((candidate) => candidate.name !== plug.id),
+      `${question.id} offers the unmeasured plug`,
+    );
+    assert.ok(!question.recommendation.startsWith(`${plug.id}:`), question.recommendation);
+  }
+  // Whatever the round left for later: at no socket of the board is it among what a question
+  // would offer, and both sockets it fills do have a question to offer.
+  for (const socket of asked.sockets) {
+    const offered = recommendationOf(socket)?.candidates ?? [];
+    assert.ok(
+      offered.every((candidate) => candidate.name !== plug.id),
+      `the ${socket.id} socket would offer the unmeasured plug`,
+    );
+  }
+  for (const id of plug.sockets) {
+    assert.ok(recommendationOf(asked.sockets.find((socket) => socket.id === id)), id);
+  }
+  // What holds it back is the measure: with one, the same session is asked about it.
+  const measured = all.plugs.map((each) =>
+    each.id === plug.id
+      ? { ...each, measured: { foundations: { record: "d0088", beats_plugin: false } } }
+      : each,
+  );
+  const then = plan(empty(), { caps: { ...all, plugs: measured }, on: ON, session });
+  const question = then.questions.find((item) => item.id === "plug-foundations");
+  assert.ok(question.candidates.some((candidate) => candidate.name === plug.id));
+  // And a question written by hand that recommends it is refused, with its file.
+  const dir = empty();
+  put(
+    dir,
+    "design/waiting/plug-direction.json",
+    `${JSON.stringify({
+      id: "plug-direction",
+      kind: "question",
+      question: "Which plug works the direction socket in this repository?",
+      recommendation: `${plug.id}: by hand`,
+      basis: "none",
+      hard_to_undo: false,
+      where: "the direction socket",
+      if_refused: "the direction socket keeps the plugin's plug directions",
+      item: "decision:plug-direction",
+      asked_on: ON,
+      candidates: [
+        { name: plug.id, about: "by hand" },
+        { name: "directions", about: "as today" },
+      ],
+    })}\n`,
+  );
+  assert.throws(
+    () => plan(dir, { caps: all, on: ON, session }),
+    new RegExp(
+      `plug-direction\\.json recommends ${plug.id}, which was never measured at the direction socket: an unmeasured plug is never the recommendation`,
+    ),
+  );
+});
+
+test("0018 criterion 12: bring-in --ways says each way to get a file, the saved file first, and that the tool's own export is not read yet", () => {
+  const plug = filePlug();
+  const shown = offline(BRING_IN, "--ways");
+  assert.equal(shown.status, 0, shown.stderr);
+  assert.equal(shown.reached, "");
+  const lines = shown.stdout.split("\n");
+  const [first, second] = plug.ways;
+  const at = (text) => lines.findIndex((line) => line.includes(text));
+  assert.ok(at(`${plug.id}: 2 ways to get a file`) >= 0, shown.stdout);
+  const one = at(`1. ${first.id}, read as an export of variables: ${first.how}`);
+  const two = at(`2. ${second.id}, not read yet: ${second.not_read} ${second.how}`);
+  assert.ok(one >= 0 && two > one, shown.stdout);
+  assert.ok(at(`sends: ${plug.sends}`) > two, shown.stdout);
+  assert.ok(at(`on the machine: ${plug.machine}`) > two, shown.stdout);
+  // The same as data, by the common contract; and nothing is written anywhere.
+  const data = JSON.parse(offline(BRING_IN, "--ways", "--json").stdout);
+  assert.deepEqual(data.plugs, [
+    { id: plug.id, ways: plug.ways, sends: plug.sends, machine: plug.machine },
+  ]);
+  // It reads no source: with one named too, the call is wrong.
+  const both = offline(BRING_IN, "--ways", "--from", "anything.json");
+  assert.equal(both.status, 2);
+  assert.match(both.stderr, /give --ways or --from, not both/);
+});
+
+test("0018 criterion 12: the skill says each way as the plug file gives it, runs no reader for the person, and says what a call sends before it is made", () => {
+  const skill = readFileSync(path.join(PLUGIN, "skills/bring-in/SKILL.md"), "utf8").replace(
+    /\s+/g,
+    " ",
+  );
+  assert.match(skill, /scripts\/bring-in\.mjs --ways/);
+  assert.match(skill, /in the order it prints them, the first first/);
+  // A way the bridge does not read yet is said as that, never passed off as read.
+  assert.match(skill, /`not read yet`/);
+  assert.match(skill, /Do not say the bridge reads it/);
+  // The reader of a saved design file is the person's to get and to run.
+  assert.match(skill, /Never download, install, build or run a reader/);
+  assert.match(skill, /The user runs it themself and hands over the JSON it leaves/);
+  // Before any call to the tool's service: what is sent, where, and what it costs.
+  assert.match(skill, /Before each call to a tool's service, say what is sent and where/);
+  assert.match(skill, /costs one call of the account's quota/);
+  assert.match(skill, /Call only its tools that read; never one that writes/);
+  // The server of a tool is no way to bring a system in.
+  assert.match(skill, /not a way to bring a system in/);
 });

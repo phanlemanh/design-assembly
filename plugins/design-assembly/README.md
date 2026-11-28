@@ -55,6 +55,11 @@ scale, shape). Density, elevation, motion and iconography are not.
   every expression and reference computed to its final value. The candidate is drawn beside the
   plugin's directions with `specimen --from`, and never written to a ledger; a value against one
   the owner settled is a question on the waiting list, and the ledger wins until they answer.
+  `bring-in --ways` says, for a design tool whose plug file lists them, each way a person gets a
+  file the command reads, the first first; no reader of a design file is bundled, downloaded or
+  run. An export of variables that was brought in is kept with a pin: `scripts/variables-source.mjs`
+  writes a row of the kind `variables` in the sources ledger from the file the repository keeps,
+  and `--check` says when that file is no longer the one pinned.
 - `/design-assembly:bring-out` writes the design ledgers out for tools that do not read them: a
   `DESIGN.md` and a design system bundle under `design/export/system/` (a README, tokens of both
   themes, the components and the assets), each stamped with the state of the ledgers. The gate goes

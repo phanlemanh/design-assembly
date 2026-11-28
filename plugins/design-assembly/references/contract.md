@@ -506,6 +506,26 @@ was kept; it stays red for a refusal, for words that name no candidate the quest
 for a row of another candidate, saying which. The gate, `status` and the decision sheet say which
 candidate was chosen, by whom and on which day. No other question reads its answer this way.
 
+A source of the kind `variables` is an export of the variables of a design tool that was brought in
+(spec 0018), kept in the repository as the bridge in reads one: the JSON of variables by collection,
+never the design file it was read from. It offers no block of a library, so it has no `catalog`, and
+the readers of libraries leave it out. It has `version`, `id` (`variables`, after the plug's id when
+it came through a plug, unless a person gives another), `kind` and `pin`, and may have `title` and
+`plug`, the id of the plug the export came through. Its `pin` holds `fetched_at`, the day the export
+was taken, written `YYYY-MM-DD`, and `files`, each file by its path from the repository's root
+(`file`) with its `sha256`, and maybe its size in `bytes`. It waits on no licence: the row says
+which file was brought in and when, not a right to use it. The version of the ledger stays 1.
+
+`variables-source` writes the row from a file already in the repository, in a folder other than
+`design/sources/`, hashed where it is; it copies, fetches and changes no file, refuses a file that
+is not an export of variables, and never writes over a row. `variables-source --check` compares
+every row of the kind with the repository and ends with 1 on a file changed by one byte, gone, or
+led out of the repository; the sentence names the row and the file. `variables-source --again`
+pins the file of a row as it is now, with the day, and keeps every other word of the row. The gate
+holds the shape of the row: it fails on one with no pin, and on a pin that names a file by a path
+that is not from the repository's root, a file in `design/sources/` itself, or a file twice. It
+does not compare the file with its pin.
+
 ### conform
 
 One file per need, `design/conform/<need>.json`, for an item of an outside source that was taken

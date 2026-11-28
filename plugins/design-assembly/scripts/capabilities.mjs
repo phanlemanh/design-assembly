@@ -13,6 +13,7 @@ import {
   sourceOfPlug,
 } from "../templates/tools/design-assembly/sources-ledger.mjs";
 import { STAMP } from "../templates/tools/design-assembly/waiting.mjs";
+import { KINDS } from "./outside-tokens.mjs";
 
 export const PLUGIN = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const TABLE = "references/capabilities.json";
@@ -60,7 +61,10 @@ export function readCapabilities(plugin = PLUGIN) {
 // and whether that measure beat the plugin's plug at holding the decision or at what the user must
 // guess; `recommended_by_owner` is the owner's named exception, with their words and the day;
 // `machine` says, in a sentence, what must be installed on the machine for a plug that needs it to
-// run, as `sends` says where a plug that needs the network sends what.
+// run, as `sends` says where a plug that needs the network sends what; `ways` lists, for a tool whose
+// system a person brings in as a file, each way to get that file, the first the one a person is led
+// to: how, and either the kind the bridge in reads it as (`reads`) or why it is not read yet
+// (`not_read`).
 const PLUG_KEYS = [
   "id",
   "about",
@@ -72,6 +76,7 @@ const PLUG_KEYS = [
   "needs",
   "sends",
   "machine",
+  "ways",
   "detect",
   "measured",
   "recommended_by_owner",
@@ -131,6 +136,48 @@ function measureProblems(plug, where) {
       } else if (key === "recommended_by_owner" && filled(plug.sends) && !filled(entry.sends)) {
         found.push(`${at} without what it sends, the place the word was said of`);
       }
+    }
+  }
+  return found;
+}
+
+// A name written in-dashes, as an id is.
+const DASHED = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+// What a plug's ways to get a file say wrongly: each has an id and says how; it says the kind the
+// bridge in reads it as, or why it is not read, never both; and the first, the one a person is led
+// to, is one the bridge reads.
+function waysProblems(plug, where) {
+  if (plug.ways === undefined) return [];
+  if (!Array.isArray(plug.ways) || plug.ways.length === 0) {
+    return [`${where}: ways is a list of the ways to get a file, each with an id and how`];
+  }
+  const found = [];
+  const seen = new Set();
+  for (const [index, way] of plug.ways.entries()) {
+    if (!isObject(way) || !DASHED.test(String(way.id ?? ""))) {
+      found.push(`${where}: a way has no id written in-dashes`);
+      continue;
+    }
+    const at = `${where}: the way ${way.id}`;
+    if (seen.has(way.id)) {
+      found.push(`${at} is listed twice`);
+      continue;
+    }
+    seen.add(way.id);
+    const read = way.reads !== undefined;
+    const waits = way.not_read !== undefined;
+    if (!filled(way.how)) found.push(`${at} does not say how`);
+    else if (read && waits) {
+      found.push(`${at} says both that the bridge reads it and why it is not read`);
+    } else if (read && !KINDS.includes(way.reads)) {
+      found.push(`${at} is read as ${way.reads}, which is none of ${KINDS.join(", ")}`);
+    } else if (!read && !filled(way.not_read)) {
+      found.push(`${at} says neither which kind the bridge reads it as, nor why it is not read`);
+    } else if (index === 0 && !read) {
+      found.push(
+        `${where}: the first way is the one a person is led to, and the bridge does not read ${way.id}`,
+      );
     }
   }
   return found;
@@ -202,7 +249,12 @@ export function plugProblems(plugs, table) {
       else if (sockets.get(id).closed) found.push(`${where}: fills ${id}, a closed socket`);
     }
     if (list(plug.names).filter(filled).length === 0) found.push(`${where}: declares no name`);
-    return [...found, ...plugReachProblems(plug, where), ...measureProblems(plug, where)];
+    return [
+      ...found,
+      ...plugReachProblems(plug, where),
+      ...waysProblems(plug, where),
+      ...measureProblems(plug, where),
+    ];
   });
 }
 

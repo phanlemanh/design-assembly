@@ -28,11 +28,13 @@ import {
   isFont,
   isIconSet,
   isLogo,
+  isVariablesSource,
   LADDER_PLACES,
   LOGO_ROLES,
   LOGO_VARIANTS,
   logoRowProblems,
   SOURCES_FOLDER,
+  variablesRowProblems,
 } from "./sources-ledger.mjs";
 import { parseLedger } from "./ledger.mjs";
 import { ledgerText, readFragments } from "./screen-fragments.mjs";
@@ -368,10 +370,10 @@ export const LEDGERS = {
     folder: SOURCES_FOLDER,
     ending: ".json",
     question:
-      "which outside libraries blocks are picked from, in what order, at which pin; which fonts the product uses, and which icon set, from where, at which pin, under which licence",
+      "which outside libraries blocks are picked from, in what order, at which pin; which fonts the product uses, and which icon set, from where, at which pin, under which licence; which export of variables was brought in, at which pin",
     born: BORN.firstEntry,
     writer:
-      "a person, or the repository's own tool that pins a source; a font's row, the guide or adopt from what the repository holds; an icon set's row, icon-source or adopt from what the repository holds; the licence a person; one file per source",
+      "a person, or the repository's own tool that pins a source; a font's row, the guide or adopt from what the repository holds; an icon set's row, icon-source or adopt from what the repository holds; the row of an export of variables, variables-source from a file the repository keeps; the licence a person; one file per source",
     version: 1,
     format: "json-sources",
     root: {
@@ -493,6 +495,32 @@ export const LEDGERS = {
         fields: { by: required(text), on: day, candidate: text },
         open: true,
       },
+    },
+    // A source of the kind `variables` (spec 0018, criterion 13): an export of the variables of a
+    // design tool, as the bridge in reads one, kept in the repository. No catalog: it offers no
+    // block of a library. Its pin, the day the export was taken and each file by its path from the
+    // repository's root with its hash; `plug`, of every row, names the plug it came through. It
+    // waits on no licence. The design file an export was read from is never a file of the pin.
+    variables: {
+      catalog: text,
+      pin: required({
+        type: "object",
+        fields: {
+          fetched_at: required(day),
+          files: required(
+            list({
+              type: "object",
+              fields: {
+                file: required({ ...text, pattern: '^[^"\\\\\\n]+$' }),
+                bytes: number,
+                sha256: required({ ...text, pattern: "^[0-9a-f]{64}$" }),
+              },
+              open: true,
+            }),
+          ),
+        },
+        open: true,
+      }),
     },
     // A source of the kind `core` (spec 0016, answer 4): the family core the repository declared it
     // is of. No catalog: it offers no block of a library. The family's name as the core says it;
@@ -2140,6 +2168,8 @@ function sourceProblems(textOfFile, file) {
   const iconSet = isIconSet(data);
   // And so is the mark (spec 0017).
   const logo = isLogo(data);
+  // And so is an export of variables that was brought in (spec 0018).
+  const variables = isVariablesSource(data);
   const variant = font
     ? LEDGERS.sources.font
     : core
@@ -2148,7 +2178,9 @@ function sourceProblems(textOfFile, file) {
         ? LEDGERS.sources["icon-set"]
         : logo
           ? LEDGERS.sources.logo
-          : {};
+          : variables
+            ? LEDGERS.sources.variables
+            : {};
   const root = { ...LEDGERS.sources.root, ...variant };
   const problems = objectProblems(data, root, LEDGERS.sources.open, file);
   const name = path.basename(file);
@@ -2161,6 +2193,8 @@ function sourceProblems(textOfFile, file) {
   if (iconSet) return [...problems, ...iconSetRowProblems(data, file)];
   // The mark: its pin and its licence, past its shape.
   if (logo) return [...problems, ...logoRowProblems(data, file)];
+  // An export of variables: its pin, past its shape.
+  if (variables) return [...problems, ...variablesRowProblems(data, file)];
   if (core) {
     if (data.id !== CORE_ID) {
       problems.push(
