@@ -723,8 +723,8 @@
         {
           "id": "13.4",
           "what": "Đo phích Figma theo bốn thước ở ổ nền, bản quyết định và phán quyết",
-          "state": "todo",
-          "ref": "wiki/specs/0018-figma-at-the-foundations-socket.md, tiêu chí 14; cần một tệp .fig của hệ thật và lời cho chạy công cụ đọc của bên thứ ba; mỗi lượt đo hỏi chủ repo trước vì tốn token"
+          "state": "done",
+          "ref": "wiki/specs/0018-figma-at-the-foundations-socket.md, tiêu chí 14; cần một tệp .fig của hệ thật và lời cho chạy công cụ đọc của bên thứ ba; mỗi lượt đo hỏi chủ repo trước vì tốn token. Đo ngày 2026-11-28 theo lời chủ repo («Chạy 13.4», đáp câu «Anh cho chạy lượt đo 13.4, trần 600 nghìn token, kèm chạy công cụ đọc `.fig` của bên thứ ba trên bản chép tệp của anh chứ?»), plugin 0.79.0, wiki/decisions/0135-the-figma-plug-measured-at-the-foundations-socket.md và docs/trials/figma-plug-measured-at-foundations.md: công cụ đọc đã build sẵn chạy một lần trên bản chép của tệp thật, mạng bị chặn, bản xuất trùng từng byte với bản ngày 2026-11-26, tệp gốc không đổi; cầu đọc 1 633 trên 1 715 giá trị của 11 collection của tệp, 82 không vào (2 đúng/sai, 80 alias dừng ở chỗ không có giá trị), 0 dòng not read, ba lỗ hổng của lượt trước đã hết; một tác tử chạy đề chuẩn docs/trials/briefs/foundations.md (máy viết) với skill bring-in khai 0 chỗ tự quyết về hình dạng dữ liệu, 139 499 token; nhánh đối chứng đếm bằng lệnh, 6 chỗ; ba giá trị ngược sổ thành ba câu hỏi, chủ repo đáp cả ba trong phiên đo («Giữ «standard»», «Giữ «floor»», «Giữ Geist Variable»), máy đáp thay 0 lần; cổng và status của bản sao xanh ở cuối; tệp phích có measured.foundations trỏ d0135, beats_plugin false theo luật của 0008 (cần tài khoản và công cụ đọc của bên thứ ba nên là phích phụ, và thứ nó để lại là hướng ứng viên bốn khoá, không phải token); ổ hướng đi chưa đo; chưa kiểm giấy phép của công cụ đọc, điều khoản của Figma, và độ đúng so với một bản xuất của chính Figma; mục gác lại «Đo phích Figma theo bốn thước» rời phần gác lại; giai đoạn 13 chưa đóng vì mục 13.2 còn todo; mục xong ngày 2026-11-28"
         }
       ],
       "done_when": [
@@ -871,13 +871,6 @@
     {
       "on": "2026-11-25",
       "what": "Đo phích Open Design theo bốn thước (phần còn lại của mục 10.2)",
-      "stage": 10,
-      "why_not_now": "Chủ repo gác lại, gõ ở phiên điều phối ngày 2026-11-25: «Đo Mobbin xong rồi tạm đóng hạng mục này.» Không chặn dòng «xong khi» của giai đoạn 10.",
-      "group": "outside-plugs"
-    },
-    {
-      "on": "2026-11-25",
-      "what": "Đo phích Figma theo bốn thước (phần còn lại của mục 10.2)",
       "stage": 10,
       "why_not_now": "Chủ repo gác lại, gõ ở phiên điều phối ngày 2026-11-25: «Đo Mobbin xong rồi tạm đóng hạng mục này.» Không chặn dòng «xong khi» của giai đoạn 10.",
       "group": "outside-plugs"

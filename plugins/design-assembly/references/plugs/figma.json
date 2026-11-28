@@ -5,6 +5,12 @@
   "names": ["Figma", "design-os-studio", "designos-fig", "PolyForm Shield"],
   "mcp_servers": ["figma"],
   "needs": ["account", "network", "machine"],
+  "measured": {
+    "foundations": {
+      "record": "d0135",
+      "beats_plugin": false
+    }
+  },
   "sends": "The file key and node ids, to Figma under the person's account, when read through its MCP server; the file path sends nothing.",
   "machine": "For the .fig path: the right to save the file to this machine (File > Save local copy, which the person's seat must allow), and a .fig reader the person runs themself, which leaves the file's variables as JSON. The reader that was tried is the designos-fig crate of design-os-studio (at a26f09a), under the PolyForm Shield 1.0.0 licence, which the person reads before running it; reading a .fig file decodes a format its maker does not publish, so a reader may break when the format changes. The plugin does not bundle, download, build or call any reader.",
   "ways": [
