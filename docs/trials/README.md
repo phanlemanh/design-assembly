@@ -21,6 +21,9 @@ Vai dựng màn có thêm một **nhánh đối chứng**: cùng đề, trên b�
 plugin. Nó trả lời câu chuỗi số này không trả lời được, là plugin có tác dụng hay không. Cách dựng
 và cách chấm ở [`control-arm.md`](control-arm.md); đã chạy một lần, chưa kết luận.
 
+Từ ngày 2026-11-28 có thêm đề [`briefs/foundations.md`](briefs/foundations.md) cho ổ nền (mục 13.4): mang hệ đang sống
+trong một công cụ thiết kế vào thành hướng ứng viên, có phích và không có phích. Nó cũng đo phích, không phải vai.
+
 Từ ngày 2026-11-23 có thêm đề [`briefs/component.md`](briefs/component.md) cho ổ linh kiện (mục 10.2): hai nhánh
 trên hai bản sao, khối lấy từ kho và khối tự tạo, cùng một nhu cầu. Nó đo phích, không phải vai, nên số của nó nằm ở
 bản ghi của từng phích, không ở `results.tsv`.
