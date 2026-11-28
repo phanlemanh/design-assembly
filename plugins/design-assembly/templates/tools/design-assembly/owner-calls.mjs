@@ -6,10 +6,11 @@
 //                   and no question asks, for source that goes around a decided scale, and for a
 //                   test that proves a decision the ledger has no row for
 //   owner-calls     the wall: a branch that adds a page of a kind of screen, changes the root
-//                   colour line, or adds a logo row or changes a file of one, is red until the
-//                   waiting list holds the owner's answer that keeps that very item; for a mark
-//                   asked with candidates, the answer that chooses one of them, and a row that
-//                   says it is that candidate's, or names none for the first
+//                   colour line, adds a logo row or changes a file of one, or adds an icon set
+//                   row or makes one name another set, is red until the waiting list holds the
+//                   owner's answer that keeps that very item; for a mark asked with candidates,
+//                   the answer that chooses one of them, and a row that says it is that
+//                   candidate's, or names none for the first
 //
 // What a branch adds is read from git, against where the branch left the main one, with what is
 // not committed yet. A shallow checkout fetches the history it needs from the remote named origin.
@@ -22,11 +23,12 @@ import { env } from "node:process";
 import { inLibrary, VENDOR } from "./components.mjs";
 import { parseLedger } from "./ledger.mjs";
 import { NOT_A_KIND } from "./screens.mjs";
-import { LOGO_KIND, SOURCES_FOLDER } from "./sources-ledger.mjs";
+import { ICON_SET_KIND, LOGO_KIND, SOURCES_FOLDER } from "./sources-ledger.mjs";
 import {
   choiceSaid,
   chosenCandidate,
   colourItem,
+  iconSetItem,
   logoItem,
   markChoices,
   STAMP,
@@ -365,7 +367,35 @@ function compare({ root, git, base, main, pages, stylesheet, ledger, atBase }) {
       // The candidate each logo row says its package holds, by the row's id.
       held: markCandidates(sourcesNow.map((file) => [file, read(file)])),
     },
+    // Which set each icon set row names, at the base and now, by the row's id.
+    icon_sets: {
+      base: iconSetsNamed(sourcesAtBase.map((file) => [file, atBase(file)])),
+      now: iconSetsNamed(sourcesNow.map((file) => [file, read(file)])),
+    },
   };
+}
+
+// Which set each icon set row names, by the row's id: the package its pin names, else the folder
+// of the repository its files are kept in. What a branch changes when it takes another icon set:
+// a version, a licence, sizes, or a file drawn into the folder, is the same set. A file that is
+// not JSON, or not an icon set, is no row here.
+function iconSetsNamed(files) {
+  const named = {};
+  for (const [file, text] of files) {
+    let row;
+    try {
+      row = JSON.parse(text ?? "null");
+    } catch {
+      continue;
+    }
+    if (row?.kind !== ICON_SET_KIND) continue;
+    const pack = row.pin?.package;
+    named[path.posix.basename(file, ".json")] =
+      typeof pack === "string" && pack.trim() !== ""
+        ? `package ${pack}`
+        : `folder ${typeof row.folder === "string" ? row.folder : ""}`;
+  }
+  return named;
 }
 
 // The files each logo row pins, as one line per file of its hash and path, by the row's id: what a
@@ -494,6 +524,7 @@ export function sheetProblem({ ledger, branch, waiting, blueprint, sources, tagg
 const WHAT = {
   pattern: (which) => `a new kind of screen (${which})`,
   logo: (which) => `a new mark, or a changed file of one (${SOURCES_FOLDER}/${which}.json),`,
+  "icon-set": (which) => `a new icon set (${SOURCES_FOLDER}/${which}.json)`,
   "source-color": (which) =>
     which === "none" ? "taking the root colour line away" : `a new root colour (${which})`,
 };
@@ -511,6 +542,13 @@ export function ownersItems(branch) {
   for (const id of Object.keys(marks.now ?? {}).sort()) {
     if (marks.base?.[id] !== marks.now[id]) items.push(logoItem(id));
   }
+  // An icon set row this branch adds, or one it makes name another set: the owner chooses which
+  // icon set the product takes. A row the main branch already had, naming the same set, asks
+  // nothing, whichever version of the plugin wrote it.
+  const sets = branch.icon_sets ?? { base: {}, now: {} };
+  for (const id of Object.keys(sets.now ?? {}).sort()) {
+    if (sets.base?.[id] !== sets.now[id]) items.push(iconSetItem(id));
+  }
   return items;
 }
 
@@ -521,7 +559,7 @@ export function wallProblem({ branch, waiting }) {
   if (unread) problems.push(unread);
   if (branch?.problem) {
     problems.push(
-      `what this branch adds cannot be read, so a new kind of screen, a new brand colour or a new mark would pass unseen: ${branch.problem}`,
+      `what this branch adds cannot be read, so a new kind of screen, a new brand colour, a new mark or a new icon set would pass unseen: ${branch.problem}`,
     );
   }
   for (const item of ownersItems(branch)) {

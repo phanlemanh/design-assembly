@@ -623,12 +623,17 @@ export function adoption(
           named_by: icons.named_by,
           from: icons.from,
           stated: icons.stated,
+          ...(icons.licence ? { licence: icons.licence, licence_from: icons.licence_from } : {}),
         },
       ];
-      result.person.push({
-        id: "icon-set-licence",
-        why: `${iconLicenceStep(icons.row)}${icons.stated ? `. ${icons.stated}` : ""}`,
-      });
+      // An outside package is used under the licence it declares, read from the installed
+      // package: a person is asked only where it gave none.
+      if (!icons.licence) {
+        result.person.push({
+          id: "icon-set-licence",
+          why: `${iconLicenceStep(icons.row)}${icons.stated ? `. ${icons.stated}` : ""}`,
+        });
+      }
     }
     // Once the repository has a row of an icon set, or gets one now, its pin is held.
     const iconRows = readIconSets(root).length > 0 || Boolean(icons?.row);
@@ -1256,9 +1261,12 @@ export function report(result) {
       `${mark.row}, from ${mark.from}: ${mark.files.map((entry) => `${entry.file} (${entry.role})`).join(", ")}`,
   );
   section(
-    "the repository's own icon set, proposed as a row of the sources ledger (a person writes its licence):",
+    (result.icon_sets ?? []).some((set) => set.licence)
+      ? "the repository's own icon set, proposed as a row of the sources ledger (its licence is the one its installed package declares):"
+      : "the repository's own icon set, proposed as a row of the sources ledger (a person writes its licence):",
     result.icon_sets ?? [],
-    (set) => `${set.module}: ${set.row}, from ${set.from}; named by ${set.named_by}`,
+    (set) =>
+      `${set.module}: ${set.row}, from ${set.from}; named by ${set.named_by}${set.licence ? `; licence ${set.licence}, declared in ${set.licence_from.file}` : ""}`,
   );
   section("would fail today, so nothing was added:", result.failing, reason);
   section("cannot be read here:", result.unreadable, reason);

@@ -642,9 +642,10 @@ const USAGE = `usage: node decide.mjs [--target DIR] [--only ID[,ID]] [--answers
              screen:ID:SLOT (one slot of the brief of one screen, which the ledger of
              screens must have), screens:principles or screens:model-changes:NAMES (one slot
              asked once for every screen it concerns), logo:ID (a new logo row of the sources
-             ledger, or a changed file of one). A new kind of screen, the brand colour and the
-             mark are the owner's calls: the agent stops, and the gate stays red until the owner
-             keeps it.
+             ledger, or a changed file of one), icon-set:ID (a new icon set row there, or one
+             that names another set). A new kind of screen, the brand colour, the mark and the
+             icon set are the owner's calls: the agent stops, and the gate stays red until the
+             owner keeps it.
   --candidate With --item logo:ID, a mark the owner chooses from, by its name; once per mark, the
              recommended one first. Keeping takes the first; the owner answers with the name of
              another to choose it, and the gate reads either as the owner's choice.
@@ -756,6 +757,17 @@ function strangerScreen(root, item) {
     : `${id} is not a screen of the ledger of screens; it has: ${screens.join(", ")}. No sheet would read a question about it`;
 }
 
+// Why a question about the icon set the product takes is not asked here, or null: the repository's
+// copy of the tool, the one its gate reads the waiting list with, predates the item, and would
+// read the question as broken. A command that asks one for the builder looks here first.
+export const iconItemPredates = (root) =>
+  toolPredates(root, {
+    file: "waiting.mjs",
+    word: "iconSetItem",
+    part: "the item icon-set:<id> of the waiting list",
+    what: "question",
+  });
+
 // A question an agent asks, as one new file of the waiting list, made in memory: its file, what
 // the file holds, the list once it is in, and the sheet after. Refused, and nothing written, when
 // the question is not whole, when the list is one shared file, or when its id waits already. The
@@ -787,6 +799,11 @@ export function askOf(root, state, ask) {
       part: "the item logo:<id> of the waiting list",
       what: "question",
     });
+    if (predates) throw refused(`${predates}, then ask again`);
+  }
+  // The same for a question about the icon set the product takes.
+  if (String(ask.item ?? "").startsWith("icon-set:")) {
+    const predates = iconItemPredates(root);
     if (predates) throw refused(`${predates}, then ask again`);
   }
   // The candidates of a mark: the gate reads which one the owner chose only from a copy of the tool

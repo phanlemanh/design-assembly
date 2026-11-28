@@ -1331,9 +1331,10 @@ const KINDS = {
       };
     },
   },
-  // The wall: a new kind of screen and the brand colour are the owner's calls. A branch that adds a
-  // page of a kind of screen, or changes the root colour line, fails until the waiting list holds
-  // the owner's answer that keeps that very item.
+  // The wall: a new kind of screen, the brand colour, the mark and the icon set are the owner's
+  // calls. A branch that adds a page of a kind of screen, changes the root colour line, adds or
+  // changes a mark, or adds an icon set row or makes one name another set, fails until the waiting
+  // list holds the owner's answer that keeps that very item.
   "owner-calls": {
     run(state) {
       return wallProblem({ branch: state.branch ?? null, waiting: state.waiting });

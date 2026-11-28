@@ -504,6 +504,12 @@
       "templates": "510ebdd18e043f7be18dc6dbc05fde1f1c180370",
       "scripts": "7201e883246121290fb2b20e8620b9302e29bb17",
       "tool": "acf1d7d66616bdd0c0c0ef6245546923d5a93f31"
+    },
+    {
+      "version": "0.79.0",
+      "templates": "3046c87e70b87283638d3239008b8cc62923820a",
+      "scripts": "7142b474b0b3bcd299a2419bfc7dd8793eeee346",
+      "tool": "f1420de4531365473445ce6b5e446e78ed718c09"
     }
   ]
 }

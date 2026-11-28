@@ -179,11 +179,20 @@ scale, shape). Density, elevation, motion and iconography are not.
   files to that row. Once a repository has a logo row, the gate holds that the page icons and the
   images of the app frame are its files (`logo-use`), a new row or a changed file of one waits on
   the owner's word (`decide --ask --item logo:<id>`), `status` and `audit` say what the mark lacks,
-  and the handoff book shows it on a page of brand assets.
+  and the handoff book shows it on a page of brand assets. A mark brought in from files waits on a
+  person's sentence of who holds the right to use it; a mark built in the repository, from a
+  package a plug left (`logo-source --package`), is the repository's asset as its code is: its row
+  carries the licence of that rule, says so under `licence_from`, and waits on no sentence.
 - The icon set comes in the same way, as a row of the kind `icon-set`: `scripts/icon-source.mjs`
   writes it from a package the lockfile pins or a folder of the repository's own icon files, each
   hashed where it is; adopt proposes it from the icon set the component library's settings name.
-  A person writes the licence, and the gate holds the pin once a row is there.
+  A set that is an outside package is used under the licence that package declares: the command
+  reads it from the installed package, writes it into the row and says where it came from
+  (`licence_from`); where the package declares none or is not installed, and for a folder of the
+  repository's own files, a person writes the licence. Which icon set the product takes is the
+  owner's call: a row written for a set the owner has not kept puts one question on the waiting
+  list (`icon-set:<id>`), and the wall holds a branch that adds the row until the owner keeps it.
+  The gate holds the pin once a row is there.
 - `scripts/apply.mjs` derives a tonal palette and the primary color roles from one source color,
   writes them into the repository's stylesheet, adds its rows to the ledger
   `design/decisions.yaml`, and installs the checks that hold them.

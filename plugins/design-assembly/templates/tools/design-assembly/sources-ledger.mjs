@@ -428,11 +428,98 @@ export function readFontSources(root) {
     .map(([name, source]) => readFont(root, name, source));
 }
 
+// ---- where a licence came from -------------------------------------------------------------------
+// The licence of a row is a person's sentence unless the row says otherwise under `licence_from`
+// (spec 0017 as amended, decision 0134). Two rows may say so: the row of a mark built in the
+// repository, from a package a plug left, whose licence is the rule that such a mark is the
+// repository's asset as its code is; and the row of an icon set that is an outside package, whose
+// licence is the one the installed package itself declares. A row with no `licence_from` carries a
+// person's sentence, as every row did before the key, and a mark or an icon set brought in from
+// files still waits on one.
+export const LICENCE_FROM = "licence_from";
+// The rule a mark built in the repository is licensed by, as `licence_from.rule` names it.
+export const REPOSITORY_ASSET = "repository-asset";
+// The licence that rule writes, word for word: the gate holds that a row that names the rule
+// carries these words, so a licence a person rewrote no longer says the rule wrote it.
+export const REPOSITORY_ASSET_LICENCE =
+  "A digital asset of this repository, held as its code is: made in the repository, the mark belongs to the repository and to whoever made it, and is used on the terms the repository's code is used on.";
+
+// Where the licence of a row came from, in the words a person reads, or null for a person's
+// sentence.
+export function licenceFrom(source) {
+  const from = isMap(source?.[LICENCE_FROM]) ? source[LICENCE_FROM] : null;
+  if (!from) return null;
+  if (from.rule === REPOSITORY_ASSET) {
+    return "the rule for a mark built in the repository, not a person's sentence";
+  }
+  if (filled(from.package)) {
+    const at = filled(from.version) ? ` at ${from.version}` : "";
+    const where = filled(from.file) ? ` (${from.file})` : "";
+    return `the package ${from.package}, which declares it${at}${where}, not a person's sentence`;
+  }
+  return null;
+}
+
+// What a row says wrongly of where its licence came from, each sentence naming the row: no licence
+// beside it; on a mark, a rule this tool does not know, no maker, or other words than the rule's;
+// on an icon set, no package, another package than the one the row pins, or another version of it
+// than the one the row pins.
+function licenceFromProblems(source, file) {
+  if (source?.[LICENCE_FROM] === undefined) return [];
+  const from = isMap(source[LICENCE_FROM]) ? source[LICENCE_FROM] : {};
+  const problems = [];
+  if (!filled(source.licence)) {
+    problems.push(`${file} says where its licence comes from and has no licence`);
+  }
+  if (isLogo(source)) {
+    if (from.rule !== REPOSITORY_ASSET) {
+      return [
+        ...problems,
+        `${file}.${LICENCE_FROM} names no rule this tool knows: the licence of a mark comes from a person, or from the rule ${REPOSITORY_ASSET} for a mark built in the repository`,
+      ];
+    }
+    const said = `${file} says its licence comes from the rule for a mark built in the repository`;
+    if (!filled(source.made?.by)) {
+      problems.push(
+        `${said}, and names no maker: only a row written from a package a plug left says who made the mark; a mark brought in from files is licensed in a person's words, with no ${LICENCE_FROM}`,
+      );
+    }
+    if (filled(source.licence) && source.licence !== REPOSITORY_ASSET_LICENCE) {
+      problems.push(
+        `${said}, and its licence is not the rule's: a licence in a person's words carries no ${LICENCE_FROM}`,
+      );
+    }
+    return problems;
+  }
+  const pinned = filled(source.pin?.package) ? `the package ${source.pin.package}` : "no package";
+  if (!filled(from.package)) {
+    problems.push(
+      `${file}.${LICENCE_FROM} names no package: the licence of an icon set comes from a person, or from the package its row pins`,
+    );
+  } else if (from.package !== source.pin?.package) {
+    problems.push(
+      `${file} says its licence comes from the package ${from.package}, and its pin is ${pinned}: a licence a package declares is that package's alone`,
+    );
+  } else if (
+    filled(from.version) &&
+    filled(source.pin?.version) &&
+    from.version !== source.pin.version
+  ) {
+    // A licence read at one version is not the licence of another.
+    problems.push(
+      `${file} pins ${from.package} at ${source.pin.version}, and its licence was read from the package at ${from.version}: read the licence of the pinned version again (take the row away and write it again with icon-source), or write the licence in a person's words and take ${LICENCE_FROM} out`,
+    );
+  }
+  return problems;
+}
+
 // ---- icon sets (item 12.1 of the plan, spec 0017) ----------------------------------------------
 
 // The kind of source that is the icon set the product uses: the module the code imports icons
 // from, or the folder of the repository's own icon files; its pin, and the licence it is used
-// under, which a person writes. Like a font, it offers no block of a library.
+// under: the one its package declares, where the set is an outside package that declares one and
+// the row says so under `licence_from`; else a person's sentence. Like a font, it offers no block
+// of a library.
 export const ICON_SET_KIND = "icon-set";
 export const isIconSet = (source) => isMap(source) && source.kind === ICON_SET_KIND;
 // The check of the gate that holds the pin of every icon set of the ledger, laid under the row
@@ -457,7 +544,7 @@ export function iconSetRowProblems(source, file) {
       `${file} is an icon set and has no licence: a person writes the licence the icon set is used under`,
     );
   }
-  return [...problems, ...drawnProblems(source, file)];
+  return [...problems, ...licenceFromProblems(source, file), ...drawnProblems(source, file)];
 }
 
 // The key of an icon set row that records the icons drawn because the pinned set lacked them (spec
@@ -504,6 +591,8 @@ function readIconSet(root, name, source) {
     module: text(source.module) ?? (pin?.package || null),
     folder: text(source.folder) ?? null,
     licence: licensed ? source.licence : null,
+    // Where the licence came from when no person wrote it, or null for a person's sentence.
+    licence_from: licensed ? licenceFrom(source) : null,
     own: source.own === true,
     proposed: isMap(source.proposed) ? source.proposed : null,
     pin,
@@ -529,9 +618,11 @@ export function readIconSets(root) {
 
 // ---- the mark ------------------------------------------------------------------------------------
 // The mark of the product in the sources ledger (spec 0017): a source of the kind `logo` names each
-// file of the mark the repository keeps, with its role, its variant and its hash, and the licence a
-// person writes for it: who holds the right to use the mark, and where it may be used. Nothing here
-// draws or fetches: a file is hashed where it is, and a row is held once it is whole.
+// file of the mark the repository keeps, with its role, its variant and its hash, and its licence:
+// who holds the right to use the mark, and where it may be used, in a person's words; or, for a
+// mark built in the repository from a package a plug left, the rule that it is the repository's
+// asset as its code is, which the row says under `licence_from`. Nothing here draws or fetches: a
+// file is hashed where it is, and a row is held once it is whole.
 // What a file of the mark is for: the symbol alone, the name drawn as letters, the two side by side
 // or one above the other, the icon a browser shows for the page, and the icon of the installed app.
 export const LOGO_ROLES = [
@@ -586,7 +677,7 @@ export function logoRowProblems(source, file) {
       `${file} is a logo and has no licence: a person writes who holds the right to use the mark and where it may be used, and until then the mark cannot be chosen`,
     );
   }
-  return problems;
+  return [...problems, ...licenceFromProblems(source, file)];
 }
 
 // How the files of a mark differ from its pin today, each sentence naming the row.
@@ -632,6 +723,8 @@ function readLogo(root, name, source) {
     file,
     title: filled(source.title) ? source.title : name.replace(/\.json$/, ""),
     licence: licensed ? source.licence : null,
+    // Where the licence came from when no person wrote it, or null for a person's sentence.
+    licence_from: licensed ? licenceFrom(source) : null,
     // The repository kept these files before the row was written: its own mark, kept as found.
     own: source.own === true,
     proposed: isMap(source.proposed) ? source.proposed : null,

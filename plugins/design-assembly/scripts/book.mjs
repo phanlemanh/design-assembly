@@ -137,6 +137,7 @@ export const WORDS = {
   fontFrom: "from",
   fontLicence: "licence",
   fontNoLicence: "licence not written yet",
+  brandLicenceFrom: "from",
   fontDiffers: "the pin no longer holds",
   fontLoadedBy: "loaded by",
   // What loads a font: `{file}` and `{package}` are filled in, and shown as code.
@@ -1153,8 +1154,11 @@ function examplesSheet(facts, w, drawn) {
 function brandSheet(facts, w, pictures, number) {
   const brand = facts.brand;
   if (!brand) return "";
-  const licence = (said) =>
-    said ? `${escape(w.fontLicence)}: ${escape(said)}` : escape(w.fontNoLicence);
+  // A licence no person wrote says where it came from: a rule, or the package that declared it.
+  const licence = (said, from) =>
+    said
+      ? `${escape(w.fontLicence)}: ${escape(said)}${from ? ` (${escape(w.brandLicenceFrom)} ${escape(from)})` : ""}`
+      : escape(w.fontNoLicence);
   const differs = (said) => (said ? ` · ${escape(w.fontDiffers)}: ${escape(said)}` : "");
   const marks =
     brand.marks.length === 0
@@ -1173,7 +1177,7 @@ function brandSheet(facts, w, pictures, number) {
               })
               .join("");
             return `<h4>${escape(mark.title)}</h4><div class="marks">${files}</div>
-        <p class="muted">${escape(w.brandRow)} <code>${escape(mark.row)}</code> · ${licence(mark.licence)}${differs(mark.differs)}</p>`;
+        <p class="muted">${escape(w.brandRow)} <code>${escape(mark.row)}</code> · ${licence(mark.licence, mark.licence_from)}${differs(mark.differs)}</p>`;
           })
           .join("");
   const icons =
@@ -1188,7 +1192,7 @@ function brandSheet(facts, w, pictures, number) {
             const stroke = set.stroke === null ? "" : ` · ${escape(w.brandStroke)} ${set.stroke}`;
             return `<h4>${escape(set.title)}</h4>
         <p>${sizes}${stroke}</p>
-        <p class="muted">${escape(w.brandRow)} <code>${escape(set.row)}</code>${set.from ? ` · ${escape(w.brandPin)} ${escape(set.from)}` : ""} · ${licence(set.licence)}${differs(set.differs)}</p>`;
+        <p class="muted">${escape(w.brandRow)} <code>${escape(set.row)}</code>${set.from ? ` · ${escape(w.brandPin)} ${escape(set.from)}` : ""} · ${licence(set.licence, set.licence_from)}${differs(set.differs)}</p>`;
           })
           .join("");
   return sheet(

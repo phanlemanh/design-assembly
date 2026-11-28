@@ -769,11 +769,14 @@ or `origin/master`, the first git knows), with what is not committed yet.
   types. Free layout inside one screen is outside it.
 - **`owner-calls`: the wall.** It fails on a page under `design/patterns` that the branch adds,
   on a root colour line (the last `--primary` of a top-level `:root` block of the stylesheet, as
-  written) that differs from the base, and on a logo row of `design/sources/` that the branch adds
-  or whose files (each file with its hash) differ from the base, until a question of the waiting
-  list names that very item (`pattern:NAME`, `source-color:VALUE` with the new value, or `logo:ID`
-  with the id of the row) and the owner kept it. A change to a logo row that leaves its files as
-  they were, its licence say, is no new mark. A question about a mark that offers candidates is
+  written) that differs from the base, on a logo row of `design/sources/` that the branch adds
+  or whose files (each file with its hash) differ from the base, and on an icon set row there that
+  the branch adds or makes name another set (another package, or another folder), until a question
+  of the waiting list names that very item (`pattern:NAME`, `source-color:VALUE` with the new
+  value, `logo:ID` or `icon-set:ID` with the id of the row) and the owner kept it. A change to a
+  logo row that leaves its files as they were, its licence say, is no new mark; an icon set row
+  the main branch already has, with another version, licence, sizes or files of its folder, is no
+  new icon set. A question about a mark that offers candidates is
   answered by keeping (the first) or by naming another: either is the owner's choice when the
   row says it is that candidate's (`made.candidate`), or names none and the first was kept, and on
   a pass the wall says which candidate the owner chose, by whom and when. A row of another
@@ -881,7 +884,7 @@ passes: a check that cannot fail proves nothing.
 | `import-direction`  | No source file imports a file of a part listed above its own                                                                                               |
 | `slips`             | Every line of the record names a date, what slipped, a layer and what was done                                                                             |
 | `decision-sheet`    | Every judgment the branch writes is answered or asked; nothing goes around a decision                                                                      |
-| `owner-calls`       | A new kind of screen or root colour on the branch has the owner's kept answer                                                                              |
+| `owner-calls`       | A new kind of screen, root colour, mark or icon set on the branch has the owner's kept answer                                                              |
 | `gate`              | `make check` runs the tool in a way that can fail; with `script`, that script of `package.json` runs the check and nothing else                            |
 
 The tool also checks that it and the ledger agree in both directions: every row that points at it

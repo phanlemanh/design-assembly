@@ -2,17 +2,25 @@
 // design/sources/<id>.json, from what the repository already holds: a package its lockfile pins, at
 // the version pinned, or a folder of the repository's own icon files, each hashed where it is
 // (spec 0017, item 12.1). It fetches and installs nothing: a package the lockfile does not pin, or
-// a folder that holds no file of the repository, gets no row. The licence is a person's to write:
-// the row says a command proposed it, is not held until the licence is there, and `status` asks for
-// it. A row that exists is never written over, and a package a row pins gets no second row. Where
-// the gate is installed, the check of the pin is laid under the row that holds the ledgers' shapes.
+// a folder that holds no file of the repository, gets no row. An icon set that is an outside
+// package is used under the licence that package declares: it is read from the installed package
+// and written into the row, which says where it came from; where the package declares none, or is
+// not installed, and for a folder of the repository's own files, the licence is a person's to
+// write: the row says a command proposed it, is not held until the licence is there, and `status`
+// asks for it. Which icon set the product takes is the owner's call: a row written for a set the
+// owner has not kept puts one question on the waiting list, and the wall holds a branch that adds
+// the row until the owner keeps it; a set the owner refused gets no row. A row that exists is
+// never written over, and a package a row pins gets no second row. Where the gate is installed,
+// the check of the pin is laid under the row that holds the ledgers' shapes.
 // With --draw, an icon drawn because the pinned set lacks it is recorded in the row of the folder
 // that holds it, with the need and why, and only where no pinned set has an icon of that name.
 // Usage: node icon-source.mjs [--target DIR] (--package NAME | --folder PATH) [--title TEXT]
 //                             [--id ID] [--on DATE] [--dry-run] [--json]
 //        node icon-source.mjs [--target DIR] --draw FILE --need NAME --why TEXT [--on DATE]
-// Exit: 1 the row is written, or would be, and its licence waits on a person; 2 a wrong call, an
-// icon set the repository does not hold, or a row that is already there.
+// Exit: 0 the row is written, licensed by its package, for a set the owner kept; 1 the row is
+// written, or would be, and its licence or the owner's choice waits on a person; 2 a wrong call,
+// an icon set the repository does not hold, a set the owner refused, or a row that is already
+// there.
 import { existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
 import path from "node:path";
 import { stdout } from "node:process";
@@ -29,6 +37,7 @@ import {
   ICON_SET_CHECK,
   ICON_SET_KIND,
   ICON_USE_CHECK,
+  LICENCE_FROM,
   readIconSets,
   SOURCES_FOLDER,
   SOURCES_VERSION,
@@ -37,6 +46,8 @@ import { isDay } from "../templates/tools/design-assembly/waiting.mjs";
 import { toolPredates } from "./tool-knows.mjs";
 import { iconsDecision, iconsToday, proposedIconSet, recommendedIconSet } from "./icon-use.mjs";
 import { planDrawn } from "./icon-drawn.mjs";
+import { choiceData, choiceLine, ownersChoice, reasonOf } from "./icon-choice.mjs";
+import { declaredLicence, declaredLine } from "./package-licence.mjs";
 
 // The command a row says proposed it, when this script is called by itself.
 const BY = "icon-source";
@@ -44,9 +55,11 @@ const BY = "icon-source";
 const THEME = "design/theme.json";
 const SHAPES_ROW = "ledger-shapes";
 
-// The pin of an icon set that is a package: the version the lockfile pins it at, and the licence
-// the lockfile says the package states, for a person to read. It throws when the repository's
-// lockfile does not pin the package: this command installs and fetches nothing.
+// The pin of an icon set that is a package: the version the lockfile pins it at, and its licence,
+// the one the installed package itself declares, with where it was read (`licence`, `from`). Where
+// none is taken, why (`unread`), and the licence the lockfile says the package states, for a person
+// to read (`stated`). It throws when the repository's lockfile does not pin the package: this
+// command installs and fetches nothing.
 export function iconPackagePin(root, name) {
   const locked = pinnedPackage(root, name);
   if (locked.lockfile === null) {
@@ -59,8 +72,13 @@ export function iconPackagePin(root, name) {
       `${locked.lockfile} does not pin ${name}: install it as the repository installs a package, then run this again; nothing is fetched here`,
     );
   }
+  const pin = { package: name, version: locked.version };
+  const declared = declaredLicence(root, name, locked);
+  if (declared.licence)
+    return { pin, licence: declared.licence, from: declared.from, stated: null };
   return {
-    pin: { package: name, version: locked.version },
+    pin,
+    unread: declared.why,
     stated: locked.license
       ? `${locked.lockfile} says the package ${name} states the licence ${locked.license}: read it, and write the licence the icon set is used under in your own words`
       : null,
@@ -107,8 +125,10 @@ const fromOf = (pin) =>
     ? `the package ${pin.package} at ${pin.version}, as the lockfile pins it`
     : `${pin.files.length} file(s) of the repository, hashed where they are`;
 
-// The row of an icon set, as it would be written, with its file. The row has no licence: no tool
-// writes one. `own` says the repository used the set before the row was written.
+// The row of an icon set, as it would be written, with its file. The row of a package carries the
+// licence the installed package declares, and says where it came from; any other row has no
+// licence, which a person writes. `own` says the repository used the set before the row was
+// written.
 export function iconSetRow(root, { origin, title, id, own = false, by = BY, on }) {
   const module = origin.pin.package ?? null;
   const named = id ?? idOf(module ?? path.posix.basename(origin.folder));
@@ -121,6 +141,7 @@ export function iconSetRow(root, { origin, title, id, own = false, by = BY, on }
     ...(origin.folder ? { folder: origin.folder } : {}),
     pin: origin.pin,
     ...(own ? { own: true } : {}),
+    ...(origin.licence ? { licence: origin.licence, [LICENCE_FROM]: origin.from } : {}),
     proposed: { by, on },
   };
   const file = `${SOURCES_FOLDER}/${named}.json`;
@@ -228,6 +249,9 @@ export function ownIconSet(root, { on, by }) {
     named_by: library.settingsFile,
     from: fromOf(origin.pin),
     stated: origin.stated,
+    // The licence the installed package declares, where one was taken: no person is asked for it.
+    licence: origin.licence ?? null,
+    licence_from: origin.from ?? null,
   };
 }
 
@@ -260,12 +284,22 @@ const USAGE = `usage: node icon-source.mjs [--target DIR] [--package NAME | --fo
   Writes one file, ${SOURCES_FOLDER}/<id>.json, and never writes over one, nor writes a second row for a
   package a row pins. Where the gate is installed, it also lays the check of the icon sets' pins
   in ${THEME}, and answers icons in design/decisions.yaml with the row, held by the check of the
-  icons the code uses. It fetches and installs nothing. The row has no licence: a person writes it, and
-  the row is held from then on.
+  icons the code uses. It fetches and installs nothing.
 
-  Ends with 1 when the row is written, since its licence waits on a person, and when a set is
-  recommended, since a person chooses it; with 0 when the ledger already has an icon set; with 2 on
-  a wrong call, an icon set the repository does not hold, or a row that is already there.
+  The licence of a package is the one the installed package declares: it is written into the row
+  with where it was read, and no person is asked. Where the package is not installed, is installed
+  at another version than the lockfile pins, or declares none, and for a folder of the repository's
+  own files, the row has no licence: a person writes it, and the row is held from then on.
+
+  Which icon set the product takes is the owner's call. Where the waiting list holds no answer of
+  the owner that keeps icon-set:<id>, the command also writes one question about it there, and
+  says to stop: the gate is red on a branch that adds the row until the owner keeps it. A set the
+  owner refused, or answered in other words, gets no row.
+
+  Ends with 0 when the row is written with its package's licence for a set the owner kept, and
+  when the ledger already has an icon set; with 1 when the licence or the owner's choice waits on a
+  person, and when a set is recommended, since a person chooses it; with 2 on a wrong call, an icon
+  set the repository does not hold, a set the owner refused, or a row that is already there.
 `;
 
 const FLAGS = {
@@ -302,9 +336,24 @@ function draw(call, on) {
     rowOf,
   });
   const theme = withPinCheck(root);
+  // A row written new for the folder is a new icon set row: the owner's call, asked here.
+  const choice = planned.fresh
+    ? ownersChoice(root, {
+        row: planned.row,
+        file: planned.file,
+        from: fromOf(planned.row.pin),
+        reason: reasonOf({ pin: planned.row.pin, need: planned.entry.need }),
+        on,
+        who: BY,
+      })
+    : null;
   const lines = writeFiles(
     root,
-    { [planned.file]: planned.content, ...(theme ? { [THEME]: theme } : {}) },
+    {
+      [planned.file]: planned.content,
+      ...(theme ? { [THEME]: theme } : {}),
+      ...(choice?.files ?? {}),
+    },
     dryRun,
   );
   const waits = planned.fresh || !planned.licensed;
@@ -314,6 +363,7 @@ function draw(call, on) {
     `  the pinned set lacks it: ${planned.lacking.join("; ")}`,
     ...lines.map((line) => `  ${line}`),
     `gate: ${planned.entry.file} is in the folder ${planned.folder} of ${planned.file}, which the check ${ICON_USE_CHECK.kind} does not read`,
+    ...(choice ? [choiceLine(choice)] : []),
     ...(waits ? [`next: ${next}`] : []),
     ...(dryRun ? ["preview only: nothing was written"] : []),
   ];
@@ -324,6 +374,7 @@ function draw(call, on) {
       row: planned.file,
       drawn: planned.entry,
       lacking: planned.lacking,
+      ...(choice ? { owner: choiceData(choice) } : {}),
       next: waits ? next : null,
       files: writtenFiles(lines),
     },
@@ -408,6 +459,15 @@ function main(args) {
   const on = flags["--on"] ?? today();
   if (!isDay(on)) throw new Refusal(`--on takes a day written YYYY-MM-DD, and ${on} is not one`);
   const dryRun = flags["--dry-run"] === true;
+  // What this plugin recommends here, read before the row is there: the question to the owner
+  // says whether the row is of that set. Where the recommendation cannot be read, the question
+  // says only that the call named the set: a row is not refused for a reason of its question.
+  let rec;
+  try {
+    rec = recommendedIconSet(root);
+  } catch {
+    rec = null;
+  }
   let origin;
   try {
     origin = flags["--folder"]
@@ -442,6 +502,15 @@ function main(args) {
   }
   const predates = iconToolPredates(root);
   if (predates) throw new Refusal(`${predates}, then run this again. Nothing was written`);
+  // Which icon set the product takes is the owner's call: kept already, asked now, or refused.
+  const choice = ownersChoice(root, {
+    row: written.row,
+    file: written.file,
+    from: fromOf(origin.pin),
+    reason: reasonOf({ pin: origin.pin, folder: origin.folder, rec }),
+    on,
+    who: BY,
+  });
   const pinned = withPinCheck(root);
   // Where the gate is installed, the row answers the standard question icons, held by the check of
   // the icons the code uses; what that check finds today is said.
@@ -459,10 +528,12 @@ function main(args) {
       [written.file]: written.content,
       ...(theme ? { [THEME]: theme } : {}),
       ...(icons?.ledger ? { [LEDGER]: icons.ledger } : {}),
+      ...choice.files,
     },
     dryRun,
   );
-  const next = iconLicenceStep(written.file);
+  // The licence waits on a person only where the package gave none.
+  const next = origin.licence ? null : iconLicenceStep(written.file);
   const text = [
     `icon set: ${written.row.title}, from ${fromOf(origin.pin)}`,
     ...lines.map((line) => `  ${line}`),
@@ -479,8 +550,11 @@ function main(args) {
       : []),
     ...(icons?.predates ? [`gate: ${icons.predates}`] : []),
     ...(icons?.kept ? [`gate: ${icons.kept}`] : []),
+    ...(origin.licence ? [`licence: ${declaredLine(origin.licence, origin.from)}`] : []),
+    ...(origin.unread ? [`licence: ${origin.unread}`] : []),
     ...(origin.stated ? [`licence: ${origin.stated}`] : []),
-    `next: ${next}`,
+    choiceLine(choice),
+    ...(next ? [`next: ${next}`] : []),
     ...(dryRun ? ["preview only: nothing was written"] : []),
   ];
   return finish({
@@ -490,6 +564,8 @@ function main(args) {
       row: written.file,
       icon_set: written.row,
       stated: origin.stated,
+      licence_unread: origin.unread ?? null,
+      owner: choiceData(choice),
       check_laid: pinned !== null,
       icons_laid: Boolean(icons?.theme),
       red_today: redToday,
@@ -497,8 +573,9 @@ function main(args) {
       files: writtenFiles(lines),
     },
     text: `${text.join("\n")}\n`,
-    // The licence waits on a person, whatever was written.
-    work: true,
+    // Something waits on a person while the licence is not written or the owner has not kept
+    // the set.
+    work: next !== null || choice.chosen === null,
   });
 }
 

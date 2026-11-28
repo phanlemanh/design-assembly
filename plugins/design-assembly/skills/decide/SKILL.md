@@ -137,9 +137,14 @@ question and goes on with its own recommendation:
   agent writes into the ledger is asked this way, or says in its note that a person has not
   confirmed it; the gate fails otherwise.
 - `--item pattern:NAME` for a new page of a kind of screen, `--item source-color:VALUE` for a new
-  brand colour, `--item logo:ID` for a new logo row of `design/sources/` or a changed file of one.
-  These are the owner's calls: the script says **stop**, and the agent does not build on it. The
-  gate stays red on the branch until the owner keeps that very item here.
+  brand colour, `--item logo:ID` for a new logo row of `design/sources/` or a changed file of one,
+  `--item icon-set:ID` for a new icon set row there or one that names another set. These are the
+  owner's calls: the script says **stop**, and the agent does not build on it. The gate stays red
+  on the branch until the owner keeps that very item here. `icon-source` asks `icon-set:ID`
+  itself when it writes the row of a set the owner has not kept, so ask it by hand only before
+  the row is written. Never put the wording of a licence into `--recommend`: an outside package's
+  licence is read from the package, a mark built in the repository is licensed by rule, and any
+  other licence is a person's own sentence, written into the row.
 - `--candidate NAME`, with `--item logo:ID` only, once per mark the owner chooses from, the
   recommended one first. Keeping takes the first; the owner answers with the name of another to
   choose it, and the gate reads either as the owner's choice. The package of the chosen mark says

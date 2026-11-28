@@ -35,6 +35,8 @@ export function brandAssets(root) {
       id: mark.id,
       title: mark.title,
       licence: mark.licence,
+      // Where the licence came from when no person wrote it, or null.
+      licence_from: mark.licence_from,
       files: (mark.pin?.files ?? []).map((entry) => ({
         file: entry.file,
         role: entry.role,
@@ -52,6 +54,7 @@ export function brandAssets(root) {
       folder: set.folder,
       from: set.from,
       licence: set.licence,
+      licence_from: set.licence_from,
       ...answered(root, set.file),
       differs: set.drift[0] ?? set.problems[0] ?? null,
     })),

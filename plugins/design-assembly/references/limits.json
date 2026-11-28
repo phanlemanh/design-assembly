@@ -6914,9 +6914,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-27",
-      "where": ["d0131", "trials"],
+      "where": ["d0131", "trials", "d0134"],
       "status": "open",
-      "note": "A mark the owner chose, whose package is built and verified but whose row is not written, is not seen by status or audit: they name the choice on the decision sheet and nothing waits for the mark. The question of who holds the right to use it appears only once logo-source --package writes the row."
+      "note": "A mark the owner chose, whose package is built and verified but whose row is not written, is not seen by status or audit: they name the choice on the decision sheet and nothing waits for the mark. Narrowed by d0134: the row of such a package no longer waits on a sentence of who holds the right to use the mark, so the question that appeared only once logo-source --package wrote the row is gone; the package nobody recorded is still unseen."
     },
     {
       "id": "logo-licence-sentence-stalls-the-row",
@@ -6925,9 +6925,11 @@
       "severity": "medium",
       "plan": "keep",
       "opened": "2026-11-27",
-      "where": ["d0131", "trials"],
-      "status": "open",
-      "note": "The row of a mark is held only once a person writes who holds the right to use it and where. In the first measured run the owner was asked for that sentence several times, chose and answered everything else, and did not write it; the run stopped at the dry run. How the sentence is best asked for is not known."
+      "where": ["d0131", "trials", "d0134"],
+      "status": "closed",
+      "note": "The row of a mark is held only once a person writes who holds the right to use it and where. In the first measured run the owner was asked for that sentence several times, chose and answered everything else, and did not write it; the run stopped at the dry run. How the sentence is best asked for is not known.",
+      "closed": "2026-11-28",
+      "closed_by": "d0134 (plugin 0.79.0), on the owner's rule of 2026-11-28 that a mark built in the repository is its asset as its code is: logo-source --package writes the row's licence by that rule, one fixed sentence, and says under licence_from that the rule wrote it; the row is held as written, status asks no sentence of it, and the gate is green with the owner's choice of the mark alone. Held by plugin tests seen red before the code. A mark brought in from files still waits on a person's sentence: the row logo-from-files-licence-sentence-asked-in-the-row"
     },
     {
       "id": "logo-package-formatter-collides",
@@ -6947,9 +6949,9 @@
       "severity": "low",
       "plan": "fix",
       "opened": "2026-11-27",
-      "where": ["d0131", "trials"],
+      "where": ["d0131", "trials", "d0134"],
       "status": "open",
-      "note": "The command decide --ask on an owner's item (logo:<id>) says the gate is red until the owner answers, but the wall owner-calls holds a branch only: on the main branch, or a repository with no other branch, the gate stays green with the question open."
+      "note": "The command decide --ask on an owner's item (logo:<id>, and since d0134 icon-set:<id>, which icon-source also asks) says the gate is red until the owner answers, but the wall owner-calls holds a branch only: on the main branch, or a repository with no other branch, the gate stays green with the question open. icon-source says it of a branch that adds the row; decide --ask still says it of the gate."
     },
     {
       "id": "status-next-names-new-for-a-licence",
@@ -7092,9 +7094,11 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-28",
-      "where": ["d0132", "trials"],
-      "status": "open",
-      "note": "Nothing holds that the owner chose the icon set: icon-source writes the row as proposed, from the package the code already imports or the recommended one, and no wall asks for his word as owner-calls does for a mark. In the first measured run the builder queued the choice and the owner kept it; in the second, another builder on the same brief recorded the set the code uses and asked only its licence and its sizes, and the gate was green both ways."
+      "where": ["d0132", "trials", "d0134"],
+      "status": "closed",
+      "note": "Nothing holds that the owner chose the icon set: icon-source writes the row as proposed, from the package the code already imports or the recommended one, and no wall asks for his word as owner-calls does for a mark. In the first measured run the builder queued the choice and the owner kept it; in the second, another builder on the same brief recorded the set the code uses and asked only its licence and its sizes, and the gate was green both ways.",
+      "closed": "2026-11-28",
+      "closed_by": "d0134 (plugin 0.79.0): which icon set the product takes is the owner's call, the item icon-set:<id> of the waiting list. icon-source reads the waiting list before it writes a row: where the owner kept the item it says who chose the set; where nobody asked, it writes one question beside the row through the code decide --ask asks with, and says to stop; a set the owner refused, or answered in other words, gets no row. The wall owner-calls holds a branch that adds an icon set row, or makes one name another set, until the owner keeps that item; a row the main branch already has asks nothing. Held by plugin tests seen red before the code, from the row to the gate. What the wall does not compare is the rows icon-set-choice-unheld-where-nothing-is-compared and icon-set-row-proposed-by-adopt-asks-no-owner"
     },
     {
       "id": "decide-ask-takes-a-licence-as-a-recommendation",
@@ -7103,9 +7107,9 @@
       "severity": "medium",
       "plan": "fix",
       "opened": "2026-11-28",
-      "where": ["d0132", "trials"],
+      "where": ["d0132", "trials", "d0134"],
       "status": "open",
-      "note": "The command decide --ask takes any words as the recommendation of a question, also the wording of a licence, which only a person writes: keeping such a question records the owner as confirming a sentence an agent drafted, and the row's licence stays unwritten all the same. In the second measured run a builder queued the licence of the icon set with a sentence drafted from what the package states; the owner did not answer it and nobody copied it."
+      "note": "The command decide --ask takes any words as the recommendation of a question, also the wording of a licence, which only a person writes: keeping such a question records the owner as confirming a sentence an agent drafted, and the row's licence stays unwritten all the same. In the second measured run a builder queued the licence of the icon set with a sentence drafted from what the package states; the owner did not answer it and nobody copied it. Narrowed by d0134: the two licences that run asked for no longer wait on a person, since an icon set that is an outside package carries the licence its installed package declares and a mark built in the repository carries the rule's, and the decide skill says never to put the wording of a licence into a recommendation. The command itself still takes such words, for the licences that stay a person's: a font, a mark brought in from files, icons kept as files, and a package that declares no licence or is not installed."
     },
     {
       "id": "status-calls-a-queued-ground-a-measurement",
@@ -7238,6 +7242,149 @@
       "where": ["spec", "d0133"],
       "status": "open",
       "note": "Nothing looks for a saved design file in a repository: variables-source refuses to pin one and the bring-in skill says it stays on the machine, but a person who commits it is told so by no check."
+    },
+    {
+      "id": "icon-set-choice-unheld-where-nothing-is-compared",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0134"],
+      "status": "open",
+      "note": "The wall owner-calls holds a new icon set row only where it compares a branch with the main one. On the branch where a repository meets the plugin (its main branch has no decision ledger yet), on the main branch itself, and outside git, it compares nothing: the question icon-source wrote waits on the decision sheet and status ends with 1, but the gate is green and a builder that does not stop is not stopped. A repository born through the guide in one sitting is such a branch."
+    },
+    {
+      "id": "icon-set-row-proposed-by-adopt-asks-no-owner",
+      "area": "adopt",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0134"],
+      "status": "open",
+      "note": "The adopt command proposes the row of the icon set the component library's settings name, as the repository's own, and writes no question about which set the product takes: it records what the repository already used. Where adopt runs on a branch of a repository that already has its decision ledger, the wall then holds the branch and names the question to ask with decide --ask; where it runs on the branch that meets the plugin, nothing asks the owner."
+    },
+    {
+      "id": "icon-set-choice-in-other-words-not-read",
+      "area": "decide",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0134"],
+      "status": "open",
+      "note": "A question about icon-set:<id> offers no candidates (decide --ask takes --candidate for a mark only): when the owner answers in words that name another set, the wall stays red for the row asked about and icon-source writes no row for it, as it should, but the words are not read as the choice of the other set. The row of that set has another id, so icon-source asks once more, and the owner answers twice."
+    },
+    {
+      "id": "icon-set-owner-answer-stands-for-another-set",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0134"],
+      "status": "open",
+      "note": "The wall names the icon set by the id of its row, icon-set:<id>: once the owner kept that item, a later branch that makes the same row name another package or another folder passes the wall on the same answer, as a changed mark does on logo:<id> (limit logo-owner-answer-stands-for-later-changes). icon-source never writes over a row, so a hand edit does this, or a row taken away and written again for another package under the same --id: icon-source then says the owner chose it and asks nothing."
+    },
+    {
+      "id": "icon-set-question-recommends-the-set-the-call-named",
+      "area": "decide",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0134"],
+      "status": "open",
+      "note": "The question icon-source writes recommends keeping the set of the row it wrote, whichever set the call named: where a builder names another package than this plugin would recommend (the set the code imports, or the one the starter kit's pieces import), the recommendation still says to keep the builder's set, and only its reason says which set the plugin would recommend. An owner who keeps without reading the reason confirms the builder's pick."
+    },
+    {
+      "id": "icon-set-licence-words-not-read-again-by-the-gate",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0134"],
+      "status": "open",
+      "note": "The licence an icon package declares is read once, when icon-source or adopt writes the row, from the package installed at the version the lockfile pins. The gate holds that the version the licence was read at is the version the row pins, and nothing more: it reads no installed package, so it does not see whether the words on the row are what the package declares, nor whether the file the row names is there. After a new version is pinned, the row is red until a person takes it away and runs icon-source again, which reads the licence of that version, or writes the licence in their own words."
+    },
+    {
+      "id": "icon-set-licence-read-from-one-manifest-field",
+      "area": "checks",
+      "kind": "stack-bound",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0134"],
+      "status": "open",
+      "note": "The licence of an icon package is taken only from the license text of node_modules/<package>/package.json under the repository's root, and only where it equals what package-lock.json states when that file states one: a licence written as an object or a list, a package installed elsewhere (a workspace that keeps its packages above the repository, another package manager's layout), or a licence kept only in a file of the package gives none, and the row waits on a person. The words are copied as declared: nothing judges whether that licence allows the use, and no licence file of the package is read (as for a font, limit font-licence-is-words)."
+    },
+    {
+      "id": "logo-built-in-repository-is-the-manifests-word",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0134"],
+      "status": "open",
+      "note": "A mark is read as built in the repository when its row is written by logo-source --package, from a folder of the repository whose manifest names the plug that made it and whose files match the hashes listed; the gate holds that only a row that names a maker carries the rule's licence. Nothing checks that the files were made here: files copied in from outside, set in a folder with a manifest written by hand, get the licence of a repository's own asset, and a mark drawn by hand in the repository without a manifest does not."
+    },
+    {
+      "id": "logo-rule-licence-covers-files-added-later",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0134"],
+      "status": "open",
+      "note": "The command logo-source --into adds files to a logo row and changes nothing the row says: on a row licensed by the rule for a mark built in the repository, a file brought in from outside is added under that licence. The command says so in one line and tells the person to write the licence in their own words and take licence_from out; no check holds it."
+    },
+    {
+      "id": "logo-package-row-written-before-the-rule-keeps-waiting",
+      "area": "status",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0134"],
+      "status": "open",
+      "note": "A logo row written from a package by a plugin before 0.79.0 has no licence, and status still asks who holds the right to use the mark, though the rule now answers it: a row is never written over, so a person writes the licence, or takes the row away and runs logo-source --package again, which writes the rule's. Nothing says which rows these are."
+    },
+    {
+      "id": "logo-from-files-licence-sentence-asked-in-the-row",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0134"],
+      "status": "open",
+      "note": "A mark brought in from files the repository already keeps (logo-source --file, or the row adopt proposes from the page icons) is held only once a person writes who holds the right to use it and where, by hand, into the row. The measured runs showed an owner asked for such a sentence several times without writing it; they asked it of a mark a plug built, which no longer waits on one, and how the sentence is best asked for a mark brought in from files was never tried."
+    },
+    {
+      "id": "repository-asset-licence-is-one-fixed-sentence",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0134"],
+      "status": "open",
+      "note": "The licence the rule writes for a mark built in the repository is one fixed English sentence: it says the mark belongs to the repository and to whoever made it, and is used on the terms the repository's code is used on. The plugin reads no licence of the repository and does not know those terms, names no person or company as the holder, and writes the same words whatever the repository's own licence says; a repository that wants another wording writes its own sentence and takes licence_from out."
+    },
+    {
+      "id": "icon-set-row-written-before-the-rule-keeps-waiting",
+      "area": "status",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0134"],
+      "status": "open",
+      "note": "The row of an icon package that a command wrote with no licence, by a plugin before 0.79.0 or while the package was not installed, keeps waiting on a person's sentence though the package declares a licence: a row is never written over, status still says no tool writes the licence, and nothing reads the package again for it. A person writes the licence, or takes the row away and runs icon-source again, which reads the package and also asks the owner which set the product takes."
     }
   ]
 }

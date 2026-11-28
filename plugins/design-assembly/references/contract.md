@@ -381,7 +381,15 @@ yet. Two things are required of it, as of a font:
 - its `pin`, held in the row itself: either `package` and `version`, the package and the version
   the repository's lockfile pins it at; or `files`, each icon file by its path from the
   repository's root (`file`) with its `sha256`.
-- its `licence`, the licence the icon set is used under, in a person's words. No tool writes it.
+- its `licence`, the licence the icon set is used under. An icon set that is an outside package is
+  used under the licence that package itself declares: `icon-source` and `adopt` read the
+  `license` the installed package states in its own `package.json` (`node_modules/<package>/`),
+  write it into `licence` as declared, and say where it came from under `licence_from`: `package`,
+  the `version` it was read at, and `file`, the file that declared it. Nothing is fetched. Where
+  the package is not installed, is installed at another version than the lockfile pins, declares no
+  licence or points at a file for it, or declares another than the lockfile says it states, and for
+  a set kept as files of the repository, the licence is a person's sentence: no tool writes it, and
+  the row has no `licence_from`.
 
 A row of the repository's own icon files may also have `drawn`: the icons drawn because the pinned
 set lacked them (spec 0017, criterion 18), each with `file`, a file of the row's pin, `need`, the
@@ -395,8 +403,9 @@ keeping every pin of that row, or writes a new row for that folder. The file sta
 an icon set row, which the check of the icons used does not read.
 
 `proposed` and `own` say what they say of a font: a row `icon-source` or `adopt` wrote has its pin
-and waits on its licence, unheld, and `status` asks for the licence; `own: true` says the
-repository used the set before the row was written. `icon-source` writes the row from a package the
+and, where its package declared no licence that could be taken, waits on its licence, unheld, and
+`status` asks for the licence; `own: true` says the repository used the set before the row was
+written. `icon-source` writes the row from a package the
 lockfile pins or from a folder of the repository, each file hashed where it is; it fetches and
 installs nothing and never writes over a row, nor writes a second row for a package a row pins.
 `adopt` proposes the row of the set the component library's settings name, where the lockfile pins
@@ -405,7 +414,26 @@ repository whose own copy of the tool predates the kind (its `sources-ledger.mjs
 `ICON_SET_KIND`): that gate would read the row as a library with no catalog. They say to bring the
 tool up with `upgrade` first, and what would then be proposed.
 
-The gate fails on an icon set row with no pin, and on one with no licence that no command proposed.
+Which icon set the product takes is the owner's call: the waiting list asks it with the item
+`icon-set:ID`, the id of the row. `icon-source` reads the waiting list before it writes a row: where
+the owner kept the item it says who chose the set and on which day; where no question asks it, it
+writes one beside the row, through the code `decide --ask` asks with, and tells the builder to stop;
+where the owner refused it, or answered in other words, it writes nothing. This holds for the row
+`icon-source --draw` writes new for a folder of drawn icons too. The wall `owner-calls` holds a
+branch that adds an icon set row, or makes one name another set (another package, or another
+folder), until the owner keeps that very item. A row the main branch already has, whichever
+version of the plugin wrote it, asks nothing, nor does a change of its version, its licence, its
+sizes or the files of its folder. No question of the kind is written, by `icon-source` or by
+`decide --ask`, on a repository whose own copy of the tool predates the item (its `waiting.mjs`
+names no `iconSetItem`): that gate would read the question as broken.
+
+The gate fails on an icon set row with no pin, and on one with no licence that no command proposed;
+on a row whose `licence_from` names another package than the one its pin names, or none, or another
+version than the one its pin names (a licence read at one version is read again once another is
+pinned: the row is taken away and written again with `icon-source`, which asks the owner nothing
+more where the item was kept, or a person writes the licence and takes `licence_from` out); and on
+one that says where its licence came from and has no licence. The gate reads no installed package:
+it does not compare the words of the licence with what the package declares.
 Once the repository has a row of the kind, the check `icon-set-pin` is laid under the row that holds
 the ledgers' shapes (by `icon-source`, `adopt` or `upgrade`), and the gate fails when an icon set
 pins what the repository no longer has: the lockfile pins another version or does not pin the
@@ -439,9 +467,16 @@ and its `variant`, each one word: the role is what the file is for, `mark` (the 
 `wordmark` (the name drawn as letters), `lockup-horizontal` or `lockup-vertical` (the two side by
 side, or one above the other), `favicon` (the icon a browser shows for the page) or `app-icon` (the
 icon of the installed app); the variant is how it is coloured, `color`, `mono` (one colour) or
-`inverse` (drawn for a dark ground). A file is named once. Its `licence` says, in a person's words,
-who holds the right to use the mark and where it may be used; no tool writes it. As with a font, a
-row a command wrote says so under `proposed` and is not held until a person writes the licence;
+`inverse` (drawn for a dark ground). A file is named once. Its `licence` says who holds the right
+to use the mark and where it may be used. For a mark brought in from files the repository already
+keeps, that is a person's sentence, and no tool writes it: as with a font, a row a command wrote
+says so under `proposed` and is not held until a person writes the licence. A mark built in the
+repository, from a package a plug left (below), is the repository's asset as its code is: the
+command writes the licence of that rule, one fixed sentence (`REPOSITORY_ASSET_LICENCE` in the
+tool), and the row says the rule wrote it under `licence_from`: `{ "rule": "repository-asset" }`.
+Such a row waits on no sentence of a person. The gate fails on a row that names the rule and
+names no maker (`made`), or whose licence is other words than the rule's: a licence a person
+rewrote carries no `licence_from`.
 `own: true` says the repository kept these files before the row was written; and `made`, `by` and
 maybe `on`, may say who made the mark (a person's hand, or a plug) and when, and maybe `candidate`,
 which of the candidates a question of the waiting list offered the mark is, as its package says.
@@ -491,7 +526,9 @@ a package with no manifest or one that is not whole, a file the manifest names a
 lacks, a file whose hash differs, and a file of the package the manifest does not name; nothing is
 written then. It draws, rebuilds and fetches nothing, and never calls the plug. The row pins each
 file by its path from the repository's root, says `made` as the manifest says it, and `proposed` as
-for any row a command wrote, with the manifest's `candidate` under `made`; the command says who
+for any row a command wrote, with the manifest's `candidate` under `made`, and carries the licence
+of the rule for a mark built in the repository with `licence_from`, so it is held as written and
+`status` asks no licence of it; the command says who
 chose the mark, by name and day, from the owner's answer on the waiting list that keeps
 `logo:<id>` or names one of the candidates its question offers, and names the owner's call as the
 next step where there is none. A package of a candidate the question did not offer, of another

@@ -33,6 +33,7 @@ import {
   LOGO_ROLES,
   LOGO_VARIANTS,
   logoRowProblems,
+  REPOSITORY_ASSET,
   SOURCES_FOLDER,
   variablesRowProblems,
 } from "./sources-ledger.mjs";
@@ -373,7 +374,7 @@ export const LEDGERS = {
       "which outside libraries blocks are picked from, in what order, at which pin; which fonts the product uses, and which icon set, from where, at which pin, under which licence; which export of variables was brought in, at which pin",
     born: BORN.firstEntry,
     writer:
-      "a person, or the repository's own tool that pins a source; a font's row, the guide or adopt from what the repository holds; an icon set's row, icon-source or adopt from what the repository holds; the row of an export of variables, variables-source from a file the repository keeps; the licence a person; one file per source",
+      "a person, or the repository's own tool that pins a source; a font's row, the guide or adopt from what the repository holds; an icon set's row, icon-source or adopt from what the repository holds; the row of an export of variables, variables-source from a file the repository keeps; the licence a person, save the one a package declares for its icon set and the rule's for a mark built in the repository, each said under licence_from; one file per source",
     version: 1,
     format: "json-sources",
     root: {
@@ -460,8 +461,10 @@ export const LEDGERS = {
     // A source of the kind `logo` (spec 0017): the mark of the product. No catalog: it offers no
     // block. Its pin, each file of the mark already in the repository with its hash, its role and
     // its variant; the licence, who holds the right to use the mark and where, which a person
-    // writes. `own` says the repository kept the files before the row was written, `proposed`
-    // which command wrote the row and when, and `made` who made the mark, when it says so.
+    // writes, save for a mark built in the repository: its licence is the rule that it is the
+    // repository's asset as its code is, and `licence_from` says so. `own` says the repository
+    // kept the files before the row was written, `proposed` which command wrote the row and when,
+    // and `made` who made the mark, when it says so.
     logo: {
       catalog: text,
       pin: required({
@@ -493,6 +496,13 @@ export const LEDGERS = {
         // `candidate`: which of the candidates the owner was offered the mark is, as its package
         // says; the wall holds it against the owner's choice.
         fields: { by: required(text), on: day, candidate: text },
+        open: true,
+      },
+      // Where the licence came from, when no person wrote it: the rule for a mark built in the
+      // repository. A row with a person's sentence has no such key.
+      licence_from: {
+        type: "object",
+        fields: { rule: required({ ...text, values: [REPOSITORY_ASSET] }) },
         open: true,
       },
     },
@@ -562,7 +572,8 @@ export const LEDGERS = {
     // where the set is one; or the folder the repository keeps its own icon files in. A pin the row
     // itself holds, the package at the version the lockfile pins it at or each file with its hash;
     // the sizes the product uses and the stroke width of a set drawn in strokes, as a person
-    // answers them; and the licence, which a person writes. `own` and `proposed` as for a font.
+    // answers them; and the licence: the one the package of the pin declares, where it declares
+    // one and `licence_from` says so, else a person's sentence. `own` and `proposed` as for a font.
     "icon-set": {
       catalog: text,
       module: text,
@@ -602,6 +613,13 @@ export const LEDGERS = {
       proposed: {
         type: "object",
         fields: { by: required(text), on: required(day) },
+        open: true,
+      },
+      // Where the licence came from, when no person wrote it: the package of the pin, the version
+      // it was read at, and the file of the installed package that declared it.
+      licence_from: {
+        type: "object",
+        fields: { package: required(text), version: text, file: text },
         open: true,
       },
     },
