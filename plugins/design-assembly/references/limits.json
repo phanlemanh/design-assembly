@@ -7117,6 +7117,127 @@
       "where": ["d0132", "trials"],
       "status": "open",
       "note": "For a question an agent queued, status prints the ground the agent gave after the words a measurement on this repository: the waiting list gives this ground, so a reason an agent wrote, such as a count of classes in the code, reads as something the plugin measured."
+    },
+    {
+      "id": "design-file-plug-unmeasured",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0133"],
+      "status": "open",
+      "note": "The plug of the design tool whose variables are brought in as a file is declared at the direction and foundations sockets and was never measured on the four measures, so it carries no measured entry: plugs lists it and never asks the owner to choose it. The way it leads with was tried by hand twice (trials) and was never walked by a person from the saved file to a candidate direction. The measure is item 13.4 of the plan."
+    },
+    {
+      "id": "design-file-own-export-not-read",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0133"],
+      "status": "open",
+      "note": "The plug file lists the design tool's own export of variables as its second way, and the bridge in does not read that folder of files, one for each collection and mode: bring-in --ways and the skill say it is not read yet, so a person who cannot save the design file to the machine has no way in. Reading it is item 13.2 of the plan."
+    },
+    {
+      "id": "design-file-reader-terms-unread",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0133"],
+      "status": "open",
+      "note": "The plug file names the reader of a saved design file that was tried, with its licence, and tells the person to read the licence before running it. Whether that licence allows the use, whether decoding the file's unpublished format is allowed by the terms of the tool's maker, and whether the reader loses values on the way, were not checked by this plugin, which never runs a reader."
+    },
+    {
+      "id": "design-tool-server-matched-by-declared-name",
+      "area": "capabilities",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0133"],
+      "status": "open",
+      "note": "The board reads the design tool whose variables are brought in as a file as in the session, or as waiting for a sign-in, only when the session lists its server under the one name its plug file declares, alone or under a prefix. That name was read from one session's list, and a session that lists the server under an id or another name reads the tool as absent."
+    },
+    {
+      "id": "plug-ways-are-sentences-of-their-day",
+      "area": "capabilities",
+      "kind": "unproven",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0133"],
+      "status": "open",
+      "note": "The ways a plug file lists to get a file are sentences a person follows in the tool: the names of its menus and the shape of what its own export gives were read from the trials and public pages of 2026-11-26, and no check sees whether the tool still works that way."
+    },
+    {
+      "id": "bring-in-call-rules-held-by-words",
+      "area": "capabilities",
+      "kind": "no-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0133"],
+      "status": "open",
+      "note": "That the bring-in skill says what a call to a tool's service sends before it is made and that it costs a call of the quota, calls only tools that read, and never downloads or runs a reader of a design file for the person, is held by a test of the skill's words. Nothing watches what an agent that follows the skill does, and no script stands where it could refuse such a call."
+    },
+    {
+      "id": "variables-pin-not-held-by-the-gate",
+      "area": "checks",
+      "kind": "partial-check",
+      "severity": "medium",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0133"],
+      "status": "open",
+      "note": "The gate holds the shape of a row of the kind variables and not its pin: a kept export that changed after it was pinned leaves the gate green, and only variables-source --check says so, when a person or a skill runs it."
+    },
+    {
+      "id": "variables-source-keeps-variables-only",
+      "area": "capabilities",
+      "kind": "partial-check",
+      "severity": "low",
+      "plan": "fix",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0133"],
+      "status": "open",
+      "note": "Only an export of variables can be kept with a pin: a token file, a DESIGN.md or a system folder that was brought in gets no row of the sources ledger, and nothing says when it changes."
+    },
+    {
+      "id": "variables-pin-moved-by-a-formatter",
+      "area": "checks",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0133"],
+      "status": "open",
+      "note": "A formatter of the repository that rewrites a kept export changes its hash: variables-source --check then says the file is not the one pinned, and cannot tell a formatter's rewrite from a change of the values."
+    },
+    {
+      "id": "variables-row-plug-is-the-callers-word",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0133"],
+      "status": "open",
+      "note": "A row of the kind variables names the plug its export came through only when the call gives --plug, and the day it was taken as --on says, or today: nothing checks that the file came through that plug or was taken on that day, and a row without a plug is whole."
+    },
+    {
+      "id": "design-file-in-a-repository-unseen",
+      "area": "checks",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["spec", "d0133"],
+      "status": "open",
+      "note": "Nothing looks for a saved design file in a repository: variables-source refuses to pin one and the bring-in skill says it stays on the machine, but a person who commits it is told so by no check."
     }
   ]
 }

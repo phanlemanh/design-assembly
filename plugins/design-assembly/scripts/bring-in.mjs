@@ -5,8 +5,12 @@
 // settled becomes a question on the waiting list, and the ledger wins until the owner says
 // otherwise. It reads the file it is given and the repository's blueprint; it calls no model and no
 // network.
+// With --ways it reads no source: it says, for each plug file that lists them, the ways a person
+// gets a file the bridge reads, the first first, with what the plug sends and what must be on the
+// machine (specification 0018).
 // Usage: node bring-in.mjs --from PATH [--kind tokens|design-md|variables|system] [--target DIR]
 //                          [--collection NAME] [--on DATE] [--dry-run] [--json]
+//        node bring-in.mjs --ways [--json]
 // Exit: 0 nothing waits on the owner from this source; 1 a question from it waits; 2 a wrong call,
 // or a source or a repository that cannot be read. On 2 nothing is written.
 import { createHash } from "node:crypto";
@@ -37,6 +41,7 @@ import {
 } from "../templates/tools/design-assembly/waiting.mjs";
 import { writeFiles, writtenFiles } from "./apply.mjs";
 import { today } from "./asking.mjs";
+import { readCapabilities } from "./capabilities.mjs";
 import { finish, readCall, Refusal, refuse, start } from "./command.mjs";
 import { KINDS, readOutside } from "./outside-tokens.mjs";
 import { variablesLines } from "./outside-variables.mjs";
@@ -618,8 +623,45 @@ export function report({ candidate, questions }) {
   return `${lines.join("\n")}\n`;
 }
 
+// The ways a person gets a file the bridge reads, as the plug files say them (specification 0018):
+// each plug that lists ways, with its ways in their order, what it sends and what must be on the
+// machine. Only the plugin's own files are read.
+export function waysOf(caps = readCapabilities()) {
+  if (caps.problems.length > 0) {
+    throw new Refusal(`the plugin's plug files cannot be read: ${caps.problems.join("; ")}`);
+  }
+  return caps.plugs
+    .filter((plug) => Array.isArray(plug.ways))
+    .map((plug) => ({
+      id: plug.id,
+      ways: plug.ways,
+      sends: plug.sends ?? null,
+      machine: plug.machine ?? null,
+    }));
+}
+
+// The ways, as a person reads them: the first way is the one to say first, and a way the bridge
+// does not read yet says so before it says how.
+export function waysReport(plugs) {
+  if (plugs.length === 0) {
+    return "No plug file says how to get a file from its tool: ask the user for the file the tool made.\n";
+  }
+  const lines = plugs.flatMap((plug) => [
+    `${plug.id}: ${plug.ways.length} ${plug.ways.length === 1 ? "way" : "ways"} to get a file the bridge reads; say the first first`,
+    ...plug.ways.map((way, index) =>
+      way.reads
+        ? `  ${index + 1}. ${way.id}, read as ${KIND_WORDS[way.reads]}: ${way.how}`
+        : `  ${index + 1}. ${way.id}, not read yet: ${way.not_read} ${way.how}`,
+    ),
+    ...(plug.sends ? [`  sends: ${plug.sends}`] : []),
+    ...(plug.machine ? [`  on the machine: ${plug.machine}`] : []),
+  ]);
+  return `${lines.join("\n")}\n`;
+}
+
 const USAGE =
-  "usage: node bring-in.mjs --from PATH [--kind tokens|design-md|variables|system] [--target DIR] [--collection NAME] [--on DATE] [--dry-run] [--json]\n";
+  "usage: node bring-in.mjs --from PATH [--kind tokens|design-md|variables|system] [--target DIR] [--collection NAME] [--on DATE] [--dry-run] [--json]\n" +
+  "       node bring-in.mjs --ways [--json]\n";
 
 async function main(args) {
   const call = readCall(args, {
@@ -628,10 +670,16 @@ async function main(args) {
     "--collection": "value",
     "--on": "value",
     "--dry-run": "switch",
+    "--ways": "switch",
   });
   if (call.problem) return refuse(call.problem, USAGE);
   if (call.help) return void stdout.write(USAGE);
   const from = call.flags["--from"];
+  if (call.flags["--ways"] === true) {
+    if (from) return refuse("give --ways or --from, not both: --ways reads no source", USAGE);
+    const plugs = waysOf();
+    return finish({ json: call.json, result: { plugs }, text: waysReport(plugs), work: false });
+  }
   if (!from) return refuse("say what to read, with --from PATH", USAGE);
   const kind = call.flags["--kind"] ?? null;
   if (kind !== null && !KINDS.includes(kind))

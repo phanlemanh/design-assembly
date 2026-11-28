@@ -717,8 +717,8 @@
         {
           "id": "13.3",
           "what": "Tệp phích Figma, bước plugs, skill bring-in dẫn lối tệp .fig trước, và bản xuất biến có ghim",
-          "state": "todo",
-          "ref": "wiki/specs/0018-figma-at-the-foundations-socket.md, tiêu chí 10 đến 13; một lát, một PR; đổi hợp đồng sổ nếu có, cần người duyệt"
+          "state": "done",
+          "ref": "wiki/specs/0018-figma-at-the-foundations-socket.md, tiêu chí 10 đến 13; một lát, một PR; đổi hợp đồng sổ nếu có, cần người duyệt. Dựng ngày 2026-11-28 theo lời chủ repo («Dựng 13.3», đáp câu «Anh cho dựng lát 13.3 (tệp phích Figma, bước plugs, skill bring-in dẫn lối tệp .fig trước) bây giờ chứ?»), plugin 0.78.0, wiki/decisions/0133-the-figma-plug-file-and-the-pinned-export-of-variables.md: tệp phích references/plugs/figma.json khai ổ hướng đi và ổ nền, máy chủ mà phiên liệt kê, needs account, network và machine, câu sends của đề bài, hai điều của lối tệp .fig cùng tên và giấy phép của công cụ đã thử, không có mục measured (tiêu chí 10); khoá mới ways của tệp phích nêu lối tệp .fig trước, bản xuất sẵn có sau và ghi rõ cầu chưa đọc lối sau; bảng phích hiện phích với ba trạng thái của phiên, và bài kiểm giữ rằng không câu hỏi nào nêu hay khuyến nghị nó khi chưa đo (tiêu chí 11); bring-in --ways in các lối, skill bring-in nói từng lối theo thứ tự ấy, không tải hay chạy công cụ đọc, nói gửi gì, đi đâu và tốn một lượt hạn mức trước mỗi lượt gọi, chỉ gọi công cụ đọc (tiêu chí 12); đổi hợp đồng sổ, cần người duyệt: sổ nguồn thêm loại nguồn variables (ghim gồm ngày lấy và từng tệp với sha256, phích ở khoá plug, không cần catalog, không chờ giấy phép), lệnh variables-source viết dòng từ tệp đã nằm trong repo, --check thoát 1 và nêu dòng cùng tệp khi tệp khác ghim, --again ghim lại; tệp không phải JSON biến bị từ chối nên tệp .fig không được ghim (tiêu chí 13); cổng giữ hình dạng của dòng, không so ghim; sổ giới hạn mở mười một dòng; mỗi tiêu chí 10 đến 13 có bài kiểm thấy đỏ trước khi có mã; nhánh chưa đẩy, chưa mở PR, gộp là lời chủ repo; mục xong ngày 2026-11-28"
         },
         {
           "id": "13.4",

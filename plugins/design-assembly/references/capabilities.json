@@ -235,6 +235,13 @@
             "scripts/outside-variables.mjs"
           ],
           "reads": ["blueprint", "sources"]
+        },
+        {
+          "id": "variables-source",
+          "kind": "command",
+          "default": false,
+          "scripts": ["scripts/variables-source.mjs"],
+          "writes_through": "reference"
         }
       ],
       "layers": ["foundations"],

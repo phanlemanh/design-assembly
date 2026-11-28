@@ -498,6 +498,12 @@
       "templates": "ed8cd3537f0962d1d1fa45812e27b2fff160db02",
       "scripts": "528512ed6c172021833a482d63702f261fb190fa",
       "tool": "80ed15e5d52b6cd1682e5a299772586e0854ee35"
+    },
+    {
+      "version": "0.78.0",
+      "templates": "510ebdd18e043f7be18dc6dbc05fde1f1c180370",
+      "scripts": "7201e883246121290fb2b20e8620b9302e29bb17",
+      "tool": "acf1d7d66616bdd0c0c0ef6245546923d5a93f31"
     }
   ]
 }

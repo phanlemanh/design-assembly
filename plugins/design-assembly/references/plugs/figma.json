@@ -1,0 +1,22 @@
+{
+  "id": "figma",
+  "about": "A design tool that keeps a design system as variables, by collection and mode. A person brings the variables in as a file, which the bridge in reads into one candidate direction; its server in a session only tells the setup step that it is there, since it gives a flat map of one frame in one mode and is no way to bring a system in.",
+  "sockets": ["direction", "foundations"],
+  "names": ["Figma", "design-os-studio", "designos-fig", "PolyForm Shield"],
+  "mcp_servers": ["figma"],
+  "needs": ["account", "network", "machine"],
+  "sends": "The file key and node ids, to Figma under the person's account, when read through its MCP server; the file path sends nothing.",
+  "machine": "For the .fig path: the right to save the file to this machine (File > Save local copy, which the person's seat must allow), and a .fig reader the person runs themself, which leaves the file's variables as JSON. The reader that was tried is the designos-fig crate of design-os-studio (at a26f09a), under the PolyForm Shield 1.0.0 licence, which the person reads before running it; reading a .fig file decodes a format its maker does not publish, so a reader may break when the format changes. The plugin does not bundle, download, build or call any reader.",
+  "ways": [
+    {
+      "id": "saved-file",
+      "how": "In Figma, save the file to this machine (File > Save local copy), which gives a .fig file. Run a .fig reader yourself to export its variables as JSON in the shape of the REST endpoint for local variables (meta.variables and meta.variableCollections), and hand that JSON to bring-in. The .fig file stays on the machine: it never enters a repository.",
+      "reads": "variables"
+    },
+    {
+      "id": "own-export",
+      "how": "In Figma, export the variables with its own export, which gives a folder of .tokens.json files, one for each collection and mode.",
+      "not_read": "The bridge does not read that folder yet: it reads one file at a time and does not take the mode from the name the export gives it, so light and dark cannot be told apart there."
+    }
+  ]
+}
