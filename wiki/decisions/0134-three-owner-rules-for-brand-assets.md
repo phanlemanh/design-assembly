@@ -39,6 +39,8 @@ sources:
   - "chủ repo, 2026-11-28: «Lucide-react dùng đúng giấy phép của bộ ngoài»"
   - "chủ repo, 2026-11-28: «Mở lát 12.3», đáp câu «Anh cho mở lát 12.3 đưa ba lời của anh vào plugin chứ?»"
   - "chủ repo, 2026-11-28: «Gộp PR 170», đáp câu «Anh duyệt phần sửa đề bài 0017 và cho gộp PR 170 chứ?»"
+  - "chủ repo, 2026-11-28: «Duyệt bản quyết định 0134 và phần sửa đề bài 0017»"
+  - "chủ repo, 2026-11-28: «Phủ cả 18 điểm», đáp câu «Lời «Duyệt bản quyết định 0134» của anh có xác nhận cả 18 điểm ấy không?» về mười tám điểm máy tự chọn của quyết định 0134"
   - docs/trials/item-12-3-two-copies-run-again-on-0-79-0.md
 ---
 
@@ -46,12 +48,14 @@ sources:
 
 ## Status
 
-Proposed, 2026-11-28, plugin 0.79.0. Một lát của mục 12.3, mở theo lời chủ repo («Mở lát 12.3»). Nó **sửa đề bài đã
+Accepted, 2026-11-28, plugin 0.79.0. Một lát của mục 12.3, mở theo lời chủ repo («Mở lát 12.3»). Nó **sửa đề bài đã
 duyệt** [0017](../specs/0017-brand-assets-the-logo-and-the-icon-set.md) ở ba chỗ (mục «Hai loại nguồn mới», tiêu chí
-5, câu hỏi 6) và **đổi hợp đồng sổ**, nên cả hai chờ chủ repo duyệt. `ontology/` không đổi. Mục 12.3 chưa xong: dòng
+5, câu hỏi 6) và **đổi hợp đồng sổ**, nên cả hai cần chủ repo duyệt; anh đã duyệt cùng ngày, ghi ở hai đoạn dưới. `ontology/` không đổi. Mục 12.3 chưa xong: dòng
 «xong khi» thứ hai của giai đoạn 12 còn cần chạy lại trên hai bản sao của lượt đo, việc ấy không thuộc lát này.
 
-**Gộp ngày 2026-11-28:** PR 170 được gộp theo lời chủ repo «Gộp PR 170», đáp câu «Anh duyệt phần sửa đề bài 0017 và cho gộp PR 170 chứ?». Lời ấy phủ phần sửa đề bài 0017. Mười tám điểm ở mục «Điểm máy tự chọn» không được xác nhận từng điểm: chúng vẫn chờ anh xác nhận. Việc chạy lại hai bản sao đã làm cùng ngày, ghi ở [bản ghi](../../docs/trials/item-12-3-two-copies-run-again-on-0-79-0.md); nó không đóng mục 12.3.
+**Gộp ngày 2026-11-28:** PR 170 được gộp theo lời chủ repo «Gộp PR 170», đáp câu «Anh duyệt phần sửa đề bài 0017 và cho gộp PR 170 chứ?». Lời ấy phủ phần sửa đề bài 0017. Mười tám điểm ở mục «Điểm máy tự chọn» không được xác nhận từng điểm: lúc ấy chúng còn chờ anh xác nhận. Việc chạy lại hai bản sao đã làm cùng ngày, ghi ở [bản ghi](../../docs/trials/item-12-3-two-copies-run-again-on-0-79-0.md); nó không đóng mục 12.3.
+
+**Duyệt ngày 2026-11-28:** chủ repo duyệt bản quyết định này bằng lời «Duyệt bản quyết định 0134 và phần sửa đề bài 0017». Được hỏi «Lời «Duyệt bản quyết định 0134» của anh có xác nhận cả 18 điểm ấy không?», anh đáp «Phủ cả 18 điểm». Từ đó bản quyết định, phần đổi hợp đồng sổ và cả mười tám điểm ở mục «Điểm máy tự chọn» là điều chủ repo đã duyệt; không điểm nào còn chờ. Lời duyệt không đổi mã và không đóng mục 12.3.
 
 ## Context
 
@@ -120,7 +124,7 @@ logo mang từ ngoài vào; luật thứ ba phủ bộ biểu tượng là một
 - **Repo chưa có dòng nào của hai loại:** không thêm câu hỏi, không thêm tệp, cổng không đổi. Bài kiểm so với bản
   0.69.0 trên bốn loại repo vẫn xanh.
 
-### Đổi hợp đồng sổ, cần chủ repo duyệt
+### Đổi hợp đồng sổ, chủ repo đã duyệt ngày 2026-11-28
 
 Phiên bản sổ nguồn vẫn là 1: mọi thứ thêm vào đều không bắt buộc, dòng của sổ là hình dạng mở, và công cụ 0.78.0 đọc
 dòng mới là dòng đã giữ (có bài kiểm).
@@ -135,7 +139,7 @@ dòng mới là dòng đã giữ (có bài kiểm).
    chờ không phải một sổ của hợp đồng, nhưng tường đọc nó.
 5. **Tường `owner-calls`** đọc thêm dòng `icon-set`.
 
-### Điểm máy tự chọn, chờ chủ repo xác nhận từng điểm
+### Điểm máy tự chọn, chủ repo đã xác nhận cả mười tám điểm ngày 2026-11-28
 
 1. **«Dựng trong repo» nhận ra bằng gì:** dòng do `logo-source --package` viết, từ một thư mục của repo có tờ kê nêu
    phích nào dựng và mã băm khớp. `logo-source --file` và dòng `adopt` đề xuất là «mang từ ngoài vào». Một logo vẽ tay
