@@ -24,6 +24,7 @@ sources:
   - plugins/design-assembly/tests/test-bring-in.mjs
   - "chủ repo, 2026-11-26: «Ghi ba lỗ hổng vào parked, ghi cách thức để làm với figma sau đó lập cách thức và kế hoạch cho nó nối vào design assembly trình cho tôi»"
   - "chủ repo, 2026-11-26: «Duyệt cả bảy nhưng chọn đường file .fig», đáp câu «Anh duyệt đề bài 0018 theo khuyến nghị cả bảy câu?»"
+  - "chủ repo, 2026-11-28: «Mở 13 cạnh 12», đáp câu «Anh cho mở giai đoạn 13 chạy cạnh giai đoạn 12 chứ?»"
 ---
 
 # 0018 Figma ở ổ nền — biến của một tệp Figma thành hướng ứng viên, đọc từ tệp người mang tới
@@ -32,7 +33,8 @@ Máy viết ngày 2026-11-26 theo lời chủ repo («lập cách thức và k�
 sau lượt thử tay cùng ngày ([`docs/trials/figma-variables-hands-on.md`](../../docs/trials/figma-variables-hands-on.md)).
 **Chủ repo duyệt cùng ngày («Duyệt cả bảy nhưng chọn đường file .fig»):** sáu câu hỏi mở nhận theo khuyến nghị, câu 1
 chủ repo chọn khác khuyến nghị, lối tệp `.fig` đi trước. Lời đáp ghi dưới từng câu. Giai đoạn 13 vào
-`docs/plan/plan.json` cùng lời duyệt ấy. Chưa gì được dựng.
+`docs/plan/plan.json` cùng lời duyệt ấy. Lát 13.1 dựng sớm ngày 2026-11-26 (PR 165). **Giai đoạn 13 mở chạy cạnh giai
+đoạn 12 ngày 2026-11-28, theo lời chủ repo («Mở 13 cạnh 12»);** câu hỏi 3 ghi điều lời ấy mở.
 
 ## Intent
 
@@ -192,6 +194,11 @@ khuyến nghị, sáu câu còn lại nhận theo khuyến nghị.
    đang thêm loại nguồn.
    Đã nhận: giai đoạn 13 đứng sau giai đoạn 12. Giai đoạn 7 đã đóng ngày 2026-11-26, nên lát 13.1 làm được khi chủ repo
    mở nó; việc mở một lát trong lúc giai đoạn 12 còn mở là một thay đổi của kế hoạch, theo lời chủ repo.
+   Ngày 2026-11-28 chủ repo mở cả giai đoạn chạy cạnh giai đoạn 12 («Mở 13 cạnh 12»): giai đoạn 12 nêu giai đoạn 13
+   trong `parallel` và vẫn là giai đoạn hiện hành; mục 13.0 và 13.1 thành xong; 13.2, 13.3 và 13.4 làm được, mỗi lát vẫn
+   một PR gộp theo lời chủ repo, và lượt đo của 13.4 vẫn hỏi trước. Căn cứ đã báo chủ repo: hai loại nguồn của giai đoạn
+   12 đã vào hợp đồng sổ ở mục 12.1 và 12.2, nên lý do xếp 13.3 sau giai đoạn 12 không còn; mục 12.3 còn lại chỉ chờ lời
+   chủ repo. Lát 13.3 dựng sau khi nhánh đo của mục 12.3 gộp, vì hai bên cùng sửa sổ giới hạn và sổ kế hoạch.
 4. **Bản xuất biến có được giữ trong repo không?** Khuyến nghị: có, dưới sổ nguồn, có ghim. Căn cứ: thước 1 đòi đầu ra
    giữ được và kiểm được bằng lệnh, và lượt đo Mobbin thua ở đúng chỗ này. Từ chối thì cầu vẫn chạy, nhưng không gì nói
    được tệp đã đổi.
