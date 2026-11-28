@@ -38,6 +38,8 @@ sources:
   - "chủ repo, 2026-11-28: «Tôi nghĩ đơn giản hoá và ứng xử như code được tạo ra đi như một tài sản số tương tự dòng code»"
   - "chủ repo, 2026-11-28: «Lucide-react dùng đúng giấy phép của bộ ngoài»"
   - "chủ repo, 2026-11-28: «Mở lát 12.3», đáp câu «Anh cho mở lát 12.3 đưa ba lời của anh vào plugin chứ?»"
+  - "chủ repo, 2026-11-28: «Gộp PR 170», đáp câu «Anh duyệt phần sửa đề bài 0017 và cho gộp PR 170 chứ?»"
+  - docs/trials/item-12-3-two-copies-run-again-on-0-79-0.md
 ---
 
 # 0134 Ba lời của chủ repo về tài sản thương hiệu
@@ -48,6 +50,8 @@ Proposed, 2026-11-28, plugin 0.79.0. Một lát của mục 12.3, mở theo lờ
 duyệt** [0017](../specs/0017-brand-assets-the-logo-and-the-icon-set.md) ở ba chỗ (mục «Hai loại nguồn mới», tiêu chí
 5, câu hỏi 6) và **đổi hợp đồng sổ**, nên cả hai chờ chủ repo duyệt. `ontology/` không đổi. Mục 12.3 chưa xong: dòng
 «xong khi» thứ hai của giai đoạn 12 còn cần chạy lại trên hai bản sao của lượt đo, việc ấy không thuộc lát này.
+
+**Gộp ngày 2026-11-28:** PR 170 được gộp theo lời chủ repo «Gộp PR 170», đáp câu «Anh duyệt phần sửa đề bài 0017 và cho gộp PR 170 chứ?». Lời ấy phủ phần sửa đề bài 0017. Mười tám điểm ở mục «Điểm máy tự chọn» không được xác nhận từng điểm: chúng vẫn chờ anh xác nhận. Việc chạy lại hai bản sao đã làm cùng ngày, ghi ở [bản ghi](../../docs/trials/item-12-3-two-copies-run-again-on-0-79-0.md); nó không đóng mục 12.3.
 
 ## Context
 

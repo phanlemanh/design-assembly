@@ -6951,7 +6951,7 @@
       "opened": "2026-11-27",
       "where": ["d0131", "trials", "d0134"],
       "status": "open",
-      "note": "The command decide --ask on an owner's item (logo:<id>, and since d0134 icon-set:<id>, which icon-source also asks) says the gate is red until the owner answers, but the wall owner-calls holds a branch only: on the main branch, or a repository with no other branch, the gate stays green with the question open. icon-source says it of a branch that adds the row; decide --ask still says it of the gate."
+      "note": "The command decide --ask on an owner's item (logo:<id>, and since d0134 icon-set:<id>, which icon-source also asks) says the gate is red until the owner answers, but the wall owner-calls holds a branch only: on the main branch, or a repository with no other branch, the gate stays green with the question open. icon-source says it of a branch that adds the row; decide --ask still says it of the gate. On the main branch the wall does compare work not yet committed with the last commit: a new icon set row is held there until the owner keeps it or the row is committed, as the re-run of the two measured copies of item 12.3 saw; it is the committed main branch that is compared with nothing."
     },
     {
       "id": "status-next-names-new-for-a-licence",
@@ -7250,9 +7250,9 @@
       "severity": "medium",
       "plan": "keep",
       "opened": "2026-11-28",
-      "where": ["spec", "d0134"],
+      "where": ["spec", "d0134", "trials"],
       "status": "open",
-      "note": "The wall owner-calls holds a new icon set row only where it compares a branch with the main one. On the branch where a repository meets the plugin (its main branch has no decision ledger yet), on the main branch itself, and outside git, it compares nothing: the question icon-source wrote waits on the decision sheet and status ends with 1, but the gate is green and a builder that does not stop is not stopped. A repository born through the guide in one sitting is such a branch."
+      "note": "The wall owner-calls holds a new icon set row only where it compares a branch with the main one. On the branch where a repository meets the plugin (its main branch has no decision ledger yet), on the main branch itself, and outside git, it compares nothing: the question icon-source wrote waits on the decision sheet and status ends with 1, but the gate is green and a builder that does not stop is not stopped. A repository born through the guide in one sitting is such a branch. On the main branch the wall does compare work not yet committed with the last commit: a new icon set row is held there until the owner keeps it or the row is committed, as the re-run of the two measured copies of item 12.3 saw; it is the committed main branch that is compared with nothing."
     },
     {
       "id": "icon-set-row-proposed-by-adopt-asks-no-owner",
@@ -7385,6 +7385,50 @@
       "where": ["spec", "d0134"],
       "status": "open",
       "note": "The row of an icon package that a command wrote with no licence, by a plugin before 0.79.0 or while the package was not installed, keeps waiting on a person's sentence though the package declares a licence: a row is never written over, status still says no tool writes the licence, and nothing reads the package again for it. A person writes the licence, or takes the row away and runs icon-source again, which reads the package and also asks the owner which set the product takes."
+    },
+    {
+      "id": "upgrade-stops-on-an-icon-set-row-added-before-the-rule",
+      "area": "upgrade",
+      "kind": "conflict",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["trials"],
+      "status": "open",
+      "note": "A repository whose work in progress, not yet committed or on a branch, added an icon set row before the set became the owner's call cannot take the newer tool without a person accepting a red gate. Upgrade stops because the newer wall holds the row; the older tool refuses to queue the owner's question (decide --ask --item icon-set:<id> and icon-source both name upgrade first); and taking the row away first leaves the gate red another way, since the icons decision points at the row and the exports are stale. The one way through is upgrade --accept-red-gate, then the question. Upgrade's message names the flag, and does not say that the question can only be asked afterwards. Upgrade keeps no record of who accepted the red gate. Seen on the re-run of the two measured copies of item 12.3."
+    },
+    {
+      "id": "source-row-written-again-loses-what-a-person-put-in-it",
+      "area": "status",
+      "kind": "no-check",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["trials"],
+      "status": "open",
+      "note": "Taking a row of the sources ledger away so that a command writes it again, the way d0134 gives for an icon set row written before the rule, has no command: a person deletes the file. Between the two steps the gate is red (the icons decision points at a row that is gone, and the exports are stale), the row written again holds nothing a person had put into the old one (the icon sizes the owner answered are copied in by hand a second time), and the exports are written again before the gate is green. Seen on the re-run of the two measured copies of item 12.3."
+    },
+    {
+      "id": "queued-licence-question-outlives-the-rule",
+      "area": "decide",
+      "kind": "wrong-signal",
+      "severity": "medium",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["trials"],
+      "status": "open",
+      "note": "A question about a licence that an agent queued with decide --ask before the rules of d0134 keeps waiting after the row carries its licence by rule: the decision sheet still lists it, and status ends with 1 and names decide next, though no sentence of a person is waited for, and a sentence written into the row would stand against licence_from. No command withdraws a queued question whose ground is gone, and nothing ties a free question to the row it asks about. Seen on one of the two measured copies of item 12.3; with that file moved aside on a throwaway copy, status ends with 0."
+    },
+    {
+      "id": "kept-icon-set-not-said-by-the-gate-or-status",
+      "area": "status",
+      "kind": "wrong-signal",
+      "severity": "low",
+      "plan": "keep",
+      "opened": "2026-11-28",
+      "where": ["trials"],
+      "status": "open",
+      "note": "When the owner keeps an icon set, the gate's owner-calls line and the lines of status and of the decision sheet about what was chosen name the mark only: none says which icon set was kept, by whom, on which day. The row still says a command proposed it and names no person, and icon-source cannot be run again to say who chose, since the row is there and the command ends with 2. The answer is found only in the file of the waiting list. Seen on the re-run of the two measured copies of item 12.3."
     }
   ]
 }

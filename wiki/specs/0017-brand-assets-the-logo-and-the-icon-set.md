@@ -37,6 +37,7 @@ sources:
   - "chủ repo, 2026-11-25: «Soạn đề bài»"
   - "chủ repo, 2026-11-25: «gộp», lời cho gộp PR 145 mang đề bài khi còn chờ duyệt"
   - "chủ repo, 2026-11-25: «Duyệt cả mười hai», đáp câu «Duyệt đề bài 0017 theo khuyến nghị cả mười hai câu?»"
+  - "chủ repo, 2026-11-28: «Gộp PR 170», đáp câu «Anh duyệt phần sửa đề bài 0017 và cho gộp PR 170 chứ?»"
   - "chủ repo, 2026-11-28: «Đồng ý theo lời khuyên», đáp câu «việc vẽ biểu tượng còn thiếu nên làm bằng skill riêng (tôi khuyên) hay gộp vào `logo-design`?»; lời khuyên ấy có điểm: trong mục 12.3, khi `icon-source` ghi một bộ chủ repo chưa chọn thì xếp một câu hỏi lên hàng chờ"
   - "chủ repo, 2026-11-28, sau khi phiên đo giải thích «quyền dùng logo là gì»: «Đây là giai đoạn tạo ra logo, giống như code việc quyết định nó thuộc về người dùng, nếu trong truòng hợp nằm ở repo thì bản quyền thuộc về repo và người tạo.»"
   - "chủ repo, 2026-11-28: «Tôi nghĩ đơn giản hoá và ứng xử như code được tạo ra đi như một tài sản số tương tự dòng code», đáp câu hỏi đó là luật cho plugin hay lời đáp riêng cho một logo"
@@ -113,9 +114,11 @@ nên không cứng về màu thương hiệu hay thành phần. Vì thế đề 
 4. **Dấu mới chờ lời chủ repo,** như màu thương hiệu. Máy dừng, không dựng tiếp trên một dấu chưa ai chốt.
 5. **Plugin không nêu tên thương hiệu nào.** Tên, dấu, bảng màu là dữ liệu của người dùng, nằm trong repo của họ.
 
-### Sửa đổi ngày 2026-11-28, chờ chủ repo duyệt
+### Sửa đổi ngày 2026-11-28, chủ repo duyệt cùng ngày
 
-Phần này sửa một đề bài đã duyệt, nên **chưa có hiệu lực của một đề bài đã duyệt cho tới khi chủ repo duyệt nó**. Nó
+**Chủ repo đã duyệt phần sửa này ngày 2026-11-28:** PR 170 được gộp theo lời anh «Gộp PR 170», đáp câu «Anh duyệt phần sửa đề bài 0017 và cho gộp PR 170 chứ?». Lời ấy phủ phần sửa đề bài; từ đó phần sửa có hiệu lực của một đề bài đã duyệt. Mười tám điểm máy tự chọn của [0134](../decisions/0134-three-owner-rules-for-brand-assets.md) không được xác nhận từng điểm, nên vẫn chờ anh xác nhận.
+
+Phần này sửa một đề bài đã duyệt, nên lúc viết nó chưa có hiệu lực cho tới khi chủ repo duyệt. Nó
 đưa ba lời của chủ repo ngày 2026-11-28 vào đề bài; máy viết theo lời «Mở lát 12.3» (đáp câu «Anh cho mở lát 12.3 đưa
 ba lời của anh vào plugin chứ?»). Cách dựng và từng điểm máy tự chọn ghi ở
 [0134](../decisions/0134-three-owner-rules-for-brand-assets.md). Ba chỗ của đề bài bị sửa được đánh dấu «Sửa
@@ -159,7 +162,7 @@ Cả hai đòi hai điều như font: **ghim** nằm ngay trong dòng, và **gi�
 quyền dùng dấu này, và dùng được ở đâu). Dòng do một lệnh viết ghi `proposed` và chưa được giữ cho tới khi người viết
 giấy phép. Một dòng `logo` có thể ghi thêm ai dựng nó (tay người, hay phích nào, ngày nào).
 
-> **Sửa 2026-11-28, chờ chủ repo duyệt.** Giấy phép không còn luôn là câu của một người; hai trường hợp có luật:
+> **Sửa 2026-11-28, chủ repo duyệt cùng ngày («Gộp PR 170»).** Giấy phép không còn luôn là câu của một người; hai trường hợp có luật:
 >
 > - **Logo dựng trong repo** (dòng viết từ gói có tờ kê do phích để lại): là tài sản số của repo như dòng code, theo
 >   lời chủ repo «Tôi nghĩ đơn giản hoá và ứng xử như code được tạo ra đi như một tài sản số tương tự dòng code». Lệnh
@@ -250,7 +253,7 @@ Mỗi dòng chứng bằng một lệnh hay một bản ghi lượt thử.
    kê, hay có tệp lệch mã băm đã kê, bị từ chối bằng một câu nêu tệp. Lệnh không vẽ, không đổi tệp nào, không ghi đè.
 5. **Dòng do lệnh viết chưa được giữ** cho tới khi người viết giấy phép. `status` nêu câu ấy là bước kế, và không bao
    giờ điền thay.
-   **Sửa 2026-11-28, chờ chủ repo duyệt:** tiêu chí này nay chỉ áp cho thứ mang từ ngoài vào mà không có luật: font,
+   **Sửa 2026-11-28, chủ repo duyệt cùng ngày («Gộp PR 170»):** tiêu chí này nay chỉ áp cho thứ mang từ ngoài vào mà không có luật: font,
    logo từ tệp đã có hay do `adopt` đề xuất, bộ biểu tượng là tệp của repo, và gói không khai giấy phép hay chưa cài.
    Dòng `logo` viết từ gói của phích mang giấy phép của luật «tài sản của repo như code» và được giữ ngay; dòng
    `icon-set` của một gói ngoài mang giấy phép gói đã cài tự khai. Cả hai nói trong dòng giấy phép đến từ đâu
@@ -392,7 +395,7 @@ Mỗi câu kèm một khuyến nghị. Chủ repo nhận cả mười hai ngày 
 6. **Quyền dùng một dấu ghi ở khoá `licence`, như font?** Khuyến nghị: có. Một khoá, một nghĩa: điều kiện được dùng,
    bằng lời người. Từ chối thì thêm một khoá riêng cho dấu, và hai loại dòng nói cùng một điều bằng hai tên.
    Đã nhận: quyền dùng một dấu ghi ở khoá `licence`, như font.
-   **Sửa 2026-11-28, chờ chủ repo duyệt:** khoá `licence` vẫn là một khoá, một nghĩa. Điều đổi là ai viết nó: với logo
+   **Sửa 2026-11-28, chủ repo duyệt cùng ngày («Gộp PR 170»):** khoá `licence` vẫn là một khoá, một nghĩa. Điều đổi là ai viết nó: với logo
    dựng trong repo, lệnh viết theo luật của chủ repo («Đây là giai đoạn tạo ra logo, giống như code việc quyết định nó
    thuộc về người dùng, nếu trong truòng hợp nằm ở repo thì bản quyền thuộc về repo và người tạo.»), và khoá mới
    `licence_from` nói giấy phép đến từ luật chứ không từ một câu của người; với bộ biểu tượng là gói ngoài, lệnh chép
